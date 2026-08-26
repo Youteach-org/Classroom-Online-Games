@@ -56,7 +56,7 @@
       const card=document.createElement('div');card.className='story-frame';card.style.setProperty('--frame-bg',`url("${asset(s.id,i+1)}")`);
       const speech=(i===2)?`<div id="frameSpeech" class="speech ${s.nativeBubble?'native-bubble ':''}empty">${state.selectedExpression?escapeHtml(state.selectedExpression):''}</div>`:'';
       const targetBadge=(i===2 && s.showTargetBadge!==false)?`<div class="target-badge ${escapeHtml(s.targetBadgePos||'center')}">${escapeHtml(s.targetName)}</div>`:'';
-      card.innerHTML=`<div class="story-visual" style="--scene-image:url(&quot;${asset(s.id,i+1)}&quot;)"><img class="story-image" src="${asset(s.id,i+1)}" alt="Story ${s.id}, scene ${i+1}"><div class="frame-num">${i+1}</div>${targetBadge}${speech}</div><div class="caption">${escapeHtml(caption)}</div>${i<2?'<div class="story-arrow">➜</div>':''}`;
+      card.innerHTML=`<div class="story-visual" style="--scene-image:url(&quot;${asset(s.id,i+1)}&quot;)"><img class="story-image" src="${asset(s.id,i+1)}" alt="Story ${s.id}, scene ${i+1}"><div class="frame-num">${i+1}</div>${speech}</div>${targetBadge}<div class="caption">${escapeHtml(caption)}</div>${i<2?'<div class="story-arrow">➜</div>':''}`;
       el.frames.appendChild(card);
     });
     el.feelingTitle.textContent=`What is ${s.targetName} feeling?`;

@@ -228,3 +228,359 @@
         padding: 12px 16px;
     }
 }
+
+/* v15 — full viewport, filled scenes, visible names and mobile layout */
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    background: #07164a;
+}
+
+body {
+    overflow: hidden;
+}
+
+.game {
+    width: 100vw;
+    min-height: 100dvh;
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+    background: #07164a;
+}
+
+.game-shell {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    aspect-ratio: auto;
+    border-radius: 0;
+}
+
+/* Eliminar las franjas internas */
+
+.story-visual {
+    flex: 1 1 auto;
+    min-height: 0;
+    background: #102451;
+}
+
+.story-visual::before,
+.story-visual::after {
+    display: none;
+}
+
+/* Llenar el espacio sin bandas superiores o inferiores */
+
+.story-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 42%;
+    background: #102451;
+}
+
+/* Ajuste focal según la escena */
+
+.story-frame.frame-1 .story-image {
+    object-position: 50% 45%;
+}
+
+.story-frame.frame-2 .story-image {
+    object-position: 50% 44%;
+}
+
+.story-frame.frame-3 .story-image {
+    object-position: 50% 40%;
+}
+
+/* Nombre separado del globo */
+
+.story-frame > .target-badge,
+.story-frame > .target-badge.right,
+.story-frame > .target-badge.center {
+    position: relative;
+    inset: auto;
+    left: auto;
+    right: auto;
+    top: auto;
+    transform: none;
+    z-index: 8;
+    display: block;
+    align-self: stretch;
+    flex: 0 0 auto;
+    margin: 0 2.2%;
+    padding: 7px 12px;
+    border-radius: 0 0 13px 13px;
+    text-align: center;
+    font: 1000 clamp(12px, min(1.25vw, 1.9vh), 19px)/1 Arial, sans-serif;
+    letter-spacing: .035em;
+    box-shadow: 0 3px 0 #7b5300;
+}
+
+.story-frame > .target-badge + .caption {
+    margin-top: 7px;
+}
+
+/* Narración compacta */
+
+.story-frame .caption {
+    flex: 0 0 auto;
+    min-height: clamp(58px, 8.5vh, 84px);
+    max-height: 20%;
+    margin: 2%;
+    padding: 2% 3.5%;
+}
+
+/* El globo permanece dentro de la imagen */
+
+.story-visual .speech {
+    z-index: 9;
+    top: 3%;
+    right: 3%;
+    max-height: 34%;
+    overflow: hidden;
+}
+
+.story-arrow {
+    top: 41%;
+}
+
+/* TABLETAS Y MÓVILES */
+
+@media (max-width: 900px) {
+    body {
+        overflow: auto;
+        background: #07164a;
+    }
+
+    .game {
+        width: 100%;
+        min-height: 100dvh;
+        height: auto;
+        overflow: visible;
+        padding: 0;
+    }
+
+    .game-shell {
+        width: 100%;
+        height: auto;
+        min-height: 100dvh;
+        max-width: none;
+        overflow: visible;
+        border-radius: 0;
+    }
+
+    .topbar {
+        height: auto;
+        min-height: 0;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+        padding: 9px;
+    }
+
+    .brand {
+        grid-column: 1 / -1;
+    }
+
+    .hud-meter {
+        grid-column: 1 / -1;
+        min-height: 68px;
+    }
+
+    .hud-stat {
+        min-height: 58px;
+    }
+
+    .main-grid {
+        height: auto;
+        grid-template-columns: 1fr;
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .story-panel {
+        min-height: 0;
+        height: auto;
+    }
+
+    .story-heading {
+        height: 58px;
+    }
+
+    .story-frames {
+        height: auto;
+        min-height: 0;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 10px;
+    }
+
+    .story-frame {
+        width: min(560px, 100%);
+        height: auto;
+        min-height: 0;
+        margin: auto;
+    }
+
+    .story-visual {
+        flex: none;
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        aspect-ratio: 4 / 3;
+    }
+
+    .story-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 50% 42%;
+    }
+
+    .story-frame > .target-badge {
+        margin: 0 8px;
+        padding: 8px 12px;
+        font-size: 15px;
+    }
+
+    .story-frame .caption {
+        min-height: 68px;
+        max-height: none;
+        margin: 8px;
+        padding: 12px 15px;
+        font-size: clamp(15px, 4.4vw, 20px);
+    }
+
+    .story-arrow {
+        display: none;
+    }
+
+    .choice-panel {
+        margin-top: 0;
+        padding: 10px;
+    }
+
+    .choice-tools {
+        min-height: 44px;
+    }
+
+    .feelings {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .feelings button {
+        min-width: 0;
+    }
+
+    .expressions {
+        grid-template-rows: none;
+    }
+
+    .expressions button {
+        min-height: 58px;
+        font-size: 15px;
+    }
+
+    .bottombar {
+        height: auto;
+        min-height: 92px;
+        padding: 10px;
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .submit-btn,
+    .next-btn {
+        grid-column: 1;
+        width: min(94%, 560px);
+        max-width: 94%;
+        white-space: normal;
+    }
+
+    .coach-toggle {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
+}
+
+/* TELÉFONOS PEQUEÑOS */
+
+@media (max-width: 520px) {
+    .brand-title {
+        font-size: clamp(24px, 9vw, 38px);
+    }
+
+    .brand-sub {
+        font-size: 12px;
+    }
+
+    .hud-meter {
+        padding: 7px;
+    }
+
+    .hud-stat strong {
+        font-size: 20px;
+    }
+
+    .story-tab {
+        font-size: clamp(22px, 8vw, 34px);
+    }
+
+    .watch-text {
+        font-size: clamp(15px, 5vw, 22px);
+    }
+
+    .choice-title {
+        font-size: clamp(18px, 5.6vw, 25px);
+    }
+
+    .feelings button {
+        min-height: 88px;
+        font-size: 12px;
+    }
+
+    .feel-emoji {
+        font-size: 34px;
+    }
+
+    .feedback {
+        left: 4px;
+        right: 4px;
+        bottom: 4px;
+        max-width: calc(100vw - 8px);
+    }
+}
+
+/* MÓVILES EN POSICIÓN HORIZONTAL */
+
+@media (max-height: 560px) and (orientation: landscape) {
+    body {
+        overflow: auto;
+    }
+
+    .game,
+    .game-shell {
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+    }
+
+    .topbar {
+        min-height: 90px;
+    }
+
+    .main-grid {
+        height: auto;
+        min-height: 520px;
+    }
+
+    .bottombar {
+        min-height: 78px;
+    }
+}
