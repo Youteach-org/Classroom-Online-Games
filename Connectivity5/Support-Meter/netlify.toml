@@ -1,0 +1,4 @@
+[[redirects]]
+from = "/teacher"
+to = "/teacher.html"
+status = 200
