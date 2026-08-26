@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div class="version-tag" aria-label="Version 12">v12</div>
+<div class="version-tag" aria-label="Version 13">v13</div>
 <div id="startScreen" class="start-screen">
   <div class="start-card">
     <div class="start-logo"><span class="speech-logo" aria-hidden="true"><svg viewBox="0 0 64 56" role="img" focusable="false"><path d="M8 5h48a6 6 0 0 1 6 6v28a6 6 0 0 1-6 6H31L20 53l2-8H8a6 6 0 0 1-6-6V11a6 6 0 0 1 6-6Z" fill="#f5f4ff" stroke="#76cfff" stroke-width="3"/><circle cx="22" cy="25" r="4" fill="#7158d9"/><circle cx="32" cy="25" r="4" fill="#7158d9"/><circle cx="42" cy="25" r="4" fill="#7158d9"/></svg></span><strong>SUPPORT <em>METER</em></strong></div>
@@ -29,7 +29,7 @@
       </div>
       <div class="hud-meter">
         <div class="hud-label">Support Meter</div>
-        <div class="meter-row"><div class="meter-track"><div id="meterFill" class="meter-fill"></div></div><div id="meterValue" class="meter-value">55%</div></div>
+        <div class="meter-row"><div class="meter-track"><div id="meterFill" class="meter-fill"></div></div><div id="meterValue" class="meter-value">55%</div><span class="meter-star" aria-hidden="true">★</span></div>
       </div>
       <div class="hud-stat"><span>Score</span><strong id="scoreValue">0</strong></div>
       <div class="hud-stat"><span>Streak</span><strong><i>🔥</i> <b id="streakValue">0</b></strong></div>
@@ -43,6 +43,9 @@
       </section>
 
       <aside class="choice-panel">
+        <div class="choice-tools">
+          <button id="coachToggle" class="coach-toggle" type="button" aria-pressed="true"><span class="coach-label">Coach</span><span class="coach-switch"><b id="coachToggleState">ON</b><i class="coach-knob" aria-hidden="true"></i></span></button>
+        </div>
         <div class="choice-title" id="feelingTitle">What is the feeling?</div>
         <div id="feelings" class="feelings">
           <button type="button" data-feeling="Frustration"><span class="feel-emoji">😠</span><span>Frustration</span></button>
@@ -55,7 +58,6 @@
     </div>
 
     <div class="bottombar">
-        <button id="coachToggle" class="coach-toggle" type="button" aria-pressed="true"><span class="coach-label">Coach</span><span class="coach-switch"><b id="coachToggleState">ON</b><i class="coach-knob" aria-hidden="true"></i></span></button>
       <button id="submitBtn" class="submit-btn" type="button">Submit Answer <span>❯</span></button>
       <button id="nextBtn" class="next-btn hidden" type="button">Next Story <span>❯</span></button>
     </div>
