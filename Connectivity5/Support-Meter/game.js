@@ -12,7 +12,7 @@
   const expressionCategory={"I'm at my wits' end.":'Frustration',"I've had it.":'Frustration','I give up.':'Frustration','That must be tough.':'Empathy','I hear you.':'Empathy','Hang in there.':'Encouragement',"Don't give up.":'Encouragement','Stick with it.':'Encouragement'};
   const frustrationExpressions=allExpressions.filter(x=>expressionCategory[x]==='Frustration');
   const supportDistractors=['That must be tough.','I hear you.','Hang in there.'];
-  const make=(setId,id,name,targetName,targetPronoun,feeling,expression,frames,speechPosition)=>{const distractors=expressionCategory[expression]==='Frustration'?supportDistractors:frustrationExpressions;return {setId,id,name,targetName,targetPronoun,feeling,expression,frames,speechPosition,options:[expression,...distractors]};};
+  const make=(setId,id,name,targetName,targetPronoun,feeling,expression,frames,speechPosition)=>{const distractors=expressionCategory[expression]==='Frustration'?supportDistractors:frustrationExpressions;const choices=[expression,...distractors],shift=(setId+id)%choices.length,options=[...choices.slice(shift),...choices.slice(0,shift)];return {setId,id,name,targetName,targetPronoun,feeling,expression,frames,speechPosition,options};};
   const storySets = [
     [
       make(1,1,"Maya's Science Project",'Maya','she','Frustration',"I'm at my wits' end.",['Maya finishes her science project.','She tries the experiment again.','Nothing works after several attempts.'],'bottom-right'),
@@ -45,10 +45,11 @@
       make(3,8,"Sofia's Community Garden",'Leo','he','Encouragement','Stick with it.',['Sofia plants a community garden.','Bad weather damages the young plants.','Leo joins Sofia in the garden.'],'bottom-left')
     ]
   ];
-  function chooseSet(storage,random=Math.random){let used=[];try{used=JSON.parse(storage.getItem('support-meter-played-sets-v16')||'[]');}catch{}if(!Array.isArray(used)||used.length>=3)used=[];const available=[1,2,3].filter(x=>!used.includes(x));const selected=available[Math.floor(random()*available.length)];storage.setItem('support-meter-played-sets-v16',JSON.stringify([...used,selected]));return selected;}
-  function shuffleStories(items,random=Math.random){const result=[...items];for(let i=result.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result;}
-  const selectedSet=chooseSet(localStorage);
-  const stories=shuffleStories(storySets[selectedSet-1]);
+  function selectDailySet(now=Date.now()){return (Math.floor(now/86400000)%3)+1;}
+  function orderedStories(items){return [...items].sort((a,b)=>a.id-b.id);}
+  function encodeStory(setId,storyId){return setId*10+storyId;}
+  const selectedSet=selectDailySet();
+  const stories=orderedStories(storySets[selectedSet-1]);
 
   const feelingHints = {
     Frustration:['Frustration describes the person who is fed up or upset because something is not working.','Look for the person who wants to stop because repeated attempts have failed.'],
@@ -114,7 +115,6 @@
     el.coachImage.alt=kind==='correct'?'Support Meter coach celebrating a correct answer':'Support Meter coach giving a correction';
     el.feedbackTitle.textContent=title;el.feedbackText.textContent=text;
     setCoachVisible();
-    if(matchMedia('(max-width:900px)').matches)scrollTo({top:0,behavior:'smooth'});
   }
   function choiceWhy(expression){return expressionMeaning[expression]||'Think about who is speaking and what the phrase normally does in a conversation.';}
   function wrongFeedback(feelingCorrect,expressionCorrect){
@@ -136,11 +136,11 @@
   async function createSession(){
     state.studentName=(el.name.value.trim()||'Student').slice(0,60);state.classCode=(el.code.value.trim()||cfg.defaultClassCode||'CONNECT5').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,40);
     if(!sb)return true;
-    const {data,error}=await sb.from('support_meter_sessions').insert({student_name:state.studentName,class_code:state.classCode,current_story:1,current_frame:3,phase:'story',last_action:'Started Support Meter',support_meter:state.meter,score:state.score,streak:state.streak,status:'online',attempt_in_progress:1}).select('id').single();
+    const {data,error}=await sb.from('support_meter_sessions').insert({student_name:state.studentName,class_code:state.classCode,current_story:encodeStory(selectedSet,story().id),current_frame:3,phase:'story',last_action:'Started Support Meter',support_meter:state.meter,score:state.score,streak:state.streak,status:'online',attempt_in_progress:1}).select('id').single();
     if(error){el.startError.textContent='Could not connect to the class monitor. Please try again.';el.startError.classList.remove('hidden');return false;}state.sessionId=data.id;return true;
   }
-  async function live(last_action,phase){if(!sb||!state.sessionId)return;await sb.from('support_meter_sessions').update({current_story:story().id,current_frame:3,phase,last_action,live_expression:state.selectedExpression,live_feeling:state.selectedFeeling,attempt_in_progress:state.attempt,support_meter:state.meter,score:state.score,streak:state.streak,last_seen:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',state.sessionId);}
-  async function log(feelingCorrect,expressionCorrect,resolved){if(!sb||!state.sessionId)return;await sb.from('support_meter_responses').insert({session_id:state.sessionId,class_code:state.classCode,story_id:story().id,story_title:story().name,attempt:state.attempt,selected_expression:state.selectedExpression||'',selected_feeling:state.selectedFeeling||'',expression_correct:expressionCorrect,feeling_correct:feelingCorrect,resolved});}
+  async function live(last_action,phase){if(!sb||!state.sessionId)return;await sb.from('support_meter_sessions').update({current_story:encodeStory(selectedSet,story().id),current_frame:3,phase,last_action,live_expression:state.selectedExpression,live_feeling:state.selectedFeeling,attempt_in_progress:state.attempt,support_meter:state.meter,score:state.score,streak:state.streak,last_seen:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',state.sessionId);}
+  async function log(feelingCorrect,expressionCorrect,resolved){if(!sb||!state.sessionId)return;await sb.from('support_meter_responses').insert({session_id:state.sessionId,class_code:state.classCode,story_id:encodeStory(selectedSet,story().id),story_title:story().name,attempt:state.attempt,selected_expression:state.selectedExpression||'',selected_feeling:state.selectedFeeling||'',expression_correct:expressionCorrect,feeling_correct:feelingCorrect,resolved});}
 
   async function submit(){
     if(!state.selectedFeeling||!state.selectedExpression){showFeedback('wrong','Choose both first','Select the feeling and the expression before you submit.');return;}
