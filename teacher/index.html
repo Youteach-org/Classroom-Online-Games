@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Teacher Monitors</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#071426,#0d2d55);color:#fff;display:flex;align-items:center;justify-content:center;padding:32px}
+    .wrap{width:min(1000px,100%)}
+    h1{font-size:42px;margin:0 0 10px}
+    .sub{opacity:.8;font-size:18px;margin-bottom:34px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+    .card{background:#fff;color:#10213a;border-radius:22px;padding:26px;text-decoration:none;box-shadow:0 18px 50px rgba(0,0,0,.28);transition:.18s ease;border:3px solid transparent}
+    .card:hover{transform:translateY(-4px);border-color:#38bdf8}
+    .tag{display:inline-block;background:#38bdf8;color:#071426;font-weight:700;padding:6px 10px;border-radius:999px;font-size:13px;margin-bottom:14px}
+    .card h2{margin:0 0 10px;font-size:28px}
+    .card p{margin:0;color:#526078;line-height:1.5}
+    .open{display:inline-block;margin-top:20px;font-weight:700;color:#315ad8}
+    .back{display:inline-block;margin-top:30px;color:#dbeafe;text-decoration:none;font-weight:700}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Teacher Monitors</h1>
+    <div class="sub">Elige el juego que deseas supervisar.</div>
+    <section class="grid">
+      <a class="card" href="/Connectivity5/OSASCOMP/teacher/">
+        <span class="tag">Connectivity 5</span>
+        <h2>OSASCOMP Monitor</h2>
+        <p>Observa en vivo el acomodo, progreso, respuestas y patrones de error de cada alumno.</p>
+        <span class="open">Open monitor →</span>
+      </a>
+      <a class="card" href="/Connectivity5/Support-Meter/teacher/">
+        <span class="tag">Connectivity 5</span>
+        <h2>Support Meter Monitor</h2>
+        <p>Supervisa el avance y las respuestas de los alumnos en las historias de Support Meter.</p>
+        <span class="open">Open monitor →</span>
+      </a>
+    </section>
+    <a class="back" href="/">← Volver a los juegos</a>
+  </main>
+</body>
+</html>
