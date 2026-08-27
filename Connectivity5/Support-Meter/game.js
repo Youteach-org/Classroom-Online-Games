@@ -45,11 +45,11 @@
       make(3,8,"Sofia's Community Garden",'Leo','he','Encouragement','Stick with it.',['Sofia plants a community garden.','Bad weather damages the young plants.','Leo joins Sofia in the garden.'],'bottom-left')
     ]
   ];
-  function selectDailySet(now=Date.now()){return (Math.floor(now/86400000)%3)+1;}
-  function orderedStories(items){return [...items].sort((a,b)=>a.id-b.id);}
+  function selectRandomSet(random=Math.random){return Math.floor(random()*3)+1;}
+  function shuffleStories(items,random=Math.random){const result=[...items];for(let i=result.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result;}
   function encodeStory(setId,storyId){return setId*10+storyId;}
-  const selectedSet=selectDailySet();
-  const stories=orderedStories(storySets[selectedSet-1]);
+  const selectedSet=selectRandomSet();
+  const stories=shuffleStories(storySets[selectedSet-1]);
 
   const feelingHints = {
     Frustration:['Frustration describes the person who is fed up or upset because something is not working.','Look for the person who wants to stop because repeated attempts have failed.'],
