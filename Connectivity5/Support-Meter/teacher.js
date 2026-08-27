@@ -1,50 +1,24 @@
 (() => {
-  const cfg=window.SUPPORT_METER_CONFIG;
-  const sb=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseKey,{auth:{persistSession:false,autoRefreshToken:false}});
-  const $=id=>document.getElementById(id);
-  const el={code:$('monitorClassCode'),connect:$('connectMonitor'),hide:$('hideOffline'),dot:$('monitorDot'),status:$('monitorStatus'),grid:$('studentGrid'),empty:$('emptyMonitor'),online:$('onlineCount'),total:$('totalCount')};
-  el.code.value=cfg.defaultClassCode;
-  let classCode=cfg.defaultClassCode,sessions=new Map(),responses=new Map(),channel=null,hideOffline=false,timer=null;
-
-  function online(s){return Date.now()-new Date(s.last_seen).getTime()<cfg.onlineThresholdMs&&s.status!=='completed'&&s.status!=='offline';}
-  function decodeStory(value){const code=Number(value)||1;return code>10?{setId:Math.floor(code/10),storyId:code%10}:{setId:1,storyId:code};}
-  function storyFrame(s,f){const {setId,storyId}=decodeStory(s.current_story);const frame=Math.max(1,Math.min(3,f));return `assets/stories-v16/set-${setId}/story-${storyId}-frame-${frame}.webp`;}
-  function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
-  function setStatus(ok,text){el.dot.className='dot'+(ok?' live':'');el.status.textContent=text;}
-
-  async function loadAll(){
-    const {data:s,error:e1}=await sb.from('support_meter_sessions').select('*').eq('class_code',classCode).order('updated_at',{ascending:false});
-    const {data:r,error:e2}=await sb.from('support_meter_responses').select('*').eq('class_code',classCode).order('created_at',{ascending:false});
-    if(e1||e2){setStatus(false,'Connection problem');return;}
-    sessions.clear();(s||[]).forEach(x=>sessions.set(x.id,x));responses.clear();(r||[]).forEach(x=>{if(!responses.has(x.session_id))responses.set(x.session_id,[]);responses.get(x.session_id).push(x);});render();setStatus(true,'Live');
-  }
-
-  function responseHtml(row){const ok=row.expression_correct&&row.feeling_correct,{setId,storyId}=decodeStory(row.story_id);return `<div class="history-row ${ok?'ok':'no'}"><div class="history-title">Set ${setId} · Story ${storyId} · Attempt ${row.attempt} · ${ok?'✓ Correct':'✕ Incorrect'}</div><div class="history-answer">Feeling: <strong>${escapeHtml(row.selected_feeling)}</strong><br>Expression: <strong>${escapeHtml(row.selected_expression)}</strong></div><div class="history-meta">${new Date(row.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div>`;}
-
-  function renderCard(s){
-    const isOn=online(s),rs=responses.get(s.id)||[],{setId,storyId}=decodeStory(s.current_story),card=document.createElement('article');card.className='student-card card';card.dataset.id=s.id;
-    const liveExp=s.live_expression?`<div>Expression: <strong>${escapeHtml(s.live_expression)}</strong></div>`:'';
-    const liveFeel=s.live_feeling?`<div>Feeling: <strong>${escapeHtml(s.live_feeling)}</strong></div>`:'';
-    card.innerHTML=`<div class="student-top"><div class="student-name">${escapeHtml(s.student_name)}</div><span class="${isOn?'online-badge':'offline-badge'}">${isOn?'● ONLINE':s.status==='completed'?'COMPLETED':'OFFLINE'}</span></div>
-      <div class="teacher-story-strip"><img src="${storyFrame(s,1)}" alt="Story scene 1"><img src="${storyFrame(s,2)}" alt="Story scene 2"><img src="${storyFrame(s,3)}" alt="Story scene 3"></div>
-      <div class="live-copy monitor-live-copy"><strong>Set ${setId} · Story ${storyId} · ${escapeHtml(s.phase)}</strong><div style="margin-top:4px">${escapeHtml(s.last_action)}</div><div class="live-choice">${liveFeel||'<div>Feeling: —</div>'}${liveExp||'<div>Expression: —</div>'}<div>Attempt: <strong>${s.attempt_in_progress||1}</strong></div></div></div>
-      <div class="student-stats"><div><small>Support</small><strong>${s.support_meter}%</strong></div><div><small>Score</small><strong>${s.score}</strong></div><div><small>Streak</small><strong>${s.streak}</strong></div></div>
-      <button class="history-toggle secondary" type="button">Responses (${rs.length}) ▾</button><div class="history hidden">${rs.length?rs.map(responseHtml).join(''):'<div class="history-row">No submitted answers yet.</div>'}</div>`;
-    card.querySelector('.history-toggle').addEventListener('click',()=>card.querySelector('.history').classList.toggle('hidden'));
-    return card;
-  }
-
-  function render(){const arr=[...sessions.values()].sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at)),filtered=hideOffline?arr.filter(online):arr;el.grid.innerHTML='';filtered.forEach(s=>el.grid.appendChild(renderCard(s)));el.empty.classList.toggle('hidden',filtered.length>0);el.total.textContent=`${arr.length} student${arr.length===1?'':'s'}`;el.online.textContent=`${arr.filter(online).length} online`;}
-
-  async function subscribe(){
-    if(channel)await sb.removeChannel(channel);
-    channel=sb.channel('support-meter-'+classCode)
-      .on('postgres_changes',{event:'*',schema:'public',table:'support_meter_sessions',filter:`class_code=eq.${classCode}`},payload=>{const row=payload.new||payload.old;if(payload.eventType==='DELETE')sessions.delete(row.id);else sessions.set(row.id,row);render();})
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'support_meter_responses',filter:`class_code=eq.${classCode}`},payload=>{const row=payload.new;if(!responses.has(row.session_id))responses.set(row.session_id,[]);responses.get(row.session_id).unshift(row);render();})
-      .subscribe(status=>setStatus(status==='SUBSCRIBED',status==='SUBSCRIBED'?'Live':status));
-  }
-
-  async function connect(){classCode=(el.code.value.trim()||cfg.defaultClassCode).toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,40)||cfg.defaultClassCode;el.code.value=classCode;setStatus(false,'Connecting…');await loadAll();await subscribe();clearInterval(timer);timer=setInterval(render,5000);history.replaceState(null,'',`teacher.html?class=${encodeURIComponent(classCode)}`);}
-  el.connect.addEventListener('click',connect);el.hide.addEventListener('click',()=>{hideOffline=!hideOffline;el.hide.textContent=hideOffline?'Show offline':'Hide offline';render();});
-  const q=new URLSearchParams(location.search).get('class');if(q)el.code.value=q.toUpperCase();connect();
+  'use strict';
+  const cfg=window.SUPPORT_METER_CONFIG,sb=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseKey,{auth:{persistSession:false,autoRefreshToken:false}}),core=window.SupportMeterTeacherCore,$=id=>document.getElementById(id);
+  const el={set:$('setNumber'),create:$('createSession'),sessions:$('sessionSelect'),download:$('downloadResults'),error:$('assignmentError'),share:$('shareBox'),link:$('studentLink'),copy:$('copyLink'),dot:$('monitorDot'),status:$('monitorStatus'),grid:$('studentGrid'),focusStage:$('focusStage'),focused:$('focusedStudent'),rail:$('thumbnailRail'),empty:$('emptyMonitor'),online:$('onlineCount'),total:$('totalCount'),hide:$('hideOffline')};
+  let managed=loadManaged(),active=null,students=new Map(),focusId=null,hideOffline=false,channel=null,pollTimer=null;
+  function loadManaged(){try{return JSON.parse(localStorage.getItem('supportMeterTeacherSessions')||'[]');}catch{return [];}}
+  function saveManaged(){localStorage.setItem('supportMeterTeacherSessions',JSON.stringify(managed));}
+  function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+  function online(s){return s.status==='online'&&Date.now()-new Date(s.last_seen||0).getTime()<(cfg.onlineThresholdMs||40000);}
+  function status(ok,text){el.dot.className=`dot${ok?' live':''}`;el.status.textContent=text;}
+  function frame(s,n){const set=s.set_number||Math.floor(Number(s.current_story)/10)||1,story=Number(s.current_story)%10||1;return `assets/stories-v16/set-${set}/story-${story}-frame-${n}.webp`;}
+  function current(){return managed.find(item=>item.assignmentId===active);}
+  function studentUrl(item){return `${location.origin}/Connectivity5/Support-Meter/?join=${encodeURIComponent(item.joinToken)}`;}
+  function refreshSelector(){const value=active||'';el.sessions.innerHTML='<option value="">Choose or create a session</option>'+managed.map(item=>`<option value="${item.assignmentId}">Set ${item.setNumber} · ${new Date(item.createdAt).toLocaleString()}</option>`).join('');el.sessions.value=value;el.download.disabled=!value;const item=current();el.share.classList.toggle('hidden',!item);if(item)el.link.value=studentUrl(item);}
+  async function createAssignment(){el.error.classList.add('hidden');const {data,error}=await sb.rpc('create_support_meter_assignment',{p_set_number:Number(el.set.value)});if(error||!data?.length){el.error.textContent='Could not create the session. Please try again.';el.error.classList.remove('hidden');return;}const row=data[0],item={assignmentId:row.assignment_id,joinToken:row.join_token,manageToken:row.manage_token,setNumber:row.set_number,createdAt:new Date().toISOString()};managed.unshift(item);saveManaged();active=item.assignmentId;refreshSelector();await connectActive();}
+  async function loadSnapshot(){const item=current();if(!item)return;const {data,error}=await sb.rpc('get_support_meter_monitor',{p_manage_token:item.manageToken});if(error){status(false,'Connection problem');return;}students.clear();for(const row of data||[])students.set(row.id,row);render();status(true,'Live');}
+  async function subscribe(){if(channel)await sb.removeChannel(channel);const item=current();if(!item)return;channel=sb.channel(`support-meter:${item.joinToken}`).on('broadcast',{event:'student-state'},({payload})=>{const previous=students.get(payload.session_id)||{};students.set(payload.session_id,{...previous,...payload,id:payload.session_id,last_seen:new Date().toISOString(),updated_at:new Date().toISOString()});render();}).subscribe(state=>status(state==='SUBSCRIBED',state==='SUBSCRIBED'?'Live':state));}
+  async function connectActive(){clearInterval(pollTimer);students.clear();focusId=null;refreshSelector();if(!current()){render();status(false,'Ready');return;}status(false,'Connecting…');await loadSnapshot();await subscribe();pollTimer=setInterval(loadSnapshot,5000);}
+  function card(s){const isOnline=online(s),result=s.latest_result||'waiting',node=document.createElement('article');node.className='student-card';node.tabIndex=0;node.dataset.id=s.id;node.setAttribute('role','button');node.setAttribute('aria-label',`${s.student_name}, ${s.story_title||'current activity'}`);node.innerHTML=`<div class="student-top"><div class="student-name">${esc(s.student_name)}</div><span class="${isOnline?'online-badge':'offline-badge'}">${isOnline?'● LIVE':s.status==='completed'?'COMPLETED':'OFFLINE'}</span></div><div class="story-title">${esc(s.story_title||'Preparing story')} · ${s.story_progress||1}/8</div><div class="story-summary">${esc(s.story_summary||s.last_action||'Waiting for activity')}</div><div class="story-strip"><img src="${frame(s,1)}" alt="Scene 1"><img src="${frame(s,2)}" alt="Scene 2"><img src="${frame(s,3)}" alt="Scene 3"></div><div class="live-grid"><div class="live-item">Feeling<strong>${esc(s.live_feeling||'—')}</strong></div><div class="live-item">Dialogue<strong>${esc(s.live_expression||'—')}</strong></div><div class="live-item">Result<strong class="result-${esc(result)}">${esc(result)}</strong></div><div class="live-item">Attempt / Score<strong>${s.attempt||s.attempt_in_progress||1} · ${s.score||0}</strong></div></div><div class="stats"><div><small>Support</small><strong>${s.support_meter||0}%</strong></div><div><small>Score</small><strong>${s.score||0}</strong></div><div><small>Streak</small><strong>${s.streak||0}</strong></div></div>`;const activate=()=>{focusId=core.toggleFocus(focusId,s.id);render();};node.addEventListener('click',activate);node.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();activate();}});return node;}
+  function render(){const all=[...students.values()].sort((a,b)=>(a.student_name||'').localeCompare(b.student_name||'')),visible=hideOffline?all.filter(online):all;el.grid.innerHTML='';el.focused.innerHTML='';el.rail.innerHTML='';if(focusId&&!visible.some(s=>s.id===focusId))focusId=null;if(focusId){el.focused.appendChild(card(visible.find(s=>s.id===focusId)));visible.filter(s=>s.id!==focusId).forEach(s=>el.rail.appendChild(card(s)));}else visible.forEach(s=>el.grid.appendChild(card(s)));el.grid.classList.toggle('hidden',Boolean(focusId));el.focusStage.classList.toggle('hidden',!focusId);el.empty.classList.toggle('hidden',visible.length>0);el.empty.textContent=current()?'No students have joined this session yet.':'Create or select a session to begin.';el.total.textContent=`${all.length} student${all.length===1?'':'s'}`;el.online.textContent=`${all.filter(online).length} online`;}
+  async function downloadResults(){const item=current();if(!item)return;const {data,error}=await sb.rpc('get_support_meter_results',{p_manage_token:item.manageToken});if(error){el.error.textContent='Could not prepare the results.';el.error.classList.remove('hidden');return;}const blob=new Blob([core.buildCsv(data||[])],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`support-meter-set-${item.setNumber}-${new Date().toISOString().slice(0,10)}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);if(!confirm('The results download has started. Delete this session, all student activity, and close its link now?'))return;const removed=await sb.rpc('delete_support_meter_assignment',{p_manage_token:item.manageToken});if(removed.error||removed.data!==true){el.error.textContent='Results downloaded, but the session could not be deleted.';el.error.classList.remove('hidden');return;}managed=managed.filter(row=>row.assignmentId!==item.assignmentId);saveManaged();active=managed[0]?.assignmentId||null;await connectActive();}
+  el.create.addEventListener('click',createAssignment);el.sessions.addEventListener('change',()=>{active=el.sessions.value||null;connectActive();});el.copy.addEventListener('click',async()=>{await navigator.clipboard.writeText(el.link.value);el.copy.textContent='Copied!';setTimeout(()=>el.copy.textContent='Copy Link',1400);});el.download.addEventListener('click',downloadResults);el.hide.addEventListener('click',()=>{hideOffline=!hideOffline;el.hide.textContent=hideOffline?'Show offline':'Hide offline';render();});
+  active=managed[0]?.assignmentId||null;refreshSelector();connectActive();
 })();
