@@ -301,3 +301,9 @@ body{overflow:hidden}
   .student-menu-btn{position:relative;grid-column:1/-1;grid-row:1;justify-self:end;top:auto;right:auto;margin:0 0 2px}
   .brand{grid-row:2}
 }
+
+/* v21 — menu action participates in layout and never covers the game */
+.bottombar{display:grid;grid-template-columns:minmax(180px,1fr) minmax(320px,2fr) minmax(180px,1fr);gap:12px}
+.student-menu-btn{position:static;z-index:auto;grid-column:1;grid-row:1;justify-self:start;max-width:240px;padding:9px 14px;border:2px solid #46d2ff;border-radius:999px;background:#071958;color:#fff;font-weight:900;font-size:13px;cursor:pointer;box-shadow:0 0 10px #29cfff55}
+.submit-btn,.next-btn{grid-column:2;grid-row:1}
+@media(max-width:900px){.bottombar{grid-template-columns:1fr;gap:8px;padding-bottom:calc(10px + env(safe-area-inset-bottom))}.submit-btn,.next-btn{grid-column:1;grid-row:1}.student-menu-btn{position:static;grid-column:1;grid-row:2;justify-self:center;width:min(94%,560px);max-width:94%;margin:0}.brand{grid-row:auto}.feedback{bottom:calc(142px + env(safe-area-inset-bottom))}}
