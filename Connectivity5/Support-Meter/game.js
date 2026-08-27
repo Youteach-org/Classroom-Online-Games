@@ -9,37 +9,37 @@
   const pronounForms = lang.forms;
 
   const allExpressions=["I'm at my wits' end.","I've had it.",'I give up.','That must be tough.','I hear you.','Hang in there.',"Don't give up.",'Stick with it.'];
-  const make=(setId,id,name,targetName,targetPronoun,feeling,expression,frames)=>{const distractors=allExpressions.filter(x=>x!==expression);const start=(id+setId)%distractors.length;return {setId,id,name,targetName,targetPronoun,feeling,expression,frames,options:[expression,...[0,1,2].map(n=>distractors[(start+n)%distractors.length])]};};
+  const make=(setId,id,name,targetName,targetPronoun,feeling,expression,frames,speechPosition)=>{const distractors=allExpressions.filter(x=>x!==expression);const start=(id+setId)%distractors.length;return {setId,id,name,targetName,targetPronoun,feeling,expression,frames,speechPosition,options:[expression,...[0,1,2].map(n=>distractors[(start+n)%distractors.length])]};};
   const storySets = [
     [
-      make(1,1,"Maya's Science Project",'Maya','she','Frustration',"I'm at my wits' end.",['Maya finishes her science project.','She tries the experiment again.','Nothing works after several attempts.']),
-      make(1,2,"Ethan's Broken Laptop",'Ethan','he','Frustration',"I've had it.",['Ethan works on his presentation.','The laptop freezes and restarts again.','The same problem happens one more time.']),
-      make(1,3,"Sofia's Model Airplane",'Sofia','she','Frustration','I give up.',['Sofia starts building a model airplane.','The wings keep falling off.','The airplane comes apart again.']),
-      make(1,4,'Leo Misses the Soccer Final','Sofia','she','Empathy','That must be tough.',['Leo hurts his ankle during soccer practice.','He learns that he cannot play in the final.','Leo tells Sofia how disappointed he feels.']),
-      make(1,5,"Ava's Audition",'Maya','she','Empathy','I hear you.',['Ava practices for her audition.','She forgets part of the song on stage.','Ava tells Maya what happened.']),
-      make(1,6,"Ethan's Driving Test",'Leo','he','Encouragement','Hang in there.',['Ethan takes his driving test.','He makes a mistake and fails the test.','Leo talks with Ethan afterward.']),
-      make(1,7,"Maya's Running Practice",'Ava','she','Encouragement',"Don't give up.",['Maya practices on the school track.','She becomes exhausted during practice.','Ava returns to talk with Maya.']),
-      make(1,8,'Leo Learns the Guitar','Ethan','he','Encouragement','Stick with it.',['Leo starts learning the guitar.','He struggles after many attempts.','Ethan joins Leo during practice.'])
+      make(1,1,"Maya's Science Project",'Maya','she','Frustration',"I'm at my wits' end.",['Maya finishes her science project.','She tries the experiment again.','Nothing works after several attempts.'],'bottom-right'),
+      make(1,2,"Ethan's Broken Laptop",'Ethan','he','Frustration',"I've had it.",['Ethan works on his presentation.','The laptop freezes and restarts again.','The same problem happens one more time.'],'bottom-right'),
+      make(1,3,"Sofia's Model Airplane",'Sofia','she','Frustration','I give up.',['Sofia starts building a model airplane.','The wings keep falling off.','The airplane comes apart again.'],'bottom-right'),
+      make(1,4,'Leo Misses the Soccer Final','Sofia','she','Empathy','That must be tough.',['Leo hurts his ankle during soccer practice.','He learns that he cannot play in the final.','Leo tells Sofia how disappointed he feels.'],'bottom-left'),
+      make(1,5,"Ava's Audition",'Maya','she','Empathy','I hear you.',['Ava practices for her audition.','She forgets part of the song on stage.','Ava tells Maya what happened.'],'bottom-right'),
+      make(1,6,"Ethan's Driving Test",'Leo','he','Encouragement','Hang in there.',['Ethan takes his driving test.','He makes a mistake and fails the test.','Leo talks with Ethan afterward.'],'bottom-left'),
+      make(1,7,"Maya's Running Practice",'Ava','she','Encouragement',"Don't give up.",['Maya practices on the school track.','She becomes exhausted during practice.','Ava returns to talk with Maya.'],'bottom-left'),
+      make(1,8,'Leo Learns the Guitar','Ethan','he','Encouragement','Stick with it.',['Leo starts learning the guitar.','He struggles after many attempts.','Ethan joins Leo during practice.'],'bottom-right')
     ],
     [
-      make(2,1,"Ethan's Robot",'Ethan','he','Frustration',"I'm at my wits' end.",['Ethan builds a small robot.','The robot fails after another repair.','Ethan faces another pile of broken parts.']),
-      make(2,2,"Ava's Photography Project",'Ava','she','Frustration',"I've had it.",['Ava prepares her photography project.','Her camera creates another bad result.','The problem happens again.']),
-      make(2,3,"Leo's Cake",'Leo','he','Frustration','I give up.',['Leo starts baking a cake.','Another cake turns out badly.','The kitchen shows several failed attempts.']),
-      make(2,4,'Sofia Misses the School Trip','Maya','she','Empathy','That must be tough.',['Sofia packs for a school trip.','She becomes sick and misses the trip.','Sofia tells Maya how disappointed she is.']),
-      make(2,5,"Maya's Debate",'Ethan','he','Empathy','I hear you.',['Maya practices for a debate.','She forgets her argument.','Maya tells Ethan about the mistake.']),
-      make(2,6,'Ava Learns to Skateboard','Sofia','she','Encouragement','Hang in there.',['Ava begins learning to skateboard.','She struggles after many attempts.','Sofia talks with Ava at the skate park.']),
-      make(2,7,"Sofia's Chemistry Test",'Ava','she','Encouragement',"Don't give up.",['Sofia studies for chemistry.','A practice test shows many errors.','Ava joins Sofia at the study table.']),
-      make(2,8,"Ethan's Basketball Practice",'Leo','he','Encouragement','Stick with it.',['Ethan practices basketball.','He misses several shots.','Leo joins Ethan on the court.'])
+      make(2,1,"Ethan's Robot",'Ethan','he','Frustration',"I'm at my wits' end.",['Ethan builds a small robot.','The robot fails after another repair.','Ethan faces another pile of broken parts.'],'bottom-right'),
+      make(2,2,"Ava's Photography Project",'Ava','she','Frustration',"I've had it.",['Ava prepares her photography project.','Her camera creates another bad result.','The problem happens again.'],'bottom-left'),
+      make(2,3,"Leo's Cake",'Leo','he','Frustration','I give up.',['Leo starts baking a cake.','Another cake turns out badly.','The kitchen shows several failed attempts.'],'bottom-right'),
+      make(2,4,'Sofia Misses the School Trip','Maya','she','Empathy','That must be tough.',['Sofia packs for a school trip.','She becomes sick and misses the trip.','Sofia tells Maya how disappointed she is.'],'bottom-right'),
+      make(2,5,"Maya's Debate",'Ethan','he','Empathy','I hear you.',['Maya practices for a debate.','She forgets her argument.','Maya tells Ethan about the mistake.'],'bottom-left'),
+      make(2,6,'Ava Learns to Skateboard','Sofia','she','Encouragement','Hang in there.',['Ava begins learning to skateboard.','She struggles after many attempts.','Sofia talks with Ava at the skate park.'],'bottom-left'),
+      make(2,7,"Sofia's Chemistry Test",'Ava','she','Encouragement',"Don't give up.",['Sofia studies for chemistry.','A practice test shows many errors.','Ava joins Sofia at the study table.'],'bottom-left'),
+      make(2,8,"Ethan's Basketball Practice",'Leo','he','Encouragement','Stick with it.',['Ethan practices basketball.','He misses several shots.','Leo joins Ethan on the court.'],'bottom-left')
     ],
     [
-      make(3,1,"Maya's Jammed Printer",'Maya','she','Frustration',"I'm at my wits' end.",['Maya prints her assignment.','She clears the jam, but paper sticks again.','The printer jams after another attempt.']),
-      make(3,2,"Sofia's Lost Presentation",'Sofia','she','Frustration',"I've had it.",['Sofia looks for her presentation.','She checks every folder and her USB drive.','The presentation is still missing.']),
-      make(3,3,"Ava's Costume Project",'Ava','she','Frustration','I give up.',['Ava sews a costume for the school play.','The seam tears while she repairs it.','The costume tears again.']),
-      make(3,4,'Ethan Misses the Concert','Leo','he','Empathy','That must be tough.',['Ethan gets ready for a concert.','A long delay makes him miss it.','Ethan tells Leo how disappointed he feels.']),
-      make(3,5,"Leo's Missed Bus",'Maya','she','Empathy','I hear you.',['Leo hurries toward the bus stop.','The bus leaves before he can board.','Leo tells Maya why he is upset.']),
-      make(3,6,"Maya's Piano Practice",'Sofia','she','Encouragement','Hang in there.',['Maya practices a difficult piano piece.','Repeated mistakes discourage her.','Sofia joins Maya at the piano.']),
-      make(3,7,"Ethan's Chess Practice",'Ava','she','Encouragement',"Don't give up.",['Ethan practices chess carefully.','Another loss leaves him discouraged.','Ava joins Ethan at the chessboard.']),
-      make(3,8,"Sofia's Community Garden",'Leo','he','Encouragement','Stick with it.',['Sofia plants a community garden.','Bad weather damages the young plants.','Leo joins Sofia in the garden.'])
+      make(3,1,"Maya's Jammed Printer",'Maya','she','Frustration',"I'm at my wits' end.",['Maya prints her assignment.','She clears the jam, but paper sticks again.','The printer jams after another attempt.'],'bottom-right'),
+      make(3,2,"Sofia's Lost Presentation",'Sofia','she','Frustration',"I've had it.",['Sofia looks for her presentation.','She checks every folder and her USB drive.','The presentation is still missing.'],'bottom-right'),
+      make(3,3,"Ava's Costume Project",'Ava','she','Frustration','I give up.',['Ava sews a costume for the school play.','The seam tears while she repairs it.','The costume tears again.'],'bottom-right'),
+      make(3,4,'Ethan Misses the Concert','Leo','he','Empathy','That must be tough.',['Ethan gets ready for a concert.','A long delay makes him miss it.','Ethan tells Leo how disappointed he feels.'],'bottom-left'),
+      make(3,5,"Leo's Missed Bus",'Maya','she','Empathy','I hear you.',['Leo hurries toward the bus stop.','The bus leaves before he can board.','Leo tells Maya why he is upset.'],'bottom-left'),
+      make(3,6,"Maya's Piano Practice",'Sofia','she','Encouragement','Hang in there.',['Maya practices a difficult piano piece.','Repeated mistakes discourage her.','Sofia joins Maya at the piano.'],'bottom-left'),
+      make(3,7,"Ethan's Chess Practice",'Ava','she','Encouragement',"Don't give up.",['Ethan practices chess carefully.','Another loss leaves him discouraged.','Ava joins Ethan at the chessboard.'],'bottom-left'),
+      make(3,8,"Sofia's Community Garden",'Leo','he','Encouragement','Stick with it.',['Sofia plants a community garden.','Bad weather damages the young plants.','Leo joins Sofia in the garden.'],'bottom-left')
     ]
   ];
   function chooseSet(storage,random=Math.random){let used=[];try{used=JSON.parse(storage.getItem('support-meter-played-sets-v16')||'[]');}catch{}if(!Array.isArray(used)||used.length>=3)used=[];const available=[1,2,3].filter(x=>!used.includes(x));const selected=available[Math.floor(random()*available.length)];storage.setItem('support-meter-played-sets-v16',JSON.stringify([...used,selected]));return selected;}
@@ -75,6 +75,7 @@
   el.code.value = state.classCode;
 
   function story(){ return stories[state.storyIndex]; }
+  function questionForFeeling(s){return ({Frustration:`What is ${s.targetName} feeling?`,Empathy:`What is ${s.targetName} showing?`,Encouragement:`What is ${s.targetName} offering?`})[s.feeling];}
   function asset(id,frame){return `assets/stories-v16/set-${selectedSet}/story-${id}-frame-${frame}.webp`;}
   function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function renderStory(){
@@ -82,12 +83,11 @@
     el.frames.innerHTML='';
     s.frames.forEach((caption,i)=>{
       const card=document.createElement('div');card.className=`story-frame story-${s.id} frame-${i+1}`;card.style.setProperty('--frame-bg',`url("${asset(s.id,i+1)}")`);
-      const speech=(i===2)?`<div id="frameSpeech" class="speech ${s.nativeBubble?'native-bubble ':''}empty">${state.selectedExpression?escapeHtml(state.selectedExpression):''}</div>`:'';
-      const targetBadge=(i===2 && s.showTargetBadge!==false)?`<div class="target-badge ${escapeHtml(s.targetBadgePos||'center')}">${escapeHtml(s.targetName)}</div>`:'';
-      card.innerHTML=`<div class="story-visual" style="--scene-image:url(&quot;${asset(s.id,i+1)}&quot;)"><img class="story-image" src="${asset(s.id,i+1)}" alt="Story ${s.id}, scene ${i+1}"><div class="frame-num">${i+1}</div>${speech}</div>${targetBadge}<div class="caption">${escapeHtml(caption)}</div>${i<2?'<div class="story-arrow">➜</div>':''}`;
+      const speech=(i===2)?`<div id="frameSpeech" class="speech speech-position-${escapeHtml(s.speechPosition)} empty">${state.selectedExpression?escapeHtml(state.selectedExpression):''}</div>`:'';
+      card.innerHTML=`<div class="story-visual" style="--scene-image:url(&quot;${asset(s.id,i+1)}&quot;)"><img class="story-image" src="${asset(s.id,i+1)}" alt="Story ${s.id}, scene ${i+1}"><div class="frame-num">${i+1}</div>${speech}</div><div class="caption">${escapeHtml(caption)}</div>${i<2?'<div class="story-arrow">➜</div>':''}`;
       el.frames.appendChild(card);
     });
-    el.feelingTitle.textContent=`What is ${s.targetName} feeling?`;
+    el.feelingTitle.textContent=questionForFeeling(s);
     el.expressionTitle.textContent=`What would ${s.targetName} say?`;
     renderFeelings();renderExpressions();updateHud();hideFeedback();
   }

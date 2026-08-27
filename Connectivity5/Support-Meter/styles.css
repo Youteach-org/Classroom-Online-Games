@@ -259,3 +259,32 @@ body{overflow:hidden}
   body{overflow:auto}.game,.game-shell{height:auto;min-height:100vh;overflow:visible}
   .topbar{min-height:90px}.main-grid{height:auto;min-height:520px}.bottombar{min-height:78px}
 }
+
+/* v17 — audited balloons remain visible without covering the speaker's face */
+.story-visual .speech.speech-position-bottom-left,
+.story-visual .speech.speech-position-bottom-right{
+  top:auto;
+  bottom:4%;
+  width:48%;
+  min-height:18%;
+  max-height:30%;
+  padding:4% 5%;
+  overflow:hidden;
+}
+.story-visual .speech.speech-position-bottom-left{left:3%;right:auto}
+.story-visual .speech.speech-position-bottom-right{right:3%;left:auto}
+.story-visual .speech.speech-position-bottom-left:after,
+.story-visual .speech.speech-position-bottom-right:after{
+  top:-22%;
+  bottom:auto;
+  width:18%;
+  height:28%;
+  clip-path:polygon(28% 0,0 100%,100% 100%);
+}
+.story-visual .speech.speech-position-bottom-left:after{left:auto;right:12%}
+.story-visual .speech.speech-position-bottom-right:after{left:12%;right:auto}
+
+@media(max-width:520px){
+  .story-visual .speech.speech-position-bottom-left,
+  .story-visual .speech.speech-position-bottom-right{width:52%;font-size:13px}
+}
