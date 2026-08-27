@@ -9,7 +9,10 @@
   const pronounForms = lang.forms;
 
   const allExpressions=["I'm at my wits' end.","I've had it.",'I give up.','That must be tough.','I hear you.','Hang in there.',"Don't give up.",'Stick with it.'];
-  const make=(setId,id,name,targetName,targetPronoun,feeling,expression,frames,speechPosition)=>{const distractors=allExpressions.filter(x=>x!==expression);const start=(id+setId)%distractors.length;return {setId,id,name,targetName,targetPronoun,feeling,expression,frames,speechPosition,options:[expression,...[0,1,2].map(n=>distractors[(start+n)%distractors.length])]};};
+  const expressionCategory={"I'm at my wits' end.":'Frustration',"I've had it.":'Frustration','I give up.':'Frustration','That must be tough.':'Empathy','I hear you.':'Empathy','Hang in there.':'Encouragement',"Don't give up.":'Encouragement','Stick with it.':'Encouragement'};
+  const frustrationExpressions=allExpressions.filter(x=>expressionCategory[x]==='Frustration');
+  const supportDistractors=['That must be tough.','I hear you.','Hang in there.'];
+  const make=(setId,id,name,targetName,targetPronoun,feeling,expression,frames,speechPosition)=>{const distractors=expressionCategory[expression]==='Frustration'?supportDistractors:frustrationExpressions;return {setId,id,name,targetName,targetPronoun,feeling,expression,frames,speechPosition,options:[expression,...distractors]};};
   const storySets = [
     [
       make(1,1,"Maya's Science Project",'Maya','she','Frustration',"I'm at my wits' end.",['Maya finishes her science project.','She tries the experiment again.','Nothing works after several attempts.'],'bottom-right'),
