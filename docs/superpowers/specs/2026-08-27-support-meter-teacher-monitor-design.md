@@ -79,13 +79,28 @@ A `pg_cron` job runs every minute and deletes completed free-mode sessions whose
 - No token: free mode; shuffle the eight-story practice order while covering each target expression exactly once.
 - Valid join token: fetch the assignment, use its fixed set and canonical order, and attach the student run to that assignment.
 - Invalid/closed token: show a clear expired-link message and a link back to the game menu.
+- Every new run initializes the Support Meter at 0%, score at 0, streak at 0, story at 1/8, and attempt at 1. The HTML fallback values and database insert use the same initial values.
 - Every meaningful interaction updates live session fields: story/phase, selected feeling, selected dialogue/expression, attempt in progress, latest result, score, support, streak, and heartbeat.
 - Completion sets status to complete and records `completed_at`.
+
+### Student exit behavior
+
+Add a visible **Back to Student Menu** control that links to `/` without covering game content. If the run is unfinished, activation opens an accessible confirmation dialog explaining that progress and monitor activity will be permanently deleted. Confirming calls the scoped deletion API for that student run and redirects only after successful deletion; canceling preserves the run. If the game is complete, activation returns to `/` without a warning. Browser back/close receives the native unsaved-progress warning while a run is unfinished; because browsers do not guarantee async deletion during unload, server stale-run cleanup remains the fallback for abandoned tabs.
+
+### Answer-option audit
+
+Replace automatic category-wide distractor generation with an explicit reviewed option list for every one of the 24 stories. Each question presents three expressions: the correct target and two clearly incompatible distractors. No question may place the easily confused group “That must be tough.”, “I hear you.”, and “Hang in there.” together. Preserve coverage of all eight target expressions in each completed run.
+
+### Mobile corrections
+
+- Story artwork uses `object-fit: contain` in portrait/mobile layouts so the complete source image is visible. Letterboxing may use the existing navy background; no faces, heads, or story-relevant objects may be cropped.
+- Expression radio indicators use a fixed touch-safe size and fixed inset, while button text uses matching fixed left padding and `min-width: 0`; neither indicator nor text may cross the question panel edge at 320 CSS pixels wide.
+- The floating Coach remains an overlay, but on mobile its bottom offset reserves the action-control area. It must never overlap **Submit Answer** or **Next Story**, including safe-area insets.
 
 ## Verification
 
 - Unit-level checks for query parsing, fixed assigned order, free-mode eight-expression coverage, CSV escaping, and focus toggle state.
+- Unit-level checks for zeroed initial state, the 24 explicit option lists, unfinished/finished exit behavior, and deletion-before-redirect.
 - Database checks for token isolation, unauthorized read/delete rejection, cascade deletion, and five-minute free cleanup.
-- Browser checks on desktop and touch-sized viewport: create link, join with two students, observe live selections/results, focus/switch/unfocus, download CSV, confirm deletion, verify closed link, and verify Back to Teacher Menu.
+- Browser checks on desktop and 320/390 CSS-pixel touch viewports: create link, join with two students, observe live selections/results, focus/switch/unfocus, download CSV, confirm deletion, verify closed link, verify both menu buttons, inspect all three frames without crop, inspect radio containment, and verify Coach/action-button separation.
 - Regression check that the approved student game UI is visually unchanged in both free and assigned modes.
-
