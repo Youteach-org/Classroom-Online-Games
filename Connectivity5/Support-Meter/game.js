@@ -8,16 +8,44 @@
   const questionExpression = lang.questionExpression;
   const pronounForms = lang.forms;
 
-  const stories = [
-    {id:1,name:'Cable chaos',targetName:'Ethan',targetPronoun:'he',targetBadgePos:'center',feeling:'Frustration',expression:"I'm at my wits' end.",frames:["Ethan's phone is almost dead.",'Ethan tries charger after charger.','Nothing works. Ethan has tried everything.'],options:["I'm at my wits' end.",'That must be tough.','Hang in there.','I hear you.'],speaker:'Ethan, the frustrated person'},
-    {id:2,name:'Rainy wait',targetName:'Leo',targetPronoun:'he',targetBadgePos:'right',feeling:'Empathy',expression:'That must be tough.',frames:['Mia has been waiting in the rain.','The bus is delayed again while Leo stays with Mia.','Leo listens as Mia explains the problem.'],options:['I give up.','That must be tough.','Stick with it.',"I've had it."],speaker:'Leo, the friend who is listening'},
-    {id:3,name:'Guitar practice',targetName:'Maya',targetPronoun:'she',targetBadgePos:'right',feeling:'Encouragement',expression:'Stick with it.',frames:['Noah is learning a difficult guitar chord.','Noah misses it again and gets frustrated.','Maya wants Noah to keep practicing.'],options:['Stick with it.','I hear you.',"I'm at my wits' end.",'That must be tough.'],speaker:'Maya, the friend encouraging Noah'},
-    {id:4,name:'Basketball',targetName:'Alex',targetPronoun:'he',targetBadgePos:'center',feeling:'Frustration',expression:'I give up.',approvedFrames:true,nativeBubble:true,frames:['Alex has been practicing his shots for over an hour.','But Alex keeps missing the basket... again and again.','Now Alex is completely fed up and does not want to try anymore.'],options:['That must be tough.','Hang in there.','I give up.','Stick with it.'],speaker:'Alex, the frustrated player'},
-    {id:5,name:'A bad day',targetName:'Sofia',targetPronoun:'she',targetBadgePos:'right',feeling:'Empathy',expression:'I hear you.',frames:['Elena tells Sofia about a terrible day.','Elena explains everything that went wrong.','Sofia listens carefully and understands Elena.'],options:['I hear you.',"I've had it.",'Hang in there.','I give up.'],speaker:'Sofia, the friend who is listening'},
-    {id:6,name:'Almost there',targetName:'Eli',targetPronoun:'he',showTargetBadge:false,feeling:'Encouragement',expression:'Hang in there.',frames:['Noah finds the climb much harder than expected.','Noah starts to slow down.','Eli knows Noah is close to the top and wants him to continue.'],options:['Hang in there.',"I'm at my wits' end.",'That must be tough.','I give up.'],speaker:'Eli, the friend encouraging Noah'},
-    {id:7,name:'Furniture fail',targetName:'Lucas',targetPronoun:'he',targetBadgePos:'center',feeling:'Frustration',expression:"I've had it.",frames:['Lucas starts assembling the furniture.','The pieces still do not fit for Lucas.','After a long time, Lucas is completely fed up.'],options:["I've had it.",'I hear you.','Don\'t give up.','That must be tough.'],speaker:'Lucas, the frustrated person'},
-    {id:8,name:'Flat tire',targetName:'Maya',targetPronoun:'she',targetBadgePos:'center',feeling:'Encouragement',expression:"Don't give up.",frames:["Noah's bike tire goes flat while Maya and Daniel are with him.",'Noah tries to fix it but gets discouraged.','Maya wants Noah to keep trying.'],options:["Don't give up.",'I give up.','I hear you.',"I've had it."],speaker:'Maya, the friend encouraging Noah'}
+  const allExpressions=["I'm at my wits' end.","I've had it.",'I give up.','That must be tough.','I hear you.','Hang in there.',"Don't give up.",'Stick with it.'];
+  const make=(setId,id,name,targetName,targetPronoun,feeling,expression,frames)=>{const distractors=allExpressions.filter(x=>x!==expression);const start=(id+setId)%distractors.length;return {setId,id,name,targetName,targetPronoun,feeling,expression,frames,options:[expression,...[0,1,2].map(n=>distractors[(start+n)%distractors.length])]};};
+  const storySets = [
+    [
+      make(1,1,"Maya's Science Project",'Maya','she','Frustration',"I'm at my wits' end.",['Maya finishes her science project.','She tries the experiment again.','Nothing works after several attempts.']),
+      make(1,2,"Ethan's Broken Laptop",'Ethan','he','Frustration',"I've had it.",['Ethan works on his presentation.','The laptop freezes and restarts again.','The same problem happens one more time.']),
+      make(1,3,"Sofia's Model Airplane",'Sofia','she','Frustration','I give up.',['Sofia starts building a model airplane.','The wings keep falling off.','The airplane comes apart again.']),
+      make(1,4,'Leo Misses the Soccer Final','Sofia','she','Empathy','That must be tough.',['Leo hurts his ankle during soccer practice.','He learns that he cannot play in the final.','Leo tells Sofia how disappointed he feels.']),
+      make(1,5,"Ava's Audition",'Maya','she','Empathy','I hear you.',['Ava practices for her audition.','She forgets part of the song on stage.','Ava tells Maya what happened.']),
+      make(1,6,"Ethan's Driving Test",'Leo','he','Encouragement','Hang in there.',['Ethan takes his driving test.','He makes a mistake and fails the test.','Leo talks with Ethan afterward.']),
+      make(1,7,"Maya's Running Practice",'Ava','she','Encouragement',"Don't give up.",['Maya practices on the school track.','She becomes exhausted during practice.','Ava returns to talk with Maya.']),
+      make(1,8,'Leo Learns the Guitar','Ethan','he','Encouragement','Stick with it.',['Leo starts learning the guitar.','He struggles after many attempts.','Ethan joins Leo during practice.'])
+    ],
+    [
+      make(2,1,"Ethan's Robot",'Ethan','he','Frustration',"I'm at my wits' end.",['Ethan builds a small robot.','The robot fails after another repair.','Ethan faces another pile of broken parts.']),
+      make(2,2,"Ava's Photography Project",'Ava','she','Frustration',"I've had it.",['Ava prepares her photography project.','Her camera creates another bad result.','The problem happens again.']),
+      make(2,3,"Leo's Cake",'Leo','he','Frustration','I give up.',['Leo starts baking a cake.','Another cake turns out badly.','The kitchen shows several failed attempts.']),
+      make(2,4,'Sofia Misses the School Trip','Maya','she','Empathy','That must be tough.',['Sofia packs for a school trip.','She becomes sick and misses the trip.','Sofia tells Maya how disappointed she is.']),
+      make(2,5,"Maya's Debate",'Ethan','he','Empathy','I hear you.',['Maya practices for a debate.','She forgets her argument.','Maya tells Ethan about the mistake.']),
+      make(2,6,'Ava Learns to Skateboard','Sofia','she','Encouragement','Hang in there.',['Ava begins learning to skateboard.','She struggles after many attempts.','Sofia talks with Ava at the skate park.']),
+      make(2,7,"Sofia's Chemistry Test",'Ava','she','Encouragement',"Don't give up.",['Sofia studies for chemistry.','A practice test shows many errors.','Ava joins Sofia at the study table.']),
+      make(2,8,"Ethan's Basketball Practice",'Leo','he','Encouragement','Stick with it.',['Ethan practices basketball.','He misses several shots.','Leo joins Ethan on the court.'])
+    ],
+    [
+      make(3,1,"Maya's Jammed Printer",'Maya','she','Frustration',"I'm at my wits' end.",['Maya prints her assignment.','She clears the jam, but paper sticks again.','The printer jams after another attempt.']),
+      make(3,2,"Sofia's Lost Presentation",'Sofia','she','Frustration',"I've had it.",['Sofia looks for her presentation.','She checks every folder and her USB drive.','The presentation is still missing.']),
+      make(3,3,"Ava's Costume Project",'Ava','she','Frustration','I give up.',['Ava sews a costume for the school play.','The seam tears while she repairs it.','The costume tears again.']),
+      make(3,4,'Ethan Misses the Concert','Leo','he','Empathy','That must be tough.',['Ethan gets ready for a concert.','A long delay makes him miss it.','Ethan tells Leo how disappointed he feels.']),
+      make(3,5,"Leo's Missed Bus",'Maya','she','Empathy','I hear you.',['Leo hurries toward the bus stop.','The bus leaves before he can board.','Leo tells Maya why he is upset.']),
+      make(3,6,"Maya's Piano Practice",'Sofia','she','Encouragement','Hang in there.',['Maya practices a difficult piano piece.','Repeated mistakes discourage her.','Sofia joins Maya at the piano.']),
+      make(3,7,"Ethan's Chess Practice",'Ava','she','Encouragement',"Don't give up.",['Ethan practices chess carefully.','Another loss leaves him discouraged.','Ava joins Ethan at the chessboard.']),
+      make(3,8,"Sofia's Community Garden",'Leo','he','Encouragement','Stick with it.',['Sofia plants a community garden.','Bad weather damages the young plants.','Leo joins Sofia in the garden.'])
+    ]
   ];
+  function chooseSet(storage,random=Math.random){let used=[];try{used=JSON.parse(storage.getItem('support-meter-played-sets-v16')||'[]');}catch{}if(!Array.isArray(used)||used.length>=3)used=[];const available=[1,2,3].filter(x=>!used.includes(x));const selected=available[Math.floor(random()*available.length)];storage.setItem('support-meter-played-sets-v16',JSON.stringify([...used,selected]));return selected;}
+  function shuffleStories(items,random=Math.random){const result=[...items];for(let i=result.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result;}
+  const selectedSet=chooseSet(localStorage);
+  const stories=shuffleStories(storySets[selectedSet-1]);
 
   const feelingHints = {
     Frustration:['Frustration describes the person who is fed up or upset because something is not working.','Look for the person who wants to stop because repeated attempts have failed.'],
@@ -47,13 +75,13 @@
   el.code.value = state.classCode;
 
   function story(){ return stories[state.storyIndex]; }
-  function asset(id,frame){ if(id===4){return frame===3?'assets/story1_3_blank.jpg':`assets/story1_${frame}.jpg`;} return `assets/stories/scenario${String(id).padStart(2,'0')}-${frame}.webp`; }
+  function asset(id,frame){return `assets/stories-v16/set-${selectedSet}/story-${id}-frame-${frame}.webp`;}
   function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function renderStory(){
     const s=story();
     el.frames.innerHTML='';
     s.frames.forEach((caption,i)=>{
-      const card=document.createElement('div');card.className='story-frame';card.style.setProperty('--frame-bg',`url("${asset(s.id,i+1)}")`);
+      const card=document.createElement('div');card.className=`story-frame story-${s.id} frame-${i+1}`;card.style.setProperty('--frame-bg',`url("${asset(s.id,i+1)}")`);
       const speech=(i===2)?`<div id="frameSpeech" class="speech ${s.nativeBubble?'native-bubble ':''}empty">${state.selectedExpression?escapeHtml(state.selectedExpression):''}</div>`:'';
       const targetBadge=(i===2 && s.showTargetBadge!==false)?`<div class="target-badge ${escapeHtml(s.targetBadgePos||'center')}">${escapeHtml(s.targetName)}</div>`:'';
       card.innerHTML=`<div class="story-visual" style="--scene-image:url(&quot;${asset(s.id,i+1)}&quot;)"><img class="story-image" src="${asset(s.id,i+1)}" alt="Story ${s.id}, scene ${i+1}"><div class="frame-num">${i+1}</div>${speech}</div>${targetBadge}<div class="caption">${escapeHtml(caption)}</div>${i<2?'<div class="story-arrow">➜</div>':''}`;
@@ -83,6 +111,7 @@
     el.coachImage.alt=kind==='correct'?'Support Meter coach celebrating a correct answer':'Support Meter coach giving a correction';
     el.feedbackTitle.textContent=title;el.feedbackText.textContent=text;
     setCoachVisible();
+    if(matchMedia('(max-width:900px)').matches)scrollTo({top:0,behavior:'smooth'});
   }
   function choiceWhy(expression){return expressionMeaning[expression]||'Think about who is speaking and what the phrase normally does in a conversation.';}
   function wrongFeedback(feelingCorrect,expressionCorrect){
@@ -129,7 +158,7 @@
   }
   function nextStory(){
     if(state.storyIndex>=stories.length-1){state.resolved=true;showFeedback('correct','Finished! 😆👍',`Final score: ${state.score.toLocaleString()} · Support Meter: ${state.meter}%`);el.next.classList.add('hidden');live('Completed game','completed');if(sb&&state.sessionId)sb.from('support_meter_sessions').update({status:'completed',phase:'completed',last_action:'Completed Support Meter',last_seen:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',state.sessionId);return;}
-    state.storyIndex++;state.selectedFeeling=null;state.selectedExpression=null;state.wrongFeelings=[];state.wrongExpressions=[];state.attempt=1;state.resolved=false;el.submit.classList.remove('hidden');el.next.classList.add('hidden');renderStory();live('Viewing next mini-story','story');
+    state.storyIndex++;state.selectedFeeling=null;state.selectedExpression=null;state.wrongFeelings=[];state.wrongExpressions=[];state.attempt=1;state.resolved=false;el.submit.classList.remove('hidden');el.next.classList.add('hidden');renderStory();if(matchMedia('(max-width:900px)').matches)scrollTo({top:0,behavior:'smooth'});live('Viewing next mini-story','story');
   }
 
   el.startBtn.onclick=async()=>{el.startError.classList.add('hidden');if(await createSession()){el.start.classList.add('hidden');el.game.classList.remove('hidden');renderStory();setInterval(()=>live('Active in game','playing'),cfg.heartbeatMs||10000);}};
