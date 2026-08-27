@@ -148,7 +148,7 @@
   el.exitCancel.onclick=()=>el.exitDialog.close();
   el.exitConfirm.onclick=leaveGame;
   addEventListener('beforeunload',event=>{if(core.shouldWarnBeforeExit(state)){event.preventDefault();event.returnValue='';}});
-  el.startBtn.onclick=async()=>{el.startError.classList.add('hidden');if(await createSession()){state.started=true;el.start.classList.add('hidden');el.game.classList.remove('hidden');renderStory();setInterval(()=>live('Active in game','playing'),cfg.heartbeatMs||10000);}};
+  el.startBtn.onclick=async()=>{el.startError.classList.add('hidden');if(await createSession()){state.started=true;el.start.classList.add('hidden');el.game.classList.remove('hidden');renderStory();await live('Viewing mini-story','story');setInterval(()=>live('Active in game','playing'),cfg.heartbeatMs||10000);}};
   el.coachToggle.onclick=()=>{state.coachEnabled=!state.coachEnabled;renderCoachToggle();setCoachVisible();};
   el.feedbackClose.onclick=hideFeedback;el.submit.onclick=submit;el.next.onclick=nextStory;renderCoachToggle();setCoachVisible();
 })();
