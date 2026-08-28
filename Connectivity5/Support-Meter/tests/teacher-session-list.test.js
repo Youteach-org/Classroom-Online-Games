@@ -18,7 +18,7 @@ test('teacher uses a permanent compact session list instead of a dropdown',()=>{
   assert.match(html,/id="sessionList"/);
   assert.doesNotMatch(html,/id="sessionSelect"/);
   assert.match(css,/\.session-list\{[^}]*display:grid/);
-  assert.match(css,/\.session-card\{[^}]*min-height:4[4-8]px/);
+  assert.match(css,/\.assignment-panel \.session-card\{[^}]*min-height:4[4-8]px/);
 });
 
 test('compact teacher header remains visible while student cards scroll',()=>{
