@@ -4,15 +4,17 @@
   const entries=value=>Object.entries(value||{}).map(([id,row])=>({id,...row}));
   function visibleRuns(value,sessionId,now=Date.now()){
     if(!sessionId)return [];
-    return entries(value).filter(run=>run.sessionId===sessionId&&Number(run.lastSeen||0)>now-HOUR).sort((a,b)=>String(a.studentName||'').localeCompare(String(b.studentName||'')));
+    return entries(value).filter(run=>(sessionId==='all'||run.sessionId===sessionId)&&Number(run.lastSeen||0)>now-HOUR).sort((a,b)=>String(a.studentName||'').localeCompare(String(b.studentName||'')));
   }
-  function normalizeSessions(sessionValue,runValue,now=Date.now()){
+  function normalizeSessions(sessionValue,runValue,now=Date.now(),onlineThresholdMs=40000){
     const runs=entries(runValue).filter(run=>Number(run.lastSeen||0)>now-HOUR);
     const result=[];const freeCount=runs.filter(run=>run.sessionId==='free').length;
-    if(freeCount)result.push({sessionId:'free',sessionType:'free',setNumber:null,studentCount:freeCount,createdAt:Math.min(...runs.filter(run=>run.sessionId==='free').map(run=>Number(run.startedAt||run.lastSeen||now))),label:`Free Mode · ${freeCount} student${freeCount===1?'':'s'}`});
+    const freeRuns=runs.filter(run=>run.sessionId==='free'),isOnline=run=>run.status==='online'&&Number(run.lastSeen||0)>now-onlineThresholdMs;
+    result.push({sessionId:'free',sessionType:'free',setNumber:null,studentCount:freeCount,onlineCount:freeRuns.filter(isOnline).length,createdAt:freeCount?Math.min(...freeRuns.map(run=>Number(run.startedAt||run.lastSeen||now))):now,label:`Free Mode · ${freeCount} student${freeCount===1?'':'s'}`});
     entries(sessionValue).filter(session=>session.status==='open').sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0)).forEach(session=>{
       const count=runs.filter(run=>run.sessionId===session.id).length;
-      result.push({...session,sessionId:session.id,sessionType:'assigned',studentCount:count,label:`Set ${session.setNumber} · ${count} student${count===1?'':'s'} · ${new Date(Number(session.createdAt||now)).toLocaleString()}`});
+      const sessionRuns=runs.filter(run=>run.sessionId===session.id);
+      result.push({...session,sessionId:session.id,sessionType:'assigned',studentCount:count,onlineCount:sessionRuns.filter(isOnline).length,label:`Set ${session.setNumber} · ${count} student${count===1?'':'s'} · ${new Date(Number(session.createdAt||now)).toLocaleString()}`});
     });
     return result;
   }

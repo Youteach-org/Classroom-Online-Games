@@ -41,9 +41,9 @@ test('session catalog includes Free Mode without selecting a session', () => {
   assert.equal(catalog[1].assignmentId,'a');
 });
 
-test('students stay hidden until a monitor session is selected', () => {
+test('all students are visible before a specific session is selected', () => {
   const now=Date.now(),students=[{id:'one',lastSeen:now},{id:'two',lastSeen:now}];
-  assert.deepEqual(visibleStudents(students, null, false),[]);
+  assert.equal(visibleStudents(students, 'all', false).length,2);
   assert.equal(visibleStudents(students, 'free', false).length,2);
 });
 

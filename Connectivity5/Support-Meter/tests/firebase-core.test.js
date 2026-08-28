@@ -20,6 +20,23 @@ test('runs are hidden before session selection and after one hour',()=>{
   assert.deepEqual(visibleRuns(runs,'free',now).map(run=>run.id),['recent']);
 });
 
+test('all view includes recent students from every session',()=>{
+  const now=2000000;
+  const runs={a:{studentName:'Amy',sessionId:'free',lastSeen:now-1000},b:{studentName:'Leo',sessionId:'assigned-1',lastSeen:now-2000},old:{studentName:'Old',sessionId:'free',lastSeen:now-3600001}};
+  assert.deepEqual(visibleRuns(runs,'all',now).map(run=>run.studentName),['Amy','Leo']);
+});
+
+test('session catalog always includes Free Mode and live counts',()=>{
+  const now=2000000;
+  const sessions={s1:{setNumber:1,status:'open',createdAt:now-5000}};
+  const runs={a:{sessionId:'s1',status:'online',lastSeen:now-1000},b:{sessionId:'s1',status:'offline',lastSeen:now-2000}};
+  const catalog=normalizeSessions(sessions,runs,now,40000);
+  assert.equal(catalog[0].sessionId,'free');
+  assert.equal(catalog[0].studentCount,0);
+  assert.equal(catalog[1].studentCount,2);
+  assert.equal(catalog[1].onlineCount,1);
+});
+
 test('redirect reset clears all progress and preserves student identity',()=>{
   const now=Date.parse('2026-08-28T13:00:00Z');
   const run={id:'r',studentName:'Amy',score:500,supportMeter:55,streak:3,storyProgress:5,attempt:2,liveFeeling:'Empathy',liveExpression:'I hear you.',redirectGeneration:1};
