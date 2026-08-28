@@ -5,6 +5,7 @@ const path = require('node:path');
 const css = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
 const teacherCss = fs.readFileSync(path.join(__dirname, '..', 'teacher-v21.css'), 'utf8');
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+const game = fs.readFileSync(path.join(__dirname, '..', 'game.js'), 'utf8');
 
 test('mobile shows complete story artwork', () => {
   assert.match(css, /@media\(max-width:900px\)[\s\S]*?\.story-image\{[^}]*object-fit:contain/);
@@ -32,7 +33,22 @@ test('focused teacher view keeps compact thumbnails in two columns', () => {
 
 test('mobile navigation and coach controls share a dedicated top row', () => {
   assert.match(html, /class="mobile-controlbar"[\s\S]*id="mobileStudentMenuBtn"[\s\S]*id="mobileCoachToggle"/);
-  assert.match(css, /@media\(max-width:900px\)[\s\S]*\.mobile-controlbar\{display:flex[^}]*justify-content:space-between/);
+  assert.match(css, /@media\(max-width:900px\)[\s\S]*\.mobile-controlbar\{display:grid/);
+});
+
+test('student name appears between mobile menu and coach controls', () => {
+  assert.match(html, /id="mobileStudentMenuBtn"[\s\S]*id="mobilePlayerName"[\s\S]*id="mobileCoachToggle"/);
+  assert.match(css, /@media\(max-width:900px\)[\s\S]*\.mobile-controlbar\{[^}]*grid-template-columns:minmax\(0,1fr\) minmax\(0,\.8fr\) minmax\(0,1fr\)/);
+});
+
+test('desktop student name occupies the right side of the action bar', () => {
+  assert.match(html, /id="submitBtn"[\s\S]*id="desktopPlayerName"[\s\S]*<\/div>/);
+  assert.match(css, /\.desktop-player-name\{[^}]*grid-column:3[^}]*justify-self:end/);
+});
+
+test('the chosen student name populates both responsive labels', () => {
+  assert.match(game, /mobilePlayerName\.textContent=label/);
+  assert.match(game, /desktopPlayerName\.textContent=label/);
 });
 
 test('desktop zoom-out cards use the same compact geometry as focus thumbnails', () => {

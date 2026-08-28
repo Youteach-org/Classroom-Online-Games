@@ -311,3 +311,14 @@ body{overflow:hidden}
 .student-menu-btn{position:static;z-index:auto;grid-column:1;grid-row:1;justify-self:start;max-width:240px;padding:9px 14px;border:2px solid #46d2ff;border-radius:999px;background:#071958;color:#fff;font-weight:900;font-size:13px;cursor:pointer;box-shadow:0 0 10px #29cfff55}
 .submit-btn,.next-btn{grid-column:2;grid-row:1}
 @media(max-width:900px){.bottombar{grid-template-columns:1fr;gap:8px;padding-bottom:calc(10px + env(safe-area-inset-bottom))}.submit-btn,.next-btn{grid-column:1;grid-row:1}.student-menu-btn{position:static;grid-column:1;grid-row:2;justify-self:center;width:min(94%,560px);max-width:94%;margin:0}.brand{grid-row:auto}.feedback{bottom:calc(142px + env(safe-area-inset-bottom))}}
+
+/* v23 — current student identity remains visible without overlaying game controls */
+.desktop-player-name{grid-column:3;grid-row:1;justify-self:end;max-width:100%;padding-right:42px;color:#fff;font-size:clamp(12px,1.05vw,16px);font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.mobile-player-name{display:none}
+@media(max-width:900px){
+  .mobile-controlbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.8fr) minmax(0,1fr);justify-content:normal}
+  .mobile-controlbar .student-menu-btn{grid-column:1;grid-row:1;justify-self:start;width:auto;max-width:100%}
+  .mobile-player-name{display:block;grid-column:2;min-width:0;color:#fff;font-size:clamp(10px,2.8vw,13px);font-weight:900;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mobile-controlbar .coach-toggle{grid-column:3;justify-self:end;width:auto;max-width:100%}
+  .desktop-player-name{display:none}
+}

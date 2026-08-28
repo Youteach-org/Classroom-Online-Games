@@ -40,7 +40,7 @@ import {resolveJoinToken,createRun,updateRun,appendResponse,watchRun,deleteRun,c
     meterFill:$('#meterFill'),meterValue:$('#meterValue'),score:$('#scoreValue'),streak:$('#streakValue'),story:$('#storyValue'),
     coachToggle:$('#coachToggle'),coachToggleState:$('#coachToggleState'),submit:$('#submitBtn'),next:$('#nextBtn'),
     feedback:$('#feedback'),coachImage:$('#coachImage'),feedbackTitle:$('#feedbackTitle'),feedbackText:$('#feedbackText'),feedbackClose:$('#feedbackClose'),
-    studentMenu:$('#studentMenuBtn'),mobileStudentMenu:$('#mobileStudentMenuBtn'),mobileCoachToggle:$('#mobileCoachToggle'),mobileCoachToggleState:$('#mobileCoachToggleState'),exitDialog:$('#exitDialog'),exitCancel:$('#exitCancel'),exitConfirm:$('#exitConfirm'),exitError:$('#exitError'),
+    studentMenu:$('#studentMenuBtn'),mobileStudentMenu:$('#mobileStudentMenuBtn'),mobilePlayerName:$('#mobilePlayerName'),desktopPlayerName:$('#desktopPlayerName'),mobileCoachToggle:$('#mobileCoachToggle'),mobileCoachToggleState:$('#mobileCoachToggleState'),exitDialog:$('#exitDialog'),exitCancel:$('#exitCancel'),exitConfirm:$('#exitConfirm'),exitError:$('#exitError'),
     redirectDialog:$('#redirectDialog'),redirectMessage:$('#redirectMessage'),redirectAccept:$('#redirectAccept')
   };
 
@@ -74,6 +74,7 @@ import {resolveJoinToken,createRun,updateRun,appendResponse,watchRun,deleteRun,c
   function renderStorySpeech(){const sp=$('#frameSpeech');if(!sp)return;sp.textContent=state.selectedExpression||'';sp.classList.toggle('empty',!state.selectedExpression);}
   function updateHud(){el.meterFill.style.width=`${state.meter}%`;el.meterValue.textContent=`${state.meter}%`;el.score.textContent=state.score.toLocaleString();el.streak.textContent=state.streak;el.story.textContent=`${state.storyIndex+1} / ${stories.length}`;}
   function renderCoachToggle(){const value=state.coachEnabled?'ON':'OFF';el.coachToggleState.textContent=value;el.coachToggle.setAttribute('aria-pressed',String(state.coachEnabled));if(el.mobileCoachToggleState)el.mobileCoachToggleState.textContent=value;if(el.mobileCoachToggle)el.mobileCoachToggle.setAttribute('aria-pressed',String(state.coachEnabled));}
+  function renderPlayerName(){const label=`Playing as: ${state.studentName}`;el.mobilePlayerName.textContent=label;el.desktopPlayerName.textContent=label;}
   function setCoachVisible(){
     el.feedback.classList.toggle('coach-disabled',!state.coachEnabled);
   }
@@ -159,7 +160,7 @@ import {resolveJoinToken,createRun,updateRun,appendResponse,watchRun,deleteRun,c
   el.exitCancel.onclick=()=>el.exitDialog.close();
   el.exitConfirm.onclick=leaveGame;
   addEventListener('beforeunload',event=>{if(core.shouldWarnBeforeExit(state)){event.preventDefault();event.returnValue='';}});
-  el.startBtn.onclick=async()=>{el.startError.classList.add('hidden');if(await createSession()){state.started=true;el.start.classList.add('hidden');el.game.classList.remove('hidden');renderStory();await live('Viewing mini-story','story');setInterval(()=>state.runId&&updateRun(state.runId,{status:state.completed?'completed':'online'}),cfg.heartbeatMs||30000);cleanupExpiredFreeRuns().catch(console.error);}};
+  el.startBtn.onclick=async()=>{el.startError.classList.add('hidden');if(await createSession()){state.started=true;renderPlayerName();el.start.classList.add('hidden');el.game.classList.remove('hidden');renderStory();await live('Viewing mini-story','story');setInterval(()=>state.runId&&updateRun(state.runId,{status:state.completed?'completed':'online'}),cfg.heartbeatMs||30000);cleanupExpiredFreeRuns().catch(console.error);}};
   function toggleCoach(){state.coachEnabled=!state.coachEnabled;renderCoachToggle();setCoachVisible();}
   el.coachToggle.onclick=toggleCoach;if(el.mobileCoachToggle)el.mobileCoachToggle.onclick=toggleCoach;
   el.redirectAccept.onclick=acceptRedirect;
