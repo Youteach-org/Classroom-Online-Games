@@ -1,13 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" translate="no" class="notranslate">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="google" content="notranslate">
+<meta name="robots" content="notranslate">
 <title>Support Meter — Connectivity 5</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="version-tag" aria-label="Version 23">v23</div>
+<div class="version-tag" aria-label="Version 24">v24</div>
 <div id="startScreen" class="start-screen">
   <div class="start-card">
     <div class="start-logo"><span class="speech-logo" aria-hidden="true"><svg viewBox="0 0 64 56" role="img" focusable="false"><path d="M8 5h48a6 6 0 0 1 6 6v28a6 6 0 0 1-6 6H31L20 53l2-8H8a6 6 0 0 1-6-6V11a6 6 0 0 1 6-6Z" fill="#f5f4ff" stroke="#76cfff" stroke-width="3"/><circle cx="22" cy="25" r="4" fill="#7158d9"/><circle cx="32" cy="25" r="4" fill="#7158d9"/><circle cx="42" cy="25" r="4" fill="#7158d9"/></svg></span><strong>SUPPORT <em>METER</em></strong></div>
@@ -85,6 +87,11 @@
     <button id="exitCancel" type="button">Cancel</button>
     <button id="exitConfirm" class="danger" type="button">Leave and delete progress</button>
   </div>
+</dialog>
+<dialog id="translationDialog" class="exit-dialog translation-dialog" aria-labelledby="translationTitle">
+  <h2 id="translationTitle">Translation detected</h2>
+  <p id="translationMessage">Translation is not allowed during this activity. Turn translation off, then select Check again.</p>
+  <div class="exit-actions"><button id="translationCheck" type="button">Check again</button></div>
 </dialog>
 <dialog id="redirectDialog" class="exit-dialog" aria-labelledby="redirectTitle">
   <h2 id="redirectTitle">Your teacher moved you</h2>

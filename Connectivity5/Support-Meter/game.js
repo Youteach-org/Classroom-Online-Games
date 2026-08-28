@@ -41,10 +41,10 @@ import {resolveJoinToken,createRun,updateRun,appendResponse,watchRun,deleteRun,c
     coachToggle:$('#coachToggle'),coachToggleState:$('#coachToggleState'),submit:$('#submitBtn'),next:$('#nextBtn'),
     feedback:$('#feedback'),coachImage:$('#coachImage'),feedbackTitle:$('#feedbackTitle'),feedbackText:$('#feedbackText'),feedbackClose:$('#feedbackClose'),
     studentMenu:$('#studentMenuBtn'),mobileStudentMenu:$('#mobileStudentMenuBtn'),mobilePlayerName:$('#mobilePlayerName'),desktopPlayerName:$('#desktopPlayerName'),mobileCoachToggle:$('#mobileCoachToggle'),mobileCoachToggleState:$('#mobileCoachToggleState'),exitDialog:$('#exitDialog'),exitCancel:$('#exitCancel'),exitConfirm:$('#exitConfirm'),exitError:$('#exitError'),
-    redirectDialog:$('#redirectDialog'),redirectMessage:$('#redirectMessage'),redirectAccept:$('#redirectAccept')
+    redirectDialog:$('#redirectDialog'),redirectMessage:$('#redirectMessage'),redirectAccept:$('#redirectAccept'),translationDialog:$('#translationDialog'),translationMessage:$('#translationMessage'),translationCheck:$('#translationCheck')
   };
 
-  const state = {storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,score:0,streak:0,coachEnabled:true,resolved:false,completed:false,started:false,runId:null,sessionId:'free',studentName:'',classCode:cfg.defaultClassCode||'CONNECT5',controlGeneration:0,pendingRedirect:null};
+  const state = {storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,score:0,streak:0,coachEnabled:true,resolved:false,completed:false,started:false,runId:null,sessionId:'free',studentName:'',classCode:cfg.defaultClassCode||'CONNECT5',controlGeneration:0,pendingRedirect:null,translationAttemptCount:0,translationBlocked:false};
   el.code.value = state.classCode;
 
   function story(){ return stories[state.storyIndex]; }
@@ -113,7 +113,7 @@ import {resolveJoinToken,createRun,updateRun,appendResponse,watchRun,deleteRun,c
     try{const created=await createRun({studentName:state.studentName,classCode:state.classCode,sessionId:state.sessionId,setNumber:selectedSet,storyOrder:stories.map(s=>s.id)});state.runId=created.runId;state.controlGeneration=created.run.redirectGeneration||0;stopWatchingRun=watchRun(state.runId,receiveTeacherControl);return true;}
     catch(error){console.error(error);el.startError.textContent='Could not connect to the class monitor. Please try again.';el.startError.classList.remove('hidden');return false;}
   }
-  function livePayload(lastAction,phase){return {studentName:state.studentName,currentStory:encodeStory(selectedSet,story().id),storyTitle:story().name,storySummary:story().frames.join(' '),storyProgress:state.storyIndex+1,phase,lastAction,liveExpression:state.selectedExpression,liveFeeling:state.selectedFeeling,attempt:state.attempt,supportMeter:state.meter,score:state.score,streak:state.streak,latestResult:lastAction.includes('Correct')?'correct':lastAction.includes('Incorrect')||lastAction.includes('revealed')?'incorrect':'waiting',status:state.completed?'completed':'online'};}
+  function livePayload(lastAction,phase){return {studentName:state.studentName,currentStory:encodeStory(selectedSet,story().id),storyTitle:story().name,storySummary:story().frames.join(' '),storyProgress:state.storyIndex+1,phase,lastAction,liveExpression:state.selectedExpression,liveFeeling:state.selectedFeeling,attempt:state.attempt,supportMeter:state.meter,score:state.score,streak:state.streak,translationAttemptCount:state.translationAttemptCount,latestResult:lastAction.includes('Correct')?'correct':lastAction.includes('Incorrect')||lastAction.includes('revealed')?'incorrect':'waiting',status:state.completed?'completed':'online'};}
   async function live(lastAction,phase){if(!state.runId)return;try{await updateRun(state.runId,livePayload(lastAction,phase));}catch(error){console.error(error);}}
   async function log(feelingCorrect,expressionCorrect,resolved){if(!state.runId)return;await appendResponse(state.runId,{storyId:encodeStory(selectedSet,story().id),storyTitle:story().name,attempt:state.attempt,selectedExpression:state.selectedExpression||'',selectedFeeling:state.selectedFeeling||'',expressionCorrect,feelingCorrect,resolved,correctExpression:story().expression,correctFeeling:story().feeling,score:state.score,supportMeter:state.meter});}
 
@@ -156,6 +156,10 @@ import {resolveJoinToken,createRun,updateRun,appendResponse,watchRun,deleteRun,c
     Object.assign(state,{storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,score:0,streak:0,resolved:false,completed:false,pendingRedirect:null});
     el.submit.classList.remove('hidden');el.next.classList.add('hidden');el.redirectDialog.close();renderStory();live('Started correct teacher session','story');
   }
+  function translationSignal(){return core.isTranslationDetected({className:document.documentElement.className,hasGoogleBanner:Boolean(document.querySelector('.goog-te-banner-frame,iframe.goog-te-banner-frame'))});}
+  function blockForTranslation(){if(!state.started||state.translationBlocked||!translationSignal())return;state.translationBlocked=true;state.translationAttemptCount++;el.translationMessage.textContent='Translation is not allowed during this activity. Turn translation off, then select Check again.';if(!el.translationDialog.open)el.translationDialog.showModal();live('Translation attempt detected','blocked');}
+  function checkTranslation(){if(translationSignal()){el.translationMessage.textContent='Translation is still active. Turn it off before continuing.';return;}state.translationBlocked=false;el.translationDialog.close();live('Translation disabled; activity resumed','playing');}
+  new MutationObserver(blockForTranslation).observe(document.documentElement,{attributes:true,attributeFilter:['class','lang'],childList:true,subtree:true});
   el.studentMenu.onclick=requestStudentMenu;if(el.mobileStudentMenu)el.mobileStudentMenu.onclick=requestStudentMenu;
   el.exitCancel.onclick=()=>el.exitDialog.close();
   el.exitConfirm.onclick=leaveGame;
@@ -164,5 +168,6 @@ import {resolveJoinToken,createRun,updateRun,appendResponse,watchRun,deleteRun,c
   function toggleCoach(){state.coachEnabled=!state.coachEnabled;renderCoachToggle();setCoachVisible();}
   el.coachToggle.onclick=toggleCoach;if(el.mobileCoachToggle)el.mobileCoachToggle.onclick=toggleCoach;
   el.redirectAccept.onclick=acceptRedirect;
+  el.translationCheck.onclick=checkTranslation;el.translationDialog.addEventListener('cancel',event=>event.preventDefault());
   el.feedbackClose.onclick=hideFeedback;el.submit.onclick=submit;el.next.onclick=nextStory;renderCoachToggle();setCoachVisible();
 })();

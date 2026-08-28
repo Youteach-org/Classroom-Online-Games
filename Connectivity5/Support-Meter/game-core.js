@@ -75,6 +75,9 @@
     return token && /^[A-Za-z0-9_-]{20,160}$/.test(token) ? token : null;
   }
   function shouldWarnBeforeExit(state) { return Boolean(state && state.started && !state.completed); }
+  function isTranslationDetected({className='',hasGoogleBanner=false}={}) {
+    return /(?:^|\s)translated-(?:ltr|rtl)(?:\s|$)/.test(String(className)) || Boolean(hasGoogleBanner);
+  }
 
-  return {INITIAL_STATE, allExpressions, expressionCategory, storySets, buildRun, parseJoinToken, shouldWarnBeforeExit};
+  return {INITIAL_STATE, allExpressions, expressionCategory, storySets, buildRun, parseJoinToken, shouldWarnBeforeExit, isTranslationDetected};
 });

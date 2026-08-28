@@ -48,3 +48,9 @@ test('unfinished runs warn before exit and completed runs do not', () => {
   assert.equal(core.shouldWarnBeforeExit({ started: true, completed: true }), false);
   assert.equal(core.shouldWarnBeforeExit({ started: false, completed: false }), false);
 });
+
+test('translation signals are detected without flagging the normal English page', () => {
+  assert.equal(core.isTranslationDetected({className:'notranslate',hasGoogleBanner:false}),false);
+  assert.equal(core.isTranslationDetected({className:'notranslate translated-ltr',hasGoogleBanner:false}),true);
+  assert.equal(core.isTranslationDetected({className:'notranslate',hasGoogleBanner:true}),true);
+});

@@ -315,6 +315,7 @@ body{overflow:hidden}
 /* v23 — current student identity remains visible without overlaying game controls */
 .desktop-player-name{grid-column:3;grid-row:1;justify-self:end;max-width:100%;padding-right:42px;color:#fff;font-size:clamp(12px,1.05vw,16px);font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
 .mobile-player-name{display:none}
+.translation-dialog{border-color:#ffcc31;text-align:center}.translation-dialog h2{color:#ffe05a}.translation-dialog .exit-actions{justify-content:center}
 @media(max-width:900px){
   .mobile-controlbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.8fr) minmax(0,1fr);justify-content:normal}
   .mobile-controlbar .student-menu-btn{grid-column:1;grid-row:1;justify-self:start;width:auto;max-width:100%}
