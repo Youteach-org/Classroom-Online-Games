@@ -1,6 +1,7 @@
+import {resolveJoinToken,createRun,updateRun,appendResponse,watchRun,deleteRun,cleanupExpiredFreeRuns} from './firebase-client.js';
+
 (() => {
   const cfg = window.SUPPORT_METER_CONFIG || {};
-  const sb = (window.supabase && cfg.supabaseUrl) ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey, {auth:{persistSession:false,autoRefreshToken:false}}) : null;
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
   const lang = window.SupportMeterLanguage;
@@ -15,7 +16,7 @@
   const joinToken=core.parseJoinToken(location.search);
   let selectedSet=selectRandomSet();
   let stories=core.buildRun({setNumber:selectedSet,assigned:false});
-  let liveChannel=null;
+  let stopWatchingRun=null;
 
   const feelingHints = {
     Frustration:['Frustration describes the person who is fed up or upset because something is not working.','Look for the person who wants to stop because repeated attempts have failed.'],
@@ -39,10 +40,11 @@
     meterFill:$('#meterFill'),meterValue:$('#meterValue'),score:$('#scoreValue'),streak:$('#streakValue'),story:$('#storyValue'),
     coachToggle:$('#coachToggle'),coachToggleState:$('#coachToggleState'),submit:$('#submitBtn'),next:$('#nextBtn'),
     feedback:$('#feedback'),coachImage:$('#coachImage'),feedbackTitle:$('#feedbackTitle'),feedbackText:$('#feedbackText'),feedbackClose:$('#feedbackClose'),
-    studentMenu:$('#studentMenuBtn'),exitDialog:$('#exitDialog'),exitCancel:$('#exitCancel'),exitConfirm:$('#exitConfirm'),exitError:$('#exitError')
+    studentMenu:$('#studentMenuBtn'),mobileStudentMenu:$('#mobileStudentMenuBtn'),mobileCoachToggle:$('#mobileCoachToggle'),mobileCoachToggleState:$('#mobileCoachToggleState'),exitDialog:$('#exitDialog'),exitCancel:$('#exitCancel'),exitConfirm:$('#exitConfirm'),exitError:$('#exitError'),
+    redirectDialog:$('#redirectDialog'),redirectMessage:$('#redirectMessage'),redirectAccept:$('#redirectAccept')
   };
 
-  const state = {storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,score:0,streak:0,coachEnabled:true,resolved:false,completed:false,started:false,sessionId:null,runToken:null,studentName:'',classCode:cfg.defaultClassCode||'CONNECT5'};
+  const state = {storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,score:0,streak:0,coachEnabled:true,resolved:false,completed:false,started:false,runId:null,sessionId:'free',studentName:'',classCode:cfg.defaultClassCode||'CONNECT5',controlGeneration:0,pendingRedirect:null};
   el.code.value = state.classCode;
 
   function story(){ return stories[state.storyIndex]; }
@@ -71,7 +73,7 @@
   }
   function renderStorySpeech(){const sp=$('#frameSpeech');if(!sp)return;sp.textContent=state.selectedExpression||'';sp.classList.toggle('empty',!state.selectedExpression);}
   function updateHud(){el.meterFill.style.width=`${state.meter}%`;el.meterValue.textContent=`${state.meter}%`;el.score.textContent=state.score.toLocaleString();el.streak.textContent=state.streak;el.story.textContent=`${state.storyIndex+1} / ${stories.length}`;}
-  function renderCoachToggle(){el.coachToggleState.textContent=state.coachEnabled?'ON':'OFF';el.coachToggle.setAttribute('aria-pressed',String(state.coachEnabled));}
+  function renderCoachToggle(){const value=state.coachEnabled?'ON':'OFF';el.coachToggleState.textContent=value;el.coachToggle.setAttribute('aria-pressed',String(state.coachEnabled));if(el.mobileCoachToggleState)el.mobileCoachToggleState.textContent=value;if(el.mobileCoachToggle)el.mobileCoachToggle.setAttribute('aria-pressed',String(state.coachEnabled));}
   function setCoachVisible(){
     el.feedback.classList.toggle('coach-disabled',!state.coachEnabled);
   }
@@ -102,21 +104,17 @@
 
   async function createSession(){
     state.studentName=(el.name.value.trim()||'Student').slice(0,60);state.classCode=(el.code.value.trim()||cfg.defaultClassCode||'CONNECT5').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,40);
-    if(!sb)return true;
     if(joinToken){
-      const resolved=await sb.rpc('resolve_support_meter_assignment',{p_join_token:joinToken});
-      if(resolved.error||!resolved.data?.length){el.startError.textContent='This activity link is invalid or has expired.';el.startError.classList.remove('hidden');return false;}
-      selectedSet=resolved.data[0].set_number;stories=core.buildRun({setNumber:selectedSet,assigned:true});
+      const resolved=await resolveJoinToken(joinToken);
+      if(!resolved){el.startError.textContent='This activity link is invalid or has expired.';el.startError.classList.remove('hidden');return false;}
+      state.sessionId=resolved.sessionId;selectedSet=Number(resolved.setNumber);stories=core.buildRun({setNumber:selectedSet,assigned:true});
     }
-    const {data,error}=await sb.rpc('create_support_meter_run',{p_student_name:state.studentName,p_class_code:state.classCode,p_set_number:selectedSet,p_story_order:stories.map(s=>s.id),p_join_token:joinToken});
-    if(error||!data?.length){el.startError.textContent='Could not connect to the class monitor. Please try again.';el.startError.classList.remove('hidden');return false;}
-    state.sessionId=data[0].session_id;state.runToken=data[0].run_token;
-    if(joinToken){liveChannel=sb.channel(`support-meter:${joinToken}`,{config:{broadcast:{self:false}}});liveChannel.subscribe();}
-    return true;
+    try{const created=await createRun({studentName:state.studentName,classCode:state.classCode,sessionId:state.sessionId,setNumber:selectedSet,storyOrder:stories.map(s=>s.id)});state.runId=created.runId;state.controlGeneration=created.run.redirectGeneration||0;stopWatchingRun=watchRun(state.runId,receiveTeacherControl);return true;}
+    catch(error){console.error(error);el.startError.textContent='Could not connect to the class monitor. Please try again.';el.startError.classList.remove('hidden');return false;}
   }
-  function livePayload(last_action,phase){return {session_id:state.sessionId,student_name:state.studentName,current_story:encodeStory(selectedSet,story().id),story_title:story().name,story_summary:story().frames.join(' '),story_progress:state.storyIndex+1,phase,last_action,live_expression:state.selectedExpression,live_feeling:state.selectedFeeling,attempt:state.attempt,support_meter:state.meter,score:state.score,streak:state.streak,latest_result:last_action.includes('Correct')?'correct':last_action.includes('Incorrect')||last_action.includes('revealed')?'incorrect':'waiting',status:state.completed?'completed':'online'};}
-  async function live(last_action,phase){if(!sb||!state.sessionId)return;const payload=livePayload(last_action,phase);await sb.rpc('update_support_meter_run',{p_session_id:state.sessionId,p_run_token:state.runToken,p_patch:payload});if(liveChannel)await liveChannel.send({type:'broadcast',event:'student-state',payload});}
-  async function log(feelingCorrect,expressionCorrect,resolved){if(!sb||!state.sessionId)return;await sb.rpc('log_support_meter_response',{p_session_id:state.sessionId,p_run_token:state.runToken,p_story_id:encodeStory(selectedSet,story().id),p_story_title:story().name,p_attempt:state.attempt,p_selected_expression:state.selectedExpression||'',p_selected_feeling:state.selectedFeeling||'',p_expression_correct:expressionCorrect,p_feeling_correct:feelingCorrect,p_resolved:resolved,p_correct_expression:story().expression,p_correct_feeling:story().feeling,p_score:state.score,p_support_meter:state.meter});}
+  function livePayload(lastAction,phase){return {studentName:state.studentName,currentStory:encodeStory(selectedSet,story().id),storyTitle:story().name,storySummary:story().frames.join(' '),storyProgress:state.storyIndex+1,phase,lastAction,liveExpression:state.selectedExpression,liveFeeling:state.selectedFeeling,attempt:state.attempt,supportMeter:state.meter,score:state.score,streak:state.streak,latestResult:lastAction.includes('Correct')?'correct':lastAction.includes('Incorrect')||lastAction.includes('revealed')?'incorrect':'waiting',status:state.completed?'completed':'online'};}
+  async function live(lastAction,phase){if(!state.runId)return;try{await updateRun(state.runId,livePayload(lastAction,phase));}catch(error){console.error(error);}}
+  async function log(feelingCorrect,expressionCorrect,resolved){if(!state.runId)return;await appendResponse(state.runId,{storyId:encodeStory(selectedSet,story().id),storyTitle:story().name,attempt:state.attempt,selectedExpression:state.selectedExpression||'',selectedFeeling:state.selectedFeeling||'',expressionCorrect,feelingCorrect,resolved,correctExpression:story().expression,correctFeeling:story().feeling,score:state.score,supportMeter:state.meter});}
 
   async function submit(){
     if(!state.selectedFeeling||!state.selectedExpression){showFeedback('wrong','Choose both first','Select the feeling and the expression before you submit.');return;}
@@ -135,20 +133,35 @@
     }
   }
   function nextStory(){
-    if(state.storyIndex>=stories.length-1){state.resolved=true;state.completed=true;showFeedback('correct','Finished! 😆👍',`Final score: ${state.score.toLocaleString()} · Support Meter: ${state.meter}%`);el.next.classList.add('hidden');if(sb&&state.sessionId)sb.rpc('update_support_meter_run',{p_session_id:state.sessionId,p_run_token:state.runToken,p_patch:{status:'completed',phase:'completed',last_action:'Completed Support Meter',latest_result:'completed',completed_at:new Date().toISOString()}});live('Completed game','completed');return;}
+    if(state.storyIndex>=stories.length-1){state.resolved=true;state.completed=true;showFeedback('correct','Finished! 😆👍',`Final score: ${state.score.toLocaleString()} · Support Meter: ${state.meter}%`);el.next.classList.add('hidden');if(state.runId)updateRun(state.runId,{status:'completed',phase:'completed',lastAction:'Completed Support Meter',latestResult:'completed',completedAt:Date.now()});return;}
     state.storyIndex++;state.selectedFeeling=null;state.selectedExpression=null;state.wrongFeelings=[];state.wrongExpressions=[];state.attempt=1;state.resolved=false;el.submit.classList.remove('hidden');el.next.classList.add('hidden');renderStory();if(matchMedia('(max-width:900px)').matches)scrollTo({top:0,behavior:'smooth'});live('Viewing next mini-story','story');
   }
 
   async function leaveGame(){
     el.exitError.classList.add('hidden');
-    if(sb&&state.sessionId){const {data,error}=await sb.rpc('delete_support_meter_run',{p_session_id:state.sessionId,p_run_token:state.runToken});if(error||data!==true){el.exitError.textContent='Could not delete this activity. Please try again.';el.exitError.classList.remove('hidden');return;}}
+    if(state.runId){try{await deleteRun(state.runId);}catch(error){el.exitError.textContent='Could not delete this activity. Please try again.';el.exitError.classList.remove('hidden');return;}}
     location.assign('/');
   }
-  el.studentMenu.onclick=()=>{if(core.shouldWarnBeforeExit(state))el.exitDialog.showModal();else location.assign('/');};
+  function requestStudentMenu(){if(core.shouldWarnBeforeExit(state))el.exitDialog.showModal();else location.assign('/');}
+  function receiveTeacherControl(control){
+    if(!control||state.pendingRedirect)return;
+    const generation=Number(control.redirectGeneration||0);
+    if(generation<=state.controlGeneration)return;
+    state.pendingRedirect=control;el.redirectMessage.textContent=control.redirectReason||'You joined the wrong session. Your teacher moved you to the correct activity and cleared your previous progress.';el.redirectDialog.showModal();
+  }
+  function acceptRedirect(){
+    const control=state.pendingRedirect;if(!control)return;
+    state.controlGeneration=Number(control.redirectGeneration||0);state.sessionId=control.sessionId;selectedSet=Number(control.setNumber);stories=core.buildRun({setNumber:selectedSet,assigned:true});
+    Object.assign(state,{storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,score:0,streak:0,resolved:false,completed:false,pendingRedirect:null});
+    el.submit.classList.remove('hidden');el.next.classList.add('hidden');el.redirectDialog.close();renderStory();live('Started correct teacher session','story');
+  }
+  el.studentMenu.onclick=requestStudentMenu;if(el.mobileStudentMenu)el.mobileStudentMenu.onclick=requestStudentMenu;
   el.exitCancel.onclick=()=>el.exitDialog.close();
   el.exitConfirm.onclick=leaveGame;
   addEventListener('beforeunload',event=>{if(core.shouldWarnBeforeExit(state)){event.preventDefault();event.returnValue='';}});
-  el.startBtn.onclick=async()=>{el.startError.classList.add('hidden');if(await createSession()){state.started=true;el.start.classList.add('hidden');el.game.classList.remove('hidden');renderStory();await live('Viewing mini-story','story');setInterval(()=>live('Active in game','playing'),cfg.heartbeatMs||10000);}};
-  el.coachToggle.onclick=()=>{state.coachEnabled=!state.coachEnabled;renderCoachToggle();setCoachVisible();};
+  el.startBtn.onclick=async()=>{el.startError.classList.add('hidden');if(await createSession()){state.started=true;el.start.classList.add('hidden');el.game.classList.remove('hidden');renderStory();await live('Viewing mini-story','story');setInterval(()=>state.runId&&updateRun(state.runId,{status:state.completed?'completed':'online'}),cfg.heartbeatMs||30000);cleanupExpiredFreeRuns().catch(console.error);}};
+  function toggleCoach(){state.coachEnabled=!state.coachEnabled;renderCoachToggle();setCoachVisible();}
+  el.coachToggle.onclick=toggleCoach;if(el.mobileCoachToggle)el.mobileCoachToggle.onclick=toggleCoach;
+  el.redirectAccept.onclick=acceptRedirect;
   el.feedbackClose.onclick=hideFeedback;el.submit.onclick=submit;el.next.onclick=nextStory;renderCoachToggle();setCoachVisible();
 })();

@@ -4,6 +4,7 @@
   --green:#29cd67; --red:#ed3348;
 }
 *{box-sizing:border-box} html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#020412;color:white} button,input{font:inherit}.hidden{display:none!important}
+.mobile-controlbar{display:none}
 
 /* login */
 .start-screen{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 10%,#1744ba 0,#081553 50%,#020417 100%)}
@@ -224,6 +225,9 @@ body{overflow:hidden}
 .story-arrow{top:41%}
 
 @media(max-width:900px){
+  .mobile-controlbar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;background:#07175b;border-bottom:2px solid #3ed2ff}
+  .mobile-controlbar .student-menu-btn,.mobile-controlbar .coach-toggle{position:static;width:auto;max-width:48%;margin:0;font-size:11px;padding:7px 9px}
+  .choice-tools,.bottombar .student-menu-btn{display:none}
   body{overflow:auto;background:#07164a}
   .game{width:100%;min-height:100dvh;height:auto;overflow:visible;padding:0}
   .game-shell{width:100%;height:auto;min-height:100dvh;max-width:none;overflow:visible;border-radius:0}

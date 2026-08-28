@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Support Meter — Connectivity 5</title>
 <link rel="stylesheet" href="styles.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div class="version-tag" aria-label="Version 21">v21</div>
+<div class="version-tag" aria-label="Version 22">v22</div>
 <div id="startScreen" class="start-screen">
   <div class="start-card">
     <div class="start-logo"><span class="speech-logo" aria-hidden="true"><svg viewBox="0 0 64 56" role="img" focusable="false"><path d="M8 5h48a6 6 0 0 1 6 6v28a6 6 0 0 1-6 6H31L20 53l2-8H8a6 6 0 0 1-6-6V11a6 6 0 0 1 6-6Z" fill="#f5f4ff" stroke="#76cfff" stroke-width="3"/><circle cx="22" cy="25" r="4" fill="#7158d9"/><circle cx="32" cy="25" r="4" fill="#7158d9"/><circle cx="42" cy="25" r="4" fill="#7158d9"/></svg></span><strong>SUPPORT <em>METER</em></strong></div>
@@ -22,6 +21,10 @@
 
 <main id="game" class="game hidden">
   <section class="game-shell">
+    <div class="mobile-controlbar">
+      <button id="mobileStudentMenuBtn" class="student-menu-btn" type="button">← Back to Student Menu</button>
+      <button id="mobileCoachToggle" class="coach-toggle" type="button" aria-pressed="true"><span class="coach-label">Coach</span><span class="coach-switch"><b id="mobileCoachToggleState">ON</b><i class="coach-knob" aria-hidden="true"></i></span></button>
+    </div>
     <header class="topbar">
       <div class="brand">
         <span class="speech-logo" aria-hidden="true"><svg viewBox="0 0 64 56" role="img" focusable="false"><path d="M8 5h48a6 6 0 0 1 6 6v28a6 6 0 0 1-6 6H31L20 53l2-8H8a6 6 0 0 1-6-6V11a6 6 0 0 1 6-6Z" fill="#f5f4ff" stroke="#76cfff" stroke-width="3"/><circle cx="22" cy="25" r="4" fill="#7158d9"/><circle cx="32" cy="25" r="4" fill="#7158d9"/><circle cx="42" cy="25" r="4" fill="#7158d9"/></svg></span>
@@ -81,9 +84,15 @@
     <button id="exitConfirm" class="danger" type="button">Leave and delete progress</button>
   </div>
 </dialog>
+<dialog id="redirectDialog" class="exit-dialog" aria-labelledby="redirectTitle">
+  <h2 id="redirectTitle">Your teacher moved you</h2>
+  <p id="redirectMessage">You joined the wrong session. Your progress was cleared so you can start the correct activity.</p>
+  <div class="exit-actions"><button id="redirectAccept" type="button">Start correct session</button></div>
+</dialog>
 <script src="config.js"></script>
 <script src="language.js"></script>
 <script src="game-core.js"></script>
-<script src="game.js"></script>
+<script src="firebase-core.js"></script>
+<script type="module" src="game.js"></script>
 </body>
 </html>

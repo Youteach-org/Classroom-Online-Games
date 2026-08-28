@@ -1,0 +1,22 @@
+{
+  "classroomGames": {
+    "supportMeter": {
+      ".read": true,
+      ".write": true,
+      "sessions": {
+        "$sessionId": {
+          ".validate": "!newData.exists() || (newData.hasChildren(['setNumber','status','createdAt']) && newData.child('setNumber').isNumber() && newData.child('setNumber').val() >= 1 && newData.child('setNumber').val() <= 3 && (newData.child('status').val() === 'open' || newData.child('status').val() === 'closed'))"
+        }
+      },
+      "sessionTokens": {
+        "$token": { ".validate": "!newData.exists() || (newData.hasChild('sessionId') && newData.child('sessionId').isString())" }
+      },
+      "runs": {
+        ".indexOn": ["sessionId", "lastSeen"],
+        "$runId": {
+          ".validate": "!newData.exists() || (newData.hasChildren(['studentName','sessionId','setNumber','lastSeen']) && newData.child('studentName').isString() && newData.child('studentName').val().length <= 60 && newData.child('sessionId').isString() && newData.child('setNumber').isNumber() && newData.child('setNumber').val() >= 1 && newData.child('setNumber').val() <= 3 && newData.child('lastSeen').isNumber())"
+        }
+      }
+    }
+  }
+}

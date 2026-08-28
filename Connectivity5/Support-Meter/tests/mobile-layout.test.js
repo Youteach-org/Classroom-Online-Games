@@ -29,3 +29,13 @@ test('focused teacher view keeps compact thumbnails in two columns', () => {
   assert.match(teacherCss, /\.thumbnail-rail \.live-grid\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.doesNotMatch(teacherCss, /\.thumbnail-rail\{[^}]*max-height:calc\(100vh/);
 });
+
+test('mobile navigation and coach controls share a dedicated top row', () => {
+  assert.match(html, /class="mobile-controlbar"[\s\S]*id="mobileStudentMenuBtn"[\s\S]*id="mobileCoachToggle"/);
+  assert.match(css, /@media\(max-width:900px\)[\s\S]*\.mobile-controlbar\{display:flex[^}]*justify-content:space-between/);
+});
+
+test('desktop zoom-out cards use the same compact geometry as focus thumbnails', () => {
+  assert.match(teacherCss, /\.grid \.student-card,\.thumbnail-rail \.student-card\{/);
+  assert.match(teacherCss, /\.grid\{[^}]*grid-template-columns:repeat\(auto-fill,minmax\(300px,1fr\)\)/);
+});
