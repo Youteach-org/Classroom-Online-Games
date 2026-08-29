@@ -5,26 +5,26 @@ const path=require('node:path');
 const root=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'teacher.html'),'utf8');
 const js=fs.readFileSync(path.join(root,'teacher.js'),'utf8');
-const cssPath=path.join(root,'teacher-v28.css');
+const cssPath=path.join(root,'teacher-v29.css');
 const css=fs.existsSync(cssPath)?fs.readFileSync(cssPath,'utf8'):'';
 const student=fs.readFileSync(path.join(root,'index.html'),'utf8');
 
-test('student and teacher pages share version 28',()=>{
-  assert.match(student,/aria-label="Version 28">v28/);
-  assert.match(html,/aria-label="Version 28">v28/);
+test('student and teacher pages share version 29',()=>{
+  assert.match(student,/aria-label="Version 29">v29/);
+  assert.match(html,/aria-label="Version 29">v29/);
 });
 
 test('teacher uses a permanent compact session list instead of a dropdown',()=>{
   assert.match(html,/id="sessionList"/);
   assert.doesNotMatch(html,/id="sessionSelect"/);
   assert.match(css,/\.session-list\{[^}]*display:flex/);
-  assert.match(css,/\.assignment-panel \.session-card\{[^}]*min-height:3[2-6]px/);
+  assert.match(css,/\.session-card\{[^}]*min-height:3[2-6]px/);
 });
 
-test('compact teacher header remains visible while student cards scroll',()=>{
-  assert.match(css,/\.teacher-header\{[^}]*position:sticky/);
-  assert.match(css,/\.teacher-header\{[^}]*top:0/);
-  assert.match(css,/\.teacher-header\{[^}]*z-index:/);
+test('only the blue title and session ribbon remain fixed',()=>{
+  assert.match(html,/class="monitor-sticky-header"[\s\S]*class="teacher-header"[\s\S]*class="session-list-wrap"[\s\S]*<\/div>\s*<section class="assignment-panel"/);
+  assert.match(css,/\.monitor-sticky-header\{[^}]*position:sticky[^}]*top:0[^}]*z-index:/);
+  assert.doesNotMatch(css,/\.teacher-header\{[^}]*position:sticky/);
 });
 
 test('session controls use one compact row without displaying the full student URL',()=>{
@@ -43,5 +43,13 @@ test('teacher defaults to all students and filters only after a session click',(
 test('any number of sessions stays in one horizontal row and selected session remains visible',()=>{
   assert.match(css,/\.session-list\{[^}]*display:flex[^}]*overflow-x:auto[^}]*flex-wrap:nowrap/);
   assert.match(js,/scrollSelectedSessionIntoView/);
-  assert.match(js,/scrollIntoView\(\{block:'nearest',inline:'nearest'/);
+  assert.doesNotMatch(js,/scrollIntoView/);
+  assert.match(js,/el\.sessions\.scrollTo\(\{left:/);
+  assert.doesNotMatch(js,/function refreshSessionList\(\)[^}]*scrollSelectedSessionIntoView/);
+});
+
+test('zoom-out student cards fit more students without hiding live activity',()=>{
+  assert.match(css,/\.grid\{[^}]*minmax\(260px,1fr\)/);
+  assert.match(css,/\.grid \.live-grid\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+  assert.match(css,/\.grid \.story-summary\{[^}]*-webkit-line-clamp:1/);
 });
