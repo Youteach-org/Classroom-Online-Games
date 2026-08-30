@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="version-tag" aria-label="Version 29">v29</div>
+<div class="version-tag" aria-label="Version 30">v30</div>
 <div id="startScreen" class="start-screen">
   <div class="start-card">
     <div class="start-logo"><span class="speech-logo" aria-hidden="true"><svg viewBox="0 0 64 56" role="img" focusable="false"><path d="M8 5h48a6 6 0 0 1 6 6v28a6 6 0 0 1-6 6H31L20 53l2-8H8a6 6 0 0 1-6-6V11a6 6 0 0 1 6-6Z" fill="#f5f4ff" stroke="#76cfff" stroke-width="3"/><circle cx="22" cy="25" r="4" fill="#7158d9"/><circle cx="32" cy="25" r="4" fill="#7158d9"/><circle cx="42" cy="25" r="4" fill="#7158d9"/></svg></span><strong>SUPPORT <em>METER</em></strong></div>
@@ -78,6 +78,18 @@
       </div>
     </div>
   </section>
+  <section id="resultScreen" class="result-screen hidden" aria-labelledby="resultStudentName">
+    <div class="result-card">
+      <div class="result-card-top"><div class="result-brand">SUPPORT <span>METER</span></div><div class="result-complete">✓ ACTIVITY COMPLETED</div></div>
+      <div class="result-card-body"><div class="result-eyebrow">FINAL RESULT</div><h1 id="resultStudentName">Student</h1><p id="resultSetLine">Connectivity 5 · Set 1 · 8 of 8 stories completed</p>
+        <div class="result-scores"><div><b>★</b><strong id="resultMeter">0%</strong><small>Support Meter</small></div><div><b>◆</b><strong id="resultScore">0</strong><small>Score</small></div><div><b>▲</b><strong id="resultStreak">0</strong><small>Final Streak</small></div></div>
+        <div class="result-meta"><span><strong>Completed:</strong> <span id="resultCompleted"></span></span><span><strong>Record:</strong> <span id="resultCode"></span></span></div>
+      </div>
+      <div class="result-card-footer"><span>Generated from the verified Support Meter activity record</span><span>★</span></div>
+    </div>
+    <canvas id="resultCanvas" class="hidden" width="1200" height="720" aria-hidden="true"></canvas>
+    <div class="result-actions"><button id="downloadResult" type="button">Download Result (PNG)</button><button id="finishedStudentMenu" class="student-menu-btn" type="button">← Back to Student Menu</button></div>
+  </section>
 </main>
 <dialog id="exitDialog" class="exit-dialog" aria-labelledby="exitTitle">
   <h2 id="exitTitle">Leave this activity?</h2>
@@ -102,6 +114,7 @@
 <script src="language.js"></script>
 <script src="game-core.js"></script>
 <script src="firebase-core.js"></script>
+<script src="result-certificate.js"></script>
 <script type="module" src="game.js"></script>
 </body>
 </html>

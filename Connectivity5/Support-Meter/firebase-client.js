@@ -30,6 +30,10 @@ export async function createRun(input){
 }
 
 export async function updateRun(runId,patch){await update(at(`runs/${runId}`),{...patch,lastSeen:Date.now(),updatedAt:Date.now()});}
+export async function completeRun(runId,patch){
+  const runRef=at(`runs/${runId}`);await update(runRef,{...patch,status:'completed',phase:'completed',completedAt:serverTimestamp(),lastSeen:serverTimestamp(),updatedAt:serverTimestamp()});
+  return value(await get(runRef));
+}
 export async function appendResponse(runId,response){const responseRef=push(at(`responses/${runId}`));await set(responseRef,{...response,createdAt:Date.now()});return responseRef.key;}
 export function watchRun(runId,callback){return onValue(at(`runs/${runId}`),snapshot=>callback(value(snapshot)));}
 export function watchSessions(callback){return onValue(at(''),snapshot=>{const data=value(snapshot)||{};callback({sessions:data.sessions||{},runs:data.runs||{}});});}

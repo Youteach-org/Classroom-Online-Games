@@ -1,4 +1,4 @@
-import {resolveJoinToken,createRun,updateRun,appendResponse,watchRun,deleteRun,cleanupExpiredFreeRuns} from './firebase-client.js';
+import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun,deleteRun,cleanupExpiredFreeRuns} from './firebase-client.js';
 
 (() => {
   const cfg = window.SUPPORT_METER_CONFIG || {};
@@ -41,10 +41,11 @@ import {resolveJoinToken,createRun,updateRun,appendResponse,watchRun,deleteRun,c
     coachToggle:$('#coachToggle'),coachToggleState:$('#coachToggleState'),submit:$('#submitBtn'),next:$('#nextBtn'),
     feedback:$('#feedback'),coachImage:$('#coachImage'),feedbackTitle:$('#feedbackTitle'),feedbackText:$('#feedbackText'),feedbackClose:$('#feedbackClose'),
     studentMenu:$('#studentMenuBtn'),mobileStudentMenu:$('#mobileStudentMenuBtn'),mobilePlayerName:$('#mobilePlayerName'),desktopPlayerName:$('#desktopPlayerName'),mobileCoachToggle:$('#mobileCoachToggle'),mobileCoachToggleState:$('#mobileCoachToggleState'),exitDialog:$('#exitDialog'),exitCancel:$('#exitCancel'),exitConfirm:$('#exitConfirm'),exitError:$('#exitError'),
-    redirectDialog:$('#redirectDialog'),redirectMessage:$('#redirectMessage'),redirectAccept:$('#redirectAccept'),translationDialog:$('#translationDialog'),translationMessage:$('#translationMessage'),translationCheck:$('#translationCheck')
+    redirectDialog:$('#redirectDialog'),redirectMessage:$('#redirectMessage'),redirectAccept:$('#redirectAccept'),translationDialog:$('#translationDialog'),translationMessage:$('#translationMessage'),translationCheck:$('#translationCheck'),
+    gameShell:$('.game-shell'),resultScreen:$('#resultScreen'),resultStudentName:$('#resultStudentName'),resultSetLine:$('#resultSetLine'),resultMeter:$('#resultMeter'),resultScore:$('#resultScore'),resultStreak:$('#resultStreak'),resultCompleted:$('#resultCompleted'),resultCode:$('#resultCode'),resultCanvas:$('#resultCanvas'),downloadResult:$('#downloadResult'),finishedStudentMenu:$('#finishedStudentMenu')
   };
 
-  const state = {storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,score:0,streak:0,coachEnabled:true,resolved:false,completed:false,started:false,runId:null,sessionId:'free',studentName:'',classCode:cfg.defaultClassCode||'CONNECT5',controlGeneration:0,pendingRedirect:null,translationAttemptCount:0,translationBlocked:false};
+  const state = {storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,score:0,streak:0,coachEnabled:true,resolved:false,completed:false,started:false,runId:null,sessionId:'free',studentName:'',classCode:cfg.defaultClassCode||'CONNECT5',controlGeneration:0,pendingRedirect:null,translationAttemptCount:0,translationBlocked:false,resultData:null};
   el.code.value = state.classCode;
 
   function story(){ return stories[state.storyIndex]; }
@@ -133,8 +134,17 @@ import {resolveJoinToken,createRun,updateRun,appendResponse,watchRun,deleteRun,c
       const reveal=revealFeedback();state.selectedFeeling=s.feeling;state.selectedExpression=s.expression;state.resolved=true;renderFeelings();renderExpressions();renderStorySpeech();el.submit.classList.add('hidden');el.next.classList.remove('hidden');showFeedback('wrong','Here is the match',reveal);await live('Answer revealed after second attempt','feedback');
     }
   }
-  function nextStory(){
-    if(state.storyIndex>=stories.length-1){state.resolved=true;state.completed=true;showFeedback('correct','Finished! 😆👍',`Final score: ${state.score.toLocaleString()} · Support Meter: ${state.meter}%`);el.next.classList.add('hidden');if(state.runId)updateRun(state.runId,{status:'completed',phase:'completed',lastAction:'Completed Support Meter',latestResult:'completed',completedAt:Date.now()});return;}
+  function showFinalResult(completedAt){
+    state.resultData=window.SupportMeterResult.buildResultData({studentName:state.studentName,setNumber:selectedSet,supportMeter:state.meter,score:state.score,streak:state.streak,completedAt,runId:state.runId});
+    el.resultStudentName.textContent=state.resultData.studentName;el.resultSetLine.textContent=`Connectivity 5 · ${state.resultData.setLabel} · 8 of 8 stories completed`;el.resultMeter.textContent=state.resultData.supportMeter;el.resultScore.textContent=state.resultData.score;el.resultStreak.textContent=state.resultData.streak;el.resultCompleted.textContent=state.resultData.completedLabel;el.resultCode.textContent=state.resultData.recordCode;
+    window.SupportMeterResult.drawResult(el.resultCanvas,state.resultData);el.gameShell.classList.add('hidden');el.resultScreen.classList.remove('hidden');scrollTo({top:0,behavior:'smooth'});
+  }
+  function downloadFinalResult(){
+    if(!state.completed||!state.resultData)return;const name=window.SupportMeterResult.fileName(state.resultData),save=href=>{const anchor=document.createElement('a');anchor.href=href;anchor.download=name;anchor.click();};
+    el.resultCanvas.toBlob(blob=>{if(!blob){save(el.resultCanvas.toDataURL('image/png'));return;}const url=URL.createObjectURL(blob);save(url);setTimeout(()=>URL.revokeObjectURL(url),1000);},'image/png');
+  }
+  async function nextStory(){
+    if(state.storyIndex>=stories.length-1){state.resolved=true;try{const completed=await completeRun(state.runId,{lastAction:'Completed Support Meter',latestResult:'completed',storyProgress:stories.length,supportMeter:state.meter,score:state.score,streak:state.streak});state.completed=true;el.next.classList.add('hidden');showFinalResult(completed.completedAt);}catch(error){console.error(error);showFeedback('wrong','Could not save your result','Check your connection, then select Next Story again to finish and create your verified result.');}return;}
     state.storyIndex++;state.selectedFeeling=null;state.selectedExpression=null;state.wrongFeelings=[];state.wrongExpressions=[];state.attempt=1;state.resolved=false;el.submit.classList.remove('hidden');el.next.classList.add('hidden');renderStory();if(matchMedia('(max-width:900px)').matches)scrollTo({top:0,behavior:'smooth'});live('Viewing next mini-story','story');
   }
 
@@ -169,5 +179,5 @@ import {resolveJoinToken,createRun,updateRun,appendResponse,watchRun,deleteRun,c
   el.coachToggle.onclick=toggleCoach;if(el.mobileCoachToggle)el.mobileCoachToggle.onclick=toggleCoach;
   el.redirectAccept.onclick=acceptRedirect;
   el.translationCheck.onclick=checkTranslation;el.translationDialog.addEventListener('cancel',event=>event.preventDefault());
-  el.feedbackClose.onclick=hideFeedback;el.submit.onclick=submit;el.next.onclick=nextStory;renderCoachToggle();setCoachVisible();
+  el.feedbackClose.onclick=hideFeedback;el.submit.onclick=submit;el.next.onclick=nextStory;el.downloadResult.onclick=downloadFinalResult;el.finishedStudentMenu.onclick=requestStudentMenu;renderCoachToggle();setCoachVisible();
 })();
