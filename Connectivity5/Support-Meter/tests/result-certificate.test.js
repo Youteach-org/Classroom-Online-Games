@@ -34,3 +34,12 @@ test('completion time comes from Firebase server and both pages use version 30',
   const teacher=fs.readFileSync(path.join(root,'teacher.html'),'utf8');
   assert.match(teacher,/aria-label="Version 30">v30/);
 });
+
+test('teacher can compare the completed student record code',()=>{
+  const teacher=fs.readFileSync(path.join(root,'teacher.html'),'utf8');
+  const teacherJs=fs.readFileSync(path.join(root,'teacher.js'),'utf8');
+  assert.match(teacher,/src="result-certificate\.js"/);
+  assert.match(teacherJs,/class="result-record"/);
+  assert.match(teacherJs,/run\.status==='completed'/);
+  assert.match(teacherJs,/recordCode/);
+});
