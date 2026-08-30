@@ -19,7 +19,8 @@
     return result;
   }
   function resetForRedirect(run,target,now=Date.now()){
-    return {...run,sessionId:target.sessionId,setNumber:Number(target.setNumber),storyOrder:[1,2,3,4,5,6,7,8],storyProgress:1,currentStory:Number(target.setNumber)*10+1,phase:'redirected',lastAction:'Moved to the correct teacher session',liveFeeling:null,liveExpression:null,latestResult:'waiting',attempt:1,score:0,supportMeter:0,streak:0,status:'online',completedAt:null,lastSeen:now,redirectGeneration:Number(run.redirectGeneration||0)+1,redirectReason:'You joined the wrong session. Your teacher moved you to the correct activity. Your previous progress was cleared.'};
+    const {score:unusedScore,...current}=run;
+    return {...current,sessionId:target.sessionId,setNumber:Number(target.setNumber),storyOrder:[1,2,3,4,5,6,7,8],storyProgress:1,currentStory:Number(target.setNumber)*10+1,phase:'redirected',lastAction:'Moved to the correct teacher session',liveFeeling:null,liveExpression:null,latestResult:'waiting',attempt:1,supportMeter:0,streak:0,status:'online',completedAt:null,lastSeen:now,redirectGeneration:Number(run.redirectGeneration||0)+1,redirectReason:'You joined the wrong session. Your teacher moved you to the correct activity. Your previous progress was cleared.'};
   }
   function retentionDecision(run,now=Date.now()){
     if(run.sessionId!=='free')return 'keep';

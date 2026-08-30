@@ -5,11 +5,27 @@ const core = require('../game-core.js');
 test('new runs are zeroed', () => {
   assert.deepEqual(core.INITIAL_STATE, {
     meter: 0,
-    score: 0,
     streak: 0,
     storyIndex: 0,
     attempt: 1
   });
+});
+
+test('eight first-attempt correct answers fill the Support Meter and produce streak 8', () => {
+  let state = {...core.INITIAL_STATE};
+  for (let story = 0; story < 8; story++) state = core.applyAnswerResult(state, {correct:true, attempt:1});
+  assert.equal(state.meter, 100);
+  assert.equal(state.streak, 8);
+});
+
+test('a second-attempt correct answer gives half meter progress and does not restore the streak', () => {
+  const result = core.applyAnswerResult({meter:25, streak:0}, {correct:true, attempt:2});
+  assert.deepEqual(result, {meter:31.25, streak:0});
+});
+
+test('incorrect answers and revealed answers add no meter progress and reset the streak', () => {
+  assert.deepEqual(core.applyAnswerResult({meter:25, streak:4}, {correct:false, attempt:1}), {meter:25, streak:0});
+  assert.deepEqual(core.applyAnswerResult({meter:25, streak:0}, {correct:false, attempt:2}), {meter:25, streak:0});
 });
 
 test('assigned runs preserve the canonical story order', () => {

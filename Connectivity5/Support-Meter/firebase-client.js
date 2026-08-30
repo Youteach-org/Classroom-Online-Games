@@ -24,7 +24,7 @@ export async function resolveJoinToken(joinToken){
 
 export async function createRun(input){
   const runRef=push(at('runs')),runId=runRef.key,now=Date.now();
-  const run={studentName:String(input.studentName||'Student').slice(0,60),classCode:String(input.classCode||'CONNECT5').slice(0,40),sessionId:input.sessionId||'free',setNumber:Number(input.setNumber),storyOrder:input.storyOrder||[1,2,3,4,5,6,7,8],storyProgress:1,currentStory:Number(input.setNumber)*10+Number(input.storyOrder?.[0]||1),phase:'story',lastAction:'Started Support Meter',liveFeeling:null,liveExpression:null,latestResult:'waiting',attempt:1,supportMeter:0,score:0,streak:0,status:'online',startedAt:now,lastSeen:now,updatedAt:now,completedAt:null,redirectGeneration:0};
+  const run={studentName:String(input.studentName||'Student').slice(0,60),classCode:String(input.classCode||'CONNECT5').slice(0,40),sessionId:input.sessionId||'free',setNumber:Number(input.setNumber),storyOrder:input.storyOrder||[1,2,3,4,5,6,7,8],storyProgress:1,currentStory:Number(input.setNumber)*10+Number(input.storyOrder?.[0]||1),phase:'story',lastAction:'Started Support Meter',liveFeeling:null,liveExpression:null,latestResult:'waiting',attempt:1,supportMeter:0,streak:0,status:'online',startedAt:now,lastSeen:now,updatedAt:now,completedAt:null,redirectGeneration:0};
   await set(runRef,run);await onDisconnect(runRef).update({status:'offline',lastSeen:serverTimestamp(),updatedAt:serverTimestamp()});
   return {runId,run};
 }

@@ -5,7 +5,7 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
-  const INITIAL_STATE = Object.freeze({meter: 0, score: 0, streak: 0, storyIndex: 0, attempt: 1});
+  const INITIAL_STATE = Object.freeze({meter: 0, streak: 0, storyIndex: 0, attempt: 1});
   const allExpressions = ["I'm at my wits' end.", "I've had it.", 'I give up.', 'That must be tough.', 'I hear you.', 'Hang in there.', "Don't give up.", 'Stick with it.'];
   const expressionCategory = {"I'm at my wits' end.":'Frustration', "I've had it.":'Frustration', 'I give up.':'Frustration', 'That must be tough.':'Empathy', 'I hear you.':'Empathy', 'Hang in there.':'Encouragement', "Don't give up.":'Encouragement', 'Stick with it.':'Encouragement'};
   const reviewedOptions = {
@@ -75,9 +75,18 @@
     return token && /^[A-Za-z0-9_-]{20,160}$/.test(token) ? token : null;
   }
   function shouldWarnBeforeExit(state) { return Boolean(state && state.started && !state.completed); }
+  function applyAnswerResult(state, result) {
+    const meter = Math.max(0, Math.min(100, Number(state?.meter) || 0));
+    if (!result?.correct) return {meter, streak:0};
+    const attempt = Number(result.attempt) || 1;
+    return {
+      meter: Math.min(100, meter + (attempt === 1 ? 12.5 : attempt === 2 ? 6.25 : 0)),
+      streak: attempt === 1 ? (Number(state?.streak) || 0) + 1 : 0
+    };
+  }
   function isTranslationDetected({className='',hasGoogleBanner=false}={}) {
     return /(?:^|\s)translated-(?:ltr|rtl)(?:\s|$)/.test(String(className)) || Boolean(hasGoogleBanner);
   }
 
-  return {INITIAL_STATE, allExpressions, expressionCategory, storySets, buildRun, parseJoinToken, shouldWarnBeforeExit, isTranslationDetected};
+  return {INITIAL_STATE, allExpressions, expressionCategory, storySets, buildRun, parseJoinToken, shouldWarnBeforeExit, applyAnswerResult, isTranslationDetected};
 });

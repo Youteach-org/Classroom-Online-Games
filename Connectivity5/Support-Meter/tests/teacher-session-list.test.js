@@ -9,9 +9,9 @@ const cssPath=path.join(root,'teacher-v29.css');
 const css=fs.existsSync(cssPath)?fs.readFileSync(cssPath,'utf8'):'';
 const student=fs.readFileSync(path.join(root,'index.html'),'utf8');
 
-test('student and teacher pages share version 30',()=>{
-  assert.match(student,/aria-label="Version 30">v30/);
-  assert.match(html,/aria-label="Version 30">v30/);
+test('student and teacher pages share version 31',()=>{
+  assert.match(student,/aria-label="Version 31">v31/);
+  assert.match(html,/aria-label="Version 31">v31/);
 });
 
 test('teacher uses a permanent compact session list instead of a dropdown',()=>{

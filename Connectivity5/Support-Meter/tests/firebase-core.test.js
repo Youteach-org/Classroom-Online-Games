@@ -44,7 +44,7 @@ test('redirect reset clears all progress and preserves student identity',()=>{
   assert.equal(result.studentName,'Amy');
   assert.equal(result.sessionId,'target');
   assert.equal(result.setNumber,3);
-  assert.equal(result.score,0);assert.equal(result.supportMeter,0);assert.equal(result.streak,0);
+  assert.equal('score' in result,false);assert.equal(result.supportMeter,0);assert.equal(result.streak,0);
   assert.equal(result.storyProgress,1);assert.equal(result.attempt,1);
   assert.equal(result.liveFeeling,null);assert.equal(result.liveExpression,null);
   assert.equal(result.redirectGeneration,2);

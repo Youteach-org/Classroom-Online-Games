@@ -37,15 +37,15 @@ import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun
   const el = {
     start:$('#startScreen'),game:$('#game'),name:$('#studentName'),code:$('#classCode'),startBtn:$('#startBtn'),startError:$('#startError'),
     frames:$('#storyFrames'),feelings:$('#feelings'),expressions:$('#expressions'),feelingTitle:$('#feelingTitle'),expressionTitle:$('#expressionTitle'),
-    meterFill:$('#meterFill'),meterValue:$('#meterValue'),score:$('#scoreValue'),streak:$('#streakValue'),story:$('#storyValue'),
+    meterFill:$('#meterFill'),meterValue:$('#meterValue'),streak:$('#streakValue'),story:$('#storyValue'),
     coachToggle:$('#coachToggle'),coachToggleState:$('#coachToggleState'),submit:$('#submitBtn'),next:$('#nextBtn'),
     feedback:$('#feedback'),coachImage:$('#coachImage'),feedbackTitle:$('#feedbackTitle'),feedbackText:$('#feedbackText'),feedbackClose:$('#feedbackClose'),
     studentMenu:$('#studentMenuBtn'),mobileStudentMenu:$('#mobileStudentMenuBtn'),mobilePlayerName:$('#mobilePlayerName'),desktopPlayerName:$('#desktopPlayerName'),mobileCoachToggle:$('#mobileCoachToggle'),mobileCoachToggleState:$('#mobileCoachToggleState'),exitDialog:$('#exitDialog'),exitCancel:$('#exitCancel'),exitConfirm:$('#exitConfirm'),exitError:$('#exitError'),
     redirectDialog:$('#redirectDialog'),redirectMessage:$('#redirectMessage'),redirectAccept:$('#redirectAccept'),translationDialog:$('#translationDialog'),translationMessage:$('#translationMessage'),translationCheck:$('#translationCheck'),
-    gameShell:$('.game-shell'),resultScreen:$('#resultScreen'),resultStudentName:$('#resultStudentName'),resultSetLine:$('#resultSetLine'),resultMeter:$('#resultMeter'),resultScore:$('#resultScore'),resultStreak:$('#resultStreak'),resultCompleted:$('#resultCompleted'),resultCode:$('#resultCode'),resultCanvas:$('#resultCanvas'),downloadResult:$('#downloadResult'),finishedStudentMenu:$('#finishedStudentMenu')
+    gameShell:$('.game-shell'),resultScreen:$('#resultScreen'),resultStudentName:$('#resultStudentName'),resultSetLine:$('#resultSetLine'),resultMeter:$('#resultMeter'),resultStreak:$('#resultStreak'),resultCompleted:$('#resultCompleted'),resultCode:$('#resultCode'),resultCanvas:$('#resultCanvas'),downloadResult:$('#downloadResult'),finishedStudentMenu:$('#finishedStudentMenu')
   };
 
-  const state = {storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,score:0,streak:0,coachEnabled:true,resolved:false,completed:false,started:false,runId:null,sessionId:'free',studentName:'',classCode:cfg.defaultClassCode||'CONNECT5',controlGeneration:0,pendingRedirect:null,translationAttemptCount:0,translationBlocked:false,resultData:null};
+  const state = {storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,streak:0,coachEnabled:true,resolved:false,completed:false,started:false,runId:null,sessionId:'free',studentName:'',classCode:cfg.defaultClassCode||'CONNECT5',controlGeneration:0,pendingRedirect:null,translationAttemptCount:0,translationBlocked:false,resultData:null};
   el.code.value = state.classCode;
 
   function story(){ return stories[state.storyIndex]; }
@@ -73,7 +73,7 @@ import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun
     story().options.forEach(x=>{const b=document.createElement('button');b.type='button';b.textContent=x;b.classList.toggle('selected',state.selectedExpression===x);b.classList.toggle('eliminated',state.wrongExpressions.includes(x));b.disabled=state.resolved||state.wrongExpressions.includes(x);b.onclick=()=>{state.selectedExpression=x;hideFeedback();renderStorySpeech();renderExpressions();live(`Selected expression: ${x}`,'choosing');};el.expressions.appendChild(b);});
   }
   function renderStorySpeech(){const sp=$('#frameSpeech');if(!sp)return;sp.textContent=state.selectedExpression||'';sp.classList.toggle('empty',!state.selectedExpression);}
-  function updateHud(){el.meterFill.style.width=`${state.meter}%`;el.meterValue.textContent=`${state.meter}%`;el.score.textContent=state.score.toLocaleString();el.streak.textContent=state.streak;el.story.textContent=`${state.storyIndex+1} / ${stories.length}`;}
+  function updateHud(){el.meterFill.style.width=`${state.meter}%`;el.meterValue.textContent=`${Math.round(state.meter)}%`;el.streak.textContent=state.streak;el.story.textContent=`${state.storyIndex+1} / ${stories.length}`;}
   function renderCoachToggle(){const value=state.coachEnabled?'ON':'OFF';el.coachToggleState.textContent=value;el.coachToggle.setAttribute('aria-pressed',String(state.coachEnabled));if(el.mobileCoachToggleState)el.mobileCoachToggleState.textContent=value;if(el.mobileCoachToggle)el.mobileCoachToggle.setAttribute('aria-pressed',String(state.coachEnabled));}
   function renderPlayerName(){const label=`Playing as: ${state.studentName}`;el.mobilePlayerName.textContent=label;el.desktopPlayerName.textContent=label;}
   function setCoachVisible(){
@@ -114,19 +114,19 @@ import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun
     try{const created=await createRun({studentName:state.studentName,classCode:state.classCode,sessionId:state.sessionId,setNumber:selectedSet,storyOrder:stories.map(s=>s.id)});state.runId=created.runId;state.controlGeneration=created.run.redirectGeneration||0;stopWatchingRun=watchRun(state.runId,receiveTeacherControl);return true;}
     catch(error){console.error(error);el.startError.textContent='Could not connect to the class monitor. Please try again.';el.startError.classList.remove('hidden');return false;}
   }
-  function livePayload(lastAction,phase){return {studentName:state.studentName,currentStory:encodeStory(selectedSet,story().id),storyTitle:story().name,storySummary:story().frames.join(' '),storyProgress:state.storyIndex+1,phase,lastAction,liveExpression:state.selectedExpression,liveFeeling:state.selectedFeeling,attempt:state.attempt,supportMeter:state.meter,score:state.score,streak:state.streak,translationAttemptCount:state.translationAttemptCount,latestResult:lastAction.includes('Correct')?'correct':lastAction.includes('Incorrect')||lastAction.includes('revealed')?'incorrect':'waiting',status:state.completed?'completed':'online'};}
+  function livePayload(lastAction,phase){return {studentName:state.studentName,currentStory:encodeStory(selectedSet,story().id),storyTitle:story().name,storySummary:story().frames.join(' '),storyProgress:state.storyIndex+1,phase,lastAction,liveExpression:state.selectedExpression,liveFeeling:state.selectedFeeling,attempt:state.attempt,supportMeter:state.meter,streak:state.streak,translationAttemptCount:state.translationAttemptCount,latestResult:lastAction.includes('Correct')?'correct':lastAction.includes('Incorrect')||lastAction.includes('revealed')?'incorrect':'waiting',status:state.completed?'completed':'online'};}
   async function live(lastAction,phase){if(!state.runId)return;try{await updateRun(state.runId,livePayload(lastAction,phase));}catch(error){console.error(error);}}
-  async function log(feelingCorrect,expressionCorrect,resolved){if(!state.runId)return;await appendResponse(state.runId,{storyId:encodeStory(selectedSet,story().id),storyTitle:story().name,attempt:state.attempt,selectedExpression:state.selectedExpression||'',selectedFeeling:state.selectedFeeling||'',expressionCorrect,feelingCorrect,resolved,correctExpression:story().expression,correctFeeling:story().feeling,score:state.score,supportMeter:state.meter});}
+  async function log(feelingCorrect,expressionCorrect,resolved){if(!state.runId)return;await appendResponse(state.runId,{storyId:encodeStory(selectedSet,story().id),storyTitle:story().name,attempt:state.attempt,selectedExpression:state.selectedExpression||'',selectedFeeling:state.selectedFeeling||'',expressionCorrect,feelingCorrect,resolved,correctExpression:story().expression,correctFeeling:story().feeling,supportMeter:state.meter,streak:state.streak});}
 
   async function submit(){
     if(!state.selectedFeeling||!state.selectedExpression){showFeedback('wrong','Choose both first','Select the feeling and the expression before you submit.');return;}
     const s=story();const fc=state.selectedFeeling===s.feeling,ec=state.selectedExpression===s.expression;
     if(fc&&ec){
-      state.resolved=true;state.score+=100+state.streak*20;state.streak++;state.meter=Math.min(100,state.meter+8);await log(true,true,true);updateHud();renderFeelings();renderExpressions();el.submit.classList.add('hidden');el.next.classList.remove('hidden');showFeedback('correct','Exactly! 😆👍',`Great choice. ${choiceWhy(s.expression)}`);await live('Correct answer','feedback');return;
+      state.resolved=true;Object.assign(state,core.applyAnswerResult(state,{correct:true,attempt:state.attempt}));await log(true,true,true);updateHud();renderFeelings();renderExpressions();el.submit.classList.add('hidden');el.next.classList.remove('hidden');showFeedback('correct','Exactly! 😆👍',`Great choice. ${choiceWhy(s.expression)}`);await live('Correct answer','feedback');return;
     }
     if(!fc&&!state.wrongFeelings.includes(state.selectedFeeling))state.wrongFeelings.push(state.selectedFeeling);
     if(!ec&&!state.wrongExpressions.includes(state.selectedExpression))state.wrongExpressions.push(state.selectedExpression);
-    state.streak=0;state.meter=Math.max(0,state.meter-4);await log(fc,ec,false);updateHud();
+    Object.assign(state,core.applyAnswerResult(state,{correct:false,attempt:state.attempt}));await log(fc,ec,false);updateHud();
     const thisAttempt=state.attempt;state.attempt++;
     if(thisAttempt===1){
       const msg=wrongFeedback(fc,ec);showFeedback('wrong','Not quite.',msg+' Try again.');if(!fc)state.selectedFeeling=null;if(!ec){state.selectedExpression=null;}renderFeelings();renderExpressions();renderStorySpeech();await live('Incorrect attempt 1','retry');
@@ -135,8 +135,8 @@ import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun
     }
   }
   function showFinalResult(completedAt){
-    state.resultData=window.SupportMeterResult.buildResultData({studentName:state.studentName,setNumber:selectedSet,supportMeter:state.meter,score:state.score,streak:state.streak,completedAt,runId:state.runId});
-    el.resultStudentName.textContent=state.resultData.studentName;el.resultSetLine.textContent=`Connectivity 5 · ${state.resultData.setLabel} · 8 of 8 stories completed`;el.resultMeter.textContent=state.resultData.supportMeter;el.resultScore.textContent=state.resultData.score;el.resultStreak.textContent=state.resultData.streak;el.resultCompleted.textContent=state.resultData.completedLabel;el.resultCode.textContent=state.resultData.recordCode;
+    state.resultData=window.SupportMeterResult.buildResultData({studentName:state.studentName,setNumber:selectedSet,supportMeter:state.meter,streak:state.streak,completedAt,runId:state.runId});
+    el.resultStudentName.textContent=state.resultData.studentName;el.resultSetLine.textContent=`Connectivity 5 · ${state.resultData.setLabel} · 8 of 8 stories completed`;el.resultMeter.textContent=state.resultData.supportMeter;el.resultStreak.textContent=state.resultData.streak;el.resultCompleted.textContent=state.resultData.completedLabel;el.resultCode.textContent=state.resultData.recordCode;
     window.SupportMeterResult.drawResult(el.resultCanvas,state.resultData);el.gameShell.classList.add('hidden');el.resultScreen.classList.remove('hidden');scrollTo({top:0,behavior:'smooth'});
   }
   function downloadFinalResult(){
@@ -144,7 +144,7 @@ import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun
     el.resultCanvas.toBlob(blob=>{if(!blob){save(el.resultCanvas.toDataURL('image/png'));return;}const url=URL.createObjectURL(blob);save(url);setTimeout(()=>URL.revokeObjectURL(url),1000);},'image/png');
   }
   async function nextStory(){
-    if(state.storyIndex>=stories.length-1){state.resolved=true;try{const completed=await completeRun(state.runId,{lastAction:'Completed Support Meter',latestResult:'completed',storyProgress:stories.length,supportMeter:state.meter,score:state.score,streak:state.streak});state.completed=true;el.next.classList.add('hidden');showFinalResult(completed.completedAt);}catch(error){console.error(error);showFeedback('wrong','Could not save your result','Check your connection, then select Next Story again to finish and create your verified result.');}return;}
+    if(state.storyIndex>=stories.length-1){state.resolved=true;try{const completed=await completeRun(state.runId,{lastAction:'Completed Support Meter',latestResult:'completed',storyProgress:stories.length,supportMeter:state.meter,streak:state.streak});state.completed=true;el.next.classList.add('hidden');showFinalResult(completed.completedAt);}catch(error){console.error(error);showFeedback('wrong','Could not save your result','Check your connection, then select Next Story again to finish and create your verified result.');}return;}
     state.storyIndex++;state.selectedFeeling=null;state.selectedExpression=null;state.wrongFeelings=[];state.wrongExpressions=[];state.attempt=1;state.resolved=false;el.submit.classList.remove('hidden');el.next.classList.add('hidden');renderStory();if(matchMedia('(max-width:900px)').matches)scrollTo({top:0,behavior:'smooth'});live('Viewing next mini-story','story');
   }
 
@@ -163,7 +163,7 @@ import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun
   function acceptRedirect(){
     const control=state.pendingRedirect;if(!control)return;
     state.controlGeneration=Number(control.redirectGeneration||0);state.sessionId=control.sessionId;selectedSet=Number(control.setNumber);stories=core.buildRun({setNumber:selectedSet,assigned:true});
-    Object.assign(state,{storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,score:0,streak:0,resolved:false,completed:false,pendingRedirect:null});
+    Object.assign(state,{storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,streak:0,resolved:false,completed:false,pendingRedirect:null});
     el.submit.classList.remove('hidden');el.next.classList.add('hidden');el.redirectDialog.close();renderStory();live('Started correct teacher session','story');
   }
   function translationSignal(){return core.isTranslationDetected({className:document.documentElement.className,hasGoogleBanner:Boolean(document.querySelector('.goog-te-banner-frame,iframe.goog-te-banner-frame'))});}

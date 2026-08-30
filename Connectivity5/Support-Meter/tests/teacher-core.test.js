@@ -16,6 +16,14 @@ test('CSV escapes commas, quotes and formulas', () => {
   assert.match(csv, /"'=1\+1"/);
 });
 
+test('CSV result exports contain Support Meter and streak without a score column', () => {
+  const csv = buildCsv([{student_name:'Amy', support_meter:100, streak:8}]);
+  const header = csv.split('\r\n')[0];
+  assert.match(header, /"support_meter"/);
+  assert.match(header, /"streak"/);
+  assert.doesNotMatch(header, /"score"/);
+});
+
 test('active sessions are recovered while local session secrets are preserved', () => {
   const local=[{assignmentId:'a',joinToken:'join-a',manageToken:'manage-a',setNumber:1,createdAt:'2026-08-27T10:00:00Z'}];
   const active=[

@@ -7,7 +7,7 @@
   }
   function buildResultData(input){
     const id=String(input.runId||'RESULT').replace(/[^a-z0-9]/gi,'').slice(-7).toUpperCase().padStart(7,'0');
-    return {studentName:String(input.studentName||'Student'),setLabel:`Set ${Number(input.setNumber)||1}`,supportMeter:`${Math.max(0,Math.min(100,Number(input.supportMeter)||0))}%`,score:(Number(input.score)||0).toLocaleString('en-US'),streak:String(Number(input.streak)||0),completedLabel:formatDateTime(input.completedAt),recordCode:`SM-${id}`};
+    return {studentName:String(input.studentName||'Student'),setLabel:`Set ${Number(input.setNumber)||1}`,supportMeter:`${Math.round(Math.max(0,Math.min(100,Number(input.supportMeter)||0)))}%`,streak:String(Number(input.streak)||0),completedLabel:formatDateTime(input.completedAt),recordCode:`SM-${id}`};
   }
   function fileName(data){return `${data.studentName.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'')||'Student'}-Support-Meter-Result.png`;}
   function rounded(ctx,x,y,w,h,r,fill,stroke){ctx.beginPath();ctx.roundRect(x,y,w,h,r);if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();}}
@@ -18,8 +18,8 @@
     ctx.strokeStyle='#8de4ff77';ctx.beginPath();ctx.moveTo(70,145);ctx.lineTo(1130,145);ctx.stroke();
     text(ctx,'SUPPORT',112,116,40,'#fff','900');text(ctx,'METER',300,116,40,'#ffd735','900');rounded(ctx,835,86,245,42,21,'#25c76f');text(ctx,'✓  ACTIVITY COMPLETED',957,113,16,'#042c24','900','center');
     text(ctx,'FINAL RESULT',600,195,18,'#9ee8ff','900','center');text(ctx,data.studentName,600,250,48,'#fff','900','center');text(ctx,`Connectivity 5  ·  ${data.setLabel}  ·  8 of 8 stories completed`,600,286,19,'#d5ebff','400','center');
-    const boxes=[{x:118,symbol:'★',value:data.supportMeter,label:'SUPPORT METER'},{x:451,symbol:'◆',value:data.score,label:'SCORE'},{x:784,symbol:'▲',value:data.streak,label:'FINAL STREAK'}];
-    boxes.forEach(box=>{rounded(ctx,box.x,326,298,157,22,'#ffffff16','#a6e6ffaa');text(ctx,box.symbol,box.x+149,375,34,box.label==='FINAL STREAK'?'#ffad3d':'#ffd735','700','center');text(ctx,box.value,box.x+149,426,43,'#ffd735','900','center');text(ctx,box.label,box.x+149,458,15,'#d8efff','900','center');});
+    const boxes=[{x:190,symbol:'★',value:data.supportMeter,label:'SUPPORT METER'},{x:620,symbol:'▲',value:data.streak,label:'FINAL STREAK'}];
+    boxes.forEach(box=>{rounded(ctx,box.x,326,390,157,22,'#ffffff16','#a6e6ffaa');text(ctx,box.symbol,box.x+195,375,34,box.label==='FINAL STREAK'?'#ffad3d':'#ffd735','700','center');text(ctx,box.value,box.x+195,426,43,'#ffd735','900','center');text(ctx,box.label,box.x+195,458,15,'#d8efff','900','center');});
     rounded(ctx,118,510,964,65,17,'#03165099');text(ctx,`Completed:  ${data.completedLabel}`,145,550,18,'#e4f4ff','700');text(ctx,`Record:  ${data.recordCode}`,1050,550,18,'#e4f4ff','700','right');
     ctx.fillStyle='#03144caa';ctx.fillRect(70,606,1060,59);text(ctx,'Generated from the verified Support Meter activity record',112,642,14,'#aee8ff');text(ctx,'★',1080,646,30,'#ffd735','700','right');return canvas;
   }

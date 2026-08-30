@@ -1,6 +1,6 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root)root.SupportMeterTeacherCore=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
   'use strict';
-  const columns=['student_name','set_number','story_id','story_title','selected_feeling','selected_expression','feeling_correct','expression_correct','resolved','attempt','score','support_meter','created_at'];
+  const columns=['student_name','set_number','story_id','story_title','selected_feeling','selected_expression','feeling_correct','expression_correct','resolved','attempt','support_meter','streak','created_at'];
   function toggleFocus(current,id){return current===id?null:id;}
   function mergeManagedSessions(local,active){
     const localById=new Map((local||[]).map(item=>[item.assignmentId,item]));
