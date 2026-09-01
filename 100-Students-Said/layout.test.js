@@ -1,9 +1,12 @@
 const fs=require('node:fs');const assert=require('node:assert/strict');
 const css=fs.readFileSync('board-fit.css','utf8');
 const inner=fs.readFileSync('board-container.css','utf8');
-assert.match(css,/width:min\(100vw,177\.777/,'board must fit within viewport width and height');
 assert.match(css,/aspect-ratio:16\/9/,'board must preserve 16:9');
 assert.match(css,/translate\(-50%,-50%\)/,'board must remain centered');
 assert.match(css,/container-type:size/,'board must establish its own sizing context');
 assert.doesNotMatch(inner,/\d(?:\.\d+)?v[wh]/,'internal geometry must not use viewport units');
-console.log('responsive board layout: 5 assertions passed');
+assert.match(css,/width:100vw/,'board must start from the full visible viewport width');
+assert.match(css,/height:100vh/,'board must start from the full visible viewport height');
+assert.match(css,/max-width:177\.777(?:7+)?vh/,'wide screens must constrain the board by viewport height');
+assert.match(css,/max-height:56\.25vw/,'tall screens must constrain the board by viewport width');
+console.log('responsive board layout: 8 assertions passed');
