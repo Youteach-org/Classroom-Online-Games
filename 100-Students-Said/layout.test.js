@@ -1,6 +1,7 @@
 const fs=require('node:fs');const assert=require('node:assert/strict');
 const css=fs.readFileSync('board-fit.css','utf8');
 const inner=fs.readFileSync('board-container.css','utf8');
+const monitor=fs.readFileSync('monitor-approved.css','utf8');
 assert.match(css,/aspect-ratio:16\/9/,'board must preserve 16:9');
 assert.match(css,/translate\(-50%,-50%\)/,'board must remain centered');
 assert.match(css,/container-type:size/,'board must establish its own sizing context');
@@ -10,4 +11,12 @@ assert.match(css,/height:100dvh/,'board must use the dynamically visible browser
 assert.match(css,/max-width:177\.777(?:7+)?dvh/,'wide screens must constrain the board by dynamic viewport height');
 assert.doesNotMatch(css,/(?<!d)vh/,'fit rules must not use legacy viewport height behind mobile browser chrome');
 assert.match(css,/max-height:56\.25vw/,'tall screens must constrain the board by viewport width');
-console.log('responsive board layout: 9 assertions passed');
+assert.match(css,/\.stage:before,\.stage:after\{z-index:0\}/,'decorative lights must remain behind the board');
+assert.match(css,/\.board\{z-index:1\}/,'board and logo must remain above decorative lights');
+assert.match(monitor,/@media\(max-width:850px\)[\s\S]*grid-template-columns:52px 1fr 28px 52px/,'mobile header must reserve one column for each control');
+assert.match(monitor,/\.monitor>header a\{grid-column:1;grid-row:1/,'back button must stay in the first header row');
+assert.match(monitor,/\.monitor>header>strong\{grid-column:2;grid-row:1/,'monitor title must stay centered in the first header row');
+assert.match(monitor,/\.monitor>header #connection\{grid-column:3;grid-row:1/,'connection light must have its own header column');
+assert.match(monitor,/\.monitor>header button\{grid-column:4;grid-row:1/,'board button must stay in the first header row');
+assert.match(monitor,/\.right>\.panel:last-child\{display:none\}/,'redundant sync panel must not float above the preview on mobile');
+console.log('responsive layouts: 17 assertions passed');
