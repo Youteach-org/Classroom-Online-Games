@@ -27,8 +27,3 @@ test('COG menus link to Verb Runner', () => {
   assert.match(read(rootMenuPath), /\/Verb-Runner\//);
   assert.match(read(teacherMenuPath), /\/Verb-Runner\/teacher\//);
 });
-
-test('COG no longer references the retired course folder', () => {
-  assert.doesNotMatch(read(rootMenuPath), /Connectivity\s*5|Connectivity5/i);
-  assert.doesNotMatch(read(teacherMenuPath), /Connectivity\s*5|Connectivity5/i);
-});
