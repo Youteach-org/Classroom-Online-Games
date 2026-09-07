@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Verb Runner — Teacher</title>
+  <link rel="canonical" href="./teacher/">
+  <link rel="stylesheet" href="teacher.css">
+</head>
+<body>
+  <div class="teacher-shell">
+    <header class="teacher-header">
+      <div>
+        <a class="back-link" href="/teacher/">← Back to Teacher Menu</a>
+        <span class="eyebrow">Connectivity 5</span>
+        <h1>VERB <span>RUNNER</span> · Teacher</h1>
+        <p>Configure the race, start a session, and monitor essential student activity.</p>
+      </div>
+      <div class="connection-state"><span class="status-dot"></span><strong>Setup</strong></div>
+    </header>
+
+    <section class="setup-card" aria-labelledby="setupTitle">
+      <div class="section-heading">
+        <div><span class="eyebrow">Teacher Setup</span><h2 id="setupTitle">Race configuration</h2></div>
+        <span class="settings-note">Settings freeze when the session starts.</span>
+      </div>
+
+      <fieldset class="preset-picker">
+        <legend>Difficulty</legend>
+        <label><input type="radio" name="difficulty" value="easy"><span><strong>Easy</strong><small>Preview · slower · lighter distractors</small></span></label>
+        <label><input type="radio" name="difficulty" value="medium" checked><span><strong>Medium</strong><small>No preview · standard pace</small></span></label>
+        <label><input type="radio" name="difficulty" value="hard"><span><strong>Hard</strong><small>Similar distractors · less reaction time</small></span></label>
+      </fieldset>
+
+      <details class="advanced-settings">
+        <summary>Advanced settings</summary>
+        <div class="settings-grid">
+          <label>Challenges<input id="challengeCount" type="number" min="5" max="40" value="12"></label>
+          <label class="toggle-row"><span>Correct-answer preview</span><input id="previewEnabled" type="checkbox"></label>
+          <label>Preview duration (ms)<input id="previewDuration" type="number" min="300" max="4000" step="100" value="1500"></label>
+          <label>Initial speed<input id="initialSpeed" type="number" min="200" max="1200" step="10" value="500"></label>
+          <label>Maximum speed<input id="maxSpeed" type="number" min="300" max="1600" step="10" value="850"></label>
+          <label>Object spacing (ms)<input id="objectSpacing" type="number" min="300" max="3500" step="50" value="1250"></label>
+          <label>Min distractors<input id="minDistractors" type="number" min="0" max="8" value="2"></label>
+          <label>Max distractors<input id="maxDistractors" type="number" min="0" max="10" value="3"></label>
+          <label>Distractor similarity<input id="distractorSimilarity" type="range" min="0" max="100" value="55"><output>55%</output></label>
+          <label>Obstacle frequency<input id="obstacleFrequency" type="range" min="0" max="100" value="45"><output>45%</output></label>
+          <label>Correct Momentum<input id="momentumCorrect" type="number" min="0" max="30" value="8"></label>
+          <label>Grammar-error Momentum<input id="momentumGrammarLoss" type="number" min="0" max="40" value="15"></label>
+          <label>Obstacle Momentum<input id="momentumObstacleLoss" type="number" min="0" max="20" value="5"></label>
+          <label>Unlock accuracy %<input id="unlockAccuracy" type="number" min="0" max="100" value="70"></label>
+          <label>Ranking accuracy %<input id="rankingAccuracy" type="number" min="0" max="100" value="80"></label>
+        </div>
+      </details>
+
+      <div class="setup-actions">
+        <button id="createSession" class="primary-btn" type="button">Create Verb Runner Session</button>
+        <div id="sessionStatus" class="session-status">No active Verb Runner session.</div>
+      </div>
+    </section>
+
+    <section class="monitor-card" aria-labelledby="monitorTitle">
+      <div class="section-heading monitor-heading">
+        <div><span class="eyebrow">Teacher Monitor</span><h2 id="monitorTitle">Student activity</h2></div>
+        <div class="monitor-stats"><strong id="onlineCount">0 online</strong><span id="studentCount">0 students</span></div>
+      </div>
+
+      <div id="studentGrid" class="student-grid"></div>
+      <div id="emptyMonitor" class="empty-monitor">Create a session to begin.</div>
+    </section>
+  </div>
+
+  <script src="config.js"></script>
+</body>
+</html>
