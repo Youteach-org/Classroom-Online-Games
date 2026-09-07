@@ -21,3 +21,8 @@ test('pause uses explicit gameplay freeze and resume hooks',()=>{
   assert.match(phaser,/this\.tweens\.pauseAll\(\)/);
   assert.match(phaser,/this\.time\.paused=true/);
 });
+
+test('pause overlay is truly hidden when the hidden attribute is present',()=>{
+  const css=read('styles.css');
+  assert.match(css,/\.pause-overlay\[hidden\]\s*\{[^}]*display\s*:\s*none\s*!important/);
+});
