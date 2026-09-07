@@ -1,0 +1,1 @@
+window.VERB_RUNNER_ART = [{"name":"ALEX","tagline":"ALWAYS FORWARD","color":"#ff3f58","image":"data:image/webp;base64,UklGR..."}];
