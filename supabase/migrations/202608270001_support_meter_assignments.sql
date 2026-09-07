@@ -5,7 +5,7 @@ create table if not exists public.support_meter_assignments (
   id uuid primary key default gen_random_uuid(),
   join_token_hash text not null unique,
   manage_token_hash text not null unique,
-  class_code text not null default 'CONNECT5',
+  class_code text not null default 'SUPPORT',
   set_number integer not null check (set_number between 1 and 3),
   status text not null default 'open' check (status in ('open','closed')),
   created_at timestamptz not null default now(),
