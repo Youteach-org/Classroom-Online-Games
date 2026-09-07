@@ -3,7 +3,7 @@
     constructor(){super('VerbRunnerScene');}
     init(data){
       this.callbacks=data.callbacks||{};this.runState=data.runState;this.characterIndex=data.characterIndex||0;
-      this.lane=1;this.jumping=false;this.sliding=false;this.answer=null;this.obstacles=[];this.lastObstacleAt=0;this.active=true;this.roadOffset=0;this.displayScale=1;this.desktopMode=Boolean(data.desktop);
+      this.lane=1;this.jumping=false;this.sliding=false;this.answer=null;this.obstacles=[];this.lastObstacleAt=0;this.active=true;this.paused=false;this.roadOffset=0;this.displayScale=1;this.desktopMode=Boolean(data.desktop);
     }
     isFinePointer(){return Boolean(window.matchMedia&&window.matchMedia('(pointer:fine)').matches);}
     horizonY(){return this.scale.height*(this.desktopMode?.26:.23);}
@@ -67,13 +67,21 @@
       const ring=this.add.circle(this.player.x,this.player.y-22,42*this.displayScale,color,.28).setDepth(19);this.tweens.add({targets:ring,alpha:0,scale:1.8,duration:320,onComplete:()=>ring.destroy()});
       if(stars){for(let i=0;i<3;i++){const s=this.add.text(this.player.x-24+i*24,this.player.y-98-i*7,'★',{fontSize:'22px',color:'#ffd84a',fontStyle:'bold'}).setDepth(25);this.tweens.add({targets:s,y:s.y-30,alpha:0,duration:520,delay:i*55,onComplete:()=>s.destroy()});}}
     }
+    pauseRun(){
+      if(!this.active||this.paused)return;
+      this.paused=true;this.active=false;this.tweens.pauseAll();this.time.paused=true;this.input.enabled=false;
+    }
+    resumeRun(){
+      if(!this.paused)return;
+      this.time.paused=false;this.tweens.resumeAll();this.input.enabled=true;this.paused=false;this.active=true;this.lastObstacleAt=this.time.now;
+    }
     update(time,delta){
       if(!this.active)return;this.drawMovingRoad(delta);const speed=VerbRunnerRunnerCore.speedForMomentum(this.runState.momentum),dy=speed*(delta/1000),hy=this.horizonY(),h=this.scale.height;
       if(this.answer){this.answer.y+=dy;this.answer.x=this.laneX(this.answer.lane,this.answer.y);const scale=.48+((this.answer.y-hy)/(h-hy))*.75;this.answer.setScale(Math.max(.46,Math.min(1.18,scale))*this.displayScale);if(!this.answer.resolved&&this.answer.y>h*.72&&this.answer.y<h*.9&&this.answer.lane===this.lane){this.answer.resolved=true;const item={value:this.answer.value,correct:this.answer.correct};this.answer.bg.setFillStyle(item.correct?0x0c5b35:0x6b1c31,1);this.answer.bg.setStrokeStyle(4,item.correct?0x58ff93:0xff526d,1);this.answer.glow.setStrokeStyle(6,item.correct?0x45ff87:0xff3d5c,.45);this.feedbackBurst(item.correct?0x46f6a7:0xff4f7a,false);this.callbacks.answerHit?.(item);this.time.delayedCall(120,()=>{this.answer?.destroy();this.answer=null;});}else if(this.answer.y>h+90){const missed=this.answer;this.answer=null;missed.destroy();this.callbacks.answerMissed?.({value:missed.value,correct:missed.correct});}}
       for(const obstacle of [...this.obstacles]){obstacle.y+=dy*.96;obstacle.x=this.laneX(obstacle.lane,obstacle.y);const scale=.45+((obstacle.y-hy)/(h-hy))*.82;obstacle.setScale(Math.max(.46,Math.min(1.22,scale))*this.displayScale);if(!obstacle.hit&&obstacle.y>h*.72&&obstacle.y<h*.9&&obstacle.lane===this.lane){obstacle.hit=true;if(VerbRunnerRunnerCore.hitsObstacle(obstacle,{jumping:this.jumping,sliding:this.sliding})){this.feedbackBurst(0xffc14f,true);this.callbacks.obstacleHit?.(obstacle.type);}}if(obstacle.y>h+110){obstacle.destroy();this.obstacles=this.obstacles.filter(o=>o!==obstacle);}}
       if(time-this.lastObstacleAt>1850&&(!this.answer||this.answer.y>h*.5)){this.lastObstacleAt=time;this.spawnObstacle();}this.player.rotation=Math.sin(time/90)*.014;
     }
-    stopRun(){this.active=false;if(this.answer){this.answer.destroy();this.answer=null;}for(const o of this.obstacles)o.destroy();this.obstacles=[];}
+    stopRun(){this.paused=false;this.active=false;this.time.paused=false;this.input.enabled=false;if(this.answer){this.answer.destroy();this.answer=null;}for(const o of this.obstacles)o.destroy();this.obstacles=[];}
   }
   function createVerbRunnerGame(mount,options){const config={type:Phaser.AUTO,parent:mount,transparent:true,scale:{mode:Phaser.Scale.RESIZE,width:'100%',height:'100%'},scene:VerbRunnerScene,render:{antialias:true,pixelArt:false}};const game=new Phaser.Game(config);game.scene.start('VerbRunnerScene',options);return game;}
   global.VerbRunnerPhaser={createVerbRunnerGame};
