@@ -1,0 +1,15 @@
+.desktop-game-ui .game-hud{width:min(1100px,calc(100% - 24px));margin:0 auto;padding:8px 0 0;gap:5px}
+.desktop-game-ui .hud-row{gap:5px}
+.desktop-game-ui .hud-chip{padding:4px 8px;border-radius:11px}
+.desktop-game-ui .hud-label{font-size:8px;margin-bottom:1px}
+.desktop-game-ui .hud-chip strong{font-size:16px}
+.desktop-game-ui .challenge-panel{width:min(760px,100%);padding:5px 10px;border-radius:12px}
+.desktop-game-ui .challenge-top #challengeNumber{font-size:9px}
+.desktop-game-ui .part span{font-size:7px}
+.desktop-game-ui .part strong{font-size:clamp(24px,2vw,34px);line-height:1}
+.desktop-game-ui .principal-parts>b{font-size:17px}
+.desktop-game-ui .momentum-panel{padding:4px 8px;border-radius:11px}
+.desktop-game-ui .momentum-track{height:5px;margin-top:3px}
+.desktop-game-ui .progress-chip{min-width:80px}
+.desktop-game-ui .game-notice{top:55%;font-size:clamp(22px,2.6vw,34px)}
+.desktop-game-ui .control-hints{bottom:8px}
