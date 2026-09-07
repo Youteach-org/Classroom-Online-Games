@@ -37,6 +37,6 @@ test('approved visual styling keeps the road dominant and the HUD compact', () =
   const css = read('styles.css') + '\n' + read('desktop.css');
   assert.match(css, /\.game-hud\s*\{[^}]*position:\s*absolute/);
   assert.match(css, /\.hud-prompt\s*\{/);
-  assert.match(css, /\.character-card\s+img\s*\{/);
+  assert.match(css, /\.runner-art\s*\{/);
   assert.match(css, /\.mobile-controls\s*\{/);
 });
