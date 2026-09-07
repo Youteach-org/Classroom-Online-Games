@@ -6,16 +6,24 @@
       this.runState=data.runState;
       this.characterIndex=data.characterIndex||0;
       this.lane=1;this.jumping=false;this.sliding=false;this.answer=null;this.obstacles=[];
-      this.lastObstacleAt=0;this.active=true;this.roadOffset=0;this.displayScale=1;
+      this.lastObstacleAt=0;this.active=true;this.roadOffset=0;this.displayScale=1;this.desktopMode=false;
+    }
+    isFinePointer(){return Boolean(window.matchMedia&&window.matchMedia('(pointer:fine)').matches);}
+    baseY(){return this.scale.height*(this.desktopMode?.82:.79);}
+    syncViewportMode(){
+      this.desktopMode=VerbRunnerRunnerCore.isDesktopViewport(this.scale.width,this.scale.height,this.isFinePointer());
+      this.displayScale=VerbRunnerRunnerCore.displayScaleForViewport(this.scale.width,this.scale.height,this.isFinePointer());
+      if(this.player){this.player.setScale(this.displayScale);this.player.y=this.baseY();this.player.x=this.laneX(this.lane);}
     }
     create(){
-      this.displayScale=VerbRunnerRunnerCore.displayScaleForViewport(this.scale.width);
+      this.syncViewportMode();
       this.cameras.main.setBackgroundColor('#06111f');
       this.drawWorld();
-      this.player=this.makeRunner(this.scale.width/2,this.scale.height*0.79,this.characterIndex);
+      this.player=this.makeRunner(this.scale.width/2,this.baseY(),this.characterIndex);
       this.player.setScale(this.displayScale);
       this.bindControls();
-      this.events.on('shutdown',()=>this.input.keyboard.removeAllKeys(true));
+      this.scale.on('resize',()=>this.syncViewportMode());
+      this.events.on('shutdown',()=>{this.input.keyboard.removeAllKeys(true);this.scale.off('resize');});
       this.callbacks.ready?.(this);
     }
     drawWorld(){
@@ -35,7 +43,7 @@
       this.speedLines=this.add.graphics();
       this.drawMovingRoad(0);
     }
-    laneX(index,y=this.scale.height*.79){
+    laneX(index,y=this.baseY()){
       const h=this.scale.height,w=this.scale.width,t=Math.max(0,Math.min(1,(y-h*.18)/(h*.82)));
       const left=Phaser.Math.Linear(w*.45,w*.34,t),right=Phaser.Math.Linear(w*.55,w*.66,t);
       return Phaser.Math.Linear(left,right,index/2);
@@ -75,8 +83,8 @@
       this.input.on('pointerup',p=>{if(!start)return;const dx=p.x-start.x,dy=p.y-start.y;start=null;if(Math.max(Math.abs(dx),Math.abs(dy))<28)return;if(Math.abs(dx)>Math.abs(dy))this.shift(dx>0?1:-1);else if(dy<0)this.jump();else this.slide();});
     }
     shift(delta){if(!this.active)return;this.lane=VerbRunnerRunnerCore.moveLane(this.lane,delta);this.tweens.add({targets:this.player,x:this.laneX(this.lane),duration:120,ease:'Sine.easeOut'});}
-    jump(){if(!this.active||this.jumping||this.sliding)return;this.jumping=true;const baseY=this.scale.height*.79;this.tweens.add({targets:this.player,y:baseY-92*this.displayScale,duration:230,yoyo:true,ease:'Sine.easeOut',onComplete:()=>{this.jumping=false;this.player.y=baseY;}});}
-    slide(){if(!this.active||this.sliding||this.jumping)return;this.sliding=true;this.tweens.add({targets:this.player,scaleY:this.displayScale*.52,y:this.scale.height*.81,duration:90,yoyo:true,hold:360,onComplete:()=>{this.sliding=false;this.player.setScale(this.displayScale);this.player.y=this.scale.height*.79;}});}
+    jump(){if(!this.active||this.jumping||this.sliding)return;this.jumping=true;const baseY=this.baseY();this.tweens.add({targets:this.player,y:baseY-92*this.displayScale,duration:230,yoyo:true,ease:'Sine.easeOut',onComplete:()=>{this.jumping=false;this.player.y=baseY;}});}
+    slide(){if(!this.active||this.sliding||this.jumping)return;this.sliding=true;const baseY=this.baseY();this.tweens.add({targets:this.player,scaleY:this.displayScale*.52,y:baseY+this.scale.height*.02,duration:90,yoyo:true,hold:360,onComplete:()=>{this.sliding=false;this.player.setScale(this.displayScale);this.player.y=baseY;}});}
     spawnAnswer(item){
       if(!this.active)return;const lane=Phaser.Math.Between(0,2),x=this.laneX(lane,this.scale.height*.23),y=this.scale.height*.22;
       const box=this.add.container(x,y);box.setDepth(12);box.lane=lane;box.correct=item.correct;box.value=item.value;box.resolved=false;
