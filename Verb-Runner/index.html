@@ -3,81 +3,104 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-  <meta name="theme-color" content="#06111f">
+  <meta name="theme-color" content="#071426">
   <title>Verb Runner</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="desktop.css">
 </head>
 <body>
   <main id="verbRunnerApp" class="app-shell" aria-live="polite">
-    <section id="identityScreen" class="screen screen-active identity-screen" aria-labelledby="verbRunnerTitle">
-      <div class="brand-lockup">
-        <span class="eyebrow">Classroom Online Games</span>
-        <h1 id="verbRunnerTitle">VERB <span>RUNNER</span></h1>
-        <p class="lead">Race through irregular verbs. Accuracy keeps your Momentum alive.</p>
-      </div>
-      <form class="launch-card" onsubmit="return false">
-        <div class="launch-pulse" aria-hidden="true"></div>
-        <span class="mode-pill">LEVEL 1 TEST MODE</span>
-        <h2>Enter the race</h2>
-        <label for="playerName">Player name</label>
-        <div class="name-row"><input id="playerName" maxlength="28" autocomplete="name" placeholder="Type your name"><button id="enterGameBtn" class="primary-btn" type="button">Continue</button></div>
-        <div id="nameError" class="form-error" role="alert"></div>
-        <p class="test-note">Temporary direct access for testing. YouTeach sign-in will be connected later.</p>
-        <a class="secondary-link" href="/">← Back to Classroom Online Games</a>
-      </form>
-    </section>
-
-    <section id="characterScreen" class="screen" hidden aria-labelledby="characterTitle">
-      <header class="screen-header">
-        <div><span class="eyebrow">Playing as</span><strong id="playerNickname" class="player-nickname">Student</strong></div>
-        <div class="motivation">Making mistakes is part of the learning process.</div>
+    <section id="characterScreen" class="screen screen-active selection-screen" aria-labelledby="characterTitle">
+      <div class="selection-backdrop" aria-hidden="true"></div>
+      <header class="select-hero">
+        <div class="game-logo" aria-label="Verb Runner"><span class="logo-verb">VERB</span><span class="logo-runner">RUNNER</span><small>RUN · LEARN · CONQUER</small></div>
+        <div class="select-title-wrap">
+          <h1 id="characterTitle">CHOOSE YOUR RUNNER</h1>
+          <p>SAME GAME. HIGHER SKILLS.</p>
+        </div>
+        <a class="back-games" href="/" aria-label="Back to Classroom Online Games">← GAMES</a>
       </header>
-      <div class="character-heading"><span class="eyebrow">Choose your runner</span><h2 id="characterTitle">Pick your style. Same skills, same speed.</h2></div>
+
+      <div class="test-access-bar">
+        <label for="playerName">PLAYER NAME</label>
+        <input id="playerName" maxlength="28" autocomplete="name" placeholder="Type your name">
+        <span id="nameError" class="form-error" role="alert"></span>
+      </div>
+
       <div id="characterGrid" class="character-grid" aria-label="Runner selection"></div>
-      <button id="startRunnerBtn" class="primary-btn start-run" type="button" disabled>Start Level 1 · Verb Hunt</button>
+
+      <div class="same-skills-note">ALL RUNNERS HAVE THE SAME SPEED, JUMP AND SKILLS.</div>
+
+      <footer class="select-footer">
+        <div class="skill-strip" aria-hidden="true">
+          <span><b>🏃</b>RUN</span><span><b>⬆</b>JUMP</span><span><b>↘</b>SLIDE</span><span><b>↔</b>DODGE</span><span><b>◆</b>COLLECT</span><span><b>↗</b>IMPROVE</span>
+        </div>
+        <div class="start-wrap">
+          <button id="startRunnerBtn" class="start-run" type="button" disabled>START RUN <span>➜</span></button>
+          <strong>LEVEL 1 — VERB HUNT</strong>
+        </div>
+        <div class="environment-strip" aria-hidden="true"><span>CITY</span><span>BRIDGE</span><span>FOREST</span><span>SNOW</span><span>FUTURE</span></div>
+      </footer>
     </section>
 
     <section id="gameScreen" class="screen game-screen" hidden aria-label="Verb Runner gameplay">
       <div class="game-stage" id="gameStage">
         <div id="phaserMount" class="phaser-mount" aria-label="Runner game area"></div>
-        <header class="game-hud">
-          <div class="hud-row hud-row-top">
-            <div class="hud-chip player-chip"><span class="hud-label">Runner</span><strong id="hudNickname">—</strong></div>
-            <div class="hud-chip"><span class="hud-label">Race Time</span><strong id="raceTime">00:00.000</strong></div>
-            <div class="hud-chip"><span class="hud-label">Streak</span><strong id="streakValue">0</strong></div>
+
+        <header class="game-hud" aria-label="Game status">
+          <button id="pauseBtn" class="hud-pause" type="button" aria-label="Pause game"><span>Ⅱ</span></button>
+
+          <div class="hud-momentum">
+            <div class="hud-icon">⚡</div>
+            <div class="hud-meter-copy"><span>MOMENTUM</span><strong id="momentumValue">75%</strong></div>
+            <div id="momentumTrack" class="momentum-track" role="progressbar" aria-label="Momentum" aria-valuemin="0" aria-valuemax="100" aria-valuenow="75"><div id="momentumFill" class="momentum-fill" style="width:75%"></div></div>
           </div>
-          <div class="challenge-panel">
-            <div class="challenge-top"><span class="hud-label">Level 1 · Verb Hunt</span><span id="challengeNumber">1 / 12</span></div>
+
+          <div class="hud-prompt">
+            <div class="prompt-tab"><span>LEVEL 1 — VERB HUNT</span><strong id="challengeNumber">1 / 12</strong></div>
             <div class="principal-parts" aria-label="Principal parts challenge">
               <div class="part" data-slot="0"><span>BASE FORM</span><strong>—</strong></div><b>|</b>
               <div class="part" data-slot="1"><span>SIMPLE PAST</span><strong>—</strong></div><b>|</b>
               <div class="part" data-slot="2"><span>PAST PARTICIPLE</span><strong>—</strong></div>
             </div>
           </div>
-          <div class="hud-row hud-row-bottom">
-            <div class="momentum-panel"><div class="momentum-copy"><span class="hud-label">Momentum</span><strong id="momentumValue">75%</strong></div><div id="momentumTrack" class="momentum-track" role="progressbar" aria-label="Momentum" aria-valuemin="0" aria-valuemax="100" aria-valuenow="75"><div id="momentumFill" class="momentum-fill" style="width:75%"></div></div></div>
-            <div class="hud-chip progress-chip"><span class="hud-label">Progress</span><strong id="progressValue">0 / 12</strong></div>
-          </div>
+
+          <div class="hud-timer"><span class="hud-icon">⏱</span><strong id="raceTime">00:00.000</strong></div>
+          <div class="hud-streak"><span class="hud-icon">🔥</span><div><small>STREAK</small><strong id="streakValue">0</strong></div></div>
+          <div class="hud-progress"><small>PROGRESS</small><strong id="progressValue">0 / 12</strong></div>
         </header>
+
         <div id="gameNotice" class="game-notice" aria-live="assertive"></div>
+
+        <div id="pauseOverlay" class="pause-overlay" hidden>
+          <div class="pause-card"><span>PAUSED</span><strong>VERB RUNNER</strong><button id="resumeBtn" type="button">RESUME</button></div>
+        </div>
+
         <div class="control-hints" aria-hidden="true"><span>← / A</span><span>↑ / W / SPACE</span><span>↓ / S</span><span>→ / D</span></div>
-        <div class="swipe-hint">Swipe ← → to change lanes · ↑ jump · ↓ slide</div>
+        <div class="mobile-controls" aria-label="Touch controls">
+          <button type="button" data-action="left" aria-label="Move left">←</button>
+          <button type="button" data-action="jump" aria-label="Jump">↑</button>
+          <button type="button" data-action="right" aria-label="Move right">→</button>
+          <button type="button" data-action="slide" aria-label="Slide or crouch">⌄</button>
+        </div>
       </div>
     </section>
 
     <section id="resultScreen" class="screen result-screen" hidden aria-labelledby="resultTitle">
       <div class="result-card">
-        <span class="eyebrow">Level 1 complete</span>
+        <div class="game-logo result-logo" aria-hidden="true"><span class="logo-verb">VERB</span><span class="logo-runner">RUNNER</span></div>
+        <span class="result-kicker">LEVEL 1 COMPLETE</span>
         <h2 id="resultTitle">Great run, <span id="resultNickname">Runner</span>!</h2>
-        <div class="victory-zone"><div id="victoryRunner" class="victory-runner"><span class="v-head"></span><span class="v-body"></span><span class="v-arm left"></span><span class="v-arm right"></span><span class="v-leg left"></span><span class="v-leg right"></span></div></div>
-        <div class="result-grid"><div><span>Time</span><strong id="resultTime">—</strong></div><div><span>Grammar Accuracy</span><strong id="resultAccuracy">—</strong></div><div><span>Correct / Attempts</span><strong id="resultCorrect">—</strong></div><div><span>Best streak</span><strong id="resultStreak">—</strong></div><div><span>Obstacle hits</span><strong id="resultObstacles">—</strong></div><div><span>Final Momentum</span><strong id="resultMomentum">—</strong></div></div>
-        <div class="result-actions"><button id="runAgainBtn" class="primary-btn" type="button">Run again</button><button id="backMenuBtn" class="ghost-btn" type="button">Back to games</button></div>
+        <div class="result-stars" aria-hidden="true">★ ★ ★</div>
+        <div id="victoryRunner" class="victory-runner"><span class="v-head"></span><span class="v-body"></span><span class="v-arm left"></span><span class="v-arm right"></span><span class="v-leg left"></span><span class="v-leg right"></span></div>
+        <div class="result-grid"><div><span>TIME</span><strong id="resultTime">—</strong></div><div><span>ACCURACY</span><strong id="resultAccuracy">—</strong></div><div><span>CORRECT / ATTEMPTS</span><strong id="resultCorrect">—</strong></div><div><span>BEST STREAK</span><strong id="resultStreak">—</strong></div><div><span>OBSTACLES HIT</span><strong id="resultObstacles">—</strong></div><div><span>FINAL MOMENTUM</span><strong id="resultMomentum">—</strong></div></div>
+        <div class="result-actions"><button id="runAgainBtn" class="start-run" type="button">RUN AGAIN</button><button id="backMenuBtn" class="ghost-btn" type="button">BACK TO GAMES</button></div>
       </div>
     </section>
   </main>
 
   <script src="config.js"></script>
+  <script src="runner-art.js"></script>
   <script src="verb-bank.js"></script>
   <script src="challenge-core.js"></script>
   <script src="game-core.js"></script>
