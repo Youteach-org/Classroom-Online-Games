@@ -1,15 +1,13 @@
-.desktop-game-ui .game-hud{width:min(1100px,calc(100% - 24px));margin:0 auto;padding:8px 0 0;gap:5px}
-.desktop-game-ui .hud-row{gap:5px}
-.desktop-game-ui .hud-chip{padding:4px 8px;border-radius:11px}
-.desktop-game-ui .hud-label{font-size:8px;margin-bottom:1px}
-.desktop-game-ui .hud-chip strong{font-size:16px}
-.desktop-game-ui .challenge-panel{width:min(760px,100%);padding:5px 10px;border-radius:12px}
-.desktop-game-ui .challenge-top #challengeNumber{font-size:9px}
-.desktop-game-ui .part span{font-size:7px}
-.desktop-game-ui .part strong{font-size:clamp(24px,2vw,34px);line-height:1}
-.desktop-game-ui .principal-parts>b{font-size:17px}
-.desktop-game-ui .momentum-panel{padding:4px 8px;border-radius:11px}
-.desktop-game-ui .momentum-track{height:5px;margin-top:3px}
-.desktop-game-ui .progress-chip{min-width:80px}
-.desktop-game-ui .game-notice{top:55%;font-size:clamp(22px,2.6vw,34px)}
-.desktop-game-ui .control-hints{bottom:8px}
+.desktop-game-ui .game-hud{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0}
+.desktop-game-ui .hud-pause{left:16px;top:16px;width:48px;height:48px}
+.desktop-game-ui .hud-momentum{left:16px;top:76px;width:220px;height:58px}
+.desktop-game-ui .hud-prompt{top:14px;width:min(650px,46vw);padding-bottom:8px}
+.desktop-game-ui .prompt-tab{font-size:10px;padding:4px 16px 5px}
+.desktop-game-ui .part strong{font-size:clamp(25px,2.2vw,38px)}
+.desktop-game-ui .hud-timer{right:16px;top:16px;height:48px;min-width:142px}
+.desktop-game-ui .hud-timer strong{font-size:18px}
+.desktop-game-ui .hud-streak{right:16px;top:76px;height:48px;min-width:142px}
+.desktop-game-ui .hud-progress{right:16px;top:136px}
+.desktop-game-ui .game-notice{top:40%}
+.desktop-game-ui .control-hints{bottom:10px}
+@media(min-width:1450px){.desktop-game-ui .hud-prompt{width:660px}.desktop-game-ui .hud-momentum{width:235px}.desktop-game-ui .hud-timer,.desktop-game-ui .hud-streak{min-width:152px}}
