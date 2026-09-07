@@ -21,3 +21,11 @@ test('verb bank has unique base forms and exactly three principal parts', () => 
     for (const form of verb.forms) assert.ok(form && typeof form === 'string', verb.forms[0]);
   }
 });
+
+test('standard English variants are never used as wrong-answer decoys', () => {
+  const { VERBS } = require(bankPath);
+  const forbiddenDecoys = new Set(['burnt','dreamt','fitted','forbad']);
+  for (const verb of VERBS) {
+    for (const decoy of verb.decoys || []) assert.ok(!forbiddenDecoys.has(decoy), `${decoy} must not be marked wrong`);
+  }
+});
