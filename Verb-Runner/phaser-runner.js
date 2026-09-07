@@ -6,12 +6,14 @@
       this.runState=data.runState;
       this.characterIndex=data.characterIndex||0;
       this.lane=1;this.jumping=false;this.sliding=false;this.answer=null;this.obstacles=[];
-      this.lastObstacleAt=0;this.active=true;this.roadOffset=0;
+      this.lastObstacleAt=0;this.active=true;this.roadOffset=0;this.displayScale=1;
     }
     create(){
+      this.displayScale=VerbRunnerRunnerCore.displayScaleForViewport(this.scale.width);
       this.cameras.main.setBackgroundColor('#06111f');
       this.drawWorld();
       this.player=this.makeRunner(this.scale.width/2,this.scale.height*0.79,this.characterIndex);
+      this.player.setScale(this.displayScale);
       this.bindControls();
       this.events.on('shutdown',()=>this.input.keyboard.removeAllKeys(true));
       this.callbacks.ready?.(this);
@@ -73,8 +75,8 @@
       this.input.on('pointerup',p=>{if(!start)return;const dx=p.x-start.x,dy=p.y-start.y;start=null;if(Math.max(Math.abs(dx),Math.abs(dy))<28)return;if(Math.abs(dx)>Math.abs(dy))this.shift(dx>0?1:-1);else if(dy<0)this.jump();else this.slide();});
     }
     shift(delta){if(!this.active)return;this.lane=VerbRunnerRunnerCore.moveLane(this.lane,delta);this.tweens.add({targets:this.player,x:this.laneX(this.lane),duration:120,ease:'Sine.easeOut'});}
-    jump(){if(!this.active||this.jumping||this.sliding)return;this.jumping=true;const baseY=this.scale.height*.79;this.tweens.add({targets:this.player,y:baseY-92,duration:230,yoyo:true,ease:'Sine.easeOut',onComplete:()=>{this.jumping=false;this.player.y=baseY;}});}
-    slide(){if(!this.active||this.sliding||this.jumping)return;this.sliding=true;this.tweens.add({targets:this.player,scaleY:.52,y:this.scale.height*.81,duration:90,yoyo:true,hold:360,onComplete:()=>{this.sliding=false;this.player.setScale(1);this.player.y=this.scale.height*.79;}});}
+    jump(){if(!this.active||this.jumping||this.sliding)return;this.jumping=true;const baseY=this.scale.height*.79;this.tweens.add({targets:this.player,y:baseY-92*this.displayScale,duration:230,yoyo:true,ease:'Sine.easeOut',onComplete:()=>{this.jumping=false;this.player.y=baseY;}});}
+    slide(){if(!this.active||this.sliding||this.jumping)return;this.sliding=true;this.tweens.add({targets:this.player,scaleY:this.displayScale*.52,y:this.scale.height*.81,duration:90,yoyo:true,hold:360,onComplete:()=>{this.sliding=false;this.player.setScale(this.displayScale);this.player.y=this.scale.height*.79;}});}
     spawnAnswer(item){
       if(!this.active)return;const lane=Phaser.Math.Between(0,2),x=this.laneX(lane,this.scale.height*.23),y=this.scale.height*.22;
       const box=this.add.container(x,y);box.setDepth(12);box.lane=lane;box.correct=item.correct;box.value=item.value;box.resolved=false;
@@ -90,13 +92,13 @@
       c.add(g);this.obstacles.push(c);
     }
     flashPlayer(color){
-      const ring=this.add.circle(this.player.x,this.player.y-18,38,color,.38).setDepth(19);this.tweens.add({targets:ring,alpha:0,scale:1.7,duration:300,onComplete:()=>ring.destroy()});
+      const ring=this.add.circle(this.player.x,this.player.y-18,38*this.displayScale,color,.38).setDepth(19);this.tweens.add({targets:ring,alpha:0,scale:1.7,duration:300,onComplete:()=>ring.destroy()});
     }
     update(time,delta){
       if(!this.active)return;this.drawMovingRoad(delta);const speed=VerbRunnerRunnerCore.speedForMomentum(this.runState.momentum),dy=speed*(delta/1000);
       if(this.answer){
         this.answer.y+=dy;this.answer.x=this.laneX(this.answer.lane,this.answer.y);
-        const scale=.52+((this.answer.y-this.scale.height*.18)/(this.scale.height*.82))*.72;this.answer.setScale(Math.max(.5,Math.min(1.15,scale)));
+        const scale=.52+((this.answer.y-this.scale.height*.18)/(this.scale.height*.82))*.72;this.answer.setScale(Math.max(.5,Math.min(1.15,scale))*this.displayScale);
         if(!this.answer.resolved&&this.answer.y>this.scale.height*.72&&this.answer.y<this.scale.height*.89&&this.answer.lane===this.lane){
           this.answer.resolved=true;const item={value:this.answer.value,correct:this.answer.correct};
           this.answer.bg.setFillStyle(item.correct?0x124f3c:0x62213b,1);this.answer.bg.setStrokeStyle(3,item.correct?0x7cffc3:0xff6b8d,1);
@@ -108,7 +110,7 @@
         }
       }
       for(const obstacle of [...this.obstacles]){
-        obstacle.y+=dy*.96;obstacle.x=this.laneX(obstacle.lane,obstacle.y);const scale=.5+((obstacle.y-this.scale.height*.18)/(this.scale.height*.82))*.8;obstacle.setScale(Math.max(.5,Math.min(1.2,scale)));
+        obstacle.y+=dy*.96;obstacle.x=this.laneX(obstacle.lane,obstacle.y);const scale=.5+((obstacle.y-this.scale.height*.18)/(this.scale.height*.82))*.8;obstacle.setScale(Math.max(.5,Math.min(1.2,scale))*this.displayScale);
         if(!obstacle.hit&&obstacle.y>this.scale.height*.72&&obstacle.y<this.scale.height*.9&&obstacle.lane===this.lane){
           obstacle.hit=true;if(VerbRunnerRunnerCore.hitsObstacle(obstacle,{jumping:this.jumping,sliding:this.sliding})){this.flashPlayer(0xffc14f);this.callbacks.obstacleHit?.(obstacle.type);} }
         if(obstacle.y>this.scale.height+100){obstacle.destroy();this.obstacles=this.obstacles.filter(o=>o!==obstacle);}
