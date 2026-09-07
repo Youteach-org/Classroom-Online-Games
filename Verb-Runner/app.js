@@ -26,9 +26,9 @@
     characterGrid.innerHTML='';
     const art=window.VERB_RUNNER_ART||[];
     for(let i=0;i<6;i++){
-      const data=art[i]||{name:`RUNNER ${i+1}`,tagline:'SAME SKILLS · SAME SPEED',color:'#36b9ff',accent:'#8ad8ff',pose:'ready'};
-      const button=document.createElement('button');button.type='button';button.className='character-card';button.dataset.pose=data.pose||'ready';button.style.setProperty('--runner-color',data.color);button.style.setProperty('--runner-accent',data.accent||data.color);button.setAttribute('aria-pressed',String(characterIndex===i));button.setAttribute('aria-label',`Choose runner ${i+1}`);
-      button.innerHTML=`<span class="runner-art" aria-hidden="true"><span class="pack"></span><span class="hair"></span><span class="head"></span><span class="body"></span><span class="arm left"></span><span class="arm right"></span><span class="leg left"></span><span class="leg right"></span><span class="shoe left"></span><span class="shoe right"></span></span><span class="runner-caption"><strong>${data.name}</strong><small>${data.tagline}</small></span>`;
+      const data=art[i]||{color:'#36b9ff',accent:'#8ad8ff',pose:'ready'};
+      const button=document.createElement('button');button.type='button';button.className='character-card anonymous-runner';button.dataset.pose=data.pose||'ready';button.style.setProperty('--runner-color',data.color);button.style.setProperty('--runner-accent',data.accent||data.color);button.setAttribute('aria-pressed',String(characterIndex===i));button.setAttribute('aria-label',`Choose runner ${i+1}`);
+      button.innerHTML='<span class="runner-art" aria-hidden="true"><span class="pack"></span><span class="hair"></span><span class="head"></span><span class="body"></span><span class="arm left"></span><span class="arm right"></span><span class="leg left"></span><span class="leg right"></span><span class="shoe left"></span><span class="shoe right"></span></span>';
       button.onclick=()=>{characterIndex=i;[...characterGrid.children].forEach((card,index)=>card.setAttribute('aria-pressed',String(index===i)));selectionReady();};
       characterGrid.appendChild(button);
     }
@@ -68,8 +68,8 @@
     paused=next;
     $('pauseOverlay').hidden=!paused;
     $('pauseBtn').setAttribute('aria-label',paused?'Resume game':'Pause game');
-    if(paused){pauseStartedAt=performance.now();scene.scene.pause();}
-    else{totalPausedMs+=performance.now()-pauseStartedAt;scene.scene.resume();}
+    if(paused){pauseStartedAt=performance.now();scene.pauseRun();}
+    else{totalPausedMs+=performance.now()-pauseStartedAt;scene.resumeRun();}
   }
   function togglePause(){setPaused(!paused);}
 
