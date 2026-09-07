@@ -22,10 +22,19 @@ test('obstacle collision respects jump and slide requirements', () => {
   assert.equal(core.hitsObstacle({type:'barrier'}, {jumping:false, sliding:true}), false);
 });
 
-test('desktop display scale grows the world without changing mobile scale', () => {
-  assert.equal(core.displayScaleForViewport(390),1);
-  assert.equal(core.displayScaleForViewport(900),1);
-  assert.equal(core.displayScaleForViewport(1366),1.19);
-  assert.equal(core.displayScaleForViewport(1728),1.3);
-  assert.equal(core.displayScaleForViewport(2560),1.35);
+test('desktop mode is based on a fine pointer and landscape geometry, not only width', () => {
+  assert.equal(core.isDesktopViewport(920,540,true),true);
+  assert.equal(core.isDesktopViewport(390,844,false),false);
+  assert.equal(core.isDesktopViewport(844,390,false),false);
+});
+
+test('desktop fine-pointer landscape gets a much larger gameplay scale even below 1000 CSS px', () => {
+  assert.equal(core.displayScaleForViewport(920,540,true),1.7);
+  assert.equal(core.displayScaleForViewport(1366,768,true),1.78);
+  assert.equal(core.displayScaleForViewport(1920,1080,true),1.85);
+});
+
+test('mobile and coarse-pointer layouts keep the original gameplay scale', () => {
+  assert.equal(core.displayScaleForViewport(390,844,false),1);
+  assert.equal(core.displayScaleForViewport(844,390,false),1);
 });
