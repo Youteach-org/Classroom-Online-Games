@@ -5,6 +5,14 @@
   const TOTAL=12;
   let playerName='',characterIndex=null,runState=null,challenges=[],challengeIndex=0,currentSequence=[],sequenceIndex=0,phaserGame=null,scene=null,startAt=0,timerId=null;
 
+  function finePointer(){return Boolean(window.matchMedia&&window.matchMedia('(pointer:fine)').matches);}
+  function syncDisplayMode(){
+    const desktop=VerbRunnerRunnerCore.isDesktopViewport(window.innerWidth,window.innerHeight,finePointer());
+    document.documentElement.classList.toggle('desktop-game-ui',desktop);
+  }
+  syncDisplayMode();
+  window.addEventListener('resize',syncDisplayMode);
+
   function show(screen){for(const el of Object.values(screens)){el.hidden=el!==screen;el.classList.toggle('screen-active',el===screen);}scrollTo({top:0,behavior:'instant'});}
   function cleanName(value){return String(value||'').replace(/\s+/g,' ').trim().slice(0,28);}
   function formatTime(ms){const total=Math.max(0,Math.round(ms)),minutes=Math.floor(total/60000),seconds=Math.floor((total%60000)/1000),millis=total%1000;return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}.${String(millis).padStart(3,'0')}`;}
@@ -48,7 +56,7 @@
   }
   function obstacleHit(type){runState=VerbRunnerGameCore.applyEvent(runState,'obstacle-hit');updateHud();setNotice(type==='crate'?'Obstacle hit — jump!':'Obstacle hit — slide!','obstacle');}
   function start(){
-    runState=VerbRunnerGameCore.createRunState(TOTAL);challenges=[];challengeIndex=0;currentSequence=[];sequenceIndex=0;buildChallenges();show(screens.game);$('hudNickname').textContent=playerName;updateHud();startAt=performance.now();
+    syncDisplayMode();runState=VerbRunnerGameCore.createRunState(TOTAL);challenges=[];challengeIndex=0;currentSequence=[];sequenceIndex=0;buildChallenges();show(screens.game);$('hudNickname').textContent=playerName;updateHud();startAt=performance.now();
     if(timerId)cancelAnimationFrame(timerId);const tick=()=>{$('raceTime').textContent=formatTime(performance.now()-startAt);timerId=requestAnimationFrame(tick);};tick();
     phaserGame=VerbRunnerPhaser.createVerbRunnerGame('phaserMount',{characterIndex,runState,callbacks:{ready:s=>{scene=s;renderChallenge();},answerHit,answerMissed,obstacleHit}});
   }
