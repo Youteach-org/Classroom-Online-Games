@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const repoRoot = path.resolve(__dirname, '..', '..');
+const repoRoot = path.resolve(__dirname, '..');
 const studentPath = path.join(__dirname, 'index.html');
 const teacherPath = path.join(__dirname, 'teacher.html');
 const rootMenuPath = path.join(repoRoot, 'index.html');
@@ -24,6 +24,11 @@ test('Verb Runner page shells expose their root containers', () => {
 });
 
 test('COG menus link to Verb Runner', () => {
-  assert.match(read(rootMenuPath), /\/Connectivity5\/Verb-Runner\//);
-  assert.match(read(teacherMenuPath), /\/Connectivity5\/Verb-Runner\/teacher\//);
+  assert.match(read(rootMenuPath), /\/Verb-Runner\//);
+  assert.match(read(teacherMenuPath), /\/Verb-Runner\/teacher\//);
+});
+
+test('COG no longer references the retired course folder', () => {
+  assert.doesNotMatch(read(rootMenuPath), /Connectivity\s*5|Connectivity5/i);
+  assert.doesNotMatch(read(teacherMenuPath), /Connectivity\s*5|Connectivity5/i);
 });

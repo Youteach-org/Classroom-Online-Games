@@ -45,7 +45,7 @@ import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun
     gameShell:$('.game-shell'),resultScreen:$('#resultScreen'),resultStudentName:$('#resultStudentName'),resultSetLine:$('#resultSetLine'),resultMeter:$('#resultMeter'),resultStreak:$('#resultStreak'),resultCompleted:$('#resultCompleted'),resultCode:$('#resultCode'),resultCanvas:$('#resultCanvas'),downloadResult:$('#downloadResult'),finishedStudentMenu:$('#finishedStudentMenu')
   };
 
-  const state = {storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,streak:0,coachEnabled:true,resolved:false,completed:false,started:false,runId:null,sessionId:'free',studentName:'',classCode:cfg.defaultClassCode||'CONNECT5',controlGeneration:0,pendingRedirect:null,translationAttemptCount:0,translationBlocked:false,resultData:null};
+  const state = {storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,streak:0,coachEnabled:true,resolved:false,completed:false,started:false,runId:null,sessionId:'free',studentName:'',classCode:cfg.defaultClassCode||'SUPPORT',controlGeneration:0,pendingRedirect:null,translationAttemptCount:0,translationBlocked:false,resultData:null};
   el.code.value = state.classCode;
 
   function story(){ return stories[state.storyIndex]; }
@@ -105,7 +105,7 @@ import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun
   function revealFeedback(){const s=story();const p=pronounForms(s.targetPronoun);return `The best match for ${s.targetName} is ${s.feeling}, and the line is “${s.expression}” because that matches what ${s.targetName} ${p.be} feeling and what ${s.targetName} would say in this moment.`;}
 
   async function createSession(){
-    state.studentName=(el.name.value.trim()||'Student').slice(0,60);state.classCode=(el.code.value.trim()||cfg.defaultClassCode||'CONNECT5').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,40);
+    state.studentName=(el.name.value.trim()||'Student').slice(0,60);state.classCode=(el.code.value.trim()||cfg.defaultClassCode||'SUPPORT').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,40);
     if(joinToken){
       const resolved=await resolveJoinToken(joinToken);
       if(!resolved){el.startError.textContent='This activity link is invalid or has expired.';el.startError.classList.remove('hidden');return false;}
@@ -136,7 +136,7 @@ import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun
   }
   function showFinalResult(completedAt){
     state.resultData=window.SupportMeterResult.buildResultData({studentName:state.studentName,setNumber:selectedSet,supportMeter:state.meter,streak:state.streak,completedAt,runId:state.runId});
-    el.resultStudentName.textContent=state.resultData.studentName;el.resultSetLine.textContent=`Connectivity 5 · ${state.resultData.setLabel} · 8 of 8 stories completed`;el.resultMeter.textContent=state.resultData.supportMeter;el.resultStreak.textContent=state.resultData.streak;el.resultCompleted.textContent=state.resultData.completedLabel;el.resultCode.textContent=state.resultData.recordCode;
+    el.resultStudentName.textContent=state.resultData.studentName;el.resultSetLine.textContent=`${state.resultData.setLabel} · 8 of 8 stories completed`;el.resultMeter.textContent=state.resultData.supportMeter;el.resultStreak.textContent=state.resultData.streak;el.resultCompleted.textContent=state.resultData.completedLabel;el.resultCode.textContent=state.resultData.recordCode;
     window.SupportMeterResult.drawResult(el.resultCanvas,state.resultData);el.gameShell.classList.add('hidden');el.resultScreen.classList.remove('hidden');scrollTo({top:0,behavior:'smooth'});
   }
   function downloadFinalResult(){

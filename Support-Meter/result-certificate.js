@@ -17,7 +17,7 @@
     ctx.fillStyle='#eef5ff';ctx.fillRect(0,0,1200,720);ctx.shadowColor='#06184d66';ctx.shadowBlur=28;ctx.shadowOffsetY=18;rounded(ctx,70,55,1060,610,38,gradient,'#58c7ff');ctx.shadowColor='transparent';
     ctx.strokeStyle='#8de4ff77';ctx.beginPath();ctx.moveTo(70,145);ctx.lineTo(1130,145);ctx.stroke();
     text(ctx,'SUPPORT',112,116,40,'#fff','900');text(ctx,'METER',300,116,40,'#ffd735','900');rounded(ctx,835,86,245,42,21,'#25c76f');text(ctx,'✓  ACTIVITY COMPLETED',957,113,16,'#042c24','900','center');
-    text(ctx,'FINAL RESULT',600,195,18,'#9ee8ff','900','center');text(ctx,data.studentName,600,250,48,'#fff','900','center');text(ctx,`Connectivity 5  ·  ${data.setLabel}  ·  8 of 8 stories completed`,600,286,19,'#d5ebff','400','center');
+    text(ctx,'FINAL RESULT',600,195,18,'#9ee8ff','900','center');text(ctx,data.studentName,600,250,48,'#fff','900','center');text(ctx,`${data.setLabel}  ·  8 of 8 stories completed`,600,286,19,'#d5ebff','400','center');
     const boxes=[{x:190,symbol:'★',value:data.supportMeter,label:'SUPPORT METER'},{x:620,symbol:'▲',value:data.streak,label:'FINAL STREAK'}];
     boxes.forEach(box=>{rounded(ctx,box.x,326,390,157,22,'#ffffff16','#a6e6ffaa');text(ctx,box.symbol,box.x+195,375,34,box.label==='FINAL STREAK'?'#ffad3d':'#ffd735','700','center');text(ctx,box.value,box.x+195,426,43,'#ffd735','900','center');text(ctx,box.label,box.x+195,458,15,'#d8efff','900','center');});
     rounded(ctx,118,510,964,65,17,'#03165099');text(ctx,`Completed:  ${data.completedLabel}`,145,550,18,'#e4f4ff','700');text(ctx,`Record:  ${data.recordCode}`,1050,550,18,'#e4f4ff','700','right');
