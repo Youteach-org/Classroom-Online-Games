@@ -21,6 +21,6 @@ test('Firebase adapter exports the complete student and teacher API',()=>{
 });
 
 test('database rules index session and presence fields',()=>{
-  const rules=fs.readFileSync(path.join(root,'..','..','firebase.support-meter.rules.json'),'utf8');
+  const rules=fs.readFileSync(path.join(root,'..','firebase.support-meter.rules.json'),'utf8');
   assert.match(rules,/"\.indexOn"\s*:\s*\[[^\]]*"sessionId"[^\]]*"lastSeen"/s);
 });
