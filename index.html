@@ -7,38 +7,55 @@
   <style>
     *{box-sizing:border-box}
     body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#071426,#0d2d55);color:#fff;display:flex;align-items:center;justify-content:center;padding:32px}
-    .wrap{width:min(1000px,100%)}
+    .wrap{width:min(1050px,100%)}
     h1{font-size:42px;margin:0 0 10px}
-    .sub{opacity:.8;font-size:18px;margin-bottom:34px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
-    .card{background:#fff;color:#10213a;border-radius:22px;padding:26px;text-decoration:none;box-shadow:0 18px 50px rgba(0,0,0,.28);transition:.18s ease;border:3px solid transparent}
+    .sub{opacity:.8;font-size:18px;margin-bottom:28px}
+    .section{margin-top:26px}
+    .section h2{font-size:19px;margin:0 0 12px;color:#cfe4ff}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+    .card{background:#fff;color:#10213a;border-radius:22px;padding:24px;text-decoration:none;box-shadow:0 18px 50px rgba(0,0,0,.28);transition:.18s ease;border:3px solid transparent}
     .card:hover{transform:translateY(-4px);border-color:#ffd447}
-    .tag{display:inline-block;background:#ffd447;color:#152039;font-weight:700;padding:6px 10px;border-radius:999px;font-size:13px;margin-bottom:14px}
-    .card h2{margin:0 0 10px;font-size:28px}
-    .card p{margin:0;color:#526078;line-height:1.5}
-    .open{display:inline-block;margin-top:20px;font-weight:700;color:#315ad8}
-    footer{margin-top:30px;opacity:.55;font-size:13px}
+    .tag{display:inline-block;background:#ffd447;color:#152039;font-weight:700;padding:6px 10px;border-radius:999px;font-size:13px;margin-bottom:12px}
+    .tag.eng{background:#62d7a6;color:#153a2c}
+    .card h3{margin:0 0 8px;font-size:26px}
+    .card p{margin:0;color:#526078;line-height:1.45}
+    .open{display:inline-block;margin-top:16px;font-weight:700;color:#315ad8}
+    footer{margin-top:28px;opacity:.55;font-size:13px}
   </style>
 </head>
 <body>
   <main class="wrap">
     <h1>Classroom Online Games</h1>
-    <div class="sub">Choose an interactive classroom activity.</div>
-    <section class="grid">
-      <a class="card" href="/Connectivity5/OSASCOMP/">
-        <span class="tag">Connectivity 5</span>
-        <h2>OSASCOMP Quest</h2>
-        <p>Practice the correct order of adjectives through a live classroom challenge.</p>
-        <span class="open">Open game →</span>
-      </a>
-      <a class="card" href="/Connectivity5/Support-Meter/">
-        <span class="tag">Connectivity 5</span>
-        <h2>Support Meter</h2>
-        <p>Practice frustration, empathy and encouragement through interactive mini-stories.</p>
-        <span class="open">Open game →</span>
-      </a>
+    <div class="sub">Choose a classroom activity or study section.</div>
+    <section class="section">
+      <h2>English Games</h2>
+      <div class="grid">
+        <a class="card" href="/Connectivity5/OSASCOMP/">
+          <span class="tag">English</span>
+          <h3>OSASCOMP Quest</h3>
+          <p>Practice the correct order of adjectives through a live classroom challenge.</p>
+          <span class="open">Open game →</span>
+        </a>
+        <a class="card" href="/Connectivity5/Support-Meter/">
+          <span class="tag">English</span>
+          <h3>Support Meter</h3>
+          <p>Practice frustration, empathy and encouragement through interactive mini-stories.</p>
+          <span class="open">Open game →</span>
+        </a>
+      </div>
     </section>
-    <footer>More classroom games will be added here.</footer>
+    <section class="section">
+      <h2>Engineering</h2>
+      <div class="grid">
+        <a class="card" href="/Engineering/">
+          <span class="tag eng">Engineering</span>
+          <h3>Engineering Study Games</h3>
+          <p>Control Systems and future engineering subjects in their own section.</p>
+          <span class="open">Open Engineering →</span>
+        </a>
+      </div>
+    </section>
+    <footer>Classroom Online Games</footer>
   </main>
 </body>
 </html>
