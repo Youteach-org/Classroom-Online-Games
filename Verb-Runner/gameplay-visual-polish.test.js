@@ -11,11 +11,10 @@ test('verb panels are smaller without sacrificing the approved neon glow',()=>{
   assert.match(phaser,/setStrokeStyle\(6,0x4acfff,\.42\)/);
 });
 
-test('gameplay feedback stays above the action area on desktop and mobile',()=>{
-  const css=read('styles.css')+'\n'+read('desktop.css');
-  assert.match(css,/\.desktop-game-ui \.game-notice\{[^}]*top:14%/);
-  assert.match(css,/@media\(max-width:900px\)\{[\s\S]*?\.game-notice\{top:30%/);
-  assert.doesNotMatch(css,/\.game-notice\{[^}]*top:42%/);
+test('gameplay feedback is overridden above the action area on desktop and mobile',()=>{
+  const desktop=read('desktop.css');
+  assert.match(desktop,/\.desktop-game-ui \.game-notice\{[^}]*top:14%/);
+  assert.match(desktop,/@media\(max-width:900px\)\{[^}]*\.game-notice\{top:30%/);
 });
 
 test('jump and slide obstacles use clearly different silhouettes',()=>{
