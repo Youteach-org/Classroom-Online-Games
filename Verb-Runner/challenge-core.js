@@ -44,7 +44,12 @@
     return [...wrong,{value:challenge.correctAnswer,correct:true}];
   }
 
-  const api={LABELS,createChallenge,buildAnswerSequence,shuffled};
+  function buildMediumSequence(challenge,{random=Math.random}={}){
+    const amount=random()<0.5?3:4;
+    return buildAnswerSequence(challenge,{random,distractorsBeforeCorrect:amount});
+  }
+
+  const api={LABELS,createChallenge,buildAnswerSequence,buildMediumSequence,shuffled};
   if(typeof module!=='undefined'&&module.exports) module.exports=api;
   global.VerbRunnerChallenge=api;
 })(typeof window!=='undefined'?window:globalThis);
