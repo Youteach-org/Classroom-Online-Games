@@ -17,6 +17,7 @@
 .desktop-game-ui .hud-streak>.hud-icon{font-size:22px}.desktop-game-ui .hud-streak strong{font-size:18px}
 .desktop-game-ui .hud-progress{right:14px;top:114px;min-width:96px;padding:4px 8px}
 .desktop-game-ui .hud-progress small{font-size:8px}.desktop-game-ui .hud-progress strong{font-size:12px}
-.desktop-game-ui .game-notice{top:39%}
+.desktop-game-ui .game-notice{top:14%;min-width:0;max-width:min(430px,46vw);padding:7px 14px;font-size:clamp(16px,1.7vw,24px);border-radius:999px;transform:translate(-50%,0)}
 .desktop-game-ui .control-hints{bottom:9px;opacity:.52}
 @media(min-width:1450px){.desktop-game-ui .hud-prompt{width:600px}.desktop-game-ui .hud-momentum{width:200px}.desktop-game-ui .hud-timer,.desktop-game-ui .hud-streak{min-width:132px}}
+@media(max-width:900px){.game-notice{top:30%;min-width:0;max-width:calc(100% - 28px);padding:7px 12px;font-size:18px;border-radius:999px;transform:translate(-50%,0)}}
