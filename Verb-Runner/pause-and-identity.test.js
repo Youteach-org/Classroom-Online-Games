@@ -4,6 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const read=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
 
+// Deployment retry marker after Vercel build-rate-limit window.
 test('runner cards are cosmetic avatars with no fixed character names or taglines',()=>{
   const app=read('app.js');
   assert.doesNotMatch(app,/data\.name|data\.tagline|runner-caption/);
