@@ -1,15 +1,22 @@
 .pause-overlay[hidden]{display:none!important}
 .character-card.anonymous-runner .runner-art{inset:0}
 .desktop-game-ui .game-hud{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0}
-.desktop-game-ui .hud-pause{left:16px;top:16px;width:48px;height:48px}
-.desktop-game-ui .hud-momentum{left:16px;top:76px;width:220px;height:58px}
-.desktop-game-ui .hud-prompt{top:14px;width:min(650px,46vw);padding-bottom:8px}
-.desktop-game-ui .prompt-tab{font-size:10px;padding:4px 16px 5px}
-.desktop-game-ui .part strong{font-size:clamp(25px,2.2vw,38px)}
-.desktop-game-ui .hud-timer{right:16px;top:16px;height:48px;min-width:142px}
-.desktop-game-ui .hud-timer strong{font-size:18px}
-.desktop-game-ui .hud-streak{right:16px;top:76px;height:48px;min-width:142px}
-.desktop-game-ui .hud-progress{right:16px;top:136px}
-.desktop-game-ui .game-notice{top:40%}
-.desktop-game-ui .control-hints{bottom:10px}
-@media(min-width:1450px){.desktop-game-ui .hud-prompt{width:660px}.desktop-game-ui .hud-momentum{width:235px}.desktop-game-ui .hud-timer,.desktop-game-ui .hud-streak{min-width:152px}}
+.desktop-game-ui .hud-pause,.desktop-game-ui .hud-momentum,.desktop-game-ui .hud-prompt,.desktop-game-ui .hud-timer,.desktop-game-ui .hud-streak,.desktop-game-ui .hud-progress{background:linear-gradient(180deg,rgba(7,31,59,.88),rgba(4,20,39,.82));border-width:1px;backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,22,43,.45),inset 0 0 12px rgba(45,193,255,.12)}
+.desktop-game-ui .hud-pause{left:14px;top:14px;width:42px;height:42px;font-size:22px;border-radius:9px}
+.desktop-game-ui .hud-momentum{left:14px;top:64px;width:190px;height:50px;padding:6px 8px 6px 39px;border-radius:10px}
+.desktop-game-ui .hud-momentum .hud-icon{left:9px;top:7px;font-size:24px}
+.desktop-game-ui .hud-meter-copy span{font-size:8px}.desktop-game-ui .hud-meter-copy strong{font-size:10px}.desktop-game-ui .momentum-track{height:9px;margin-top:4px}
+.desktop-game-ui .hud-prompt{top:12px;width:min(570px,40vw);padding:0 10px 7px;border-radius:11px}
+.desktop-game-ui .prompt-tab{font-size:9px;padding:3px 13px 4px;margin-bottom:3px}
+.desktop-game-ui .part span{font-size:7px}
+.desktop-game-ui .part strong{font-size:clamp(22px,1.8vw,32px)}
+.desktop-game-ui .principal-parts>b{font-size:18px}
+.desktop-game-ui .hud-timer{right:14px;top:14px;height:42px;min-width:126px;padding:5px 9px}
+.desktop-game-ui .hud-timer .hud-icon{font-size:19px}.desktop-game-ui .hud-timer strong{font-size:16px}
+.desktop-game-ui .hud-streak{right:14px;top:64px;height:42px;min-width:126px;padding:5px 9px}
+.desktop-game-ui .hud-streak>.hud-icon{font-size:22px}.desktop-game-ui .hud-streak strong{font-size:18px}
+.desktop-game-ui .hud-progress{right:14px;top:114px;min-width:96px;padding:4px 8px}
+.desktop-game-ui .hud-progress small{font-size:8px}.desktop-game-ui .hud-progress strong{font-size:12px}
+.desktop-game-ui .game-notice{top:39%}
+.desktop-game-ui .control-hints{bottom:9px;opacity:.52}
+@media(min-width:1450px){.desktop-game-ui .hud-prompt{width:600px}.desktop-game-ui .hud-momentum{width:200px}.desktop-game-ui .hud-timer,.desktop-game-ui .hud-streak{min-width:132px}}
