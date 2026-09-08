@@ -21,10 +21,12 @@ test('gameplay loads illustrated environment obstacle and runner assets instead 
   const phaser=read('phaser-runner.js');
   for(const file of ['assets/coastal-city.svg','assets/obstacle-jump.svg','assets/obstacle-slide.svg','assets/runner-rear-1.svg','assets/runner-rear-2.svg','assets/runner-rear-3.svg','assets/runner-rear-4.svg','assets/runner-rear-5.svg','assets/runner-rear-6.svg']){
     assert.equal(fs.existsSync(path.join(__dirname,file)),true,`${file} must exist`);
-    assert.match(phaser,new RegExp(file.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
   }
   assert.match(phaser,/preload\(\)/);
-  assert.match(phaser,/this\.load\.svg\('vr-coastal'/);
+  assert.match(phaser,/this\.load\.svg\('vr-coastal','assets\/coastal-city\.svg'\)/);
+  assert.match(phaser,/this\.load\.svg\('vr-jump','assets\/obstacle-jump\.svg'\)/);
+  assert.match(phaser,/this\.load\.svg\('vr-slide','assets\/obstacle-slide\.svg'\)/);
+  assert.match(phaser,/assets\/runner-rear-\$\{i\}\.svg/);
   assert.match(phaser,/this\.add\.image\([^\n]*'vr-coastal'/);
 });
 
