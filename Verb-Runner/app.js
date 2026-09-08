@@ -3,7 +3,8 @@
   const screens={character:$('characterScreen'),game:$('gameScreen'),result:$('resultScreen')};
   const nameInput=$('playerName'),characterGrid=$('characterGrid'),startBtn=$('startRunnerBtn');
   const TOTAL=12;
-  let playerName='',characterIndex=null,runState=null,challenges=[],challengeIndex=0,currentSequence=[],sequenceIndex=0,phaserGame=null,scene=null,startAt=0,timerId=null,paused=false,pauseStartedAt=0,totalPausedMs=0;
+  const ANSWER_SPACING_MS=820;
+  let playerName='',characterIndex=null,runState=null,challenges=[],challengeIndex=0,currentSequence=[],phaserGame=null,scene=null,startAt=0,timerId=null,paused=false,pauseStartedAt=0,totalPausedMs=0,answerTimers=[];
 
   function finePointer(){return Boolean(window.matchMedia&&window.matchMedia('(pointer:fine)').matches);}
   function desktopMode(){return VerbRunnerRunnerCore.isDesktopViewport(window.innerWidth,window.innerHeight,finePointer());}
@@ -37,16 +38,28 @@
   function buildChallenges(){
     challenges=[];
     const bank=[...VerbRunnerBank.VERBS];
-    VerbRunnerChallenge.shuffled(bank).slice(0,TOTAL).forEach(verb=>challenges.push(VerbRunnerChallenge.createChallenge(verb,{bank:VerbRunnerBank.VERBS,distractorCount:3})));
+    VerbRunnerChallenge.shuffled(bank).slice(0,TOTAL).forEach(verb=>challenges.push(VerbRunnerChallenge.createChallenge(verb,{bank:VerbRunnerBank.VERBS,distractorCount:5})));
+  }
+  function cancelAnswerTimers(){for(const timer of answerTimers)timer?.remove?.(false);answerTimers=[];}
+  function launchAnswerChain(sequence,initialDelay=260){
+    if(!scene||challengeIndex>=TOTAL)return;
+    cancelAnswerTimers();scene.clearAnswers();currentSequence=[...sequence];
+    currentSequence.forEach((item,index)=>{
+      const timer=scene.time.delayedCall(initialDelay+index*ANSWER_SPACING_MS,()=>scene.spawnAnswer(item));
+      answerTimers.push(timer);
+    });
   }
   function renderChallenge(){
     const challenge=challenges[challengeIndex],slotEls=[...document.querySelectorAll('[data-slot]')];
     slotEls.forEach((el,index)=>{const value=challenge.slots[index];el.querySelector('strong').textContent=value?String(value).toUpperCase():'____';el.classList.toggle('blank',value===null);});
     $('challengeNumber').textContent=`${challengeIndex+1} / ${TOTAL}`;
-    currentSequence=VerbRunnerChallenge.buildAnswerSequence(challenge,{distractorsBeforeCorrect:2});sequenceIndex=0;queueNextAnswer(420);
+    launchAnswerChain(VerbRunnerChallenge.buildMediumSequence(challenge),300);
   }
-  function queueNextAnswer(delay=300){if(challengeIndex>=TOTAL||!scene)return;scene.time.delayedCall(delay,()=>{if(!scene.answer&&sequenceIndex<currentSequence.length)scene.spawnAnswer(currentSequence[sequenceIndex++]);});}
-  function retryCorrect(){const challenge=challenges[challengeIndex];currentSequence=VerbRunnerChallenge.buildAnswerSequence(challenge,{distractorsBeforeCorrect:1});sequenceIndex=0;queueNextAnswer(360);}
+  function retryCorrect(){
+    if(challengeIndex>=TOTAL)return;
+    const challenge=challenges[challengeIndex];
+    launchAnswerChain(VerbRunnerChallenge.buildMediumSequence(challenge),420);
+  }
   function updateHud(){
     $('streakValue').textContent=runState.streak;
     $('momentumValue').textContent=`${runState.momentum}%`;
@@ -56,10 +69,15 @@
     if(scene)scene.runState=runState;
   }
   function answerHit(item){
-    if(item.correct){runState=VerbRunnerGameCore.applyEvent(runState,'correct');setNotice('CORRECT!','correct');updateHud();challengeIndex++;if(challengeIndex>=TOTAL){setTimeout(finish,500);return;}setTimeout(renderChallenge,420);}
-    else{runState=VerbRunnerGameCore.applyEvent(runState,'grammar-error');setNotice(`${String(item.value).toUpperCase()} — WRONG FORM`,'wrong');updateHud();queueNextAnswer(360);}
+    if(item.correct){
+      cancelAnswerTimers();runState=VerbRunnerGameCore.applyEvent(runState,'correct');setNotice('CORRECT!','correct');updateHud();challengeIndex++;
+      if(challengeIndex>=TOTAL){setTimeout(finish,520);return;}
+      setTimeout(renderChallenge,360);
+    }else{
+      runState=VerbRunnerGameCore.applyEvent(runState,'grammar-error');setNotice(`${String(item.value).toUpperCase()} — WRONG FORM`,'wrong');updateHud();
+    }
   }
-  function answerMissed(item){if(item.correct){setNotice('Correct form missed — it will come back.','info');retryCorrect();}else queueNextAnswer(260);}
+  function answerMissed(item){if(item.correct){setNotice('Correct form missed — new chain incoming.','info');retryCorrect();}}
   function obstacleHit(type){runState=VerbRunnerGameCore.applyEvent(runState,'obstacle-hit');updateHud();setNotice(type==='crate'?'Obstacle hit — jump!':'Obstacle hit — slide!','obstacle');}
 
   function tickTimer(){if(!screens.game.hidden)$('raceTime').textContent=formatTime(elapsedNow());timerId=requestAnimationFrame(tickTimer);}
@@ -78,14 +96,14 @@
     if(!playerName){$('nameError').textContent='Enter your name to start.';nameInput.focus();return;}
     if(characterIndex===null){$('nameError').textContent='Choose a runner.';return;}
     localStorage.setItem('verbRunnerTestName',playerName);$('nameError').textContent='';syncDisplayMode();
-    runState=VerbRunnerGameCore.createRunState(TOTAL);challengeIndex=0;currentSequence=[];sequenceIndex=0;buildChallenges();show(screens.game);updateHud();paused=false;totalPausedMs=0;startAt=performance.now();$('pauseOverlay').hidden=true;
+    runState=VerbRunnerGameCore.createRunState(TOTAL);challengeIndex=0;currentSequence=[];cancelAnswerTimers();buildChallenges();show(screens.game);updateHud();paused=false;totalPausedMs=0;startAt=performance.now();$('pauseOverlay').hidden=true;
     if(timerId)cancelAnimationFrame(timerId);tickTimer();
     phaserGame=VerbRunnerPhaser.createVerbRunnerGame('phaserMount',{characterIndex,runState,desktop:desktopMode(),callbacks:{ready:s=>{scene=s;renderChallenge();},answerHit,answerMissed,obstacleHit}});
   }
   function finish(){
     if(!runState)return;
     if(paused)setPaused(false);
-    scene?.stopRun();if(timerId)cancelAnimationFrame(timerId);
+    cancelAnswerTimers();scene?.stopRun();if(timerId)cancelAnimationFrame(timerId);
     const elapsed=elapsedNow(),result=VerbRunnerGameCore.summarize(runState,elapsed);
     $('resultNickname').textContent=playerName;$('resultTime').textContent=formatTime(result.timeMs);$('resultAccuracy').textContent=`${result.accuracy}%`;$('resultCorrect').textContent=result.correctLabel;$('resultStreak').textContent=result.bestStreak;$('resultObstacles').textContent=result.obstacleHits;$('resultMomentum').textContent=`${result.momentum}%`;$('victoryRunner').className=`victory-runner runner-${characterIndex}`;
     show(screens.result);setTimeout(()=>{phaserGame?.destroy(true);phaserGame=null;scene=null;},50);
