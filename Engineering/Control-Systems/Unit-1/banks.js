@@ -1,215 +1,208 @@
 const V=Math.max(1,Math.min(4,Number(window.STUDY_VERSION||1)))-1;
-const svg=(title,sub,icon='⚙')=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500"><rect width="800" height="500" rx="28" fill="#f6f9fc"/><rect x="70" y="70" width="660" height="360" rx="28" fill="#fff" stroke="#d7e2ee" stroke-width="4"/><text x="400" y="205" text-anchor="middle" font-family="Arial" font-size="86" fill="#397df1">${icon}</text><text x="400" y="292" text-anchor="middle" font-family="Arial" font-weight="700" font-size="34" fill="#17335f">${title}</text><text x="400" y="340" text-anchor="middle" font-family="Arial" font-size="23" fill="#627694">${sub}</text></svg>`);
-const mc=(kind,title,sub,icon,q,options,correct,why,hint)=>({type:'mcq',kind,img:svg(title,sub,icon),caption:sub,q,options,correct,why,hint});
-const op=(kind,title,sub,icon,q,model,criteria,hint)=>({type:'open',kind,img:svg(title,sub,icon),caption:sub,q,model,criteria,hint});
 const pick=a=>a[V];
-const banks=[[],[],[],[]];
-const add=(...qs)=>qs.forEach((q,i)=>banks[i].push(q));
+const mc=(kind,scene,q,options,correct,why,hint,caption='')=>({type:'mcq',kind,scene,caption,q,options,correct,why,hint});
+const op=(kind,scene,q,model,criteria,hint,caption='')=>({type:'open',kind,scene,caption,q,model,criteria,hint});
+const Q=[];
+const add=q=>Q.push(q);
 
-add(
-mc('Señales','Vibración muestreada','Lectura cada 2 s','●','Un sensor registra vibración únicamente cada 2 segundos. ¿Cómo se clasifica la señal registrada?',['Continua','Discreta','Estacionaria','MIMO'],1,['Continua tendría valor para todo instante.','Correcto: existe en instantes separados.','Estacionaria no describe muestreo.','MIMO clasifica entradas y salidas.'],'Observa cuándo existen los datos.'),
-mc('Señales','Contador de piezas','Un pulso por producto','▮','Un contador entrega un valor cada vez que pasa una pieza. ¿Qué tipo de señal representa ese registro?',['Discreta','Continua','Lineal','Acoplada'],0,['Correcto: son eventos separados.','Continua implicaría definición en cualquier instante.','Linealidad es otra propiedad.','Acoplamiento no clasifica señales.'],'Piensa en eventos separados.'),
-mc('Señales','Temperatura digital','Muestra cada 500 ms','◆','La temperatura física cambia continuamente, pero el controlador guarda una lectura cada 500 ms. La señal almacenada es…',['Continua','Discreta','Estática','No estacionaria necesariamente'],1,['La variable física puede ser continua, pero no el registro.','Correcto: el registro es discreto en el tiempo.','Estática se refiere a memoria.','No puede afirmarse solo por muestrear.'],'Distingue variable física de registro.'),
-mc('Señales','Encoder incremental','Conteos de giro','↻','Un encoder genera conteos individuales conforme gira un eje. ¿Cómo se clasifica la señal de conteo?',['Discreta','Continua','Estacionaria','Planta'],0,['Correcto: se expresa mediante eventos separados.','No está definida continuamente.','Estacionaria es otra clasificación.','Planta no es un tipo de señal.'],'Conteos individuales = señal discreta.')
-);
+// 1. Imagen -> tipo de señal
+{
+ const scenes=['signal_samples_sensor','signal_pulses_counter','signal_continuous_temp','signal_samples_encoder'];
+ const qs=['La gráfica muestra mediciones separadas tomadas cada 2 s. ¿La señal mostrada es de tipo?','El registro de un contador de piezas aparece como pulsos separados. ¿La señal mostrada es de tipo?','La curva de temperatura está definida para todo instante. ¿La señal mostrada es de tipo?','El encoder entrega una secuencia de muestras en instantes definidos. ¿La señal mostrada es de tipo?'];
+ const opts=[['Continua','Discreta','MIMO','Estacionaria'],['Discreta','Continua','Estática','Acoplada'],['Discreta','Continua','MISO','No estacionaria'],['Continua','Discreta','SISO','Estable']];
+ const cs=[1,0,1,1];
+ add(mc('Señales',pick(scenes),pick(qs),pick(opts),pick(cs),['No corresponde al modo en que está representado el tiempo.','Correcto: la representación coincide con ese tipo de señal.','Es otra clasificación.','Es otra propiedad del sistema.'],'Observa si la señal existe en todo instante o solo en muestras.','Interpretación de señal'));
+}
 
-add(
-mc('Variable manipulada','Horno eléctrico','Potencia aplicada','♨','El controlador cambia la potencia eléctrica para regular la temperatura. ¿Cuál es la variable manipulada?',['Temperatura','Potencia eléctrica','Set-point','Temperatura ambiente'],1,['Es la variable controlada.','Correcto: es la acción modificada.','Es la referencia.','Puede ser perturbación.'],'¿Qué cambia directamente el controlador?'),
-mc('Variable manipulada','Tanque de nivel','Apertura de válvula','▤','Para mantener el nivel, el controlador cambia la apertura de una válvula. ¿Qué variable es manipulada?',['Nivel','Apertura de válvula','Caudal medido','Nivel deseado'],1,['Es la variable controlada.','Correcto: es la acción modificada.','Es una medición.','Es la referencia.'],'Busca la acción aplicada.'),
-mc('Variable manipulada','Motor DC','Voltaje de armadura','⚡','Un controlador modifica el voltaje aplicado a un motor para regular velocidad. ¿Cuál es la variable manipulada?',['Velocidad','Voltaje aplicado','Velocidad deseada','Carga externa'],1,['Es la salida controlada.','Correcto: el voltaje es la acción.','Es el set-point.','Es una perturbación.'],'La manipulada provoca el efecto.'),
-mc('Variable manipulada','Regulación de presión','Posición de válvula','◉','Un regulador ajusta una válvula para mantener presión constante. La variable manipulada es…',['Presión medida','Posición de válvula','Presión deseada','Fuga externa'],1,['Es la controlada.','Correcto: es la acción ajustada.','Es la referencia.','Es perturbación.'],'Identifica lo que el controlador ordena cambiar.')
-);
+// 2. Definición de variable manipulada
+add(mc('Variable manipulada',null,pick(['En un control de temperatura, ¿cómo se llama la cantidad que el controlador modifica para afectar la variable controlada?','En un control de nivel, ¿cómo se llama la cantidad o condición que el controlador modifica para afectar la variable controlada?','En un control de velocidad, ¿cómo se llama la cantidad que el controlador modifica para afectar la variable controlada?','En un control de presión, ¿cómo se llama la cantidad que el controlador modifica para afectar la variable controlada?']),['Variable manipulada','Variable controlada','Set-point','Perturbación'],0,['Correcto: es la acción que modifica el controlador.','Es la magnitud que se desea regular.','Es el valor deseado.','Es una influencia externa.'],'Busca la variable sobre la que actúa directamente el controlador.'));
 
-add(
-op('MISO','Mezclador químico','3 sensores → 1 válvula','⇢','Da un ejemplo de sistema MISO y argumenta por qué lo es.','Ejemplo: temperatura, pH y conductividad entran al controlador y éste genera una sola señal a una válvula dosificadora. Es MISO porque tiene múltiples entradas y una salida.',['Más de una entrada.','Una sola salida.','Argumentar contando entradas y salida.'],'MISO = varias entradas, una salida.'),
-op('MISO','Ventilación','CO₂ + T + humedad → ventilador','⇢','Propón un sistema MISO aplicado a ventilación y justifica su clasificación.','El controlador recibe CO₂, temperatura y humedad y genera una sola señal de velocidad para un ventilador. Varias entradas y una salida: MISO.',['Identificar varias entradas.','Identificar una salida.','Explicar la clasificación.'],'No confundas sensores con salidas.'),
-op('MISO','Riego inteligente','Humedad + luz + T → válvula','⇢','Da un ejemplo MISO de agricultura o riego y argumenta.','Humedad de suelo, temperatura y radiación entran al controlador y éste genera una única orden para una electroválvula.',['Varias entradas.','Una salida.','Argumentación explícita.'],'Cuenta señales de entrada y salida.'),
-op('MISO','Gestión de batería','V + I + T → límite de carga','⇢','Construye un ejemplo de sistema MISO relacionado con una batería y explica la clasificación.','Voltaje, corriente y temperatura son entradas y la única salida es una señal para limitar la carga. Por eso es MISO.',['Más de una entrada.','Una salida.','Justificación por número de señales.'],'MISO no significa muchos actuadores.')
-);
+// 3. Ejemplo MISO argumentado
+{
+ const sc=['miso_greenhouse','miso_mixer','miso_vehicle','miso_irrigation'];
+ const q=['Propón un ejemplo de un sistema MISO aplicado a un invernadero y argumenta por qué es MISO.','Da un ejemplo de un sistema MISO en un mezclador industrial y argumenta.','Da un ejemplo de un sistema MISO relacionado con un vehículo y argumenta.','Da un ejemplo de un sistema MISO aplicado a riego y argumenta.'];
+ const m=['Temperatura, humedad y CO₂ pueden entrar al controlador y una sola señal puede gobernar un ventilador. Es MISO porque tiene múltiples entradas y una salida.','pH, temperatura y nivel pueden ser entradas y una sola señal puede gobernar una válvula dosificadora. Es MISO porque tiene múltiples entradas y una salida.','Velocidad, pendiente y posición del acelerador pueden ser entradas y una sola señal puede ordenar el par del motor. Es MISO porque tiene múltiples entradas y una salida.','Humedad del suelo, temperatura y radiación pueden ser entradas y una sola señal puede gobernar una electroválvula. Es MISO porque tiene múltiples entradas y una salida.'];
+ add(op('MISO',pick(sc),pick(q),pick(m),['Más de una entrada.','Una sola salida.','Argumentar contando entradas y salida.'],'MISO = Multiple Input, Single Output.','Ejemplo MISO'));
+}
 
-add(
-mc('Planta / proceso / sistema','Elevador','Equipo físico','▤','Si se considera el elevador como el conjunto físico sobre el que actúa el controlador, corresponde principalmente a…',['Proceso','Planta','Set-point','Perturbación'],1,['Proceso sería el movimiento.','Correcto: se enfatiza el equipo físico.','Es valor deseado.','Es influencia externa.'],'Equipo físico = planta.'),
-mc('Planta / proceso / sistema','Lavadora','Llenar → lavar → enjuagar','◌','Si interesa la secuencia de llenar, agitar, enjuagar y centrifugar, se está describiendo un…',['Sistema','Proceso','Planta','Sensor'],1,['Sistema es el conjunto.','Correcto: es una sucesión de operaciones.','Planta sería el equipo.','Sensor es un componente.'],'¿Objeto o secuencia?'),
-mc('Planta / proceso / sistema','Dron','Componentes coordinados','✣','Motores, sensores, batería y controlador trabajando juntos para mantener vuelo forman un…',['Proceso','Sistema','Planta solamente','Set-point'],1,['Proceso sería la operación.','Correcto: componentes cooperando por un objetivo.','Aquí se enfatiza el conjunto completo.','Set-point es referencia.'],'Conjunto coordinado + objetivo.'),
-mc('Planta / proceso / sistema','Reactor','Recipiente y tuberías','▥','El recipiente, agitador y tuberías de un reactor, considerados como objeto físico donde ocurre la operación, son la…',['Planta','Proceso','Salida','Referencia'],0,['Correcto: equipo físico.','Proceso sería la transformación.','Salida es resultado.','Referencia es valor deseado.'],'Se pregunta por el objeto físico.')
-);
+// 4. Imagen -> planta, proceso o sistema
+{
+ const sc=['plant_motorcycle','plant_lathe','plant_elevator','plant_pumpstation'];
+ const q=['Observa la motocicleta como el objeto físico sobre el que podrían actuar entradas y producirse salidas. ¿Qué representa principalmente?','Observa el torno como el equipo físico donde se realiza el maquinado. ¿Qué representa principalmente?','Observa el elevador como el equipo físico que será controlado. ¿Qué representa principalmente?','Observa el conjunto físico de bomba, tubería y depósito sobre el que actuará el control. ¿Qué representa principalmente?'];
+ const o=[['Planta','Proceso','Sistema de control','Señal'],['Proceso','Planta','Set-point','Perturbación'],['Sistema','Proceso','Planta','Variable'],['Planta','Proceso','Salida','Referencia']];
+ const c=[0,1,2,0];
+ add(mc('Planta / proceso / sistema',pick(sc),pick(q),pick(o),pick(c),['La respuesta debe corresponder a lo que se enfatiza en la imagen.','La respuesta debe corresponder a lo que se enfatiza en la imagen.','La respuesta debe corresponder a lo que se enfatiza en la imagen.','La respuesta debe corresponder a lo que se enfatiza en la imagen.'],'Distingue el objeto físico de una secuencia de cambios.','Clasificación por imagen'));
+}
 
-add(
-mc('Sistema manual','Prensa mecánica','Palanca accionada por persona','☝','Una prensa solo se mueve cuando el operador acciona directamente una palanca. ¿Qué tipo de sistema es?',['Automático','Manual','Continuo','MIMO'],1,['Automático no exige esa intervención directa.','Correcto: la persona ejecuta la acción.','Es otra clasificación.','Clasifica entradas/salidas.'],'¿Quién ejecuta la acción?'),
-mc('Sistema manual','Riego con llave','Apertura por trabajador','☝','Un trabajador abre y cierra una llave observando el cultivo. El sistema es…',['Manual','Automático','Discreto','Acoplado'],0,['Correcto: la acción depende de la persona.','No hay ejecución automática.','Es otra clasificación.','Es otra propiedad.'],'La persona decide y actúa.'),
-mc('Sistema manual','Torno convencional','Avance con manivelas','☝','En un torno convencional el operador mueve las manivelas para posicionar la herramienta. ¿Cómo se clasifica respecto a intervención humana?',['Manual','Automático','Estacionario','Lazo cerrado necesariamente'],0,['Correcto: depende del operador.','No ejecuta por sí solo.','Otra propiedad.','Manual no define el tipo de lazo.'],'No confundas manual con lazo abierto.'),
-mc('Sistema manual','Compuerta','Volante manual','☝','Una compuerta se abre girando un volante a mano y no tiene actuador automático. Es un sistema…',['Manual','Automático','MISO','Continuo'],0,['Correcto: la persona realiza la acción.','No hay actuador automático.','Otra clasificación.','Otra clasificación.'],'Acción humana directa.')
-);
+// 5. Sistema manual
+add(mc('Sistema manual',null,pick(['Una prensa requiere que una persona accione directamente una palanca. ¿Qué tipo de sistema es?','Una compuerta requiere que una persona gire el volante para abrirla. ¿Qué tipo de sistema es?','En un torno convencional, el operador mueve directamente las manivelas. ¿Qué tipo de sistema es?','Una bomba solo se pone en marcha cuando una persona acciona el mando directamente. ¿Qué tipo de sistema es?']),['Automático','Manual','Continuo','MIMO'],1,['No: aquí la intervención humana es necesaria.','Correcto: requiere acción directa de una persona.','Es otra clasificación.','Es otra clasificación.'],'La clave es la intervención humana directa.'));
 
-add(
-mc('Lazo cerrado','Motor','Sensor de rpm','↩','Para que el controlador corrija la velocidad real de un motor, ¿qué información debe regresar al controlador?',['Medición de rpm','Solo referencia','Potencia nominal','Nombre del motor'],0,['Correcto: permite comparar y corregir.','No informa el resultado.','No sustituye realimentación.','No interviene.'],'La corrección exige conocer la salida.'),
-mc('Lazo cerrado','Tanque','Transmisor de nivel','↩','Un actuador debe corregir el nivel de un tanque. ¿Qué necesita la lógica de lazo cerrado?',['Nivel medido realimentado','Otro tanque','Solo temporizador','Alarma independiente'],0,['Correcto: la salida vuelve al controlador.','No es requisito.','No informa nivel real.','Puede alertar, pero no cerrar el lazo.'],'Salida medida → controlador.'),
-mc('Lazo cerrado','Servomotor','Encoder de posición','↩','Un servomotor debe corregir su posición. ¿Qué información hace posible esa corrección?',['Posición medida','Solo orden inicial','Tiempo transcurrido','Color del actuador'],0,['Correcto: permite calcular error.','No indica el resultado actual.','No sustituye medición.','No es variable funcional.'],'Debe medirse el resultado.'),
-mc('Lazo cerrado','Tubería','Presión real','↩','Para corregir una desviación de presión, el controlador necesita…',['Presión real medida','Solo presión deseada','Diámetro de tubería','Tiempo de operación'],0,['Correcto: proporciona la salida actual.','No permite conocer el error por sí sola.','No sustituye medición.','No basta para corregir.'],'Sin salida medida no hay corrección por error.')
-);
+// 6. Lógica de lazo cerrado: qué debe estar presente
+{
+ const sc=['closedloop_tank','closedloop_motor','closedloop_oven','closedloop_pressure'];
+ const q=['En el tanque mostrado, ¿qué debe estar presente para que el actuador corrija el nivel cuando se desvía?','En un control de velocidad, ¿qué necesita recibir el controlador para que el actuador pueda corregir la salida?','En el horno mostrado, ¿qué información necesita regresar al controlador para corregir la temperatura?','En el control de presión mostrado, ¿qué información debe regresar al controlador para poder corregir?'];
+ const o=[['Una medición realimentada de la salida','Solo el set-point','Un temporizador','Otra planta'],['La velocidad medida','Solo la orden inicial','El nombre del motor','Un segundo actuador'],['La temperatura medida','Solo la potencia nominal','El tiempo total','Solo la temperatura ambiente'],['La presión medida','Solo la presión deseada','El diámetro de tubería','La marca de la válvula']];
+ add(mc('Lazo cerrado',pick(sc),pick(q),pick(o),0,['Correcto: la salida medida permite detectar el error y corregir.','No permite conocer por sí sola la salida real.','No cierra el lazo de realimentación.','No es el dato necesario para corregir.'],'En lazo cerrado, la salida debe medirse y regresar al controlador.','Realimentación'));
+}
 
-add(
-mc('Sistema','Transportador','Banda + motor + sensores','⚙','Banda, motor, sensores y controlador trabajando juntos para mover cajas constituyen un…',['Proceso','Sistema','Perturbación','Set-point'],1,['Proceso sería la operación.','Correcto: componentes cooperan por un objetivo.','No es influencia externa.','No es referencia.'],'Componentes + objetivo.'),
-mc('Sistema','Bomba solar','Panel + batería + bomba','⚙','Panel, batería, convertidor y bomba trabajando juntos para suministrar agua forman un…',['Sistema','Proceso','Planta únicamente','Variable'],0,['Correcto: conjunto cooperante.','Proceso sería el bombeo.','Aquí se enfatiza el conjunto completo.','Variable es una magnitud.'],'Piensa en el conjunto.'),
-mc('Sistema','Puerta automática','Sensor + control + motor','⚙','Sensor, controlador y motor que cooperan para abrir una puerta forman un…',['Sistema','Proceso','Señal','Perturbación'],0,['Correcto: conjunto organizado.','Proceso sería la apertura.','Señal es información.','Perturbación es externa.'],'Conjunto organizado para una función.'),
-mc('Sistema','Refrigeración','Compresor + evaporador + control','⚙','Los componentes de un equipo de refrigeración que interactúan para mantener frío un recinto forman un…',['Proceso','Sistema','Referencia','Salida'],1,['Proceso sería el ciclo.','Correcto: componentes y objetivo.','Es valor deseado.','Es resultado.'],'Varios elementos, una función común.')
-);
+// 7. Definición de sistema
+add(mc('Sistema',null,'¿Qué concepto se define como una combinación de componentes que actúan juntos y realizan un objetivo determinado?',['Proceso','Sistema','Planta','Perturbación'],1,['Un proceso es una secuencia de cambios.','Correcto: es la definición de sistema.','La planta es el objeto físico.','Una perturbación es una influencia externa.'],'Busca el concepto que reúne componentes con un objetivo común.'));
 
-const base8=['Variable a controlar, actuador y set-point','Planta, proceso y sensor','Entrada, salida y perturbación','Sensor, pantalla y operador'];
-const why8=['Correcto: identifica qué se regula, quién actúa y la referencia.','No es la terna solicitada.','No incluye el elemento de actuación como se pide.','Una pantalla no es elemento base.'];
-add(
-mc('Lógica de control','Temperatura','Variable + actuador + referencia','△','Para construir la lógica básica de regulación de temperatura, ¿qué terna necesitas identificar?',base8,0,why8,'Qué controlas, quién actúa y a qué valor quieres llegar.'),
-mc('Lógica de control','Nivel','Objetivo de regulación','△','¿Qué tres elementos base debe reconocer la lógica de un control de nivel?',base8,0,why8,'Busca variable, actuación y referencia.'),
-mc('Lógica de control','Velocidad','Regulación de motor','△','En un control de velocidad, ¿qué conjunto resume los tres elementos base de la lógica?',base8,0,why8,'No confundas componentes físicos con lógica mínima.'),
-mc('Lógica de control','Presión','Regulación de tubería','△','¿Qué combinación representa la base lógica para regular presión?',base8,0,why8,'Variable a controlar + actuador + set-point.')
-);
+// 8. Tres elementos base de la lógica de control
+{
+ const sc=['logic_level','logic_temp','logic_speed','logic_pressure'];
+ add(mc('Lógica básica de control',pick(sc),pick(['En la lógica básica de un control de nivel, ¿qué tres elementos se identifican?','En la lógica básica de un control de temperatura, ¿qué tres elementos se identifican?','En la lógica básica de un control de velocidad, ¿qué tres elementos se identifican?','En la lógica básica de un control de presión, ¿qué tres elementos se identifican?']),['Entrada, sistema y salida','Sensor, alarma y pantalla','Planta, perturbación y operador','Set-point, marca y potencia nominal'],0,['Correcto: entrada → sistema → salida resume la estructura base.','No describe la estructura base completa.','Mezcla elementos de otra clasificación.','Incluye datos que no forman la terna base.'],'Piensa en qué entra, qué transforma y qué sale.','Lógica básica'));
+}
 
-add(
-mc('Conceptos','Calefacción','Potencia vs temperatura','≠','En un calentador, la potencia aplicada y la temperatura obtenida ¿son la misma variable?',['Sí, ambas son salida','No; potencia puede ser manipulada y temperatura salida','Solo si es SISO','Solo en lazo abierto'],1,['Confunde acción con resultado.','Correcto: tienen funciones distintas.','SISO no las vuelve equivalentes.','El tipo de lazo tampoco.'],'Acción ≠ resultado.'),
-mc('Conceptos','Tanque','Válvula vs nivel','≠','¿La apertura de la válvula puede llamarse simplemente “salida del sistema” cuando se usa para controlar nivel?',['Sí','No; es variable manipulada','Solo en MIMO','Solo si hay sensor'],1,['Confunde acción con resultado.','Correcto: la apertura es acción de control.','MIMO no cambia la definición.','El sensor tampoco.'],'¿Qué se modifica y qué se obtiene?'),
-mc('Conceptos','Motor','Voltaje vs velocidad','≠','El voltaje aplicado al motor es variable manipulada. ¿Eso significa que también es la salida controlada?',['Sí','No','Solo en continuo','Solo en manual'],1,['La salida sería velocidad.','Correcto: son roles diferentes.','El tiempo no cambia los roles.','Manual tampoco.'],'No confundas acción con salida.'),
-mc('Conceptos','Caudal','Válvula vs caudal','≠','Una válvula se mueve para modificar caudal. ¿La posición de válvula y el caudal son la misma variable?',['Sí, siempre','No; una es manipulada y otra puede ser controlada','Solo en SISO','Solo si hay realimentación'],1,['Son magnitudes distintas.','Correcto: cumplen roles diferentes.','SISO no las vuelve idénticas.','La realimentación tampoco.'],'Distingue causa de control y resultado.')
-);
+// 9. Variable manipulada vs salida
+add(mc('Conceptos',null,'¿La variable manipulada es conocida también como la salida del sistema?',['Sí, siempre','No; es la variable que se modifica para afectar la salida','Solo en sistemas SISO','Solo en lazo abierto'],1,['Confunde acción con resultado.','Correcto: la manipulada actúa sobre el sistema; la salida es el resultado.','SISO no cambia esa distinción.','El tipo de lazo no vuelve equivalentes ambas variables.'],'No confundas la acción de control con el resultado.'));
 
-add(
-mc('Sistema físico','Bicicleta','Materia + energía mecánica','🚲','Una bicicleta formada por cuadro, ruedas y transmisión es un sistema…',['Abstracto','Físico','Estacionario necesariamente','Desacoplado'],1,['No es solo modelo conceptual.','Correcto: elementos materiales y energía.','No necesariamente.','No puede afirmarse.'],'Materia + energía.'),
-mc('Sistema físico','Brazo robótico','Motores y eslabones','⌁','Un brazo robótico con motores, engranes y estructura se clasifica como sistema…',['Físico','Abstracto','Discreto necesariamente','Estacionario'],0,['Correcto: es material y energético.','No es puramente conceptual.','No necesariamente.','No necesariamente.'],'¿Existe físicamente?'),
-mc('Sistema físico','Circuito real','R + C + fuente','⌁','Un circuito real con resistencias, capacitores y fuente es un sistema…',['Físico','Abstracto','Manual necesariamente','No estacionario necesariamente'],0,['Correcto: existe físicamente e intercambia energía.','El modelo matemático sería abstracto.','No necesariamente.','No necesariamente.'],'Objeto real con energía.'),
-mc('Sistema físico','Red hidráulica','Bomba + válvulas + tuberías','⌁','Una red hidráulica real se clasifica como sistema…',['Abstracto','Físico','Lineal necesariamente','SISO necesariamente'],1,['No es solo representación conceptual.','Correcto: materia y energía.','Puede ser o no lineal.','Puede tener varias entradas/salidas.'],'Se pregunta por naturaleza material.')
-);
+// 10. Imagen -> sistema estático o dinámico
+{
+ const sc=['dynamic_tank_fill','static_scale','dynamic_thermal','dynamic_vehicle'];
+ const q=['El nivel del tanque cambia mientras entra y sale líquido. ¿El sistema se comporta principalmente como?','La báscula ideal mostrada entrega una lectura que depende solo del peso aplicado en ese instante. ¿Cómo se clasifica principalmente?','La temperatura de una placa cambia gradualmente después de encender un calentador. ¿Cómo se clasifica principalmente?','La velocidad del vehículo depende de su estado previo y evoluciona con el tiempo. ¿Cómo se clasifica principalmente?'];
+ const o=[['Estático','Dinámico','MISO','Desacoplado'],['Dinámico','Estático','MIMO','No estacionario'],['Estático','Dinámico','Desacoplado','SIMO'],['Estático','Dinámico','MISO','Estacionario necesariamente']];
+ const c=[1,1,1,1];
+ add(mc('Estático / dinámico',pick(sc),pick(q),pick(o),pick(c),['No coincide con la dependencia temporal mostrada.','Correcto: corresponde al comportamiento mostrado.','Es otra clasificación.','Es otra clasificación.'],'Pregunta si el estado previo o la evolución temporal importan.','Clasificación del sistema'));
+}
 
-add(
-mc('Entradas y salidas','Iluminación','1 sensor → 3 zonas','1→3','Un sensor de presencia activa tres zonas de iluminación consideradas como salidas independientes. ¿Qué clasificación corresponde?',['SISO','SIMO','MISO','MIMO'],1,['1 entrada y 1 salida.','Correcto: 1 entrada y varias salidas.','Varias entradas y 1 salida.','Varias de ambas.'],'Cuenta entradas y salidas.'),
-mc('Entradas y salidas','Alarma','3 sensores → 1 alarma','3→1','Temperatura, humo y gas alimentan una sola señal de alarma. ¿Cómo se clasifica el bloque?',['SIMO','MISO','SISO','MIMO'],1,['1 entrada y varias salidas.','Correcto: varias entradas y una salida.','1 y 1.','Varias y varias.'],'Varias entran; una sale.'),
-mc('Entradas y salidas','Robot móvil','2 referencias → 2 ruedas','2→2','Un robot recibe referencia lineal y angular y entrega velocidad de rueda izquierda y derecha. ¿Qué tipo es?',['SISO','SIMO','MISO','MIMO'],3,['No.','No: hay más de una entrada.','No: hay más de una salida.','Correcto: múltiples entradas y salidas.'],'2 entradas + 2 salidas.'),
-mc('Entradas y salidas','Transmisor','1 presión → 1 señal','1→1','Un transmisor recibe presión y entrega una única señal eléctrica. ¿Cómo se clasifica?',['SISO','SIMO','MISO','MIMO'],0,['Correcto: una entrada y una salida.','Tendría varias salidas.','Tendría varias entradas.','Tendría varias de ambas.'],'Una entra, una sale.')
-);
+// 11. Imagen -> clasificación por número de entradas y salidas
+{
+ const sc=['io_simo','io_miso','io_mimo','io_siso'];
+ const q=['La figura muestra una entrada y cuatro salidas. ¿Cómo se clasifica el sistema?','La figura muestra tres entradas y una salida. ¿Cómo se clasifica el sistema?','La figura muestra varias entradas y varias salidas. ¿Cómo se clasifica el sistema?','La figura muestra una entrada y una salida. ¿Cómo se clasifica el sistema?'];
+ const o=[['SISO','SIMO','MISO','MIMO'],['SIMO','MISO','MIMO','SISO'],['SISO','SIMO','MISO','MIMO'],['SISO','SIMO','MISO','MIMO']];
+ const c=[1,1,3,0];
+ add(mc('Entradas / salidas',pick(sc),pick(q),pick(o),pick(c),['Revisa el número de entradas y salidas.','Revisa el número de entradas y salidas.','Revisa el número de entradas y salidas.','Revisa el número de entradas y salidas.'],'Cuenta primero entradas y luego salidas.','Clasificación I/O'));
+}
 
-add(
-mc('Lazo','Semáforo temporizado','Ciclo fijo sin medir tráfico','⏱','Un semáforo cambia por tiempos programados sin medir tráfico. ¿Qué tipo de lazo representa?',['Lazo cerrado','Lazo abierto','MIMO','Manual'],1,['Cerrado usaría medición para corregir.','Correcto: opera sin realimentación.','Otra clasificación.','No requiere acción humana continua.'],'Sin medición para corregir.'),
-mc('Lazo','Termostato','Mide temperatura y corrige','↩','Un termostato mide temperatura y enciende o apaga calefacción según el error. ¿Qué lazo es?',['Lazo abierto','Lazo cerrado','Manual','SIMO'],1,['Sí usa medición.','Correcto: hay realimentación.','No depende de intervención continua.','Otra clasificación.'],'Mide salida y corrige.'),
-mc('Lazo','Microondas','90 s sin medir alimento','⏱','Un microondas calienta durante 90 s sin medir la temperatura del alimento. ¿Cómo se clasifica?',['Lazo cerrado','Lazo abierto','Acoplado','MISO'],1,['No usa salida para corregir.','Correcto: acción por tiempo.','Otra propiedad.','Otra clasificación.'],'¿Mide el resultado?'),
-mc('Lazo','Control crucero','Velocidad realimentada','↩','El control crucero mide velocidad y ajusta acelerador. ¿Qué tipo de lazo es?',['Lazo abierto','Lazo cerrado','Manual','Discreto necesariamente'],1,['Sí existe realimentación.','Correcto: velocidad medida corrige acción.','No depende de acción humana continua.','No necesariamente.'],'Salida medida usada para corregir.')
-);
+// 12. Figura -> lazo abierto o cerrado
+{
+ const sc=['openloop_stove','openloop_toaster','closedloop_thermostat','openloop_washer_timer'];
+ const q=['La estufa calienta según la posición elegida, sin medir automáticamente la temperatura del alimento. ¿Es un ejemplo de?','El tostador opera durante el tiempo seleccionado sin medir el tostado real del pan. ¿Es un ejemplo de?','El termostato mide temperatura y corrige el calentador según el error. ¿Es un ejemplo de?','La lavadora ejecuta un ciclo temporizado sin medir qué tan limpia quedó la ropa. Respecto a ese resultado, ¿es un ejemplo de?'];
+ const o=[['Lazo cerrado','Lazo abierto','MIMO','Desacoplado'],['Lazo abierto','Lazo cerrado','Estable necesariamente','MISO'],['Lazo abierto','Lazo cerrado','Manual','SIMO'],['Lazo cerrado','Lazo abierto','MIMO','Estático']];
+ const c=[1,0,1,1];
+ add(mc('Lazo abierto / cerrado',pick(sc),pick(q),pick(o),pick(c),['Revisa si la salida real se usa para corregir.','Revisa si la salida real se usa para corregir.','Revisa si la salida real se usa para corregir.','Revisa si la salida real se usa para corregir.'],'¿Se mide el resultado real para corregirlo?','Tipo de lazo'));
+}
 
-add(
-mc('Tiempo continuo','Circuito RC','Ecuación diferencial','∫','Un circuito RC se modela con ecuación diferencial y t puede tomar cualquier valor real. El modelo es de tiempo…',['Discreto','Continuo','Manual','MISO'],1,['Discreto usa instantes separados.','Correcto: tiempo continuo.','Otra clasificación.','Otra clasificación.'],'Derivadas + cualquier instante.'),
-mc('Tiempo continuo','Nivel','dh/dt','∫','El nivel h(t) se describe mediante dh/dt = qin − qout. ¿Cómo se clasifica temporalmente el modelo?',['Continuo','Discreto','Estático','Manual'],0,['Correcto: usa derivada respecto al tiempo.','Usaría diferencias/muestras.','No responde al dominio temporal.','Otra propiedad.'],'La derivada es la pista.'),
-mc('Tiempo continuo','Motor DC','dω/dt','∫','La velocidad angular se modela mediante una ecuación diferencial. El sistema se considera de tiempo…',['Continuo','Discreto','Estacionario','Acoplado'],0,['Correcto: variable definida en tiempo continuo.','No corresponde.','Otra propiedad.','Otra propiedad.'],'Ecuación diferencial.'),
-mc('Tiempo continuo','Modelo térmico','dT/dt','∫','Un modelo térmico usa dT/dt y supone que T existe para cualquier instante. ¿Qué tipo de tiempo utiliza?',['Discreto','Continuo','Manual','SISO'],1,['Usa instantes separados.','Correcto: cualquier t real.','Otra clasificación.','Clasifica entradas/salidas.'],'Cualquier t real.')
-);
+// 13. Tiempo continuo
+add(mc('Tiempo continuo',null,pick(['Si el modelo térmico de un horno está definido por una ecuación diferencial y el tiempo se considera infinitamente divisible, ¿de qué tipo de sistema se trata?','Si el movimiento de una masa-resorte se modela con ecuaciones diferenciales y tiempo infinitamente divisible, ¿de qué tipo de sistema se trata?','Si el nivel de un depósito se modela con una ecuación diferencial y tiempo infinitamente divisible, ¿de qué tipo de sistema se trata?','Si la velocidad de un motor se modela con una ecuación diferencial y tiempo infinitamente divisible, ¿de qué tipo de sistema se trata?']),['Tiempo discreto','Tiempo continuo','Estático','MIMO'],1,['No: una ecuación diferencial se asocia a tiempo continuo.','Correcto.','No se deduce que sea estático.','Entradas/salidas es otra clasificación.'],'Ecuación diferencial + tiempo infinitamente divisible.'));
 
-add(
-op('Desacoplados','Dos ventiladores','Fuentes independientes','∥','Da un ejemplo de dos sistemas desacoplados y argumenta.','Dos ventiladores con fuentes independientes y sin señales compartidas. Cambiar uno no afecta variables del otro, por lo que están desacoplados.',['Dos sistemas identificables.','Sin influencia entre variables.','Explicar independencia.'],'Uno no altera al otro.'),
-op('Desacoplados','Dos tanques aislados','Sin tubería común','∥','Propón un ejemplo de sistemas desacoplados usando dos depósitos y justifica.','Dos tanques con bombas y descargas independientes, sin conexión hidráulica. El nivel de uno no modifica al otro.',['Dos subsistemas.','Sin conexión que transmita influencia.','Argumentar con variables.'],'Cercanía física no implica acoplamiento.'),
-op('Desacoplados','Dos motores','Controladores separados','∥','Da un ejemplo de sistemas desacoplados con motores eléctricos y argumenta.','Dos motores con fuentes y controladores independientes, sin carga mecánica común. La velocidad de uno no afecta la del otro.',['Dos motores.','Independencia de variables.','Justificación explícita.'],'Busca ausencia de influencia mutua.'),
-op('Desacoplados','Dos cámaras','Climatización independiente','∥','Da un ejemplo de sistemas desacoplados en climatización y explica por qué.','Dos cámaras térmicamente aisladas con equipos independientes. La temperatura de una no afecta a la otra.',['Dos sistemas.','Sin transferencia relevante.','Explicar qué variables no se afectan.'],'No basta decir “están separados”.')
-);
+// 14. Ejemplo desacoplado argumentado
+{
+ const sc=['decoupled_rooms','decoupled_motors','decoupled_tanks','decoupled_lamps'];
+ const q=['Da un ejemplo de un sistema desacoplado usando dos habitaciones y argumenta.','Da un ejemplo de un sistema desacoplado usando dos motores y argumenta.','Da un ejemplo de un sistema desacoplado usando dos tanques y argumenta.','Da un ejemplo de un sistema desacoplado usando dos circuitos de iluminación y argumenta.'];
+ const m=['Dos habitaciones con controles térmicos independientes, sin transferencia apreciable entre ellas.','Dos motores con fuentes y controles independientes, donde modificar uno no afecta al otro.','Dos tanques sin conexión entre sí, cada uno con su propia entrada y salida.','Dos lámparas en circuitos independientes, de modo que variar una no modifica la otra.'];
+ add(op('Desacoplamiento',pick(sc),pick(q),pick(m)+' Es desacoplado porque un subsistema no altera la respuesta del otro.',['Dos subsistemas identificables.','Independencia entre sus efectos.','Argumento explícito de no interacción.'],'Desacoplado = un subsistema no afecta al otro.','Ejemplo desacoplado'));
+}
 
-add(
-mc('Proceso','Envasado','Llenar → tapar → etiquetar','→','Una operación formada por llenar, tapar, etiquetar y empacar en etapas sucesivas es un…',['Sistema','Proceso','Planta','Set-point'],1,['Sistema es el conjunto.','Correcto: secuencia progresiva.','Planta es el equipo.','Es referencia.'],'Secuencia de cambios.'),
-mc('Proceso','Tratamiento de agua','Filtrar → sedimentar → desinfectar','→','Filtración, sedimentación y desinfección realizadas progresivamente describen un…',['Proceso','Planta','Sistema físico','Perturbación'],0,['Correcto: serie de operaciones sucesivas.','Es la instalación física.','Clasificación del conjunto.','Influencia externa.'],'Operaciones sucesivas.'),
-mc('Proceso','Transformación térmica','Cambios graduales','→','La transformación gradual de una materia prima mediante varias etapas se denomina…',['Planta','Proceso','Sistema','Salida'],1,['Es equipo físico.','Correcto: cambios progresivos.','Es el conjunto.','Es resultado.'],'Algo que sucede progresivamente.'),
-mc('Proceso','Carga de batería','Estado cambia por etapas','→','Una operación que cambia gradualmente el estado de carga hasta un valor final corresponde a un…',['Proceso','Planta','Sensor','Set-point'],0,['Correcto: evolución progresiva.','Es equipo físico.','Mide.','Es objetivo.'],'Cambios graduales = proceso.')
-);
+// 15. Definición de proceso
+add(mc('Proceso',null,'¿Qué concepto se define como una operación marcada por una serie de cambios graduales que suceden unos tras otros de forma progresiva?',['Planta','Proceso','Sistema','Variable manipulada'],1,['La planta es el objeto físico.','Correcto: esa es la definición de proceso.','Sistema es el conjunto de componentes.','Es una variable de control.'],'La palabra clave es secuencia de cambios.'));
 
-add(
-mc('Planta / proceso / sistema','Refinería','Instalación industrial física','▥','La instalación industrial mostrada se considera principalmente ejemplo de…',['Proceso','Planta','Set-point','Señal'],1,['Proceso sería la transformación.','Correcto: se presenta la instalación física.','No es referencia.','No es señal.'],'Infraestructura física.'),
-mc('Planta / proceso / sistema','Destilador','Equipo de laboratorio','⚗','Un montaje físico de destilación, sin describir aún las etapas, corresponde a…',['Planta','Proceso','Sistema abstracto','Salida'],0,['Correcto: equipo físico.','Sería la operación.','No es abstracto.','Sería producto obtenido.'],'Objeto físico antes que operación.'),
-mc('Planta / proceso / sistema','Invernadero','Riego + ventilación + control','▦','Sensores, ventilación, riego y control trabajando juntos para cultivar forman un…',['Proceso','Sistema','Planta únicamente','Perturbación'],1,['Proceso sería una operación concreta.','Correcto: conjunto coordinado.','Aquí importa el conjunto funcional.','No es influencia externa.'],'Conjunto cooperante.'),
-mc('Planta / proceso / sistema','Fábrica','Línea coordinada','▤','Una línea completa vista como componentes coordinados para producir piezas es un…',['Sistema','Proceso','Set-point','Perturbación'],0,['Correcto: conjunto y objetivo.','Proceso sería fabricación paso a paso.','No es referencia.','No es influencia externa.'],'Componentes + objetivo.')
-);
+// 16. Imágenes industriales -> planta, proceso o sistema
+{
+ const sc=['industrial_refinery','industrial_bottling','industrial_waterplant','industrial_factory'];
+ const q=['Las instalaciones industriales ilustradas —equipos, recipientes, tuberías y estructuras— se consideran principalmente ejemplos de…','La línea física de embotellado mostrada, considerada como equipo donde ocurre la operación, es principalmente una…','Los tanques, bombas y tuberías de la instalación de tratamiento mostrada constituyen principalmente la…','La maquinaria y estructura física de la fábrica mostrada, sobre la que actúa el control, se considera…'];
+ const o=[['Proceso','Planta','Señal','Set-point'],['Planta','Proceso','Perturbación','Salida'],['Proceso','Planta','Variable controlada','Referencia'],['Proceso','Sistema matemático','Planta','Señal']];
+ const c=[1,0,1,2];
+ add(mc('Planta / proceso / sistema',pick(sc),pick(q),pick(o),pick(c),['La imagen enfatiza equipo físico.','La imagen enfatiza equipo físico.','La imagen enfatiza equipo físico.','La imagen enfatiza equipo físico.'],'Instalaciones y equipos físicos → planta.','Instalación industrial'));
+}
 
-add(
-mc('Proceso','Fermentación','Transformación gradual','≈','La fermentación, como transformación que evoluciona gradualmente hasta un producto final, es un…',['Proceso','Planta','Sistema físico','Referencia'],0,['Correcto: evolución progresiva.','Sería el recipiente/equipo.','Clasificación del conjunto.','Es valor deseado.'],'Evolución gradual.'),
-mc('Proceso','Secado','Pérdida gradual de humedad','≈','La reducción progresiva de humedad durante un secado se describe como un…',['Planta','Proceso','Salida','Sensor'],1,['Sería el secador.','Correcto: operación progresiva.','Es resultado.','Es componente.'],'Lo que cambia con el tiempo.'),
-mc('Proceso','Pasteurización','Calentar → mantener → enfriar','≈','Calentar, mantener y enfriar de manera controlada constituye un…',['Proceso','Planta','Sistema abstracto','Perturbación'],0,['Correcto: etapas sucesivas.','Sería el equipo.','No es modelo abstracto.','No es perturbación.'],'Serie de etapas.'),
-mc('Proceso','Horno','Calentamiento gradual','≈','El calentamiento gradual de una pieza hasta una temperatura objetivo se clasifica como…',['Sistema','Proceso','Planta','Set-point'],1,['Es el conjunto.','Correcto: operación progresiva.','Es equipo físico.','Es valor deseado.'],'Operación que evoluciona.')
-);
+// 17. Definición de proceso nuevamente, como en la guía
+add(mc('Proceso',null,'Una operación que avanza mediante cambios sucesivos y progresivos corresponde a un…',['Sistema','Proceso','Sensor','Set-point'],1,['Un sistema es el conjunto de componentes.','Correcto.','Sensor es un elemento de medición.','Set-point es una referencia.'],'Busca el concepto que describe una secuencia progresiva.'));
 
-add(
-mc('Planta / proceso / sistema','Motocicleta','Vehículo completo','🏍','Una motocicleta completa, considerada como conjunto de componentes para transportarse, es un…',['Sistema','Proceso','Set-point','Señal'],0,['Correcto: conjunto con objetivo.','Proceso sería conducción/movimiento.','No es referencia.','No es señal.'],'Conjunto que cumple una función.'),
-mc('Planta / proceso / sistema','Bomba centrífuga','Equipo físico','◉','Una bomba centrífuga considerada como equipo físico sobre el que se analiza control es una…',['Proceso','Planta','Sistema abstracto','Salida'],1,['Proceso sería bombeo.','Correcto: equipo físico.','No es modelo conceptual.','Podría ser caudal o presión.'],'Se pregunta por el equipo.'),
-mc('Planta / proceso / sistema','Impresión 3D','Fabricación capa a capa','▧','La fabricación capa por capa de una pieza se considera un…',['Sistema','Proceso','Planta','Perturbación'],1,['Sistema sería impresora completa.','Correcto: operación progresiva.','Planta sería hardware.','No es perturbación.'],'La imagen enfatiza operación.'),
-mc('Planta / proceso / sistema','Elevador','Cabina + motor + sensores','⇅','Cabina, motor, cables, sensores y control trabajando juntos para transportar personas forman un…',['Proceso','Sistema','Planta solamente','Referencia'],1,['Proceso sería viaje/movimiento.','Correcto: conjunto funcional.','Aquí se enfatiza cooperación.','Sería piso deseado.'],'Conjunto + objetivo.')
-);
+// 18. Imagen -> planta/proceso/sistema
+{
+ const sc=['plant_motorcycle','plant_drillpress','plant_drone','plant_conveyor'];
+ const q=['La motocicleta mostrada, considerada como objeto físico que recibe entradas y produce respuestas, ilustra principalmente una…','El taladro de banco mostrado, considerado como equipo físico, ilustra principalmente una…','El dron mostrado, considerado como objeto físico sobre el que se aplica control, ilustra principalmente una…','La banda transportadora mostrada, considerada como equipo físico, ilustra principalmente una…'];
+ const o=[['Planta','Proceso','Señal','Referencia'],['Proceso','Planta','Perturbación','Variable'],['Sistema de control completo','Proceso','Planta','Set-point'],['Planta','Proceso','Salida','Perturbación']];
+ const c=[0,1,2,0];
+ add(mc('Planta / proceso / sistema',pick(sc),pick(q),pick(o),pick(c),['Se pregunta por el objeto físico.','Se pregunta por el objeto físico.','Se pregunta por el objeto físico.','Se pregunta por el objeto físico.'],'Aquí se pregunta por el equipo físico.','Objeto físico'));
+}
 
-add(
-op('Lazo abierto','Ejemplos domésticos','Sin realimentación','○','Da tres ejemplos domésticos de sistemas de lazo abierto y argumenta uno.','Tostador por tiempo, microondas por tiempo y ventilador con temporizador. Son abiertos si la salida no se mide para modificar automáticamente la acción.',['Tres ejemplos.','Al menos una justificación.','Mencionar ausencia de realimentación.'],'No basta decir “automático”.'),
-op('Lazo abierto','Ejemplos industriales','Acción programada','○','Da tres ejemplos industriales de lazo abierto y argumenta uno.','Banda a velocidad fija sin sensor de salida, dosificador por tiempo y horno temporizado sin medición de producto.',['Tres casos.','Justificar uno.','Explicar que la salida no vuelve al controlador.'],'Busca controles por tiempo o ajuste fijo.'),
-op('Lazo abierto','Ejemplos cotidianos','Salida no medida','○','Menciona tres sistemas cotidianos de lazo abierto y justifica al menos uno.','Licuadora por tiempo, lámpara con temporizador y aspersor programado sin sensor de humedad. La salida no se usa para corregir.',['Tres ejemplos.','Una explicación.','Ausencia de medición de salida.'],'Programado no significa cerrado.'),
-op('Lazo abierto','Ejemplos de ingeniería','Sin corrección automática','○','Propón tres ejemplos de control en lazo abierto y argumenta uno con lenguaje de control.','Motor con voltaje fijo sin medir velocidad, calentador por tiempo y bomba durante tiempo fijo. La salida no se realimenta para corregir.',['Tres ejemplos.','Usar vocabulario de control.','Explicar no realimentación.'],'La salida no modifica la acción.')
-);
+// 19. Tres ejemplos de lazo abierto argumentados
+{
+ const sc=['openloop_examples_kitchen','openloop_examples_home','openloop_examples_industry','openloop_examples_daily'];
+ const q=['Da tres ejemplos de sistemas de lazo abierto y argumenta por qué lo son.','Da tres ejemplos de sistemas de lazo abierto del hogar y argumenta.','Da tres ejemplos de sistemas de lazo abierto en un contexto técnico y argumenta.','Da tres ejemplos cotidianos de lazo abierto y argumenta.'];
+ const m=['Tostador temporizado, horno con temporizador y licuadora a velocidad fija: ejecutan una acción sin medir el resultado final para corregirlo.','Ventilador con selector manual, microondas por tiempo y lámpara con interruptor: no realimentan la salida para corregirla.','Banda con velocidad fija, bomba temporizada y motor con voltaje fijo: operan según una orden sin medir la salida para corregir.','Riego por temporizador, semáforo de tiempos fijos y secadora temporizada: actúan sin usar el resultado real como realimentación.'];
+ add(op('Lazo abierto',pick(sc),pick(q),pick(m),['Tres ejemplos.','Ausencia de realimentación en cada uno.','Argumentación breve.'],'Lazo abierto = no usa la salida real para corregir.','Ejemplos de lazo abierto'));
+}
 
-add(
-mc('Comportamiento temporal','Temperatura','Calentamiento por etapas','↗','Una curva de temperatura sube y cambia de nivel conforme avanza un calentamiento. Durante esa evolución el comportamiento es…',['Estacionario','No estacionario','Desacoplado','MISO'],1,['Implicaría permanencia.','Correcto: cambia con el tiempo.','No trata subsistemas.','No cuenta entradas/salidas.'],'¿Permanece constante?'),
-mc('Comportamiento temporal','Nivel','Llenado de tanque','↗','El nivel aumenta durante el llenado antes de llegar a régimen. En ese intervalo el comportamiento es…',['Estacionario','No estacionario','Lineal necesariamente','SISO necesariamente'],1,['No permanece constante.','Correcto: evoluciona con el tiempo.','No puede concluirse.','No puede concluirse.'],'Transitorio = cambia con el tiempo.'),
-mc('Comportamiento temporal','Velocidad','Arranque de motor','↗','La velocidad aumenta desde cero hasta su valor de operación. Durante el arranque es…',['No estacionario','Estacionario','Desacoplado','Manual'],0,['Correcto: cambia durante el arranque.','Aún no permanece constante.','Otra propiedad.','Otra clasificación.'],'Arranque ≠ régimen.'),
-mc('Comportamiento temporal','Presión','Presurización','↗','Una presión sube gradualmente hasta estabilizarse. Mientras está subiendo, el comportamiento es…',['Estacionario','No estacionario','MIMO','Lazo abierto necesariamente'],1,['Sería cuando ya permanece constante.','Correcto: cambia con el tiempo.','No hay datos de I/O.','No hay datos de realimentación.'],'Fíjate solo en evolución temporal.')
-);
+// 20. Gráfica -> tipo de sistema
+{
+ const sc=['graph_heating_curve','graph_tank_level','graph_motor_speed','graph_thermal_response'];
+ const q=['Según la gráfica de temperatura que cambia por etapas durante calentamiento, ¿qué tipo de sistema se evidencia por su comportamiento temporal?','Según la gráfica de nivel que evoluciona con el tiempo después de abrir una válvula, ¿qué tipo de sistema se observa?','La velocidad del motor cambia gradualmente hasta alcanzar un nuevo valor. ¿Qué tipo de sistema muestra la gráfica?','La temperatura responde gradualmente después de un cambio de potencia. ¿Qué tipo de sistema ilustra la gráfica?'];
+ const o=[['Estático','Dinámico','MISO','Desacoplado'],['Dinámico','Estático','SIMO','Estacionario necesariamente'],['Estático','Dinámico','Desacoplado','MIMO'],['Dinámico','Estático','SISO necesariamente','Manual']];
+ const c=[1,0,1,0];
+ add(mc('Interpretación de gráfica',pick(sc),pick(q),pick(o),pick(c),['La gráfica muestra evolución temporal.','La gráfica muestra evolución temporal.','La gráfica muestra evolución temporal.','La gráfica muestra evolución temporal.'],'Si la salida evoluciona con el tiempo, piensa en sistema dinámico.','Gráfica temporal'));
+}
 
-add(
-op('Estable y estacionario','Circuito RC','Régimen permanente','≈','Da un ejemplo de un sistema estable y estacionario y argumenta ambas propiedades.','Un circuito RC con entrada constante en régimen: estable porque entrada acotada produce salida acotada y estacionario porque sus variables permanecen constantes.',['Explicar estabilidad.','Explicar estacionariedad.','No basta nombrar sistema.'],'Son dos propiedades distintas.'),
-op('Estable y estacionario','Tanque','Nivel en equilibrio','≈','Propón un sistema de nivel que sea estable y estacionario y justifica.','Un tanque en régimen con entrada y salida constantes y nivel fijo. Estable si perturbaciones acotadas producen respuestas acotadas y estacionario si el nivel permanece constante.',['Justificar estabilidad.','Justificar estacionariedad.','Distinguir ambas propiedades.'],'Estable no significa automáticamente estacionario.'),
-op('Estable y estacionario','Horno','Temperatura en régimen','≈','Da un ejemplo térmico de sistema estable y estacionario y argumenta.','Un horno regulado que ya alcanzó temperatura constante: estable si no diverge ante perturbaciones acotadas y estacionario cuando sus variables se mantienen constantes.',['Dos justificaciones.','Idea de acotamiento.','Idea de constancia temporal.'],'Una propiedad habla de límites; otra de constancia.'),
-op('Estable y estacionario','Motor','Velocidad de régimen','≈','Construye un ejemplo con un motor que sea estable y estacionario y argumenta.','Un motor a velocidad constante en régimen: estable si perturbaciones acotadas no hacen divergir velocidad y estacionario cuando las variables permanecen constantes.',['Explicar por qué no diverge.','Explicar por qué permanece constante.','Argumentar, no solo nombrar.'],'Régimen permanente ayuda con estacionariedad.')
-);
+// 21. Ejemplo estable y estacionario argumentado
+{
+ const sc=['stable_stationary_tank','stable_stationary_motor','stable_stationary_temp','stable_stationary_pressure'];
+ const q=['Da un ejemplo de un sistema estable y estacionario y argumenta.','Da un ejemplo de un sistema estable y estacionario usando un motor y argumenta.','Da un ejemplo de un sistema estable y estacionario usando un recinto térmico y argumenta.','Da un ejemplo de un sistema estable y estacionario usando una línea de presión y argumenta.'];
+ const m=['Un tanque operando alrededor de un nivel fijo con parámetros constantes: ante perturbaciones acotadas vuelve a una zona acotada y sus características no cambian con el tiempo.','Un motor con parámetros constantes que, ante una entrada acotada, alcanza una velocidad acotada y mantiene el mismo comportamiento en el tiempo.','Un recinto térmico con parámetros constantes y termostato: las respuestas permanecen acotadas y las propiedades del sistema no cambian con el tiempo.','Una línea de presión con parámetros constantes cuya respuesta permanece acotada para entradas acotadas y mantiene el mismo comportamiento en el tiempo.'];
+ add(op('Estabilidad y estacionariedad',pick(sc),pick(q),pick(m),['Explica por qué la respuesta es estable.','Explica por qué el comportamiento es estacionario.','Incluye un ejemplo concreto.'],'Estable: respuesta acotada. Estacionario: propiedades no cambian con el tiempo.','Sistema estable y estacionario'));
+}
 
-add(
-mc('Planta / proceso / sistema','Patín eléctrico','Batería + motor + control','🛴','Batería, controlador, motor, freno y estructura de un patín trabajando juntos forman un…',['Proceso','Sistema','Set-point','Perturbación'],1,['Proceso sería desplazamiento.','Correcto: conjunto con objetivo.','No es referencia.','No es influencia externa.'],'Conjunto funcional.'),
-mc('Planta / proceso / sistema','Cafetera','Equipo físico','☕','Una cafetera considerada como equipo físico donde se calienta y hace pasar agua corresponde a la…',['Planta','Proceso','Salida','Perturbación'],0,['Correcto: equipo físico.','Proceso sería preparación del café.','Salida sería bebida.','No es influencia externa.'],'Objeto físico.'),
-mc('Planta / proceso / sistema','Robot aspirador','Sensores + ruedas + control','◉','Sensores, ruedas, batería y control de un robot aspirador trabajando juntos constituyen un…',['Sistema','Proceso','Planta únicamente','Señal'],0,['Correcto: conjunto coordinado.','Proceso sería limpieza.','Aquí se enfatiza el conjunto completo.','No es una señal.'],'Componentes cooperando.'),
-mc('Planta / proceso / sistema','Secadora','Pérdida de humedad','♨','La reducción gradual de humedad de la ropa dentro de una secadora corresponde a un…',['Planta','Proceso','Sistema físico','Set-point'],1,['Planta sería secadora física.','Correcto: transformación progresiva.','Clasifica el equipo.','Podría ser un valor deseado.'],'La pregunta habla de transformación.')
-);
+// 22. Imagen -> planta/proceso/sistema
+{
+ const sc=['plant_scooter','plant_3dprinter','plant_robotarm','plant_pump'];
+ const q=['El scooter eléctrico mostrado, considerado como objeto físico que puede ser controlado, ilustra principalmente una…','La impresora 3D mostrada, como equipo físico donde ocurre la fabricación, ilustra principalmente una…','El brazo robot mostrado, considerado como equipo físico sobre el que actúa el controlador, es principalmente una…','La bomba centrífuga mostrada, como objeto físico, ilustra principalmente una…'];
+ const o=[['Proceso','Planta','Sistema de control completo','Perturbación'],['Planta','Proceso','Set-point','Señal'],['Proceso','Planta','Perturbación','Referencia'],['Planta','Proceso','Sistema matemático','Salida']];
+ const c=[1,0,1,0];
+ add(mc('Planta / proceso / sistema',pick(sc),pick(q),pick(o),pick(c),['Objeto físico sobre el que se actúa = planta.','Objeto físico sobre el que se actúa = planta.','Objeto físico sobre el que se actúa = planta.','Objeto físico sobre el que se actúa = planta.'],'Fíjate en que se muestra el equipo físico.','Clasificación por imagen'));
+}
 
-add(
-mc('Estabilidad','Respuesta amortiguada','Oscilaciones decrecientes','〰','La salida oscila pero cada oscilación es menor y finalmente se aproxima a la referencia. ¿Qué propiedad se observa?',['Inestabilidad','Estabilidad','MISO','Desacoplamiento'],1,['Tendería a crecer o no permanecer acotada.','Correcto: permanece acotada y converge.','No cuenta I/O.','No compara subsistemas.'],'¿Diverge o converge?'),
-mc('Estabilidad','Respuesta acotada','Perturbación limitada','〰','Una perturbación limitada produce una salida que cambia pero nunca crece sin límite. ¿Qué propiedad describe esto?',['Estabilidad','Estacionariedad','Aditividad','MIMO'],0,['Correcto: entrada acotada → salida acotada.','La salida puede variar y ser estable.','Es propiedad de linealidad.','Clasifica I/O.'],'Acotada → acotada.'),
-mc('Estabilidad','Motor','Recuperación de velocidad','〰','Tras una perturbación, la velocidad se desvía y luego regresa sin crecer indefinidamente. El comportamiento es…',['Estable','Inestable','Desacoplado','Manual'],0,['Correcto: permanece limitada.','Implicaría divergencia.','Otra propiedad.','Otra clasificación.'],'La desviación no crece sin control.'),
-mc('Estabilidad','Nivel','Oscilación amortiguada','〰','El nivel sobrepasa el valor deseado, oscila y termina acercándose a él. ¿Qué propiedad ilustra?',['Estacionariedad','Estabilidad','SIMO','Aditividad'],1,['Durante transitorio no es estacionario.','Correcto: respuesta acotada y convergente.','No cuenta salidas.','No suma entradas.'],'Sobrepaso no implica inestabilidad.')
-);
+// 23. Gráfica -> estabilidad
+{
+ const sc=['graph_stable_oscillation','graph_unstable_growth','graph_stable_settle','graph_bounded_response'];
+ const q=['La salida oscila alrededor de la referencia y las oscilaciones disminuyen. ¿Qué propiedad muestra la gráfica?','La salida se aleja cada vez más de la referencia y su amplitud crece. ¿Qué propiedad muestra la gráfica?','La salida presenta sobreimpulso y luego converge a un valor acotado. ¿Qué propiedad se observa?','La respuesta permanece acotada ante una entrada acotada y termina asentándose. ¿Qué propiedad se observa?'];
+ const o=[['Inestabilidad','Estabilidad','Desacoplamiento','MISO'],['Estabilidad','Inestabilidad','Estacionariedad','SIMO'],['Estabilidad','No estacionariedad','MIMO','Aditividad'],['Inestabilidad','Estabilidad','Acoplamiento','Linealidad necesariamente']];
+ const c=[1,1,0,1];
+ add(mc('Estabilidad',pick(sc),pick(q),pick(o),pick(c),['Observa si la salida permanece acotada o diverge.','Observa si la salida permanece acotada o diverge.','Observa si la salida permanece acotada o diverge.','Observa si la salida permanece acotada o diverge.'],'Salida acotada o salida que diverge.','Interpretación de estabilidad'));
+}
 
-add(
-mc('Proceso','Decisión','Observar → evaluar → decidir → actuar','①','La secuencia observar, evaluar opciones, decidir y actuar representa principalmente un…',['Sistema','Proceso','Planta','Set-point'],1,['Sistema es el conjunto.','Correcto: secuencia progresiva.','Planta sería soporte físico.','Set-point es referencia.'],'Secuencia de pasos.'),
-mc('Proceso','Mantenimiento','Detectar → diagnosticar → reparar','②','Detectar falla, diagnosticar, elegir solución y reparar describe un…',['Proceso','Planta','Sistema físico','Variable'],0,['Correcto: etapas sucesivas.','Planta sería equipo intervenido.','Clasifica el conjunto.','Variable es magnitud.'],'Etapas que llevan a un resultado.'),
-mc('Proceso','Diseño','Definir → modelar → probar','③','Definir requisitos, modelar, prototipar y probar corresponde a un…',['Planta','Proceso','Set-point','Perturbación'],1,['Planta es objeto físico.','Correcto: secuencia progresiva.','Es valor deseado.','Es influencia externa.'],'Serie ordenada de acciones.'),
-mc('Proceso','Calidad','Inspeccionar → comparar → decidir','④','Inspeccionar una pieza, comparar con tolerancia y decidir aceptación forma un…',['Sistema físico','Proceso','Planta','Señal'],1,['Puede ocurrir en un sistema físico, pero se pregunta por la secuencia.','Correcto: acciones sucesivas.','Planta sería equipo.','Señal es información.'],'Lo importante es la sucesión.')
-);
+// 24. Imagen-secuencia -> proceso
+{
+ const sc=['process_observe_decide_act','process_bottling_steps','process_wash_cycle','process_3dprint_steps'];
+ const q=['La secuencia ilustrada de observar → decidir → actuar representa principalmente un…','La secuencia llenar → tapar → etiquetar → empacar representa principalmente un…','La secuencia llenar → lavar → enjuagar → centrifugar ilustra principalmente un…','La secuencia preparar → depositar material → formar capas → terminar pieza ilustra principalmente un…'];
+ const o=[['Planta','Proceso','Señal','Set-point'],['Sistema','Proceso','Planta','Perturbación'],['Proceso','Planta','Sensor','Referencia'],['Planta','Proceso','Variable manipulada','MISO']];
+ const c=[1,1,0,1];
+ add(mc('Planta / proceso / sistema',pick(sc),pick(q),pick(o),pick(c),['La imagen enfatiza una secuencia de cambios.','La imagen enfatiza una secuencia de cambios.','La imagen enfatiza una secuencia de cambios.','La imagen enfatiza una secuencia de cambios.'],'Una secuencia ordenada de cambios es un proceso.','Secuencia de proceso'));
+}
 
-add(
-mc('Sistema de control','Climatización','Regula temperatura','◎','Un conjunto de componentes que regula temperatura para lograr un valor predeterminado es un…',['Proceso','Sistema de control','Planta','Perturbación'],1,['Proceso sería evolución térmica.','Correcto: regula para lograr funcionamiento deseado.','Planta sería equipo físico.','Es influencia externa.'],'La definición incluye regular.'),
-mc('Sistema de control','Velocidad','Regula un motor','◎','Un conjunto que modifica su acción para mantener velocidad cerca de un valor deseado es un…',['Sistema de control','Proceso','Sistema físico solamente','Señal discreta'],0,['Correcto: su función es regular.','Proceso sería evolución.','El rasgo clave es regulación.','No se pregunta por señal.'],'Función principal: regular.'),
-mc('Sistema de control','Nivel','Sensor + controlador + actuador','◎','Sensor, controlador y actuador coordinados para mantener nivel representan un…',['Planta','Sistema de control','Proceso','Set-point'],1,['Planta sería tanque/equipo.','Correcto: regulan la variable.','Proceso sería llenado/vaciado.','Es solo valor deseado.'],'Conjunto que regula.'),
-mc('Sistema de control','Posición','Servosistema','◎','Un conjunto que ajusta un actuador para llevar una posición a un valor predeterminado se define como…',['Sistema de control','Proceso','Planta','Perturbación'],0,['Correcto: regula para alcanzar objetivo.','Proceso sería movimiento.','Planta sería mecanismo.','Perturbación sería externa.'],'Regulación hacia un objetivo.')
-);
+// 25. Definición de sistema de control
+add(mc('Sistema de control',null,'¿Qué concepto está definido como un conjunto de componentes que pueden regular su propia conducta o la de otro sistema para lograr un funcionamiento predeterminado?',['Sistema de control','Proceso','Planta','Señal discreta'],0,['Correcto: es la definición de sistema de control.','Un proceso es una secuencia de cambios.','La planta es el objeto físico.','Es un tipo de señal.'],'La palabra clave es regular para lograr un funcionamiento predeterminado.'));
 
-add(
-mc('Sistema físico','Automóvil','Materia + energía','▣','Un automóvil real, compuesto por elementos materiales y energéticos que interactúan, es un sistema…',['Físico','Abstracto','Estacionario','Discreto'],0,['Correcto: definición de sistema físico.','Sería modelo conceptual.','Otra propiedad.','Otra clasificación.'],'Elementos materiales + energía.'),
-mc('Sistema físico','Máquina CNC','Estructura + motores','▣','Una CNC real con estructura, motores y energía eléctrica se clasifica como sistema…',['Abstracto','Físico','MISO necesariamente','Estacionario'],1,['No es solo representación conceptual.','Correcto: elementos materiales y energéticos.','No necesariamente.','No necesariamente.'],'Existe materialmente.'),
-mc('Sistema físico','Bomba hidráulica','Impulsor + flujo','▣','Una bomba hidráulica real con impulsor y flujo de energía se considera sistema…',['Físico','Abstracto','Lineal necesariamente','Continuo necesariamente'],0,['Correcto: conjunto material y energético.','Sería el modelo matemático.','No necesariamente.','No necesariamente.'],'Objeto real, no modelo.'),
-mc('Sistema físico','Brazo mecánico','Eslabones + actuadores','▣','Un mecanismo con eslabones, actuadores y energía que interactúan para mover una carga es un sistema…',['Físico','Abstracto','Estacionario','SISO necesariamente'],0,['Correcto: componentes materiales y energía.','No es puramente conceptual.','No necesariamente.','Puede tener varias I/O.'],'Material + energía.')
-);
+// 26. Sistemas físicos
+add(mc('Sistemas físicos',null,'¿Cómo se llaman los sistemas que se componen de elementos materiales y energéticos que interactúan entre sí para cumplir una función específica?',['Sistemas físicos','Sistemas discretos','Procesos','Sistemas estacionarios'],0,['Correcto.','La discreción se refiere al tiempo o señal.','Proceso describe una secuencia.','Estacionario describe otra propiedad.'],'Piensa en elementos materiales y energéticos reales.'));
 
-add(
-mc('Variable controlada','Tanque','Mantener nivel','▤','Una bomba y una válvula actúan para mantener la altura del líquido. ¿Cuál es la variable controlada?',['Apertura de válvula','Nivel del líquido','Velocidad de bomba','Tiempo'],1,['Puede ser manipulada.','Correcto: es la magnitud a regular.','Puede ser acción de control.','No es objetivo principal.'],'¿Qué magnitud quieres mantener?'),
-mc('Variable controlada','Horno','Mantener 180 °C','♨','El controlador cambia potencia para mantener 180 °C. ¿Qué variable está controlando?',['Potencia','Temperatura','Corriente','Tiempo'],1,['Es manipulada.','Correcto: es la magnitud regulada.','Puede relacionarse con acción.','No es objetivo principal.'],'La controlada es el resultado a regular.'),
-mc('Variable controlada','Motor','Mantener 1500 rpm','↻','Un variador cambia frecuencia para mantener 1500 rpm. ¿Cuál es la variable controlada?',['Frecuencia aplicada','Velocidad del motor','Voltaje nominal','Carga'],1,['Es manipulada.','Correcto: se regula velocidad.','Es parámetro.','Es perturbación.'],'Busca la magnitud objetivo.'),
-mc('Variable controlada','Tubería','Mantener 3 bar','◉','Una válvula se ajusta para mantener 3 bar. ¿Cuál es la variable controlada?',['Apertura de válvula','Presión','Caudal de mando','Posición del actuador'],1,['Es acción de control.','Correcto: se regula presión.','No es objetivo.','Es variable manipulada/interna.'],'¿Qué valor se intenta mantener?')
-);
+// 27. Figura -> variable controlada
+{
+ const sc=['control_tank_level','control_oven_temp','control_motor_speed','control_pressure_line'];
+ const q=['En la figura del tanque con sensores de nivel y válvula de descarga, ¿qué variable se está controlando?','En el horno con sensor y controlador, ¿qué variable se está controlando?','En el motor con sensor de rpm, ¿qué variable se está controlando?','En la línea con transmisor y válvula de control, ¿qué variable se está controlando?'];
+ const o=[['Caudal de salida','Nivel del tanque','Voltaje del panel','Tiempo de operación'],['Potencia aplicada','Temperatura del horno','Voltaje de alimentación','Tiempo de encendido'],['Velocidad del motor','Voltaje de armadura','Corriente nominal','Posición de válvula'],['Apertura de válvula','Presión de la línea','Caudal nominal','Tiempo de muestreo']];
+ const c=[1,1,0,1];
+ add(mc('Variable controlada',pick(sc),pick(q),pick(o),pick(c),['Busca la magnitud que se desea mantener.','Busca la magnitud que se desea mantener.','Busca la magnitud que se desea mantener.','Busca la magnitud que se desea mantener.'],'¿Qué magnitud es el objetivo del control?','Variable controlada'));
+}
 
-add(
-mc('Lazo','Grifo automático','Sensor detecta manos','✋','Un grifo detecta manos y abre el agua en respuesta a esa medición. Representa mejor un…',['Lazo abierto','Lazo cerrado','Sistema manual','MISO'],1,['Actúa con información del sensor.','Correcto: la medición modifica la acción.','No requiere accionar válvula manualmente.','Otra clasificación.'],'La medición cambia la acción.'),
-mc('Lazo','Lámpara automática','Sensor de luz','☀','Una lámpara mide iluminación ambiental y ajusta su intensidad. ¿Qué tipo de lazo representa?',['Lazo abierto','Lazo cerrado','Manual','SIMO'],1,['Sí usa medición para ajustar.','Correcto: hay realimentación.','No depende de acción humana continua.','Otra clasificación.'],'Mide y corrige.'),
-mc('Lazo','Bomba con flotador','Nivel detectado','↕','Una bomba se enciende o apaga según un flotador que detecta nivel. ¿Qué tipo de lazo es?',['Lazo cerrado','Lazo abierto','Manual','MIMO necesariamente'],0,['Correcto: la medición determina la acción.','No sería abierto porque usa nivel.','No depende del operador.','No puede afirmarse MIMO.'],'El sensor decide la acción según salida.'),
-mc('Lazo','Calefactor','Termostato mide temperatura','♨','Un calefactor mide temperatura y se apaga al alcanzar el valor deseado. ¿Qué lazo representa?',['Lazo abierto','Lazo cerrado','Manual','Discreto necesariamente'],1,['Sí usa salida medida.','Correcto: temperatura real modifica la acción.','No necesita ajuste humano continuo.','No necesariamente.'],'La salida medida altera la acción.')
-);
+// 28. Imagen -> lazo abierto/cerrado
+{
+ const sc=['loop_faucet_sensor','loop_thermostat_feedback','loop_tank_feedback','loop_toaster_timer'];
+ const q=['El grifo activa el agua al detectar una mano, pero no mide el resultado final para corregirlo. Respecto a ese resultado, ¿qué tipo de lazo representa?','El termostato mide continuamente la temperatura y corrige el calentador. ¿Qué tipo de lazo representa?','El sensor de nivel mide la salida y el controlador abre o cierra la válvula para corregirla. ¿Qué tipo de lazo representa?','El tostador actúa por tiempo y no mide el nivel real de tostado para corregirlo. ¿Qué tipo de lazo representa?'];
+ const o=[['Lazo cerrado','Lazo abierto','MIMO','Estático'],['Lazo abierto','Lazo cerrado','Manual','Desacoplado'],['Lazo cerrado','Lazo abierto','SIMO','Estático'],['Lazo cerrado','Lazo abierto','MISO','Estacionario']];
+ const c=[1,1,0,1];
+ add(mc('Lazo abierto / cerrado',pick(sc),pick(q),pick(o),pick(c),['Revisa si la salida real regresa al controlador.','Revisa si la salida real regresa al controlador.','Revisa si la salida real regresa al controlador.','Revisa si la salida real regresa al controlador.'],'¿La salida real se mide y se usa para corregir?','Tipo de lazo'));
+}
 
-add(
-mc('Aditividad','Superposición','Suma de entradas','+','Si la respuesta a x₁+x₂ es igual a y₁+y₂, ¿qué propiedad se cumple?',['Proporcionalidad','Aditividad','Estabilidad','Estacionariedad'],1,['Trata escalamiento.','Correcto: respuesta a suma = suma de respuestas.','Trata acotamiento.','Trata constancia.'],'La operación clave es sumar.'),
-mc('Aditividad','Sistema lineal','Respuestas separadas','+','Un sistema responde y₁ a u₁ y y₂ a u₂. Si ante u₁+u₂ responde y₁+y₂, se verifica…',['Aditividad','Proporcionalidad','Acoplamiento','Estabilidad'],0,['Correcto: esa es aditividad.','Usa multiplicación por constante.','Otra propiedad.','Otra propiedad.'],'Suma de entradas → suma de salidas.'),
-mc('Aditividad','Operador T','T[x₁+x₂]','+','La igualdad T[x₁+x₂]=T[x₁]+T[x₂] corresponde a…',['Estabilidad','Aditividad','Estacionariedad','MISO'],1,['No habla de acotamiento.','Correcto: expresa aditividad.','No habla de constancia.','No clasifica I/O.'],'Mira la suma dentro y fuera de T.'),
-mc('Aditividad','Suma de efectos','Dos entradas juntas','+','Si aplicar dos entradas juntas produce exactamente la suma de los efectos que tendrían por separado, el sistema cumple…',['Proporcionalidad','Aditividad','Lazo cerrado','Desacoplamiento'],1,['Trata escalamiento.','Correcto: los efectos se suman.','No define esta propiedad.','Trata independencia entre subsistemas.'],'Efectos por separado que se suman.')
-);
+// 29. Expresión matemática -> propiedad
+{
+ const sc=['math_additivity','math_homogeneity','math_superposition','math_additivity2'];
+ const q=['Si un sistema cumple T[x₁(t)+x₂(t)] = T[x₁(t)] + T[x₂(t)], ¿qué propiedad representa?','Si un sistema cumple T[a·x(t)] = a·T[x(t)], ¿qué propiedad representa?','Si un sistema cumple simultáneamente aditividad y homogeneidad, ¿qué principio se satisface?','La relación (x₁+x₂) → (y₁+y₂) ¿qué propiedad expresa directamente?'];
+ const o=[['Aditividad','Estabilidad','Estacionariedad','Desacoplamiento'],['Aditividad','Proporcionalidad u homogeneidad','MISO','Estabilidad'],['Superposición','Estacionariedad','Acoplamiento','Lazo cerrado'],['Aditividad','Inestabilidad','MIMO','Tiempo continuo']];
+ const c=[0,1,0,0];
+ add(mc('Linealidad',pick(sc),pick(q),pick(o),pick(c),['Revisa qué relación matemática expresa la fórmula.','Revisa qué relación matemática expresa la fórmula.','Revisa qué relación matemática expresa la fórmula.','Revisa qué relación matemática expresa la fórmula.'],'Observa si suma respuestas, escala una entrada o combina ambas propiedades.','Propiedad matemática'));
+}
 
-window.QUESTION_BANK=banks[V];
-if(window.QUESTION_BANK.length!==29) throw new Error('Cada versión debe contener exactamente 29 preguntas');
+if(Q.length!==29) throw new Error('Cada versión debe contener exactamente 29 preguntas');
+window.QUESTION_BANK=Q;
