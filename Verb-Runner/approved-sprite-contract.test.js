@@ -4,11 +4,11 @@ const fs=require('node:fs');
 const path=require('node:path');
 const read=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
 
-test('selection is backed by actual approved anime sprite artwork',()=>{
+test('selection is backed by actual front-facing anime artwork',()=>{
   const app=read('app.js'),css=read('desktop.css'),art=read('runner-art.js');
   assert.match(app,/sprite-runner/);
   assert.match(css,/\.runner-art\.sprite-runner/);
-  assert.match(art,/assets\/sprites\/runner-select-sheet\.svg/);
+  assert.match(art,/assets\/sprites\/runner-select-anime-sheet\.webp/);
   assert.doesNotMatch(app,/class=\\?"(?:head|hair|body|arm|leg|shoe|pack)/);
 });
 

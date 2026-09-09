@@ -4,12 +4,11 @@ const fs=require('node:fs');
 const path=require('node:path');
 const read=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
 
-test('runner selection uses a crisp six-character vector source',()=>{
-  const svg=read('assets/sprites/runner-select-sheet.svg');
-  assert.match(svg,/width="1080"/);
-  assert.match(svg,/height="260"/);
-  assert.match(svg,/data-vector-portrait-sheet="1"/);
-  assert.doesNotMatch(svg,/data:image\/webp;base64/);
+test('runner selection uses six crisp front-facing anime portraits',()=>{
+  const art=read('runner-art.js');
+  assert.match(art,/runner-select-anime-sheet\.webp/);
+  assert.match(art,/selectFrameWidth:240/);
+  assert.match(art,/selectFrameHeight:360/);
 });
 
 test('rear gameplay runner has a real multi-frame animation',()=>{
