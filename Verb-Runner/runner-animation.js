@@ -1,18 +1,16 @@
 (function(global){
-  const FRAMES=8;
-  const FRAME_W=164;
-  const FRAME_H=272;
-  const FRAME_RATE=11;
-  const SPRINT_RATE=14;
-  const TEXTURE_KEY='vr-run-red-clean-8';
-  const PAYLOAD_URL='assets/sprites/runner-run-red-clean-strip.webp.b64';
+  const FRAME_COUNT=4;
+  const FRAME_RATE=10;
+  const SPRINT_RATE=13;
+  const FRAME_KEYS=Array.from({length:FRAME_COUNT},(_,i)=>`vr-run-red-frame-${i}`);
+  const FRAME_URLS=Array.from({length:FRAME_COUNT},(_,i)=>`assets/sprites/runner-red-frame-${i}.webp.b64`);
   const ANIMATION_KEY='vr-run-red-clean';
 
   function ensureAnimation(scene){
     if(scene.anims.exists(ANIMATION_KEY))return;
     scene.anims.create({
       key:ANIMATION_KEY,
-      frames:scene.anims.generateFrameNumbers(TEXTURE_KEY,{start:0,end:FRAMES-1}),
+      frames:FRAME_KEYS.map(key=>({key,frame:'__BASE'})),
       frameRate:FRAME_RATE,
       repeat:-1
     });
@@ -28,7 +26,7 @@
 
     ensureAnimation(scene);
 
-    const sprite=scene.add.sprite(0,8,TEXTURE_KEY,0)
+    const sprite=scene.add.sprite(0,8,FRAME_KEYS[0])
       .setOrigin(.5,1)
       .setScale(1.38)
       .setVisible(true);
@@ -62,36 +60,38 @@
     update();
   }
 
-  async function ensureTexture(scene,done){
-    if(scene.textures.exists(TEXTURE_KEY)){
+  async function ensureTextures(scene,done){
+    if(FRAME_KEYS.every(key=>scene.textures.exists(key))){
       done();
       return;
     }
 
     try{
-      const response=await fetch(PAYLOAD_URL,{cache:'no-store'});
-      if(!response.ok)throw new Error(`HTTP ${response.status}`);
-      const encoded=(await response.text()).replace(/\s+/g,'');
-      if(!encoded)throw new Error('empty runner sprite payload');
+      const encodedFrames=await Promise.all(FRAME_URLS.map(async url=>{
+        const response=await fetch(url,{cache:'no-store'});
+        if(!response.ok)throw new Error(`${url}: HTTP ${response.status}`);
+        const encoded=(await response.text()).replace(/\s+/g,'');
+        if(!encoded.startsWith('UklG'))throw new Error(`${url}: invalid WebP payload`);
+        return encoded;
+      }));
 
-      const dataUrl=`data:image/webp;base64,${encoded}`;
-      scene.load.spritesheet(TEXTURE_KEY,dataUrl,{
-        frameWidth:FRAME_W,
-        frameHeight:FRAME_H,
-        endFrame:FRAMES-1
+      FRAME_KEYS.forEach((key,index)=>{
+        if(!scene.textures.exists(key)){
+          scene.load.image(key,`data:image/webp;base64,${encodedFrames[index]}`);
+        }
       });
 
       scene.load.once(Phaser.Loader.Events.COMPLETE,()=>{
-        if(scene.textures.exists(TEXTURE_KEY))done();
+        if(FRAME_KEYS.every(key=>scene.textures.exists(key)))done();
         else if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(true);
       });
       scene.load.once(Phaser.Loader.Events.LOAD_ERROR,file=>{
-        console.error('Verb Runner clean red animation failed to load',file?.src||PAYLOAD_URL);
+        console.error('Verb Runner clean frame failed to load',file?.src||'unknown frame');
         if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(true);
       });
       scene.load.start();
     }catch(error){
-      console.error('Verb Runner clean red animation payload failed',error);
+      console.error('Verb Runner clean animation frames failed',error);
       if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(true);
     }
   }
@@ -111,7 +111,7 @@
         }
 
         if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(true);
-        if(scene.characterIndex===0)ensureTexture(scene,()=>installVisibleRunner(scene));
+        if(scene.characterIndex===0)ensureTextures(scene,()=>installVisibleRunner(scene));
       };
       setTimeout(waitForScene,0);
       return game;
