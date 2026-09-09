@@ -11,12 +11,13 @@ test('runner selection uses six crisp front-facing anime portraits',()=>{
   assert.match(art,/selectFrameHeight:260/);
 });
 
-test('rear gameplay runner uses a visible real Phaser spritesheet animation',()=>{
+test('rear gameplay red runner uses a visible real Phaser eight-frame spritesheet animation',()=>{
   const animation=read('runner-animation.js');
   assert.match(animation,/FRAMES=8/);
-  assert.match(animation,/runner-run-animated-sheet\.webp/);
+  assert.match(animation,/runner-run-red-8\.webp/);
   assert.match(animation,/load\.spritesheet/);
   assert.match(animation,/add\.sprite/);
   assert.match(animation,/generateFrameNumbers/);
   assert.match(animation,/repeat:-1/);
+  assert.match(animation,/setVisible\(true\)/);
 });
