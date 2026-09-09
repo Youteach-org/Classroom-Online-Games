@@ -12,11 +12,10 @@ test('runner selection uses a crisp six-character vector source',()=>{
   assert.doesNotMatch(svg,/data:image\/webp;base64/);
 });
 
-test('rear gameplay runner has a continuous stride animation',()=>{
-  const art=read('runner-art.js');
-  assert.match(art,/animateRunnerStride\(scene,time\)/);
-  assert.match(art,/runnerArt\.rotation/);
-  assert.match(art,/runnerArt\.y/);
-  assert.match(art,/shadow\.scaleX/);
-  assert.match(art,/scene\.events\.on\('update'/);
+test('rear gameplay runner has a real multi-frame animation',()=>{
+  const animation=read('runner-animation.js');
+  assert.match(animation,/FRAMES=8/);
+  assert.match(animation,/runner-run-animated-sheet\.webp/);
+  assert.match(animation,/setCrop\(frame\*FRAME_W,row\*FRAME_H,FRAME_W,FRAME_H\)/);
+  assert.match(animation,/scene\.events\.on\('update',update\)/);
 });
