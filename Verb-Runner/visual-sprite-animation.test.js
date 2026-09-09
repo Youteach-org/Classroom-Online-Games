@@ -7,14 +7,16 @@ const read=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
 test('runner selection uses six crisp front-facing anime portraits',()=>{
   const art=read('runner-art.js');
   assert.match(art,/runner-select-anime-sheet\.webp/);
-  assert.match(art,/selectFrameWidth:240/);
-  assert.match(art,/selectFrameHeight:360/);
+  assert.match(art,/selectFrameWidth:180/);
+  assert.match(art,/selectFrameHeight:260/);
 });
 
-test('rear gameplay runner has a real multi-frame animation',()=>{
+test('rear gameplay runner uses a visible real Phaser spritesheet animation',()=>{
   const animation=read('runner-animation.js');
   assert.match(animation,/FRAMES=8/);
   assert.match(animation,/runner-run-animated-sheet\.webp/);
-  assert.match(animation,/setCrop\(frame\*FRAME_W,row\*FRAME_H,FRAME_W,FRAME_H\)/);
-  assert.match(animation,/scene\.events\.on\('update',update\)/);
+  assert.match(animation,/load\.spritesheet/);
+  assert.match(animation,/add\.sprite/);
+  assert.match(animation,/generateFrameNumbers/);
+  assert.match(animation,/repeat:-1/);
 });
