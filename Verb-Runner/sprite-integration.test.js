@@ -13,19 +13,18 @@ test('runner selection uses a crisp anime sprite sheet instead of CSS body parts
   assert.doesNotMatch(app,/class=\\?"head\\?"/);
 });
 
-test('gameplay uses rear-view run, true slide and the clean red eight-frame animation',()=>{
+test('gameplay uses rear-view run, true slide and separate red running frames',()=>{
   const phaser=read('phaser-runner.js'),animation=read('runner-animation.js');
   assert.match(phaser,/runner-run-sheet\.svg/);
   assert.match(phaser,/runner-slide-sheet\.svg/);
   assert.match(phaser,/setRunnerState\('slide'\)/);
   assert.match(phaser,/setCrop\(frame\*60,0,60,54\)/);
-  assert.match(animation,/runner-run-red-clean-strip\.webp\.b64/);
-  assert.match(animation,/FRAMES=8/);
-  assert.match(animation,/FRAME_W=164/);
-  assert.match(animation,/FRAME_H=272/);
-  assert.match(animation,/load\.spritesheet/);
+  assert.match(animation,/FRAME_COUNT=4/);
+  assert.match(animation,/runner-red-frame-\$\{i\}\.webp\.b64/);
+  assert.match(animation,/scene\.load\.image/);
   assert.match(animation,/add\.sprite/);
   assert.match(animation,/setVisible\(true\)/);
+  assert.doesNotMatch(animation,/load\.spritesheet/);
   assert.doesNotMatch(animation,/runner-run-red-8\.webp/);
   assert.doesNotMatch(phaser,/scaleY:s\*\.46/);
 });
