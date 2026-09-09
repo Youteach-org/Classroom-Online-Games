@@ -4,22 +4,32 @@ const fs=require('node:fs');
 const path=require('node:path');
 const read=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
 
-test('runner selection uses six independent front-facing portraits without sheet slicing',()=>{
+test('runner selection keeps the approved crisp front-facing anime sheet',()=>{
   const art=read('runner-art.js'),app=read('app.js');
-  for(let i=1;i<=6;i++)assert.match(art,new RegExp(`select-clean-${i}\\.webp`));
-  assert.match(art,/selectFrames:/);
-  assert.match(app,/sprites\.selectFrames/);
-  assert.match(app,/backgroundSize='contain'/);
-  assert.doesNotMatch(app,/backgroundSize='600% 100%'/);
+  assert.match(art,/runner-select-anime-sheet\.webp/);
+  assert.match(app,/sprites\.select/);
+  assert.match(app,/backgroundSize='600% 100%'/);
 });
 
-test('rear gameplay red runner uses eight independent clean animation frames',()=>{
+test('rear gameplay red runner uses a clean eight-frame strip with correct frame geometry',()=>{
   const animation=read('runner-animation.js');
-  for(let i=0;i<8;i++)assert.match(animation,new RegExp(`runner-red-frame-${i}\\.webp`));
-  assert.match(animation,/RUN_FRAME_URLS/);
-  assert.match(animation,/load\.image/);
-  assert.match(animation,/frames:RUN_KEYS\.map/);
-  assert.match(animation,/add\.sprite/);
+  assert.match(animation,/runner-run-red-clean-strip\.webp\.b64/);
+  assert.match(animation,/FRAMES=8/);
+  assert.match(animation,/FRAME_W=164/);
+  assert.match(animation,/FRAME_H=272/);
+  assert.match(animation,/load\.spritesheet/);
   assert.match(animation,/repeat:-1/);
-  assert.match(animation,/setVisible\(true\)/);
+  assert.doesNotMatch(animation,/frameWidth:82/);
+  assert.doesNotMatch(animation,/frameHeight:136/);
+
+  const encoded=read('assets/sprites/runner-run-red-clean-strip.webp.b64').replace(/\s+/g,'');
+  const webp=Buffer.from(encoded,'base64');
+  assert.equal(webp.subarray(0,4).toString(),'RIFF');
+  assert.equal(webp.subarray(8,12).toString(),'WEBP');
+  assert.equal(webp.subarray(12,16).toString(),'VP8X');
+  const width=webp.readUIntLE(24,3)+1;
+  const height=webp.readUIntLE(27,3)+1;
+  assert.equal(width,1312);
+  assert.equal(height,272);
+  assert.equal(width/164,8);
 });
