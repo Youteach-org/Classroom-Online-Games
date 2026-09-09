@@ -6,7 +6,7 @@ const path=require('node:path');
 const asset=name=>fs.readFileSync(path.join(__dirname,'assets',name),'utf8');
 const spriteFiles=['obstacle-jump.svg','obstacle-slide.svg',...Array.from({length:6},(_,i)=>`runner-rear-${i+1}.svg`)];
 
-test('gameplay sprite SVGs are explicit transparent safe canvases',()=>{
+test('legacy Phaser-safe SVGs remain valid fallback assets',()=>{
   for(const file of spriteFiles){
     const svg=asset(file);
     assert.match(svg,/data-safe-svg="1"/,`${file} must use the safe SVG contract`);
@@ -21,4 +21,13 @@ test('illustrated coastal background uses the safe SVG contract',()=>{
   assert.match(svg,/data-safe-svg="1"/);
   assert.match(svg,/<svg[^>]+width="1600"[^>]+height="900"[^>]+viewBox="0 0 1600 900"/);
   assert.doesNotMatch(svg,/<(?:filter|mask|foreignObject|image)\b/i);
+});
+
+test('new approved sprite sheets deliberately wrap raster artwork',()=>{
+  for(const file of ['sprites/runner-select-sheet.svg','sprites/runner-run-sheet.svg','sprites/runner-slide-sheet.svg']){
+    const svg=asset(file);
+    assert.match(svg,/data-raster-sprite="1"/);
+    assert.match(svg,/<image\b/);
+    assert.match(svg,/data:image\/webp;base64,/);
+  }
 });

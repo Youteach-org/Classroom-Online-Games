@@ -1,0 +1,22 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const read=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
+
+test('selection is backed by actual approved anime sprite artwork',()=>{
+  const app=read('app.js'),css=read('desktop.css'),art=read('runner-art.js');
+  assert.match(app,/sprite-runner/);
+  assert.match(css,/\.runner-art\.sprite-runner/);
+  assert.match(art,/assets\/sprites\/runner-select-sheet\.svg/);
+  assert.doesNotMatch(app,/class=\\?"(?:head|hair|body|arm|leg|shoe|pack)/);
+});
+
+test('rear runner changes visual state without tumble or squash',()=>{
+  const phaser=read('phaser-runner.js');
+  assert.match(phaser,/setRunnerState\('slide'\)/);
+  assert.match(phaser,/runnerState/);
+  assert.doesNotMatch(phaser,/scaleY:s\*\.46/);
+  assert.doesNotMatch(phaser,/tumble|stumble/i);
+  assert.match(phaser,/feedbackBurst\(0xffc14f,true\)/);
+});

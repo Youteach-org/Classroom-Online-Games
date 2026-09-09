@@ -1,5 +1,10 @@
 .pause-overlay[hidden]{display:none!important}
 .character-card.anonymous-runner .runner-art{inset:0}
+.character-card.sprite-card{background:linear-gradient(180deg,color-mix(in srgb,var(--runner-color) 25%,#102845 75%),#061426);overflow:hidden}
+.character-card.sprite-card:before{background:radial-gradient(circle at 50% 20%,color-mix(in srgb,var(--runner-accent) 42%,transparent),transparent 45%),linear-gradient(180deg,transparent 68%,#05152b 100%)}
+.runner-art.sprite-runner{position:absolute;inset:4px 2px 2px!important;display:block;background-repeat:no-repeat;background-size:600% 100%;background-position-y:center;filter:drop-shadow(0 12px 16px rgba(0,10,28,.55));transform:none!important}
+.character-card[data-pose] .runner-art.sprite-runner{transform:none!important}
+.character-card.sprite-card[aria-pressed="true"] .sprite-runner{filter:drop-shadow(0 12px 17px rgba(0,10,28,.5)) drop-shadow(0 0 10px var(--runner-color))}
 .desktop-game-ui .game-hud{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0}
 .desktop-game-ui .hud-pause,.desktop-game-ui .hud-momentum,.desktop-game-ui .hud-prompt,.desktop-game-ui .hud-timer,.desktop-game-ui .hud-streak,.desktop-game-ui .hud-progress{background:linear-gradient(180deg,rgba(7,31,59,.88),rgba(4,20,39,.82));border-width:1px;backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,22,43,.45),inset 0 0 12px rgba(45,193,255,.12)}
 .desktop-game-ui .hud-pause{left:14px;top:14px;width:42px;height:42px;font-size:22px;border-radius:9px}
@@ -20,4 +25,4 @@
 .desktop-game-ui .game-notice{top:14%;min-width:0;max-width:min(430px,46vw);padding:7px 14px;font-size:clamp(16px,1.7vw,24px);border-radius:999px;transform:translate(-50%,0)}
 .desktop-game-ui .control-hints{bottom:9px;opacity:.52}
 @media(min-width:1450px){.desktop-game-ui .hud-prompt{width:600px}.desktop-game-ui .hud-momentum{width:200px}.desktop-game-ui .hud-timer,.desktop-game-ui .hud-streak{min-width:132px}}
-@media(max-width:900px){.game-notice{top:30%;min-width:0;max-width:calc(100% - 28px);padding:7px 12px;font-size:18px;border-radius:999px;transform:translate(-50%,0)}}
+@media(max-width:900px){.game-notice{top:30%;min-width:0;max-width:calc(100% - 28px);padding:7px 12px;font-size:18px;border-radius:999px;transform:translate(-50%,0)}.runner-art.sprite-runner{inset:2px!important}}

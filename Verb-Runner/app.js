@@ -25,11 +25,12 @@
 
   function renderCharacters(){
     characterGrid.innerHTML='';
-    const art=window.VERB_RUNNER_ART||[];
+    const art=window.VERB_RUNNER_ART||[],sprites=window.VERB_RUNNER_SPRITES||{};
     for(let i=0;i<6;i++){
-      const data=art[i]||{color:'#36b9ff',accent:'#8ad8ff',pose:'ready'};
-      const button=document.createElement('button');button.type='button';button.className='character-card anonymous-runner';button.dataset.pose=data.pose||'ready';button.style.setProperty('--runner-color',data.color);button.style.setProperty('--runner-accent',data.accent||data.color);button.setAttribute('aria-pressed',String(characterIndex===i));button.setAttribute('aria-label',`Choose runner ${i+1}`);
-      button.innerHTML='<span class="runner-art" aria-hidden="true"><span class="pack"></span><span class="hair"></span><span class="head"></span><span class="body"></span><span class="arm left"></span><span class="arm right"></span><span class="leg left"></span><span class="leg right"></span><span class="shoe left"></span><span class="shoe right"></span></span>';
+      const data=art[i]||{color:'#36b9ff',accent:'#8ad8ff'};
+      const button=document.createElement('button');button.type='button';button.className='character-card anonymous-runner sprite-card';button.style.setProperty('--runner-color',data.color);button.style.setProperty('--runner-accent',data.accent||data.color);button.setAttribute('aria-pressed',String(characterIndex===i));button.setAttribute('aria-label',`Choose runner ${i+1}`);
+      button.innerHTML='<span class="runner-art sprite-runner" aria-hidden="true"></span>';
+      const sprite=button.querySelector('.sprite-runner');sprite.style.backgroundImage=`url("${sprites.select}")`;sprite.style.backgroundSize='600% 100%';sprite.style.backgroundPosition=`${i*20}% center`;
       button.onclick=()=>{characterIndex=i;[...characterGrid.children].forEach((card,index)=>card.setAttribute('aria-pressed',String(index===i)));selectionReady();};
       characterGrid.appendChild(button);
     }
@@ -44,10 +45,7 @@
   function launchAnswerChain(sequence,initialDelay=260){
     if(!scene||challengeIndex>=TOTAL)return;
     cancelAnswerTimers();scene.clearAnswers();currentSequence=[...sequence];
-    currentSequence.forEach((item,index)=>{
-      const timer=scene.time.delayedCall(initialDelay+index*ANSWER_SPACING_MS,()=>scene.spawnAnswer(item));
-      answerTimers.push(timer);
-    });
+    currentSequence.forEach((item,index)=>{const timer=scene.time.delayedCall(initialDelay+index*ANSWER_SPACING_MS,()=>scene.spawnAnswer(item));answerTimers.push(timer);});
   }
   function renderChallenge(){
     const challenge=challenges[challengeIndex],slotEls=[...document.querySelectorAll('[data-slot]')];
@@ -55,65 +53,34 @@
     $('challengeNumber').textContent=`${challengeIndex+1} / ${TOTAL}`;
     launchAnswerChain(VerbRunnerChallenge.buildMediumSequence(challenge),300);
   }
-  function retryCorrect(){
-    if(challengeIndex>=TOTAL)return;
-    const challenge=challenges[challengeIndex];
-    launchAnswerChain(VerbRunnerChallenge.buildMediumSequence(challenge),420);
-  }
+  function retryCorrect(){if(challengeIndex>=TOTAL)return;const challenge=challenges[challengeIndex];launchAnswerChain(VerbRunnerChallenge.buildMediumSequence(challenge),420);}
   function updateHud(){
-    $('streakValue').textContent=runState.streak;
-    $('momentumValue').textContent=`${runState.momentum}%`;
-    $('momentumFill').style.width=`${runState.momentum}%`;
-    $('momentumTrack').setAttribute('aria-valuenow',String(runState.momentum));
-    $('progressValue').textContent=`${runState.completed} / ${TOTAL}`;
-    if(scene)scene.runState=runState;
+    $('streakValue').textContent=runState.streak;$('momentumValue').textContent=`${runState.momentum}%`;$('momentumFill').style.width=`${runState.momentum}%`;$('momentumTrack').setAttribute('aria-valuenow',String(runState.momentum));$('progressValue').textContent=`${runState.completed} / ${TOTAL}`;if(scene)scene.runState=runState;
   }
   function answerHit(item){
-    if(item.correct){
-      cancelAnswerTimers();runState=VerbRunnerGameCore.applyEvent(runState,'correct');setNotice('CORRECT!','correct');updateHud();challengeIndex++;
-      if(challengeIndex>=TOTAL){setTimeout(finish,520);return;}
-      setTimeout(renderChallenge,360);
-    }else{
-      runState=VerbRunnerGameCore.applyEvent(runState,'grammar-error');setNotice(`${String(item.value).toUpperCase()} — WRONG FORM`,'wrong');updateHud();
-    }
+    if(item.correct){cancelAnswerTimers();runState=VerbRunnerGameCore.applyEvent(runState,'correct');setNotice('CORRECT!','correct');updateHud();challengeIndex++;if(challengeIndex>=TOTAL){setTimeout(finish,520);return;}setTimeout(renderChallenge,360);}
+    else{runState=VerbRunnerGameCore.applyEvent(runState,'grammar-error');setNotice(`${String(item.value).toUpperCase()} — WRONG FORM`,'wrong');updateHud();}
   }
   function answerMissed(item){if(item.correct){setNotice('Correct form missed — new chain incoming.','info');retryCorrect();}}
   function obstacleHit(type){runState=VerbRunnerGameCore.applyEvent(runState,'obstacle-hit');updateHud();setNotice(type==='crate'?'Obstacle hit — jump!':'Obstacle hit — slide!','obstacle');}
 
   function tickTimer(){if(!screens.game.hidden)$('raceTime').textContent=formatTime(elapsedNow());timerId=requestAnimationFrame(tickTimer);}
   function setPaused(next){
-    if(!scene||paused===next)return;
-    paused=next;
-    $('pauseOverlay').hidden=!paused;
-    $('pauseBtn').setAttribute('aria-label',paused?'Resume game':'Pause game');
-    if(paused){pauseStartedAt=performance.now();scene.pauseRun();}
-    else{totalPausedMs+=performance.now()-pauseStartedAt;scene.resumeRun();}
+    if(!scene||paused===next)return;paused=next;$('pauseOverlay').hidden=!paused;$('pauseBtn').setAttribute('aria-label',paused?'Resume game':'Pause game');if(paused){pauseStartedAt=performance.now();scene.pauseRun();}else{totalPausedMs+=performance.now()-pauseStartedAt;scene.resumeRun();}
   }
   function togglePause(){setPaused(!paused);}
 
   function start(){
-    playerName=cleanName(nameInput.value);
-    if(!playerName){$('nameError').textContent='Enter your name to start.';nameInput.focus();return;}
-    if(characterIndex===null){$('nameError').textContent='Choose a runner.';return;}
-    localStorage.setItem('verbRunnerTestName',playerName);$('nameError').textContent='';syncDisplayMode();
-    runState=VerbRunnerGameCore.createRunState(TOTAL);challengeIndex=0;currentSequence=[];cancelAnswerTimers();buildChallenges();show(screens.game);updateHud();paused=false;totalPausedMs=0;startAt=performance.now();$('pauseOverlay').hidden=true;
-    if(timerId)cancelAnimationFrame(timerId);tickTimer();
+    playerName=cleanName(nameInput.value);if(!playerName){$('nameError').textContent='Enter your name to start.';nameInput.focus();return;}if(characterIndex===null){$('nameError').textContent='Choose a runner.';return;}
+    localStorage.setItem('verbRunnerTestName',playerName);$('nameError').textContent='';syncDisplayMode();runState=VerbRunnerGameCore.createRunState(TOTAL);challengeIndex=0;currentSequence=[];cancelAnswerTimers();buildChallenges();show(screens.game);updateHud();paused=false;totalPausedMs=0;startAt=performance.now();$('pauseOverlay').hidden=true;if(timerId)cancelAnimationFrame(timerId);tickTimer();
     phaserGame=VerbRunnerPhaser.createVerbRunnerGame('phaserMount',{characterIndex,runState,desktop:desktopMode(),callbacks:{ready:s=>{scene=s;renderChallenge();},answerHit,answerMissed,obstacleHit}});
   }
   function finish(){
-    if(!runState)return;
-    if(paused)setPaused(false);
-    cancelAnswerTimers();scene?.stopRun();if(timerId)cancelAnimationFrame(timerId);
-    const elapsed=elapsedNow(),result=VerbRunnerGameCore.summarize(runState,elapsed);
-    $('resultNickname').textContent=playerName;$('resultTime').textContent=formatTime(result.timeMs);$('resultAccuracy').textContent=`${result.accuracy}%`;$('resultCorrect').textContent=result.correctLabel;$('resultStreak').textContent=result.bestStreak;$('resultObstacles').textContent=result.obstacleHits;$('resultMomentum').textContent=`${result.momentum}%`;$('victoryRunner').className=`victory-runner runner-${characterIndex}`;
-    show(screens.result);setTimeout(()=>{phaserGame?.destroy(true);phaserGame=null;scene=null;},50);
+    if(!runState)return;if(paused)setPaused(false);cancelAnswerTimers();scene?.stopRun();if(timerId)cancelAnimationFrame(timerId);const elapsed=elapsedNow(),result=VerbRunnerGameCore.summarize(runState,elapsed);$('resultNickname').textContent=playerName;$('resultTime').textContent=formatTime(result.timeMs);$('resultAccuracy').textContent=`${result.accuracy}%`;$('resultCorrect').textContent=result.correctLabel;$('resultStreak').textContent=result.bestStreak;$('resultObstacles').textContent=result.obstacleHits;$('resultMomentum').textContent=`${result.momentum}%`;$('victoryRunner').className=`victory-runner runner-${characterIndex}`;show(screens.result);setTimeout(()=>{phaserGame?.destroy(true);phaserGame=null;scene=null;},50);
   }
   function restart(){characterIndex=null;startBtn.disabled=true;show(screens.character);renderCharacters();selectionReady();}
 
-  nameInput.value=localStorage.getItem('verbRunnerTestName')||'';
-  nameInput.addEventListener('input',selectionReady);
-  nameInput.addEventListener('keydown',event=>{if(event.key==='Enter'&&!startBtn.disabled)start();});
-  startBtn.onclick=start;$('pauseBtn').onclick=togglePause;$('resumeBtn').onclick=()=>setPaused(false);$('runAgainBtn').onclick=restart;$('backMenuBtn').onclick=()=>location.assign('/');
+  nameInput.value=localStorage.getItem('verbRunnerTestName')||'';nameInput.addEventListener('input',selectionReady);nameInput.addEventListener('keydown',event=>{if(event.key==='Enter'&&!startBtn.disabled)start();});startBtn.onclick=start;$('pauseBtn').onclick=togglePause;$('resumeBtn').onclick=()=>setPaused(false);$('runAgainBtn').onclick=restart;$('backMenuBtn').onclick=()=>location.assign('/');
   document.querySelectorAll('.mobile-controls button').forEach(button=>button.addEventListener('pointerdown',event=>{event.preventDefault();if(!scene||paused)return;const action=button.dataset.action;if(action==='left')scene.shift(-1);else if(action==='right')scene.shift(1);else if(action==='jump')scene.jump();else if(action==='slide')scene.slide();}));
   renderCharacters();selectionReady();
 })();

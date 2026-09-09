@@ -17,16 +17,16 @@ test('gameplay feedback is overridden above the action area on desktop and mobil
   assert.match(desktop,/@media\(max-width:900px\)\{[^}]*\.game-notice\{top:30%/);
 });
 
-test('gameplay loads Phaser-safe illustrated SVG assets',()=>{
+test('gameplay loads illustrated environment, obstacles and approved sprite sheets',()=>{
   const phaser=read('phaser-runner.js');
-  for(const file of ['assets/coastal-city.svg','assets/obstacle-jump.svg','assets/obstacle-slide.svg','assets/runner-rear-1.svg','assets/runner-rear-2.svg','assets/runner-rear-3.svg','assets/runner-rear-4.svg','assets/runner-rear-5.svg','assets/runner-rear-6.svg']){
+  for(const file of ['assets/coastal-city.svg','assets/obstacle-jump.svg','assets/obstacle-slide.svg','assets/sprites/runner-select-sheet.svg','assets/sprites/runner-run-sheet.svg','assets/sprites/runner-slide-sheet.svg']){
     assert.equal(fs.existsSync(path.join(__dirname,file)),true,`${file} must exist`);
   }
-  assert.match(phaser,/preload\(\)/);
   assert.match(phaser,/this\.load\.svg\('vr-coastal','assets\/coastal-city\.svg'\)/);
   assert.match(phaser,/this\.load\.svg\('vr-jump','assets\/obstacle-jump\.svg'\)/);
   assert.match(phaser,/this\.load\.svg\('vr-slide','assets\/obstacle-slide\.svg'\)/);
-  assert.match(phaser,/assets\/runner-rear-\$\{i\}\.svg/);
+  assert.match(phaser,/this\.load\.svg\('vr-run-sheet'/);
+  assert.match(phaser,/this\.load\.svg\('vr-slide-sheet'/);
 });
 
 test('jump and slide obstacles use separate illustrated textures and remain semantically distinct',()=>{
