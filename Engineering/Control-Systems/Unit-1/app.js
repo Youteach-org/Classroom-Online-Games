@@ -1,45 +1,224 @@
-const $=id=>document.getElementById(id);
-const svgData=s=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s);
-const IMAGE_MAP={
-  'printer.jpg':{src:'https://commons.wikimedia.org/wiki/Special:FilePath/3D_Printer_.jpg',credit:'https://commons.wikimedia.org/wiki/File:3D_Printer_.jpg'},
-  'thermostat.jpg':{src:'https://commons.wikimedia.org/wiki/Special:FilePath/Thermostat_%289420221028%29.jpg',credit:'https://commons.wikimedia.org/wiki/File:Thermostat_%289420221028%29.jpg'},
-  'toaster.jpg':{src:'https://commons.wikimedia.org/wiki/Special:FilePath/The_new_toaster%21_%282365823231%29.jpg',credit:'https://commons.wikimedia.org/wiki/File:The_new_toaster!_%282365823231%29.jpg'},
-  'sensor.jpg':{src:'https://commons.wikimedia.org/wiki/Special:FilePath/Pressure_transmitter_with_LCD_display.jpg',credit:'https://commons.wikimedia.org/wiki/File:Pressure_transmitter_with_LCD_display.jpg'},
-  'line.jpg':{src:'https://commons.wikimedia.org/wiki/Special:FilePath/Wine_bottling_line.JPG',credit:'https://commons.wikimedia.org/wiki/File:Wine_bottling_line.JPG'},
-  'robot.jpg':{src:'https://commons.wikimedia.org/wiki/Special:FilePath/Industrial-robots.jpg',credit:'https://commons.wikimedia.org/wiki/File:Industrial-robots.jpg'},
-  'washer.jpg':{src:'https://commons.wikimedia.org/wiki/Special:FilePath/Washing-machine.jpg',credit:'https://commons.wikimedia.org/wiki/File:Washing-machine.jpg'},
-  'tank.jpg':{src:'https://commons.wikimedia.org/wiki/Special:FilePath/Storage_tank%2C_Bromoborough.JPG',credit:'https://commons.wikimedia.org/wiki/File:Storage_tank,_Bromoborough.JPG'},
-  'twin-tanks.jpg':{src:'https://commons.wikimedia.org/wiki/Special:FilePath/Industrial_storage_tanks.jpg',credit:'https://commons.wikimedia.org/wiki/File:Industrial_storage_tanks.jpg'},
-  'discrete-signal.svg':{src:svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480"><rect width="800" height="480" fill="#f7fbff"/><g stroke="#b8c8dc" stroke-width="2"><line x1="70" y1="400" x2="745" y2="400"/><line x1="110" y1="435" x2="110" y2="55"/></g><g fill="#397df1" stroke="#397df1" stroke-width="3">${[-4,-3,-2,-1,0,1,2,3,4,5,6,7,8].map((n,i)=>{const y=[345,320,280,225,165,118,88,72,82,125,220,295,325][i];const x=140+i*45;return `<line x1="${x}" y1="400" x2="${x}" y2="${y}"/><circle cx="${x}" cy="${y}" r="7"/>`}).join('')}</g><text x="680" y="430" font-family="Arial" font-size="24" fill="#17335f">n</text><text x="38" y="78" font-family="Arial" font-size="24" fill="#17335f">x[n]</text><text x="400" y="42" text-anchor="middle" font-family="Arial" font-weight="700" font-size="26" fill="#17335f">Señal muestreada</text></svg>`)},
-  'simo.svg':{src:svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480"><rect width="800" height="480" fill="#f7fbff"/><rect x="300" y="145" width="220" height="190" rx="18" fill="#fff" stroke="#397df1" stroke-width="4"/><text x="410" y="225" text-anchor="middle" font-family="Arial" font-size="31" font-weight="700" fill="#17335f">PLANTA</text><text x="410" y="267" text-anchor="middle" font-family="Arial" font-size="21" fill="#607595">Sistema</text><g stroke="#17335f" stroke-width="4" fill="none"><line x1="95" y1="240" x2="300" y2="240"/><polyline points="285,228 300,240 285,252"/><line x1="520" y1="175" x2="710" y2="175"/><polyline points="695,163 710,175 695,187"/><line x1="520" y1="220" x2="710" y2="220"/><polyline points="695,208 710,220 695,232"/><line x1="520" y1="265" x2="710" y2="265"/><polyline points="695,253 710,265 695,277"/><line x1="520" y1="310" x2="710" y2="310"/><polyline points="695,298 710,310 695,322"/></g><text x="130" y="222" font-family="Arial" font-size="24" fill="#17335f">u(t)</text><text x="635" y="158" font-family="Arial" font-size="20" fill="#17335f">y₁(t)</text><text x="635" y="203" font-family="Arial" font-size="20" fill="#17335f">y₂(t)</text><text x="635" y="248" font-family="Arial" font-size="20" fill="#17335f">y₃(t)</text><text x="635" y="293" font-family="Arial" font-size="20" fill="#17335f">y₄(t)</text></svg>`)},
-  'stable.svg':{src:svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480"><rect width="800" height="480" fill="#f7fbff"/><g stroke="#b8c8dc" stroke-width="2"><line x1="80" y1="390" x2="735" y2="390"/><line x1="80" y1="390" x2="80" y2="70"/></g><line x1="80" y1="205" x2="735" y2="205" stroke="#607595" stroke-width="3" stroke-dasharray="10 8"/><path d="M80 365 C125 80 165 350 210 125 C250 300 290 145 330 255 C370 165 410 235 450 188 C490 221 530 193 570 211 C610 199 650 207 735 205" fill="none" stroke="#397df1" stroke-width="5"/><text x="620" y="185" font-family="Arial" font-size="20" fill="#607595">Referencia</text><text x="400" y="42" text-anchor="middle" font-family="Arial" font-size="25" font-weight="700" fill="#17335f">Respuesta acotada que converge</text></svg>`)},
-  'tank-control.svg':{src:svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480"><rect width="800" height="480" fill="#f7fbff"/><rect x="285" y="100" width="260" height="285" fill="#fff" stroke="#17335f" stroke-width="5"/><rect x="292" y="245" width="246" height="133" fill="#8fc9ff" opacity=".65"/><line x1="110" y1="155" x2="285" y2="155" stroke="#397df1" stroke-width="12"/><polygon points="275,140 300,155 275,170" fill="#397df1"/><text x="112" y="130" font-family="Arial" font-size="22" fill="#17335f">Bomba</text><line x1="545" y1="315" x2="700" y2="315" stroke="#397df1" stroke-width="12"/><polygon points="690,300 715,315 690,330" fill="#397df1"/><text x="575" y="350" font-family="Arial" font-size="18" fill="#17335f">Descarga</text><line x1="500" y1="180" x2="545" y2="180" stroke="#c54458" stroke-width="8"/><line x1="500" y1="310" x2="545" y2="310" stroke="#20894a" stroke-width="8"/><text x="560" y="187" font-family="Arial" font-size="18" fill="#17335f">Nivel alto</text><text x="560" y="303" font-family="Arial" font-size="18" fill="#17335f">Nivel bajo</text><text x="365" y="300" font-family="Arial" font-size="28" font-weight="700" fill="#17335f">PV = nivel</text></svg>`)}
+const byId=id=>document.getElementById(id);
+const ui={
+  scene:byId('scene'),caption:byId('caption'),kind:byId('kind'),qnum:byId('qnum'),question:byId('question'),answers:byId('answers'),fb:byId('fb'),
+  score:byId('scoreEl'),streak:byId('streakEl'),progText:byId('progText'),progFill:byId('progFill'),
+  prev:byId('prevBtn'),hint:byId('hintBtn'),summary:byId('summaryBtn'),next:byId('nextBtn'),
+  modal:byId('modal'),close:byId('closeBtn'),sumline:byId('sumline'),sumlist:byId('sumlist')
 };
 
-const scene=$('scene'),caption=$('caption'),kind=$('kind'),qnum=$('qnum'),question=$('question'),answers=$('answers'),fb=$('fb');
-const scoreEl=$('scoreEl'),streakEl=$('streakEl'),progText=$('progText'),progFill=$('progFill');
-const prevBtn=$('prevBtn'),hintBtn=$('hintBtn'),summaryBtn=$('summaryBtn'),nextBtn=$('nextBtn');
-const modal=$('modal'),closeBtn=$('closeBtn'),sumline=$('sumline'),sumlist=$('sumlist');
+const GAME_BANK=Array.isArray(window.QUESTION_BANK)?window.QUESTION_BANK:[];
+const GAME_ITEMS=[...GAME_BANK];
+for(let i=GAME_ITEMS.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[GAME_ITEMS[i],GAME_ITEMS[j]]=[GAME_ITEMS[j],GAME_ITEMS[i]]}
 
-const bank=window.QUESTION_BANK||[];
-const Q=[...bank];
-for(let i=Q.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[Q[i],Q[j]]=[Q[j],Q[i]]}
-const params=new URLSearchParams(location.search);const version=params.get('v')||'1';
-let cur=0,unlocked=0,score=0,streak=0;
-let ans=Array(Q.length).fill(null),review=Array(Q.length).fill(null),hinted=Array(Q.length).fill(false),openText=Array(Q.length).fill(''),revealed=Array(Q.length).fill(false),self=Array(Q.length).fill(null),errors=[];
-function done(i=cur){return Q[i].type==='open'?self[i]!==null:ans[i]!==null}
-function refresh(){scoreEl.textContent=score;streakEl.textContent=streak;progText.textContent=(cur+1)+'/'+Q.length;progFill.style.width=((cur+1)/Q.length*100)+'%';prevBtn.disabled=cur===0;nextBtn.disabled=!(done()||cur<unlocked)}
-function feedback(type,title,pts,text,sub){fb.className='feedback '+(type||'');fb.innerHTML=`<div class="fbrow"><div class="fbtitle">${title}</div><div class="fbpts">${pts||''}</div></div><div class="fbtext">${text}</div><div class="fbsub">${sub||''}</div>`}
-function renderDataSvg(uri){try{const comma=uri.indexOf(',');const raw=decodeURIComponent(uri.slice(comma+1));scene.innerHTML=raw;const el=scene.querySelector('svg');if(el){el.setAttribute('width','100%');el.setAttribute('height','100%');el.setAttribute('preserveAspectRatio','xMidYMid meet')}return true}catch(e){return false}}
-function setVisual(q){scene.innerHTML='';const im=IMAGE_MAP[q.img];const src=im?im.src:q.img;if(typeof src==='string'&&src.startsWith('data:image/svg+xml')){if(!renderDataSvg(src))scene.textContent='Visual no disponible'}else{const img=document.createElement('img');img.src=src;img.alt=q.caption||'Imagen relacionada con la pregunta';scene.appendChild(img)}if(im&&im.credit){caption.innerHTML=`${q.caption} · <a href="${im.credit}" target="_blank" rel="noopener" style="color:#315ad8">imagen</a>`}else caption.textContent=q.caption}
-function render(){if(!Q.length){question.textContent='No se pudo cargar el banco de preguntas.';feedback('bad','Error','','Recarga la página.','');return}const q=Q[cur];setVisual(q);kind.textContent=q.kind;qnum.textContent='Pregunta '+(cur+1)+' de '+Q.length;question.textContent=q.q;refresh();q.type==='open'?renderOpen():renderMCQ()}
-function renderMCQ(){const q=Q[cur];answers.className='answers mcq';answers.innerHTML='';q.options.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=`<div class="mark">${String.fromCharCode(65+i)}</div><div>${t}</div>`;if(ans[cur]===null)b.onclick=()=>answer(i);else{if(i===q.correct)b.classList.add('correct');if(i===ans[cur]&&i!==q.correct)b.classList.add('wrong');if(review[cur]===i&&i!==q.correct&&i!==ans[cur])b.classList.add('review');b.onclick=()=>why(i)}answers.appendChild(b)});if(ans[cur]===null)feedback('','Listo','0 pts','Elige la opción más precisa.','Después de responder puedes tocar cualquier opción para revisar por qué es correcta o incorrecta.');else why(review[cur]!==null?review[cur]:ans[cur],false)}
-function answer(i){const q=Q[cur];ans[cur]=i;review[cur]=i;if(i===q.correct){const gain=Math.max(40,100+streak*15-(hinted[cur]?25:0));score+=gain;streak++}else{streak=0;errors.push({q:q.q,got:q.options[i],correct:q.options[q.correct]})}unlocked=Math.max(unlocked,cur+1);renderMCQ();refresh()}
-function why(i,repaint=true){const q=Q[cur];review[cur]=i;if(repaint)renderMCQ();const good=i===q.correct,chosen=i===ans[cur];if(good)feedback('good',chosen?'Correcto':'Respuesta correcta','',q.why[i],'Toca los distractores para revisar exactamente por qué fallan.');else if(chosen)feedback('bad','Tu respuesta','',q.why[i],'La correcta está marcada en verde. Toca las demás para revisarlas.');else feedback('warn','Distractor revisado','',q.why[i],'La trampa está en el detalle indicado.');refresh()}
-function renderOpen(){const q=Q[cur];answers.className='answers';answers.innerHTML='';const ta=document.createElement('textarea');ta.placeholder='Escribe tu respuesta y argumento…';ta.value=openText[cur];ta.oninput=e=>openText[cur]=e.target.value;answers.appendChild(ta);const row=document.createElement('div');row.className='openActions';const r=document.createElement('button');r.className='btn blue';r.textContent=revealed[cur]?'Modelo visible':'Ver respuesta modelo';r.onclick=()=>{revealed[cur]=true;renderOpen()};row.appendChild(r);answers.appendChild(row);if(revealed[cur]){const m=document.createElement('div');m.className='model';m.innerHTML='<b>Respuesta modelo:</b> '+q.model;answers.appendChild(m);const c=document.createElement('div');c.className='criteria';c.innerHTML=q.criteria.map(x=>'<div class="crit">✓ '+x+'</div>').join('');answers.appendChild(c);if(self[cur]===null){const s=document.createElement('div');s.className='openActions';const y=document.createElement('button');y.className='btn accent';y.textContent='La tengo ✓';const n=document.createElement('button');n.className='btn ghost';n.textContent='Me faltó';y.onclick=()=>assess(true);n.onclick=()=>assess(false);s.append(y,n);answers.appendChild(s)}else feedback(self[cur]?'good':'bad',self[cur]?'Bien':'Para repasar','',self[cur]?'Tu respuesta quedó marcada como lograda.':'Esta pregunta quedó registrada para repasar.','Compara tu argumento con los criterios.')}else feedback('','Respuesta libre','0 pts','Escribe primero tu ejemplo o argumento.','Después muestra el modelo y autoevalúate.');refresh()}
-function assess(ok){if(self[cur]!==null)return;self[cur]=ok;if(ok){score+=100;streak++}else{streak=0;errors.push({q:Q[cur].q,got:openText[cur]||'(sin respuesta)',correct:Q[cur].model})}unlocked=Math.max(unlocked,cur+1);renderOpen();refresh()}
-function hint(){if(done())return;if(!hinted[cur]){score=Math.max(0,score-25);hinted[cur]=true}feedback('warn','Pista','-25 pts',Q[cur].hint||'Revisa la definición y elimina opciones que mezclan clasificaciones distintas.','Solo se descuenta una vez.');refresh()}
-function prev(){if(cur>0){cur--;render()}}
-function next(){if(!done()&&cur>=unlocked)return;if(cur<Q.length-1){cur++;render()}else summary()}
-function summary(){modal.classList.add('show');sumline.textContent=`Versión ${version} · Puntos: ${score} · Racha actual: ${streak} · Para repasar: ${errors.length}`;sumlist.innerHTML='';if(!errors.length)sumlist.innerHTML='<div class="sumitem"><b>Sin errores registrados.</b></div>';else errors.forEach((e,i)=>{const d=document.createElement('div');d.className='sumitem';d.innerHTML=`<b>${i+1}. ${e.q}</b><br><br><span style="color:#607595">Tu respuesta:</span> ${e.got}<br><span style="color:#607595">Correcta / modelo:</span> ${e.correct}`;sumlist.appendChild(d)})}
-prevBtn.onclick=prev;nextBtn.onclick=next;hintBtn.onclick=hint;summaryBtn.onclick=summary;closeBtn.onclick=()=>modal.classList.remove('show');modal.onclick=e=>{if(e.target===modal)modal.classList.remove('show')};render();
+const gameParams=new URLSearchParams(location.search);
+const gameVersion=gameParams.get('v')||'1';
+let gameIndex=0,gameUnlocked=0,gameScore=0,gameStreak=0;
+const gameAnswers=Array(GAME_ITEMS.length).fill(null);
+const gameReview=Array(GAME_ITEMS.length).fill(null);
+const gameHinted=Array(GAME_ITEMS.length).fill(false);
+const gameOpenText=Array(GAME_ITEMS.length).fill('');
+const gameRevealed=Array(GAME_ITEMS.length).fill(false);
+const gameSelf=Array(GAME_ITEMS.length).fill(null);
+const gameErrors=[];
+
+function setVisual(q){
+  ui.scene.innerHTML='';
+  ui.caption.textContent=q.caption||'';
+  const card=document.querySelector('.visual');
+  const main=document.querySelector('.main');
+  if(card&&main){
+    if(q.scene){card.style.display='';main.style.gridTemplateColumns='';}
+    else{card.style.display='none';main.style.gridTemplateColumns='1fr';}
+  }
+}
+
+function gameDone(i=gameIndex){
+  const q=GAME_ITEMS[i];
+  if(!q)return false;
+  return q.type==='open'?gameSelf[i]!==null:gameAnswers[i]!==null;
+}
+
+function gameRefresh(){
+  const total=GAME_ITEMS.length||1;
+  ui.score.textContent=gameScore;
+  ui.streak.textContent=gameStreak;
+  ui.progText.textContent=GAME_ITEMS.length?`${gameIndex+1}/${GAME_ITEMS.length}`:'0/0';
+  ui.progFill.style.width=GAME_ITEMS.length?`${((gameIndex+1)/total)*100}%`:'0%';
+  ui.prev.disabled=gameIndex===0;
+  ui.next.disabled=!(gameDone()||gameIndex<gameUnlocked);
+}
+
+function gameFeedback(type,title,pts,text,sub){
+  ui.fb.className='feedback '+(type||'');
+  ui.fb.innerHTML=`<div class="fbrow"><div class="fbtitle">${title}</div><div class="fbpts">${pts||''}</div></div><div class="fbtext">${text||''}</div><div class="fbsub">${sub||''}</div>`;
+}
+
+function render(){
+  if(!GAME_ITEMS.length){
+    ui.question.textContent='No se pudo cargar el banco de preguntas.';
+    gameFeedback('bad','Error','','El banco no se cargó correctamente.','Recarga la página.');
+    gameRefresh();
+    return;
+  }
+  const q=GAME_ITEMS[gameIndex];
+  setVisual(q);
+  ui.kind.textContent=q.kind||'';
+  ui.qnum.textContent=`Pregunta ${gameIndex+1} de ${GAME_ITEMS.length}`;
+  ui.question.textContent=q.q||'';
+  q.type==='open'?renderOpen():renderMCQ();
+  gameRefresh();
+}
+
+function renderMCQ(){
+  const q=GAME_ITEMS[gameIndex];
+  ui.answers.className='answers mcq';
+  ui.answers.innerHTML='';
+  q.options.forEach((label,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt';
+    btn.innerHTML=`<div class="mark">${String.fromCharCode(65+i)}</div><div>${label}</div>`;
+    if(gameAnswers[gameIndex]===null){
+      btn.onclick=()=>gameAnswer(i);
+    }else{
+      if(i===q.correct)btn.classList.add('correct');
+      if(i===gameAnswers[gameIndex]&&i!==q.correct)btn.classList.add('wrong');
+      if(gameReview[gameIndex]===i&&i!==q.correct&&i!==gameAnswers[gameIndex])btn.classList.add('review');
+      btn.onclick=()=>gameWhy(i);
+    }
+    ui.answers.appendChild(btn);
+  });
+  if(gameAnswers[gameIndex]===null){
+    gameFeedback('','Listo','0 pts','Elige la opción más precisa.','Después de responder puedes tocar cualquier opción para revisar por qué es correcta o incorrecta.');
+  }else{
+    gameWhy(gameReview[gameIndex]!==null?gameReview[gameIndex]:gameAnswers[gameIndex],false);
+  }
+}
+
+function gameAnswer(i){
+  const q=GAME_ITEMS[gameIndex];
+  if(gameAnswers[gameIndex]!==null)return;
+  gameAnswers[gameIndex]=i;
+  gameReview[gameIndex]=i;
+  if(i===q.correct){
+    const gain=Math.max(40,100+gameStreak*15-(gameHinted[gameIndex]?25:0));
+    gameScore+=gain;
+    gameStreak++;
+  }else{
+    gameStreak=0;
+    gameErrors.push({q:q.q,got:q.options[i],correct:q.options[q.correct]});
+  }
+  gameUnlocked=Math.max(gameUnlocked,gameIndex+1);
+  renderMCQ();
+  gameRefresh();
+}
+
+function gameWhy(i,repaint=true){
+  const q=GAME_ITEMS[gameIndex];
+  gameReview[gameIndex]=i;
+  if(repaint)renderMCQ();
+  const good=i===q.correct;
+  const chosen=i===gameAnswers[gameIndex];
+  const why=Array.isArray(q.why)?(q.why[i]||''):'';
+  if(good)gameFeedback('good',chosen?'Correcto':'Respuesta correcta','',why,'Toca los distractores para revisar por qué fallan.');
+  else if(chosen)gameFeedback('bad','Tu respuesta','',why,'La correcta está marcada en verde. Toca las demás para revisarlas.');
+  else gameFeedback('warn','Distractor revisado','',why,'Revisa el detalle que hace incorrecta esta opción.');
+  gameRefresh();
+}
+
+function renderOpen(){
+  const q=GAME_ITEMS[gameIndex];
+  ui.answers.className='answers';
+  ui.answers.innerHTML='';
+  const ta=document.createElement('textarea');
+  ta.placeholder='Escribe tu respuesta y argumento…';
+  ta.value=gameOpenText[gameIndex];
+  ta.oninput=e=>gameOpenText[gameIndex]=e.target.value;
+  ui.answers.appendChild(ta);
+
+  const row=document.createElement('div');
+  row.className='openActions';
+  const reveal=document.createElement('button');
+  reveal.className='btn blue';
+  reveal.textContent=gameRevealed[gameIndex]?'Modelo visible':'Ver respuesta modelo';
+  reveal.onclick=()=>{gameRevealed[gameIndex]=true;renderOpen()};
+  row.appendChild(reveal);
+  ui.answers.appendChild(row);
+
+  if(gameRevealed[gameIndex]){
+    const model=document.createElement('div');
+    model.className='model';
+    model.innerHTML='<b>Respuesta modelo:</b> '+(q.model||'');
+    ui.answers.appendChild(model);
+
+    const criteria=document.createElement('div');
+    criteria.className='criteria';
+    criteria.innerHTML=(q.criteria||[]).map(x=>`<div class="crit">✓ ${x}</div>`).join('');
+    ui.answers.appendChild(criteria);
+
+    if(gameSelf[gameIndex]===null){
+      const assessRow=document.createElement('div');
+      assessRow.className='openActions';
+      const yes=document.createElement('button');
+      yes.className='btn accent';
+      yes.textContent='La tengo ✓';
+      yes.onclick=()=>gameAssess(true);
+      const no=document.createElement('button');
+      no.className='btn ghost';
+      no.textContent='Me faltó';
+      no.onclick=()=>gameAssess(false);
+      assessRow.append(yes,no);
+      ui.answers.appendChild(assessRow);
+    }else{
+      gameFeedback(gameSelf[gameIndex]?'good':'bad',gameSelf[gameIndex]?'Bien':'Para repasar','',gameSelf[gameIndex]?'Tu respuesta quedó marcada como lograda.':'Esta pregunta quedó registrada para repasar.','Compara tu argumento con los criterios.');
+    }
+  }else{
+    gameFeedback('','Respuesta libre','0 pts','Escribe primero tu ejemplo o argumento.','Después muestra el modelo y autoevalúate.');
+  }
+  gameRefresh();
+}
+
+function gameAssess(ok){
+  if(gameSelf[gameIndex]!==null)return;
+  const q=GAME_ITEMS[gameIndex];
+  gameSelf[gameIndex]=ok;
+  if(ok){gameScore+=100;gameStreak++;}
+  else{gameStreak=0;gameErrors.push({q:q.q,got:gameOpenText[gameIndex]||'(sin respuesta)',correct:q.model||''});}
+  gameUnlocked=Math.max(gameUnlocked,gameIndex+1);
+  renderOpen();
+  gameRefresh();
+}
+
+function gameHint(){
+  if(gameDone())return;
+  if(!gameHinted[gameIndex]){gameScore=Math.max(0,gameScore-25);gameHinted[gameIndex]=true;}
+  gameFeedback('warn','Pista','-25 pts',GAME_ITEMS[gameIndex].hint||'Revisa la definición y elimina opciones que mezclan clasificaciones distintas.','Solo se descuenta una vez.');
+  gameRefresh();
+}
+
+function gamePrev(){if(gameIndex>0){gameIndex--;render();}}
+function gameNext(){
+  if(!gameDone()&&gameIndex>=gameUnlocked)return;
+  if(gameIndex<GAME_ITEMS.length-1){gameIndex++;render();}
+  else gameSummary();
+}
+
+function gameSummary(){
+  ui.modal.classList.add('show');
+  ui.sumline.textContent=`Versión ${gameVersion} · Puntos: ${gameScore} · Racha actual: ${gameStreak} · Para repasar: ${gameErrors.length}`;
+  ui.sumlist.innerHTML='';
+  if(!gameErrors.length){ui.sumlist.innerHTML='<div class="sumitem"><b>Sin errores registrados.</b></div>';return;}
+  gameErrors.forEach((e,i)=>{
+    const d=document.createElement('div');
+    d.className='sumitem';
+    d.innerHTML=`<b>${i+1}. ${e.q}</b><br><br><span style="color:#607595">Tu respuesta:</span> ${e.got}<br><span style="color:#607595">Correcta / modelo:</span> ${e.correct}`;
+    ui.sumlist.appendChild(d);
+  });
+}
+
+ui.prev.onclick=gamePrev;
+ui.next.onclick=gameNext;
+ui.hint.onclick=gameHint;
+ui.summary.onclick=gameSummary;
+ui.close.onclick=()=>ui.modal.classList.remove('show');
+ui.modal.onclick=e=>{if(e.target===ui.modal)ui.modal.classList.remove('show')};
+render();
