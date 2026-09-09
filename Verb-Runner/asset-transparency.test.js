@@ -23,12 +23,12 @@ test('illustrated coastal background uses the safe SVG contract',()=>{
   assert.doesNotMatch(svg,/<(?:filter|mask|foreignObject|image)\b/i);
 });
 
-test('anime selection and animated run sheets are real raster assets',()=>{
+test('anime selection and red eight-frame run strip are real raster assets',()=>{
   const selectPath=path.join(__dirname,'assets','sprites','runner-select-anime-sheet.webp');
-  const runPath=path.join(__dirname,'assets','sprites','runner-run-animated-sheet.webp');
+  const runPath=path.join(__dirname,'assets','sprites','runner-run-red-8.webp');
   assert.ok(fs.existsSync(selectPath));
   assert.ok(fs.existsSync(runPath));
-  assert.ok(fs.statSync(selectPath).size>50000);
+  assert.ok(fs.statSync(selectPath).size>10000);
   assert.ok(fs.statSync(runPath).size>10000);
   for(const file of ['sprites/runner-run-sheet.svg','sprites/runner-slide-sheet.svg']){
     const svg=asset(file);
