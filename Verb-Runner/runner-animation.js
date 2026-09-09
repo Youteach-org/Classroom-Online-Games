@@ -1,10 +1,12 @@
 (function(global){
   const FRAMES=8;
+  const FRAME_W=164;
+  const FRAME_H=272;
   const FRAME_RATE=11;
   const SPRINT_RATE=14;
-  const TEXTURE_KEY='vr-run-red-8';
-  const TEXTURE_URL='assets/sprites/runner-run-red-8.webp';
-  const ANIMATION_KEY='vr-run-red';
+  const TEXTURE_KEY='vr-run-red-clean-8';
+  const PAYLOAD_URL='assets/sprites/runner-run-red-clean-strip.webp.b64';
+  const ANIMATION_KEY='vr-run-red-clean';
 
   function ensureAnimation(scene){
     if(scene.anims.exists(ANIMATION_KEY))return;
@@ -28,7 +30,7 @@
 
     const sprite=scene.add.sprite(0,8,TEXTURE_KEY,0)
       .setOrigin(.5,1)
-      .setScale(2.75)
+      .setScale(1.38)
       .setVisible(true);
 
     player.add(sprite);
@@ -47,7 +49,7 @@
 
       oldArt.setVisible(false);
       sprite.setVisible(true);
-      sprite.setScale(scene.runState?.momentum>=80?2.92:2.75);
+      sprite.setScale(scene.runState?.momentum>=80?1.46:1.38);
 
       const targetRate=scene.runState?.momentum>=80?SPRINT_RATE:FRAME_RATE;
       const current=sprite.anims.currentAnim;
@@ -60,23 +62,38 @@
     update();
   }
 
-  function ensureTexture(scene,done){
+  async function ensureTexture(scene,done){
     if(scene.textures.exists(TEXTURE_KEY)){
       done();
       return;
     }
 
-    scene.load.spritesheet(TEXTURE_KEY,TEXTURE_URL,{
-      frameWidth:82,
-      frameHeight:136
-    });
+    try{
+      const response=await fetch(PAYLOAD_URL,{cache:'no-store'});
+      if(!response.ok)throw new Error(`HTTP ${response.status}`);
+      const encoded=(await response.text()).replace(/\s+/g,'');
+      if(!encoded)throw new Error('empty runner sprite payload');
 
-    scene.load.once(Phaser.Loader.Events.COMPLETE,done);
-    scene.load.once(Phaser.Loader.Events.LOAD_ERROR,file=>{
-      console.error('Verb Runner red animation failed to load',file?.src||TEXTURE_URL);
+      const dataUrl=`data:image/webp;base64,${encoded}`;
+      scene.load.spritesheet(TEXTURE_KEY,dataUrl,{
+        frameWidth:FRAME_W,
+        frameHeight:FRAME_H,
+        endFrame:FRAMES-1
+      });
+
+      scene.load.once(Phaser.Loader.Events.COMPLETE,()=>{
+        if(scene.textures.exists(TEXTURE_KEY))done();
+        else if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(true);
+      });
+      scene.load.once(Phaser.Loader.Events.LOAD_ERROR,file=>{
+        console.error('Verb Runner clean red animation failed to load',file?.src||PAYLOAD_URL);
+        if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(true);
+      });
+      scene.load.start();
+    }catch(error){
+      console.error('Verb Runner clean red animation payload failed',error);
       if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(true);
-    });
-    scene.load.start();
+    }
   }
 
   global.addEventListener('load',()=>{
@@ -93,12 +110,8 @@
           return;
         }
 
-        // Keep the original rear runner visible while the animation loads.
         if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(true);
-
-        if(scene.characterIndex===0){
-          ensureTexture(scene,()=>installVisibleRunner(scene));
-        }
+        if(scene.characterIndex===0)ensureTexture(scene,()=>installVisibleRunner(scene));
       };
       setTimeout(waitForScene,0);
       return game;
