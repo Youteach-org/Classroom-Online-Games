@@ -3,85 +3,113 @@
   const FRAME_H=136;
   const FRAMES=8;
   const ROWS=6;
-  const FRAME_MS=88;
-  const SPRINT_MS=68;
-  const TEXTURE_KEY='vr-run-animated';
+  const FRAME_RATE=11;
+  const SPRINT_RATE=14;
+  const TEXTURE_KEY='vr-run-animated-sheet';
   const TEXTURE_URL='assets/sprites/runner-run-animated-sheet.webp';
 
-  function frameCrop(scene,frame){
-    const art=scene?.player?.runnerArt;
-    if(!art||scene.sliding)return;
-    const row=((scene.characterIndex||0)%ROWS+ROWS)%ROWS;
-    art.setVisible(true);
-    art.setTexture(TEXTURE_KEY);
-    art.setCrop(frame*FRAME_W,row*FRAME_H,FRAME_W,FRAME_H);
-    art.setScale(scene.runState?.momentum>=80?2.92:2.75);
-    art.y=8;
-    art.rotation=0;
+  function animationKey(index){
+    return `vr-run-${index}`;
+  }
 
-    const shadow=scene.player?.shadow;
-    if(shadow){
-      const phase=(frame/FRAMES)*Math.PI*2;
-      shadow.scaleX=.96-Math.abs(Math.sin(phase))*.08;
-      shadow.scaleY=1+Math.abs(Math.sin(phase))*.05;
+  function ensureAnimations(scene){
+    for(let row=0;row<ROWS;row++){
+      const key=animationKey(row);
+      if(scene.anims.exists(key))continue;
+      scene.anims.create({
+        key,
+        frames:scene.anims.generateFrameNumbers(TEXTURE_KEY,{start:row*FRAMES,end:row*FRAMES+FRAMES-1}),
+        frameRate:FRAME_RATE,
+        repeat:-1
+      });
     }
   }
 
-  function attachAnimation(scene){
-    if(!scene||scene.__realRunAnimationAttached)return;
-    scene.__realRunAnimationAttached=true;
-    scene.__runFrame=0;
-    scene.__runFrameAt=0;
+  function installVisibleRunner(scene){
+    if(!scene||scene.__visibleAnimatedRunnerInstalled)return;
+    scene.__visibleAnimatedRunnerInstalled=true;
 
-    if(scene.animateRunnerStride){
-      scene.events.off('update',scene.animateRunnerStride);
-      scene.animateRunnerStride=null;
-    }
-    if(scene.__runnerRig){
-      scene.__runnerRig.destroy(true);
-      scene.__runnerRig=null;
-    }
+    ensureAnimations(scene);
 
-    const update=time=>{
-      if(!scene.active||scene.sliding)return;
-      const interval=scene.runState?.momentum>=80?SPRINT_MS:FRAME_MS;
-      if(time-scene.__runFrameAt<interval)return;
-      scene.__runFrameAt=time;
-      scene.__runFrame=(scene.__runFrame+1)%FRAMES;
-      frameCrop(scene,scene.__runFrame);
+    const player=scene.player;
+    const oldArt=player?.runnerArt;
+    if(!player||!oldArt)return;
+
+    const row=((scene.characterIndex||0)%ROWS+ROWS)%ROWS;
+    const sprite=scene.add.sprite(0,8,TEXTURE_KEY,row*FRAMES)
+      .setOrigin(.5,1)
+      .setScale(2.75);
+
+    player.add(sprite);
+    player.animatedRunner=sprite;
+    oldArt.setVisible(false);
+    sprite.play(animationKey(row));
+
+    const update=()=>{
+      if(!scene.active)return;
+
+      if(scene.sliding){
+        sprite.setVisible(false);
+        oldArt.setVisible(true);
+        return;
+      }
+
+      oldArt.setVisible(false);
+      sprite.setVisible(true);
+      sprite.setScale(scene.runState?.momentum>=80?2.92:2.75);
+
+      const targetRate=scene.runState?.momentum>=80?SPRINT_RATE:FRAME_RATE;
+      const current=sprite.anims.currentAnim;
+      if(current&&current.frameRate!==targetRate)current.frameRate=targetRate;
+      if(!sprite.anims.isPlaying)sprite.play(animationKey(row));
     };
 
     scene.events.on('update',update);
     scene.events.once('shutdown',()=>scene.events.off('update',update));
-    frameCrop(scene,0);
+    update();
   }
 
   function ensureTexture(scene,done){
-    if(scene.textures.exists(TEXTURE_KEY)){done();return;}
-    scene.load.image(TEXTURE_KEY,TEXTURE_URL);
+    if(scene.textures.exists(TEXTURE_KEY)){
+      done();
+      return;
+    }
+
+    scene.load.spritesheet(TEXTURE_KEY,TEXTURE_URL,{
+      frameWidth:FRAME_W,
+      frameHeight:FRAME_H
+    });
+
     scene.load.once(Phaser.Loader.Events.COMPLETE,done);
     scene.load.once(Phaser.Loader.Events.LOAD_ERROR,file=>{
       console.error('Verb Runner animated sprite failed to load',file?.src||TEXTURE_URL);
+      // Keep the original rear runner visible if the animated asset cannot load.
+      if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(true);
     });
     scene.load.start();
   }
 
   global.addEventListener('load',()=>{
     const api=global.VerbRunnerPhaser;
-    if(!api||api.__realFrameAnimationPatched)return;
-    const originalCreate=api.createVerbRunnerGame;
+    if(!api||api.__visibleRunnerPatched)return;
 
+    const originalCreate=api.createVerbRunnerGame;
     api.createVerbRunnerGame=function(mount,options){
       const game=originalCreate(mount,options);
       const waitForScene=()=>{
         const scene=game?.scene?.getScene?.('VerbRunnerScene');
-        if(!scene||!scene.sys?.isActive?.()){setTimeout(waitForScene,30);return;}
-        ensureTexture(scene,()=>attachAnimation(scene));
+        if(!scene||!scene.sys?.isActive?.()){
+          setTimeout(waitForScene,30);
+          return;
+        }
+        // Never leave gameplay blank while the animated sheet is loading.
+        if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(true);
+        ensureTexture(scene,()=>installVisibleRunner(scene));
       };
       setTimeout(waitForScene,0);
       return game;
     };
 
-    api.__realFrameAnimationPatched=true;
+    api.__visibleRunnerPatched=true;
   });
 })(window);
