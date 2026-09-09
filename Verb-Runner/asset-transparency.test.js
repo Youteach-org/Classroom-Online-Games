@@ -23,8 +23,11 @@ test('illustrated coastal background uses the safe SVG contract',()=>{
   assert.doesNotMatch(svg,/<(?:filter|mask|foreignObject|image)\b/i);
 });
 
-test('new approved sprite sheets deliberately wrap raster artwork',()=>{
-  for(const file of ['sprites/runner-select-sheet.svg','sprites/runner-run-sheet.svg','sprites/runner-slide-sheet.svg']){
+test('runner selection is vector while gameplay sheets retain raster artwork',()=>{
+  const selection=asset('sprites/runner-select-sheet.svg');
+  assert.match(selection,/data-vector-portrait-sheet="1"/);
+  assert.doesNotMatch(selection,/data:image\/webp;base64/);
+  for(const file of ['sprites/runner-run-sheet.svg','sprites/runner-slide-sheet.svg']){
     const svg=asset(file);
     assert.match(svg,/data-raster-sprite="1"/);
     assert.match(svg,/<image\b/);
