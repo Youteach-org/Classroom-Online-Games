@@ -24,7 +24,30 @@ let ans=Array(Q.length).fill(null),review=Array(Q.length).fill(null),hinted=Arra
 function done(i=cur){return Q[i].type==='open'?self[i]!==null:ans[i]!==null}
 function refresh(){scoreEl.textContent=score;streakEl.textContent=streak;progText.textContent=(cur+1)+'/'+Q.length;progFill.style.width=((cur+1)/Q.length*100)+'%';prevBtn.disabled=cur===0;nextBtn.disabled=!(done()||cur<unlocked)}
 function feedback(type,title,pts,text,sub){fb.className='feedback '+(type||'');fb.innerHTML=`<div class="fbrow"><div class="fbtitle">${title}</div><div class="fbpts">${pts||''}</div></div><div class="fbtext">${text}</div><div class="fbsub">${sub||''}</div>`}
-function setVisual(q){const im=IMAGE_MAP[q.img];scene.src=im?im.src:q.img;if(im&&im.credit){caption.innerHTML=`${q.caption} · <a href="${im.credit}" target="_blank" rel="noopener" style="color:#315ad8">imagen</a>`}else caption.textContent=q.caption}
+function renderDataSvg(uri){
+  try{
+    const comma=uri.indexOf(',');
+    const raw=decodeURIComponent(uri.slice(comma+1));
+    scene.innerHTML=raw;
+    const el=scene.querySelector('svg');
+    if(el){el.setAttribute('width','100%');el.setAttribute('height','100%');el.setAttribute('preserveAspectRatio','xMidYMid meet');}
+    return true;
+  }catch(e){return false;}
+}
+function setVisual(q){
+  scene.innerHTML='';
+  const im=IMAGE_MAP[q.img];
+  const src=im?im.src:q.img;
+  if(typeof src==='string'&&src.startsWith('data:image/svg+xml')){
+    if(!renderDataSvg(src)) scene.textContent='Visual no disponible';
+  }else{
+    const img=document.createElement('img');
+    img.src=src;
+    img.alt=q.caption||'Imagen relacionada con la pregunta';
+    scene.appendChild(img);
+  }
+  if(im&&im.credit){caption.innerHTML=`${q.caption} · <a href="${im.credit}" target="_blank" rel="noopener" style="color:#315ad8">imagen</a>`}else caption.textContent=q.caption;
+}
 function render(){const q=Q[cur];setVisual(q);kind.textContent=q.kind;qnum.textContent='Pregunta '+(cur+1)+' de '+Q.length;question.textContent=q.q;refresh();q.type==='open'?renderOpen():renderMCQ()}
 function renderMCQ(){const q=Q[cur];answers.className='answers mcq';answers.innerHTML='';q.options.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=`<div class="mark">${String.fromCharCode(65+i)}</div><div>${t}</div>`;if(ans[cur]===null)b.onclick=()=>answer(i);else{if(i===q.correct)b.classList.add('correct');if(i===ans[cur]&&i!==q.correct)b.classList.add('wrong');if(review[cur]===i&&i!==q.correct&&i!==ans[cur])b.classList.add('review');b.onclick=()=>why(i)}answers.appendChild(b)});if(ans[cur]===null)feedback('','Listo','0 pts','Elige la opción más precisa.','Después de responder puedes tocar cualquier opción para revisar por qué es correcta o incorrecta.');else why(review[cur]!==null?review[cur]:ans[cur],false)}
 function answer(i){const q=Q[cur];ans[cur]=i;review[cur]=i;if(i===q.correct){const gain=Math.max(40,100+streak*15-(hinted[cur]?25:0));score+=gain;streak++}else{streak=0;errors.push({q:q.q,got:q.options[i],correct:q.options[q.correct]})}unlocked=Math.max(unlocked,cur+1);renderMCQ();refresh()}
