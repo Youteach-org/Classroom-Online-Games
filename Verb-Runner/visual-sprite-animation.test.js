@@ -2,6 +2,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+const crypto=require('node:crypto');
 const read=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
 
 test('runner selection keeps the approved crisp front-facing anime sheet',()=>{
@@ -11,25 +12,23 @@ test('runner selection keeps the approved crisp front-facing anime sheet',()=>{
   assert.match(app,/backgroundSize='600% 100%'/);
 });
 
-test('rear gameplay red runner uses a clean eight-frame strip with correct frame geometry',()=>{
+test('rear gameplay red runner uses separate clean animation frames instead of slicing one corrupt sheet',()=>{
   const animation=read('runner-animation.js');
-  assert.match(animation,/runner-run-red-clean-strip\.webp\.b64/);
-  assert.match(animation,/FRAMES=8/);
-  assert.match(animation,/FRAME_W=164/);
-  assert.match(animation,/FRAME_H=272/);
-  assert.match(animation,/load\.spritesheet/);
-  assert.match(animation,/repeat:-1/);
-  assert.doesNotMatch(animation,/frameWidth:82/);
-  assert.doesNotMatch(animation,/frameHeight:136/);
+  assert.match(animation,/FRAME_COUNT=4/);
+  assert.match(animation,/runner-red-frame-\$\{i\}\.webp\.b64/);
+  assert.match(animation,/scene\.load\.image/);
+  assert.doesNotMatch(animation,/load\.spritesheet/);
+  assert.doesNotMatch(animation,/runner-run-red-8\.webp/);
+  assert.doesNotMatch(animation,/runner-run-red-clean-strip/);
 
-  const encoded=read('assets/sprites/runner-run-red-clean-strip.webp.b64').replace(/\s+/g,'');
-  const webp=Buffer.from(encoded,'base64');
-  assert.equal(webp.subarray(0,4).toString(),'RIFF');
-  assert.equal(webp.subarray(8,12).toString(),'WEBP');
-  assert.equal(webp.subarray(12,16).toString(),'VP8X');
-  const width=webp.readUIntLE(24,3)+1;
-  const height=webp.readUIntLE(27,3)+1;
-  assert.equal(width,1312);
-  assert.equal(height,272);
-  assert.equal(width/164,8);
+  const hashes=[];
+  for(let i=0;i<4;i++){
+    const encoded=read(`assets/sprites/runner-red-frame-${i}.webp.b64`).replace(/\s+/g,'');
+    const webp=Buffer.from(encoded,'base64');
+    assert.ok(webp.length>4000,`frame ${i} must contain real artwork`);
+    assert.equal(webp.subarray(0,4).toString(),'RIFF');
+    assert.equal(webp.subarray(8,12).toString(),'WEBP');
+    hashes.push(crypto.createHash('sha256').update(webp).digest('hex'));
+  }
+  assert.equal(new Set(hashes).size,4,'all running frames must be visually distinct files');
 });
