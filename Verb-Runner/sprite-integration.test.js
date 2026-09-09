@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const read=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
 
-test('runner selection uses approved raster sprite sheet instead of CSS body parts',()=>{
+test('runner selection uses a crisp sprite sheet instead of CSS body parts',()=>{
   const app=read('app.js'),art=read('runner-art.js');
   assert.match(art,/runner-select-sheet\.svg/);
   assert.match(app,/sprite-runner/);
@@ -25,7 +25,8 @@ test('gameplay uses rear-view run and true slide sprite sheets',()=>{
 
 test('sprite artwork keeps all six cosmetic runner variants',()=>{
   const art=read('runner-art.js');
-  assert.match(art,/selectFrameWidth:50/);
+  assert.match(art,/selectFrameWidth:180/);
+  assert.match(art,/selectFrameHeight:260/);
   assert.match(art,/runFrameWidth:60/);
   assert.match(art,/slideFrameWidth:60/);
   const colors=art.match(/color:'#/g)||[];
