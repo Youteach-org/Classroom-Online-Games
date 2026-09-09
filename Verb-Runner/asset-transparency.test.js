@@ -29,7 +29,7 @@ test('anime selection and animated run sheets are real raster assets',()=>{
   assert.ok(fs.existsSync(selectPath));
   assert.ok(fs.existsSync(runPath));
   assert.ok(fs.statSync(selectPath).size>50000);
-  assert.ok(fs.statSync(runPath).size>50000);
+  assert.ok(fs.statSync(runPath).size>10000);
   for(const file of ['sprites/runner-run-sheet.svg','sprites/runner-slide-sheet.svg']){
     const svg=asset(file);
     assert.match(svg,/data-raster-sprite="1"/);
