@@ -8,8 +8,12 @@ test('selection is backed by actual front-facing anime artwork',()=>{
   const app=read('app.js'),css=read('desktop.css'),art=read('runner-art.js');
   assert.match(app,/sprite-runner/);
   assert.match(css,/\.runner-art\.sprite-runner/);
-  assert.match(css,/aspect-ratio:180\/260/);
-  assert.match(art,/assets\/sprites\/runner-select-anime-sheet\.webp/);
+  assert.match(css,/aspect-ratio:8\/15/);
+  assert.match(css,/object-fit:cover/);
+  assert.match(art,/selectFrames:/);
+  assert.match(art,/assets\/sprites\/select-hd-6\.webp\.b64/);
+  assert.match(app,/loadSelectionImage/);
+  assert.doesNotMatch(app,/backgroundSize='600% 100%'/);
   assert.doesNotMatch(app,/class=\\?"(?:head|hair|body|arm|leg|shoe|pack)/);
 });
 
