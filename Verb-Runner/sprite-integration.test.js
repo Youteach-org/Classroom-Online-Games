@@ -4,11 +4,14 @@ const fs=require('node:fs');
 const path=require('node:path');
 const read=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
 
-test('runner selection uses a crisp anime sprite sheet instead of CSS body parts',()=>{
+test('runner selection uses six individual HD portraits instead of sprite-sheet crops',()=>{
   const app=read('app.js'),art=read('runner-art.js');
-  assert.match(art,/runner-select-anime-sheet\.webp/);
-  assert.match(app,/sprite-runner/);
-  assert.match(app,/backgroundSize='600% 100%'/);
+  assert.match(art,/selectFrames:/);
+  assert.match(art,/select-hd-6\.webp\.b64/);
+  assert.match(app,/loadSelectionImage/);
+  assert.match(app,/querySelector\('\.sprite-runner'\)/);
+  assert.doesNotMatch(app,/backgroundSize='600% 100%'/);
+  assert.doesNotMatch(app,/backgroundPosition=/);
   assert.doesNotMatch(app,/class=\\?"pack\\?"/);
   assert.doesNotMatch(app,/class=\\?"head\\?"/);
 });
@@ -31,8 +34,8 @@ test('gameplay uses rear-view run, true slide and separate red running frames',(
 
 test('sprite artwork keeps all six cosmetic runner variants in matching order',()=>{
   const art=read('runner-art.js');
-  assert.match(art,/selectFrameWidth:180/);
-  assert.match(art,/selectFrameHeight:260/);
+  assert.match(art,/selectFrameWidth:256/);
+  assert.match(art,/selectFrameHeight:480/);
   assert.match(art,/runFrameWidth:60/);
   assert.match(art,/slideFrameWidth:60/);
   const colors=art.match(/color:'#/g)||[];
