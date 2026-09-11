@@ -23,14 +23,32 @@
   function setNotice(text,kind=''){const el=$('gameNotice');el.textContent=text;el.className=`game-notice ${kind}`.trim();clearTimeout(setNotice.timer);setNotice.timer=setTimeout(()=>{el.textContent='';el.className='game-notice';},900);}
   function selectionReady(){playerName=cleanName(nameInput.value);startBtn.disabled=!(playerName&&characterIndex!==null);$('nameError').textContent=nameInput.value&&!playerName?'Enter a valid name.':'';}
 
+  const selectionImageCache=new Map();
+  function loadSelectionImage(url){
+    if(!url)return Promise.reject(new Error('Missing selection portrait'));
+    if(selectionImageCache.has(url))return selectionImageCache.get(url);
+    const promise=fetch(url,{cache:'no-store'})
+      .then(response=>{if(!response.ok)throw new Error(`${url}: HTTP ${response.status}`);return response.text();})
+      .then(encoded=>{
+        const clean=encoded.replace(/\s+/g,'');
+        if(!clean.startsWith('UklG'))throw new Error(`${url}: invalid WebP payload`);
+        return `data:image/webp;base64,${clean}`;
+      });
+    selectionImageCache.set(url,promise);
+    return promise;
+  }
+
   function renderCharacters(){
     characterGrid.innerHTML='';
     const art=window.VERB_RUNNER_ART||[],sprites=window.VERB_RUNNER_SPRITES||{};
     for(let i=0;i<6;i++){
       const data=art[i]||{color:'#36b9ff',accent:'#8ad8ff'};
       const button=document.createElement('button');button.type='button';button.className='character-card anonymous-runner sprite-card';button.style.setProperty('--runner-color',data.color);button.style.setProperty('--runner-accent',data.accent||data.color);button.setAttribute('aria-pressed',String(characterIndex===i));button.setAttribute('aria-label',`Choose runner ${i+1}`);
-      button.innerHTML='<span class="runner-art sprite-runner" aria-hidden="true"></span>';
-      const sprite=button.querySelector('.sprite-runner');sprite.style.backgroundImage=`url("${sprites.select}")`;sprite.style.backgroundSize='600% 100%';sprite.style.backgroundPosition=`${i*20}% center`;
+      button.innerHTML='<img class="runner-art sprite-runner" alt="" aria-hidden="true" decoding="async">';
+      const sprite=button.querySelector('.sprite-runner');
+      const portrait=(sprites.selectFrames||[])[i];
+      sprite.classList.add('loading');
+      loadSelectionImage(portrait).then(src=>{sprite.src=src;sprite.classList.remove('loading');}).catch(error=>{console.error('Verb Runner portrait failed',error);sprite.classList.remove('loading');sprite.classList.add('failed');});
       button.onclick=()=>{characterIndex=i;[...characterGrid.children].forEach((card,index)=>card.setAttribute('aria-pressed',String(index===i)));selectionReady();};
       characterGrid.appendChild(button);
     }
