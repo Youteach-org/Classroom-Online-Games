@@ -99,6 +99,6 @@
     }
     stopRun(){this.paused=false;this.active=false;this.time.paused=false;this.input.enabled=false;this.clearAnswers();for(const o of this.obstacles)o.destroy();this.obstacles=[];}
   }
-  function createVerbRunnerGame(mount,options){const config={type:Phaser.AUTO,parent:mount,transparent:true,scale:{mode:Phaser.Scale.RESIZE,width:'100%',height:'100%'},scene:VerbRunnerScene,render:{antialias:true,pixelArt:false}};const game=new Phaser.Game(config);game.scene.start('VerbRunnerScene',options);return game;}
+  function createVerbRunnerGame(mount,options){const config={type:Phaser.AUTO,parent:mount,transparent:true,resolution:Math.min(global.devicePixelRatio||1,2),scale:{mode:Phaser.Scale.RESIZE,width:'100%',height:'100%'},scene:VerbRunnerScene,render:{antialias:true,pixelArt:false,roundPixels:false}};const game=new Phaser.Game(config);game.scene.start('VerbRunnerScene',options);return game;}
   global.VerbRunnerPhaser={createVerbRunnerGame};
 })(window);
