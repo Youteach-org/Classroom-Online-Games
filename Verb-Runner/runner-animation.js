@@ -62,6 +62,7 @@
 
   async function ensureTextures(scene,done){
     if(FRAME_KEYS.every(key=>scene.textures.exists(key))){
+      FRAME_KEYS.forEach(key=>scene.textures.get(key)?.setFilter?.(Phaser.Textures.FilterMode.LINEAR));
       done();
       return;
     }
@@ -82,8 +83,10 @@
       });
 
       scene.load.once(Phaser.Loader.Events.COMPLETE,()=>{
-        if(FRAME_KEYS.every(key=>scene.textures.exists(key)))done();
-        else if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(true);
+        if(FRAME_KEYS.every(key=>scene.textures.exists(key))){
+          FRAME_KEYS.forEach(key=>scene.textures.get(key)?.setFilter?.(Phaser.Textures.FilterMode.LINEAR));
+          done();
+        }else if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(true);
       });
       scene.load.once(Phaser.Loader.Events.LOAD_ERROR,file=>{
         console.error('Verb Runner clean frame failed to load',file?.src||'unknown frame');
