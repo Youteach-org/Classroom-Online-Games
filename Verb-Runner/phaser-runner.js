@@ -10,7 +10,9 @@
       this.load.svg('vr-jump','assets/obstacle-jump.svg');
       this.load.svg('vr-slide','assets/obstacle-slide.svg');
       const sprites=window.VERB_RUNNER_SPRITES||{};
-      if(this.characterIndex!==0){
+      if(this.characterIndex===0){
+        for(let i=0;i<4;i++)this.load.image(`vr-run-red-girl-${i}`,`assets/sprites/run/red-girl-frame-${i}.webp`);
+      }else{
         this.load.svg('vr-run-sheet',sprites.run||'assets/sprites/runner-run-sheet.svg',{width:360,height:93});
       }
       this.load.svg('vr-slide-sheet',sprites.slide||'assets/sprites/runner-slide-sheet.svg',{width:360,height:54});
@@ -61,16 +63,40 @@
       for(let y=hy+25+(this.roadOffset%68);y<h;y+=74){const ratio=(y-hy)/(h-hy),half=5+ratio*26;this.laneGraphics.lineStyle(5,0xffffff,.34+ratio*.44);this.laneGraphics.lineBetween(w/2-half,y,w/2+half,y);}
       this.speedLines.clear();this.speedLines.lineStyle(3,0x8aefff,.40);for(let i=0;i<12;i++){const yy=((i*102+this.roadOffset*4)%h);this.speedLines.lineBetween(w*.045,yy,w*.13,yy+38);this.speedLines.lineBetween(w*.955,yy,w*.87,yy+38);}
     }
+    ensureRedRunAnimation(){
+      const key='vr-run-clean-red-girl';
+      if(!this.anims.exists(key)){
+        this.anims.create({
+          key,
+          frames:Array.from({length:4},(_,i)=>({key:`vr-run-red-girl-${i}`,frame:'__BASE'})),
+          frameRate:7,
+          repeat:-1
+        });
+      }
+      return key;
+    }
     makeRunner(x,y,index){
-      const frame=(index%6+6)%6,artKey=frame===0?'vr-slide-sheet':'vr-run-sheet',c=this.add.container(x,y).setDepth(20),shadow=this.add.ellipse(0,8,110,22,0x04111f,.30),art=this.add.image(0,8,artKey).setOrigin(.5,1);c.add([shadow,art]);c.runnerArt=art;c.shadow=shadow;this.setRunnerFrame(c,'run',index);return c;
+      const frame=(index%6+6)%6,artKey=frame===0?'vr-slide-sheet':'vr-run-sheet',c=this.add.container(x,y).setDepth(20),shadow=this.add.ellipse(0,8,110,22,0x04111f,.30),art=this.add.image(0,8,artKey).setOrigin(.5,1);
+      c.add([shadow,art]);c.runnerArt=art;c.shadow=shadow;
+      if(frame===0){
+        const animationKey=this.ensureRedRunAnimation(),animated=this.add.sprite(0,8,'vr-run-red-girl-0').setOrigin(.5,1).setScale(1.15);
+        animated.play(animationKey);c.add(animated);c.animatedRunner=animated;
+      }
+      this.setRunnerFrame(c,'run',index);return c;
     }
     setRunnerFrame(container,state='run',index=this.characterIndex){
-      const art=container?.runnerArt;if(!art)return;const frame=(index%6+6)%6;
+      const art=container?.runnerArt,animated=container?.animatedRunner;if(!art)return;const frame=(index%6+6)%6;
       if(state==='slide'){
+        if(animated)animated.setVisible(false);
         art.setTexture('vr-slide-sheet');art.setCrop(frame*60,0,60,54);art.setScale(4.8);art.y=8;art.setVisible(true);
       }else if(frame===0){
         art.setVisible(false);
+        if(animated){
+          animated.setVisible(true);animated.setScale(state==='sprint'?1.20:1.15);animated.y=8;
+          if(!animated.anims.isPlaying)animated.play(this.ensureRedRunAnimation());
+        }
       }else{
+        if(animated)animated.setVisible(false);
         art.setTexture('vr-run-sheet');art.setCrop(frame*60,0,60,93);art.setScale(state==='sprint'?4.35:4.05);art.y=8;art.setVisible(true);
       }
       this.runnerState=state;

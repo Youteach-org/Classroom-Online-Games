@@ -174,7 +174,11 @@
         }
 
         const redGirl=isRedGirl(scene.characterIndex);
-        if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(!redGirl);
+        if(redGirl){
+          if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(false);
+          return;
+        }
+        if(scene.player?.runnerArt)scene.player.runnerArt.setVisible(true);
         ensureFrames(scene,()=>installVisibleRunner(scene));
       };
 
