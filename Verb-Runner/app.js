@@ -32,13 +32,16 @@
   function foreignEdgePixel(index,h,s,v,x,w){
     const edge=x<w*.18||x>w*.82;
     if(!edge||s<.16)return false;
-    const red=h<25||h>335,blue=h>185&&h<245,green=h>75&&h<165,pink=h>300&&h<340,purple=h>250&&h<305;
+    const red=(h<12||h>348)&&s>.52,blue=h>185&&h<245&&s>.32,green=h>75&&h<165&&s>.30,pink=h>315&&h<348&&s>.30,purple=h>250&&h<315&&s>.28;
     if(index===0)return blue||green||purple;
     if(index===1)return red||green||pink||purple;
     if(index===2)return red||blue||pink||purple;
     if(index===3)return green||blue||purple;
     if(index===4)return red||green||pink||purple;
-    if(index===5)return red||green||blue||pink;
+    if(index===5){
+      if(x<w*.14&&s<.18)return true;
+      return red||green||blue||pink;
+    }
     return false;
   }
   function cleanPortrait(dataUrl,index){
