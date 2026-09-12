@@ -68,8 +68,8 @@
         if(characterIndex===0){
           const [h,s,v]=rgbToHsv(d[p],d[p+1],d[p+2]);
           if(s>.20 && (h>305 || h<20)){
-            const upper=y<92;
-            const nrgb=upper?hsvToRgb(18,.58,Math.max(.18,v*.72)):hsvToRgb(354,.78,Math.max(.26,v*.94));
+            const hairZone=y<145&&(x<43||x>85||y<54);
+            const nrgb=hairZone?hsvToRgb(18,.58,Math.max(.18,v*.72)):hsvToRgb(354,.78,Math.max(.26,v*.94));
             d[p]=nrgb[0];d[p+1]=nrgb[1];d[p+2]=nrgb[2];
           }
         }
