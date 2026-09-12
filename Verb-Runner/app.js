@@ -24,18 +24,50 @@
   function selectionReady(){playerName=cleanName(nameInput.value);startBtn.disabled=!(playerName&&characterIndex!==null);$('nameError').textContent=nameInput.value&&!playerName?'Enter a valid name.':'';}
 
   const selectionImageCache=new Map();
-  function loadSelectionImage(url){
+  function rgbToHsv(r,g,b){
+    r/=255;g/=255;b/=255;const max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;let h=0;
+    if(d){if(max===r)h=((g-b)/d)%6;else if(max===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;if(h<0)h+=360;}
+    return [h,max?d/max:0,max];
+  }
+  function foreignEdgePixel(index,h,s,v,x,w){
+    const edge=x<w*.18||x>w*.82;
+    if(!edge||s<.16)return false;
+    const red=h<25||h>335,blue=h>185&&h<245,green=h>75&&h<165,pink=h>300&&h<340,purple=h>250&&h<305;
+    if(index===0)return blue||green||purple;
+    if(index===1)return red||green||pink||purple;
+    if(index===2)return red||blue||pink||purple;
+    if(index===3)return green||blue||purple;
+    if(index===4)return red||green||pink||purple;
+    if(index===5)return red||green||blue||pink;
+    return false;
+  }
+  function cleanPortrait(dataUrl,index){
+    return new Promise((resolve,reject)=>{
+      const image=new Image();
+      image.onload=()=>{
+        const pad=Math.max(8,Math.round(image.width*.035));
+        const canvas=document.createElement('canvas');canvas.width=image.width+pad*2;canvas.height=image.height;
+        const ctx=canvas.getContext('2d',{willReadFrequently:true});
+        ctx.drawImage(image,pad,0);
+        const img=ctx.getImageData(0,0,canvas.width,canvas.height),d=img.data;
+        const w=canvas.width,h=canvas.height;
+        for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+          const p=(y*w+x)*4;if(d[p+3]===0)continue;
+          const [hh,s,v]=rgbToHsv(d[p],d[p+1],d[p+2]);
+          if(foreignEdgePixel(index,hh,s,v,x,w))d[p+3]=0;
+        }
+        ctx.putImageData(img,0,0);resolve(canvas.toDataURL('image/webp',.92));
+      };
+      image.onerror=reject;image.src=dataUrl;
+    });
+  }
+  function loadSelectionImage(url,index){
     if(!url)return Promise.reject(new Error('Missing selection portrait'));
-    if(selectionImageCache.has(url))return selectionImageCache.get(url);
+    const cacheKey=`${index}:${url}`;if(selectionImageCache.has(cacheKey))return selectionImageCache.get(cacheKey);
     const promise=fetch(url,{cache:'no-store'})
       .then(response=>{if(!response.ok)throw new Error(`${url}: HTTP ${response.status}`);return response.text();})
-      .then(encoded=>{
-        const clean=encoded.replace(/\s+/g,'');
-        if(!clean.startsWith('UklG'))throw new Error(`${url}: invalid WebP payload`);
-        return `data:image/webp;base64,${clean}`;
-      });
-    selectionImageCache.set(url,promise);
-    return promise;
+      .then(encoded=>{const clean=encoded.replace(/\s+/g,'');if(!clean.startsWith('UklG'))throw new Error(`${url}: invalid WebP payload`);return cleanPortrait(`data:image/webp;base64,${clean}`,index);});
+    selectionImageCache.set(cacheKey,promise);return promise;
   }
 
   function renderCharacters(){
@@ -48,7 +80,7 @@
       const sprite=button.querySelector('.sprite-runner');
       const portrait=(sprites.selectFrames||[])[i];
       sprite.classList.add('loading');
-      loadSelectionImage(portrait).then(src=>{sprite.src=src;sprite.classList.remove('loading');}).catch(error=>{console.error('Verb Runner portrait failed',error);sprite.classList.remove('loading');sprite.classList.add('failed');});
+      loadSelectionImage(portrait,i).then(src=>{sprite.src=src;sprite.classList.remove('loading');}).catch(error=>{console.error('Verb Runner portrait failed',error);sprite.classList.remove('loading');sprite.classList.add('failed');});
       button.onclick=()=>{characterIndex=i;[...characterGrid.children].forEach((card,index)=>card.setAttribute('aria-pressed',String(index===i)));selectionReady();};
       characterGrid.appendChild(button);
     }
