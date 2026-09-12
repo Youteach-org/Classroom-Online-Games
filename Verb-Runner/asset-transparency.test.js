@@ -23,17 +23,16 @@ test('illustrated coastal background uses the safe SVG contract',()=>{
   assert.doesNotMatch(svg,/<(?:filter|mask|foreignObject|image)\b/i);
 });
 
-test('anime selection and four clean red run frames are real raster payloads',()=>{
+test('anime selection and four rebuilt red run frames are real raster payloads',()=>{
   const selectPath=path.join(__dirname,'assets','sprites','runner-select-anime-sheet.webp');
   assert.ok(fs.existsSync(selectPath));
   assert.ok(fs.statSync(selectPath).size>10000);
 
   for(let i=0;i<4;i++){
-    const payloadPath=path.join(__dirname,'assets','sprites',`runner-red-frame-${i}.webp.b64`);
-    assert.ok(fs.existsSync(payloadPath));
-    const encoded=fs.readFileSync(payloadPath,'utf8').replace(/\s+/g,'');
-    const webp=Buffer.from(encoded,'base64');
-    assert.ok(webp.length>4000);
+    const framePath=path.join(__dirname,'assets','sprites','run',`red-girl-frame-${i}.webp`);
+    assert.ok(fs.existsSync(framePath));
+    const webp=fs.readFileSync(framePath);
+    assert.ok(webp.length>7000);
     assert.equal(webp.subarray(0,4).toString(),'RIFF');
     assert.equal(webp.subarray(8,12).toString(),'WEBP');
   }

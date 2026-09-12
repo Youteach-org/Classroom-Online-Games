@@ -16,21 +16,25 @@ test('runner selection uses six individual HD portraits instead of sprite-sheet 
   assert.doesNotMatch(app,/class=\\?"head\\?"/);
 });
 
-test('gameplay uses individual full-body SVG frames for all six runners',()=>{
+test('red girl uses four raster run frames while the other five runners stay on their current SVG frames',()=>{
   const phaser=read('phaser-runner.js'),animation=read('runner-animation.js');
   assert.match(phaser,/runner-slide-sheet\.svg/);
   assert.match(phaser,/setRunnerState\('slide'\)/);
+  assert.match(phaser,/this\.characterIndex!==0/);
   assert.match(animation,/FRAME_COUNT=4/);
-  assert.match(animation,/FRAME_RATE=8/);
-  assert.match(animation,/SPRINT_RATE=10/);
+  assert.match(animation,/STANDARD_RUN_FRAME_RATE=7/);
+  assert.match(animation,/DEFAULT_FRAME_RATE=8/);
+  assert.match(animation,/DEFAULT_SPRINT_RATE=10/);
+  for(let i=0;i<4;i++)assert.match(animation,new RegExp(`red-girl-frame-${i}\\.webp`));
+  assert.match(animation,/scene\.load\.image/);
+  assert.match(animation,/assets\/sprites\/run\/\$\{id\}-\$\{i\}\.svg/);
+  assert.match(animation,/scene\.load\.svg/);
   assert.match(animation,/red-girl/);
   assert.match(animation,/blue-boy/);
   assert.match(animation,/green-boy/);
   assert.match(animation,/pink-girl/);
   assert.match(animation,/white-boy/);
   assert.match(animation,/purple-girl/);
-  assert.match(animation,/assets\/sprites\/run\/\$\{id\}-\$\{i\}\.svg/);
-  assert.match(animation,/scene\.load\.svg/);
   assert.doesNotMatch(animation,/runner-red-frame-/);
   assert.doesNotMatch(animation,/runner-hd-atlas\.part/);
   assert.doesNotMatch(animation,/runner-run-atlas\.svg/);

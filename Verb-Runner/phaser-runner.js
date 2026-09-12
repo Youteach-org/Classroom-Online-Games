@@ -10,7 +10,9 @@
       this.load.svg('vr-jump','assets/obstacle-jump.svg');
       this.load.svg('vr-slide','assets/obstacle-slide.svg');
       const sprites=window.VERB_RUNNER_SPRITES||{};
-      this.load.svg('vr-run-sheet',sprites.run||'assets/sprites/runner-run-sheet.svg',{width:360,height:93});
+      if(this.characterIndex!==0){
+        this.load.svg('vr-run-sheet',sprites.run||'assets/sprites/runner-run-sheet.svg',{width:360,height:93});
+      }
       this.load.svg('vr-slide-sheet',sprites.slide||'assets/sprites/runner-slide-sheet.svg',{width:360,height:54});
     }
     isFinePointer(){return Boolean(window.matchMedia&&window.matchMedia('(pointer:fine)').matches);}
@@ -60,14 +62,16 @@
       this.speedLines.clear();this.speedLines.lineStyle(3,0x8aefff,.40);for(let i=0;i<12;i++){const yy=((i*102+this.roadOffset*4)%h);this.speedLines.lineBetween(w*.045,yy,w*.13,yy+38);this.speedLines.lineBetween(w*.955,yy,w*.87,yy+38);}
     }
     makeRunner(x,y,index){
-      const c=this.add.container(x,y).setDepth(20),shadow=this.add.ellipse(0,8,110,22,0x04111f,.30),art=this.add.image(0,8,'vr-run-sheet').setOrigin(.5,1);c.add([shadow,art]);c.runnerArt=art;c.shadow=shadow;this.setRunnerFrame(c,'run',index);return c;
+      const frame=(index%6+6)%6,artKey=frame===0?'vr-slide-sheet':'vr-run-sheet',c=this.add.container(x,y).setDepth(20),shadow=this.add.ellipse(0,8,110,22,0x04111f,.30),art=this.add.image(0,8,artKey).setOrigin(.5,1);c.add([shadow,art]);c.runnerArt=art;c.shadow=shadow;this.setRunnerFrame(c,'run',index);return c;
     }
     setRunnerFrame(container,state='run',index=this.characterIndex){
       const art=container?.runnerArt;if(!art)return;const frame=(index%6+6)%6;
       if(state==='slide'){
-        art.setTexture('vr-slide-sheet');art.setCrop(frame*60,0,60,54);art.setScale(4.8);art.y=8;
+        art.setTexture('vr-slide-sheet');art.setCrop(frame*60,0,60,54);art.setScale(4.8);art.y=8;art.setVisible(true);
+      }else if(frame===0){
+        art.setVisible(false);
       }else{
-        art.setTexture('vr-run-sheet');art.setCrop(frame*60,0,60,93);art.setScale(state==='sprint'?4.35:4.05);art.y=8;
+        art.setTexture('vr-run-sheet');art.setCrop(frame*60,0,60,93);art.setScale(state==='sprint'?4.35:4.05);art.y=8;art.setVisible(true);
       }
       this.runnerState=state;
     }
