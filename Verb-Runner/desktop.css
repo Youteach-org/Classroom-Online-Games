@@ -2,7 +2,7 @@
 .character-card.anonymous-runner .runner-art{inset:0}
 .character-card.sprite-card{min-height:0;aspect-ratio:8/15;background:linear-gradient(180deg,color-mix(in srgb,var(--runner-color) 25%,#102845 75%),#061426);overflow:hidden;contain:paint}
 .character-card.sprite-card:before{background:radial-gradient(circle at 50% 20%,color-mix(in srgb,var(--runner-accent) 42%,transparent),transparent 45%),linear-gradient(180deg,transparent 68%,#05152b 100%)}
-.runner-art.sprite-runner{position:absolute;inset:0!important;display:block;width:100%;height:100%;object-fit:cover;object-position:center center;background:none!important;image-rendering:auto;filter:drop-shadow(0 10px 14px rgba(0,10,28,.48));transform:translateZ(0)!important;backface-visibility:hidden;transition:opacity .16s ease}.runner-art.sprite-runner.loading{opacity:.18}.runner-art.sprite-runner.failed{opacity:0}
+.runner-art.sprite-runner{position:absolute;inset:0!important;display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;background:none!important;image-rendering:auto;filter:drop-shadow(0 10px 14px rgba(0,10,28,.48));transform:translateZ(0)!important;backface-visibility:hidden;transition:opacity .16s ease}.runner-art.sprite-runner.loading{opacity:.18}.runner-art.sprite-runner.failed{opacity:0}
 .character-card[data-pose] .runner-art.sprite-runner{transform:none!important}
 .character-card.sprite-card[aria-pressed="true"] .sprite-runner{filter:drop-shadow(0 12px 17px rgba(0,10,28,.5)) drop-shadow(0 0 10px var(--runner-color))}
 .desktop-game-ui .game-hud{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0}
