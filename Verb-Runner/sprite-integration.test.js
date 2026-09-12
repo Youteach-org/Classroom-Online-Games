@@ -16,19 +16,24 @@ test('runner selection uses six individual HD portraits instead of sprite-sheet 
   assert.doesNotMatch(app,/class=\\?"head\\?"/);
 });
 
-test('gameplay uses rear-view run, true slide and separate red running frames',()=>{
-  const phaser=read('phaser-runner.js'),animation=read('runner-animation.js');
-  assert.match(phaser,/runner-run-sheet\.svg/);
+test('gameplay uses one clean six-character rear-view atlas with real four-frame runs',()=>{
+  const phaser=read('phaser-runner.js'),animation=read('runner-animation.js'),atlas=read('assets/sprites/runner-run-atlas.svg');
   assert.match(phaser,/runner-slide-sheet\.svg/);
   assert.match(phaser,/setRunnerState\('slide'\)/);
-  assert.match(phaser,/setCrop\(frame\*60,0,60,54\)/);
   assert.match(animation,/FRAME_COUNT=4/);
-  assert.match(animation,/runner-red-frame-\$\{i\}\.webp\.b64/);
-  assert.match(animation,/scene\.load\.image/);
+  assert.match(animation,/runner-run-atlas\.svg/);
+  assert.match(animation,/CELL_W=128/);
+  assert.match(animation,/CELL_H=192/);
+  assert.match(animation,/scene\.load\.svg/);
   assert.match(animation,/add\.sprite/);
-  assert.match(animation,/setVisible\(true\)/);
-  assert.doesNotMatch(animation,/load\.spritesheet/);
-  assert.doesNotMatch(animation,/runner-run-red-8\.webp/);
+  assert.doesNotMatch(animation,/runner-red-frame-/);
+  assert.doesNotMatch(animation,/runner-hd-atlas\.part/);
+  assert.match(atlas,/red-girl-f0/);
+  assert.match(atlas,/blue-boy-f0/);
+  assert.match(atlas,/green-boy-f0/);
+  assert.match(atlas,/pink-girl-f0/);
+  assert.match(atlas,/white-boy-f0/);
+  assert.match(atlas,/purple-girl-f0/);
   assert.doesNotMatch(phaser,/scaleY:s\*\.46/);
 });
 
