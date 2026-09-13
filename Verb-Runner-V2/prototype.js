@@ -43,9 +43,9 @@ const resultMomentum=document.querySelector('#resultMomentum');
 
 const TOTAL_CHALLENGES=12;
 const difficultyPresets={
-  easy:{name:'easy',speed:1,answerSpacing:.82,distractors:2,preview:false},
-  medium:{name:'medium',speed:1,answerSpacing:.82,distractors:3,preview:false},
-  hard:{name:'hard',speed:1,answerSpacing:.82,distractors:4,preview:false}
+  easy:{name:'easy',speed:.90,answerSpacing:.82,distractors:2,preview:false,penalty:1},
+  medium:{name:'medium',speed:1.00,answerSpacing:.82,distractors:3,preview:false,penalty:2},
+  hard:{name:'hard',speed:1.15,answerSpacing:.82,distractors:4,preview:false,penalty:3}
 };
 let difficulty=difficultyPresets.medium;
 let totalChallenges=TOTAL_CHALLENGES;
@@ -55,8 +55,7 @@ let gameSettings={
   distractors:3,
   obstacleFrequency:45,
   momentumCorrect:8,
-  momentumGrammarLoss:15,
-  momentumObstacleLoss:5,
+  penalty:2,
   initialSpeed:18,
   maxSpeed:31,
   speedScale:1
@@ -354,41 +353,6 @@ for(let i=0;i<18;i++){
   }
 }
 
-function createParkedCar(side,index,z){
-  const car=new THREE.Group();
-  const bodyColor=[0x9c263b,0x285f98,0x5f6770,0xb3b5b8,0x315b43][index%5];
-  const body=new THREE.Mesh(
-    new THREE.BoxGeometry(1.05,.46,2.15),
-    new THREE.MeshStandardMaterial({color:bodyColor,roughness:.58,metalness:.25})
-  );
-  body.position.y=.42;
-  car.add(body);
-  const cabin=new THREE.Mesh(new THREE.BoxGeometry(.86,.4,1.05),glassMat);
-  cabin.position.set(0,.76,-.08);
-  car.add(cabin);
-  const tireMat=new THREE.MeshStandardMaterial({color:0x08090b,roughness:.98});
-  for(const x of [-.55,.55]){
-    for(const zz of [-.64,.64]){
-      const tire=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.12,10),tireMat);
-      tire.rotation.z=Math.PI/2;
-      tire.position.set(x,.22,zz);
-      car.add(tire);
-    }
-  }
-  car.position.set(side*7.25,0,z);
-  car.rotation.y=side>0?Math.PI:0;
-  return car;
-}
-
-for(let i=0;i<12;i++){
-  const side=i%2?-1:1;
-  const z=-12-i*13.5;
-  const car=createParkedCar(side,i,z);
-  streetProps.add(car);
-  addMover(car,{speedFactor:1,span:176,startZ:z});
-}
-
-const crosswalkMat=new THREE.MeshBasicMaterial({color:0xf4f1df,transparent:true,opacity:.82});
 const intersectionMat=new THREE.MeshStandardMaterial({color:0x17191e,roughness:.94,metalness:.02});
 for(let k=0;k<6;k++){
   const baseZ=-26-k*29;
@@ -397,12 +361,6 @@ for(let k=0;k<6;k++){
   world.add(intersection);
   addMover(intersection,{speedFactor:1,span:174,startZ:baseZ});
 
-  for(let s=0;s<7;s++){
-    const stripe=new THREE.Mesh(new THREE.BoxGeometry(10.8,.045,.34),crosswalkMat);
-    stripe.position.set(0,.045,baseZ-2.2+s*.7);
-    world.add(stripe);
-    addMover(stripe,{speedFactor:1,span:174,startZ:stripe.position.z});
-  }
 
   for(const side of [-1,1]){
     const lightGroup=new THREE.Group();
@@ -485,7 +443,8 @@ function applyDifficultyDefaults(preset){
     preview:preset.preview,
     answerSpacing:preset.answerSpacing,
     distractors:preset.distractors,
-    speedScale:preset.speed
+    speedScale:preset.speed,
+    penalty:preset.penalty
   };
 }
 
@@ -499,8 +458,7 @@ function applySessionSettings(settings={}){
     distractors:Math.max(1,Math.min(6,Number(settings.distractors)||preset.distractors)),
     obstacleFrequency:Math.max(0,Math.min(100,Number(settings.obstacleFrequency)??45)),
     momentumCorrect:Math.max(0,Number(settings.momentumCorrect)??8),
-    momentumGrammarLoss:Math.max(0,Number(settings.momentumGrammarLoss)??15),
-    momentumObstacleLoss:Math.max(0,Number(settings.momentumObstacleLoss)??5),
+    penalty:preset.penalty,
     initialSpeed:Math.max(12,Number(settings.initialSpeed)||18),
     maxSpeed:Math.max(20,Number(settings.maxSpeed)||31),
     speedScale:Number(settings.speedScale)||preset.speed
@@ -639,9 +597,11 @@ function spawnAnswer(item){
   panel.position.z=.02;
   group.add(panel);
 
-  group.position.set(lanes[laneIndex],1.45,-74);
+  const heightMode=Math.random()<.5?'low':'high';
+  const answerY=heightMode==='low'?1.15:3.15;
+  group.position.set(lanes[laneIndex],answerY,-74);
   scene.add(group);
-  answers.push({mesh:group,laneIndex,item,resolved:false});
+  answers.push({mesh:group,laneIndex,item,resolved:false,heightMode});
 }
 
 function clearAnswers(){
@@ -699,10 +659,10 @@ function applyRunEvent(type){
   }else if(type==='grammar-error'){
     next.grammarErrors+=1;
     next.streak=0;
-    next.momentum=Math.max(0,next.momentum-gameSettings.momentumGrammarLoss);
+    next.momentum=Math.max(0,next.momentum-gameSettings.penalty);
   }else if(type==='obstacle-hit'){
     next.obstacleHits+=1;
-    next.momentum=Math.max(0,next.momentum-gameSettings.momentumObstacleLoss);
+    next.momentum=Math.max(0,next.momentum-gameSettings.penalty);
   }
   runState=next;
   updateHud();
@@ -736,10 +696,13 @@ function collectAnswer(answer){
 }
 
 function missedCorrectAnswer(){
-  if(retryQueued||victoryMode)return;
-  retryQueued=true;
-  showNotice('CORRECT FORM MISSED · TRY AGAIN','info');
-  launchChallengeChain(.75);
+  if(victoryMode)return;
+  clearAnswers();
+  const missed=challenges.splice(challengeIndex,1)[0];
+  if(missed)challenges.push(missed);
+  showNotice('CORRECT FORM MISSED · MOVED TO END','info');
+  renderChallenge();
+  launchChallengeChain(.6);
 }
 
 function setPaused(next){
@@ -1026,23 +989,85 @@ const geoHigh=new THREE.BoxGeometry(2.5,.45,.7);
 const matLow=new THREE.MeshStandardMaterial({color:0xff315f,emissive:0x7b071f,emissiveIntensity:1.8,roughness:.35,metalness:.5});
 const matHigh=new THREE.MeshStandardMaterial({color:0x18d9ff,emissive:0x045c7c,emissiveIntensity:1.6,roughness:.28,metalness:.52});
 
-function spawnObstacle(){
-  const type=Math.random()<.56?'jump':'slide';
-  const laneIndex=Math.floor(Math.random()*3);
-  const mesh=new THREE.Mesh(type==='jump'?geoLow:geoHigh,type==='jump'?matLow:matHigh);
-  mesh.castShadow=true;
-  mesh.position.x=lanes[laneIndex];
-  mesh.position.z=-74;
-  mesh.position.y=type==='jump'?.43:2.35;
+function createRoadCar(index=0){
+  const car=new THREE.Group();
+  const colors=[0xc84545,0x2e6da4,0xd2a43b,0x4b7f61,0x777b84,0x8d55a8];
+  const paint=new THREE.MeshStandardMaterial({color:colors[index%colors.length],roughness:.45,metalness:.32});
+  const dark=new THREE.MeshStandardMaterial({color:0x15181c,roughness:.75,metalness:.18});
+  const glass=new THREE.MeshStandardMaterial({color:0x7fb2c8,roughness:.16,metalness:.28,transparent:true,opacity:.9});
+  const chrome=new THREE.MeshStandardMaterial({color:0xc9d0d4,roughness:.28,metalness:.72});
+  const lightMat=new THREE.MeshBasicMaterial({color:0xfff0b0});
 
-  if(type==='slide'){
-    const posts=new THREE.Group();
-    for(const x of [-1.1,1.1]){
-      const p=new THREE.Mesh(new THREE.BoxGeometry(.18,2.5,.18),matHigh);
-      p.position.set(x,-1.1,0);
-      posts.add(p);
+  const lower=new THREE.Mesh(new THREE.BoxGeometry(1.85,.52,3.35),paint);
+  lower.position.y=.48;
+  lower.castShadow=true;
+  car.add(lower);
+
+  const hood=new THREE.Mesh(new THREE.BoxGeometry(1.78,.28,1.05),paint);
+  hood.position.set(0,.78,-1.05);
+  car.add(hood);
+
+  const cabin=new THREE.Mesh(new THREE.BoxGeometry(1.48,.78,1.62),paint);
+  cabin.position.set(0,1.08,.18);
+  car.add(cabin);
+
+  const windshield=new THREE.Mesh(new THREE.BoxGeometry(1.30,.48,.055),glass);
+  windshield.position.set(0,1.18,-.65);
+  windshield.rotation.x=-.18;
+  car.add(windshield);
+
+  const rearGlass=windshield.clone();
+  rearGlass.position.z=.98;
+  rearGlass.rotation.x=.18;
+  car.add(rearGlass);
+
+  for(const x of [-.96,.96]){
+    for(const z of [-1.05,1.05]){
+      const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.31,.31,.22,14),dark);
+      wheel.rotation.z=Math.PI/2;
+      wheel.position.set(x,.30,z);
+      car.add(wheel);
     }
-    mesh.add(posts);
+  }
+
+  const bumper=new THREE.Mesh(new THREE.BoxGeometry(1.7,.12,.16),chrome);
+  bumper.position.set(0,.34,-1.74);
+  car.add(bumper);
+
+  for(const x of [-.55,.55]){
+    const lamp=new THREE.Mesh(new THREE.BoxGeometry(.28,.16,.06),lightMat);
+    lamp.position.set(x,.64,-1.71);
+    car.add(lamp);
+  }
+
+  return car;
+}
+
+function spawnObstacle(){
+  const roll=Math.random();
+  const type=roll<.42?'car':(roll<.72?'jump':'slide');
+  const laneIndex=Math.floor(Math.random()*3);
+  let mesh;
+
+  if(type==='car'){
+    mesh=createRoadCar(Math.floor(Math.random()*6));
+    mesh.position.set(lanes[laneIndex],0,-74);
+  }else{
+    mesh=new THREE.Mesh(type==='jump'?geoLow:geoHigh,type==='jump'?matLow:matHigh);
+    mesh.castShadow=true;
+    mesh.position.x=lanes[laneIndex];
+    mesh.position.z=-74;
+    mesh.position.y=type==='jump'?.43:2.35;
+
+    if(type==='slide'){
+      const posts=new THREE.Group();
+      for(const x of [-1.1,1.1]){
+        const p=new THREE.Mesh(new THREE.BoxGeometry(.18,2.5,.18),matHigh);
+        p.position.set(x,-1.1,0);
+        posts.add(p);
+      }
+      mesh.add(posts);
+    }
   }
 
   scene.add(mesh);
@@ -1126,8 +1151,11 @@ function updateWorld(dt){
     a.mesh.position.z+=travel;
     const closeToRunner=Math.abs(a.mesh.position.z-runnerRoot.position.z)<1.25;
     const sameLane=a.laneIndex===lane&&Math.abs(a.mesh.position.x-runnerRoot.position.x)<1.3;
+    const verticalHit=a.heightMode==='low'
+      ? runnerRoot.position.y<.82
+      : runnerRoot.position.y>1.18;
 
-    if(!a.resolved&&closeToRunner&&sameLane){
+    if(!a.resolved&&closeToRunner&&sameLane&&verticalHit){
       collectAnswer(a);
       if(!gameStarted||victoryMode)break;
       continue;
@@ -1152,7 +1180,9 @@ function updateWorld(dt){
       o.passed=true;
       const sameLane=o.laneIndex===lane&&Math.abs(o.mesh.position.x-runnerRoot.position.x)<1.25;
       if(sameLane){
-        const safe=o.type==='jump'?runnerRoot.position.y>1.05:sliding;
+        const safe=o.type==='jump'
+          ? runnerRoot.position.y>1.05
+          : (o.type==='slide'?sliding:false);
         if(!safe)hit();
       }
     }
