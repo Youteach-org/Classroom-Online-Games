@@ -429,6 +429,7 @@ let victoryMode=false;
 let runState=null;
 let challenges=[];
 let challengeIndex=0;
+let verbDeck=[];
 let runElapsed=0;
 let noticeTimer=0;
 let pendingAnswers=[];
@@ -530,9 +531,10 @@ function updateHud(){
 }
 
 function renderChallenge(){
+  ensureChallengeAvailable();
   currentChallenge=challenges[challengeIndex];
   if(!currentChallenge)return;
-  challengeNumber.textContent=`${challengeIndex+1} / ${totalChallenges}`;
+  challengeNumber.textContent='VERB '+String(challengeIndex+1);
   document.querySelectorAll('[data-slot]').forEach((el,index)=>{
     const value=currentChallenge.slots[index];
     el.querySelector('b').textContent=value?String(value).toUpperCase():'____';
@@ -547,15 +549,33 @@ function renderChallenge(){
   }
 }
 
+function makeChallengeFromVerb(verb){
+  return window.VerbRunnerChallenge.createChallenge(verb,{
+    difficulty:difficulty.name,
+    distractorCount:gameSettings.distractors
+  });
+}
+
+function refillVerbDeck(){
+  verbDeck=window.VerbRunnerChallenge.shuffled([...(window.VerbRunnerBank?.VERBS||[])]);
+}
+
+function ensureChallengeAvailable(){
+  while(challengeIndex>=challenges.length){
+    if(!verbDeck.length)refillVerbDeck();
+    const nextVerb=verbDeck.shift();
+    if(!nextVerb)break;
+    challenges.push(makeChallengeFromVerb(nextVerb));
+  }
+}
+
 function buildChallenges(){
-  const bank=[...(window.VerbRunnerBank?.VERBS||[])];
-  const shuffled=window.VerbRunnerChallenge.shuffled(bank);
-  challenges=shuffled.slice(0,totalChallenges).map(verb=>
-    window.VerbRunnerChallenge.createChallenge(verb,{
-      difficulty:difficulty.name,
-      distractorCount:gameSettings.distractors
-    })
-  );
+  challenges=[];
+  challengeIndex=0;
+  refillVerbDeck();
+  while(challenges.length<totalChallenges&&verbDeck.length){
+    challenges.push(makeChallengeFromVerb(verbDeck.shift()));
+  }
 }
 
 function makeAnswerTexture(word){
@@ -651,7 +671,7 @@ function applyRunEvent(type){
   if(!runState)return;
   const next={...runState};
   if(type==='correct'){
-    next.completed+=1;
+    next.completed=Math.min(totalChallenges,next.completed+1);
     next.correct+=1;
     next.streak+=1;
     next.bestStreak=Math.max(next.bestStreak,next.streak);
@@ -659,10 +679,10 @@ function applyRunEvent(type){
   }else if(type==='grammar-error'){
     next.grammarErrors+=1;
     next.streak=0;
-    next.momentum=Math.max(0,next.momentum-gameSettings.penalty);
+    next.completed=Math.max(0,next.completed-gameSettings.penalty);
   }else if(type==='obstacle-hit'){
     next.obstacleHits+=1;
-    next.momentum=Math.max(0,next.momentum-gameSettings.penalty);
+    next.completed=Math.max(0,next.completed-gameSettings.penalty);
   }
   runState=next;
   updateHud();
@@ -679,16 +699,17 @@ function collectAnswer(answer){
     clearAnswers();
     challengeIndex++;
 
-    if(challengeIndex>=totalChallenges){
+    if(runState.completed>=totalChallenges){
       beginVictorySprint();
       return;
     }
 
+    ensureChallengeAvailable();
     renderChallenge();
     launchChallengeChain(.55);
   }else{
     applyRunEvent('grammar-error');
-    showNotice(String(item.value).toUpperCase()+' — WRONG FORM','wrong');
+    showNotice(String(item.value).toUpperCase()+' — WRONG · −'+gameSettings.penalty+' ADVANCE','wrong');
     scene.remove(answer.mesh);
     const idx=answers.indexOf(answer);
     if(idx>=0)answers.splice(idx,1);
@@ -781,6 +802,7 @@ function resetRun(){
   victoryMode=false;
   gamePaused=false;
   clearAnswers();
+  verbDeck=[];
   buildChallenges();
   renderChallenge();
   updateHud();
@@ -989,6 +1011,17 @@ const geoHigh=new THREE.BoxGeometry(2.5,.45,.7);
 const matLow=new THREE.MeshStandardMaterial({color:0xff315f,emissive:0x7b071f,emissiveIntensity:1.8,roughness:.35,metalness:.5});
 const matHigh=new THREE.MeshStandardMaterial({color:0x18d9ff,emissive:0x045c7c,emissiveIntensity:1.6,roughness:.28,metalness:.52});
 
+function pickObstacleLane(){
+  const blocked=new Set(
+    answers
+      .filter(a=>a?.mesh&&Math.abs(a.mesh.position.z+74)<10)
+      .map(a=>a.laneIndex)
+  );
+  const available=[0,1,2].filter(i=>!blocked.has(i));
+  if(!available.length)return null;
+  return available[Math.floor(Math.random()*available.length)];
+}
+
 function createRoadCar(index=0){
   const car=new THREE.Group();
   const colors=[0xc84545,0x2e6da4,0xd2a43b,0x4b7f61,0x777b84,0x8d55a8];
@@ -1046,7 +1079,8 @@ function createRoadCar(index=0){
 function spawnObstacle(){
   const roll=Math.random();
   const type=roll<.42?'car':(roll<.72?'jump':'slide');
-  const laneIndex=Math.floor(Math.random()*3);
+  const laneIndex=pickObstacleLane();
+  if(laneIndex===null)return;
   let mesh;
 
   if(type==='car'){
@@ -1080,7 +1114,7 @@ function hit(){
   flash.classList.add('on');
   setTimeout(()=>flash.classList.remove('on'),180);
   applyRunEvent('obstacle-hit');
-  showNotice('OBSTACLE HIT','wrong');
+  showNotice('OBSTACLE HIT · −'+gameSettings.penalty+' ADVANCE','wrong');
 }
 
 function updateRunner(dt){
@@ -1182,7 +1216,9 @@ function updateWorld(dt){
       if(sameLane){
         const safe=o.type==='jump'
           ? runnerRoot.position.y>1.05
-          : (o.type==='slide'?sliding:false);
+          : (o.type==='car'
+              ? runnerRoot.position.y>1.32
+              : (o.type==='slide'?sliding:false));
         if(!safe)hit();
       }
     }
