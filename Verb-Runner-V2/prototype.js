@@ -1740,11 +1740,18 @@ function updateWorld(dt){
       o.mesh.rotation.z=Math.sin(phase)*.018;
     }
 
-    if(!o.passed&&o.mesh.position.z>1.1){
+    if(o.kind==='pedestrian'){
+      const closeZ=Math.abs(o.mesh.position.z-runnerRoot.position.z)<1.15;
+      const closeX=Math.abs(o.mesh.position.x-runnerRoot.position.x)<.72;
+      if(!o.passed&&closeZ&&closeX){
+        o.passed=true;
+        hit();
+      }else if(o.mesh.position.z>4.2){
+        o.passed=true;
+      }
+    }else if(!o.passed&&o.mesh.position.z>1.1){
       o.passed=true;
-      const sameLane=o.kind==='pedestrian'
-        ? Math.abs(o.mesh.position.x-runnerRoot.position.x)<.72
-        : (o.laneIndex===lane&&Math.abs(o.mesh.position.x-runnerRoot.position.x)<1.25);
+      const sameLane=o.laneIndex===lane&&Math.abs(o.mesh.position.x-runnerRoot.position.x)<1.25;
       if(sameLane){
         const safe=o.type==='jump'
           ? runnerRoot.position.y>.92
