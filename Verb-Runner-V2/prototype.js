@@ -29,29 +29,31 @@ renderer.shadowMap.enabled=true;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=1.22;
+renderer.toneMappingExposure=1.08;
 
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x10131b);
-scene.fog=new THREE.FogExp2(0x11141d,0.021);
+scene.background=new THREE.Color(0x8ec9ee);
+scene.fog=new THREE.FogExp2(0xcfe5f4,0.014);
 
 const camera=new THREE.PerspectiveCamera(52,1,.1,180);
 camera.position.set(0,4.8,10.8);
 camera.lookAt(0,1.55,-18);
 
-scene.add(new THREE.HemisphereLight(0x9aefff,0x17121f,2.1));
-const key=new THREE.DirectionalLight(0xffc6d3,3.4);
-key.position.set(-6,12,8);
-key.castShadow=true;
-scene.add(key);
+scene.add(new THREE.HemisphereLight(0xeaf8ff,0x8c9b79,2.35));
 
-const rim=new THREE.PointLight(0x16d9ff,18,34,2);
-rim.position.set(5,5,3);
-scene.add(rim);
+const sun=new THREE.DirectionalLight(0xfff3cf,4.2);
+sun.position.set(-10,16,10);
+sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
+sun.shadow.camera.left=-16;
+sun.shadow.camera.right=16;
+sun.shadow.camera.top=18;
+sun.shadow.camera.bottom=-8;
+scene.add(sun);
 
-const magenta=new THREE.PointLight(0xff245f,16,30,2);
-magenta.position.set(-6,3,-4);
-scene.add(magenta);
+const daylightFill=new THREE.DirectionalLight(0xc9e6ff,1.15);
+daylightFill.position.set(8,6,-10);
+scene.add(daylightFill);
 
 const world=new THREE.Group();
 scene.add(world);
@@ -119,25 +121,23 @@ const city=new THREE.Group();
 world.add(city);
 
 const facadeMaterials=[
-  new THREE.MeshStandardMaterial({color:0x343846,roughness:.86,metalness:.05}),
-  new THREE.MeshStandardMaterial({color:0x3f2d32,roughness:.9,metalness:.02}),
-  new THREE.MeshStandardMaterial({color:0x293642,roughness:.84,metalness:.08}),
-  new THREE.MeshStandardMaterial({color:0x423b34,roughness:.9,metalness:.02}),
-  new THREE.MeshStandardMaterial({color:0x2d3040,roughness:.82,metalness:.12})
+  new THREE.MeshStandardMaterial({color:0xb7b9bd,roughness:.88,metalness:.02}),
+  new THREE.MeshStandardMaterial({color:0xb98c7f,roughness:.9,metalness:.01}),
+  new THREE.MeshStandardMaterial({color:0x8fa8b7,roughness:.86,metalness:.03}),
+  new THREE.MeshStandardMaterial({color:0xc2ad8d,roughness:.9,metalness:.01}),
+  new THREE.MeshStandardMaterial({color:0x9ea3b2,roughness:.84,metalness:.04})
 ];
 
 const glassMat=new THREE.MeshStandardMaterial({
-  color:0x21394a,
-  emissive:0x071624,
-  emissiveIntensity:.5,
-  roughness:.28,
-  metalness:.18
+  color:0x8db8cb,
+  roughness:.18,
+  metalness:.16
 });
-const warmWindowMat=new THREE.MeshBasicMaterial({color:0xffd37a});
-const coolWindowMat=new THREE.MeshBasicMaterial({color:0x7edcff});
-const dimWindowMat=new THREE.MeshBasicMaterial({color:0x44546a});
-const concreteMat=new THREE.MeshStandardMaterial({color:0x242832,roughness:.92,metalness:.02});
-const curbMat=new THREE.MeshStandardMaterial({color:0x8f9299,roughness:.9,metalness:0});
+const warmWindowMat=new THREE.MeshStandardMaterial({color:0xbfd2da,roughness:.18,metalness:.12});
+const coolWindowMat=new THREE.MeshStandardMaterial({color:0x9bc9dc,roughness:.16,metalness:.14});
+const dimWindowMat=new THREE.MeshStandardMaterial({color:0x718898,roughness:.22,metalness:.12});
+const concreteMat=new THREE.MeshStandardMaterial({color:0x777c83,roughness:.92,metalness:.01});
+const curbMat=new THREE.MeshStandardMaterial({color:0xb8b8b5,roughness:.92,metalness:0});
 const signNames=['CAFE','MARKET','ARCADE','HOTEL','METRO','PIZZA','BOOKS','SHOP'];
 
 function makeSignTexture(text,bg,fg='#ffffff'){
@@ -251,10 +251,8 @@ for(let i=0;i<18;i++){
   const tower=new THREE.Mesh(
     new THREE.BoxGeometry(w,h,d),
     new THREE.MeshStandardMaterial({
-      color:i%2?0x141827:0x1b1b29,
-      emissive:i%3===0?0x07172a:0x140915,
-      emissiveIntensity:.36,
-      roughness:.88
+      color:i%2?0x8f9aa4:0xa4adb4,
+      roughness:.9
     })
   );
   tower.position.set(side*(15.5+(i%3)*3.4),h/2,z);
@@ -265,8 +263,8 @@ for(let i=0;i<18;i++){
 const streetProps=new THREE.Group();
 world.add(streetProps);
 
-const lampPostMat=new THREE.MeshStandardMaterial({color:0x242934,roughness:.48,metalness:.58});
-const lampGlowMat=new THREE.MeshBasicMaterial({color:0xffe39b});
+const lampPostMat=new THREE.MeshStandardMaterial({color:0x505862,roughness:.5,metalness:.5});
+const lampGlowMat=new THREE.MeshStandardMaterial({color:0xe6e3d7,roughness:.28,metalness:.04});
 for(let i=0;i<18;i++){
   const z=-5-i*9.6;
   for(const side of [-1,1]){
@@ -369,9 +367,9 @@ for(const side of [-1,1]){
 const horizonGlow=new THREE.Mesh(
   new THREE.PlaneGeometry(58,20),
   new THREE.MeshBasicMaterial({
-    color:0x152243,
+    color:0xd9edf8,
     transparent:true,
-    opacity:.16,
+    opacity:.3,
     side:THREE.DoubleSide,
     depthWrite:false
   })
@@ -505,7 +503,7 @@ startButton.addEventListener('click',()=>{
   picker.classList.add('hidden');
   gameStarted=true;
   play('run',.12);
-  modelStatus.textContent=variants[selectedVariant].name+' robot · CITY AVENUE';
+  modelStatus.textContent=variants[selectedVariant].name+' robot · DAY CITY AVENUE';
 });
 
 runnerChip.addEventListener('click',()=>{
