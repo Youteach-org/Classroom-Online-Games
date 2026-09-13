@@ -125,7 +125,7 @@ loader.load(
   'https://threejs.org/examples/models/gltf/Soldier.glb',
   gltf=>{
     model=gltf.scene;
-    model.rotation.y=Math.PI;
+    model.rotation.y=0;
     model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
     fitToHeight(model,2.35);
     runnerRoot.add(model);
