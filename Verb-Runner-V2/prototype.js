@@ -106,8 +106,19 @@ runnerRoot.add(shadow);
 
 let model = null;
 let mixer = null;
-let actions = {};
+const actions = {};
 let activeAction = null;
+let runnerState = 'LOADING';
+let clipsReady = false;
+
+const STATE_LABELS = {
+  RUN:'RUN',
+  JUMP:'JUMP',
+  SLIDE:'SLIDE / CROUCH',
+  STUMBLE:'STUMBLE',
+  RECOVERY:'RECOVERY',
+  SPRINT:'SPRINT'
+};
 
 function hashName(name='mesh'){
   let h=0;
@@ -131,12 +142,61 @@ function toonify(root){
 function chooseClip(clips, words){
   return clips.find(c=>words.some(w=>c.name.toLowerCase().includes(w)));
 }
-function play(name,fade=.16){
-  const next = actions[name];
-  if(!next || next===activeAction) return;
+function registerAction(name,clip,{once=false}={}){
+  if(!clip) return null;
+  const action = mixer.clipAction(clip);
+  action.enabled = true;
+  action.clampWhenFinished = once;
+  action.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, once ? 1 : Infinity);
+  actions[name] = action;
+  return action;
+}
+function actionForState(state){
+  if(state==='SPRINT') return actions.run;
+  if(state==='SLIDE') return actions.slide || actions.idle || actions.run;
+  if(state==='STUMBLE') return actions.stumble || actions.recovery || actions.idle || actions.run;
+  if(state==='RECOVERY') return actions.recovery || actions.idle || actions.run;
+  return actions[state.toLowerCase()] || actions.run;
+}
+function actionSpeedForState(state){
+  if(state==='SPRINT') return 1.72;
+  if(state==='RUN') return 1.24;
+  if(state==='JUMP') return 1.15;
+  if(state==='SLIDE') return 1.9;
+  if(state==='STUMBLE') return 1.35;
+  if(state==='RECOVERY') return 1.55;
+  return 1;
+}
+function updateStatus(){
+  if(!clipsReady){
+    modelStatus.textContent = 'Loading rigged runner…';
+    return;
+  }
+  modelStatus.textContent = 'Animation: '+(STATE_LABELS[runnerState] || runnerState)+' · skeletal state machine';
+}
+function setRunnerState(state,fade=.12,{force=false}={}){
+  if(!clipsReady) return;
+  const next = actionForState(state);
+  if(!next) return;
+
+  const previousState = runnerState;
+  runnerState = state;
+  next.timeScale = actionSpeedForState(state);
+
+  if(next===activeAction){
+    if(force || previousState!==state){
+      next.enabled = true;
+      if(force) next.reset().play();
+    }
+    updateStatus();
+    return;
+  }
+
+  next.enabled = true;
   next.reset().fadeIn(fade).play();
   if(activeAction) activeAction.fadeOut(fade);
   activeAction = next;
+  updateStatus();
 }
 
 const loader = new GLTFLoader();
@@ -145,21 +205,39 @@ loader.load(
   gltf=>{
     model = gltf.scene;
     model.scale.setScalar(.72);
-    model.rotation.y = Math.PI;
+    model.rotation.set(0,Math.PI,0);
     model.position.y = 0;
     toonify(model);
     runnerRoot.add(model);
 
     mixer = new THREE.AnimationMixer(model);
+
     const runClip = chooseClip(gltf.animations,['running','run']) || gltf.animations[0];
     const jumpClip = chooseClip(gltf.animations,['jump']);
+    const slideClip = chooseClip(gltf.animations,['sitting','sit','crouch']);
+    const stumbleClip = chooseClip(gltf.animations,['death','punch','no']);
+    const recoveryClip = chooseClip(gltf.animations,['standing','idle','yes']);
     const idleClip = chooseClip(gltf.animations,['idle','standing']);
-    actions.run = mixer.clipAction(runClip);
-    if(jumpClip) actions.jump = mixer.clipAction(jumpClip);
-    if(idleClip) actions.idle = mixer.clipAction(idleClip);
-    actions.run.timeScale = 1.2;
-    play('run',0);
-    modelStatus.textContent = 'Rigged 3D runner loaded · skeletal RUN animation active';
+
+    registerAction('run',runClip);
+    registerAction('jump',jumpClip,{once:true});
+    registerAction('slide',slideClip);
+    registerAction('stumble',stumbleClip,{once:true});
+    registerAction('recovery',recoveryClip,{once:true});
+    registerAction('idle',idleClip);
+
+    clipsReady = true;
+    setRunnerState('RUN',0,{force:true});
+
+    const mapping = {
+      RUN:runClip?.name,
+      JUMP:jumpClip?.name || 'procedural fallback',
+      SLIDE:slideClip?.name || 'procedural fallback',
+      STUMBLE:stumbleClip?.name || 'procedural fallback',
+      RECOVERY:recoveryClip?.name || 'procedural fallback',
+      SPRINT:(runClip?.name || 'RUN')+' @ faster playback'
+    };
+    console.table(mapping);
   },
   undefined,
   err=>{
@@ -172,28 +250,44 @@ const lanes = [-3,0,3];
 let lane = 1;
 let targetX = lanes[lane];
 let jumpTime = 0;
-let jumpDuration = .78;
+const jumpDuration = .78;
 let sliding = false;
 let slideTime = 0;
-let slideDuration = .68;
+const slideDuration = .68;
+let stumbleTime = 0;
+const stumbleDuration = .42;
+let recoveryTime = 0;
+const recoveryDuration = .34;
+let sprintHeld = false;
 let distance = 0;
 let speed = 18;
 let nextSpawn = 20;
 let hitCooldown = 0;
 
+function isBusy(){
+  return jumpTime>0 || sliding || stumbleTime>0 || recoveryTime>0;
+}
+function desiredLocomotion(){
+  return (sprintHeld || speed>=25.7) ? 'SPRINT' : 'RUN';
+}
+function returnToLocomotion(){
+  setRunnerState(desiredLocomotion(),.11);
+}
 function moveLane(dir){
+  if(stumbleTime>0) return;
   lane = THREE.MathUtils.clamp(lane+dir,0,2);
   targetX = lanes[lane];
 }
 function jump(){
-  if(jumpTime>0 || sliding) return;
+  if(isBusy()) return;
   jumpTime = .001;
-  if(actions.jump) play('jump',.08);
+  setRunnerState('JUMP',.08,{force:true});
 }
 function slide(){
-  if(sliding || jumpTime>0) return;
+  if(isBusy()) return;
   sliding = true;
   slideTime = .001;
+  setRunnerState('SLIDE',.08,{force:true});
 }
 
 window.addEventListener('keydown',e=>{
@@ -201,6 +295,16 @@ window.addEventListener('keydown',e=>{
   if(['ArrowRight','KeyD'].includes(e.code)) moveLane(1);
   if(['ArrowUp','Space','KeyW'].includes(e.code)) jump();
   if(['ArrowDown','KeyS'].includes(e.code)) slide();
+  if(['ShiftLeft','ShiftRight'].includes(e.code)){
+    sprintHeld = true;
+    if(!isBusy()) setRunnerState('SPRINT',.1);
+  }
+});
+window.addEventListener('keyup',e=>{
+  if(['ShiftLeft','ShiftRight'].includes(e.code)){
+    sprintHeld = false;
+    if(!isBusy()) returnToLocomotion();
+  }
 });
 
 let touchStart = null;
@@ -243,56 +347,132 @@ function spawnObstacle(){
   obstacles.push({mesh,type,laneIndex,passed:false});
 }
 
-function hit(){
+function beginStumble(){
   if(hitCooldown>0) return;
-  hitCooldown=.9;
+  hitCooldown=1.05;
+  jumpTime=0;
+  sliding=false;
+  slideTime=0;
+  recoveryTime=0;
+  stumbleTime=.001;
+
+  if(model){
+    model.scale.setScalar(.72);
+    model.rotation.x=0;
+  }
+
+  setRunnerState('STUMBLE',.045,{force:true});
   flash.classList.add('on');
   setTimeout(()=>flash.classList.remove('on'),180);
   distance=Math.max(0,distance-35);
 }
 
+function hit(){
+  beginStumble();
+}
+
 function updateRunner(dt){
   runnerRoot.position.x = THREE.MathUtils.damp(runnerRoot.position.x,targetX,11,dt);
-  const lean = (targetX-runnerRoot.position.x)*-.05;
-  runnerRoot.rotation.z = THREE.MathUtils.damp(runnerRoot.rotation.z,lean,8,dt);
+  const laneLean = (targetX-runnerRoot.position.x)*-.05;
+  runnerRoot.rotation.z = THREE.MathUtils.damp(runnerRoot.rotation.z,laneLean,8,dt);
 
   let y=0;
-  if(jumpTime>0){
-    jumpTime += dt;
-    const t=jumpTime/jumpDuration;
+
+  if(stumbleTime>0){
+    stumbleTime += dt;
+    const t=Math.min(1,stumbleTime/stumbleDuration);
+    if(model){
+      model.rotation.z = Math.sin(t*Math.PI)*-.34;
+      model.rotation.x = Math.sin(t*Math.PI)*.16;
+      model.position.y = -Math.sin(t*Math.PI)*.16;
+    }
     if(t>=1){
-      jumpTime=0;
-      play('run',.1);
-    }else{
-      y = Math.sin(Math.PI*t)*2.45;
+      stumbleTime=0;
+      recoveryTime=.001;
+      setRunnerState('RECOVERY',.08,{force:true});
+    }
+  }else if(recoveryTime>0){
+    recoveryTime += dt;
+    const t=Math.min(1,recoveryTime/recoveryDuration);
+    if(model){
+      model.rotation.z = THREE.MathUtils.lerp(-.08,0,t);
+      model.rotation.x = THREE.MathUtils.lerp(.08,0,t);
+      model.position.y = THREE.MathUtils.lerp(-.08,0,t);
+    }
+    if(t>=1){
+      recoveryTime=0;
+      if(model){
+        model.rotation.set(0,Math.PI,0);
+        model.position.y=0;
+      }
+      returnToLocomotion();
+    }
+  }else{
+    if(model){
+      model.rotation.z = THREE.MathUtils.damp(model.rotation.z,0,12,dt);
+      model.rotation.x = THREE.MathUtils.damp(model.rotation.x,0,12,dt);
+      model.rotation.y = Math.PI;
+      model.position.y = THREE.MathUtils.damp(model.position.y,0,12,dt);
+    }
+
+    if(jumpTime>0){
+      jumpTime += dt;
+      const t=jumpTime/jumpDuration;
+      if(t>=1){
+        jumpTime=0;
+        returnToLocomotion();
+      }else{
+        y = Math.sin(Math.PI*t)*2.45;
+      }
+    }
+
+    if(sliding){
+      slideTime += dt;
+      const t=Math.min(1,slideTime/slideDuration);
+      const s = t<.16
+        ? THREE.MathUtils.lerp(1,.58,t/.16)
+        : t>.78
+          ? THREE.MathUtils.lerp(.58,1,(t-.78)/.22)
+          : .58;
+
+      if(model){
+        model.scale.set(.72,.72*s,.72);
+        model.position.y = -.05*(1-s);
+        model.rotation.x = -.18*(1-s);
+      }
+
+      if(slideTime>=slideDuration){
+        sliding=false;
+        slideTime=0;
+        if(model){
+          model.scale.setScalar(.72);
+          model.rotation.set(0,Math.PI,0);
+          model.position.y=0;
+        }
+        returnToLocomotion();
+      }
+    }
+
+    if(jumpTime<=0 && !sliding){
+      const wanted = desiredLocomotion();
+      if(runnerState!==wanted) setRunnerState(wanted,.14);
     }
   }
 
-  if(sliding){
-    slideTime += dt;
-    const t=Math.min(1,slideTime/slideDuration);
-    const s = t<.16?THREE.MathUtils.lerp(1,.58,t/.16):t>.78?THREE.MathUtils.lerp(.58,1,(t-.78)/.22):.58;
-    if(model){
-      model.scale.y = .72*s;
-      model.position.y = 0;
-      model.rotation.x = -0.18*(1-s);
-    }
-    if(slideTime>=slideDuration){
-      sliding=false;
-      slideTime=0;
-      if(model){
-        model.scale.setScalar(.72);
-        model.rotation.x=0;
-      }
-    }
-  }
   runnerRoot.position.y = y;
   shadow.scale.setScalar(THREE.MathUtils.lerp(1,.62,Math.min(1,y/2.45)));
   shadow.material.opacity = THREE.MathUtils.lerp(.34,.1,Math.min(1,y/2.45));
 }
 
-function updateWorld(dt){
-  const travel = speed*dt;
+function frameTravelSpeed(){
+  let mult = runnerState==='SPRINT' ? 1.12 : 1;
+  if(stumbleTime>0) mult*=.42;
+  if(recoveryTime>0) mult*=.72;
+  return speed*mult;
+}
+
+function updateWorld(dt,travelSpeed){
+  const travel = travelSpeed*dt;
   for(const m of laneMarkers){
     m.position.z += travel;
     if(m.position.z>8) m.position.z -= 160;
@@ -329,14 +509,21 @@ function animate(){
   hitCooldown=Math.max(0,hitCooldown-dt);
 
   speed = Math.min(29,18+distance/620);
-  distance += speed*dt;
   updateRunner(dt);
-  updateWorld(dt);
+
+  const travelSpeed = frameTravelSpeed();
+  distance += travelSpeed*dt;
+  updateWorld(dt,travelSpeed);
 
   distanceEl.textContent = String(Math.floor(distance)).padStart(4,'0');
-  speedEl.textContent = (speed/18).toFixed(2)+'×';
+  speedEl.textContent = (travelSpeed/18).toFixed(2)+'×';
 
+  const sprintVisual = runnerState==='SPRINT' ? 1 : 0;
+  camera.fov = THREE.MathUtils.damp(camera.fov,52+sprintVisual*5.5,4.5,dt);
+  camera.updateProjectionMatrix();
   camera.position.x = THREE.MathUtils.damp(camera.position.x,runnerRoot.position.x*.15,3.5,dt);
+  rim.intensity = THREE.MathUtils.damp(rim.intensity,18+sprintVisual*12,5,dt);
+
   renderer.render(scene,camera);
 }
 animate();
