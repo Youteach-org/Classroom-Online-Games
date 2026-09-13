@@ -11,9 +11,9 @@ function difficulty(){
 function readSettings(){
   const d=difficulty();
   const defaults={
-    easy:{preview:true,answerSpacing:1080,distractors:2,speedScale:.88},
+    easy:{preview:false,answerSpacing:820,distractors:2,speedScale:1},
     medium:{preview:false,answerSpacing:820,distractors:3,speedScale:1},
-    hard:{preview:false,answerSpacing:640,distractors:4,speedScale:1.18}
+    hard:{preview:false,answerSpacing:820,distractors:4,speedScale:1}
   }[d];
 
   const previewChoice=$('previewEnabled').value;
