@@ -170,7 +170,7 @@
   }
 
   function consonantSkeleton(word){
-    return String(word||'').toLowerCase().replace(/[aeiou]/g,'');
+    return String(word||'').toLowerCase().replace(/[aeiouy]/g,'');
   }
 
   function scoreDistractor(value,verb,correct){
