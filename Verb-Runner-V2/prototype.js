@@ -49,7 +49,7 @@ const difficultyPresets={
   hard:{name:'hard',speed:1.18,answerSpacing:.64,distractors:4,preview:false}
 };
 let difficulty=difficultyPresets.medium;
-let totalChallenges=totalChallenges;
+let totalChallenges=TOTAL_CHALLENGES;
 let gameSettings={
   preview:false,
   answerSpacing:.82,
