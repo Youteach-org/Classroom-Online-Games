@@ -2,37 +2,34 @@
 
 This is an isolated proof-of-concept. It does not modify the original `Verb-Runner/`.
 
-## Native action test
+## Current movement test
 
-The prototype now uses a single rigged Quaternius character with its own native animation set so the movement test does not depend on hand-authored procedural poses.
+The current test uses a Quaternius **Casual Female** humanoid with all movement clips coming from the same native skeleton.
 
 Mapped states:
 
 - RUN -> `Run`
 - SPRINT -> `Run` at higher playback speed
-- JUMP launch -> `Jump`
-- airborne pose -> `Jump_Idle`
-- landing -> `Jump_Land`
-- DUCK -> `Duck`
-- STUMBLE -> `HitReact`
-- RECOVERY -> `Jump_Land` as a short recovery transition
+- JUMP -> `Jump`
+- LOW OBSTACLE ACTION -> `Roll`
+- STUMBLE -> `RecieveHit`
+- RECOVERY -> brief `Idle` crossfade, then back to RUN
 
-The gameplay still supplies the vertical jump arc and lane movement. The character body motion itself comes from native skeletal animation clips.
+The endless-runner engine still controls lane changes, forward speed and the vertical jump arc. No body squashing or hand-built crouch pose is used for the low-obstacle action.
 
 ## Controls
 
 - Left / A: lane left
 - Right / D: lane right
 - Up / W / Space: jump
-- Down / S: duck
+- Down / S: roll
 - Shift: sprint
 - Mobile: swipe left/right/up/down
 
 ## Temporary asset
 
-The current action-test character comes from the Quaternius Ultimate Space Kit and is used only to validate native character animation flow before the final red anime runner is created.
+Character source: Quaternius Ultimate Animated Character Pack, mirrored in the public `psqd12137-sudo/dream-channel` repository as `Casual_Female.gltf`.
 
-Source mirror used at runtime:
-`danvanderboom/Aetherium/samples/unity/Aphelion/Assets/ThirdParty/Quaternius/Animated/reclaimer-rae.gltf`
+License: CC0 1.0 Universal, recorded alongside the asset in `LICENSE.txt`.
 
-License: CC0 1.0, as recorded alongside the asset and on the Quaternius pack page.
+This character is only for motion validation before the final red anime runner.
