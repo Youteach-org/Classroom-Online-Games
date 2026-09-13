@@ -333,6 +333,23 @@ function createFacadeBuilding(side,index,z){
   body.receiveShadow=true;
   group.add(body);
 
+  if(!IS_MOBILE){
+    const outline=new THREE.Mesh(
+      body.geometry,
+      new THREE.MeshBasicMaterial({color:0x16364a,side:THREE.BackSide})
+    );
+    outline.position.copy(body.position);
+    outline.scale.set(1.025,1.015,1.02);
+    group.add(outline);
+  }
+
+  const roofCap=new THREE.Mesh(
+    new THREE.BoxGeometry(w+.18,.24,d+.18),
+    new THREE.MeshToonMaterial({color:index%2?0xb85e4d:0xd67a4e})
+  );
+  roofCap.position.set(0,h+.12,0);
+  group.add(roofCap);
+
   const roadFaceX=-side*w/2-side*.035;
 
   const store=new THREE.Mesh(new THREE.BoxGeometry(.08,1.05,d*.78),glassMat);
@@ -370,6 +387,20 @@ function createFacadeBuilding(side,index,z){
         THREE.MathUtils.lerp(-d*.3,d*.3,c/(cols-1))
       );
       group.add(win);
+    }
+  }
+
+  if(!IS_MOBILE){
+    const balconyMat=new THREE.MeshToonMaterial({color:0xf1d6ae});
+    const railMat=new THREE.MeshBasicMaterial({color:0x35566b});
+    const levels=[3.0,4.25].filter(y=>y<h-.45);
+    for(const y of levels){
+      const balcony=new THREE.Mesh(new THREE.BoxGeometry(.42,.10,d*.54),balconyMat);
+      balcony.position.set(roadFaceX-side*.20,y,0);
+      group.add(balcony);
+      const rail=new THREE.Mesh(new THREE.BoxGeometry(.07,.36,d*.50),railMat);
+      rail.position.set(roadFaceX-side*.40,y+.22,0);
+      group.add(rail);
     }
   }
 
@@ -423,7 +454,7 @@ coast.add(shallowWater);
 
 const seaWallMat=new THREE.MeshToonMaterial({color:0xf0ddbf});
 const seaRailMat=new THREE.MeshToonMaterial({color:0x3a5a70});
-for(let i=0;i<(IS_MOBILE?10:18);i++){
+for(let i=0;i<(IS_MOBILE?7:15);i++){
   const z=-5-i*9.7;
   const wall=new THREE.Mesh(new THREE.BoxGeometry(.32,.62,7.2),seaWallMat);
   wall.position.set(-8.45,.31,z);
@@ -518,8 +549,8 @@ for(let i=0;i<(IS_MOBILE?10:18);i++){
 const streetProps=new THREE.Group();
 world.add(streetProps);
 
-const lampPostMat=new THREE.MeshStandardMaterial({color:0x505862,roughness:.5,metalness:.5});
-const lampGlowMat=new THREE.MeshStandardMaterial({color:0xe6e3d7,roughness:.28,metalness:.04});
+const lampPostMat=new THREE.MeshToonMaterial({color:0x34536a});
+const lampGlowMat=new THREE.MeshBasicMaterial({color:0xb8f3ff});
 for(let i=0;i<(IS_MOBILE?10:18);i++){
   const z=-5-i*9.6;
   for(const side of [-1,1]){
