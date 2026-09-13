@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
 const ROBOT_URL='https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb';
-const PEDESTRIAN_URL='https://threejs.org/examples/models/gltf/Michelle.glb';
+const PEDESTRIAN_URL='https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/CesiumMan/glTF-Binary/CesiumMan.glb';
 let pedestrianTemplate=null;
 let pedestrianAnimations=[];
 const IS_MOBILE=matchMedia('(pointer:coarse)').matches||innerWidth<=700;
@@ -1406,9 +1406,6 @@ let lane=1;
 let targetX=lanes[lane];
 let jumpTime=0;
 const jumpDuration=.78;
-let sliding=false;
-let slideTime=0;
-const slideDuration=.68;
 let distance=0;
 let speed=18;
 let nextSpawn=26;
@@ -1421,15 +1418,9 @@ function moveLane(dir){
 }
 
 function jump(){
-  if(!gameStarted||gamePaused||victoryMode||jumpTime>0||sliding)return;
+  if(!gameStarted||gamePaused||victoryMode||jumpTime>0)return;
   jumpTime=.001;
   if(actions.jump)play('jump',.08);
-}
-
-function slide(){
-  if(!gameStarted||gamePaused||victoryMode||sliding||jumpTime>0)return;
-  sliding=true;
-  slideTime=.001;
 }
 
 window.addEventListener('keydown',e=>{
@@ -1737,10 +1728,9 @@ function createPedestrian(index=0){
 
   if(pedestrianAnimations.length){
     const mixer=new THREE.AnimationMixer(g);
-    const walkClip=pedestrianAnimations.find(c=>/walk/i.test(c.name))||pedestrianAnimations[0];
-    if(walkClip){
-      const action=mixer.clipAction(walkClip);
-      action.timeScale=.9+Math.random()*.18;
+    for(const clip of pedestrianAnimations){
+      const action=mixer.clipAction(clip);
+      action.timeScale=.92+Math.random()*.14;
       action.play();
     }
     g.userData.mixer=mixer;
@@ -1812,25 +1802,7 @@ function updateRunner(dt){
     }
   }
 
-  if(sliding){
-    slideTime+=dt;
-    const t=Math.min(1,slideTime/slideDuration);
-    const s=t<.16?THREE.MathUtils.lerp(1,.62,t/.16):t>.78?THREE.MathUtils.lerp(.62,1,(t-.78)/.22):.62;
 
-    if(model&&baseScale){
-      model.scale.set(baseScale.x,baseScale.y*s,baseScale.z);
-      model.rotation.x=-.24*(1-s);
-    }
-
-    if(slideTime>=slideDuration){
-      sliding=false;
-      slideTime=0;
-      if(model&&baseScale){
-        model.scale.copy(baseScale);
-        model.rotation.x=0;
-      }
-    }
-  }
 
   runnerRoot.position.y=y;
   shadow.scale.setScalar(THREE.MathUtils.lerp(1,.62,Math.min(1,y/2.45)));
