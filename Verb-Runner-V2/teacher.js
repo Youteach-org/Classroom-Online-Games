@@ -44,7 +44,7 @@ function runnerCard(student){
   return `<article class="student-card ${student.online===false?'offline':''}">
     <div class="student-head"><strong>${student.id||'Runner'}</strong><span class="status-dot"></span></div>
     <div class="student-meta">
-      <div><span>PROGRESS</span><b>${student.progress||0} / ${student.total||12}</b></div>
+      <div><span>ADVANCE</span><b>${student.progress||0} / ${student.total||12}</b></div>
       <div><span>MOMENTUM</span><b>${student.momentum??75}%</b></div>
       <div><span>STREAK</span><b>${student.streak||0}</b></div>
       <div><span>ACCURACY</span><b>${accuracy}%</b></div>
