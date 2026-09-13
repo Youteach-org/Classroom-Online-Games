@@ -10,7 +10,7 @@ window.VERB_RUNNER_ART = [
 window.VERB_RUNNER_SPRITES = {
   select:'assets/sprites/runner-select-anime-sheet.webp',
   selectFrames:[
-    'assets/sprites/select-hd-6.webp.b64',
+    'assets/sprites/select-red-neon.webp',
     'assets/sprites/select-hd-1.webp.b64',
     'assets/sprites/select-hd-5.webp.b64',
     'assets/sprites/select-hd-2.webp.b64',

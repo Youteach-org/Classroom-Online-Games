@@ -83,7 +83,13 @@
       const sprite=button.querySelector('.sprite-runner');
       const portrait=(sprites.selectFrames||[])[i];
       sprite.classList.add('loading');
-      loadSelectionImage(portrait,i).then(src=>{sprite.src=src;sprite.classList.remove('loading');}).catch(error=>{console.error('Verb Runner portrait failed',error);sprite.classList.remove('loading');sprite.classList.add('failed');});
+      if(i===0){
+        sprite.src=portrait;
+        sprite.onload=()=>sprite.classList.remove('loading');
+        sprite.onerror=()=>{console.error('Verb Runner red portrait failed');sprite.classList.remove('loading');sprite.classList.add('failed');};
+      }else{
+        loadSelectionImage(portrait,i).then(src=>{sprite.src=src;sprite.classList.remove('loading');}).catch(error=>{console.error('Verb Runner portrait failed',error);sprite.classList.remove('loading');sprite.classList.add('failed');});
+      }
       button.onclick=()=>{characterIndex=i;[...characterGrid.children].forEach((card,index)=>card.setAttribute('aria-pressed',String(index===i)));selectionReady();};
       characterGrid.appendChild(button);
     }
