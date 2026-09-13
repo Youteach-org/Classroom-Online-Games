@@ -46,8 +46,7 @@ button,a{-webkit-tap-highlight-color:transparent}
   background:rgba(7,20,32,.9);border:2px solid rgba(255,255,255,.3);
   box-shadow:0 12px 36px rgba(17,43,61,.28),0 0 0 1px rgba(115,220,255,.12) inset
 }
-.challenge-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:#cde0eb;font-size:11px;font-weight:950;letter-spacing:.18em}
-.challenge-top strong{color:#fff;font-size:13px}
+.challenge-top{display:flex;justify-content:center;align-items:center;margin-bottom:4px;color:#b7cad6;font-size:8px;font-weight:900;letter-spacing:.16em}
 .principal-parts{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:12px}
 .principal-parts i{font-style:normal;color:#6e8797;font-size:20px}
 .part{
@@ -55,8 +54,8 @@ button,a{-webkit-tap-highlight-color:transparent}
   min-height:58px;border-radius:11px;padding:5px 8px;transition:background .18s ease,box-shadow .18s ease,border-color .18s ease;
   border:1px solid transparent
 }
-.part small{font-size:10px;letter-spacing:.11em;color:#b2c6d3;font-weight:900}
-.part b{font-size:clamp(18px,2vw,27px);line-height:1.08;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;font-weight:950}
+.part small{font-size:7px;letter-spacing:.10em;color:#aebfca;font-weight:850}
+.part b{font-size:clamp(24px,2.7vw,36px);line-height:1.02;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;font-weight:950}
 .part.blank{
   border-color:rgba(255,211,77,.72);
   background:rgba(255,211,77,.10);
@@ -81,8 +80,8 @@ button,a{-webkit-tap-highlight-color:transparent}
 }
 
 .momentum-panel{
-  position:absolute;z-index:8;left:clamp(12px,2vw,24px);top:82px;width:min(250px,32vw);
-  border-radius:13px;padding:8px 10px;color:#fff;
+  width:min(340px,72vw);
+  border-radius:13px;padding:8px 11px;color:#fff;
 }
 .momentum-copy{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:9px;font-weight:900;letter-spacing:.08em}
 .momentum-copy strong{font-size:12px}
@@ -93,7 +92,7 @@ button,a{-webkit-tap-highlight-color:transparent}
   position:absolute;z-index:7;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);
   width:min(92vw,760px);display:flex;flex-direction:column;align-items:center;gap:7px;pointer-events:none
 }
-.pill{border-radius:999px;padding:7px 12px;color:#eaf9ff;font-size:11px}
+.model-status-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 .controls{border-radius:13px;padding:7px 11px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 13px;color:#e2edf5;font-size:10px}
 
 .game-notice{
@@ -160,13 +159,12 @@ button,a{-webkit-tap-highlight-color:transparent}
 @media(max-width:900px){
   .hud{grid-template-columns:auto 1fr;grid-template-areas:"left right" "center center"}
   .hud-left{grid-area:left}.hud-right{grid-area:right;justify-content:flex-end}.hud-center{grid-area:center}
-  .momentum-panel{top:128px;width:220px}
 }
 @media(max-width:640px){
   .hud{padding:8px;gap:7px}.brand{display:none}.icon-button{width:38px}
   .hud-right{gap:4px}.runner-chip{padding:7px;font-size:8px}.mini-stat{min-width:58px;padding:7px 6px}.mini-stat span{font-size:7px}.mini-stat b{font-size:11px}
-  .hud-center{padding:9px 9px 10px}.challenge-top{font-size:8px;margin-bottom:6px}.challenge-top strong{font-size:10px}.part{min-height:48px;padding:4px}.part small{font-size:7.5px}.part b{font-size:15px}.principal-parts{gap:5px}.principal-parts i{font-size:14px}
-  .momentum-panel{left:8px;top:103px;width:170px;padding:6px 8px}.momentum-copy{font-size:7px}
+  .hud-center{padding:8px 9px 9px}.challenge-top{font-size:6.5px;margin-bottom:3px}.part{min-height:49px;padding:3px}.part small{font-size:6px}.part b{font-size:20px}.principal-parts{gap:4px}.principal-parts i{font-size:13px}
+  .momentum-panel{width:min(250px,76vw);padding:6px 8px}.momentum-copy{font-size:7px}
   .controls{font-size:9px;gap:4px 8px}.pill{font-size:9px}
   .robot-options{grid-template-columns:repeat(2,minmax(0,1fr))}.robot-option{min-height:60px}
   .difficulty{gap:5px}.difficulty small{display:none}
