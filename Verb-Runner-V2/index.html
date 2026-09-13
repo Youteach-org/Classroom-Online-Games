@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Verb Runner V2 · Robot Runners</title>
+  <title>Verb Runner V2</title>
   <link rel="stylesheet" href="./styles.css" />
   <script type="importmap">
   {
@@ -15,61 +15,60 @@
   </script>
 </head>
 <body>
-  <header class="topbar">
-    <div>
-      <span class="eyebrow">VERB RUNNER V2</span>
-      <h1>Robot runners</h1>
-      <p>One rig. One model. Six color variants.</p>
-    </div>
-    <div class="test-panel" aria-label="Robot animation test">
-      <span>Animation test</span>
-      <div class="animation-buttons">
-        <button type="button" data-animation="idle">Idle</button>
-        <button type="button" data-animation="run" class="active">Run</button>
-        <button type="button" data-animation="jump">Jump</button>
+  <main id="app">
+    <canvas id="game" aria-label="Verb Runner V2 3D game"></canvas>
+
+    <section class="hud">
+      <div class="brand">
+        <span class="eyebrow">VERB RUNNER</span>
+        <strong>3D PROTOTYPE</strong>
       </div>
-    </div>
-  </header>
 
-  <main class="gallery" id="gallery">
-    <article class="runner-card" style="--accent:#e43c3c" data-runner="0">
-      <div class="card-heading"><span class="color-dot"></span><strong>RED</strong></div>
-      <canvas id="model-0" aria-label="Red robot runner"></canvas>
-      <div class="card-status" id="status-0">Loading robot…</div>
-    </article>
+      <div class="hud-right">
+        <button id="runnerChip" class="runner-chip" type="button" aria-label="Change robot">
+          <span id="runnerDot" class="runner-dot"></span>
+          <span id="runnerName">RED</span>
+        </button>
 
-    <article class="runner-card" style="--accent:#2475d1" data-runner="1">
-      <div class="card-heading"><span class="color-dot"></span><strong>BLUE</strong></div>
-      <canvas id="model-1" aria-label="Blue robot runner"></canvas>
-      <div class="card-status" id="status-1">Loading robot…</div>
-    </article>
+        <div class="stats">
+          <div><span>Distance</span><b id="distance">0000</b></div>
+          <div><span>Speed</span><b id="speed">1.00×</b></div>
+        </div>
+      </div>
+    </section>
 
-    <article class="runner-card" style="--accent:#29a65a" data-runner="2">
-      <div class="card-heading"><span class="color-dot"></span><strong>GREEN</strong></div>
-      <canvas id="model-2" aria-label="Green robot runner"></canvas>
-      <div class="card-status" id="status-2">Loading robot…</div>
-    </article>
+    <section class="status">
+      <div id="modelStatus" class="pill">Loading robot…</div>
+      <div class="controls">
+        <span>← → lanes</span>
+        <span>↑ / SPACE jump</span>
+        <span>↓ slide</span>
+        <span>Swipe on mobile</span>
+      </div>
+    </section>
 
-    <article class="runner-card" style="--accent:#ef4c78" data-runner="3">
-      <div class="card-heading"><span class="color-dot"></span><strong>PINK</strong></div>
-      <canvas id="model-3" aria-label="Pink robot runner"></canvas>
-      <div class="card-status" id="status-3">Loading robot…</div>
-    </article>
+    <section id="picker" class="picker" aria-label="Choose robot">
+      <div class="picker-card">
+        <span class="picker-kicker">CHOOSE YOUR RUNNER</span>
+        <h1>Pick a robot</h1>
+        <p>Same robot and animations. Only the color changes.</p>
 
-    <article class="runner-card" style="--accent:#eef1f7" data-runner="4">
-      <div class="card-heading"><span class="color-dot"></span><strong>WHITE / BLACK</strong></div>
-      <canvas id="model-4" aria-label="White and black robot runner"></canvas>
-      <div class="card-status" id="status-4">Loading robot…</div>
-    </article>
+        <div class="robot-options">
+          <button class="robot-option active" type="button" data-runner="0" style="--runner:#e43c3c"><span></span><b>RED</b></button>
+          <button class="robot-option" type="button" data-runner="1" style="--runner:#2475d1"><span></span><b>BLUE</b></button>
+          <button class="robot-option" type="button" data-runner="2" style="--runner:#29a65a"><span></span><b>GREEN</b></button>
+          <button class="robot-option" type="button" data-runner="3" style="--runner:#ef4c78"><span></span><b>PINK</b></button>
+          <button class="robot-option" type="button" data-runner="4" style="--runner:#eef1f7"><span></span><b>WHITE / BLACK</b></button>
+          <button class="robot-option" type="button" data-runner="5" style="--runner:#9a4de0"><span></span><b>PURPLE</b></button>
+        </div>
 
-    <article class="runner-card" style="--accent:#9a4de0" data-runner="5">
-      <div class="card-heading"><span class="color-dot"></span><strong>PURPLE</strong></div>
-      <canvas id="model-5" aria-label="Purple robot runner"></canvas>
-      <div class="card-status" id="status-5">Loading robot…</div>
-    </article>
+        <button id="startButton" class="start-button" type="button" disabled>START RUN</button>
+      </div>
+    </section>
+
+    <div id="flash" class="flash" aria-hidden="true"></div>
   </main>
 
-  <footer class="note">Same RobotExpressive rig and geometry for all six runners · color changes only.</footer>
   <script type="module" src="./prototype.js"></script>
 </body>
 </html>
