@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Verb Runner V2 Prototype</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <main id="app">
+    <canvas id="game" aria-label="Verb Runner V2 3D prototype"></canvas>
+
+    <section class="hud">
+      <div class="brand">
+        <span class="eyebrow">VERB RUNNER</span>
+        <strong>V2 PROTOTYPE</strong>
+      </div>
+      <div class="stats">
+        <div><span>Distance</span><b id="distance">0000</b></div>
+        <div><span>Speed</span><b id="speed">1.00×</b></div>
+      </div>
+    </section>
+
+    <section class="status">
+      <div id="modelStatus" class="pill">Loading rigged runner…</div>
+      <div class="controls">
+        <span>← → lanes</span>
+        <span>↑ / SPACE jump</span>
+        <span>↓ slide</span>
+        <span>Swipe on mobile</span>
+      </div>
+    </section>
+
+    <div id="flash" class="flash" aria-hidden="true"></div>
+  </main>
+
+  <script type="module" src="./prototype.js"></script>
+</body>
+</html>
