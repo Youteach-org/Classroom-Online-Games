@@ -726,12 +726,12 @@ function answerScreenPoint(answer){
 
 function waitMs(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
 
-async function animateAnswerToBlank(answer,correct){
+async function animateAnswerToBlank(answer,correct,startOverride=null){
   const blankPart=document.querySelector('.part.blank');
   const blankText=blankPart?.querySelector('b');
   if(!blankPart||!blankText)return;
 
-  const start=answerScreenPoint(answer);
+  const start=startOverride||answerScreenPoint(answer);
   const targetRect=blankText.getBoundingClientRect();
   const target={
     x:targetRect.left+targetRect.width/2,
@@ -806,9 +806,10 @@ async function collectAnswer(answer){
   const item=answer.item;
 
   if(item.correct){
+    const startPoint=answerScreenPoint(answer);
     const selectedCopy={mesh:answer.mesh,item:answer.item};
     clearAnswers();
-    await animateAnswerToBlank(selectedCopy,true);
+    await animateAnswerToBlank(selectedCopy,true,startPoint);
     applyRunEvent('correct');
     showNotice('CORRECT!','correct');
     challengeIndex++;
@@ -824,9 +825,10 @@ async function collectAnswer(answer){
     launchChallengeChain(.55);
     answerResolutionActive=false;
   }else{
+    const startPoint=answerScreenPoint(answer);
     const selectedCopy={mesh:answer.mesh,item:answer.item};
     disposeAnswer(answer);
-    await animateAnswerToBlank(selectedCopy,false);
+    await animateAnswerToBlank(selectedCopy,false,startPoint);
     applyRunEvent('grammar-error');
     showNotice(String(item.value).toUpperCase()+' — WRONG · −'+gameSettings.penalty+' ADVANCE','wrong');
     answerResolutionActive=false;
