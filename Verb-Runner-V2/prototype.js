@@ -445,6 +445,8 @@ let retryQueued=false;
 let answerResolutionActive=false;
 let lastCorrectAnswerIndex=-1;
 let recentCorrectPositions=[];
+let blankUsage=[0,0,0];
+const lastBlankByVerb=new Map();
 
 function applyDifficultyDefaults(preset){
   difficulty=preset;
@@ -547,11 +549,11 @@ function renderChallenge(){
   document.querySelectorAll('[data-slot]').forEach((el,index)=>{
     const value=currentChallenge.slots[index];
     el.classList.remove('feedback-correct','feedback-wrong');
-    el.querySelector('b').textContent=value?String(value).toUpperCase():'____';
+    el.querySelector('b').textContent=value?String(value).toUpperCase():'?';
     el.classList.toggle('blank',value===null);
   });
   if(sessionCode&&sessionData){
-    const known=currentChallenge.slots.map(v=>v?String(v).toUpperCase():'____').join(' · ');
+    const known=currentChallenge.slots.map(v=>v?String(v).toUpperCase():'?').join(' · ');
     sessionUpdate({
       challenge:challengeIndex+1,
       challengeLabel:known
@@ -559,8 +561,36 @@ function renderChallenge(){
   }
 }
 
+function chooseBalancedBlankIndex(base){
+  const previous=lastBlankByVerb.get(base);
+  const minimum=Math.min(...blankUsage);
+  let candidates=[0,1,2].filter(i=>blankUsage[i]<=minimum+1&&i!==previous);
+  if(!candidates.length)candidates=[0,1,2].filter(i=>i!==previous);
+  if(!candidates.length)candidates=[0,1,2];
+
+  candidates.sort((a,b)=>blankUsage[a]-blankUsage[b]);
+  const bestUsage=blankUsage[candidates[0]];
+  const best=candidates.filter(i=>blankUsage[i]===bestUsage);
+  const picked=best[Math.floor(Math.random()*best.length)];
+
+  blankUsage[picked]+=1;
+  lastBlankByVerb.set(base,picked);
+  return picked;
+}
+
 function makeChallengeFromVerb(verb){
+  const blankIndex=chooseBalancedBlankIndex(verb.forms[0]);
+  let firstRandom=true;
+  const controlledRandom=()=>{
+    if(firstRandom){
+      firstRandom=false;
+      return (blankIndex+.35)/3;
+    }
+    return Math.random();
+  };
+
   return window.VerbRunnerChallenge.createChallenge(verb,{
+    random:controlledRandom,
     difficulty:difficulty.name,
     distractorCount:gameSettings.distractors
   });
@@ -840,7 +870,7 @@ async function animateAnswerToBlank(answer,correct,startOverride=null){
   if(!correct){
     blankPart.classList.remove('feedback-wrong');
     blankPart.classList.add('blank');
-    blankText.textContent='____';
+    blankText.textContent='?';
   }
 }
 
@@ -891,7 +921,10 @@ function missedCorrectAnswer(){
   }
 
   const missed=challenges.splice(challengeIndex,1)[0];
-  if(missed)challenges.push(missed);
+  if(missed){
+    const verb=window.VerbRunnerBank?.findVerb?.(missed.base);
+    challenges.push(verb?makeChallengeFromVerb(verb):missed);
+  }
 
   showNotice('CORRECT FORM MISSED · MOVED TO END','info');
   renderChallenge();
@@ -914,6 +947,8 @@ function finishRun(){
   answerResolutionActive=false;
   lastCorrectAnswerIndex=-1;
   recentCorrectPositions=[];
+  blankUsage=[0,0,0];
+  lastBlankByVerb.clear();
   clearAnswers();
   for(const o of obstacles.splice(0))scene.remove(o.mesh);
   if(activeAction&&actions.idle)play('idle',.15);
