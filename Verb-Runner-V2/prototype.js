@@ -206,7 +206,7 @@ function setState(state){
 
   if(state==='RUN')play('run',{fade:.12,speed:1});
   else if(state==='SPRINT')play('run',{fade:.10,speed:1.32});
-  else if(state==='JUMP')play('jump',{fade:.07,speed:1,reset:true});
+  else if(state==='JUMP')play('run',{fade:.06,speed:.78});
   else if(state==='ROLL')play('roll',{fade:.055,speed:1.10,reset:true});
   else if(state==='STUMBLE')play('hit',{fade:.04,speed:1.05,reset:true});
   else if(state==='RECOVERY')play('idle',{fade:.07,speed:1,reset:true});
@@ -241,15 +241,6 @@ async function initRunner(){
       'https://static.poly.pizza/ba7a1955-ea51-4cb9-a561-188bdef0a6c7.glb'
     ]);
 
-    let jumpSource=null;
-    try{
-      jumpSource=await loadGLTF(
-        'https://cdn.jsdelivr.net/gh/psqd12137-sudo/dream-channel@3d1f3c91810ac6b73146971d7d6297b12c8f3244/godot/assets/quaternius/animated_characters/Casual_Female.gltf'
-      );
-    }catch(err){
-      console.warn('Jump source unavailable; continuing with native clips.',err);
-    }
-
     model=adapted.scene;
 
     // Native forward is +Z; the runner travels toward -Z.
@@ -269,7 +260,6 @@ async function initRunner(){
     const runClip=bySuffix('Run') || getClip(native,'Run');
     const rollClip=bySuffix('Roll') || getClip(native,'Roll');
     const hitClip=bySuffix('HitRecieve') || bySuffix('HitReceive') || getClip(native,'HitRecieve');
-    const jumpClip=jumpSource ? getClip(jumpSource.animations,'Jump') : runClip;
 
     if(!runClip || !rollClip || !idleClip){
       throw new Error('Native movement clips missing: '+native.map(c=>c.name).join(', '));
