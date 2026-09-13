@@ -55,3 +55,21 @@ test('hard irregular distractors include plausible vowel changes',()=>{
   const ch=core.createChallenge(fly,{random:()=>0.9,difficulty:'hard'});
   assert.ok(ch.distractors.some(v=>/[aeiou]/.test(v)));
 });
+
+test('base-form challenges use only base-shaped vowel distractors',()=>{
+  const drink=bank.findVerb('drink');
+  const ch=core.createChallenge(drink,{random:()=>0.05,difficulty:'hard'});
+  assert.equal(ch.blankIndex,0);
+  assert.equal(ch.correctAnswer,'drink');
+  assert.equal(ch.distractors.length,4);
+  assert.ok(ch.distractors.every(v=>!['drank','drunk','drinked'].includes(v)));
+  assert.ok(ch.distractors.every(v=>core.consonantSkeleton(v)===core.consonantSkeleton('drink')));
+});
+
+test('base-form challenges for y verbs still have enough present-shaped distractors',()=>{
+  const fly=bank.findVerb('fly');
+  const ch=core.createChallenge(fly,{random:()=>0.05,difficulty:'hard'});
+  assert.equal(ch.blankIndex,0);
+  assert.equal(ch.distractors.length,4);
+  assert.ok(ch.distractors.every(v=>!['flew','flown','flyed','flied'].includes(v)));
+});
