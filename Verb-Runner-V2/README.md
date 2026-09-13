@@ -8,14 +8,21 @@ Isolated proof-of-concept. It does not modify the current `Verb-Runner/` impleme
 - keyboard and swipe controls
 - obstacle spawning and collision checks
 - increasing speed
-- rigged 3D runner using skeletal animation instead of sprite frames
+- humanoid VRM character loaded with `@pixiv/three-vrm`
+- continuous skeletal animation instead of sprite frames
 - animation state machine: RUN, JUMP, SLIDE/CROUCH, STUMBLE, RECOVERY, SPRINT
-- cross-fades between animation states
-- sprint changes animation playback, world speed, camera FOV and rim light
-- collision triggers STUMBLE -> RECOVERY -> RUN/SPRINT
-- stylized neon rendering
+- separate humanoid clips for all six states
+- cross-fades between states
+- collision flow: STUMBLE -> RECOVERY -> RUN/SPRINT
+- sprint increases animation intensity, world speed, camera FOV and rim light
+- VRM update loop enabled so the final character can use VRM spring-bone motion for hair/clothes/accessories
+- stylized neon environment remains isolated from the original Verb Runner
 
-The temporary rig is the Three.js RobotExpressive example model loaded remotely at runtime. It is **not** the final Verb Runner character.
+## Temporary humanoid
+
+The current character is the official VRM 1.0 sample model from the pixiv/three-vrm project. It is only used to validate human anatomy, VRM loading, normalized humanoid bones and animation transitions.
+
+It is **not** the final red runner.
 
 ## Controls
 
@@ -23,13 +30,16 @@ The temporary rig is the Three.js RobotExpressive example model loaded remotely 
 - Right / D: lane right
 - Up / W / Space: jump
 - Down / S: slide
-- Shift: sprint test
+- Shift: sprint
 - Mobile: swipe left/right/up/down
 
-## Animation mapping in this prototype
+## Next step
 
-The temporary model does not contain every final runner animation, so the state machine maps the closest available skeletal clips and uses small procedural body transforms where needed. When the final humanoid/VRM is connected, each state can be mapped to its dedicated run, jump, crouch/slide, stumble, recovery and sprint clip without changing the runner mechanics.
+Replace the temporary VRM with the custom red anime runner while keeping the same normalized humanoid skeleton and state machine. The final model should include:
 
-## Next art step
-
-Replace the temporary robot with a humanoid anime/VRM test character, verify all six states on a human skeleton, then build the approved red runner.
+- high ponytail with spring-bone motion
+- red hoodie/jacket
+- black full-length cargo/jogger pants
+- black backpack with glowing cyan/blue V
+- red/white sneakers
+- VRM humanoid rig compatible with the existing RUN/JUMP/SLIDE/STUMBLE/RECOVERY/SPRINT clips
