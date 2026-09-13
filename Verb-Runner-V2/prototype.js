@@ -180,7 +180,7 @@ async function loadGLTF(url){
   async function initRunner(){
   try{
     const [adapted,jumpSource]=await Promise.all([
-      loadGLTF('https://cdn.jsdelivr.net/gh/nerdedi/windgapacademy@19938dc693335ae6c11fd46faaf3580d251b2513/backend/api/citypack/unpacked/Animated%20Woman-qJ2gsTUBHL.glb'),
+      loadGLTF('https://cdn.jsdelivr.net/gh/nikhilswain/Vercord@961a12c08b71e46b0c4da760b2f7cb42ddfb0159/public/game-assets/three-characters/animated-woman.glb'),
       loadGLTF('https://cdn.jsdelivr.net/gh/psqd12137-sudo/dream-channel@3d1f3c91810ac6b73146971d7d6297b12c8f3244/godot/assets/quaternius/animated_characters/Casual_Female.gltf')
     ]);
 
