@@ -1,45 +1,38 @@
 # Verb Runner V2 prototype
 
-Isolated proof-of-concept. It does not modify the current `Verb-Runner/` implementation.
+This is an isolated proof-of-concept. It does not modify the original `Verb-Runner/`.
 
-## Current prototype
+## Native action test
 
-- 3-lane endless-runner movement
-- keyboard and swipe controls
-- obstacle spawning and collision checks
-- increasing speed
-- humanoid VRM character loaded with `@pixiv/three-vrm`
-- continuous skeletal animation instead of sprite frames
-- animation state machine: RUN, JUMP, SLIDE/CROUCH, STUMBLE, RECOVERY, SPRINT
-- separate humanoid clips for all six states
-- cross-fades between states
-- collision flow: STUMBLE -> RECOVERY -> RUN/SPRINT
-- sprint increases animation intensity, world speed, camera FOV and rim light
-- VRM update loop enabled so the final character can use VRM spring-bone motion for hair/clothes/accessories
-- stylized neon environment remains isolated from the original Verb Runner
+The prototype now uses a single rigged Quaternius character with its own native animation set so the movement test does not depend on hand-authored procedural poses.
 
-## Temporary humanoid
+Mapped states:
 
-The current character is the official VRM 1.0 sample model from the pixiv/three-vrm project. It is only used to validate human anatomy, VRM loading, normalized humanoid bones and animation transitions.
+- RUN -> `Run`
+- SPRINT -> `Run` at higher playback speed
+- JUMP launch -> `Jump`
+- airborne pose -> `Jump_Idle`
+- landing -> `Jump_Land`
+- DUCK -> `Duck`
+- STUMBLE -> `HitReact`
+- RECOVERY -> `Jump_Land` as a short recovery transition
 
-It is **not** the final red runner.
+The gameplay still supplies the vertical jump arc and lane movement. The character body motion itself comes from native skeletal animation clips.
 
 ## Controls
 
 - Left / A: lane left
 - Right / D: lane right
 - Up / W / Space: jump
-- Down / S: slide
+- Down / S: duck
 - Shift: sprint
 - Mobile: swipe left/right/up/down
 
-## Next step
+## Temporary asset
 
-Replace the temporary VRM with the custom red anime runner while keeping the same normalized humanoid skeleton and state machine. The final model should include:
+The current action-test character comes from the Quaternius Ultimate Space Kit and is used only to validate native character animation flow before the final red anime runner is created.
 
-- high ponytail with spring-bone motion
-- red hoodie/jacket
-- black full-length cargo/jogger pants
-- black backpack with glowing cyan/blue V
-- red/white sneakers
-- VRM humanoid rig compatible with the existing RUN/JUMP/SLIDE/STUMBLE/RECOVERY/SPRINT clips
+Source mirror used at runtime:
+`danvanderboom/Aetherium/samples/unity/Aphelion/Assets/ThirdParty/Quaternius/Animated/reclaimer-rae.gltf`
+
+License: CC0 1.0, as recorded alongside the asset and on the Quaternius pack page.
