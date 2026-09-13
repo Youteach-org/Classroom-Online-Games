@@ -177,22 +177,49 @@ function styleAdaptedRunner(root){
 }
 
 async function loadGLTF(url){
-  async function initRunner(){
+  const loader=new GLTFLoader();
+  return await new Promise((resolve,reject)=>{
+    loader.load(url,resolve,undefined,reject);
+  });
+}
+
+async function loadFirst(urls){
+  let lastError=null;
+  for(const url of urls){
+    try{
+      return await loadGLTF(url);
+    }catch(err){
+      console.warn('Model source failed, trying fallback:',url,err);
+      lastError=err;
+    }
+  }
+  throw lastError || new Error('No model source available');
+}
+
+async function initRunner(){
   try{
-    const [adapted,jumpSource]=await Promise.all([
-      loadGLTF('https://cdn.jsdelivr.net/gh/nikhilswain/Vercord@961a12c08b71e46b0c4da760b2f7cb42ddfb0159/public/game-assets/three-characters/animated-woman.glb'),
-      loadGLTF('https://cdn.jsdelivr.net/gh/psqd12137-sudo/dream-channel@3d1f3c91810ac6b73146971d7d6297b12c8f3244/godot/assets/quaternius/animated_characters/Casual_Female.gltf')
+    const adapted=await loadFirst([
+      'https://cdn.jsdelivr.net/gh/nikhilswain/Vercord@961a12c08b71e46b0c4da760b2f7cb42ddfb0159/public/game-assets/three-characters/animated-woman.glb',
+      'https://static.poly.pizza/ba7a1955-ea51-4cb9-a561-188bdef0a6c7.glb'
     ]);
+
+    let jumpSource=null;
+    try{
+      jumpSource=await loadGLTF(
+        'https://cdn.jsdelivr.net/gh/psqd12137-sudo/dream-channel@3d1f3c91810ac6b73146971d7d6297b12c8f3244/godot/assets/quaternius/animated_characters/Casual_Female.gltf'
+      );
+    }catch(err){
+      console.warn('Jump source unavailable; continuing with native clips.',err);
+    }
 
     model=adapted.scene;
 
-    // Poly Pizza metadata for this model reports native forward as +Z.
-    // Our endless-runner travels toward -Z, so this shows her back to the camera.
+    // Native forward is +Z; the runner travels toward -Z.
     model.rotation.y=Math.PI;
 
     styleAdaptedRunner(model);
 
-    // Keep the same approved on-screen height as the previous female test.
+    // Same approved runner height as before.
     fitToHeight(model,2.35);
     runnerRoot.add(model);
 
@@ -203,11 +230,7 @@ async function loadGLTF(url){
     const runClip=getClip(native,'CharacterArmature|Run') || getClip(native,'Run');
     const rollClip=getClip(native,'CharacterArmature|Roll') || getClip(native,'Roll');
     const hitClip=getClip(native,'HitRecieve') || getClip(native,'HitReceive');
-
-    // This model has the cleaner body/garment meshes we need, but no native Jump.
-    // Reuse the already-approved Quaternius Jump clip. Both assets use the same
-    // Quaternius humanoid bone naming, so the clip binds to the target skeleton.
-    const jumpClip=getClip(jumpSource.animations,'Jump');
+    const jumpClip=jumpSource ? getClip(jumpSource.animations,'Jump') : runClip;
 
     addAction('idle',idleClip);
     addAction('run',runClip);
@@ -220,9 +243,12 @@ async function loadGLTF(url){
     }
 
     setState('RUN');
-
     modelStatus.textContent='Adapted woman · red runner test';
-    console.table(native.map(c=>({name:c.name,duration:c.duration.toFixed(2)})));
+
+    console.table(native.map(c=>({
+      name:c.name,
+      duration:c.duration.toFixed(2)
+    })));
   }catch(err){
     console.error(err);
     modelStatus.textContent='Adapted red runner failed to load';
