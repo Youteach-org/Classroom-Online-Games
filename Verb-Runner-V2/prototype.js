@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import {makeRunnerId,loadSession,connectRunner,updateRunner,finishRunner} from './session-sync.js';
 
 const ROBOT_URL='https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb';
 
@@ -64,9 +63,35 @@ let gameSettings={
 };
 
 const sessionCode=(new URLSearchParams(location.search).get('session')||'').toUpperCase();
-const runnerSessionId=makeRunnerId();
+let sessionApi=null;
 let sessionData=null;
 let sessionLoadPromise=Promise.resolve(null);
+
+function localRunnerId(){
+  try{
+    const stored=localStorage.getItem('verbRunnerV2RunnerId');
+    if(stored)return stored;
+    const id='R-'+Math.random().toString(36).slice(2,6).toUpperCase();
+    localStorage.setItem('verbRunnerV2RunnerId',id);
+    return id;
+  }catch{
+    return 'R-'+Math.random().toString(36).slice(2,6).toUpperCase();
+  }
+}
+const runnerSessionId=localRunnerId();
+
+function sessionUpdate(patch={}){
+  if(!sessionApi||!sessionData||!sessionCode)return Promise.resolve();
+  return sessionApi.updateRunner(sessionCode,runnerSessionId,patch);
+}
+function sessionConnect(data={}){
+  if(!sessionApi||!sessionData||!sessionCode)return Promise.resolve();
+  return sessionApi.connectRunner(sessionCode,runnerSessionId,data);
+}
+function sessionFinish(data={}){
+  if(!sessionApi||!sessionData||!sessionCode)return Promise.resolve();
+  return sessionApi.finishRunner(sessionCode,runnerSessionId,data);
+}
 
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
@@ -490,17 +515,25 @@ function applySessionSettings(settings={}){
 
 if(sessionCode){
   modelStatus.textContent='Loading classroom session '+sessionCode+'…';
-  sessionLoadPromise=loadSession(sessionCode).then(data=>{
-    if(!data||data.status!=='active')throw new Error('Session not active');
-    sessionData=data;
-    applySessionSettings(data.settings||{});
-    modelStatus.textContent='Session '+sessionCode+' ready · choose a robot';
-    return data;
-  }).catch(err=>{
-    console.error('Verb Runner session load failed',err);
-    modelStatus.textContent='Session unavailable · local mode';
-    return null;
-  });
+  sessionLoadPromise=import('./session-sync.js')
+    .then(api=>{
+      sessionApi=api;
+      return api.loadSession(sessionCode);
+    })
+    .then(data=>{
+      if(!data||data.status!=='active')throw new Error('Session not active');
+      sessionData=data;
+      applySessionSettings(data.settings||{});
+      modelStatus.textContent='Session '+sessionCode+' ready · choose a robot';
+      return data;
+    })
+    .catch(err=>{
+      console.error('Verb Runner session load failed',err);
+      sessionApi=null;
+      sessionData=null;
+      modelStatus.textContent='Session unavailable · local mode';
+      return null;
+    });
 }
 
 
@@ -526,7 +559,7 @@ function updateHud(){
   momentumValue.textContent=`${runState.momentum}%`;
   momentumFill.style.width=`${runState.momentum}%`;
   if(sessionCode&&sessionData){
-    updateRunner(sessionCode,runnerSessionId,{
+    sessionUpdate({
       progress:runState.completed,
       total:totalChallenges,
       momentum:runState.momentum,
@@ -549,7 +582,7 @@ function renderChallenge(){
   });
   if(sessionCode&&sessionData){
     const known=currentChallenge.slots.map(v=>v?String(v).toUpperCase():'____').join(' · ');
-    updateRunner(sessionCode,runnerSessionId,{
+    sessionUpdate({
       challenge:challengeIndex+1,
       challengeLabel:known
     }).catch(()=>{});
@@ -715,7 +748,7 @@ function setPaused(next){
   pauseOverlay.hidden=!next;
   pauseButton.textContent=next?'▶':'Ⅱ';
   modelStatus.textContent=next?'Paused':variants[selectedVariant].name+' robot · DAY CITY AVENUE';
-  if(sessionCode&&sessionData)updateRunner(sessionCode,runnerSessionId,{status:next?'paused':'running'}).catch(()=>{});
+  if(sessionCode&&sessionData)sessionUpdate({status:next?'paused':'running'}).catch(()=>{});
 }
 
 function finishRun(){
@@ -745,7 +778,7 @@ function finishRun(){
   }catch{}
 
   if(sessionCode&&sessionData){
-    finishRunner(sessionCode,runnerSessionId,{
+    sessionFinish({
       progress:totalChallenges,
       total:totalChallenges,
       momentum:summary.momentum,
@@ -911,7 +944,7 @@ startButton.addEventListener('click',async()=>{
   play('run',.12);
   modelStatus.textContent=variants[selectedVariant].name+' robot · DAY CITY AVENUE';
   if(sessionCode&&sessionData){
-    await connectRunner(sessionCode,runnerSessionId,{
+    await sessionConnect({
       total:totalChallenges,
       runner:selectedVariant,
       difficulty:difficulty.name
@@ -1143,7 +1176,7 @@ function updateWorld(dt){
 
 setInterval(()=>{
   if(sessionCode&&sessionData&&gameStarted){
-    updateRunner(sessionCode,runnerSessionId,{
+    sessionUpdate({
       status:gamePaused?'paused':(victoryMode?'victory':'running'),
       progress:runState?.completed||0,
       total:totalChallenges,
