@@ -46,9 +46,9 @@ const resultMomentum=document.querySelector('#resultMomentum');
 
 const TOTAL_CHALLENGES=12;
 const difficultyPresets={
-  easy:{name:'easy',speed:.90,answerSpacing:.82,distractors:2,preview:false,penalty:1},
-  medium:{name:'medium',speed:1.00,answerSpacing:.82,distractors:3,preview:false,penalty:2},
-  hard:{name:'hard',speed:1.15,answerSpacing:.82,distractors:4,preview:false,penalty:3}
+  easy:{name:'easy',speed:.90,answerSpacing:.82,distractors:2,preview:false,penalty:0},
+  medium:{name:'medium',speed:1.00,answerSpacing:.82,distractors:3,preview:false,penalty:1},
+  hard:{name:'hard',speed:1.15,answerSpacing:.82,distractors:4,preview:false,penalty:2}
 };
 let difficulty=difficultyPresets.medium;
 let totalChallenges=TOTAL_CHALLENGES;
@@ -58,7 +58,7 @@ let gameSettings={
   distractors:3,
   obstacleFrequency:45,
   momentumCorrect:8,
-  penalty:2,
+  penalty:1,
   initialSpeed:18,
   maxSpeed:31,
   speedScale:1
@@ -443,6 +443,8 @@ let answerSpawnClock=0;
 let currentChallenge=null;
 let retryQueued=false;
 let answerResolutionActive=false;
+let lastCorrectAnswerIndex=-1;
+let recentCorrectPositions=[];
 
 function applyDifficultyDefaults(preset){
   difficulty=preset;
@@ -684,6 +686,25 @@ function launchChallengeChain(initialDelay=.42){
     distractorCount:gameSettings.distractors
   });
 
+  let correctIndex=sequence.findIndex(item=>item.correct);
+  const lastIndex=sequence.length-1;
+  const recentLastCount=recentCorrectPositions.filter(i=>i===lastIndex).length;
+
+  if(correctIndex===lastIndex&&(lastCorrectAnswerIndex===lastIndex||recentLastCount>=1)){
+    const candidates=sequence
+      .map((item,index)=>({item,index}))
+      .filter(x=>!x.item.correct&&x.index!==lastIndex);
+    if(candidates.length){
+      const swapWith=candidates[Math.floor(Math.random()*candidates.length)].index;
+      [sequence[correctIndex],sequence[swapWith]]=[sequence[swapWith],sequence[correctIndex]];
+      correctIndex=swapWith;
+    }
+  }
+
+  lastCorrectAnswerIndex=correctIndex;
+  recentCorrectPositions.push(correctIndex);
+  if(recentCorrectPositions.length>4)recentCorrectPositions.shift();
+
   pendingAnswers=sequence.map((item,index)=>({
     item,
     at:initialDelay+index*gameSettings.answerSpacing
@@ -891,6 +912,8 @@ function finishRun(){
   victoryMode=false;
   gamePaused=false;
   answerResolutionActive=false;
+  lastCorrectAnswerIndex=-1;
+  recentCorrectPositions=[];
   clearAnswers();
   for(const o of obstacles.splice(0))scene.remove(o.mesh);
   if(activeAction&&actions.idle)play('idle',.15);
@@ -1558,125 +1581,81 @@ function createCyclist(index=0){
   return g;
 }
 
-function makeLowClearanceTexture(){
+function makeDuckUnderTexture(){
   const c=document.createElement('canvas');
-  c.width=768;c.height=256;
+  c.width=768;c.height=220;
   const ctx=c.getContext('2d');
-  ctx.fillStyle='#20262b';ctx.fillRect(0,0,c.width,c.height);
+  ctx.fillStyle='#171b20';ctx.fillRect(0,0,c.width,c.height);
 
-  ctx.fillStyle='#f3b526';
-  for(let x=-80;x<c.width+100;x+=110){
+  for(let x=-120;x<c.width+160;x+=140){
     ctx.save();
     ctx.translate(x,0);
-    ctx.rotate(-.42);
-    ctx.fillRect(0,-100,48,460);
+    ctx.rotate(-.45);
+    ctx.fillStyle='#f4c531';
+    ctx.fillRect(0,-140,58,520);
     ctx.restore();
   }
 
-  ctx.fillStyle='rgba(17,22,27,.90)';
-  ctx.fillRect(74,48,c.width-148,c.height-96);
-  ctx.strokeStyle='#fff4c7';ctx.lineWidth=8;
-  ctx.strokeRect(74,48,c.width-148,c.height-96);
-
+  ctx.fillStyle='rgba(15,18,22,.92)';
+  ctx.fillRect(120,45,c.width-240,c.height-90);
+  ctx.strokeStyle='#ffffff';ctx.lineWidth=7;
+  ctx.strokeRect(120,45,c.width-240,c.height-90);
   ctx.fillStyle='#ffffff';
-  ctx.font='900 58px Arial';
+  ctx.font='900 54px Arial';
   ctx.textAlign='center';
   ctx.textBaseline='middle';
-  ctx.fillText('LOW CLEARANCE',c.width/2,106);
-
-  ctx.font='900 78px Arial';
-  ctx.fillStyle='#ffd23e';
-  ctx.fillText('↓   ↓   ↓',c.width/2,184);
+  ctx.fillText('DUCK UNDER',c.width/2,92);
+  ctx.fillStyle='#ffd23d';
+  ctx.font='900 70px Arial';
+  ctx.fillText('↓   ↓   ↓',c.width/2,158);
 
   const tex=new THREE.CanvasTexture(c);
   tex.colorSpace=THREE.SRGBColorSpace;
   return tex;
 }
+const duckUnderTexture=makeDuckUnderTexture();
 
-const lowClearanceTexture=makeLowClearanceTexture();
-
-function createOpenHatchObstacle(){
+function createDuckUnderObstacle(){
   const g=new THREE.Group();
-  const van=new THREE.Group();
+  const dark=new THREE.MeshStandardMaterial({color:0x272d33,roughness:.62,metalness:.36});
+  const yellow=new THREE.MeshStandardMaterial({color:0xf1b925,roughness:.55,metalness:.12});
+  const faceMat=new THREE.MeshBasicMaterial({map:duckUnderTexture,side:THREE.DoubleSide,fog:false,toneMapped:false});
 
-  const bodyMat=new THREE.MeshStandardMaterial({color:0xf1f2f3,roughness:.42,metalness:.22});
-  const trimMat=new THREE.MeshStandardMaterial({color:0x252b31,roughness:.72,metalness:.18});
-  const warningMat=new THREE.MeshStandardMaterial({map:roadBarricadeTexture,roughness:.5,metalness:.06});
-  const clearanceMat=new THREE.MeshBasicMaterial({map:lowClearanceTexture,side:THREE.DoubleSide,fog:false,toneMapped:false});
+  const bar=new THREE.Mesh(new THREE.BoxGeometry(2.72,.22,.28),yellow);
+  bar.position.set(0,1.78,0);
+  bar.castShadow=true;
+  g.add(bar);
 
-  const body=new THREE.Mesh(new THREE.BoxGeometry(1.42,1.42,2.75),bodyMat);
-  body.position.set(-1.05,.92,.18);
-  body.castShadow=true;
-  van.add(body);
+  const face=new THREE.Mesh(new THREE.PlaneGeometry(2.60,.76),faceMat);
+  face.position.set(0,1.93,-.155);
+  g.add(face);
 
-  const cab=new THREE.Mesh(new THREE.BoxGeometry(1.38,1.18,1.05),bodyMat);
-  cab.position.set(-1.05,.82,-1.55);
-  van.add(cab);
+  for(const x of [-1.24,1.24]){
+    const sidePost=new THREE.Mesh(new THREE.BoxGeometry(.10,1.25,.12),dark);
+    sidePost.position.set(x,.72,.05);
+    g.add(sidePost);
 
-  const windshield=new THREE.Mesh(new THREE.PlaneGeometry(1.05,.55),obstacleMaterials.glass);
-  windshield.position.set(-1.05,1.08,-2.09);
-  windshield.rotation.x=-.16;
-  van.add(windshield);
+    const cone=new THREE.Mesh(new THREE.ConeGeometry(.22,.64,12),obstacleMaterials.orange);
+    cone.position.set(x,.32,.36);
+    g.add(cone);
 
-  for(const z of [-1.45,.88]){
-    for(const x of [-1.72,-.38]){
-      const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,.18,16),obstacleMaterials.rubber);
-      wheel.rotation.z=Math.PI/2;
-      wheel.position.set(x,.30,z);
-      van.add(wheel);
-    }
+    const coneStripe=new THREE.Mesh(new THREE.CylinderGeometry(.14,.17,.11,12),obstacleMaterials.white);
+    coneStripe.position.set(x,.34,.36);
+    g.add(coneStripe);
+
+    const beacon=new THREE.Mesh(new THREE.SphereGeometry(.08,10,8),new THREE.MeshBasicMaterial({color:0xffc72f}));
+    beacon.position.set(x,1.44,.02);
+    g.add(beacon);
   }
 
-  const hatch=new THREE.Group();
-  const panel=new THREE.Mesh(new THREE.BoxGeometry(2.65,.12,1.08),warningMat);
-  panel.position.set(.15,1.72,.78);
-  panel.rotation.x=.06;
-  panel.castShadow=true;
-  hatch.add(panel);
-
-  const clearanceFace=new THREE.Mesh(new THREE.PlaneGeometry(2.48,.74),clearanceMat);
-  clearanceFace.position.set(.15,1.91,.225);
-  clearanceFace.rotation.y=Math.PI;
-  hatch.add(clearanceFace);
-
-  const underside=new THREE.Mesh(new THREE.BoxGeometry(2.55,.055,.98),trimMat);
-  underside.position.set(.15,1.64,.78);
-  hatch.add(underside);
-
-  for(const x of [-.92,1.22]){
-    const reflector=new THREE.Mesh(new THREE.BoxGeometry(.24,.08,.16),new THREE.MeshBasicMaterial({color:0xffc637}));
-    reflector.position.set(x,1.60,.30);
-    hatch.add(reflector);
+  const hangingTapeMat=new THREE.MeshBasicMaterial({color:0xffd331,side:THREE.DoubleSide});
+  for(const x of [-.82,-.28,.28,.82]){
+    const tape=new THREE.Mesh(new THREE.PlaneGeometry(.07,.45),hangingTapeMat);
+    tape.position.set(x,1.47,-.08);
+    g.add(tape);
   }
 
-  for(const x of [-1.02,1.32]){
-    const strip=new THREE.Mesh(
-      new THREE.PlaneGeometry(.18,.48),
-      new THREE.MeshBasicMaterial({color:0xffc52f,side:THREE.DoubleSide,transparent:true,opacity:.92})
-    );
-    strip.position.set(x,1.39,.28);
-    strip.rotation.x=.08;
-    hatch.add(strip);
-  }
-
-  const hinge=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,1.20,10),trimMat);
-  hinge.rotation.z=Math.PI/2;
-  hinge.position.set(-.95,1.70,.24);
-  hatch.add(hinge);
-
-  const coneMat=obstacleMaterials.orange;
-  for(const z of [-.42,1.55]){
-    const cone=new THREE.Mesh(new THREE.ConeGeometry(.20,.58,10),coneMat);
-    cone.position.set(1.22,.29,z);
-    hatch.add(cone);
-    const coneStripe=new THREE.Mesh(new THREE.CylinderGeometry(.14,.17,.10,10),obstacleMaterials.white);
-    coneStripe.position.set(1.22,.31,z);
-    hatch.add(coneStripe);
-  }
-
-  g.add(van);
-  g.add(hatch);
-  g.userData.clearance=1.58;
+  g.userData.clearance=1.50;
   return g;
 }
 
@@ -1685,12 +1664,12 @@ function spawnObstacle(){
   let type;
   let kind;
 
-  if(roll<.18){type='car';kind='car';}
-  else if(roll<.36){type='jump';kind='sign';}
-  else if(roll<.52){type='jump';kind='boxes';}
-  else if(roll<.73){type='dodge';kind='pedestrian';}
-  else if(roll<.88){type='dodge';kind='cyclist';}
-  else {type='slide';kind='hatch';}
+  if(roll<.16){type='car';kind='car';}
+  else if(roll<.31){type='jump';kind='sign';}
+  else if(roll<.44){type='jump';kind='boxes';}
+  else if(roll<.62){type='dodge';kind='pedestrian';}
+  else if(roll<.77){type='dodge';kind='cyclist';}
+  else {type='slide';kind='duck';}
 
   const laneIndex=pickObstacleLane(type);
   if(laneIndex===null)return;
@@ -1701,7 +1680,7 @@ function spawnObstacle(){
   else if(kind==='boxes')mesh=createDeliveryBoxes();
   else if(kind==='pedestrian')mesh=createPedestrian(Math.floor(Math.random()*12));
   else if(kind==='cyclist')mesh=createCyclist(Math.floor(Math.random()*4));
-  else mesh=createOpenHatchObstacle();
+  else mesh=createDuckUnderObstacle();
 
   if(kind==='pedestrian'){
     mesh.position.set(mesh.userData.startSide*5.25,0,OBSTACLE_SPAWN_Z);
