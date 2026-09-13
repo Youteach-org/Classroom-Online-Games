@@ -43,3 +43,15 @@ test('correct answer is shuffled and is not forced to the end',()=>{
   assert.equal(first.filter(x=>x.correct).length,1);
   assert.notEqual(first.at(-1).correct,true);
 });
+
+test('vowel-focused spelling traps mutate vowels without relying on doubled consonants',()=>{
+  const muts=core.vowelMutations('brought');
+  assert.ok(muts.some(v=>/braught|broug.ht|broight|brought/.test(v)||v!== 'brought'));
+  assert.ok(muts.every(v=>!/(.)\1\1/.test(v)));
+});
+
+test('hard irregular distractors include plausible vowel changes',()=>{
+  const fly=bank.findVerb('fly');
+  const ch=core.createChallenge(fly,{random:()=>0.9,difficulty:'hard'});
+  assert.ok(ch.distractors.some(v=>/[aeiou]/.test(v)));
+});
