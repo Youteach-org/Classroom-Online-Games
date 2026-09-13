@@ -56,6 +56,19 @@ scene.add(magenta);
 const world=new THREE.Group();
 scene.add(world);
 
+const environmentMovers=[];
+const farMovers=[];
+
+function addMover(object,{speedFactor=1,span=180,startZ=null}={}){
+  const initialZ=startZ??object.position.z;
+  environmentMovers.push({object,speedFactor,span,initialZ});
+}
+
+function addFarMover(object,{speedFactor=.28,span=210,startZ=null}={}){
+  const initialZ=startZ??object.position.z;
+  farMovers.push({object,speedFactor,span,initialZ});
+}
+
 const road=new THREE.Mesh(
   new THREE.PlaneGeometry(12,170),
   new THREE.MeshStandardMaterial({color:0x101424,roughness:.78,metalness:.2})
@@ -72,6 +85,25 @@ for(const x of [-6,6]){
   world.add(rail);
 }
 
+const sidewalkMat=new THREE.MeshStandardMaterial({color:0x171b2a,roughness:.82,metalness:.18});
+for(const x of [-7.2,7.2]){
+  const sidewalk=new THREE.Mesh(new THREE.BoxGeometry(2.2,.18,170),sidewalkMat);
+  sidewalk.position.set(x,.08,-68);
+  sidewalk.receiveShadow=true;
+  world.add(sidewalk);
+}
+
+const seamMat=new THREE.MeshBasicMaterial({color:0x2b7cff,transparent:true,opacity:.62});
+for(const x of [-5.65,5.65]){
+  for(let i=0;i<18;i++){
+    const seam=new THREE.Mesh(new THREE.BoxGeometry(.12,.025,3.2),seamMat);
+    seam.position.set(x,.04,-i*9.5);
+    seam.userData.loopSpan=171;
+    environmentMovers.push({object:seam,speedFactor:1,span:171,initialZ:seam.position.z});
+    world.add(seam);
+  }
+}
+
 const laneMarkers=[];
 const markerMat=new THREE.MeshBasicMaterial({color:0x9eecff,transparent:true,opacity:.72});
 for(const x of [-1.5,1.5]){
@@ -84,31 +116,136 @@ for(const x of [-1.5,1.5]){
 }
 
 const city=new THREE.Group();
+const windowMats=[
+  new THREE.MeshBasicMaterial({color:0x55dfff,transparent:true,opacity:.85}),
+  new THREE.MeshBasicMaterial({color:0xff4f87,transparent:true,opacity:.78}),
+  new THREE.MeshBasicMaterial({color:0xffcf66,transparent:true,opacity:.7})
+];
+
 for(let i=0;i<34;i++){
   const side=i%2?-1:1;
   const h=3+(i%7)*1.25;
   const w=1.4+(i%4)*.45;
+  const z=-6-i*5.25;
+  const group=new THREE.Group();
+
   const b=new THREE.Mesh(
     new THREE.BoxGeometry(w,h,w),
     new THREE.MeshStandardMaterial({
       color:i%3===0?0x18192f:0x101525,
-      emissive:i%3===0?0x2b0b28:0x061322,
-      emissiveIntensity:.7,
-      roughness:.8
+      emissive:i%3===0?0x250924:0x05101d,
+      emissiveIntensity:.58,
+      roughness:.78,
+      metalness:.12
     })
   );
-  b.position.set(side*(8+(i%5)*1.4),h/2,-4-i*5.2);
+  b.position.y=h/2;
   b.castShadow=true;
-  city.add(b);
+  b.receiveShadow=true;
+  group.add(b);
 
   const strip=new THREE.Mesh(
-    new THREE.BoxGeometry(.05,h*.72,.05),
+    new THREE.BoxGeometry(.07,h*.75,.08),
     new THREE.MeshBasicMaterial({color:i%2?0xff285f:0x24dfff})
   );
-  strip.position.set(b.position.x-side*w*.28,h*.52,b.position.z+w*.51);
-  city.add(strip);
+  strip.position.set(-side*w*.29,h*.52,w*.52);
+  group.add(strip);
+
+  const windowRows=Math.max(2,Math.floor(h/1.3));
+  for(let r=0;r<windowRows;r++){
+    const win=new THREE.Mesh(
+      new THREE.BoxGeometry(w*.56,.11,.035),
+      windowMats[(i+r)%windowMats.length]
+    );
+    win.position.set(0,.75+r*1.05,w*.505);
+    group.add(win);
+  }
+
+  group.position.set(side*(8+(i%5)*1.35),0,z);
+  city.add(group);
+  addMover(group,{speedFactor:.82,span:178,startZ:z});
 }
 world.add(city);
+
+const skyline=new THREE.Group();
+for(let i=0;i<22;i++){
+  const side=i%2?-1:1;
+  const h=7+(i%6)*2.3;
+  const w=2.5+(i%4)*.75;
+  const z=-25-i*8.8;
+  const tower=new THREE.Mesh(
+    new THREE.BoxGeometry(w,h,w),
+    new THREE.MeshStandardMaterial({
+      color:i%2?0x0c1020:0x121327,
+      emissive:i%3===0?0x10234a:0x130b29,
+      emissiveIntensity:.42,
+      roughness:.9
+    })
+  );
+  tower.position.set(side*(15+(i%3)*3.2),h/2,z);
+  skyline.add(tower);
+  addFarMover(tower,{speedFactor:.22,span:205,startZ:z});
+}
+world.add(skyline);
+
+const propGroup=new THREE.Group();
+world.add(propGroup);
+
+const lampPostMat=new THREE.MeshStandardMaterial({color:0x262d3d,roughness:.5,metalness:.55});
+const lampGlowMat=new THREE.MeshBasicMaterial({color:0x6de8ff});
+for(let i=0;i<18;i++){
+  const z=-5-i*9.6;
+  for(const side of [-1,1]){
+    const pole=new THREE.Group();
+    const stem=new THREE.Mesh(new THREE.BoxGeometry(.08,2.7,.08),lampPostMat);
+    stem.position.y=1.35;
+    pole.add(stem);
+    const lamp=new THREE.Mesh(new THREE.BoxGeometry(.22,.12,.42),lampGlowMat);
+    lamp.position.set(-side*.12,2.63,0);
+    pole.add(lamp);
+    pole.position.set(side*6.65,0,z);
+    propGroup.add(pole);
+    addMover(pole,{speedFactor:1,span:173,startZ:z});
+  }
+}
+
+for(let i=0;i<7;i++){
+  const z=-18-i*24;
+  const arch=new THREE.Group();
+  const archMat=new THREE.MeshStandardMaterial({color:0x20263a,metalness:.65,roughness:.36});
+  const glowMat=new THREE.MeshBasicMaterial({color:i%2?0xff3d75:0x3ce6ff});
+
+  for(const x of [-5.9,5.9]){
+    const post=new THREE.Mesh(new THREE.BoxGeometry(.16,4.6,.16),archMat);
+    post.position.set(x,2.3,0);
+    arch.add(post);
+  }
+
+  const top=new THREE.Mesh(new THREE.BoxGeometry(12,.16,.16),archMat);
+  top.position.y=4.55;
+  arch.add(top);
+
+  const glow=new THREE.Mesh(new THREE.BoxGeometry(10.4,.055,.08),glowMat);
+  glow.position.set(0,4.48,.05);
+  arch.add(glow);
+
+  arch.position.z=z;
+  propGroup.add(arch);
+  addMover(arch,{speedFactor:1,span:168,startZ:z});
+}
+
+const horizonGlow=new THREE.Mesh(
+  new THREE.PlaneGeometry(54,18),
+  new THREE.MeshBasicMaterial({
+    color:0x10235c,
+    transparent:true,
+    opacity:.22,
+    side:THREE.DoubleSide,
+    depthWrite:false
+  })
+);
+horizonGlow.position.set(0,8,-92);
+world.add(horizonGlow);
 
 const runnerRoot=new THREE.Group();
 runnerRoot.position.set(0,0,2);
@@ -236,7 +373,7 @@ startButton.addEventListener('click',()=>{
   picker.classList.add('hidden');
   gameStarted=true;
   play('run',.12);
-  modelStatus.textContent=variants[selectedVariant].name+' robot · environment baseline';
+  modelStatus.textContent=variants[selectedVariant].name+' robot · NEON CITY';
 });
 
 runnerChip.addEventListener('click',()=>{
@@ -378,6 +515,16 @@ function updateRunner(dt){
 
 function updateWorld(dt){
   const travel=speed*dt;
+
+  for(const mover of environmentMovers){
+    mover.object.position.z+=travel*mover.speedFactor;
+    if(mover.object.position.z>16)mover.object.position.z-=mover.span;
+  }
+
+  for(const mover of farMovers){
+    mover.object.position.z+=travel*mover.speedFactor;
+    if(mover.object.position.z>8)mover.object.position.z-=mover.span;
+  }
 
   for(const m of laneMarkers){
     m.position.z+=travel;
