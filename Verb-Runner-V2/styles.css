@@ -107,8 +107,6 @@ button,a{-webkit-tap-highlight-color:transparent}
   font-weight:950;letter-spacing:.08em;cursor:pointer;box-shadow:0 12px 30px color-mix(in srgb,var(--runner-accent) 28%,transparent)
 }
 .start-button:disabled{opacity:.35;cursor:wait;box-shadow:none}
-.teacher-link{display:block;width:max-content;margin:12px auto 0;color:#a8dff1;font-size:9px;font-weight:900;letter-spacing:.14em;text-decoration:none}
-.teacher-link:hover{color:#fff}
 
 .pause-overlay,.result-overlay{
   position:absolute;inset:0;z-index:30;display:grid;place-items:center;padding:18px;background:rgba(10,25,36,.58);backdrop-filter:blur(7px)
