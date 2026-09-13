@@ -176,6 +176,44 @@ function styleAdaptedRunner(root){
   });
 }
 
+function addAction(name,clip,{once=false}={}){
+  if(!clip)return null;
+  const action=mixer.clipAction(clip);
+  action.enabled=true;
+  action.clampWhenFinished=once;
+  action.setLoop(once?THREE.LoopOnce:THREE.LoopRepeat,once?1:Infinity);
+  actions[name]=action;
+  return action;
+}
+
+function play(name,{fade=.12,speed=1,reset=false}={}){
+  const next=actions[name];
+  if(!next)return;
+
+  next.enabled=true;
+  next.setEffectiveTimeScale(speed);
+  next.setEffectiveWeight(1);
+
+  if(next===activeAction && !reset)return;
+
+  next.reset().fadeIn(fade).play();
+  if(activeAction && activeAction!==next)activeAction.fadeOut(fade);
+  activeAction=next;
+}
+
+function setState(state){
+  runnerState=state;
+
+  if(state==='RUN')play('run',{fade:.12,speed:1});
+  else if(state==='SPRINT')play('run',{fade:.10,speed:1.32});
+  else if(state==='JUMP')play('jump',{fade:.07,speed:1,reset:true});
+  else if(state==='ROLL')play('roll',{fade:.055,speed:1.10,reset:true});
+  else if(state==='STUMBLE')play('hit',{fade:.04,speed:1.05,reset:true});
+  else if(state==='RECOVERY')play('idle',{fade:.07,speed:1,reset:true});
+
+  modelStatus.textContent='Adapted red runner · '+state;
+}
+
 async function loadGLTF(url){
   const loader=new GLTFLoader();
   return await new Promise((resolve,reject)=>{
