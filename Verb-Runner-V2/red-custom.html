@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Verb Runner V2 - Red Custom Skin</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    }
+  }
+  </script>
+  <style>
+    :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f7f8ff;background:#070913;color-scheme:dark}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 0%,rgba(255,36,70,.15),transparent 36rem),radial-gradient(circle at 92% 8%,rgba(49,142,255,.11),transparent 34rem),#070913}
+    button{font:inherit}.page{width:min(1380px,100%);margin:0 auto;padding:24px clamp(12px,3vw,38px) 36px}
+    .top{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:18px}.eyebrow{margin:0 0 8px;color:#ff536d;font-weight:900;letter-spacing:.18em;font-size:.76rem}.top h1{margin:0;font-size:clamp(2rem,4vw,4rem);line-height:.96;letter-spacing:-.045em}.top p:last-child{margin:10px 0 0;color:#9da8c7}.badge{padding:12px 15px;border:1px solid rgba(255,83,109,.28);border-radius:14px;background:rgba(14,17,33,.8);color:#c7d0ea;font-size:.8rem;line-height:1.45;max-width:340px}.badge strong{color:#fff}
+    .compare{display:grid;grid-template-columns:minmax(260px,.82fr) minmax(420px,1.18fr);min-height:650px;border:1px solid rgba(255,255,255,.08);border-radius:24px;overflow:hidden;background:rgba(12,15,30,.88);box-shadow:0 28px 90px rgba(0,0,0,.35)}
+    .ref,.viewer{position:relative}.ref{display:grid;place-items:center;padding:24px;border-right:1px solid rgba(255,255,255,.07);background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.008))}.ref img{display:block;max-width:100%;max-height:590px;object-fit:contain;filter:drop-shadow(0 24px 40px rgba(0,0,0,.32))}.label{position:absolute;left:14px;top:14px;padding:6px 9px;border-radius:999px;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);font-size:.68rem;font-weight:900;letter-spacing:.12em;color:#cdd5ec}.viewer{min-height:650px;background:radial-gradient(circle at 50% 40%,rgba(255,48,73,.13),transparent 52%)}canvas{display:block;width:100%;height:100%;min-height:650px}.tip{position:absolute;right:14px;top:14px;padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.42);color:#9eabc8;font-size:.68rem;font-weight:800}.status{position:absolute;left:16px;bottom:16px;padding:8px 11px;border-radius:11px;background:rgba(0,0,0,.48);color:#9aa7c6;font-size:.72rem;font-weight:800}.status.ready{color:#baf8ca}.status.error{color:#ff98ad}
+    .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;justify-content:center}.controls button{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.045);color:#dce4f7;border-radius:999px;padding:9px 13px;font-weight:850;font-size:.78rem;cursor:pointer}.controls button:hover,.controls button.active{border-color:rgba(255,83,109,.62);background:rgba(255,48,73,.15);color:#fff}.note{max-width:900px;margin:18px auto 0;text-align:center;color:#929dbc;font-size:.82rem;line-height:1.55}.note strong{color:#fff}
+    @media(max-width:860px){.top{align-items:flex-start;flex-direction:column}.badge{max-width:none;width:100%}.compare{grid-template-columns:1fr;min-height:auto}.ref{border-right:0;border-bottom:1px solid rgba(255,255,255,.07)}.ref img{max-height:430px}.viewer,canvas{min-height:560px}}
+    @media(max-width:520px){.page{padding:16px 9px 28px}.ref{padding:14px}.viewer,canvas{min-height:500px}.controls{gap:6px}.controls button{padding:8px 11px}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="top">
+      <div>
+        <p class="eyebrow">VERB RUNNER · RED SKIN V1</p>
+        <h1>Red runner reconstruction</h1>
+        <p>Original portrait vs. custom rigged 3D reconstruction.</p>
+      </div>
+      <div class="badge"><strong>Not a recolor.</strong><br>Stock hair/clothes are hidden. Body proportions, jacket, crop top, cargo pants, straps, hair, face cues and sneakers are rebuilt over the approved rig.</div>
+    </header>
+
+    <section class="compare">
+      <div class="ref">
+        <span class="label">ORIGINAL CHARACTER</span>
+        <img id="portrait" alt="Original red Verb Runner character" />
+      </div>
+      <div class="viewer">
+        <span class="label">CUSTOM 3D SKIN</span>
+        <span class="tip">Drag to rotate</span>
+        <canvas id="stage" aria-label="Custom red runner 3D model"></canvas>
+        <div id="status" class="status">Loading custom rig…</div>
+      </div>
+    </section>
+
+    <div class="controls" aria-label="Animation preview">
+      <button class="active" data-action="idle">Idle</button>
+      <button data-action="run">Run</button>
+      <button data-action="jump">Jump</button>
+      <button data-action="roll">Roll</button>
+      <button data-action="hit">Hit</button>
+    </div>
+
+    <p class="note">This page is only for approving the <strong>red character</strong>. Height remains <strong>2.35</strong> and the approved native Run / Jump / Roll / Hit / Idle rig is preserved.</p>
+  </main>
+  <script type="module" src="./red-custom.js"></script>
+</body>
+</html>
