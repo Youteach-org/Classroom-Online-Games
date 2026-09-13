@@ -1,31 +1,33 @@
 # Verb Runner V2 prototype
 
-This isolated prototype is back on the approved Quaternius **Casual Female** base.
+This isolated prototype now uses **six different rigged character meshes**, not one body recolored six times.
 
-## Six-runner base
+## Character bases
 
-All six runners now share the exact same rig, proportions and native animation set. The model is not rebuilt with primitive geometry. Each variant changes the model's real material slots.
+All six models come from the same Quaternius Ultimate Animated Character family, so each one carries the same native animation set and can use the exact same runner state machine.
 
-Preview variants:
+- Red -> `Casual_Female.gltf`
+- Blue -> `Casual_Male.gltf`
+- Green -> `Casual2_Male.gltf`
+- Pink -> `Casual2_Female.gltf`
+- White -> `Casual3_Female.gltf`
+- Purple -> `Casual3_Male.gltf`
 
-1. Red
-2. Blue
-3. Green
-4. Pink
-5. White
-6. Purple
+These are different body/clothing/hair meshes. Color is only an additional identity layer; it is no longer the only difference.
 
-The primary colors match the six runner colors already used by the original Verb Runner selection screen.
+## Movement
 
-## Movement kept intact
+Every character uses its own native clips:
 
-- RUN -> native `Run`
-- SPRINT -> native `Run` at higher speed
-- JUMP -> native `Jump`
-- LOW OBSTACLE ACTION -> native `Roll`
-- STUMBLE -> native `RecieveHit`
-- RECOVERY -> native `Idle`
+- RUN -> `Run`
+- SPRINT -> `Run` faster
+- JUMP -> `Jump`
+- LOW OBSTACLE ACTION -> `Roll`
+- STUMBLE -> `RecieveHit`
+- RECOVERY -> `Idle`
 
-Height stays at the previously approved 2.35 world units, with the approved narrower body and reduced head width/depth.
+The red runner preserves the previously approved 2.35 height and narrowed proportions. The other five keep the same vertical height while using body-specific width/head tuning.
 
-This is the common technical base for adapting the six final characters.
+## Goal
+
+This is the structural six-character base. Each runner can now be refined toward its existing selection portrait without replacing the shared animation pipeline or attaching fake primitive geometry.
