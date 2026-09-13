@@ -114,6 +114,130 @@ const actions={};
 let activeAction=null;
 let runnerState='LOADING';
 
+function paintRunner(root){
+  const palette={
+    Shirt:0xb51f2e,
+    Pants:0x111318,
+    Belt:0x090a0d,
+    Hair:0x6d2f24
+  };
+
+  root.traverse(o=>{
+    if(!o.isMesh)return;
+
+    const mats=Array.isArray(o.material)?o.material:[o.material];
+    o.material=mats.map(mat=>{
+      if(!mat)return mat;
+      const cloned=mat.clone();
+      if(palette[cloned.name]!==undefined){
+        cloned.color.setHex(palette[cloned.name]);
+        cloned.roughness=.68;
+        cloned.metalness=.05;
+      }
+      return cloned;
+    });
+
+    if(!Array.isArray(o.material))o.material=o.material[0];
+  });
+}
+
+function solidMat(color,{emissive=0,emissiveIntensity=0}={}){
+  return new THREE.MeshStandardMaterial({
+    color,
+    emissive,
+    emissiveIntensity,
+    roughness:.58,
+    metalness:.12
+  });
+}
+
+function addRedRunnerAccessories(root){
+  const hairMat=solidMat(0x6d2f24);
+  const darkMat=solidMat(0x090b10);
+  const whiteMat=solidMat(0xf3f4f6);
+  const cyanMat=new THREE.MeshBasicMaterial({color:0x25e7ff});
+
+  const head=root.getObjectByName('Head');
+  if(head){
+    const ponytail=new THREE.Group();
+    ponytail.name='RedRunnerPonytail';
+    ponytail.position.set(0,.16,-.16);
+
+    const tie=new THREE.Mesh(new THREE.SphereGeometry(.072,12,10),darkMat);
+    ponytail.add(tie);
+
+    const seg1=new THREE.Mesh(new THREE.CapsuleGeometry(.085,.20,5,10),hairMat);
+    seg1.position.set(0,-.15,-.06);
+    seg1.rotation.x=.28;
+    ponytail.add(seg1);
+
+    const seg2=new THREE.Mesh(new THREE.CapsuleGeometry(.07,.22,5,10),hairMat);
+    seg2.position.set(0,-.36,-.11);
+    seg2.rotation.x=.12;
+    ponytail.add(seg2);
+
+    head.add(ponytail);
+  }
+
+  const torso=root.getObjectByName('Torso');
+  if(torso){
+    const pack=new THREE.Group();
+    pack.name='RedRunnerBackpack';
+    pack.position.set(0,.05,-.27);
+
+    const body=new THREE.Mesh(
+      new THREE.BoxGeometry(.52,.64,.18),
+      darkMat
+    );
+    body.scale.z=.9;
+    pack.add(body);
+
+    const pocket=new THREE.Mesh(
+      new THREE.BoxGeometry(.36,.22,.09),
+      solidMat(0x10131a)
+    );
+    pocket.position.set(0,-.16,-.125);
+    pack.add(pocket);
+
+    const leftV=new THREE.Mesh(
+      new THREE.BoxGeometry(.045,.30,.025),
+      cyanMat
+    );
+    leftV.position.set(-.07,.02,-.105);
+    leftV.rotation.z=-.46;
+    pack.add(leftV);
+
+    const rightV=leftV.clone();
+    rightV.position.x=.07;
+    rightV.rotation.z=.46;
+    pack.add(rightV);
+
+    torso.add(pack);
+  }
+
+  for(const side of ['L','R']){
+    const lower=root.getObjectByName('LowerArm.'+side);
+    if(lower){
+      const stripe=new THREE.Mesh(
+        new THREE.CylinderGeometry(.105,.105,.075,12),
+        whiteMat
+      );
+      stripe.position.set(0,.34,0);
+      lower.add(stripe);
+    }
+
+    const fist=root.getObjectByName('Fist.'+side);
+    if(fist){
+      const glove=new THREE.Mesh(
+        new THREE.SphereGeometry(.105,10,8),
+        darkMat
+      );
+      glove.scale.set(1.05,.9,.95);
+      fist.add(glove);
+    }
+  }
+}
+
 function fitToHeight(root,target=2.35){
   root.updateMatrixWorld(true);
   const box=new THREE.Box3().setFromObject(root);
@@ -216,6 +340,9 @@ loader.load(
       head.scale.z*=.82;
     }
 
+    paintRunner(model);
+    addRedRunnerAccessories(model);
+
     runnerRoot.add(model);
 
     mixer=new THREE.AnimationMixer(model);
@@ -243,7 +370,7 @@ loader.load(
   undefined,
   err=>{
     console.error(err);
-    modelStatus.textContent='Casual Female failed to load';
+    modelStatus.textContent='Red runner prototype failed to load';
   }
 );
 
