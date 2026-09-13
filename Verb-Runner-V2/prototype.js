@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import {makeRunnerId,loadSession,connectRunner,updateRunner,finishRunner} from './session-sync.js';
 
 const ROBOT_URL='https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb';
 
@@ -48,6 +49,24 @@ const difficultyPresets={
   hard:{name:'hard',speed:1.18,answerSpacing:.64,distractors:4,preview:false}
 };
 let difficulty=difficultyPresets.medium;
+let totalChallenges=totalChallenges;
+let gameSettings={
+  preview:false,
+  answerSpacing:.82,
+  distractors:3,
+  obstacleFrequency:45,
+  momentumCorrect:8,
+  momentumGrammarLoss:15,
+  momentumObstacleLoss:5,
+  initialSpeed:18,
+  maxSpeed:31,
+  speedScale:1
+};
+
+const sessionCode=(new URLSearchParams(location.search).get('session')||'').toUpperCase();
+const runnerSessionId=makeRunnerId();
+let sessionData=null;
+let sessionLoadPromise=Promise.resolve(null);
 
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
@@ -434,6 +453,57 @@ let answerSpawnClock=0;
 let currentChallenge=null;
 let retryQueued=false;
 
+function applyDifficultyDefaults(preset){
+  difficulty=preset;
+  gameSettings={
+    ...gameSettings,
+    preview:preset.preview,
+    answerSpacing:preset.answerSpacing,
+    distractors:preset.distractors,
+    speedScale:preset.speed
+  };
+}
+
+function applySessionSettings(settings={}){
+  const preset=difficultyPresets[settings.difficulty]||difficultyPresets.medium;
+  difficulty=preset;
+  totalChallenges=Math.max(5,Math.min(40,Number(settings.challengeCount)||totalChallenges));
+  gameSettings={
+    preview:settings.preview??preset.preview,
+    answerSpacing:Number(settings.answerSpacing)||preset.answerSpacing,
+    distractors:Math.max(1,Math.min(6,Number(settings.distractors)||preset.distractors)),
+    obstacleFrequency:Math.max(0,Math.min(100,Number(settings.obstacleFrequency)??45)),
+    momentumCorrect:Math.max(0,Number(settings.momentumCorrect)??8),
+    momentumGrammarLoss:Math.max(0,Number(settings.momentumGrammarLoss)??15),
+    momentumObstacleLoss:Math.max(0,Number(settings.momentumObstacleLoss)??5),
+    initialSpeed:Math.max(12,Number(settings.initialSpeed)||18),
+    maxSpeed:Math.max(20,Number(settings.maxSpeed)||31),
+    speedScale:Number(settings.speedScale)||preset.speed
+  };
+  document.querySelectorAll('[data-difficulty]').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.difficulty===preset.name);
+    btn.disabled=true;
+  });
+  challengeNumber.textContent='1 / '+totalChallenges;
+  progressValue.textContent='0 / '+totalChallenges;
+}
+
+if(sessionCode){
+  modelStatus.textContent='Loading classroom session '+sessionCode+'…';
+  sessionLoadPromise=loadSession(sessionCode).then(data=>{
+    if(!data||data.status!=='active')throw new Error('Session not active');
+    sessionData=data;
+    applySessionSettings(data.settings||{});
+    modelStatus.textContent='Session '+sessionCode+' ready · choose a robot';
+    return data;
+  }).catch(err=>{
+    console.error('Verb Runner session load failed',err);
+    modelStatus.textContent='Session unavailable · local mode';
+    return null;
+  });
+}
+
+
 
 function formatTime(ms){
   const total=Math.max(0,Math.round(ms));
@@ -452,29 +522,47 @@ function showNotice(text,kind='info'){
 function updateHud(){
   if(!runState)return;
   streakValue.textContent=String(runState.streak);
-  progressValue.textContent=`${runState.completed} / ${TOTAL_CHALLENGES}`;
+  progressValue.textContent=`${runState.completed} / ${totalChallenges}`;
   momentumValue.textContent=`${runState.momentum}%`;
   momentumFill.style.width=`${runState.momentum}%`;
+  if(sessionCode&&sessionData){
+    updateRunner(sessionCode,runnerSessionId,{
+      progress:runState.completed,
+      total:totalChallenges,
+      momentum:runState.momentum,
+      streak:runState.streak,
+      correct:runState.correct,
+      grammarErrors:runState.grammarErrors,
+      obstacleHits:runState.obstacleHits
+    }).catch(()=>{});
+  }
 }
 
 function renderChallenge(){
   currentChallenge=challenges[challengeIndex];
   if(!currentChallenge)return;
-  challengeNumber.textContent=`${challengeIndex+1} / ${TOTAL_CHALLENGES}`;
+  challengeNumber.textContent=`${challengeIndex+1} / ${totalChallenges}`;
   document.querySelectorAll('[data-slot]').forEach((el,index)=>{
     const value=currentChallenge.slots[index];
     el.querySelector('b').textContent=value?String(value).toUpperCase():'____';
     el.classList.toggle('blank',value===null);
   });
+  if(sessionCode&&sessionData){
+    const known=currentChallenge.slots.map(v=>v?String(v).toUpperCase():'____').join(' · ');
+    updateRunner(sessionCode,runnerSessionId,{
+      challenge:challengeIndex+1,
+      challengeLabel:known
+    }).catch(()=>{});
+  }
 }
 
 function buildChallenges(){
   const bank=[...(window.VerbRunnerBank?.VERBS||[])];
   const shuffled=window.VerbRunnerChallenge.shuffled(bank);
-  challenges=shuffled.slice(0,TOTAL_CHALLENGES).map(verb=>
+  challenges=shuffled.slice(0,totalChallenges).map(verb=>
     window.VerbRunnerChallenge.createChallenge(verb,{
       bank,
-      distractorCount:Math.max(5,difficulty.distractors+1)
+      distractorCount:Math.max(5,gameSettings.distractors+1)
     })
   );
 }
@@ -543,16 +631,16 @@ function launchChallengeChain(initialDelay=.42){
   if(!currentChallenge)return;
 
   const sequence=window.VerbRunnerChallenge.buildAnswerSequence(currentChallenge,{
-    distractorsBeforeCorrect:difficulty.distractors
+    distractorsBeforeCorrect:gameSettings.distractors
   });
 
   pendingAnswers=sequence.map((item,index)=>({
     item,
-    at:initialDelay+index*difficulty.answerSpacing
+    at:initialDelay+index*gameSettings.answerSpacing
   }));
   answerSpawnClock=0;
 
-  if(difficulty.preview){
+  if(gameSettings.preview){
     showNotice('LOOK FOR: '+String(currentChallenge.correctAnswer).toUpperCase(),'info');
   }
 }
@@ -568,7 +656,22 @@ function updateAnswerSpawns(dt){
 
 function applyRunEvent(type){
   if(!runState)return;
-  runState=window.VerbRunnerGameCore.applyEvent(runState,type);
+  const next={...runState};
+  if(type==='correct'){
+    next.completed+=1;
+    next.correct+=1;
+    next.streak+=1;
+    next.bestStreak=Math.max(next.bestStreak,next.streak);
+    next.momentum=Math.min(100,next.momentum+gameSettings.momentumCorrect);
+  }else if(type==='grammar-error'){
+    next.grammarErrors+=1;
+    next.streak=0;
+    next.momentum=Math.max(0,next.momentum-gameSettings.momentumGrammarLoss);
+  }else if(type==='obstacle-hit'){
+    next.obstacleHits+=1;
+    next.momentum=Math.max(0,next.momentum-gameSettings.momentumObstacleLoss);
+  }
+  runState=next;
   updateHud();
 }
 
@@ -583,7 +686,7 @@ function collectAnswer(answer){
     clearAnswers();
     challengeIndex++;
 
-    if(challengeIndex>=TOTAL_CHALLENGES){
+    if(challengeIndex>=totalChallenges){
       beginVictorySprint();
       return;
     }
@@ -612,6 +715,7 @@ function setPaused(next){
   pauseOverlay.hidden=!next;
   pauseButton.textContent=next?'▶':'Ⅱ';
   modelStatus.textContent=next?'Paused':variants[selectedVariant].name+' robot · DAY CITY AVENUE';
+  if(sessionCode&&sessionData)updateRunner(sessionCode,runnerSessionId,{status:next?'paused':'running'}).catch(()=>{});
 }
 
 function finishRun(){
@@ -639,6 +743,20 @@ function finishRun(){
       completedAt:Date.now()
     }));
   }catch{}
+
+  if(sessionCode&&sessionData){
+    finishRunner(sessionCode,runnerSessionId,{
+      progress:totalChallenges,
+      total:totalChallenges,
+      momentum:summary.momentum,
+      bestStreak:summary.bestStreak,
+      accuracy:summary.accuracy,
+      correct:runState.correct,
+      grammarErrors:runState.grammarErrors,
+      obstacleHits:summary.obstacleHits,
+      timeMs:summary.timeMs
+    }).catch(()=>{});
+  }
 }
 
 function beginVictorySprint(){
@@ -657,7 +775,7 @@ function beginVictorySprint(){
 }
 
 function resetRun(){
-  runState=window.VerbRunnerGameCore.createRunState(TOTAL_CHALLENGES);
+  runState=window.VerbRunnerGameCore.createRunState(totalChallenges);
   challengeIndex=0;
   runElapsed=0;
   distance=0;
@@ -777,19 +895,31 @@ document.querySelectorAll('.robot-option').forEach((btn,index)=>{
 
 document.querySelectorAll('[data-difficulty]').forEach(btn=>{
   btn.addEventListener('click',()=>{
-    difficulty=difficultyPresets[btn.dataset.difficulty]||difficultyPresets.medium;
+    if(sessionCode&&sessionData)return;
+    const preset=difficultyPresets[btn.dataset.difficulty]||difficultyPresets.medium;
+    applyDifficultyDefaults(preset);
     document.querySelectorAll('[data-difficulty]').forEach(b=>b.classList.toggle('active',b===btn));
   });
 });
 
-startButton.addEventListener('click',()=>{
+startButton.addEventListener('click',async()=>{
+  await sessionLoadPromise;
   resetRun();
   picker.classList.add('hidden');
   resultOverlay.hidden=true;
   gameStarted=true;
   play('run',.12);
   modelStatus.textContent=variants[selectedVariant].name+' robot · DAY CITY AVENUE';
-  launchChallengeChain(difficulty.preview?1.55:.55);
+  if(sessionCode&&sessionData){
+    await connectRunner(sessionCode,runnerSessionId,{
+      total:totalChallenges,
+      runner:selectedVariant,
+      difficulty:difficulty.name
+    }).catch(()=>{});
+    renderChallenge();
+    updateHud();
+  }
+  launchChallengeChain(gameSettings.preview?1.55:.55);
 });
 
 runnerChip.addEventListener('click',()=>{
@@ -1004,10 +1134,23 @@ function updateWorld(dt){
     nextSpawn-=travel;
     if(nextSpawn<=0){
       spawnObstacle();
-      nextSpawn=(22+Math.random()*18)/difficulty.speed;
+      const frequencyScale=THREE.MathUtils.lerp(1.75,.58,gameSettings.obstacleFrequency/100);
+      nextSpawn=(22+Math.random()*18)*frequencyScale/gameSettings.speedScale;
     }
   }
 }
+
+
+setInterval(()=>{
+  if(sessionCode&&sessionData&&gameStarted){
+    updateRunner(sessionCode,runnerSessionId,{
+      status:gamePaused?'paused':(victoryMode?'victory':'running'),
+      progress:runState?.completed||0,
+      total:totalChallenges,
+      momentum:runState?.momentum??75
+    }).catch(()=>{});
+  }
+},15000);
 
 const clock=new THREE.Clock();
 
@@ -1045,7 +1188,7 @@ function animate(){
       }
     }else{
       const momentumBoost=.78+(runState?.momentum||75)/340;
-      speed=Math.min(31,(18+distance/620)*difficulty.speed*momentumBoost);
+      speed=Math.min(gameSettings.maxSpeed,(gameSettings.initialSpeed+distance/620)*gameSettings.speedScale*momentumBoost);
       distance+=speed*dt;
       updateRunner(dt);
       updateWorld(dt);
