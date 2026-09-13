@@ -226,24 +226,31 @@ async function initRunner(){
     mixer=new THREE.AnimationMixer(model);
 
     const native=adapted.animations;
-    const idleClip=getClip(native,'Idle_Neutral') || getClip(native,'Idle');
-    const runClip=getClip(native,'CharacterArmature|Run') || getClip(native,'Run');
-    const rollClip=getClip(native,'CharacterArmature|Roll') || getClip(native,'Roll');
-    const hitClip=getClip(native,'HitRecieve') || getClip(native,'HitReceive');
+    const bySuffix=suffix=>native.find(c=>c.name.endsWith('|'+suffix));
+    const idleClip=bySuffix('Idle_Neutral') || bySuffix('Idle') || getClip(native,'Idle');
+    const runClip=bySuffix('Run') || getClip(native,'Run');
+    const rollClip=bySuffix('Roll') || getClip(native,'Roll');
+    const hitClip=bySuffix('HitRecieve') || bySuffix('HitReceive') || getClip(native,'HitRecieve');
     const jumpClip=jumpSource ? getClip(jumpSource.animations,'Jump') : runClip;
 
-    addAction('idle',idleClip);
-    addAction('run',runClip);
-    addAction('jump',jumpClip,{once:true});
-    addAction('roll',rollClip,{once:true});
-    addAction('hit',hitClip,{once:true});
+    if(!runClip || !rollClip || !idleClip){
+      throw new Error('Native movement clips missing: '+native.map(c=>c.name).join(', '));
+    }
+
+    // Native clips must stay untouched. Sanitizing them was preventing this
+    // particular GLB from resolving its authored bone tracks correctly.
+    addAction('idle',idleClip,{sanitize:false});
+    addAction('run',runClip,{sanitize:false});
+    addAction('jump',jumpClip,{once:true,sanitize:jumpSource!==null});
+    addAction('roll',rollClip,{once:true,sanitize:false});
+    addAction('hit',hitClip,{once:true,sanitize:false});
 
     if(rollClip){
       rollDuration=THREE.MathUtils.clamp(rollClip.duration/1.10,.68,1.05);
     }
 
     setState('RUN');
-    modelStatus.textContent='Adapted woman · red runner test';
+    modelStatus.textContent='Adapted woman · native animation active';
 
     console.table(native.map(c=>({
       name:c.name,
