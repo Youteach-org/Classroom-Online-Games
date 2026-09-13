@@ -5,6 +5,15 @@
 .runner-art.sprite-runner{position:absolute;inset:0!important;display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;background:none!important;image-rendering:auto;filter:drop-shadow(0 10px 14px rgba(0,10,28,.48));transform:translateZ(0)!important;backface-visibility:hidden;transition:opacity .16s ease}.runner-art.sprite-runner.loading{opacity:.18}.runner-art.sprite-runner.failed{opacity:0}
 .character-card[data-pose] .runner-art.sprite-runner{transform:none!important}
 .character-card.sprite-card[aria-pressed="true"] .sprite-runner{filter:drop-shadow(0 12px 17px rgba(0,10,28,.5)) drop-shadow(0 0 10px var(--runner-color))}
+/* Red selection portrait: display-only centering; source image remains untouched */
+.character-grid .character-card:first-child .sprite-runner{
+  inset:4% 4% 4% 4%!important;
+  width:92%;
+  height:92%;
+  object-fit:contain;
+  object-position:center center;
+}
+
 .desktop-game-ui .game-hud{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0}
 .desktop-game-ui .hud-pause,.desktop-game-ui .hud-momentum,.desktop-game-ui .hud-prompt,.desktop-game-ui .hud-timer,.desktop-game-ui .hud-streak,.desktop-game-ui .hud-progress{background:linear-gradient(180deg,rgba(7,31,59,.88),rgba(4,20,39,.82));border-width:1px;backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,22,43,.45),inset 0 0 12px rgba(45,193,255,.12)}
 .desktop-game-ui .hud-pause{left:14px;top:14px;width:42px;height:42px;font-size:22px;border-radius:9px}
