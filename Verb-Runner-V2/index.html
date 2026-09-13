@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#8ec9ee" />
   <title>Verb Runner V2</title>
   <link rel="stylesheet" href="./styles.css" />
   <script type="importmap">
@@ -18,10 +19,27 @@
   <main id="app">
     <canvas id="game" aria-label="Verb Runner V2 3D game"></canvas>
 
-    <section class="hud">
-      <div class="brand">
-        <span class="eyebrow">VERB RUNNER</span>
-        <strong>3D PROTOTYPE</strong>
+    <header class="hud">
+      <div class="hud-left">
+        <button id="pauseButton" class="icon-button" type="button" aria-label="Pause game">Ⅱ</button>
+        <div class="brand">
+          <span class="eyebrow">VERB RUNNER</span>
+          <strong>LEVEL 1 · VERB HUNT</strong>
+        </div>
+      </div>
+
+      <div class="hud-center" aria-label="Verb challenge">
+        <div class="challenge-top">
+          <span>CHALLENGE</span>
+          <strong id="challengeNumber">1 / 12</strong>
+        </div>
+        <div class="principal-parts">
+          <div class="part" data-slot="0"><small>BASE FORM</small><b>—</b></div>
+          <i>|</i>
+          <div class="part" data-slot="1"><small>SIMPLE PAST</small><b>—</b></div>
+          <i>|</i>
+          <div class="part" data-slot="2"><small>PAST PARTICIPLE</small><b>—</b></div>
+        </div>
       </div>
 
       <div class="hud-right">
@@ -29,13 +47,18 @@
           <span id="runnerDot" class="runner-dot"></span>
           <span id="runnerName">RED</span>
         </button>
-
-        <div class="stats">
-          <div><span>Distance</span><b id="distance">0000</b></div>
-          <div><span>Speed</span><b id="speed">1.00×</b></div>
-        </div>
+        <div class="mini-stat"><span>TIME</span><b id="raceTime">00:00.000</b></div>
+        <div class="mini-stat"><span>STREAK</span><b id="streakValue">0</b></div>
+        <div class="mini-stat"><span>PROGRESS</span><b id="progressValue">0 / 12</b></div>
       </div>
+    </header>
+
+    <section class="momentum-panel" aria-label="Momentum">
+      <div class="momentum-copy"><span>⚡ MOMENTUM</span><strong id="momentumValue">75%</strong></div>
+      <div class="momentum-track"><div id="momentumFill" class="momentum-fill" style="width:75%"></div></div>
     </section>
+
+    <div id="gameNotice" class="game-notice" aria-live="assertive"></div>
 
     <section class="status">
       <div id="modelStatus" class="pill">Loading robot…</div>
@@ -43,15 +66,15 @@
         <span>← → lanes</span>
         <span>↑ / SPACE jump</span>
         <span>↓ slide</span>
-        <span>Swipe on mobile</span>
+        <span>Collect the correct verb form</span>
       </div>
     </section>
 
-    <section id="picker" class="picker" aria-label="Choose robot">
+    <section id="picker" class="picker" aria-label="Choose runner">
       <div class="picker-card">
-        <span class="picker-kicker">CHOOSE YOUR RUNNER</span>
-        <h1>Pick a robot</h1>
-        <p>Same robot and animations. Only the color changes.</p>
+        <span class="picker-kicker">VERB RUNNER</span>
+        <h1>Choose your runner</h1>
+        <p>All six robots have the same abilities. Pick a color and difficulty.</p>
 
         <div class="robot-options">
           <button class="robot-option active" type="button" data-runner="0" style="--runner:#e43c3c"><span></span><b>RED</b></button>
@@ -62,13 +85,50 @@
           <button class="robot-option" type="button" data-runner="5" style="--runner:#9a4de0"><span></span><b>PURPLE</b></button>
         </div>
 
+        <div class="difficulty" aria-label="Difficulty">
+          <button type="button" data-difficulty="easy"><b>EASY</b><small>Preview · slower</small></button>
+          <button type="button" data-difficulty="medium" class="active"><b>MEDIUM</b><small>Standard race</small></button>
+          <button type="button" data-difficulty="hard"><b>HARD</b><small>Faster · tighter choices</small></button>
+        </div>
+
         <button id="startButton" class="start-button" type="button" disabled>START RUN</button>
+      </div>
+    </section>
+
+    <section id="pauseOverlay" class="pause-overlay" hidden>
+      <div class="pause-card">
+        <span>PAUSED</span>
+        <strong>VERB RUNNER</strong>
+        <button id="resumeButton" type="button">RESUME</button>
+      </div>
+    </section>
+
+    <section id="resultOverlay" class="result-overlay" hidden>
+      <div class="result-card">
+        <span class="result-kicker">LEVEL 1 COMPLETE</span>
+        <h2>Great run!</h2>
+        <div class="result-stars">★ ★ ★</div>
+        <div class="result-grid">
+          <div><span>TIME</span><strong id="resultTime">—</strong></div>
+          <div><span>ACCURACY</span><strong id="resultAccuracy">—</strong></div>
+          <div><span>CORRECT / ATTEMPTS</span><strong id="resultCorrect">—</strong></div>
+          <div><span>BEST STREAK</span><strong id="resultStreak">—</strong></div>
+          <div><span>OBSTACLES HIT</span><strong id="resultObstacles">—</strong></div>
+          <div><span>FINAL MOMENTUM</span><strong id="resultMomentum">—</strong></div>
+        </div>
+        <div class="result-actions">
+          <button id="runAgainButton" class="start-button" type="button">RUN AGAIN</button>
+          <a class="ghost-button" href="/">BACK TO GAMES</a>
+        </div>
       </div>
     </section>
 
     <div id="flash" class="flash" aria-hidden="true"></div>
   </main>
 
+  <script src="../Verb-Runner/verb-bank.js"></script>
+  <script src="../Verb-Runner/challenge-core.js"></script>
+  <script src="../Verb-Runner/game-core.js"></script>
   <script type="module" src="./prototype.js"></script>
 </body>
 </html>
