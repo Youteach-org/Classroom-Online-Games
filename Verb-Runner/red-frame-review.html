@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Red Girl Frame Review</title>
+<style>
+  *{box-sizing:border-box} body{margin:0;background:#111;color:#fff;font-family:Arial,sans-serif}
+  main{max-width:1200px;margin:auto;padding:24px}
+  h1{font-size:28px;margin:0 0 8px} p{color:#ccc;margin:0 0 24px}
+  .reference,.grid{display:grid;gap:18px}.reference{grid-template-columns:minmax(220px,320px);margin-bottom:28px}
+  .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .card{background:#1b1b1b;border:2px solid #444;border-radius:14px;padding:14px;text-align:center}
+  .card h2{margin:0 0 10px;font-size:20px}
+  .stage{height:380px;border-radius:10px;background:
+    linear-gradient(45deg,#ddd 25%,transparent 25%) 0 0/24px 24px,
+    linear-gradient(45deg,transparent 75%,#ddd 75%) 0 0/24px 24px,
+    linear-gradient(45deg,transparent 75%,#ddd 75%) 12px -12px/24px 24px,
+    linear-gradient(45deg,#ddd 25%,#fff 25%) 12px 12px/24px 24px;
+    display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+  .stage img{max-width:100%;max-height:100%;object-fit:contain;image-rendering:auto}
+  .refstage{height:480px}
+  .note{font-size:13px;color:#aaa;margin-top:8px;word-break:break-all}
+  @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}.stage{height:420px}}
+</style>
+</head>
+<body>
+<main>
+  <h1>RED GIRL — FRAME REVIEW</h1>
+  <p>Esta página muestra los archivos exactos de la rama <b>feature/verb-runner</b>. No aplica filtros ni recortes.</p>
+  <section class="reference">
+    <article class="card">
+      <h2>REFERENCIA APROBADA — SELECCIÓN</h2>
+      <div class="stage refstage"><img id="reference" alt="Referencia roja aprobada"></div>
+      <div class="note">assets/sprites/select-hd-6.webp.b64</div>
+    </article>
+  </section>
+  <section class="grid">
+    <article class="card"><h2>FRAME 0</h2><div class="stage"><img src="assets/sprites/run/red-girl-frame-0.webp" alt="Frame 0"></div><div class="note">assets/sprites/run/red-girl-frame-0.webp</div></article><article class="card"><h2>FRAME 1</h2><div class="stage"><img src="assets/sprites/run/red-girl-frame-1.webp" alt="Frame 1"></div><div class="note">assets/sprites/run/red-girl-frame-1.webp</div></article><article class="card"><h2>FRAME 2</h2><div class="stage"><img src="assets/sprites/run/red-girl-frame-2.webp" alt="Frame 2"></div><div class="note">assets/sprites/run/red-girl-frame-2.webp</div></article><article class="card"><h2>FRAME 3</h2><div class="stage"><img src="assets/sprites/run/red-girl-frame-3.webp" alt="Frame 3"></div><div class="note">assets/sprites/run/red-girl-frame-3.webp</div></article>
+  </section>
+</main>
+<script>
+fetch('assets/sprites/select-hd-6.webp.b64',{cache:'no-store'})
+  .then(r=>r.text())
+  .then(t=>{document.getElementById('reference').src='data:image/webp;base64,'+t.replace(/\s+/g,'')})
+  .catch(()=>{document.getElementById('reference').alt='No se pudo cargar la referencia';});
+</script>
+</body>
+</html>
