@@ -105,7 +105,7 @@ renderer.toneMappingExposure=1.08;
 
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x8ec9ee);
-scene.fog=new THREE.FogExp2(0xcfe5f4,0.014);
+scene.fog=new THREE.FogExp2(0xcfe5f4,IS_MOBILE?0.010:0.014);
 
 const camera=new THREE.PerspectiveCamera(52,1,.1,180);
 camera.position.set(0,IS_MOBILE?4.4:4.8,IS_MOBILE?9.5:10.8);
@@ -256,16 +256,18 @@ function createFacadeBuilding(side,index,z){
   storeFrame.position.set(roadFaceX-side*.03,1.23,0);
   group.add(storeFrame);
 
-  const signText=signNames[index%signNames.length];
-  const signColors=['#b51f3d','#1669a8','#6d35a4','#a85a16','#127b6f'];
-  const signTex=makeSignTexture(signText,signColors[index%signColors.length]);
-  const sign=new THREE.Mesh(
-    new THREE.PlaneGeometry(1.55,.58),
-    new THREE.MeshBasicMaterial({map:signTex,transparent:true,side:THREE.DoubleSide})
-  );
-  sign.rotation.y=side>0?-Math.PI/2:Math.PI/2;
-  sign.position.set(roadFaceX-side*.075,1.72,-d*.18);
-  group.add(sign);
+  if(!IS_MOBILE||index%2===0){
+    const signText=signNames[index%signNames.length];
+    const signColors=['#b51f3d','#1669a8','#6d35a4','#a85a16','#127b6f'];
+    const signTex=makeSignTexture(signText,signColors[index%signColors.length]);
+    const sign=new THREE.Mesh(
+      new THREE.PlaneGeometry(1.55,.58),
+      new THREE.MeshBasicMaterial({map:signTex,transparent:true,side:THREE.DoubleSide})
+    );
+    sign.rotation.y=side>0?-Math.PI/2:Math.PI/2;
+    sign.position.set(roadFaceX-side*.075,1.72,-d*.18);
+    group.add(sign);
+  }
 
   const rows=IS_MOBILE?2:Math.max(2,floors-1);
   const cols=IS_MOBILE?2:3;
@@ -284,7 +286,7 @@ function createFacadeBuilding(side,index,z){
     }
   }
 
-  if(index%3===0){
+  if(!IS_MOBILE&&index%3===0){
     const awning=new THREE.Mesh(
       new THREE.BoxGeometry(.55,.08,d*.7),
       new THREE.MeshStandardMaterial({color:index%2?0x9a2744:0x1c6c8e,roughness:.74})
@@ -294,7 +296,7 @@ function createFacadeBuilding(side,index,z){
     group.add(awning);
   }
 
-  if(index%4===0){
+  if(!IS_MOBILE&&index%4===0){
     const roofUnit=new THREE.Mesh(new THREE.BoxGeometry(w*.42,.55,d*.34),concreteMat);
     roofUnit.position.set(0,h+.28,0);
     group.add(roofUnit);
@@ -304,7 +306,7 @@ function createFacadeBuilding(side,index,z){
   return group;
 }
 
-for(let i=0;i<19;i++){
+for(let i=0;i<(IS_MOBILE?13:19);i++){
   const z=-4-i*9.2;
   for(const side of [-1,1]){
     const building=createFacadeBuilding(side,i+(side>0?2:0),z-(side>0?3.8:0));
@@ -641,19 +643,19 @@ function spawnAnswer(item){
   const cardH=IS_MOBILE?1.28:1.02;
   const glow=new THREE.Mesh(
     new THREE.PlaneGeometry(cardW+0.28,cardH+0.18),
-    new THREE.MeshBasicMaterial({color:0x42bfe8,transparent:true,opacity:.22,side:THREE.DoubleSide,depthWrite:false})
+    new THREE.MeshBasicMaterial({color:0x64ddff,transparent:true,opacity:.34,side:THREE.DoubleSide,depthWrite:false,fog:false,toneMapped:false})
   );
   glow.scale.set(1.08,1.12,1);
   group.add(glow);
 
   const panel=new THREE.Mesh(
     new THREE.PlaneGeometry(cardW,cardH),
-    new THREE.MeshBasicMaterial({map:makeAnswerTexture(item.value),transparent:false,side:THREE.DoubleSide})
+    new THREE.MeshBasicMaterial({map:makeAnswerTexture(item.value),transparent:false,side:THREE.DoubleSide,fog:false,toneMapped:false})
   );
   panel.position.z=.02;
   group.add(panel);
 
-  const answerY=heightMode==='low'?1.15:3.15;
+  const answerY=heightMode==='low'?1.15:(IS_MOBILE?2.78:3.15);
   group.position.set(lanes[laneIndex],answerY,ANSWER_SPAWN_Z);
   scene.add(group);
   answers.push({mesh:group,laneIndex,item,resolved:false,heightMode});
@@ -1556,6 +1558,43 @@ function createCyclist(index=0){
   return g;
 }
 
+function makeLowClearanceTexture(){
+  const c=document.createElement('canvas');
+  c.width=768;c.height=256;
+  const ctx=c.getContext('2d');
+  ctx.fillStyle='#20262b';ctx.fillRect(0,0,c.width,c.height);
+
+  ctx.fillStyle='#f3b526';
+  for(let x=-80;x<c.width+100;x+=110){
+    ctx.save();
+    ctx.translate(x,0);
+    ctx.rotate(-.42);
+    ctx.fillRect(0,-100,48,460);
+    ctx.restore();
+  }
+
+  ctx.fillStyle='rgba(17,22,27,.90)';
+  ctx.fillRect(74,48,c.width-148,c.height-96);
+  ctx.strokeStyle='#fff4c7';ctx.lineWidth=8;
+  ctx.strokeRect(74,48,c.width-148,c.height-96);
+
+  ctx.fillStyle='#ffffff';
+  ctx.font='900 58px Arial';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText('LOW CLEARANCE',c.width/2,106);
+
+  ctx.font='900 78px Arial';
+  ctx.fillStyle='#ffd23e';
+  ctx.fillText('↓   ↓   ↓',c.width/2,184);
+
+  const tex=new THREE.CanvasTexture(c);
+  tex.colorSpace=THREE.SRGBColorSpace;
+  return tex;
+}
+
+const lowClearanceTexture=makeLowClearanceTexture();
+
 function createOpenHatchObstacle(){
   const g=new THREE.Group();
   const van=new THREE.Group();
@@ -1563,6 +1602,7 @@ function createOpenHatchObstacle(){
   const bodyMat=new THREE.MeshStandardMaterial({color:0xf1f2f3,roughness:.42,metalness:.22});
   const trimMat=new THREE.MeshStandardMaterial({color:0x252b31,roughness:.72,metalness:.18});
   const warningMat=new THREE.MeshStandardMaterial({map:roadBarricadeTexture,roughness:.5,metalness:.06});
+  const clearanceMat=new THREE.MeshBasicMaterial({map:lowClearanceTexture,side:THREE.DoubleSide,fog:false,toneMapped:false});
 
   const body=new THREE.Mesh(new THREE.BoxGeometry(1.42,1.42,2.75),bodyMat);
   body.position.set(-1.05,.92,.18);
@@ -1594,6 +1634,11 @@ function createOpenHatchObstacle(){
   panel.castShadow=true;
   hatch.add(panel);
 
+  const clearanceFace=new THREE.Mesh(new THREE.PlaneGeometry(2.48,.74),clearanceMat);
+  clearanceFace.position.set(.15,1.91,.225);
+  clearanceFace.rotation.y=Math.PI;
+  hatch.add(clearanceFace);
+
   const underside=new THREE.Mesh(new THREE.BoxGeometry(2.55,.055,.98),trimMat);
   underside.position.set(.15,1.64,.78);
   hatch.add(underside);
@@ -1602,6 +1647,16 @@ function createOpenHatchObstacle(){
     const reflector=new THREE.Mesh(new THREE.BoxGeometry(.24,.08,.16),new THREE.MeshBasicMaterial({color:0xffc637}));
     reflector.position.set(x,1.60,.30);
     hatch.add(reflector);
+  }
+
+  for(const x of [-1.02,1.32]){
+    const strip=new THREE.Mesh(
+      new THREE.PlaneGeometry(.18,.48),
+      new THREE.MeshBasicMaterial({color:0xffc52f,side:THREE.DoubleSide,transparent:true,opacity:.92})
+    );
+    strip.position.set(x,1.39,.28);
+    strip.rotation.x=.08;
+    hatch.add(strip);
   }
 
   const hinge=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,1.20,10),trimMat);
