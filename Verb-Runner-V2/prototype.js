@@ -1325,20 +1325,30 @@ window.addEventListener('keydown',e=>{
   if(['ArrowLeft','KeyA'].includes(e.code))moveLane(-1);
   if(['ArrowRight','KeyD'].includes(e.code))moveLane(1);
   if(['ArrowUp','Space','KeyW'].includes(e.code))jump();
-  if(['ArrowDown','KeyS'].includes(e.code))slide();
 });
 
 let touchStart=null;
-canvas.addEventListener('pointerdown',e=>{touchStart={x:e.clientX,y:e.clientY}});
+canvas.addEventListener('pointerdown',e=>{
+  touchStart={x:e.clientX,y:e.clientY,t:performance.now()};
+});
 canvas.addEventListener('pointerup',e=>{
   if(!touchStart)return;
-  const dx=e.clientX-touchStart.x;
-  const dy=e.clientY-touchStart.y;
+  const start=touchStart;
   touchStart=null;
-  if(Math.max(Math.abs(dx),Math.abs(dy))<24)return;
-  if(Math.abs(dx)>Math.abs(dy))moveLane(dx>0?1:-1);
-  else if(dy<0)jump();
-  else slide();
+
+  const dx=e.clientX-start.x;
+  const dy=e.clientY-start.y;
+  const distance=Math.hypot(dx,dy);
+  const elapsed=performance.now()-start.t;
+
+  if(distance<22&&elapsed<420){
+    jump();
+    return;
+  }
+
+  if(Math.abs(dx)>=36&&Math.abs(dx)>Math.abs(dy)*1.15){
+    moveLane(dx>0?1:-1);
+  }
 });
 
 const obstacles=[];
