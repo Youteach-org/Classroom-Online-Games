@@ -30,21 +30,47 @@
     return word+'ed';
   }
 
+  function vowelMutations(word){
+    const w=String(word||'').toLowerCase();
+    if(!w)return [];
+    const swaps={
+      a:['e','o','u'],
+      e:['a','i','o'],
+      i:['a','e','o'],
+      o:['a','e','u'],
+      u:['a','i','o']
+    };
+    const out=[];
+    const vowelIndexes=[...w].map((ch,i)=>isVowel(ch)?i:-1).filter(i=>i>=0);
+
+    for(const i of vowelIndexes){
+      const choices=swaps[w[i]]||[];
+      for(const repl of choices.slice(0,2)){
+        out.push(w.slice(0,i)+repl+w.slice(i+1));
+      }
+    }
+
+    const clusters=[
+      ['ea','ee'],['ea','ai'],['ee','ea'],['oo','ou'],['ou','ow'],
+      ['ow','ou'],['oa','ow'],['i','ai'],['a','o'],['o','u']
+    ];
+    for(const [from,to] of clusters){
+      if(w.includes(from))out.push(w.replace(from,to));
+    }
+
+    return unique(out).filter(v=>v!==w);
+  }
+
   function spellingMutations(word){
     const w=String(word||'').toLowerCase();
     if(!w)return [];
-    const out=[];
-    if(/ied$/.test(w))out.push(w.replace(/ied$/,'yed'),w.replace(/ied$/,'id'));
-    if(/pped$/.test(w))out.push(w.replace(/pped$/,'ped'));
-    if(/nned$/.test(w))out.push(w.replace(/nned$/,'ned'));
-    if(/tted$/.test(w))out.push(w.replace(/tted$/,'ted'));
-    if(/ed$/.test(w))out.push(w.slice(0,-1),w+'ed');
-    if(/en$/.test(w))out.push(w.slice(0,-1),w+'ed');
-    if(w.length>4){
-      out.push(w.slice(0,-2)+w.at(-1));
-      out.push(w.slice(0,-1)+w.at(-1)+w.at(-1));
-    }
-    return unique(out);
+    const out=[...vowelMutations(w)];
+
+    if(/ied$/.test(w))out.push(w.replace(/ied$/,'yed'));
+    if(/ed$/.test(w))out.push(w.replace(/ed$/,'id'),w.replace(/ed$/,'ad'));
+    if(/en$/.test(w))out.push(w.replace(/en$/,'an'),w.replace(/en$/,'on'));
+
+    return unique(out).filter(v=>v!==w);
   }
 
   function sameVerbDistractors(verb,blankIndex){
@@ -61,10 +87,10 @@
 
     if(blankIndex===0){
       return unique([
-        ...explicit,
+        ...vowelMutations(base),
         ...spellingMutations(base),
-        base+'s',
-        base+'ed'
+        ...explicit,
+        base+'s'
       ]).filter(v=>v!==correct&&!verb.forms.includes(v));
     }
 
@@ -94,10 +120,12 @@
     let score=0;
     if(value.startsWith(base.slice(0,Math.max(2,base.length-2))))score+=4;
     if(Math.abs(value.length-correct.length)<=1)score+=3;
-    if(value.endsWith('ed'))score+=2;
-    if(value.endsWith('en')||value.endsWith('t'))score+=2;
-    if((verb.spellingDecoys||[]).includes(value))score+=4;
-    if((verb.irregularDecoys||[]).includes(value))score+=4;
+    const vowelDiff=[...value].reduce((n,ch,i)=>n+(isVowel(ch)&&ch!==correct[i]?1:0),0);
+    if(vowelDiff>0&&vowelDiff<=2)score+=5;
+    if(value.endsWith('ed'))score+=1;
+    if(value.endsWith('en'))score+=1;
+    if((verb.spellingDecoys||[]).includes(value))score+=2;
+    if((verb.irregularDecoys||[]).includes(value))score+=3;
     return score;
   }
 
@@ -154,7 +182,7 @@
     return buildAnswerSequence(challenge,{random,distractorCount:3});
   }
 
-  const api={LABELS,LEVELS,regularPast,createChallenge,buildAnswerSequence,buildMediumSequence,chooseDistractors,shuffled};
+  const api={LABELS,LEVELS,regularPast,vowelMutations,createChallenge,buildAnswerSequence,buildMediumSequence,chooseDistractors,shuffled};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   global.VerbRunnerChallenge=api;
 })(typeof window!=='undefined'?window:globalThis);
