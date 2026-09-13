@@ -11,9 +11,9 @@ function difficulty(){
 function readSettings(){
   const d=difficulty();
   const defaults={
-    easy:{preview:false,answerSpacing:820,distractors:2,speedScale:1},
-    medium:{preview:false,answerSpacing:820,distractors:3,speedScale:1},
-    hard:{preview:false,answerSpacing:820,distractors:4,speedScale:1}
+    easy:{preview:false,answerSpacing:820,distractors:2,speedScale:.90,penalty:1},
+    medium:{preview:false,answerSpacing:820,distractors:3,speedScale:1.00,penalty:2},
+    hard:{preview:false,answerSpacing:820,distractors:4,speedScale:1.15,penalty:3}
   }[d];
 
   const previewChoice=$('previewEnabled').value;
@@ -27,8 +27,7 @@ function readSettings(){
     distractors:Number($('distractors').value)||defaults.distractors,
     obstacleFrequency:Number($('obstacleFrequency').value)||45,
     momentumCorrect:Number($('momentumCorrect').value)||8,
-    momentumGrammarLoss:Number($('momentumGrammarLoss').value)||15,
-    momentumObstacleLoss:Number($('momentumObstacleLoss').value)||5,
+    penalty:defaults.penalty,
     speedScale:defaults.speedScale
   };
 }
