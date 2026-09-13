@@ -65,22 +65,50 @@
     const w=String(word||'').toLowerCase();
     if(!w)return [];
 
-    const out=[...vowelMutations(w)];
-    const diphthongs={
-      a:['ai','ea'],
-      e:['ea','ee'],
-      i:['ie','ai'],
-      o:['oa','ou'],
-      u:['ou','au'],
-      y:['i','ie','ai','ey']
-    };
+    const out=[];
 
-    for(let i=0;i<w.length;i++){
-      const ch=w[i];
-      const choices=diphthongs[ch]||[];
-      for(const repl of choices){
-        out.push(w.slice(0,i)+repl+w.slice(i+1));
+    const patternRules=[
+      ['or',['er','ur','ar','oor','our']],
+      ['ir',['er','ur','ear','eer']],
+      ['er',['ir','ur','ear','eer']],
+      ['ar',['er','or','ur','air']],
+      ['oo',['ou','u','oa','oe']],
+      ['ea',['ee','e','ie','ai']],
+      ['ee',['ea','e','ie','ei']],
+      ['ou',['ow','oo','u','oa']],
+      ['ow',['ou','oa','o','ew']],
+      ['oa',['ow','o','ou','oe']]
+    ];
+
+    let matchedPattern=false;
+    for(const [from,replacements] of patternRules){
+      if(!w.includes(from))continue;
+      matchedPattern=true;
+      for(const repl of replacements){
+        out.push(w.replace(from,repl));
       }
+    }
+
+    if(!matchedPattern){
+      for(let i=0;i<w.length;i++){
+        const ch=w[i];
+        let replacements=[];
+        if(ch==='a')replacements=['e','o','ai','ea'];
+        else if(ch==='e')replacements=['i','a','ea','ee'];
+        else if(ch==='i')replacements=['e','y','ie','ee'];
+        else if(ch==='o')replacements=['a','u','oa','ou'];
+        else if(ch==='u')replacements=['o','a','ou','oo'];
+        else if(ch==='y'&&i===w.length-1)replacements=['i','ie','ey','ye'];
+
+        for(const repl of replacements){
+          out.push(w.slice(0,i)+repl+w.slice(i+1));
+        }
+      }
+    }
+
+    if(/y$/.test(w)){
+      const stem=w.slice(0,-1);
+      out.push(stem+'i',stem+'ie',stem+'ey',stem+'ye');
     }
 
     return unique(out).filter(v=>v!==w);
@@ -181,10 +209,6 @@
         return skeleton===baseSkeleton;
       });
       const basePool=baseOnly.length>=count?baseOnly:preferred;
-      if(difficulty==='hard'){
-        const ranked=[...basePool].sort((a,b)=>scoreDistractor(b,verb,correct)-scoreDistractor(a,verb,correct));
-        return shuffled(ranked.slice(0,Math.max(count+3,count)),random).slice(0,count);
-      }
       return shuffled(basePool,random).slice(0,count);
     }
 
