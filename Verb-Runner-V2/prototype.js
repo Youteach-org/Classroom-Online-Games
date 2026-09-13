@@ -200,6 +200,19 @@ function makeAnimeCoastBackdrop(){
     x+=w+5;
   }
 
+  ctx.save();
+  ctx.strokeStyle='#4c7e9a';
+  ctx.lineWidth=13;
+  ctx.beginPath();
+  ctx.arc(590,350,62,Math.PI,0);
+  ctx.stroke();
+  ctx.lineWidth=9;
+  ctx.beginPath();
+  ctx.moveTo(528,350);ctx.lineTo(528,395);
+  ctx.moveTo(652,350);ctx.lineTo(652,395);
+  ctx.stroke();
+  ctx.restore();
+
   const haze=ctx.createLinearGradient(0,300,0,405);
   haze.addColorStop(0,'rgba(255,236,188,0)');
   haze.addColorStop(.55,'rgba(255,236,188,.32)');
@@ -500,50 +513,6 @@ for(let i=0;i<(IS_MOBILE?8:14);i++){
   palm.position.set(-7.65,0,z);
   coast.add(palm);
   addMover(palm,{speedFactor:.96,span:171,startZ:z});
-}
-
-const cliffMats=[
-  new THREE.MeshToonMaterial({color:0xc8786e}),
-  new THREE.MeshToonMaterial({color:0xdc9868}),
-  new THREE.MeshToonMaterial({color:0xa8666a})
-];
-for(let i=0;i<(IS_MOBILE?7:12);i++){
-  const h=8+(i%4)*2.4;
-  const cliff=new THREE.Mesh(new THREE.ConeGeometry(4.8+(i%3),h,5),cliffMats[i%cliffMats.length]);
-  cliff.position.set(-24-(i%2)*5,h/2-1,-48-i*13);
-  cliff.rotation.y=i*.55;
-  coast.add(cliff);
-  addFarMover(cliff,{speedFactor:.12,span:205,startZ:cliff.position.z});
-}
-
-const archMat=new THREE.MeshToonMaterial({color:0x567f98});
-const arch=new THREE.Mesh(new THREE.TorusGeometry(5.2,.34,8,36,Math.PI),archMat);
-arch.position.set(-1.5,4.1,-103);
-coast.add(arch);
-const archLeft=new THREE.Mesh(new THREE.BoxGeometry(.68,4.4,.7),archMat);
-archLeft.position.set(-6.7,2.15,-103);
-coast.add(archLeft);
-const archRight=archLeft.clone();
-archRight.position.x=3.7;
-coast.add(archRight);
-
-const skyline=new THREE.Group();
-world.add(skyline);
-for(let i=0;i<(IS_MOBILE?10:18);i++){
-  const side=1;
-  const h=10+(i%6)*2.8;
-  const w=3.2+(i%4)*.8;
-  const d=3.6+(i%3);
-  const z=-28-i*10.2;
-  const tower=new THREE.Mesh(
-    new THREE.BoxGeometry(w,h,d),
-    new THREE.MeshToonMaterial({
-      color:i%2?0xc98670:0xd7ac82
-    })
-  );
-  tower.position.set(15.5+(i%3)*3.4,h/2,z);
-  skyline.add(tower);
-  addFarMover(tower,{speedFactor:.2,span:208,startZ:z});
 }
 
 const streetProps=new THREE.Group();
@@ -1456,19 +1425,16 @@ canvas.addEventListener('pointerup',e=>{
 const obstacles=[];
 
 const obstacleMaterials={
-  asphaltDark:new THREE.MeshStandardMaterial({color:0x1c2228,roughness:.82,metalness:.18}),
-  rubber:new THREE.MeshStandardMaterial({color:0x101215,roughness:.95,metalness:.02}),
-  metal:new THREE.MeshStandardMaterial({color:0xaeb7bd,roughness:.35,metalness:.65}),
-  glass:new THREE.MeshStandardMaterial({color:0x80afc4,roughness:.18,metalness:.22,transparent:true,opacity:.92}),
-  orange:new THREE.MeshStandardMaterial({color:0xf17828,roughness:.58,metalness:.08}),
-  white:new THREE.MeshStandardMaterial({color:0xf1eee5,roughness:.62,metalness:.04}),
-  yellow:new THREE.MeshStandardMaterial({color:0xf3c52f,roughness:.55,metalness:.08}),
-  blue:new THREE.MeshStandardMaterial({color:0x2878b8,roughness:.6,metalness:.06}),
-  brown:new THREE.MeshStandardMaterial({color:0x9b6944,roughness:.88,metalness:.02}),
-  fur:new THREE.MeshStandardMaterial({color:0x8b5b37,roughness:.98,metalness:0}),
-  skin:new THREE.MeshStandardMaterial({color:0xd99a72,roughness:.9,metalness:0}),
-  cloth:new THREE.MeshStandardMaterial({color:0x305c88,roughness:.88,metalness:.02}),
-  black:new THREE.MeshStandardMaterial({color:0x17191d,roughness:.86,metalness:.08})
+  asphaltDark:new THREE.MeshToonMaterial({color:0x1c2228}),
+  rubber:new THREE.MeshToonMaterial({color:0x101215}),
+  metal:new THREE.MeshToonMaterial({color:0xaeb7bd}),
+  glass:new THREE.MeshBasicMaterial({color:0x80c7df,transparent:true,opacity:.92}),
+  orange:new THREE.MeshToonMaterial({color:0xf17828}),
+  white:new THREE.MeshToonMaterial({color:0xf1eee5}),
+  yellow:new THREE.MeshToonMaterial({color:0xf3c52f}),
+  blue:new THREE.MeshToonMaterial({color:0x2878b8}),
+  brown:new THREE.MeshToonMaterial({color:0xa56d45}),
+  black:new THREE.MeshToonMaterial({color:0x17191d})
 };
 
 function cylinderBetween(a,b,r,mat){
@@ -1494,10 +1460,10 @@ function pickObstacleLane(type){
 function createRoadCar(index=0){
   const car=new THREE.Group();
   const colors=[0xc83e3e,0x2d6fb3,0xd19a2d,0x3f805c,0x747b86,0x8b54a7];
-  const paint=new THREE.MeshStandardMaterial({color:colors[index%colors.length],roughness:.36,metalness:.34});
-  const trim=new THREE.MeshStandardMaterial({color:0x252a30,roughness:.62,metalness:.28});
-  const glass=new THREE.MeshStandardMaterial({color:0x7eaec1,roughness:.12,metalness:.34,transparent:true,opacity:.9});
-  const chrome=new THREE.MeshStandardMaterial({color:0xc7cfd4,roughness:.25,metalness:.72});
+  const paint=new THREE.MeshToonMaterial({color:colors[index%colors.length]});
+  const trim=new THREE.MeshToonMaterial({color:0x252a30});
+  const glass=new THREE.MeshBasicMaterial({color:0x7ecbe4,transparent:true,opacity:.9});
+  const chrome=new THREE.MeshToonMaterial({color:0xc7cfd4});
   const lightFront=new THREE.MeshBasicMaterial({color:0xfff0b1});
   const lightRear=new THREE.MeshBasicMaterial({color:0xe83a3f});
 
@@ -1659,7 +1625,7 @@ function createRoadSign(){
   board.castShadow=true;
   g.add(board);
 
-  const frameMat=new THREE.MeshStandardMaterial({color:0x30363b,roughness:.52,metalness:.42});
+  const frameMat=new THREE.MeshToonMaterial({color:0x30363b});
   const reflectorMat=new THREE.MeshBasicMaterial({color:0xffd45a});
 
   for(const x of [-.72,.72]){
