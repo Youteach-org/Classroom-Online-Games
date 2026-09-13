@@ -1,706 +1,343 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const canvas=document.querySelector('#game');
-const distanceEl=document.querySelector('#distance');
-const speedEl=document.querySelector('#speed');
-const modelStatus=document.querySelector('#modelStatus');
-const flash=document.querySelector('#flash');
-const characterButtons=[...document.querySelectorAll('[data-runner]')];
-
 const MODEL_BASE='https://cdn.jsdelivr.net/gh/TheFlameFoundation/MagicWorlds@1230ca734e484d0a8acaeb0e59a47e6b6b3f9c54/worlds/robot-world/glTF_Character/';
+const PORTRAIT_BASE='../Verb-Runner/assets/sprites/';
+const TARGET_HEIGHT=2.35;
 
-const runnerCatalog=[
+const runners=[
   {
     name:'Red',
     file:'Casual_Female.gltf',
+    portrait:'select-red-neon.webp',
+    directPortrait:true,
     scaleX:.88,
-    headXZ:.82,
-    recolor:{
-      Shirt:0xe43c3c,
-      Pants:0x111318,
-      Belt:0xff9b9b,
-      Hair:0x6d3429
-    }
+    headXZ:.82
   },
   {
     name:'Blue',
-    file:'Casual2_Female.gltf',
-    scaleX:.88,
-    headXZ:.82,
-    recolor:{
-      Shirt:0x2475d1,
-      Pants:0x111827,
-      Belt:0x8ad8ff,
-      Hair:0x23252d
-    }
+    file:'Casual_Male.gltf',
+    portrait:'select-hd-1.webp.b64'
   },
   {
     name:'Green',
-    file:'Ninja_Female.gltf',
-    scaleX:.89,
-    headXZ:.84,
-    recolor:{
-      Main:0x218c4b,
-      Details:0x7be5a2,
-      Grey:0x151a18,
-      Hair:0x17211d
-    }
+    file:'Casual2_Male.gltf',
+    portrait:'select-hd-5.webp.b64'
   },
   {
     name:'Pink',
-    file:'Casual3_Female.gltf',
-    scaleX:.88,
-    headXZ:.82,
-    recolor:{
-      Shirt:0xef4c78,
-      Pants:0x191218,
-      Belt:0xff9fbd,
-      Hair:0x5c342e
-    }
+    file:'Casual2_Female.gltf',
+    portrait:'select-hd-2.webp.b64'
   },
   {
-    name:'White',
-    file:'Worker_Female.gltf',
-    scaleX:.89,
-    headXZ:.84,
-    recolor:{
-      Shirt:0xe7eaf0,
-      Vest:0x30343d,
-      Pants:0x17191f,
-      Hat:0xf6f7fb,
-      Hair:0xd0a45e
-    }
+    name:'White / Black',
+    file:'Casual3_Male.gltf',
+    portrait:'select-hd-3.webp.b64'
   },
   {
     name:'Purple',
-    file:'BlueSoldier_Female.gltf',
-    scaleX:.89,
-    headXZ:.84,
-    recolor:{
-      Main:0x9a4de0,
-      Black:0x14171e,
-      Grey:0xdd9cff,
-      Hair:0xa9432d
-    }
+    file:'Casual3_Female.gltf',
+    portrait:'select-hd-4.webp.b64'
   }
-]
+];
 
-let currentRunner=0;
-let loadToken=0;
-
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.shadowMap.enabled=true;
-renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-renderer.outputColorSpace=THREE.SRGBColorSpace;
-renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=1.15;
-
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x060713);
-scene.fog=new THREE.FogExp2(0x070817,0.026);
-
-const camera=new THREE.PerspectiveCamera(52,1,.1,180);
-camera.position.set(0,4.8,10.8);
-camera.lookAt(0,1.55,-18);
-
-scene.add(new THREE.HemisphereLight(0xb6efff,0x18111f,2.35));
-const key=new THREE.DirectionalLight(0xffd1dc,3.2);
-key.position.set(-6,12,8);
-key.castShadow=true;
-scene.add(key);
-
-const rim=new THREE.PointLight(0x16d9ff,18,34,2);
-rim.position.set(5,5,3);
-scene.add(rim);
-
-const magenta=new THREE.PointLight(0xff245f,16,30,2);
-magenta.position.set(-6,3,-4);
-scene.add(magenta);
-
-const world=new THREE.Group();
-scene.add(world);
-
-const road=new THREE.Mesh(
-  new THREE.PlaneGeometry(12,170),
-  new THREE.MeshStandardMaterial({color:0x101424,roughness:.78,metalness:.2})
-);
-road.rotation.x=-Math.PI/2;
-road.position.z=-68;
-road.receiveShadow=true;
-world.add(road);
-
-for(const x of [-6,6]){
-  const rail=new THREE.Mesh(
-    new THREE.BoxGeometry(.08,.025,170),
-    new THREE.MeshBasicMaterial({color:0x23d9ff})
-  );
-  rail.position.set(x,.03,-68);
-  world.add(rail);
-}
-
-const laneMarkers=[];
-const markerMat=new THREE.MeshBasicMaterial({color:0x9eecff,transparent:true,opacity:.72});
-for(const x of [-1.5,1.5]){
-  for(let i=0;i<20;i++){
-    const m=new THREE.Mesh(new THREE.BoxGeometry(.07,.02,2.5),markerMat);
-    m.position.set(x,.035,-i*8);
-    laneMarkers.push(m);
-    world.add(m);
-  }
-}
-
-const city=new THREE.Group();
-for(let i=0;i<34;i++){
-  const side=i%2?-1:1;
-  const h=3+(i%7)*1.25;
-  const w=1.4+(i%4)*.45;
-
-  const b=new THREE.Mesh(
-    new THREE.BoxGeometry(w,h,w),
-    new THREE.MeshStandardMaterial({
-      color:i%3===0?0x18192f:0x101525,
-      emissive:i%3===0?0x2b0b28:0x061322,
-      emissiveIntensity:.7,
-      roughness:.8
-    })
-  );
-  b.position.set(side*(8+(i%5)*1.4),h/2,-4-i*5.2);
-  city.add(b);
-
-  const strip=new THREE.Mesh(
-    new THREE.BoxGeometry(.05,h*.72,.05),
-    new THREE.MeshBasicMaterial({color:i%2?0xff285f:0x24dfff})
-  );
-  strip.position.set(b.position.x-side*w*.28,h*.52,b.position.z+w*.51);
-  city.add(strip);
-}
-world.add(city);
-
-const runnerRoot=new THREE.Group();
-runnerRoot.position.set(0,0,2);
-scene.add(runnerRoot);
-
-const shadow=new THREE.Mesh(
-  new THREE.CircleGeometry(.72,32),
-  new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.34,depthWrite:false})
-);
-shadow.rotation.x=-Math.PI/2;
-shadow.position.y=.025;
-runnerRoot.add(shadow);
-
-let model=null;
-let mixer=null;
-let actions={};
-let activeAction=null;
-let runnerState='LOADING';
+const loader=new GLTFLoader();
+const instances=[];
+let selectedAnimation='idle';
 
 function cloneMaterials(root){
-  root.traverse(o=>{
-    if(!o.isMesh)return;
-    if(Array.isArray(o.material))o.material=o.material.map(m=>m?.clone?.()||m);
-    else if(o.material?.clone)o.material=o.material.clone();
-  });
-}
-
-function applyRunnerMaterials(root,config){
-  const palette=config.recolor||{};
-  root.traverse(o=>{
-    if(!o.isMesh)return;
-    const mats=Array.isArray(o.material)?o.material:[o.material];
-    for(const mat of mats){
-      if(!mat?.name)continue;
-      if(palette[mat.name]!==undefined){
-        mat.color.setHex(palette[mat.name]);
-      }
+  root.traverse(object=>{
+    if(!object.isMesh)return;
+    if(Array.isArray(object.material)){
+      object.material=object.material.map(material=>material?.clone?.()||material);
+    }else if(object.material?.clone){
+      object.material=object.material.clone();
     }
   });
 }
 
-function fitToHeight(root,target=2.35){
+function fitToHeight(root,target=TARGET_HEIGHT){
   root.updateMatrixWorld(true);
   const box=new THREE.Box3().setFromObject(root);
   const size=new THREE.Vector3();
   box.getSize(size);
   if(size.y<=0)return;
 
-  const s=target/size.y;
-  root.scale.setScalar(s);
+  const scale=target/size.y;
+  root.scale.setScalar(scale);
   root.updateMatrixWorld(true);
 
-  const box2=new THREE.Box3().setFromObject(root);
-  root.position.y-=box2.min.y;
+  const fittedBox=new THREE.Box3().setFromObject(root);
+  root.position.y-=fittedBox.min.y;
+  root.updateMatrixWorld(true);
 }
 
 function getClip(clips,name){
-  return clips.find(c=>c.name.toLowerCase()===name.toLowerCase())
-    || clips.find(c=>c.name.toLowerCase().includes(name.toLowerCase()));
+  const wanted=name.toLowerCase();
+  return clips.find(clip=>clip.name.toLowerCase()===wanted)
+    || clips.find(clip=>clip.name.toLowerCase().includes(wanted));
 }
 
 function sanitizeClip(clip){
   const copy=clip.clone();
-
-  // Keep gameplay position controlled by the runner engine.
-  // Preserve skeletal motion but strip whole-character translation tracks.
   copy.tracks=copy.tracks.filter(track=>{
-    const n=track.name.toLowerCase();
+    const name=track.name.toLowerCase();
     return !(
-      n==='root.position' ||
-      n==='characterarmature.position' ||
-      n.endsWith('bone.position')
+      name==='root.position' ||
+      name==='characterarmature.position' ||
+      name.endsWith('bone.position')
     );
   });
-
   return copy;
 }
 
-function addAction(name,clip,{once=false}={}){
+function makeAction(mixer,clip,once=false){
   if(!clip)return null;
   const action=mixer.clipAction(sanitizeClip(clip));
   action.enabled=true;
   action.clampWhenFinished=once;
   action.setLoop(once?THREE.LoopOnce:THREE.LoopRepeat,once?1:Infinity);
-  actions[name]=action;
   return action;
 }
 
-function play(name,{fade=.12,speed=1,reset=false}={}){
-  const next=actions[name];
-  if(!next)return;
+function setPortrait(index){
+  const config=runners[index];
+  const image=document.querySelector('#portrait-'+index);
+  if(config.directPortrait){
+    image.src=PORTRAIT_BASE+config.portrait;
+    return;
+  }
 
-  next.enabled=true;
-  next.setEffectiveTimeScale(speed);
-  next.setEffectiveWeight(1);
-
-  if(next===activeAction && !reset)return;
-
-  next.reset().fadeIn(fade).play();
-  if(activeAction && activeAction!==next)activeAction.fadeOut(fade);
-  activeAction=next;
+  fetch(PORTRAIT_BASE+config.portrait)
+    .then(response=>{
+      if(!response.ok)throw new Error('Portrait '+response.status);
+      return response.text();
+    })
+    .then(text=>{
+      image.src='data:image/webp;base64,'+text.trim();
+    })
+    .catch(error=>{
+      console.error(error);
+      image.alt+=' (failed to load)';
+    });
 }
 
-function setState(state){
-  runnerState=state;
+function createStage(index){
+  const canvas=document.querySelector('#model-'+index);
+  const status=document.querySelector('#status-'+index);
+  const card=document.querySelectorAll('.runner-card')[index];
+  const config=runners[index];
 
-  if(state==='RUN')play('run',{fade:.12,speed:1});
-  else if(state==='SPRINT')play('run',{fade:.10,speed:1.32});
-  else if(state==='JUMP')play('jump',{fade:.07,speed:1.0,reset:true});
-  else if(state==='ROLL')play('roll',{fade:.055,speed:1.10,reset:true});
-  else if(state==='STUMBLE')play('hit',{fade:.04,speed:1.05,reset:true});
-  else if(state==='RECOVERY')play('idle',{fade:.07,speed:1,reset:true});
-
-  modelStatus.textContent=runnerCatalog[currentRunner].name+' runner · '+state;
-}
-
-const loader=new GLTFLoader();
-
-function markRunnerSelection(index){
-  characterButtons.forEach((button,i)=>{
-    button.classList.toggle('selected',i===index);
-    button.setAttribute('aria-pressed',String(i===index));
+  const renderer=new THREE.WebGLRenderer({
+    canvas,
+    antialias:true,
+    alpha:true,
+    powerPreference:'high-performance'
   });
-}
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.6));
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.08;
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 
-function clearCurrentRunner(){
-  if(mixer){
-    mixer.stopAllAction();
-    mixer.uncacheRoot(model);
-  }
-  if(model){
-    runnerRoot.remove(model);
-  }
-  model=null;
-  mixer=null;
-  actions={};
-  activeAction=null;
-}
+  const scene=new THREE.Scene();
 
-function loadRunner(index){
-  const nextIndex=THREE.MathUtils.clamp(Number(index)||0,0,runnerCatalog.length-1);
-  const config=runnerCatalog[nextIndex];
-  const token=++loadToken;
+  const camera=new THREE.PerspectiveCamera(34,1,.1,30);
+  camera.position.set(0,1.25,4.5);
+  camera.lookAt(0,1.18,0);
 
-  currentRunner=nextIndex;
-  markRunnerSelection(nextIndex);
-  modelStatus.textContent='Loading '+config.name+' runner…';
+  scene.add(new THREE.HemisphereLight(0xdaf5ff,0x202133,2.25));
+
+  const key=new THREE.DirectionalLight(0xffffff,3.5);
+  key.position.set(-3.5,5.5,5);
+  key.castShadow=true;
+  scene.add(key);
+
+  const accent=getComputedStyle(card).getPropertyValue('--accent').trim()||'#ffffff';
+  const rim=new THREE.DirectionalLight(new THREE.Color(accent),2.1);
+  rim.position.set(4,3,-3);
+  scene.add(rim);
+
+  const floor=new THREE.Mesh(
+    new THREE.CircleGeometry(1.18,48),
+    new THREE.ShadowMaterial({color:0x000000,opacity:.28})
+  );
+  floor.rotation.x=-Math.PI/2;
+  floor.position.y=.001;
+  floor.receiveShadow=true;
+  scene.add(floor);
+
+  const instance={
+    index,
+    config,
+    canvas,
+    status,
+    renderer,
+    scene,
+    camera,
+    model:null,
+    mixer:null,
+    actions:{},
+    activeAction:null,
+    loaded:false,
+    drag:false,
+    lastX:0,
+    yaw:Math.PI
+  };
+  instances[index]=instance;
+
+  canvas.addEventListener('pointerdown',event=>{
+    instance.drag=true;
+    instance.lastX=event.clientX;
+    canvas.setPointerCapture?.(event.pointerId);
+  });
+  canvas.addEventListener('pointermove',event=>{
+    if(!instance.drag || !instance.model)return;
+    const dx=event.clientX-instance.lastX;
+    instance.lastX=event.clientX;
+    instance.yaw+=dx*.012;
+    instance.model.rotation.y=instance.yaw;
+  });
+  const stopDrag=()=>{instance.drag=false};
+  canvas.addEventListener('pointerup',stopDrag);
+  canvas.addEventListener('pointercancel',stopDrag);
 
   loader.load(
     MODEL_BASE+config.file,
     gltf=>{
-      if(token!==loadToken)return;
-
-      clearCurrentRunner();
-      model=gltf.scene;
-      model.rotation.y=Math.PI;
-
+      const model=gltf.scene;
       cloneMaterials(model);
 
-      model.traverse(o=>{
-        if(o.isMesh){
-          o.castShadow=true;
-          o.receiveShadow=true;
+      model.traverse(object=>{
+        if(object.isMesh){
+          object.castShadow=true;
+          object.receiveShadow=true;
         }
       });
 
-      fitToHeight(model,2.35);
+      fitToHeight(model,TARGET_HEIGHT);
 
-      // Keep the red girl's approved proportions and apply closely matched
-      // proportions to each compatible body without changing vertical height.
-      model.scale.x*=config.scaleX;
-      const head=model.getObjectByName('Head');
-      if(head){
-        head.scale.x*=config.headXZ;
-        head.scale.z*=config.headXZ;
+      // Preserve the approved red girl's exact proportions without changing height.
+      if(config.scaleX){
+        model.scale.x*=config.scaleX;
+      }
+      if(config.headXZ){
+        const head=model.getObjectByName('Head');
+        if(head){
+          head.scale.x*=config.headXZ;
+          head.scale.z*=config.headXZ;
+        }
       }
 
-      applyRunnerMaterials(model,config);
-      runnerRoot.add(model);
+      model.rotation.y=instance.yaw;
+      scene.add(model);
 
-      mixer=new THREE.AnimationMixer(model);
+      const mixer=new THREE.AnimationMixer(model);
+      const clips=gltf.animations||[];
 
-      const clips=gltf.animations;
-      const idleClip=getClip(clips,'Idle');
-      const runClip=getClip(clips,'Run');
-      const jumpClip=getClip(clips,'Jump');
-      const rollClip=getClip(clips,'Roll');
-      const hitClip=getClip(clips,'RecieveHit') || getClip(clips,'ReceiveHit');
+      instance.model=model;
+      instance.mixer=mixer;
+      instance.actions={
+        idle:makeAction(mixer,getClip(clips,'Idle')),
+        run:makeAction(mixer,getClip(clips,'Run')),
+        jump:makeAction(mixer,getClip(clips,'Jump'),true),
+        roll:makeAction(mixer,getClip(clips,'Roll'),true),
+        hit:makeAction(
+          mixer,
+          getClip(clips,'RecieveHit')||getClip(clips,'ReceiveHit'),
+          true
+        )
+      };
+      instance.loaded=true;
 
-      addAction('idle',idleClip);
-      addAction('run',runClip);
-      addAction('jump',jumpClip,{once:true});
-      addAction('roll',rollClip,{once:true});
-      addAction('hit',hitClip,{once:true});
+      const available=Object.entries(instance.actions)
+        .filter(([,action])=>Boolean(action))
+        .map(([name])=>name)
+        .join(' · ');
 
-      if(rollClip){
-        rollDuration=THREE.MathUtils.clamp(rollClip.duration/1.10,.58,.92);
-      }
+      status.textContent='Ready · height '+TARGET_HEIGHT+' · '+available;
+      status.classList.add('ready');
 
-      setState('RUN');
-      console.info('Runner model:',config.name,config.file,'materials:',Object.keys(config.recolor||{}));
+      mixer.addEventListener('finished',()=>{
+        if(['jump','roll','hit'].includes(selectedAnimation)){
+          playInstance(instance,'idle');
+        }
+      });
+
+      playInstance(instance,selectedAnimation);
     },
     undefined,
-    err=>{
-      if(token!==loadToken)return;
-      console.error(err);
-      modelStatus.textContent=config.name+' runner failed to load';
+    error=>{
+      console.error(config.file,error);
+      status.textContent='Could not load '+config.file;
+      status.classList.add('error');
     }
   );
+
+  return instance;
 }
 
-characterButtons.forEach(button=>{
-  button.addEventListener('click',()=>{
-    loadRunner(Number(button.dataset.runner));
+function playInstance(instance,name){
+  if(!instance?.loaded)return;
+  const next=instance.actions[name];
+  if(!next)return;
+
+  const once=['jump','roll','hit'].includes(name);
+  next.enabled=true;
+  next.clampWhenFinished=once;
+  next.setLoop(once?THREE.LoopOnce:THREE.LoopRepeat,once?1:Infinity);
+  next.setEffectiveTimeScale(name==='roll'?1.10:1);
+  next.setEffectiveWeight(1);
+  next.reset().fadeIn(.09).play();
+
+  if(instance.activeAction && instance.activeAction!==next){
+    instance.activeAction.fadeOut(.09);
+  }
+  instance.activeAction=next;
+}
+
+function playAll(name){
+  selectedAnimation=name;
+  document.querySelectorAll('[data-animation]').forEach(button=>{
+    button.classList.toggle('active',button.dataset.animation===name);
   });
+  instances.forEach(instance=>playInstance(instance,name));
+}
+
+document.querySelectorAll('[data-animation]').forEach(button=>{
+  button.addEventListener('click',()=>playAll(button.dataset.animation));
 });
 
-markRunnerSelection(0);
-loadRunner(0);
-
-const lanes=[-3,0,3];
-let lane=1;
-let targetX=0;
-
-let jumpTime=0;
-const jumpDuration=.82;
-
-let rollTime=0;
-let rollDuration=.72;
-
-let stumbleTime=0;
-const stumbleDuration=.44;
-
-let recoveryTime=0;
-const recoveryDuration=.24;
-
-let sprintHeld=false;
-let distance=0;
-let speed=18;
-let nextSpawn=20;
-let hitCooldown=0;
-
-function busy(){
-  return jumpTime>0 || rollTime>0 || stumbleTime>0 || recoveryTime>0;
-}
-
-function locomotionState(){
-  return (sprintHeld || speed>=25.7)?'SPRINT':'RUN';
-}
-
-function moveLane(dir){
-  if(stumbleTime>0)return;
-  lane=THREE.MathUtils.clamp(lane+dir,0,2);
-  targetX=lanes[lane];
-}
-
-function jump(){
-  if(busy())return;
-  jumpTime=.001;
-  setState('JUMP');
-}
-
-function roll(){
-  if(busy())return;
-  rollTime=.001;
-  setState('ROLL');
-}
-
-addEventListener('keydown',e=>{
-  if(['ArrowLeft','KeyA'].includes(e.code))moveLane(-1);
-  if(['ArrowRight','KeyD'].includes(e.code))moveLane(1);
-  if(['ArrowUp','Space','KeyW'].includes(e.code))jump();
-  if(['ArrowDown','KeyS'].includes(e.code))roll();
-
-  if(['ShiftLeft','ShiftRight'].includes(e.code)){
-    sprintHeld=true;
-    if(!busy())setState('SPRINT');
-  }
+runners.forEach((runner,index)=>{
+  setPortrait(index);
+  createStage(index);
 });
-
-addEventListener('keyup',e=>{
-  if(['ShiftLeft','ShiftRight'].includes(e.code)){
-    sprintHeld=false;
-    if(!busy())setState('RUN');
-  }
-});
-
-let touchStart=null;
-canvas.addEventListener('pointerdown',e=>{
-  touchStart={x:e.clientX,y:e.clientY};
-});
-canvas.addEventListener('pointerup',e=>{
-  if(!touchStart)return;
-
-  const dx=e.clientX-touchStart.x;
-  const dy=e.clientY-touchStart.y;
-  touchStart=null;
-
-  if(Math.max(Math.abs(dx),Math.abs(dy))<24)return;
-
-  if(Math.abs(dx)>Math.abs(dy))moveLane(dx>0?1:-1);
-  else if(dy<0)jump();
-  else roll();
-});
-
-const obstacles=[];
-const geoLow=new THREE.BoxGeometry(2.3,.85,.65);
-const geoHigh=new THREE.BoxGeometry(2.5,.45,.7);
-
-const matLow=new THREE.MeshStandardMaterial({
-  color:0xff315f,
-  emissive:0x7b071f,
-  emissiveIntensity:1.8,
-  roughness:.35,
-  metalness:.5
-});
-
-const matHigh=new THREE.MeshStandardMaterial({
-  color:0x18d9ff,
-  emissive:0x045c7c,
-  emissiveIntensity:1.6,
-  roughness:.28,
-  metalness:.52
-});
-
-function spawnObstacle(){
-  const type=Math.random()<.56?'jump':'roll';
-  const laneIndex=Math.floor(Math.random()*3);
-
-  const mesh=new THREE.Mesh(
-    type==='jump'?geoLow:geoHigh,
-    type==='jump'?matLow:matHigh
-  );
-
-  mesh.castShadow=true;
-  mesh.position.x=lanes[laneIndex];
-  mesh.position.z=-74;
-  mesh.position.y=type==='jump'?.43:2.35;
-
-  if(type==='roll'){
-    for(const x of [-1.1,1.1]){
-      const p=new THREE.Mesh(new THREE.BoxGeometry(.18,2.5,.18),matHigh);
-      p.position.set(x,-1.1,0);
-      mesh.add(p);
-    }
-  }
-
-  scene.add(mesh);
-  obstacles.push({mesh,type,laneIndex,passed:false});
-}
-
-function hit(){
-  if(hitCooldown>0)return;
-
-  hitCooldown=1.0;
-  jumpTime=0;
-  rollTime=0;
-  recoveryTime=0;
-  stumbleTime=.001;
-
-  setState('STUMBLE');
-
-  flash.classList.add('on');
-  setTimeout(()=>flash.classList.remove('on'),180);
-
-  distance=Math.max(0,distance-35);
-}
-
-function updateRunner(dt){
-  runnerRoot.position.x=THREE.MathUtils.damp(runnerRoot.position.x,targetX,11,dt);
-
-  const laneLean=(targetX-runnerRoot.position.x)*-.05;
-  runnerRoot.rotation.z=THREE.MathUtils.damp(runnerRoot.rotation.z,laneLean,8,dt);
-
-  let y=0;
-
-  if(stumbleTime>0){
-    stumbleTime+=dt;
-
-    if(stumbleTime>=stumbleDuration){
-      stumbleTime=0;
-      recoveryTime=.001;
-      setState('RECOVERY');
-    }
-  }else if(recoveryTime>0){
-    recoveryTime+=dt;
-
-    if(recoveryTime>=recoveryDuration){
-      recoveryTime=0;
-      setState(locomotionState());
-    }
-  }else if(jumpTime>0){
-    jumpTime+=dt;
-    const t=jumpTime/jumpDuration;
-
-    if(t>=1){
-      jumpTime=0;
-      setState(locomotionState());
-      y=0;
-    }else{
-      y=Math.sin(Math.PI*t)*2.45;
-    }
-  }else if(rollTime>0){
-    rollTime+=dt;
-
-    if(rollTime>=rollDuration){
-      rollTime=0;
-      setState(locomotionState());
-    }
-  }else{
-    const wanted=locomotionState();
-    if(runnerState!==wanted)setState(wanted);
-  }
-
-  runnerRoot.position.y=y;
-
-  shadow.scale.setScalar(
-    THREE.MathUtils.lerp(1,.62,Math.min(1,y/2.45))
-  );
-  shadow.material.opacity=THREE.MathUtils.lerp(
-    .34,.1,Math.min(1,y/2.45)
-  );
-}
-
-function travelSpeed(){
-  let m=runnerState==='SPRINT'?1.12:1;
-
-  if(stumbleTime>0)m*=.42;
-  if(recoveryTime>0)m*=.72;
-
-  return speed*m;
-}
-
-function updateWorld(dt,v){
-  const travel=v*dt;
-
-  for(const m of laneMarkers){
-    m.position.z+=travel;
-    if(m.position.z>8)m.position.z-=160;
-  }
-
-  for(let i=obstacles.length-1;i>=0;i--){
-    const o=obstacles[i];
-    o.mesh.position.z+=travel;
-
-    if(!o.passed && o.mesh.position.z>1.1){
-      o.passed=true;
-
-      const sameLane=
-        o.laneIndex===lane &&
-        Math.abs(o.mesh.position.x-runnerRoot.position.x)<1.25;
-
-      if(sameLane){
-        const safe=
-          o.type==='jump'
-            ? runnerRoot.position.y>1.05
-            : rollTime>0;
-
-        if(!safe)hit();
-      }
-    }
-
-    if(o.mesh.position.z>13){
-      scene.remove(o.mesh);
-      obstacles.splice(i,1);
-    }
-  }
-
-  nextSpawn-=travel;
-
-  if(nextSpawn<=0){
-    spawnObstacle();
-    nextSpawn=22+Math.random()*18;
-  }
-}
 
 const clock=new THREE.Clock();
 
+function resizeInstance(instance){
+  const width=Math.max(1,Math.floor(instance.canvas.clientWidth));
+  const height=Math.max(1,Math.floor(instance.canvas.clientHeight));
+  const pixelRatio=instance.renderer.getPixelRatio();
+  const drawWidth=Math.floor(width*pixelRatio);
+  const drawHeight=Math.floor(height*pixelRatio);
+
+  if(instance.canvas.width!==drawWidth || instance.canvas.height!==drawHeight){
+    instance.renderer.setSize(width,height,false);
+    instance.camera.aspect=width/height;
+    instance.camera.updateProjectionMatrix();
+  }
+}
+
 function animate(){
   requestAnimationFrame(animate);
-
   const dt=Math.min(clock.getDelta(),.04);
 
-  if(mixer)mixer.update(dt);
-
-  hitCooldown=Math.max(0,hitCooldown-dt);
-  speed=Math.min(29,18+distance/620);
-
-  updateRunner(dt);
-
-  const v=travelSpeed();
-  distance+=v*dt;
-  updateWorld(dt,v);
-
-  distanceEl.textContent=String(Math.floor(distance)).padStart(4,'0');
-  speedEl.textContent=(v/18).toFixed(2)+'×';
-
-  const sprint=runnerState==='SPRINT'?1:0;
-
-  camera.fov=THREE.MathUtils.damp(camera.fov,52+sprint*5.5,4.5,dt);
-  camera.updateProjectionMatrix();
-
-  camera.position.x=THREE.MathUtils.damp(
-    camera.position.x,
-    runnerRoot.position.x*.15,
-    3.5,
-    dt
-  );
-
-  rim.intensity=THREE.MathUtils.damp(
-    rim.intensity,
-    18+sprint*12,
-    5,
-    dt
-  );
-
-  renderer.render(scene,camera);
+  instances.forEach(instance=>{
+    resizeInstance(instance);
+    if(instance.mixer)instance.mixer.update(dt);
+    instance.renderer.render(instance.scene,instance.camera);
+  });
 }
 animate();
-
-function resize(){
-  renderer.setSize(innerWidth,innerHeight,false);
-  camera.aspect=innerWidth/innerHeight;
-  camera.updateProjectionMatrix();
-}
-addEventListener('resize',resize);
-resize();
