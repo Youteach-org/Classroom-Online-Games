@@ -56,6 +56,8 @@ button,a{-webkit-tap-highlight-color:transparent}
 }
 .part small{font-size:7px;letter-spacing:.10em;color:#aebfca;font-weight:850}
 .part b{font-size:clamp(24px,2.7vw,36px);line-height:1.02;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;font-weight:950}
+.part.long-form b{font-size:clamp(19px,2.15vw,29px)}
+.part.very-long-form b{font-size:clamp(15px,1.7vw,23px);letter-spacing:-.02em}
 .part.blank{
   position:relative;
   border:3px solid #ffe04b;
@@ -188,7 +190,7 @@ button,a{-webkit-tap-highlight-color:transparent}
 @media(max-width:640px){
   .hud{padding:8px;gap:7px}.brand{display:none}.icon-button{width:38px}
   .hud-right{gap:4px}.runner-chip{padding:7px;font-size:8px}.mini-stat{min-width:58px;padding:7px 6px}.mini-stat span{font-size:7px}.mini-stat b{font-size:11px}
-  .hud-center{padding:8px 9px 13px}.challenge-top{font-size:6.5px;margin-bottom:3px}.part{min-height:49px;padding:3px}.part small{font-size:6px}.part b{font-size:20px}.part.blank b{font-size:30px}.part.blank::after{bottom:-14px;font-size:6px}.principal-parts{gap:4px}.principal-parts i{font-size:13px}
+  .hud-center{padding:8px 9px 13px}.challenge-top{font-size:6.5px;margin-bottom:3px}.part{min-height:49px;padding:3px}.part small{font-size:6px}.part b{font-size:20px}.part.long-form b{font-size:16px}.part.very-long-form b{font-size:13px}.part.blank b{font-size:30px}.part.blank::after{bottom:-14px;font-size:6px}.principal-parts{gap:4px}.principal-parts i{font-size:13px}
   .momentum-panel{width:min(250px,76vw);padding:6px 8px}.momentum-copy{font-size:7px}
   .controls{font-size:9px;gap:4px 8px}.pill{font-size:9px}
   .robot-options{grid-template-columns:repeat(2,minmax(0,1fr))}.robot-option{min-height:60px}
