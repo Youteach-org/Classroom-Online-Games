@@ -107,6 +107,9 @@ runnerRoot.add(shadow);
 
 let model=null;
 let mixer=null;
+const modelBaseScale=new THREE.Vector3(1,1,1);
+const modelBasePosition=new THREE.Vector3();
+const modelBaseRotation=new THREE.Euler();
 const actions={};
 let activeAction=null;
 let runnerState='LOADING';
@@ -168,7 +171,7 @@ function setState(state){
   else if(state==='JUMP')play('jump',{fade:.07,speed:1,reset:true});
   else if(state==='AIR')play('jumpIdle',{fade:.06,speed:1,reset:true});
   else if(state==='LAND')play('jumpLand',{fade:.06,speed:1.1,reset:true});
-  else if(state==='DUCK')play('duck',{fade:.06,speed:1.15,reset:true});
+  else if(state==='DUCK')play('idle',{fade:.06,speed:1,reset:true});
   else if(state==='STUMBLE')play('hitReact',{fade:.04,speed:1.05,reset:true});
   else if(state==='RECOVERY')play('jumpLand',{fade:.07,speed:1.35,reset:true});
 
@@ -190,6 +193,9 @@ loader.load(
     });
 
     fitToHeight(model,2.35);
+    modelBaseScale.copy(model.scale);
+    modelBasePosition.copy(model.position);
+    modelBaseRotation.copy(model.rotation);
     runnerRoot.add(model);
 
     mixer=new THREE.AnimationMixer(model);
@@ -368,8 +374,36 @@ function updateRunner(dt){
     }
   }else if(duckTime>0){
     duckTime+=dt;
+    const t=Math.min(1,duckTime/duckDuration);
+    const fold=t<.18?t/.18:t>.78?(1-t)/.22:1;
+
+    // Reuse the crouch/slide body transform from the Soldier test.
+    // The fox's native Duck clip is deliberately not used because it reads poorly in motion.
+    if(model){
+      model.scale.set(
+        modelBaseScale.x,
+        modelBaseScale.y*(1-.38*fold),
+        modelBaseScale.z
+      );
+      model.rotation.set(
+        modelBaseRotation.x+.30*fold,
+        modelBaseRotation.y,
+        modelBaseRotation.z
+      );
+      model.position.set(
+        modelBasePosition.x,
+        modelBasePosition.y-.06*fold,
+        modelBasePosition.z
+      );
+    }
+
     if(duckTime>=duckDuration){
       duckTime=0;
+      if(model){
+        model.scale.copy(modelBaseScale);
+        model.position.copy(modelBasePosition);
+        model.rotation.copy(modelBaseRotation);
+      }
       setState(locomotionState());
     }
   }else{
