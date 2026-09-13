@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
 const canvas=document.querySelector('#game');
 const distanceEl=document.querySelector('#distance');
@@ -28,9 +29,11 @@ const key=new THREE.DirectionalLight(0xffd1dc,3.2);
 key.position.set(-6,12,8);
 key.castShadow=true;
 scene.add(key);
+
 const rim=new THREE.PointLight(0x16d9ff,18,34,2);
 rim.position.set(5,5,3);
 scene.add(rim);
+
 const magenta=new THREE.PointLight(0xff245f,16,30,2);
 magenta.position.set(-6,3,-4);
 scene.add(magenta);
@@ -107,12 +110,14 @@ runnerRoot.add(shadow);
 
 let model=null;
 let mixer=null;
-const modelBaseScale=new THREE.Vector3(1,1,1);
-const modelBasePosition=new THREE.Vector3();
-const modelBaseRotation=new THREE.Euler();
+let targetSkin=null;
 const actions={};
 let activeAction=null;
 let runnerState='LOADING';
+
+const baseScale=new THREE.Vector3();
+const basePosition=new THREE.Vector3();
+const baseRotation=new THREE.Euler();
 
 function fitToHeight(root,target=2.35){
   root.updateMatrixWorld(true);
@@ -127,21 +132,20 @@ function fitToHeight(root,target=2.35){
   root.position.y-=box2.min.y;
 }
 
+function firstSkinnedMesh(root){
+  let found=null;
+  root.traverse(o=>{if(!found && o.isSkinnedMesh)found=o;});
+  return found;
+}
+
 function getClip(clips,name){
   return clips.find(c=>c.name.toLowerCase()===name.toLowerCase())
     || clips.find(c=>c.name.toLowerCase().includes(name.toLowerCase()));
 }
 
-function sanitizeClip(clip){
-  const copy=clip.clone();
-  // Prevent source root motion from dragging the runner through our endless-runner world.
-  copy.tracks=copy.tracks.filter(t=>!/^(Root|CharacterArmature)\.position$/i.test(t.name));
-  return copy;
-}
-
 function addAction(name,clip,{once=false}={}){
   if(!clip)return null;
-  const action=mixer.clipAction(sanitizeClip(clip));
+  const action=mixer.clipAction(clip);
   action.enabled=true;
   action.clampWhenFinished=once;
   action.setLoop(once?THREE.LoopOnce:THREE.LoopRepeat,once?1:Infinity);
@@ -163,29 +167,102 @@ function play(name,{fade=.12,speed=1,reset=false}={}){
   activeAction=next;
 }
 
+function resetSoldierPoseTransform(){
+  if(!model)return;
+  model.scale.copy(baseScale);
+  model.position.copy(basePosition);
+  model.rotation.copy(baseRotation);
+}
+
 function setState(state){
   runnerState=state;
 
   if(state==='RUN')play('run',{fade:.12,speed:1});
-  else if(state==='SPRINT')play('run',{fade:.10,speed:1.32});
+  else if(state==='SPRINT')play('run',{fade:.10,speed:1.34});
   else if(state==='JUMP')play('jump',{fade:.07,speed:1,reset:true});
   else if(state==='AIR')play('jumpIdle',{fade:.06,speed:1,reset:true});
-  else if(state==='LAND')play('jumpLand',{fade:.06,speed:1.1,reset:true});
-  else if(state==='DUCK')play('idle',{fade:.06,speed:1,reset:true});
-  else if(state==='STUMBLE')play('hitReact',{fade:.04,speed:1.05,reset:true});
-  else if(state==='RECOVERY')play('jumpLand',{fade:.07,speed:1.35,reset:true});
+  else if(state==='LAND')play('jumpLand',{fade:.06,speed:1.08,reset:true});
+  else if(state==='CROUCH')play('idle',{fade:.05,speed:1,reset:true});
+  else if(state==='STUMBLE')play('hitReact',{fade:.045,speed:1.05,reset:true});
+  else if(state==='RECOVERY')play('jumpLand',{fade:.07,speed:1.3,reset:true});
 
-  modelStatus.textContent='Native animation · '+state;
+  modelStatus.textContent='Soldier hybrid · '+state;
 }
 
-const loader=new GLTFLoader();
-loader.load(
-  'https://cdn.jsdelivr.net/gh/danvanderboom/Aetherium@main/samples/unity/Aphelion/Assets/ThirdParty/Quaternius/Animated/reclaimer-rae.gltf',
-  gltf=>{
-    model=gltf.scene;
-    model.rotation.y=Math.PI;
+function buildRetargetOptions(targetScale){
+  const rotateCW45=new THREE.Matrix4().makeRotationY(THREE.MathUtils.degToRad(45));
+  const rotateCCW180=new THREE.Matrix4().makeRotationY(THREE.MathUtils.degToRad(-180));
+  const rotateCW180=new THREE.Matrix4().makeRotationY(THREE.MathUtils.degToRad(180));
+  const rotateFoot=new THREE.Matrix4().makeRotationFromEuler(
+    new THREE.Euler(
+      THREE.MathUtils.degToRad(45),
+      THREE.MathUtils.degToRad(180),
+      0
+    )
+  );
+
+  return {
+    hip:'Hips',
+    hipInfluence:new THREE.Vector3(0,1,0),
+    scale:1/targetScale,
+    localOffsets:{
+      mixamorigLeftShoulder:rotateCW45,
+      mixamorigRightShoulder:rotateCCW180,
+      mixamorigLeftArm:rotateCW45,
+      mixamorigRightArm:rotateCCW180,
+      mixamorigLeftForeArm:rotateCW45,
+      mixamorigRightForeArm:rotateCCW180,
+      mixamorigLeftUpLeg:rotateCW180,
+      mixamorigRightUpLeg:rotateCW180,
+      mixamorigLeftLeg:rotateCW180,
+      mixamorigRightLeg:rotateCW180,
+      mixamorigLeftFoot:rotateFoot,
+      mixamorigRightFoot:rotateFoot
+    },
+    names:{
+      mixamorigHips:'Hips',
+      mixamorigSpine:'Abdomen',
+      mixamorigSpine1:'Torso',
+      mixamorigNeck:'Neck',
+      mixamorigHead:'Head',
+
+      mixamorigLeftShoulder:'Shoulder.L',
+      mixamorigRightShoulder:'Shoulder.R',
+      mixamorigLeftArm:'UpperArm.L',
+      mixamorigRightArm:'UpperArm.R',
+      mixamorigLeftForeArm:'LowerArm.L',
+      mixamorigRightForeArm:'LowerArm.R',
+
+      mixamorigLeftUpLeg:'UpperLeg.L',
+      mixamorigRightUpLeg:'UpperLeg.R',
+      mixamorigLeftLeg:'LowerLeg.L',
+      mixamorigRightLeg:'LowerLeg.R',
+      mixamorigLeftFoot:'Foot.L',
+      mixamorigRightFoot:'Foot.R'
+    }
+  };
+}
+
+function sourceSkeletonFrom(root){
+  const helper=new THREE.SkeletonHelper(root);
+  return new THREE.Skeleton(helper.bones);
+}
+
+async function loadModel(url){
+  const loader=new GLTFLoader();
+  return await new Promise((resolve,reject)=>loader.load(url,resolve,undefined,reject));
+}
+
+async function initRunner(){
+  try{
+    const [soldier,source]=await Promise.all([
+      loadModel('https://threejs.org/examples/models/gltf/Soldier.glb'),
+      loadModel('https://cdn.jsdelivr.net/gh/danvanderboom/Aetherium@main/samples/unity/Aphelion/Assets/ThirdParty/Quaternius/Animated/reclaimer-rae.gltf')
+    ]);
+
+    model=soldier.scene;
+    model.rotation.y=0;
     model.traverse(o=>{
-      if(/pistol|gun|weapon/i.test(o.name))o.visible=false;
       if(o.isMesh){
         o.castShadow=true;
         o.receiveShadow=true;
@@ -193,31 +270,49 @@ loader.load(
     });
 
     fitToHeight(model,2.35);
-    modelBaseScale.copy(model.scale);
-    modelBasePosition.copy(model.position);
-    modelBaseRotation.copy(model.rotation);
+    baseScale.copy(model.scale);
+    basePosition.copy(model.position);
+    baseRotation.copy(model.rotation);
+
     runnerRoot.add(model);
+    targetSkin=firstSkinnedMesh(model);
+    if(!targetSkin)throw new Error('Soldier skinned mesh not found');
 
-    mixer=new THREE.AnimationMixer(model);
-    const clips=gltf.animations;
+    mixer=new THREE.AnimationMixer(targetSkin);
 
-    addAction('idle',getClip(clips,'Idle'));
-    addAction('run',getClip(clips,'Run'));
-    addAction('duck',getClip(clips,'Duck'),{once:true});
-    addAction('jump',getClip(clips,'Jump'),{once:true});
-    addAction('jumpIdle',getClip(clips,'Jump_Idle'));
-    addAction('jumpLand',getClip(clips,'Jump_Land'),{once:true});
-    addAction('hitReact',getClip(clips,'HitReact'),{once:true});
+    const soldierRun=getClip(soldier.animations,'Run') || soldier.animations[1];
+    const soldierIdle=getClip(soldier.animations,'Idle') || soldier.animations[0];
+
+    addAction('run',soldierRun);
+    addAction('idle',soldierIdle);
+
+    source.scene.updateMatrixWorld(true);
+    const sourceSkeleton=sourceSkeletonFrom(source.scene);
+    const opts=buildRetargetOptions(baseScale.y);
+
+    const srcJump=getClip(source.animations,'Jump');
+    const srcJumpIdle=getClip(source.animations,'Jump_Idle');
+    const srcJumpLand=getClip(source.animations,'Jump_Land');
+    const srcHit=getClip(source.animations,'HitReact');
+
+    const jumpClip=SkeletonUtils.retargetClip(targetSkin,sourceSkeleton,srcJump,opts);
+    const jumpIdleClip=SkeletonUtils.retargetClip(targetSkin,sourceSkeleton,srcJumpIdle,opts);
+    const jumpLandClip=SkeletonUtils.retargetClip(targetSkin,sourceSkeleton,srcJumpLand,opts);
+    const hitClip=SkeletonUtils.retargetClip(targetSkin,sourceSkeleton,srcHit,opts);
+
+    addAction('jump',jumpClip,{once:true});
+    addAction('jumpIdle',jumpIdleClip);
+    addAction('jumpLand',jumpLandClip,{once:true});
+    addAction('hitReact',hitClip,{once:true});
 
     setState('RUN');
-    console.table(clips.map(c=>({name:c.name,duration:c.duration.toFixed(2)})));
-  },
-  undefined,
-  err=>{
+    modelStatus.textContent='Soldier RUN + Soldier crouch + retargeted jump/hit';
+  }catch(err){
     console.error(err);
-    modelStatus.textContent='Native animation model failed to load';
+    modelStatus.textContent='Hybrid Soldier setup failed to load';
   }
-);
+}
+initRunner();
 
 const lanes=[-3,0,3];
 let lane=1;
@@ -225,10 +320,13 @@ let targetX=0;
 
 let jumpTime=0;
 const jumpDuration=.82;
-let duckTime=0;
-const duckDuration=.68;
+
+let crouchTime=0;
+const crouchDuration=.68;
+
 let stumbleTime=0;
 const stumbleDuration=.46;
+
 let recoveryTime=0;
 const recoveryDuration=.30;
 
@@ -239,37 +337,43 @@ let nextSpawn=20;
 let hitCooldown=0;
 
 function busy(){
-  return jumpTime>0 || duckTime>0 || stumbleTime>0 || recoveryTime>0;
+  return jumpTime>0 || crouchTime>0 || stumbleTime>0 || recoveryTime>0;
 }
+
 function locomotionState(){
   return (sprintHeld || speed>=25.7)?'SPRINT':'RUN';
 }
+
 function moveLane(dir){
   if(stumbleTime>0)return;
   lane=THREE.MathUtils.clamp(lane+dir,0,2);
   targetX=lanes[lane];
 }
+
 function jump(){
   if(busy())return;
   jumpTime=.001;
+  resetSoldierPoseTransform();
   setState('JUMP');
 }
-function duck(){
+
+function crouch(){
   if(busy())return;
-  duckTime=.001;
-  setState('DUCK');
+  crouchTime=.001;
+  setState('CROUCH');
 }
 
 addEventListener('keydown',e=>{
   if(['ArrowLeft','KeyA'].includes(e.code))moveLane(-1);
   if(['ArrowRight','KeyD'].includes(e.code))moveLane(1);
   if(['ArrowUp','Space','KeyW'].includes(e.code))jump();
-  if(['ArrowDown','KeyS'].includes(e.code))duck();
+  if(['ArrowDown','KeyS'].includes(e.code))crouch();
   if(['ShiftLeft','ShiftRight'].includes(e.code)){
     sprintHeld=true;
     if(!busy())setState('SPRINT');
   }
 });
+
 addEventListener('keyup',e=>{
   if(['ShiftLeft','ShiftRight'].includes(e.code)){
     sprintHeld=false;
@@ -287,47 +391,66 @@ canvas.addEventListener('pointerup',e=>{
   if(Math.max(Math.abs(dx),Math.abs(dy))<24)return;
   if(Math.abs(dx)>Math.abs(dy))moveLane(dx>0?1:-1);
   else if(dy<0)jump();
-  else duck();
+  else crouch();
 });
 
 const obstacles=[];
 const geoLow=new THREE.BoxGeometry(2.3,.85,.65);
 const geoHigh=new THREE.BoxGeometry(2.5,.45,.7);
+
 const matLow=new THREE.MeshStandardMaterial({
-  color:0xff315f,emissive:0x7b071f,emissiveIntensity:1.8,roughness:.35,metalness:.5
+  color:0xff315f,
+  emissive:0x7b071f,
+  emissiveIntensity:1.8,
+  roughness:.35,
+  metalness:.5
 });
+
 const matHigh=new THREE.MeshStandardMaterial({
-  color:0x18d9ff,emissive:0x045c7c,emissiveIntensity:1.6,roughness:.28,metalness:.52
+  color:0x18d9ff,
+  emissive:0x045c7c,
+  emissiveIntensity:1.6,
+  roughness:.28,
+  metalness:.52
 });
 
 function spawnObstacle(){
-  const type=Math.random()<.56?'jump':'duck';
+  const type=Math.random()<.56?'jump':'crouch';
   const laneIndex=Math.floor(Math.random()*3);
-  const mesh=new THREE.Mesh(type==='jump'?geoLow:geoHigh,type==='jump'?matLow:matHigh);
+  const mesh=new THREE.Mesh(
+    type==='jump'?geoLow:geoHigh,
+    type==='jump'?matLow:matHigh
+  );
+
   mesh.castShadow=true;
   mesh.position.x=lanes[laneIndex];
   mesh.position.z=-74;
   mesh.position.y=type==='jump'?.43:2.35;
 
-  if(type==='duck'){
+  if(type==='crouch'){
     for(const x of [-1.1,1.1]){
       const p=new THREE.Mesh(new THREE.BoxGeometry(.18,2.5,.18),matHigh);
       p.position.set(x,-1.1,0);
       mesh.add(p);
     }
   }
+
   scene.add(mesh);
   obstacles.push({mesh,type,laneIndex,passed:false});
 }
 
 function hit(){
   if(hitCooldown>0)return;
+
   hitCooldown=1.0;
   jumpTime=0;
-  duckTime=0;
+  crouchTime=0;
   recoveryTime=0;
   stumbleTime=.001;
+
+  resetSoldierPoseTransform();
   setState('STUMBLE');
+
   flash.classList.add('on');
   setTimeout(()=>flash.classList.remove('on'),180);
   distance=Math.max(0,distance-35);
@@ -351,59 +474,52 @@ function updateRunner(dt){
     recoveryTime+=dt;
     if(recoveryTime>=recoveryDuration){
       recoveryTime=0;
+      resetSoldierPoseTransform();
       setState(locomotionState());
     }
   }else if(jumpTime>0){
     jumpTime+=dt;
     const t=jumpTime/jumpDuration;
 
-    if(t<.26 && runnerState!=='JUMP'){
-      setState('JUMP');
-    }else if(t>=.26 && t<.72 && runnerState!=='AIR'){
-      setState('AIR');
-    }else if(t>=.72 && t<1 && runnerState!=='LAND'){
-      setState('LAND');
-    }
+    if(t>=.26 && t<.72 && runnerState!=='AIR')setState('AIR');
+    else if(t>=.72 && t<1 && runnerState!=='LAND')setState('LAND');
 
     if(t>=1){
       jumpTime=0;
+      resetSoldierPoseTransform();
       setState(locomotionState());
       y=0;
     }else{
       y=Math.sin(Math.PI*t)*2.45;
     }
-  }else if(duckTime>0){
-    duckTime+=dt;
-    const t=Math.min(1,duckTime/duckDuration);
+  }else if(crouchTime>0){
+    crouchTime+=dt;
+    const t=Math.min(1,crouchTime/crouchDuration);
     const fold=t<.18?t/.18:t>.78?(1-t)/.22:1;
 
-    // Reuse the crouch/slide body transform from the Soldier test.
-    // The fox's native Duck clip is deliberately not used because it reads poorly in motion.
+    // This is the exact crouch treatment from the Soldier test,
+    // applied to Soldier itself rather than transplanted onto another rig.
     if(model){
       model.scale.set(
-        modelBaseScale.x,
-        modelBaseScale.y*(1-.38*fold),
-        modelBaseScale.z
+        baseScale.x,
+        baseScale.y*(1-.38*fold),
+        baseScale.z
       );
       model.rotation.set(
-        modelBaseRotation.x+.30*fold,
-        modelBaseRotation.y,
-        modelBaseRotation.z
+        baseRotation.x+.30*fold,
+        baseRotation.y,
+        baseRotation.z
       );
       model.position.set(
-        modelBasePosition.x,
-        modelBasePosition.y-.06*fold,
-        modelBasePosition.z
+        basePosition.x,
+        basePosition.y-.06*fold,
+        basePosition.z
       );
     }
 
-    if(duckTime>=duckDuration){
-      duckTime=0;
-      if(model){
-        model.scale.copy(modelBaseScale);
-        model.position.copy(modelBasePosition);
-        model.rotation.copy(modelBaseRotation);
-      }
+    if(crouchTime>=crouchDuration){
+      crouchTime=0;
+      resetSoldierPoseTransform();
       setState(locomotionState());
     }
   }else{
@@ -425,6 +541,7 @@ function travelSpeed(){
 
 function updateWorld(dt,v){
   const travel=v*dt;
+
   for(const m of laneMarkers){
     m.position.z+=travel;
     if(m.position.z>8)m.position.z-=160;
@@ -438,7 +555,7 @@ function updateWorld(dt,v){
       o.passed=true;
       const same=o.laneIndex===lane && Math.abs(o.mesh.position.x-runnerRoot.position.x)<1.25;
       if(same){
-        const safe=o.type==='jump'?runnerRoot.position.y>1.05:duckTime>0;
+        const safe=o.type==='jump'?runnerRoot.position.y>1.05:crouchTime>0;
         if(!safe)hit();
       }
     }
@@ -457,6 +574,7 @@ function updateWorld(dt,v){
 }
 
 const clock=new THREE.Clock();
+
 function animate(){
   requestAnimationFrame(animate);
   const dt=Math.min(clock.getDelta(),.04);
