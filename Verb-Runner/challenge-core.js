@@ -115,9 +115,17 @@
     ]).filter(v=>v!==correct&&!verb.accepted?.includes(v));
   }
 
+  function consonantSkeleton(word){
+    return String(word||'').toLowerCase().replace(/[aeiou]/g,'');
+  }
+
   function scoreDistractor(value,verb,correct){
     const base=verb.forms[0];
     let score=0;
+    const valueSkeleton=consonantSkeleton(value);
+    const correctSkeleton=consonantSkeleton(correct);
+    const baseSkeleton=consonantSkeleton(base);
+    if(valueSkeleton===correctSkeleton||valueSkeleton===baseSkeleton)score+=7;
     if(value.startsWith(base.slice(0,Math.max(2,base.length-2))))score+=4;
     if(Math.abs(value.length-correct.length)<=1)score+=3;
     const vowelDiff=[...value].reduce((n,ch,i)=>n+(isVowel(ch)&&ch!==correct[i]?1:0),0);
@@ -133,10 +141,17 @@
     const correct=String(verb.forms[blankIndex]).toLowerCase();
     const pool=sameVerbDistractors(verb,blankIndex);
     const count=Math.max(1,Math.floor(countOverride??LEVELS[difficulty]?.count??3));
+    const correctSkeleton=consonantSkeleton(correct);
+    const baseSkeleton=consonantSkeleton(verb.forms[0]);
+    const vowelFocused=pool.filter(value=>{
+      const skeleton=consonantSkeleton(value);
+      return skeleton===correctSkeleton||skeleton===baseSkeleton;
+    });
+    const preferred=unique([...vowelFocused,...pool]);
 
     if(difficulty==='hard'){
-      const ranked=[...pool].sort((a,b)=>scoreDistractor(b,verb,correct)-scoreDistractor(a,verb,correct));
-      return shuffled(ranked.slice(0,Math.max(count+2,count)),random).slice(0,count);
+      const ranked=[...preferred].sort((a,b)=>scoreDistractor(b,verb,correct)-scoreDistractor(a,verb,correct));
+      return shuffled(ranked.slice(0,Math.max(count+3,count)),random).slice(0,count);
     }
     if(difficulty==='easy'){
       const obvious=[];
@@ -146,7 +161,8 @@
       obvious.push(...(verb.spellingDecoys||[]),...(verb.decoys||[]),...pool);
       return unique(obvious).filter(v=>v!==correct).slice(0,count);
     }
-    return shuffled(pool,random).slice(0,count);
+    const mediumPool=vowelFocused.length>=count?vowelFocused:preferred;
+    return shuffled(mediumPool,random).slice(0,count);
   }
 
   function createChallenge(verb,{random=Math.random,distractorCount=null,difficulty='medium'}={}){
@@ -182,7 +198,7 @@
     return buildAnswerSequence(challenge,{random,distractorCount:3});
   }
 
-  const api={LABELS,LEVELS,regularPast,vowelMutations,createChallenge,buildAnswerSequence,buildMediumSequence,chooseDistractors,shuffled};
+  const api={LABELS,LEVELS,regularPast,vowelMutations,consonantSkeleton,createChallenge,buildAnswerSequence,buildMediumSequence,chooseDistractors,shuffled};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   global.VerbRunnerChallenge=api;
 })(typeof window!=='undefined'?window:globalThis);
