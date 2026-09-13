@@ -33,3 +33,17 @@ Character source: Quaternius Ultimate Animated Character Pack, mirrored in the p
 License: CC0 1.0 Universal, recorded alongside the asset in `LICENSE.txt`.
 
 This character is only for motion validation before the final red anime runner.
+
+
+## Red runner visual pass
+
+The approved female base keeps the exact same height, narrowed body proportion and reduced head width/depth. The current visual pass adds:
+
+- red top / hoodie-style color treatment;
+- black full-length pants and belt;
+- reddish-brown high ponytail;
+- black gloves;
+- white sleeve cuff details;
+- black backpack with cyan V.
+
+The movement set remains unchanged: native Run, Jump, Roll and hit animation.
