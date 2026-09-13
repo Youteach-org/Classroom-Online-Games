@@ -12,32 +12,38 @@ const runners=[
     portrait:'select-red-neon.webp',
     directPortrait:true,
     scaleX:.88,
-    headXZ:.82
+    headXZ:.82,
+    palette:{Shirt:0xe43c3c,Pants:0x111318,Belt:0xff9b9b,Hair:0x6d3429}
   },
   {
     name:'Blue',
     file:'Casual_Male.gltf',
-    portrait:'select-hd-1.webp.b64'
+    portrait:'select-hd-1.webp.b64',
+    palette:{Shirt:0x2475d1,Pants:0x111827,Belt:0x8ad8ff,Hair:0x6b4635}
   },
   {
     name:'Green',
     file:'Casual2_Male.gltf',
-    portrait:'select-hd-5.webp.b64'
+    portrait:'select-hd-5.webp.b64',
+    palette:{Shirt:0x218c4b,Pants:0x111827,Belt:0x7be5a2,Hair:0xc89b58}
   },
   {
     name:'Pink',
     file:'Casual2_Female.gltf',
-    portrait:'select-hd-2.webp.b64'
+    portrait:'select-hd-2.webp.b64',
+    palette:{Shirt:0xef4c78,Pants:0x191218,Belt:0xff9fbd,Hair:0x4b302b}
   },
   {
     name:'White / Black',
     file:'Casual3_Male.gltf',
-    portrait:'select-hd-3.webp.b64'
+    portrait:'select-hd-3.webp.b64',
+    palette:{Shirt:0xe9ecf2,Pants:0x151821,Belt:0x7f899c,Hair:0x171b22}
   },
   {
     name:'Purple',
     file:'Casual3_Female.gltf',
-    portrait:'select-hd-4.webp.b64'
+    portrait:'select-hd-4.webp.b64',
+    palette:{Shirt:0x8f46d8,Pants:0x16131c,Belt:0xd59fff,Hair:0x6a4437}
   }
 ];
 
@@ -53,6 +59,18 @@ function cloneMaterials(root){
     }else if(object.material?.clone){
       object.material=object.material.clone();
     }
+  });
+}
+
+function applyPalette(root,palette={}){
+  root.traverse(object=>{
+    if(!object.isMesh)return;
+    const materials=Array.isArray(object.material)?object.material:[object.material];
+    materials.forEach(material=>{
+      if(material?.name && palette[material.name]!==undefined){
+        material.color.setHex(palette[material.name]);
+      }
+    });
   });
 }
 
@@ -217,6 +235,7 @@ function createStage(index){
       });
 
       fitToHeight(model,TARGET_HEIGHT);
+      applyPalette(model,config.palette);
 
       // Preserve the approved red girl's exact proportions without changing height.
       if(config.scaleX){
