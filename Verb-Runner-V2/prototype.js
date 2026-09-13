@@ -206,6 +206,13 @@ loader.load(
     });
 
     fitToHeight(model,2.35);
+
+    // Proportion pass for the temporary female runner:
+    // keep the native rig/animations, but reduce the chibi look.
+    model.scale.x*=.88;
+    const head=model.getObjectByName('Head');
+    if(head)head.scale.multiplyScalar(.82);
+
     runnerRoot.add(model);
 
     mixer=new THREE.AnimationMixer(model);
