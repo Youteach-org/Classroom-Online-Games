@@ -22,6 +22,32 @@ const startButton=document.querySelector('#startButton');
 const runnerChip=document.querySelector('#runnerChip');
 const runnerName=document.querySelector('#runnerName');
 const runnerDot=document.querySelector('#runnerDot');
+const pauseButton=document.querySelector('#pauseButton');
+const resumeButton=document.querySelector('#resumeButton');
+const pauseOverlay=document.querySelector('#pauseOverlay');
+const resultOverlay=document.querySelector('#resultOverlay');
+const runAgainButton=document.querySelector('#runAgainButton');
+const challengeNumber=document.querySelector('#challengeNumber');
+const streakValue=document.querySelector('#streakValue');
+const progressValue=document.querySelector('#progressValue');
+const momentumValue=document.querySelector('#momentumValue');
+const momentumFill=document.querySelector('#momentumFill');
+const raceTime=document.querySelector('#raceTime');
+const gameNotice=document.querySelector('#gameNotice');
+const resultTime=document.querySelector('#resultTime');
+const resultAccuracy=document.querySelector('#resultAccuracy');
+const resultCorrect=document.querySelector('#resultCorrect');
+const resultStreak=document.querySelector('#resultStreak');
+const resultObstacles=document.querySelector('#resultObstacles');
+const resultMomentum=document.querySelector('#resultMomentum');
+
+const TOTAL_CHALLENGES=12;
+const difficultyPresets={
+  easy:{name:'easy',speed:.88,answerSpacing:1.08,distractors:2,preview:true},
+  medium:{name:'medium',speed:1,answerSpacing:.82,distractors:3,preview:false},
+  hard:{name:'hard',speed:1.18,answerSpacing:.64,distractors:4,preview:false}
+};
+let difficulty=difficultyPresets.medium;
 
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
@@ -396,6 +422,256 @@ let actions={};
 let activeAction=null;
 let selectedVariant=0;
 let gameStarted=false;
+let gamePaused=false;
+let victoryMode=false;
+let runState=null;
+let challenges=[];
+let challengeIndex=0;
+let runElapsed=0;
+let noticeTimer=0;
+let pendingAnswers=[];
+let answerSpawnClock=0;
+let currentChallenge=null;
+let retryQueued=false;
+
+
+function formatTime(ms){
+  const total=Math.max(0,Math.round(ms));
+  const minutes=Math.floor(total/60000);
+  const seconds=Math.floor((total%60000)/1000);
+  const millis=total%1000;
+  return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}.${String(millis).padStart(3,'0')}`;
+}
+
+function showNotice(text,kind='info'){
+  gameNotice.textContent=text;
+  gameNotice.className='game-notice show '+kind;
+  noticeTimer=.9;
+}
+
+function updateHud(){
+  if(!runState)return;
+  streakValue.textContent=String(runState.streak);
+  progressValue.textContent=`${runState.completed} / ${TOTAL_CHALLENGES}`;
+  momentumValue.textContent=`${runState.momentum}%`;
+  momentumFill.style.width=`${runState.momentum}%`;
+}
+
+function renderChallenge(){
+  currentChallenge=challenges[challengeIndex];
+  if(!currentChallenge)return;
+  challengeNumber.textContent=`${challengeIndex+1} / ${TOTAL_CHALLENGES}`;
+  document.querySelectorAll('[data-slot]').forEach((el,index)=>{
+    const value=currentChallenge.slots[index];
+    el.querySelector('b').textContent=value?String(value).toUpperCase():'____';
+    el.classList.toggle('blank',value===null);
+  });
+}
+
+function buildChallenges(){
+  const bank=[...(window.VerbRunnerBank?.VERBS||[])];
+  const shuffled=window.VerbRunnerChallenge.shuffled(bank);
+  challenges=shuffled.slice(0,TOTAL_CHALLENGES).map(verb=>
+    window.VerbRunnerChallenge.createChallenge(verb,{
+      bank,
+      distractorCount:Math.max(5,difficulty.distractors+1)
+    })
+  );
+}
+
+function makeAnswerTexture(word){
+  const c=document.createElement('canvas');
+  c.width=512;c.height=180;
+  const ctx=c.getContext('2d');
+  ctx.fillStyle='#123b56';ctx.fillRect(0,0,c.width,c.height);
+  ctx.strokeStyle='#ffffff';ctx.globalAlpha=.9;ctx.lineWidth=10;ctx.strokeRect(8,8,c.width-16,c.height-16);
+  ctx.globalAlpha=1;
+  ctx.fillStyle='#ffffff';
+  ctx.font='900 58px Arial';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText(String(word).toUpperCase(),c.width/2,c.height/2+2);
+  const tex=new THREE.CanvasTexture(c);
+  tex.colorSpace=THREE.SRGBColorSpace;
+  return tex;
+}
+
+const answers=[];
+
+function spawnAnswer(item){
+  if(!gameStarted||gamePaused||victoryMode)return;
+  let laneIndex=Math.floor(Math.random()*3);
+  if(answers.length&&answers.at(-1)?.laneIndex===laneIndex)laneIndex=(laneIndex+1+Math.floor(Math.random()*2))%3;
+
+  const group=new THREE.Group();
+  const glow=new THREE.Mesh(
+    new THREE.PlaneGeometry(2.65,1.02),
+    new THREE.MeshBasicMaterial({color:0x42bfe8,transparent:true,opacity:.22,side:THREE.DoubleSide,depthWrite:false})
+  );
+  glow.scale.set(1.08,1.12,1);
+  group.add(glow);
+
+  const panel=new THREE.Mesh(
+    new THREE.PlaneGeometry(2.45,.86),
+    new THREE.MeshBasicMaterial({map:makeAnswerTexture(item.value),transparent:false,side:THREE.DoubleSide})
+  );
+  panel.position.z=.02;
+  group.add(panel);
+
+  group.position.set(lanes[laneIndex],1.45,-74);
+  scene.add(group);
+  answers.push({mesh:group,laneIndex,item,resolved:false});
+}
+
+function clearAnswers(){
+  for(const answer of answers){
+    scene.remove(answer.mesh);
+    answer.mesh.traverse?.(o=>{
+      if(o.material?.map)o.material.map.dispose?.();
+      o.material?.dispose?.();
+      o.geometry?.dispose?.();
+    });
+  }
+  answers.length=0;
+  pendingAnswers=[];
+  answerSpawnClock=0;
+}
+
+function launchChallengeChain(initialDelay=.42){
+  clearAnswers();
+  retryQueued=false;
+  if(!currentChallenge)return;
+
+  const sequence=window.VerbRunnerChallenge.buildAnswerSequence(currentChallenge,{
+    distractorsBeforeCorrect:difficulty.distractors
+  });
+
+  pendingAnswers=sequence.map((item,index)=>({
+    item,
+    at:initialDelay+index*difficulty.answerSpacing
+  }));
+  answerSpawnClock=0;
+
+  if(difficulty.preview){
+    showNotice('LOOK FOR: '+String(currentChallenge.correctAnswer).toUpperCase(),'info');
+  }
+}
+
+function updateAnswerSpawns(dt){
+  if(!pendingAnswers.length)return;
+  answerSpawnClock+=dt;
+  while(pendingAnswers.length&&answerSpawnClock>=pendingAnswers[0].at){
+    const next=pendingAnswers.shift();
+    spawnAnswer(next.item);
+  }
+}
+
+function applyRunEvent(type){
+  if(!runState)return;
+  runState=window.VerbRunnerGameCore.applyEvent(runState,type);
+  updateHud();
+}
+
+function collectAnswer(answer){
+  if(answer.resolved)return;
+  answer.resolved=true;
+  const item=answer.item;
+
+  if(item.correct){
+    applyRunEvent('correct');
+    showNotice('CORRECT!','correct');
+    clearAnswers();
+    challengeIndex++;
+
+    if(challengeIndex>=TOTAL_CHALLENGES){
+      beginVictorySprint();
+      return;
+    }
+
+    renderChallenge();
+    launchChallengeChain(.55);
+  }else{
+    applyRunEvent('grammar-error');
+    showNotice(String(item.value).toUpperCase()+' — WRONG FORM','wrong');
+    scene.remove(answer.mesh);
+    const idx=answers.indexOf(answer);
+    if(idx>=0)answers.splice(idx,1);
+  }
+}
+
+function missedCorrectAnswer(){
+  if(retryQueued||victoryMode)return;
+  retryQueued=true;
+  showNotice('CORRECT FORM MISSED · TRY AGAIN','info');
+  launchChallengeChain(.75);
+}
+
+function setPaused(next){
+  if(!gameStarted||victoryMode)return;
+  gamePaused=next;
+  pauseOverlay.hidden=!next;
+  pauseButton.textContent=next?'▶':'Ⅱ';
+  modelStatus.textContent=next?'Paused':variants[selectedVariant].name+' robot · DAY CITY AVENUE';
+}
+
+function finishRun(){
+  gameStarted=false;
+  victoryMode=false;
+  gamePaused=false;
+  clearAnswers();
+  for(const o of obstacles.splice(0))scene.remove(o.mesh);
+  if(activeAction&&actions.idle)play('idle',.15);
+
+  const summary=window.VerbRunnerGameCore.summarize(runState,runElapsed*1000);
+  resultTime.textContent=formatTime(summary.timeMs);
+  resultAccuracy.textContent=summary.accuracy+'%';
+  resultCorrect.textContent=summary.correctLabel;
+  resultStreak.textContent=String(summary.bestStreak);
+  resultObstacles.textContent=String(summary.obstacleHits);
+  resultMomentum.textContent=summary.momentum+'%';
+  resultOverlay.hidden=false;
+
+  try{
+    localStorage.setItem('verbRunnerV2LastResult',JSON.stringify({
+      ...summary,
+      difficulty:difficulty.name,
+      runner:selectedVariant,
+      completedAt:Date.now()
+    }));
+  }catch{}
+}
+
+function beginVictorySprint(){
+  victoryMode=true;
+  clearAnswers();
+  for(const o of obstacles.splice(0))scene.remove(o.mesh);
+  showNotice('VICTORY SPRINT!','correct');
+  if(actions.run){
+    actions.run.timeScale=1.7;
+    play('run',.1);
+  }
+  setTimeout(()=>{
+    if(actions.run)actions.run.timeScale=1.2;
+    finishRun();
+  },2200);
+}
+
+function resetRun(){
+  runState=window.VerbRunnerGameCore.createRunState(TOTAL_CHALLENGES);
+  challengeIndex=0;
+  runElapsed=0;
+  distance=0;
+  speed=18;
+  nextSpawn=26;
+  hitCooldown=0;
+  victoryMode=false;
+  gamePaused=false;
+  clearAnswers();
+  buildChallenges();
+  renderChallenge();
+  updateHud();
+  raceTime.textContent='00:00.000';
+}
 
 function hashName(name='mesh'){
   let h=0;
@@ -499,15 +775,33 @@ document.querySelectorAll('.robot-option').forEach((btn,index)=>{
   btn.addEventListener('click',()=>applyRobotPalette(index));
 });
 
+document.querySelectorAll('[data-difficulty]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    difficulty=difficultyPresets[btn.dataset.difficulty]||difficultyPresets.medium;
+    document.querySelectorAll('[data-difficulty]').forEach(b=>b.classList.toggle('active',b===btn));
+  });
+});
+
 startButton.addEventListener('click',()=>{
+  resetRun();
   picker.classList.add('hidden');
+  resultOverlay.hidden=true;
   gameStarted=true;
   play('run',.12);
   modelStatus.textContent=variants[selectedVariant].name+' robot · DAY CITY AVENUE';
+  launchChallengeChain(difficulty.preview?1.55:.55);
 });
 
 runnerChip.addEventListener('click',()=>{
-  gameStarted=false;
+  if(gameStarted){showNotice('FINISH THE RUN TO CHANGE ROBOT','info');return;}
+  picker.classList.remove('hidden');
+  play('idle',.12);
+});
+
+pauseButton.addEventListener('click',()=>setPaused(!gamePaused));
+resumeButton.addEventListener('click',()=>setPaused(false));
+runAgainButton.addEventListener('click',()=>{
+  resultOverlay.hidden=true;
   picker.classList.remove('hidden');
   play('idle',.12);
 });
@@ -526,19 +820,19 @@ let nextSpawn=26;
 let hitCooldown=0;
 
 function moveLane(dir){
-  if(!gameStarted)return;
+  if(!gameStarted||gamePaused||victoryMode)return;
   lane=THREE.MathUtils.clamp(lane+dir,0,2);
   targetX=lanes[lane];
 }
 
 function jump(){
-  if(!gameStarted||jumpTime>0||sliding)return;
+  if(!gameStarted||gamePaused||victoryMode||jumpTime>0||sliding)return;
   jumpTime=.001;
   if(actions.jump)play('jump',.08);
 }
 
 function slide(){
-  if(!gameStarted||sliding||jumpTime>0)return;
+  if(!gameStarted||gamePaused||victoryMode||sliding||jumpTime>0)return;
   sliding=true;
   slideTime=.001;
 }
@@ -593,11 +887,12 @@ function spawnObstacle(){
 }
 
 function hit(){
-  if(hitCooldown>0)return;
+  if(hitCooldown>0||victoryMode)return;
   hitCooldown=.9;
   flash.classList.add('on');
   setTimeout(()=>flash.classList.remove('on'),180);
-  distance=Math.max(0,distance-35);
+  applyRunEvent('obstacle-hit');
+  showNotice('OBSTACLE HIT','wrong');
 }
 
 function updateRunner(dt){
@@ -646,6 +941,8 @@ function updateRunner(dt){
 function updateWorld(dt){
   const travel=speed*dt;
 
+  updateAnswerSpawns(dt);
+
   for(const mover of environmentMovers){
     mover.object.position.z+=travel*mover.speedFactor;
     if(mover.object.position.z>16)mover.object.position.z-=mover.span;
@@ -659,6 +956,29 @@ function updateWorld(dt){
   for(const m of laneMarkers){
     m.position.z+=travel;
     if(m.position.z>8)m.position.z-=160;
+  }
+
+  for(let i=answers.length-1;i>=0;i--){
+    const a=answers[i];
+    a.mesh.position.z+=travel;
+    const closeToRunner=Math.abs(a.mesh.position.z-runnerRoot.position.z)<1.25;
+    const sameLane=a.laneIndex===lane&&Math.abs(a.mesh.position.x-runnerRoot.position.x)<1.3;
+
+    if(!a.resolved&&closeToRunner&&sameLane){
+      collectAnswer(a);
+      if(!gameStarted||victoryMode)break;
+      continue;
+    }
+
+    if(a.mesh.position.z>13){
+      const wasCorrect=a.item.correct&&!a.resolved;
+      scene.remove(a.mesh);
+      answers.splice(i,1);
+      if(wasCorrect){
+        missedCorrectAnswer();
+        break;
+      }
+    }
   }
 
   for(let i=obstacles.length-1;i>=0;i--){
@@ -680,10 +1000,12 @@ function updateWorld(dt){
     }
   }
 
-  nextSpawn-=travel;
-  if(nextSpawn<=0){
-    spawnObstacle();
-    nextSpawn=22+Math.random()*18;
+  if(!victoryMode){
+    nextSpawn-=travel;
+    if(nextSpawn<=0){
+      spawnObstacle();
+      nextSpawn=(22+Math.random()*18)/difficulty.speed;
+    }
   }
 }
 
@@ -693,14 +1015,41 @@ function animate(){
   requestAnimationFrame(animate);
   const dt=Math.min(clock.getDelta(),.04);
 
-  if(mixer)mixer.update(dt);
+  if(mixer&&!gamePaused)mixer.update(dt);
   hitCooldown=Math.max(0,hitCooldown-dt);
 
-  if(gameStarted){
-    speed=Math.min(29,18+distance/620);
-    distance+=speed*dt;
-    updateRunner(dt);
-    updateWorld(dt);
+  if(noticeTimer>0){
+    noticeTimer-=dt;
+    if(noticeTimer<=0)gameNotice.className='game-notice';
+  }
+
+  if(gameStarted&&!gamePaused){
+    runElapsed+=dt;
+    raceTime.textContent=formatTime(runElapsed*1000);
+
+    if(victoryMode){
+      speed=34;
+      distance+=speed*dt;
+      updateRunner(dt);
+      for(const mover of environmentMovers){
+        mover.object.position.z+=speed*dt*mover.speedFactor;
+        if(mover.object.position.z>16)mover.object.position.z-=mover.span;
+      }
+      for(const mover of farMovers){
+        mover.object.position.z+=speed*dt*mover.speedFactor;
+        if(mover.object.position.z>8)mover.object.position.z-=mover.span;
+      }
+      for(const m of laneMarkers){
+        m.position.z+=speed*dt;
+        if(m.position.z>8)m.position.z-=160;
+      }
+    }else{
+      const momentumBoost=.78+(runState?.momentum||75)/340;
+      speed=Math.min(31,(18+distance/620)*difficulty.speed*momentumBoost);
+      distance+=speed*dt;
+      updateRunner(dt);
+      updateWorld(dt);
+    }
   }
 
   distanceEl.textContent=String(Math.floor(distance)).padStart(4,'0');
