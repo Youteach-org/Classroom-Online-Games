@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
 const ROBOT_URL='https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb';
-const PEDESTRIAN_URL='https://threejs.org/examples/models/gltf/Soldier.glb';
+const PEDESTRIAN_URL='https://threejs.org/examples/models/gltf/Michelle.glb';
 let pedestrianTemplate=null;
 let pedestrianAnimations=[];
 const IS_MOBILE=matchMedia('(pointer:coarse)').matches||innerWidth<=700;
@@ -1626,7 +1626,7 @@ function createPedestrian(index=0){
 
   if(pedestrianAnimations.length){
     const mixer=new THREE.AnimationMixer(g);
-    const walkClip=pedestrianAnimations.find(c=>/walk/i.test(c.name))||pedestrianAnimations[3]||pedestrianAnimations[0];
+    const walkClip=pedestrianAnimations.find(c=>/walk/i.test(c.name))||pedestrianAnimations[0];
     if(walkClip){
       const action=mixer.clipAction(walkClip);
       action.timeScale=.9+Math.random()*.18;
@@ -1638,52 +1638,15 @@ function createPedestrian(index=0){
   return g;
 }
 
-function createCyclist(index=0){
-  const g=new THREE.Group();
-  const wheelMat=obstacleMaterials.rubber;
-  const frameMat=index%2?obstacleMaterials.yellow:obstacleMaterials.blue;
-  const wheels=[];
-
-  for(const z of [-.75,.75]){
-    const wheel=new THREE.Mesh(new THREE.TorusGeometry(.42,.055,8,18),wheelMat);
-    wheel.rotation.y=Math.PI/2;
-    wheel.position.set(0,.48,z);
-    wheels.push(wheel);
-    g.add(wheel);
-  }
-
-  const rear=new THREE.Vector3(0,.48,.75);
-  const front=new THREE.Vector3(0,.48,-.75);
-  const crank=new THREE.Vector3(0,.62,.08);
-  const seat=new THREE.Vector3(0,.98,.35);
-  const handle=new THREE.Vector3(0,1.02,-.48);
-  g.add(cylinderBetween(rear,crank,.045,frameMat));
-  g.add(cylinderBetween(front,crank,.045,frameMat));
-  g.add(cylinderBetween(crank,seat,.045,frameMat));
-  g.add(cylinderBetween(seat,handle,.04,frameMat));
-
-  const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.2,.55,5,10),obstacleMaterials.cloth);
-  torso.position.set(0,1.46,.05);
-  torso.rotation.x=.28;
-  g.add(torso);
-  const head=new THREE.Mesh(new THREE.SphereGeometry(.2,12,10),obstacleMaterials.skin);
-  head.position.set(0,1.89,-.12);
-  g.add(head);
-
-  g.userData.wheels=wheels;
-  return g;
-}
-
 function spawnObstacle(){
   const roll=Math.random();
   let type;
   let kind;
 
-  if(roll<.20){type='car';kind='car';}
-  else if(roll<.39){type='jump';kind='sign';}
-  else if(roll<.56){type='jump';kind='boxes';}
-  else if(roll<.80){type='dodge';kind='pedestrian';}
-  else {type='dodge';kind='cyclist';}
+  if(roll<.24){type='car';kind='car';}
+  else if(roll<.47){type='jump';kind='sign';}
+  else if(roll<.68){type='jump';kind='boxes';}
+  else {type='dodge';kind='pedestrian';}
 
   const laneIndex=pickObstacleLane(type);
   if(laneIndex===null)return;
@@ -1692,13 +1655,14 @@ function spawnObstacle(){
   if(kind==='car')mesh=createRoadCar(Math.floor(Math.random()*6));
   else if(kind==='sign')mesh=createRoadSign();
   else if(kind==='boxes')mesh=createDeliveryBoxes();
-  else if(kind==='pedestrian'){
+  else{
     mesh=createPedestrian(Math.floor(Math.random()*12));
     if(!mesh){
-      kind='cyclist';
-      mesh=createCyclist(Math.floor(Math.random()*4));
+      kind='boxes';
+      type='jump';
+      mesh=createDeliveryBoxes();
     }
-  }else mesh=createCyclist(Math.floor(Math.random()*4));
+  }
 
   if(kind==='pedestrian'){
     mesh.position.set(mesh.userData.startSide*5.25,0,OBSTACLE_SPAWN_Z);
@@ -1813,10 +1777,7 @@ function updateWorld(dt){
     const o=obstacles[i];
     o.mesh.position.z+=travel;
 
-    if(o.kind==='cyclist'&&o.mesh.userData.wheels){
-      for(const wheel of o.mesh.userData.wheels)wheel.rotation.x-=travel*1.55;
-      o.mesh.rotation.z=Math.sin(o.mesh.position.z*.08)*.035;
-    }else if(o.kind==='pedestrian'){
+    if(o.kind==='pedestrian'){
       o.mixer?.update(dt);
       o.mesh.position.x+=o.mesh.userData.crossDir*o.mesh.userData.crossSpeed*dt;
     }
