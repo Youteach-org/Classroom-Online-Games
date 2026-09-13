@@ -154,17 +154,23 @@ function cyclePoses(values){
 
 function buildRunClip(name='Run',sprint=false){
   const t=[0,.125,.25,.375,.5,.625,.75,.875,1];
-  const amp=sprint?1.22:1;
-  const lean=sprint?-10:-5;
+  const amp=sprint?1.18:1;
+  // VRM normalized humanoid uses the opposite sagittal sign from the
+  // temporary procedural clip we started with. Positive X here is forward.
+  const lean=sprint?9:6;
 
-  const rLeg=[-28,-12,18,42,26,4,-20,-40,-28].map(x=>[x*amp,0,0]);
-  const lLeg=[26,4,-20,-40,-28,-12,18,42,26].map(x=>[x*amp,0,0]);
+  // One continuous running cycle: right leg advances first, then left.
+  const rLeg=[28,12,-18,-42,-26,-4,20,40,28].map(x=>[x*amp,0,0]);
+  const lLeg=[-26,-4,20,40,28,12,-18,-42,-26].map(x=>[x*amp,0,0]);
 
-  const rKnee=[54,74,62,30,16,30,64,80,54].map(x=>[x,0,0]);
-  const lKnee=[16,30,64,80,54,74,62,30,16].map(x=>[x,0,0]);
+  // Knee flexion remains positive; peaks while the foot is recovering.
+  const rKnee=[42,66,78,48,20,18,38,68,42].map(x=>[x,0,0]);
+  const lKnee=[20,18,38,68,42,66,78,48,20].map(x=>[x,0,0]);
 
-  const rArm=[34,20,-2,-28,-38,-22,2,28,34].map(x=>[x*amp,0,-5]);
-  const lArm=[-38,-22,2,28,34,20,-2,-28,-38].map(x=>[x*amp,0,5]);
+  // Arms swing opposite the legs. Z offsets bring the T-pose shoulders
+  // down alongside the torso instead of leaving the arms spread out.
+  const rArm=[-30,-18,2,24,32,18,-2,-24,-30].map(x=>[x*amp,0,-62]);
+  const lArm=[32,18,-2,-24,-30,-18,2,24,32].map(x=>[x*amp,0,62]);
 
   const spineTw=[6,4,1,-4,-6,-4,-1,4,6];
   const chestTw=spineTw.map(v=>-v*.65);
@@ -181,8 +187,8 @@ function buildRunClip(name='Run',sprint=false){
     leftFoot:{times:t,poses:[[-3,0,0],[8,0,0],[14,0,0],[-4,0,0],[6,0,0],[14,0,0],[0,0,0],[-8,0,0],[-3,0,0]]},
     rightUpperArm:{times:t,poses:rArm},
     leftUpperArm:{times:t,poses:lArm},
-    rightLowerArm:{times:t,poses:t.map((_,i)=>[-52-(i%4)*5,0,-4])},
-    leftLowerArm:{times:t,poses:t.map((_,i)=>[-52-((i+2)%4)*5,0,4])},
+    rightLowerArm:{times:t,poses:t.map((_,i)=>[-58-(i%4)*4,0,0])},
+    leftLowerArm:{times:t,poses:t.map((_,i)=>[-58-((i+2)%4)*4,0,0])},
     neck:{times:t,poses:spineTw.map(v=>[-lean*.15,-v*.28,0])}
   });
 }
@@ -205,14 +211,16 @@ function buildSlideClip(){
   const t=[0,.14,.36,.64,.84,1];
   return makeClip('Slide',1,{
     hips:{times:t,poses:[[0,0,0],[0,-7,0],[0,-9,0],[0,-8,0],[0,-4,0],[0,0,0]]},
-    spine:{times:t,poses:[[0,0,0],[-28,0,0],[-46,0,0],[-48,0,0],[-24,0,0],[0,0,0]]},
-    chest:{times:t,poses:[[0,0,0],[-14,0,0],[-25,0,0],[-28,0,0],[-12,0,0],[0,0,0]]},
-    rightUpperLeg:{times:t,poses:[[0,0,0],[35,0,0],[55,0,0],[54,0,0],[28,0,0],[0,0,0]]},
-    leftUpperLeg:{times:t,poses:[[0,0,0],[18,0,0],[28,0,0],[32,0,0],[18,0,0],[0,0,0]]},
-    rightLowerLeg:{times:t,poses:[[0,0,0],[66,0,0],[96,0,0],[92,0,0],[55,0,0],[0,0,0]]},
-    leftLowerLeg:{times:t,poses:[[0,0,0],[48,0,0],[74,0,0],[78,0,0],[46,0,0],[0,0,0]]},
-    rightUpperArm:{times:t,poses:[[8,0,-6],[-14,0,-18],[-28,0,-32],[-30,0,-28],[-10,0,-12],[8,0,-6]]},
-    leftUpperArm:{times:t,poses:[[-8,0,6],[-14,0,18],[-28,0,32],[-30,0,28],[-10,0,12],[-8,0,6]]}
+    // Forward crouch: positive spine/chest X bends the torso toward the track.
+    spine:{times:t,poses:[[6,0,0],[22,0,0],[38,0,0],[40,0,0],[20,0,0],[6,0,0]]},
+    chest:{times:t,poses:[[3,0,0],[12,0,0],[20,0,0],[22,0,0],[10,0,0],[3,0,0]]},
+    // Hips/knees fold underneath the runner instead of arching backward.
+    rightUpperLeg:{times:t,poses:[[8,0,0],[30,0,0],[48,0,0],[48,0,0],[26,0,0],[8,0,0]]},
+    leftUpperLeg:{times:t,poses:[[4,0,0],[22,0,0],[38,0,0],[38,0,0],[20,0,0],[4,0,0]]},
+    rightLowerLeg:{times:t,poses:[[18,0,0],[54,0,0],[86,0,0],[86,0,0],[48,0,0],[18,0,0]]},
+    leftLowerLeg:{times:t,poses:[[16,0,0],[48,0,0],[78,0,0],[78,0,0],[44,0,0],[16,0,0]]},
+    rightUpperArm:{times:t,poses:[[0,0,-58],[-10,0,-62],[-22,0,-66],[-22,0,-66],[-8,0,-62],[0,0,-58]]},
+    leftUpperArm:{times:t,poses:[[0,0,58],[-10,0,62],[-22,0,66],[-22,0,66],[-8,0,62],[0,0,58]]}
   });
 }
 
