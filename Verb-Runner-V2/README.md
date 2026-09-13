@@ -1,42 +1,31 @@
 # Verb Runner V2 prototype
 
-This is an isolated proof-of-concept. It does not modify the original `Verb-Runner/`.
+This isolated prototype is back on the approved Quaternius **Casual Female** base.
 
-## Current adapted runner test
+## Six-runner base
 
-The V2 test now uses Quaternius **Animated Woman** (`qJ2gsTUBHL`) as the visible runner instead of adding fake geometry on top of the previous body.
+All six runners now share the exact same rig, proportions and native animation set. The model is not rebuilt with primitive geometry. Each variant changes the model's real material slots.
 
-This model is useful because its clothing is split into separate skinned meshes/materials. The adaptation changes the actual model materials:
+Preview variants:
 
-- upper clothing -> red;
-- long-leg clothing -> black;
-- shoes -> light/white;
-- hair materials -> reddish brown;
-- skin remains unchanged.
+1. Red
+2. Blue
+3. Green
+4. Pink
+5. White
+6. Purple
 
-No backpack, ponytail, gloves or other fake primitive geometry is being attached in this pass.
+The primary colors match the six runner colors already used by the original Verb Runner selection screen.
 
-## Movement
+## Movement kept intact
 
-- RUN -> target model native `Run`
-- SPRINT -> native `Run` at higher playback speed
-- JUMP -> the previously approved Quaternius `Jump` clip bound to the compatible humanoid rig
-- LOW OBSTACLE ACTION -> target model native `Roll`
-- STUMBLE -> target model native `HitRecieve`
+- RUN -> native `Run`
+- SPRINT -> native `Run` at higher speed
+- JUMP -> native `Jump`
+- LOW OBSTACLE ACTION -> native `Roll`
+- STUMBLE -> native `RecieveHit`
+- RECOVERY -> native `Idle`
 
-The character is fit to the same 2.35 world-unit height used by the approved previous female test.
+Height stays at the previously approved 2.35 world units, with the approved narrower body and reduced head width/depth.
 
-## Controls
-
-- Left / A: lane left
-- Right / D: lane right
-- Up / W / Space: jump
-- Down / S: roll
-- Shift: sprint
-- Mobile: swipe left/right/up/down
-
-## Asset provenance
-
-Visible character: **Animated Woman** by Quaternius, Poly Pizza model `qJ2gsTUBHL`, CC0 1.0.
-
-The runtime file is loaded from a public GitHub mirror of the exact Poly Pizza model. The model has separate body, feet, head and leg skinned meshes and its own animation set.
+This is the common technical base for adapting the six final characters.
