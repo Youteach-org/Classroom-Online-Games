@@ -6,6 +6,17 @@ const distanceEl=document.querySelector('#distance');
 const speedEl=document.querySelector('#speed');
 const modelStatus=document.querySelector('#modelStatus');
 const flash=document.querySelector('#flash');
+const characterButtons=[...document.querySelectorAll('[data-runner]')];
+
+const runnerLooks=[
+  {name:'Red',main:0xe43c3c,accent:0xff9b9b,pants:0x14151a,hair:0x6b3428},
+  {name:'Blue',main:0x2475d1,accent:0x8ad8ff,pants:0x121722,hair:0x302622},
+  {name:'Green',main:0x218c4b,accent:0x7be5a2,pants:0x121914,hair:0x4a3024},
+  {name:'Pink',main:0xef4c78,accent:0xff9fbd,pants:0x1b1318,hair:0x3a2528},
+  {name:'White',main:0xd9dde6,accent:0xffffff,pants:0x17191f,hair:0x8a6a4e},
+  {name:'Purple',main:0x9a4de0,accent:0xdd9cff,pants:0x18131d,hair:0x43283f}
+];
+let currentRunner=0;
 
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -100,11 +111,6 @@ const runnerRoot=new THREE.Group();
 runnerRoot.position.set(0,0,2);
 scene.add(runnerRoot);
 
-// Separate visual pivot so actions like the forward roll can rotate the
-// character itself without moving the gameplay root/collision position.
-const runnerVisual=new THREE.Group();
-runnerRoot.add(runnerVisual);
-
 const shadow=new THREE.Mesh(
   new THREE.CircleGeometry(.72,32),
   new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.34,depthWrite:false})
@@ -118,6 +124,48 @@ let mixer=null;
 const actions={};
 let activeAction=null;
 let runnerState='LOADING';
+
+function cloneRunnerMaterials(root){
+  root.traverse(o=>{
+    if(!o.isMesh)return;
+    if(Array.isArray(o.material))o.material=o.material.map(m=>m?.clone?.()||m);
+    else if(o.material?.clone)o.material=o.material.clone();
+  });
+}
+
+function applyRunnerLook(index){
+  currentRunner=THREE.MathUtils.clamp(Number(index)||0,0,runnerLooks.length-1);
+  const look=runnerLooks[currentRunner];
+
+  if(model){
+    model.traverse(o=>{
+      if(!o.isMesh)return;
+      const materials=Array.isArray(o.material)?o.material:[o.material];
+      for(const mat of materials){
+        if(!mat?.name)continue;
+        if(mat.name==='Shirt')mat.color.setHex(look.main);
+        else if(mat.name==='Pants')mat.color.setHex(look.pants);
+        else if(mat.name==='Belt')mat.color.setHex(look.accent);
+        else if(mat.name==='Hair')mat.color.setHex(look.hair);
+      }
+    });
+  }
+
+  characterButtons.forEach((button,i)=>{
+    button.classList.toggle('selected',i===currentRunner);
+    button.setAttribute('aria-pressed',String(i===currentRunner));
+  });
+
+  if(modelStatus && model){
+    modelStatus.textContent=look.name+' runner · '+runnerState;
+  }
+}
+
+characterButtons.forEach(button=>{
+  button.addEventListener('click',()=>{
+    applyRunnerLook(Number(button.dataset.runner));
+  });
+});
 
 function fitToHeight(root,target=2.35){
   root.updateMatrixWorld(true);
@@ -139,51 +187,26 @@ function getClip(clips,name){
     || clips.find(c=>c.name.toLowerCase().includes(name.toLowerCase()));
 }
 
-function styleAdaptedRunner(root){
-  const colors={
-    White:0xb51f2e,
-    Orange:0x101218,
-    Grey:0xe8e9ed,
-    Hair_Blond:0x6b3026,
-    Hair_Brown:0x6b3026,
-    Brown:0x5b261f
-  };
+function sanitizeClip(clip){
+  const copy=clip.clone();
 
-  root.traverse(o=>{
-    if(!o.isMesh)return;
-
-    const list=Array.isArray(o.material)?o.material:[o.material];
-    const styled=list.map(mat=>{
-      if(!mat)return mat;
-      const clone=mat.clone();
-
-      if(colors[clone.name]!==undefined){
-        clone.color.setHex(colors[clone.name]);
-      }
-
-      if(clone.name==='White'){
-        clone.roughness=.62;
-        clone.metalness=.04;
-      }else if(clone.name==='Orange'){
-        clone.roughness=.8;
-        clone.metalness=.02;
-      }else if(clone.name==='Grey'){
-        clone.roughness=.5;
-        clone.metalness=.08;
-      }
-
-      return clone;
-    });
-
-    o.material=Array.isArray(o.material)?styled:styled[0];
-    o.castShadow=true;
-    o.receiveShadow=true;
+  // Keep gameplay position controlled by the runner engine.
+  // Preserve skeletal motion but strip whole-character translation tracks.
+  copy.tracks=copy.tracks.filter(track=>{
+    const n=track.name.toLowerCase();
+    return !(
+      n==='root.position' ||
+      n==='characterarmature.position' ||
+      n.endsWith('bone.position')
+    );
   });
+
+  return copy;
 }
 
 function addAction(name,clip,{once=false}={}){
   if(!clip)return null;
-  const action=mixer.clipAction(clip);
+  const action=mixer.clipAction(sanitizeClip(clip));
   action.enabled=true;
   action.clampWhenFinished=once;
   action.setLoop(once?THREE.LoopOnce:THREE.LoopRepeat,once?1:Infinity);
@@ -211,90 +234,73 @@ function setState(state){
 
   if(state==='RUN')play('run',{fade:.12,speed:1});
   else if(state==='SPRINT')play('run',{fade:.10,speed:1.32});
-  else if(state==='JUMP')play('run',{fade:.06,speed:.78});
+  else if(state==='JUMP')play('jump',{fade:.07,speed:1.0,reset:true});
   else if(state==='ROLL')play('roll',{fade:.055,speed:1.10,reset:true});
   else if(state==='STUMBLE')play('hit',{fade:.04,speed:1.05,reset:true});
   else if(state==='RECOVERY')play('idle',{fade:.07,speed:1,reset:true});
 
-  modelStatus.textContent='Adapted red runner · '+state;
+  modelStatus.textContent=runnerLooks[currentRunner].name+' runner · '+state;
 }
 
-async function loadGLTF(url){
-  const loader=new GLTFLoader();
-  return await new Promise((resolve,reject)=>{
-    loader.load(url,resolve,undefined,reject);
-  });
-}
+const loader=new GLTFLoader();
+loader.load(
+  'https://cdn.jsdelivr.net/gh/psqd12137-sudo/dream-channel@3d1f3c91810ac6b73146971d7d6297b12c8f3244/godot/assets/quaternius/animated_characters/Casual_Female.gltf',
+  gltf=>{
+    model=gltf.scene;
 
-async function loadFirst(urls){
-  let lastError=null;
-  for(const url of urls){
-    try{
-      return await loadGLTF(url);
-    }catch(err){
-      console.warn('Model source failed, trying fallback:',url,err);
-      lastError=err;
-    }
-  }
-  throw lastError || new Error('No model source available');
-}
-
-async function initRunner(){
-  try{
-    const adapted=await loadFirst([
-      'https://cdn.jsdelivr.net/gh/nikhilswain/Vercord@961a12c08b71e46b0c4da760b2f7cb42ddfb0159/public/game-assets/three-characters/animated-woman.glb',
-      'https://static.poly.pizza/ba7a1955-ea51-4cb9-a561-188bdef0a6c7.glb'
-    ]);
-
-    model=adapted.scene;
-
-    // Native forward is +Z; the runner travels toward -Z.
+    // Same Quaternius coordinate convention as the previous native-action test.
     model.rotation.y=Math.PI;
 
-    styleAdaptedRunner(model);
+    cloneRunnerMaterials(model);
+    model.traverse(o=>{
+      if(o.isMesh){
+        o.castShadow=true;
+        o.receiveShadow=true;
+      }
+    });
 
-    // Same approved runner height as before.
     fitToHeight(model,2.35);
-    runnerVisual.add(model);
+
+    // Proportion pass for the temporary female runner:
+    // keep the native rig/animations, but reduce the chibi look.
+    model.scale.x*=.88;
+    const head=model.getObjectByName('Head');
+    if(head){
+      head.scale.x*=.82;
+      head.scale.z*=.82;
+    }
+
+    runnerRoot.add(model);
+    applyRunnerLook(currentRunner);
 
     mixer=new THREE.AnimationMixer(model);
 
-    const native=adapted.animations;
-    const bySuffix=suffix=>native.find(c=>c.name.endsWith('|'+suffix));
-    const idleClip=bySuffix('Idle_Neutral') || bySuffix('Idle') || getClip(native,'Idle');
-    const runClip=bySuffix('Run') || getClip(native,'Run');
-    const rollClip=bySuffix('Roll') || getClip(native,'Roll');
-    const hitClip=bySuffix('HitRecieve') || bySuffix('HitReceive') || getClip(native,'HitRecieve');
+    const clips=gltf.animations;
+    const idleClip=getClip(clips,'Idle');
+    const runClip=getClip(clips,'Run');
+    const jumpClip=getClip(clips,'Jump');
+    const rollClip=getClip(clips,'Roll');
+    const hitClip=getClip(clips,'RecieveHit') || getClip(clips,'ReceiveHit');
 
-    if(!runClip || !rollClip || !idleClip){
-      throw new Error('Native movement clips missing: '+native.map(c=>c.name).join(', '));
-    }
-
-    // Native clips must stay untouched. Sanitizing them was preventing this
-    // particular GLB from resolving its authored bone tracks correctly.
-    addAction('idle',idleClip,{sanitize:false});
-    addAction('run',runClip,{sanitize:false});
-    addAction('jump',jumpClip,{once:true,sanitize:jumpSource!==null});
-    addAction('roll',rollClip,{once:true,sanitize:false});
-    addAction('hit',hitClip,{once:true,sanitize:false});
+    addAction('idle',idleClip);
+    addAction('run',runClip);
+    addAction('jump',jumpClip,{once:true});
+    addAction('roll',rollClip,{once:true});
+    addAction('hit',hitClip,{once:true});
 
     if(rollClip){
-      rollDuration=THREE.MathUtils.clamp(rollClip.duration/1.10,.68,1.05);
+      rollDuration=THREE.MathUtils.clamp(rollClip.duration/1.10,.58,.92);
     }
 
     setState('RUN');
-    modelStatus.textContent='Adapted woman · native animation active';
-
-    console.table(native.map(c=>({
-      name:c.name,
-      duration:c.duration.toFixed(2)
-    })));
-  }catch(err){
+    console.table(clips.map(c=>({name:c.name,duration:c.duration.toFixed(2)})));
+  },
+  undefined,
+  err=>{
     console.error(err);
-    modelStatus.textContent='Adapted red runner failed to load';
+    modelStatus.textContent='Casual Female failed to load';
   }
-}
-initRunner();
+);
 
 const lanes=[-3,0,3];
 let lane=1;
@@ -480,30 +486,14 @@ function updateRunner(dt){
     }
   }else if(rollTime>0){
     rollTime+=dt;
-    const t=THREE.MathUtils.clamp(rollTime/rollDuration,0,1);
-
-    // Guarantee a visible forward somersault in place. The gameplay root
-    // stays fixed in its lane; only the visual rig rotates.
-    const eased=t*t*(3-2*t);
-    runnerVisual.rotation.x=-Math.PI*2*eased;
 
     if(rollTime>=rollDuration){
       rollTime=0;
-      runnerVisual.rotation.x=0;
       setState(locomotionState());
     }
   }else{
     const wanted=locomotionState();
     if(runnerState!==wanted)setState(wanted);
-  }
-
-  if(rollTime<=0){
-    runnerVisual.rotation.x=THREE.MathUtils.damp(
-      runnerVisual.rotation.x,
-      0,
-      18,
-      dt
-    );
   }
 
   runnerRoot.position.y=y;
