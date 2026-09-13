@@ -469,7 +469,7 @@ function applySessionSettings(settings={}){
     btn.classList.toggle('active',btn.dataset.difficulty===preset.name);
     btn.disabled=true;
   });
-  challengeNumber.textContent='1 / '+totalChallenges;
+  if(challengeNumber)challengeNumber.textContent='1 / '+totalChallenges;
   progressValue.textContent='0 / '+totalChallenges;
 }
 
@@ -535,7 +535,7 @@ function renderChallenge(){
   ensureChallengeAvailable();
   currentChallenge=challenges[challengeIndex];
   if(!currentChallenge)return;
-  challengeNumber.textContent='VERB '+String(challengeIndex+1);
+  if(challengeNumber)challengeNumber.textContent='';
   document.querySelectorAll('[data-slot]').forEach((el,index)=>{
     const value=currentChallenge.slots[index];
     el.classList.remove('feedback-correct','feedback-wrong');
@@ -601,15 +601,32 @@ const answers=[];
 
 function spawnAnswer(item){
   if(!gameStarted||gamePaused||victoryMode)return;
+
+  let heightMode=Math.random()<.5?'low':'high';
+  const nearSpawn=obstacles.filter(o=>o?.mesh);
   const blockedByObstacle=new Set(
-    obstacles
-      .filter(o=>o?.mesh&&Math.abs(o.mesh.position.z+74)<10)
+    nearSpawn
+      .filter(o=>{
+        const dz=Math.abs(o.mesh.position.z+74);
+        if(heightMode==='high'&&o.type==='slide')return dz<28;
+        return dz<12;
+      })
       .map(o=>o.laneIndex)
   );
-  const availableLanes=[0,1,2].filter(i=>!blockedByObstacle.has(i));
+
+  let availableLanes=[0,1,2].filter(i=>!blockedByObstacle.has(i));
+  if(!availableLanes.length&&heightMode==='high'){
+    heightMode='low';
+    const lowBlocked=new Set(
+      nearSpawn.filter(o=>Math.abs(o.mesh.position.z+74)<12).map(o=>o.laneIndex)
+    );
+    availableLanes=[0,1,2].filter(i=>!lowBlocked.has(i));
+  }
+
   let laneIndex=availableLanes.length
     ? availableLanes[Math.floor(Math.random()*availableLanes.length)]
     : Math.floor(Math.random()*3);
+
   if(answers.length&&answers.at(-1)?.laneIndex===laneIndex&&availableLanes.length>1){
     const alternates=availableLanes.filter(i=>i!==laneIndex);
     laneIndex=alternates[Math.floor(Math.random()*alternates.length)];
@@ -630,7 +647,6 @@ function spawnAnswer(item){
   panel.position.z=.02;
   group.add(panel);
 
-  const heightMode=Math.random()<.5?'low':'high';
   const answerY=heightMode==='low'?1.15:3.15;
   group.position.set(lanes[laneIndex],answerY,-74);
   scene.add(group);
@@ -1134,17 +1150,40 @@ canvas.addEventListener('pointerup',e=>{
 });
 
 const obstacles=[];
-const geoLow=new THREE.BoxGeometry(2.3,.85,.65);
-const geoHigh=new THREE.BoxGeometry(2.5,.45,.7);
-const matLow=new THREE.MeshStandardMaterial({color:0xff315f,emissive:0x7b071f,emissiveIntensity:1.8,roughness:.35,metalness:.5});
-const matHigh=new THREE.MeshStandardMaterial({color:0x18d9ff,emissive:0x045c7c,emissiveIntensity:1.6,roughness:.28,metalness:.52});
 
-function pickObstacleLane(){
-  const blocked=new Set(
-    answers
-      .filter(a=>a?.mesh&&Math.abs(a.mesh.position.z+74)<10)
-      .map(a=>a.laneIndex)
-  );
+const obstacleMaterials={
+  asphaltDark:new THREE.MeshStandardMaterial({color:0x1c2228,roughness:.82,metalness:.18}),
+  rubber:new THREE.MeshStandardMaterial({color:0x101215,roughness:.95,metalness:.02}),
+  metal:new THREE.MeshStandardMaterial({color:0xaeb7bd,roughness:.35,metalness:.65}),
+  glass:new THREE.MeshStandardMaterial({color:0x80afc4,roughness:.18,metalness:.22,transparent:true,opacity:.92}),
+  orange:new THREE.MeshStandardMaterial({color:0xf17828,roughness:.58,metalness:.08}),
+  white:new THREE.MeshStandardMaterial({color:0xf1eee5,roughness:.62,metalness:.04}),
+  yellow:new THREE.MeshStandardMaterial({color:0xf3c52f,roughness:.55,metalness:.08}),
+  blue:new THREE.MeshStandardMaterial({color:0x2878b8,roughness:.6,metalness:.06}),
+  brown:new THREE.MeshStandardMaterial({color:0x9b6944,roughness:.88,metalness:.02}),
+  fur:new THREE.MeshStandardMaterial({color:0x8b5b37,roughness:.98,metalness:0}),
+  skin:new THREE.MeshStandardMaterial({color:0xd99a72,roughness:.9,metalness:0}),
+  cloth:new THREE.MeshStandardMaterial({color:0x305c88,roughness:.88,metalness:.02}),
+  black:new THREE.MeshStandardMaterial({color:0x17191d,roughness:.86,metalness:.08})
+};
+
+function cylinderBetween(a,b,r,mat){
+  const delta=new THREE.Vector3().subVectors(b,a);
+  const length=delta.length();
+  const mesh=new THREE.Mesh(new THREE.CylinderGeometry(r,r,length,10),mat);
+  mesh.position.copy(a).add(b).multiplyScalar(.5);
+  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.clone().normalize());
+  return mesh;
+}
+
+function pickObstacleLane(type){
+  const blocked=new Set();
+  for(const a of answers){
+    if(!a?.mesh)continue;
+    const dz=Math.abs(a.mesh.position.z+74);
+    if(type==='slide'&&a.heightMode==='high'&&dz<28)blocked.add(a.laneIndex);
+    else if(dz<12)blocked.add(a.laneIndex);
+  }
   const available=[0,1,2].filter(i=>!blocked.has(i));
   if(!available.length)return null;
   return available[Math.floor(Math.random()*available.length)];
@@ -1152,88 +1191,243 @@ function pickObstacleLane(){
 
 function createRoadCar(index=0){
   const car=new THREE.Group();
-  const colors=[0xc84545,0x2e6da4,0xd2a43b,0x4b7f61,0x777b84,0x8d55a8];
-  const paint=new THREE.MeshStandardMaterial({color:colors[index%colors.length],roughness:.45,metalness:.32});
-  const dark=new THREE.MeshStandardMaterial({color:0x15181c,roughness:.75,metalness:.18});
-  const glass=new THREE.MeshStandardMaterial({color:0x7fb2c8,roughness:.16,metalness:.28,transparent:true,opacity:.9});
-  const chrome=new THREE.MeshStandardMaterial({color:0xc9d0d4,roughness:.28,metalness:.72});
-  const lightMat=new THREE.MeshBasicMaterial({color:0xfff0b0});
+  const colors=[0xc63e3e,0x2f70b4,0xd09a2e,0x43805e,0x767b84,0x8b52a5];
+  const paint=new THREE.MeshStandardMaterial({color:colors[index%colors.length],roughness:.38,metalness:.38});
 
-  const lower=new THREE.Mesh(new THREE.BoxGeometry(1.85,.52,3.35),paint);
-  lower.position.y=.48;
-  lower.castShadow=true;
-  car.add(lower);
+  const body=new THREE.Mesh(new THREE.CapsuleGeometry(.72,1.72,6,14),paint);
+  body.rotation.x=Math.PI/2;
+  body.scale.set(1.15,1,1);
+  body.position.y=.64;
+  body.castShadow=true;
+  car.add(body);
 
-  const hood=new THREE.Mesh(new THREE.BoxGeometry(1.78,.28,1.05),paint);
-  hood.position.set(0,.78,-1.05);
+  const hood=new THREE.Mesh(new THREE.BoxGeometry(1.5,.28,1.05),paint);
+  hood.position.set(0,.77,-1.03);
+  hood.rotation.x=-.08;
   car.add(hood);
 
-  const cabin=new THREE.Mesh(new THREE.BoxGeometry(1.48,.78,1.62),paint);
-  cabin.position.set(0,1.08,.18);
+  const cabin=new THREE.Mesh(new THREE.CapsuleGeometry(.56,.72,5,12),paint);
+  cabin.rotation.x=Math.PI/2;
+  cabin.scale.set(1.05,.92,1);
+  cabin.position.set(0,1.12,.18);
   car.add(cabin);
 
-  const windshield=new THREE.Mesh(new THREE.BoxGeometry(1.30,.48,.055),glass);
-  windshield.position.set(0,1.18,-.65);
-  windshield.rotation.x=-.18;
+  const windshield=new THREE.Mesh(new THREE.PlaneGeometry(1.12,.48),obstacleMaterials.glass);
+  windshield.position.set(0,1.22,-.62);
+  windshield.rotation.x=-.26;
   car.add(windshield);
 
   const rearGlass=windshield.clone();
-  rearGlass.position.z=.98;
-  rearGlass.rotation.x=.18;
+  rearGlass.position.z=.92;
+  rearGlass.rotation.x=.26;
+  rearGlass.rotation.y=Math.PI;
   car.add(rearGlass);
 
-  for(const x of [-.96,.96]){
-    for(const z of [-1.05,1.05]){
-      const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.31,.31,.22,14),dark);
+  for(const x of [-.82,.82]){
+    for(const z of [-1.02,1.02]){
+      const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.29,.29,.19,16),obstacleMaterials.rubber);
       wheel.rotation.z=Math.PI/2;
-      wheel.position.set(x,.30,z);
+      wheel.position.set(x,.34,z);
       car.add(wheel);
     }
   }
 
-  const bumper=new THREE.Mesh(new THREE.BoxGeometry(1.7,.12,.16),chrome);
-  bumper.position.set(0,.34,-1.74);
+  const bumper=new THREE.Mesh(new THREE.BoxGeometry(1.5,.12,.12),obstacleMaterials.metal);
+  bumper.position.set(0,.42,-1.65);
   car.add(bumper);
 
-  for(const x of [-.55,.55]){
-    const lamp=new THREE.Mesh(new THREE.BoxGeometry(.28,.16,.06),lightMat);
-    lamp.position.set(x,.64,-1.71);
+  for(const x of [-.52,.52]){
+    const lamp=new THREE.Mesh(new THREE.SphereGeometry(.12,12,8),new THREE.MeshBasicMaterial({color:0xffefad}));
+    lamp.scale.z=.35;
+    lamp.position.set(x,.69,-1.63);
     car.add(lamp);
   }
 
+  car.scale.set(.88,.88,.88);
   return car;
+}
+
+function createRoadSign(){
+  const g=new THREE.Group();
+  const board=new THREE.Mesh(new THREE.BoxGeometry(1.35,.58,.12),obstacleMaterials.orange);
+  board.position.y=.82;
+  board.castShadow=true;
+  g.add(board);
+
+  for(const x of [-.44,.44]){
+    const stripe=new THREE.Mesh(new THREE.BoxGeometry(.16,.54,.13),obstacleMaterials.white);
+    stripe.position.set(x,.82,-.01);
+    stripe.rotation.z=.42;
+    g.add(stripe);
+  }
+
+  for(const x of [-.52,.52]){
+    const leg=cylinderBetween(new THREE.Vector3(x,.55,0),new THREE.Vector3(x*.75,.04,0),.055,obstacleMaterials.metal);
+    g.add(leg);
+  }
+  return g;
+}
+
+function createSleepingDog(){
+  const g=new THREE.Group();
+  const body=new THREE.Mesh(new THREE.CapsuleGeometry(.28,.72,5,10),obstacleMaterials.fur);
+  body.rotation.z=Math.PI/2;
+  body.position.set(0,.32,0);
+  g.add(body);
+
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.31,12,10),obstacleMaterials.fur);
+  head.position.set(.56,.34,-.04);
+  g.add(head);
+
+  for(const z of [-.16,.12]){
+    const ear=new THREE.Mesh(new THREE.ConeGeometry(.12,.3,6),obstacleMaterials.fur);
+    ear.rotation.z=-.7;
+    ear.position.set(.67,.54,z);
+    g.add(ear);
+  }
+
+  const tail=new THREE.Mesh(new THREE.TorusGeometry(.26,.055,6,14,Math.PI*1.2),obstacleMaterials.fur);
+  tail.rotation.x=Math.PI/2;
+  tail.rotation.z=.4;
+  tail.position.set(-.55,.33,.02);
+  g.add(tail);
+  return g;
+}
+
+function createDeliveryBoxes(){
+  const g=new THREE.Group();
+  const sizes=[
+    {x:-.35,y:.28,z:.05,w:.68,h:.56,d:.62},
+    {x:.31,y:.34,z:.02,w:.62,h:.68,d:.58},
+    {x:.02,y:.82,z:.04,w:.72,h:.5,d:.64}
+  ];
+  for(const s of sizes){
+    const box=new THREE.Mesh(new THREE.BoxGeometry(s.w,s.h,s.d),obstacleMaterials.brown);
+    box.position.set(s.x,s.y,s.z);
+    box.castShadow=true;
+    g.add(box);
+    const tape=new THREE.Mesh(new THREE.BoxGeometry(.09,s.h+.01,s.d+.02),obstacleMaterials.white);
+    tape.position.copy(box.position);
+    g.add(tape);
+  }
+  return g;
+}
+
+function createPedestrian(index=0){
+  const g=new THREE.Group();
+  const shirt=[0x3e7fb1,0xb14555,0x4c8b5e,0xd19b39][index%4];
+  const cloth=new THREE.MeshStandardMaterial({color:shirt,roughness:.86});
+
+  const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.24,.72,5,10),cloth);
+  torso.position.y=1.23;
+  g.add(torso);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.23,12,10),obstacleMaterials.skin);
+  head.position.y=1.96;
+  g.add(head);
+
+  const hip=new THREE.Vector3(0,.9,0);
+  const shoulder=new THREE.Vector3(0,1.55,0);
+  g.add(cylinderBetween(hip,new THREE.Vector3(-.36,.08,.08),.085,obstacleMaterials.black));
+  g.add(cylinderBetween(hip,new THREE.Vector3(.38,.1,-.08),.085,obstacleMaterials.black));
+  g.add(cylinderBetween(shoulder,new THREE.Vector3(-.48,1.12,-.05),.07,obstacleMaterials.skin));
+  g.add(cylinderBetween(shoulder,new THREE.Vector3(.48,1.82,.05),.07,obstacleMaterials.skin));
+  g.rotation.y=Math.PI/2;
+  return g;
+}
+
+function createCyclist(index=0){
+  const g=new THREE.Group();
+  const wheelMat=obstacleMaterials.rubber;
+  const frameMat=index%2?obstacleMaterials.yellow:obstacleMaterials.blue;
+  const wheels=[];
+
+  for(const z of [-.75,.75]){
+    const wheel=new THREE.Mesh(new THREE.TorusGeometry(.42,.055,8,18),wheelMat);
+    wheel.rotation.y=Math.PI/2;
+    wheel.position.set(0,.48,z);
+    wheels.push(wheel);
+    g.add(wheel);
+  }
+
+  const rear=new THREE.Vector3(0,.48,.75);
+  const front=new THREE.Vector3(0,.48,-.75);
+  const crank=new THREE.Vector3(0,.62,.08);
+  const seat=new THREE.Vector3(0,.98,.35);
+  const handle=new THREE.Vector3(0,1.02,-.48);
+  g.add(cylinderBetween(rear,crank,.045,frameMat));
+  g.add(cylinderBetween(front,crank,.045,frameMat));
+  g.add(cylinderBetween(crank,seat,.045,frameMat));
+  g.add(cylinderBetween(seat,handle,.04,frameMat));
+
+  const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.2,.55,5,10),obstacleMaterials.cloth);
+  torso.position.set(0,1.46,.05);
+  torso.rotation.x=.28;
+  g.add(torso);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.2,12,10),obstacleMaterials.skin);
+  head.position.set(0,1.89,-.12);
+  g.add(head);
+
+  g.userData.wheels=wheels;
+  return g;
+}
+
+function createSlideBarrier(){
+  const g=new THREE.Group();
+  const beam=new THREE.Mesh(new THREE.BoxGeometry(2.42,.28,.22),obstacleMaterials.orange);
+  beam.position.y=2.05;
+  beam.castShadow=true;
+  g.add(beam);
+
+  for(let i=-2;i<=2;i++){
+    const stripe=new THREE.Mesh(new THREE.BoxGeometry(.24,.3,.235),obstacleMaterials.white);
+    stripe.position.set(i*.46,2.05,-.01);
+    stripe.rotation.z=.55;
+    g.add(stripe);
+  }
+
+  for(const x of [-1.02,1.02]){
+    const post=new THREE.Mesh(new THREE.CylinderGeometry(.055,.07,1.55,8),obstacleMaterials.metal);
+    post.position.set(x,1.16,0);
+    g.add(post);
+    const base=new THREE.Mesh(new THREE.BoxGeometry(.42,.12,.5),obstacleMaterials.black);
+    base.position.set(x,.36,0);
+    g.add(base);
+  }
+
+  const lamp=new THREE.Mesh(new THREE.SphereGeometry(.09,10,8),new THREE.MeshBasicMaterial({color:0xffc533}));
+  lamp.position.set(0,2.28,0);
+  g.add(lamp);
+  return g;
 }
 
 function spawnObstacle(){
   const roll=Math.random();
-  const type=roll<.42?'car':(roll<.72?'jump':'slide');
-  const laneIndex=pickObstacleLane();
+  let type;
+  let kind;
+
+  if(roll<.16){type='car';kind='car';}
+  else if(roll<.31){type='jump';kind='sign';}
+  else if(roll<.43){type='jump';kind='dog';}
+  else if(roll<.55){type='jump';kind='boxes';}
+  else if(roll<.70){type='dodge';kind='pedestrian';}
+  else if(roll<.84){type='dodge';kind='cyclist';}
+  else {type='slide';kind='barrier';}
+
+  const laneIndex=pickObstacleLane(type);
   if(laneIndex===null)return;
+
   let mesh;
+  if(kind==='car')mesh=createRoadCar(Math.floor(Math.random()*6));
+  else if(kind==='sign')mesh=createRoadSign();
+  else if(kind==='dog')mesh=createSleepingDog();
+  else if(kind==='boxes')mesh=createDeliveryBoxes();
+  else if(kind==='pedestrian')mesh=createPedestrian(Math.floor(Math.random()*4));
+  else if(kind==='cyclist')mesh=createCyclist(Math.floor(Math.random()*4));
+  else mesh=createSlideBarrier();
 
-  if(type==='car'){
-    mesh=createRoadCar(Math.floor(Math.random()*6));
-    mesh.position.set(lanes[laneIndex],0,-74);
-  }else{
-    mesh=new THREE.Mesh(type==='jump'?geoLow:geoHigh,type==='jump'?matLow:matHigh);
-    mesh.castShadow=true;
-    mesh.position.x=lanes[laneIndex];
-    mesh.position.z=-74;
-    mesh.position.y=type==='jump'?.43:2.35;
-
-    if(type==='slide'){
-      const posts=new THREE.Group();
-      for(const x of [-1.1,1.1]){
-        const p=new THREE.Mesh(new THREE.BoxGeometry(.18,2.5,.18),matHigh);
-        p.position.set(x,-1.1,0);
-        posts.add(p);
-      }
-      mesh.add(posts);
-    }
-  }
-
+  mesh.position.set(lanes[laneIndex],0,-74);
   scene.add(mesh);
-  obstacles.push({mesh,type,laneIndex,passed:false});
+  obstacles.push({mesh,type,kind,laneIndex,passed:false});
 }
 
 function hit(){
@@ -1339,15 +1533,24 @@ function updateWorld(dt){
     const o=obstacles[i];
     o.mesh.position.z+=travel;
 
+    if(o.kind==='cyclist'&&o.mesh.userData.wheels){
+      for(const wheel of o.mesh.userData.wheels)wheel.rotation.x-=travel*1.55;
+      o.mesh.rotation.z=Math.sin(o.mesh.position.z*.08)*.035;
+    }else if(o.kind==='pedestrian'){
+      o.mesh.rotation.z=Math.sin(o.mesh.position.z*.12)*.025;
+    }
+
     if(!o.passed&&o.mesh.position.z>1.1){
       o.passed=true;
       const sameLane=o.laneIndex===lane&&Math.abs(o.mesh.position.x-runnerRoot.position.x)<1.25;
       if(sameLane){
         const safe=o.type==='jump'
-          ? runnerRoot.position.y>1.05
+          ? runnerRoot.position.y>.92
           : (o.type==='car'
-              ? runnerRoot.position.y>1.32
-              : (o.type==='slide'?sliding:false));
+              ? runnerRoot.position.y>1.28
+              : (o.type==='slide'
+                  ? sliding
+                  : false));
         if(!safe)hit();
       }
     }
