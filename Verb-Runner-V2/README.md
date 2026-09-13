@@ -2,20 +2,29 @@
 
 This is an isolated proof-of-concept. It does not modify the original `Verb-Runner/`.
 
-## Current movement test
+## Current adapted runner test
 
-The current test uses a Quaternius **Casual Female** humanoid with all movement clips coming from the same native skeleton.
+The V2 test now uses Quaternius **Animated Woman** (`qJ2gsTUBHL`) as the visible runner instead of adding fake geometry on top of the previous body.
 
-Mapped states:
+This model is useful because its clothing is split into separate skinned meshes/materials. The adaptation changes the actual model materials:
 
-- RUN -> `Run`
-- SPRINT -> `Run` at higher playback speed
-- JUMP -> `Jump`
-- LOW OBSTACLE ACTION -> `Roll`
-- STUMBLE -> `RecieveHit`
-- RECOVERY -> brief `Idle` crossfade, then back to RUN
+- upper clothing -> red;
+- long-leg clothing -> black;
+- shoes -> light/white;
+- hair materials -> reddish brown;
+- skin remains unchanged.
 
-The endless-runner engine still controls lane changes, forward speed and the vertical jump arc. No body squashing or hand-built crouch pose is used for the low-obstacle action.
+No backpack, ponytail, gloves or other fake primitive geometry is being attached in this pass.
+
+## Movement
+
+- RUN -> target model native `Run`
+- SPRINT -> native `Run` at higher playback speed
+- JUMP -> the previously approved Quaternius `Jump` clip bound to the compatible humanoid rig
+- LOW OBSTACLE ACTION -> target model native `Roll`
+- STUMBLE -> target model native `HitRecieve`
+
+The character is fit to the same 2.35 world-unit height used by the approved previous female test.
 
 ## Controls
 
@@ -26,10 +35,8 @@ The endless-runner engine still controls lane changes, forward speed and the ver
 - Shift: sprint
 - Mobile: swipe left/right/up/down
 
-## Temporary asset
+## Asset provenance
 
-Character source: Quaternius Ultimate Animated Character Pack, mirrored in the public `psqd12137-sudo/dream-channel` repository as `Casual_Female.gltf`.
+Visible character: **Animated Woman** by Quaternius, Poly Pizza model `qJ2gsTUBHL`, CC0 1.0.
 
-License: CC0 1.0 Universal, recorded alongside the asset in `LICENSE.txt`.
-
-This character is only for motion validation before the final red anime runner.
+The runtime file is loaded from a public GitHub mirror of the exact Poly Pizza model. The model has separate body, feet, head and leg skinned meshes and its own animation set.
