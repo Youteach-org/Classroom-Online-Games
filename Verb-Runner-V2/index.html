@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Verb Runner V2 · Character Approval Gallery</title>
+  <title>Verb Runner V2 · Robot Runners</title>
   <link rel="stylesheet" href="./styles.css" />
   <script type="importmap">
   {
@@ -18,78 +18,58 @@
   <header class="topbar">
     <div>
       <span class="eyebrow">VERB RUNNER V2</span>
-      <h1>Six-character approval gallery</h1>
-      <p>Original selection portrait vs. distinct rigged Quaternius candidate.</p>
+      <h1>Robot runners</h1>
+      <p>One rig. One model. Six color variants.</p>
     </div>
-    <div class="test-panel" aria-label="Native animation test">
-      <span>Native animation test</span>
+    <div class="test-panel" aria-label="Robot animation test">
+      <span>Animation test</span>
       <div class="animation-buttons">
-        <button type="button" data-animation="idle" class="active">Idle</button>
-        <button type="button" data-animation="run">Run</button>
+        <button type="button" data-animation="idle">Idle</button>
+        <button type="button" data-animation="run" class="active">Run</button>
         <button type="button" data-animation="jump">Jump</button>
-        <button type="button" data-animation="roll">Roll</button>
-        <button type="button" data-animation="hit">Hit</button>
       </div>
     </div>
   </header>
 
   <main class="gallery" id="gallery">
-    <article class="runner-card" data-runner="0" style="--accent:#e43c3c">
-      <div class="card-heading"><div><span class="color-dot"></span><strong>RED</strong><small>girl</small></div><code>Casual_Female.gltf</code></div>
-      <div class="comparison">
-        <figure class="portrait-pane"><img id="portrait-0" src="../Verb-Runner/assets/sprites/select-red-neon.webp" alt="Original red runner portrait" /><figcaption>Original</figcaption></figure>
-        <figure class="model-pane"><canvas id="model-0" aria-label="Red 3D runner candidate"></canvas><figcaption>3D candidate</figcaption></figure>
-      </div>
-      <div class="card-status" id="status-0">Loading model…</div>
+    <article class="runner-card" style="--accent:#e43c3c" data-runner="0">
+      <div class="card-heading"><span class="color-dot"></span><strong>RED</strong></div>
+      <canvas id="model-0" aria-label="Red robot runner"></canvas>
+      <div class="card-status" id="status-0">Loading robot…</div>
     </article>
 
-    <article class="runner-card" data-runner="1" style="--accent:#2475d1">
-      <div class="card-heading"><div><span class="color-dot"></span><strong>BLUE</strong><small>boy</small></div><code>Casual_Male.gltf</code></div>
-      <div class="comparison">
-        <figure class="portrait-pane"><img id="portrait-1" alt="Original blue runner portrait" /><figcaption>Original</figcaption></figure>
-        <figure class="model-pane"><canvas id="model-1" aria-label="Blue 3D runner candidate"></canvas><figcaption>3D candidate</figcaption></figure>
-      </div>
-      <div class="card-status" id="status-1">Loading model…</div>
+    <article class="runner-card" style="--accent:#2475d1" data-runner="1">
+      <div class="card-heading"><span class="color-dot"></span><strong>BLUE</strong></div>
+      <canvas id="model-1" aria-label="Blue robot runner"></canvas>
+      <div class="card-status" id="status-1">Loading robot…</div>
     </article>
 
-    <article class="runner-card" data-runner="2" style="--accent:#218c4b">
-      <div class="card-heading"><div><span class="color-dot"></span><strong>GREEN</strong><small>boy</small></div><code>Casual2_Male.gltf</code></div>
-      <div class="comparison">
-        <figure class="portrait-pane"><img id="portrait-2" alt="Original green runner portrait" /><figcaption>Original</figcaption></figure>
-        <figure class="model-pane"><canvas id="model-2" aria-label="Green 3D runner candidate"></canvas><figcaption>3D candidate</figcaption></figure>
-      </div>
-      <div class="card-status" id="status-2">Loading model…</div>
+    <article class="runner-card" style="--accent:#29a65a" data-runner="2">
+      <div class="card-heading"><span class="color-dot"></span><strong>GREEN</strong></div>
+      <canvas id="model-2" aria-label="Green robot runner"></canvas>
+      <div class="card-status" id="status-2">Loading robot…</div>
     </article>
 
-    <article class="runner-card" data-runner="3" style="--accent:#ef4c78">
-      <div class="card-heading"><div><span class="color-dot"></span><strong>PINK</strong><small>girl</small></div><code>Casual2_Female.gltf</code></div>
-      <div class="comparison">
-        <figure class="portrait-pane"><img id="portrait-3" alt="Original pink runner portrait" /><figcaption>Original</figcaption></figure>
-        <figure class="model-pane"><canvas id="model-3" aria-label="Pink 3D runner candidate"></canvas><figcaption>3D candidate</figcaption></figure>
-      </div>
-      <div class="card-status" id="status-3">Loading model…</div>
+    <article class="runner-card" style="--accent:#ef4c78" data-runner="3">
+      <div class="card-heading"><span class="color-dot"></span><strong>PINK</strong></div>
+      <canvas id="model-3" aria-label="Pink robot runner"></canvas>
+      <div class="card-status" id="status-3">Loading robot…</div>
     </article>
 
-    <article class="runner-card" data-runner="4" style="--accent:#e6e8ee">
-      <div class="card-heading"><div><span class="color-dot"></span><strong>WHITE / BLACK</strong><small>boy</small></div><code>Casual3_Male.gltf</code></div>
-      <div class="comparison">
-        <figure class="portrait-pane"><img id="portrait-4" alt="Original white and black runner portrait" /><figcaption>Original</figcaption></figure>
-        <figure class="model-pane"><canvas id="model-4" aria-label="White and black 3D runner candidate"></canvas><figcaption>3D candidate</figcaption></figure>
-      </div>
-      <div class="card-status" id="status-4">Loading model…</div>
+    <article class="runner-card" style="--accent:#eef1f7" data-runner="4">
+      <div class="card-heading"><span class="color-dot"></span><strong>WHITE / BLACK</strong></div>
+      <canvas id="model-4" aria-label="White and black robot runner"></canvas>
+      <div class="card-status" id="status-4">Loading robot…</div>
     </article>
 
-    <article class="runner-card" data-runner="5" style="--accent:#9a4de0">
-      <div class="card-heading"><div><span class="color-dot"></span><strong>PURPLE</strong><small>girl</small></div><code>Casual3_Female.gltf</code></div>
-      <div class="comparison">
-        <figure class="portrait-pane"><img id="portrait-5" alt="Original purple runner portrait" /><figcaption>Original</figcaption></figure>
-        <figure class="model-pane"><canvas id="model-5" aria-label="Purple 3D runner candidate"></canvas><figcaption>3D candidate</figcaption></figure>
-      </div>
-      <div class="card-status" id="status-5">Loading model…</div>
+    <article class="runner-card" style="--accent:#9a4de0" data-runner="5">
+      <div class="card-heading"><span class="color-dot"></span><strong>PURPLE</strong></div>
+      <canvas id="model-5" aria-label="Purple robot runner"></canvas>
+      <div class="card-status" id="status-5">Loading robot…</div>
     </article>
   </main>
 
-  <footer class="note">Approval stage only · no obstacles, verbs or scoring are active here · all models are normalized to 2.35 height.</footer>
+  <footer class="note">Same RobotExpressive rig and geometry for all six runners · color changes only.</footer>
   <script type="module" src="./prototype.js"></script>
 </body>
 </html>
