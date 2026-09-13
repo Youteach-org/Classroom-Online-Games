@@ -599,8 +599,19 @@ const answers=[];
 
 function spawnAnswer(item){
   if(!gameStarted||gamePaused||victoryMode)return;
-  let laneIndex=Math.floor(Math.random()*3);
-  if(answers.length&&answers.at(-1)?.laneIndex===laneIndex)laneIndex=(laneIndex+1+Math.floor(Math.random()*2))%3;
+  const blockedByObstacle=new Set(
+    obstacles
+      .filter(o=>o?.mesh&&Math.abs(o.mesh.position.z+74)<10)
+      .map(o=>o.laneIndex)
+  );
+  const availableLanes=[0,1,2].filter(i=>!blockedByObstacle.has(i));
+  let laneIndex=availableLanes.length
+    ? availableLanes[Math.floor(Math.random()*availableLanes.length)]
+    : Math.floor(Math.random()*3);
+  if(answers.length&&answers.at(-1)?.laneIndex===laneIndex&&availableLanes.length>1){
+    const alternates=availableLanes.filter(i=>i!==laneIndex);
+    laneIndex=alternates[Math.floor(Math.random()*alternates.length)];
+  }
 
   const group=new THREE.Group();
   const glow=new THREE.Mesh(
