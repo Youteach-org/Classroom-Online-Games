@@ -134,98 +134,80 @@ function getClip(clips,name){
     || clips.find(c=>c.name.toLowerCase().includes(name.toLowerCase()));
 }
 
-function sanitizeClip(clip){
-  const copy=clip.clone();
+function styleAdaptedRunner(root){
+  const colors={
+    White:0xb51f2e,
+    Orange:0x101218,
+    Grey:0xe8e9ed,
+    Hair_Blond:0x6b3026,
+    Hair_Brown:0x6b3026,
+    Brown:0x5b261f
+  };
 
-  // Keep gameplay position controlled by the runner engine.
-  // Preserve skeletal motion but strip whole-character translation tracks.
-  copy.tracks=copy.tracks.filter(track=>{
-    const n=track.name.toLowerCase();
-    return !(
-      n==='root.position' ||
-      n==='characterarmature.position' ||
-      n.endsWith('bone.position')
-    );
-  });
+  root.traverse(o=>{
+    if(!o.isMesh)return;
 
-  return copy;
-}
+    const list=Array.isArray(o.material)?o.material:[o.material];
+    const styled=list.map(mat=>{
+      if(!mat)return mat;
+      const clone=mat.clone();
 
-function addAction(name,clip,{once=false}={}){
-  if(!clip)return null;
-  const action=mixer.clipAction(sanitizeClip(clip));
-  action.enabled=true;
-  action.clampWhenFinished=once;
-  action.setLoop(once?THREE.LoopOnce:THREE.LoopRepeat,once?1:Infinity);
-  actions[name]=action;
-  return action;
-}
-
-function play(name,{fade=.12,speed=1,reset=false}={}){
-  const next=actions[name];
-  if(!next)return;
-
-  next.enabled=true;
-  next.setEffectiveTimeScale(speed);
-  next.setEffectiveWeight(1);
-
-  if(next===activeAction && !reset)return;
-
-  next.reset().fadeIn(fade).play();
-  if(activeAction && activeAction!==next)activeAction.fadeOut(fade);
-  activeAction=next;
-}
-
-function setState(state){
-  runnerState=state;
-
-  if(state==='RUN')play('run',{fade:.12,speed:1});
-  else if(state==='SPRINT')play('run',{fade:.10,speed:1.32});
-  else if(state==='JUMP')play('jump',{fade:.07,speed:1.0,reset:true});
-  else if(state==='ROLL')play('roll',{fade:.055,speed:1.10,reset:true});
-  else if(state==='STUMBLE')play('hit',{fade:.04,speed:1.05,reset:true});
-  else if(state==='RECOVERY')play('idle',{fade:.07,speed:1,reset:true});
-
-  modelStatus.textContent='Casual Female native · '+state;
-}
-
-const loader=new GLTFLoader();
-loader.load(
-  'https://cdn.jsdelivr.net/gh/psqd12137-sudo/dream-channel@3d1f3c91810ac6b73146971d7d6297b12c8f3244/godot/assets/quaternius/animated_characters/Casual_Female.gltf',
-  gltf=>{
-    model=gltf.scene;
-
-    // Same Quaternius coordinate convention as the previous native-action test.
-    model.rotation.y=Math.PI;
-
-    model.traverse(o=>{
-      if(o.isMesh){
-        o.castShadow=true;
-        o.receiveShadow=true;
+      if(colors[clone.name]!==undefined){
+        clone.color.setHex(colors[clone.name]);
       }
+
+      if(clone.name==='White'){
+        clone.roughness=.62;
+        clone.metalness=.04;
+      }else if(clone.name==='Orange'){
+        clone.roughness=.8;
+        clone.metalness=.02;
+      }else if(clone.name==='Grey'){
+        clone.roughness=.5;
+        clone.metalness=.08;
+      }
+
+      return clone;
     });
 
+    o.material=Array.isArray(o.material)?styled:styled[0];
+    o.castShadow=true;
+    o.receiveShadow=true;
+  });
+}
+
+async function loadGLTF(url){
+  async function initRunner(){
+  try{
+    const [adapted,jumpSource]=await Promise.all([
+      loadGLTF('https://cdn.jsdelivr.net/gh/nerdedi/windgapacademy@19938dc693335ae6c11fd46faaf3580d251b2513/backend/api/citypack/unpacked/Animated%20Woman-qJ2gsTUBHL.glb'),
+      loadGLTF('https://cdn.jsdelivr.net/gh/psqd12137-sudo/dream-channel@3d1f3c91810ac6b73146971d7d6297b12c8f3244/godot/assets/quaternius/animated_characters/Casual_Female.gltf')
+    ]);
+
+    model=adapted.scene;
+
+    // Poly Pizza metadata for this model reports native forward as +Z.
+    // Our endless-runner travels toward -Z, so this shows her back to the camera.
+    model.rotation.y=Math.PI;
+
+    styleAdaptedRunner(model);
+
+    // Keep the same approved on-screen height as the previous female test.
     fitToHeight(model,2.35);
-
-    // Proportion pass for the temporary female runner:
-    // keep the native rig/animations, but reduce the chibi look.
-    model.scale.x*=.88;
-    const head=model.getObjectByName('Head');
-    if(head){
-      head.scale.x*=.82;
-      head.scale.z*=.82;
-    }
-
     runnerRoot.add(model);
 
     mixer=new THREE.AnimationMixer(model);
 
-    const clips=gltf.animations;
-    const idleClip=getClip(clips,'Idle');
-    const runClip=getClip(clips,'Run');
-    const jumpClip=getClip(clips,'Jump');
-    const rollClip=getClip(clips,'Roll');
-    const hitClip=getClip(clips,'RecieveHit') || getClip(clips,'ReceiveHit');
+    const native=adapted.animations;
+    const idleClip=getClip(native,'Idle_Neutral') || getClip(native,'Idle');
+    const runClip=getClip(native,'CharacterArmature|Run') || getClip(native,'Run');
+    const rollClip=getClip(native,'CharacterArmature|Roll') || getClip(native,'Roll');
+    const hitClip=getClip(native,'HitRecieve') || getClip(native,'HitReceive');
+
+    // This model has the cleaner body/garment meshes we need, but no native Jump.
+    // Reuse the already-approved Quaternius Jump clip. Both assets use the same
+    // Quaternius humanoid bone naming, so the clip binds to the target skeleton.
+    const jumpClip=getClip(jumpSource.animations,'Jump');
 
     addAction('idle',idleClip);
     addAction('run',runClip);
@@ -234,18 +216,19 @@ loader.load(
     addAction('hit',hitClip,{once:true});
 
     if(rollClip){
-      rollDuration=THREE.MathUtils.clamp(rollClip.duration/1.10,.58,.92);
+      rollDuration=THREE.MathUtils.clamp(rollClip.duration/1.10,.68,1.05);
     }
 
     setState('RUN');
-    console.table(clips.map(c=>({name:c.name,duration:c.duration.toFixed(2)})));
-  },
-  undefined,
-  err=>{
+
+    modelStatus.textContent='Adapted woman · red runner test';
+    console.table(native.map(c=>({name:c.name,duration:c.duration.toFixed(2)})));
+  }catch(err){
     console.error(err);
-    modelStatus.textContent='Casual Female failed to load';
+    modelStatus.textContent='Adapted red runner failed to load';
   }
-);
+}
+initRunner();
 
 const lanes=[-3,0,3];
 let lane=1;
