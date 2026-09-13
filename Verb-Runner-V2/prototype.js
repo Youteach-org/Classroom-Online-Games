@@ -436,6 +436,7 @@ let pendingAnswers=[];
 let answerSpawnClock=0;
 let currentChallenge=null;
 let retryQueued=false;
+let answerResolutionActive=false;
 
 function applyDifficultyDefaults(preset){
   difficulty=preset;
@@ -537,6 +538,7 @@ function renderChallenge(){
   challengeNumber.textContent='VERB '+String(challengeIndex+1);
   document.querySelectorAll('[data-slot]').forEach((el,index)=>{
     const value=currentChallenge.slots[index];
+    el.classList.remove('feedback-correct','feedback-wrong');
     el.querySelector('b').textContent=value?String(value).toUpperCase():'____';
     el.classList.toggle('blank',value===null);
   });
@@ -670,7 +672,7 @@ function launchChallengeChain(initialDelay=.42){
 }
 
 function updateAnswerSpawns(dt){
-  if(!pendingAnswers.length)return;
+  if(answerResolutionActive||!pendingAnswers.length)return;
   answerSpawnClock+=dt;
   while(pendingAnswers.length&&answerSpawnClock>=pendingAnswers[0].at){
     const next=pendingAnswers.shift();
@@ -699,18 +701,120 @@ function applyRunEvent(type){
   updateHud();
 }
 
-function collectAnswer(answer){
-  if(answer.resolved)return;
+function disposeAnswer(answer){
+  if(!answer)return;
+  scene.remove(answer.mesh);
+  answer.mesh?.traverse?.(o=>{
+    if(o.material?.map)o.material.map.dispose?.();
+    o.material?.dispose?.();
+    o.geometry?.dispose?.();
+  });
+  const idx=answers.indexOf(answer);
+  if(idx>=0)answers.splice(idx,1);
+}
+
+function answerScreenPoint(answer){
+  const p=new THREE.Vector3();
+  answer.mesh.getWorldPosition(p);
+  p.project(camera);
+  const rect=canvas.getBoundingClientRect();
+  return {
+    x:rect.left+(p.x*.5+.5)*rect.width,
+    y:rect.top+(-p.y*.5+.5)*rect.height
+  };
+}
+
+function waitMs(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
+
+async function animateAnswerToBlank(answer,correct){
+  const blankPart=document.querySelector('.part.blank');
+  const blankText=blankPart?.querySelector('b');
+  if(!blankPart||!blankText)return;
+
+  const start=answerScreenPoint(answer);
+  const targetRect=blankText.getBoundingClientRect();
+  const target={
+    x:targetRect.left+targetRect.width/2,
+    y:targetRect.top+targetRect.height/2
+  };
+
+  const flyer=document.createElement('div');
+  flyer.className='answer-flight';
+  flyer.textContent=String(answer.item.value).toUpperCase();
+  flyer.style.left=start.x+'px';
+  flyer.style.top=start.y+'px';
+  document.body.appendChild(flyer);
+
+  const finalBg=correct?'#178b4c':'#b8243e';
+  const finalBorder=correct?'#66f0a0':'#ff7185';
+  const keyframes=[
+    {
+      left:start.x+'px',
+      top:start.y+'px',
+      transform:'translate(-50%,-50%) scale(.9)',
+      background:'#123b56',
+      borderColor:'#ffffff',
+      opacity:1
+    },
+    {
+      offset:.72,
+      left:target.x+'px',
+      top:(target.y+5)+'px',
+      transform:'translate(-50%,-50%) scale(1.18)',
+      background:finalBg,
+      borderColor:finalBorder,
+      opacity:1
+    },
+    {
+      left:target.x+'px',
+      top:target.y+'px',
+      transform:'translate(-50%,-50%) scale(1)',
+      background:finalBg,
+      borderColor:finalBorder,
+      opacity:1
+    }
+  ];
+
+  if(flyer.animate){
+    const anim=flyer.animate(keyframes,{duration:560,easing:'cubic-bezier(.2,.8,.22,1)',fill:'forwards'});
+    await anim.finished.catch(()=>{});
+  }else{
+    flyer.style.left=target.x+'px';
+    flyer.style.top=target.y+'px';
+    flyer.style.background=finalBg;
+    await waitMs(560);
+  }
+
+  blankPart.classList.remove('blank');
+  blankPart.classList.add(correct?'feedback-correct':'feedback-wrong');
+  blankText.textContent=String(answer.item.value).toUpperCase();
+  flyer.remove();
+
+  await waitMs(correct?330:420);
+
+  if(!correct){
+    blankPart.classList.remove('feedback-wrong');
+    blankPart.classList.add('blank');
+    blankText.textContent='____';
+  }
+}
+
+async function collectAnswer(answer){
+  if(answer.resolved||answerResolutionActive)return;
   answer.resolved=true;
+  answerResolutionActive=true;
   const item=answer.item;
 
   if(item.correct){
+    const selectedCopy={mesh:answer.mesh,item:answer.item};
+    clearAnswers();
+    await animateAnswerToBlank(selectedCopy,true);
     applyRunEvent('correct');
     showNotice('CORRECT!','correct');
-    clearAnswers();
     challengeIndex++;
 
     if(runState.completed>=totalChallenges){
+      answerResolutionActive=false;
       beginVictorySprint();
       return;
     }
@@ -718,12 +822,14 @@ function collectAnswer(answer){
     ensureChallengeAvailable();
     renderChallenge();
     launchChallengeChain(.55);
+    answerResolutionActive=false;
   }else{
+    const selectedCopy={mesh:answer.mesh,item:answer.item};
+    disposeAnswer(answer);
+    await animateAnswerToBlank(selectedCopy,false);
     applyRunEvent('grammar-error');
     showNotice(String(item.value).toUpperCase()+' — WRONG · −'+gameSettings.penalty+' ADVANCE','wrong');
-    scene.remove(answer.mesh);
-    const idx=answers.indexOf(answer);
-    if(idx>=0)answers.splice(idx,1);
+    answerResolutionActive=false;
   }
 }
 
@@ -758,6 +864,7 @@ function finishRun(){
   gameStarted=false;
   victoryMode=false;
   gamePaused=false;
+  answerResolutionActive=false;
   clearAnswers();
   for(const o of obstacles.splice(0))scene.remove(o.mesh);
   if(activeAction&&actions.idle)play('idle',.15);
@@ -1201,6 +1308,7 @@ function updateWorld(dt){
 
   for(let i=answers.length-1;i>=0;i--){
     const a=answers[i];
+    if(answerResolutionActive)continue;
     a.mesh.position.z+=travel;
     const closeToRunner=Math.abs(a.mesh.position.z-runnerRoot.position.z)<1.25;
     const sameLane=a.laneIndex===lane&&Math.abs(a.mesh.position.x-runnerRoot.position.x)<1.3;
