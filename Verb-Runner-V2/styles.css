@@ -57,18 +57,43 @@ button,a{-webkit-tap-highlight-color:transparent}
 .part small{font-size:7px;letter-spacing:.10em;color:#aebfca;font-weight:850}
 .part b{font-size:clamp(24px,2.7vw,36px);line-height:1.02;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;font-weight:950}
 .part.blank{
-  border-color:rgba(255,211,77,.72);
-  background:rgba(255,211,77,.10);
-  animation:blankPulse .78s ease-in-out infinite alternate
+  position:relative;
+  border:3px solid #ffe04b;
+  background:#ffd83d;
+  box-shadow:0 0 0 3px rgba(20,25,31,.72) inset,0 0 26px rgba(255,216,61,.72);
+  animation:blankPulse .52s ease-in-out infinite alternate
 }
-.part.blank b{color:#ffd34d;text-shadow:0 0 18px rgba(255,211,77,.72)}
+.part.blank small{color:#302b13;font-weight:950}
+.part.blank b{
+  color:#15191d;
+  font-size:clamp(32px,3.6vw,48px);
+  line-height:.9;
+  text-shadow:none
+}
+.part.blank::after{
+  content:'FIND THIS FORM';
+  position:absolute;
+  left:50%;bottom:-17px;transform:translateX(-50%);
+  padding:2px 7px;border-radius:999px;
+  background:#15191d;color:#ffe04b;
+  font-size:7px;font-weight:950;letter-spacing:.08em;
+  white-space:nowrap
+}
 .part.feedback-correct{background:rgba(42,205,104,.22);border-color:#43df83;box-shadow:0 0 28px rgba(49,210,112,.42)}
 .part.feedback-correct b{color:#61f39c;text-shadow:0 0 18px rgba(68,227,132,.65)}
 .part.feedback-wrong{background:rgba(237,58,83,.22);border-color:#ff4d67;box-shadow:0 0 28px rgba(255,69,96,.42)}
 .part.feedback-wrong b{color:#ff6b80;text-shadow:0 0 18px rgba(255,75,101,.65)}
 @keyframes blankPulse{
-  from{transform:scale(1);box-shadow:0 0 7px rgba(255,211,77,.15)}
-  to{transform:scale(1.035);box-shadow:0 0 24px rgba(255,211,77,.52)}
+  from{
+    transform:scale(1);
+    background:#ffd83d;
+    box-shadow:0 0 0 3px rgba(20,25,31,.72) inset,0 0 14px rgba(255,216,61,.45)
+  }
+  to{
+    transform:scale(1.075);
+    background:#fff07a;
+    box-shadow:0 0 0 3px rgba(20,25,31,.85) inset,0 0 36px rgba(255,232,91,.95)
+  }
 }
 
 .answer-flight{
@@ -163,7 +188,7 @@ button,a{-webkit-tap-highlight-color:transparent}
 @media(max-width:640px){
   .hud{padding:8px;gap:7px}.brand{display:none}.icon-button{width:38px}
   .hud-right{gap:4px}.runner-chip{padding:7px;font-size:8px}.mini-stat{min-width:58px;padding:7px 6px}.mini-stat span{font-size:7px}.mini-stat b{font-size:11px}
-  .hud-center{padding:8px 9px 9px}.challenge-top{font-size:6.5px;margin-bottom:3px}.part{min-height:49px;padding:3px}.part small{font-size:6px}.part b{font-size:20px}.principal-parts{gap:4px}.principal-parts i{font-size:13px}
+  .hud-center{padding:8px 9px 13px}.challenge-top{font-size:6.5px;margin-bottom:3px}.part{min-height:49px;padding:3px}.part small{font-size:6px}.part b{font-size:20px}.part.blank b{font-size:30px}.part.blank::after{bottom:-14px;font-size:6px}.principal-parts{gap:4px}.principal-parts i{font-size:13px}
   .momentum-panel{width:min(250px,76vw);padding:6px 8px}.momentum-copy{font-size:7px}
   .controls{font-size:9px;gap:4px 8px}.pill{font-size:9px}
   .robot-options{grid-template-columns:repeat(2,minmax(0,1fr))}.robot-option{min-height:60px}
