@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Verb Runner V2 - Adapted Red Runner</title>
+  <title>Verb Runner V2 - Six Runner Base</title>
   <link rel="stylesheet" href="./styles.css" />
   <script type="importmap">
   {
@@ -16,12 +16,12 @@
 </head>
 <body>
   <main id="app">
-    <canvas id="game" aria-label="Verb Runner V2 adapted red runner prototype"></canvas>
+    <canvas id="game" aria-label="Verb Runner V2 six-character base prototype"></canvas>
 
     <section class="hud">
       <div class="brand">
         <span class="eyebrow">VERB RUNNER</span>
-        <strong>V2 · ADAPTED RED RUNNER</strong>
+        <strong>V2 · SIX RUNNER BASE</strong>
       </div>
       <div class="stats">
         <div><span>Distance</span><b id="distance">0000</b></div>
@@ -29,8 +29,17 @@
       </div>
     </section>
 
+    <section class="character-switcher" aria-label="Runner preview">
+      <button type="button" data-runner="0" class="runner-swatch selected" aria-pressed="true" aria-label="Red runner" style="--swatch:#e43c3c"></button>
+      <button type="button" data-runner="1" class="runner-swatch" aria-pressed="false" aria-label="Blue runner" style="--swatch:#2475d1"></button>
+      <button type="button" data-runner="2" class="runner-swatch" aria-pressed="false" aria-label="Green runner" style="--swatch:#218c4b"></button>
+      <button type="button" data-runner="3" class="runner-swatch" aria-pressed="false" aria-label="Pink runner" style="--swatch:#ef4c78"></button>
+      <button type="button" data-runner="4" class="runner-swatch" aria-pressed="false" aria-label="White runner" style="--swatch:#d9dde6"></button>
+      <button type="button" data-runner="5" class="runner-swatch" aria-pressed="false" aria-label="Purple runner" style="--swatch:#9a4de0"></button>
+    </section>
+
     <section class="status">
-      <div id="modelStatus" class="pill">Loading adapted rigged woman…</div>
+      <div id="modelStatus" class="pill">Loading six-runner base…</div>
       <div class="controls">
         <span>← → lanes</span>
         <span>↑ / SPACE jump</span>
