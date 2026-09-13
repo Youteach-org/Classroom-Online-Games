@@ -16,62 +16,75 @@ const runnerCatalog=[
     file:'Casual_Female.gltf',
     scaleX:.88,
     headXZ:.82,
-    shirt:0xe43c3c,
-    pants:0x111318,
-    belt:0xff9b9b,
-    hair:0x6d3429
+    recolor:{
+      Shirt:0xe43c3c,
+      Pants:0x111318,
+      Belt:0xff9b9b,
+      Hair:0x6d3429
+    }
   },
   {
     name:'Blue',
-    file:'Casual_Male.gltf',
-    scaleX:.91,
-    headXZ:.86,
-    shirt:0x2475d1,
-    pants:0x111827,
-    belt:0x8ad8ff,
-    hair:0x2d2522
-  },
-  {
-    name:'Green',
-    file:'Casual2_Male.gltf',
-    scaleX:.90,
-    headXZ:.85,
-    shirt:0x218c4b,
-    pants:0x121713,
-    belt:0x7be5a2,
-    hair:0x4a3024
-  },
-  {
-    name:'Pink',
     file:'Casual2_Female.gltf',
     scaleX:.88,
     headXZ:.82,
-    shirt:0xef4c78,
-    pants:0x191218,
-    belt:0xff9fbd,
-    hair:0x3b2528
+    recolor:{
+      Shirt:0x2475d1,
+      Pants:0x111827,
+      Belt:0x8ad8ff,
+      Hair:0x23252d
+    }
   },
   {
-    name:'White',
+    name:'Green',
+    file:'Ninja_Female.gltf',
+    scaleX:.89,
+    headXZ:.84,
+    recolor:{
+      Main:0x218c4b,
+      Details:0x7be5a2,
+      Grey:0x151a18,
+      Hair:0x17211d
+    }
+  },
+  {
+    name:'Pink',
     file:'Casual3_Female.gltf',
     scaleX:.88,
     headXZ:.82,
-    shirt:0xd9dde6,
-    pants:0x15171c,
-    belt:0xffffff,
-    hair:0x80684f
+    recolor:{
+      Shirt:0xef4c78,
+      Pants:0x191218,
+      Belt:0xff9fbd,
+      Hair:0x5c342e
+    }
+  },
+  {
+    name:'White',
+    file:'Worker_Female.gltf',
+    scaleX:.89,
+    headXZ:.84,
+    recolor:{
+      Shirt:0xe7eaf0,
+      Vest:0x30343d,
+      Pants:0x17191f,
+      Hat:0xf6f7fb,
+      Hair:0xd0a45e
+    }
   },
   {
     name:'Purple',
-    file:'Casual3_Male.gltf',
-    scaleX:.90,
-    headXZ:.85,
-    shirt:0x9a4de0,
-    pants:0x17121c,
-    belt:0xdd9cff,
-    hair:0x43283f
+    file:'BlueSoldier_Female.gltf',
+    scaleX:.89,
+    headXZ:.84,
+    recolor:{
+      Main:0x9a4de0,
+      Black:0x14171e,
+      Grey:0xdd9cff,
+      Hair:0xa9432d
+    }
   }
-];
+]
 
 let currentRunner=0;
 let loadToken=0;
@@ -192,15 +205,15 @@ function cloneMaterials(root){
 }
 
 function applyRunnerMaterials(root,config){
+  const palette=config.recolor||{};
   root.traverse(o=>{
     if(!o.isMesh)return;
     const mats=Array.isArray(o.material)?o.material:[o.material];
     for(const mat of mats){
       if(!mat?.name)continue;
-      if(mat.name==='Shirt')mat.color.setHex(config.shirt);
-      else if(mat.name==='Pants')mat.color.setHex(config.pants);
-      else if(mat.name==='Belt')mat.color.setHex(config.belt);
-      else if(mat.name==='Hair')mat.color.setHex(config.hair);
+      if(palette[mat.name]!==undefined){
+        mat.color.setHex(palette[mat.name]);
+      }
     }
   });
 }
@@ -364,7 +377,7 @@ function loadRunner(index){
       }
 
       setState('RUN');
-      console.info('Runner model:',config.name,config.file);
+      console.info('Runner model:',config.name,config.file,'materials:',Object.keys(config.recolor||{}));
     },
     undefined,
     err=>{
