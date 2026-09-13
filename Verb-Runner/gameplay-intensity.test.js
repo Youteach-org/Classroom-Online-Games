@@ -12,16 +12,17 @@ function sampleChallenge(){
   };
 }
 
-test('medium chains put three or four distractors before the correct form',()=>{
-  const three=challenge.buildMediumSequence(sampleChallenge(),{random:()=>0});
-  const four=challenge.buildMediumSequence(sampleChallenge(),{random:()=>0.999});
-  assert.equal(three.filter(item=>!item.correct).length,3);
-  assert.equal(four.filter(item=>!item.correct).length,4);
-  assert.equal(three.at(-1).value,'flown');
-  assert.equal(four.at(-1).value,'flown');
+test('medium chains use plausible distractors and randomize correct-answer position',()=>{
+  const first=challenge.buildMediumSequence(sampleChallenge(),{random:()=>0.25});
+  const last=challenge.buildMediumSequence(sampleChallenge(),{random:()=>0.9});
+  assert.equal(first.filter(item=>!item.correct).length,3);
+  assert.equal(last.filter(item=>!item.correct).length,3);
+  assert.equal(first.filter(item=>item.correct).length,1);
+  assert.equal(last.filter(item=>item.correct).length,1);
+  assert.notEqual(first.findIndex(item=>item.correct),last.findIndex(item=>item.correct));
 });
 
-test('gameplay launches an answer chain with sub-second spacing instead of waiting for each word to finish',()=>{
+test('gameplay launches answer choices at a fixed spacing independent of difficulty',()=>{
   const app=read('app.js');
   assert.match(app,/ANSWER_SPACING_MS\s*=\s*(?:7\d\d|8\d\d|9\d\d)/);
   assert.match(app,/launchAnswerChain\s*\(/);
