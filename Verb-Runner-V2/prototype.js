@@ -1388,32 +1388,6 @@ function createRoadSign(){
   return g;
 }
 
-function createSleepingDog(){
-  const g=new THREE.Group();
-  const body=new THREE.Mesh(new THREE.CapsuleGeometry(.28,.72,5,10),obstacleMaterials.fur);
-  body.rotation.z=Math.PI/2;
-  body.position.set(0,.32,0);
-  g.add(body);
-
-  const head=new THREE.Mesh(new THREE.SphereGeometry(.31,12,10),obstacleMaterials.fur);
-  head.position.set(.56,.34,-.04);
-  g.add(head);
-
-  for(const z of [-.16,.12]){
-    const ear=new THREE.Mesh(new THREE.ConeGeometry(.12,.3,6),obstacleMaterials.fur);
-    ear.rotation.z=-.7;
-    ear.position.set(.67,.54,z);
-    g.add(ear);
-  }
-
-  const tail=new THREE.Mesh(new THREE.TorusGeometry(.26,.055,6,14,Math.PI*1.2),obstacleMaterials.fur);
-  tail.rotation.x=Math.PI/2;
-  tail.rotation.z=.4;
-  tail.position.set(-.55,.33,.02);
-  g.add(tail);
-  return g;
-}
-
 function createDeliveryBoxes(){
   const g=new THREE.Group();
   const sizes=[
@@ -1433,25 +1407,111 @@ function createDeliveryBoxes(){
   return g;
 }
 
+function makeLimb(length,radius,material){
+  const pivot=new THREE.Group();
+  const limb=new THREE.Mesh(new THREE.CapsuleGeometry(radius,Math.max(.05,length-radius*2),5,8),material);
+  limb.position.y=-length*.5;
+  pivot.add(limb);
+  return pivot;
+}
+
 function createPedestrian(index=0){
   const g=new THREE.Group();
-  const shirt=[0x3e7fb1,0xb14555,0x4c8b5e,0xd19b39][index%4];
-  const cloth=new THREE.MeshStandardMaterial({color:shirt,roughness:.86});
 
-  const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.24,.72,5,10),cloth);
-  torso.position.y=1.23;
-  g.add(torso);
-  const head=new THREE.Mesh(new THREE.SphereGeometry(.23,12,10),obstacleMaterials.skin);
-  head.position.y=1.96;
-  g.add(head);
+  const skinTones=[0xf0bd98,0xd89a73,0xb97655,0x8d5b45];
+  const shirtColors=[0x2f78ad,0xc64e58,0x4f9766,0xe0a33c,0x7658b6,0x289b98];
+  const pantsColors=[0x253344,0x3b3d43,0x355443,0x5b4538];
+  const hairColors=[0x2c211b,0x4b3020,0x17181a,0x704a2e];
 
-  const hip=new THREE.Vector3(0,.9,0);
-  const shoulder=new THREE.Vector3(0,1.55,0);
-  g.add(cylinderBetween(hip,new THREE.Vector3(-.36,.08,.08),.085,obstacleMaterials.black));
-  g.add(cylinderBetween(hip,new THREE.Vector3(.38,.1,-.08),.085,obstacleMaterials.black));
-  g.add(cylinderBetween(shoulder,new THREE.Vector3(-.48,1.12,-.05),.07,obstacleMaterials.skin));
-  g.add(cylinderBetween(shoulder,new THREE.Vector3(.48,1.82,.05),.07,obstacleMaterials.skin));
-  g.rotation.y=Math.PI/2;
+  const skin=new THREE.MeshStandardMaterial({color:skinTones[index%skinTones.length],roughness:.82});
+  const shirt=new THREE.MeshStandardMaterial({color:shirtColors[index%shirtColors.length],roughness:.78});
+  const pants=new THREE.MeshStandardMaterial({color:pantsColors[index%pantsColors.length],roughness:.86});
+  const hair=new THREE.MeshStandardMaterial({color:hairColors[index%hairColors.length],roughness:.92});
+  const shoe=new THREE.MeshStandardMaterial({color:0x1b1d21,roughness:.88});
+  const eyeMat=new THREE.MeshBasicMaterial({color:0x17191c});
+
+  const pelvis=new THREE.Group();
+  pelvis.position.y=.93;
+  g.add(pelvis);
+
+  const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.27,.66,6,12),shirt);
+  torso.position.y=.43;
+  torso.scale.set(1.05,1,0.82);
+  torso.castShadow=true;
+  pelvis.add(torso);
+
+  const neck=new THREE.Mesh(new THREE.CylinderGeometry(.085,.09,.15,10),skin);
+  neck.position.y=.87;
+  pelvis.add(neck);
+
+  const headGroup=new THREE.Group();
+  headGroup.position.y=1.08;
+  pelvis.add(headGroup);
+
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.235,16,12),skin);
+  head.scale.set(.9,1.08,.92);
+  head.castShadow=true;
+  headGroup.add(head);
+
+  const hairCap=new THREE.Mesh(new THREE.SphereGeometry(.242,16,10,0,Math.PI*2,0,Math.PI*.55),hair);
+  hairCap.position.y=.035;
+  hairCap.scale.set(.92,1.02,.94);
+  headGroup.add(hairCap);
+
+  for(const x of [-.075,.075]){
+    const eye=new THREE.Mesh(new THREE.SphereGeometry(.018,8,6),eyeMat);
+    eye.position.set(x,.035,-.205);
+    headGroup.add(eye);
+  }
+
+  const nose=new THREE.Mesh(new THREE.ConeGeometry(.025,.07,8),skin);
+  nose.rotation.x=Math.PI/2;
+  nose.position.set(0,-.005,-.235);
+  headGroup.add(nose);
+
+  const leftArm=makeLimb(.72,.075,skin);
+  leftArm.position.set(-.31,.75,0);
+  leftArm.rotation.z=.12;
+  pelvis.add(leftArm);
+
+  const rightArm=makeLimb(.72,.075,skin);
+  rightArm.position.set(.31,.75,0);
+  rightArm.rotation.z=-.12;
+  pelvis.add(rightArm);
+
+  const leftSleeve=new THREE.Mesh(new THREE.CapsuleGeometry(.10,.28,5,8),shirt);
+  leftSleeve.position.set(-.31,.58,0);
+  leftSleeve.rotation.z=.12;
+  pelvis.add(leftSleeve);
+
+  const rightSleeve=leftSleeve.clone();
+  rightSleeve.position.x=.31;
+  rightSleeve.rotation.z=-.12;
+  pelvis.add(rightSleeve);
+
+  const leftLeg=makeLimb(.88,.095,pants);
+  leftLeg.position.set(-.14,0,0);
+  pelvis.add(leftLeg);
+
+  const rightLeg=makeLimb(.88,.095,pants);
+  rightLeg.position.set(.14,0,0);
+  pelvis.add(rightLeg);
+
+  const leftFoot=new THREE.Mesh(new THREE.BoxGeometry(.19,.13,.36),shoe);
+  leftFoot.position.set(-.14,-.86,-.11);
+  pelvis.add(leftFoot);
+
+  const rightFoot=leftFoot.clone();
+  rightFoot.position.x=.14;
+  pelvis.add(rightFoot);
+
+  g.userData.walkParts={leftArm,rightArm,leftLeg,rightLeg,leftFoot,rightFoot,headGroup};
+  g.userData.walkPhase=Math.random()*Math.PI*2;
+  g.userData.crossDir=Math.random()<.5?1:-1;
+  g.userData.crossSpeed=1.65+Math.random()*.55;
+  g.userData.startSide=g.userData.crossDir>0?-1:1;
+  g.rotation.y=g.userData.crossDir>0?-Math.PI/2:Math.PI/2;
+  g.scale.setScalar(.98+Math.random()*.08);
   return g;
 }
 
@@ -1525,12 +1585,11 @@ function spawnObstacle(){
   let type;
   let kind;
 
-  if(roll<.16){type='car';kind='car';}
-  else if(roll<.31){type='jump';kind='sign';}
-  else if(roll<.43){type='jump';kind='dog';}
-  else if(roll<.55){type='jump';kind='boxes';}
-  else if(roll<.70){type='dodge';kind='pedestrian';}
-  else if(roll<.84){type='dodge';kind='cyclist';}
+  if(roll<.18){type='car';kind='car';}
+  else if(roll<.36){type='jump';kind='sign';}
+  else if(roll<.52){type='jump';kind='boxes';}
+  else if(roll<.73){type='dodge';kind='pedestrian';}
+  else if(roll<.88){type='dodge';kind='cyclist';}
   else {type='slide';kind='barrier';}
 
   const laneIndex=pickObstacleLane(type);
@@ -1539,13 +1598,17 @@ function spawnObstacle(){
   let mesh;
   if(kind==='car')mesh=createRoadCar(Math.floor(Math.random()*6));
   else if(kind==='sign')mesh=createRoadSign();
-  else if(kind==='dog')mesh=createSleepingDog();
   else if(kind==='boxes')mesh=createDeliveryBoxes();
-  else if(kind==='pedestrian')mesh=createPedestrian(Math.floor(Math.random()*4));
+  else if(kind==='pedestrian')mesh=createPedestrian(Math.floor(Math.random()*12));
   else if(kind==='cyclist')mesh=createCyclist(Math.floor(Math.random()*4));
   else mesh=createSlideBarrier();
 
-  mesh.position.set(lanes[laneIndex],0,-74);
+  if(kind==='pedestrian'){
+    mesh.position.set(mesh.userData.startSide*5.25,0,-74);
+  }else{
+    mesh.position.set(lanes[laneIndex],0,-74);
+  }
+
   scene.add(mesh);
   obstacles.push({mesh,type,kind,laneIndex,passed:false});
 }
@@ -1657,12 +1720,31 @@ function updateWorld(dt){
       for(const wheel of o.mesh.userData.wheels)wheel.rotation.x-=travel*1.55;
       o.mesh.rotation.z=Math.sin(o.mesh.position.z*.08)*.035;
     }else if(o.kind==='pedestrian'){
-      o.mesh.rotation.z=Math.sin(o.mesh.position.z*.12)*.025;
+      const p=o.mesh.userData.walkParts;
+      const phase=o.mesh.userData.walkPhase+runElapsed*7.4;
+      const swing=Math.sin(phase);
+      const counter=Math.sin(phase+Math.PI);
+
+      if(p){
+        p.leftArm.rotation.x=swing*.78;
+        p.rightArm.rotation.x=counter*.78;
+        p.leftLeg.rotation.x=counter*.68;
+        p.rightLeg.rotation.x=swing*.68;
+        p.leftFoot.rotation.x=Math.max(0,swing)*.28;
+        p.rightFoot.rotation.x=Math.max(0,counter)*.28;
+        p.headGroup.rotation.y=Math.sin(phase*.45)*.08;
+      }
+
+      o.mesh.position.x+=o.mesh.userData.crossDir*o.mesh.userData.crossSpeed*dt;
+      o.mesh.position.y=Math.abs(Math.sin(phase))*0.035;
+      o.mesh.rotation.z=Math.sin(phase)*.018;
     }
 
     if(!o.passed&&o.mesh.position.z>1.1){
       o.passed=true;
-      const sameLane=o.laneIndex===lane&&Math.abs(o.mesh.position.x-runnerRoot.position.x)<1.25;
+      const sameLane=o.kind==='pedestrian'
+        ? Math.abs(o.mesh.position.x-runnerRoot.position.x)<.72
+        : (o.laneIndex===lane&&Math.abs(o.mesh.position.x-runnerRoot.position.x)<1.25);
       if(sameLane){
         const safe=o.type==='jump'
           ? runnerRoot.position.y>.92
