@@ -100,6 +100,11 @@ const runnerRoot=new THREE.Group();
 runnerRoot.position.set(0,0,2);
 scene.add(runnerRoot);
 
+// Separate visual pivot so actions like the forward roll can rotate the
+// character itself without moving the gameplay root/collision position.
+const runnerVisual=new THREE.Group();
+runnerRoot.add(runnerVisual);
+
 const shadow=new THREE.Mesh(
   new THREE.CircleGeometry(.72,32),
   new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.34,depthWrite:false})
@@ -250,7 +255,7 @@ async function initRunner(){
 
     // Same approved runner height as before.
     fitToHeight(model,2.35);
-    runnerRoot.add(model);
+    runnerVisual.add(model);
 
     mixer=new THREE.AnimationMixer(model);
 
@@ -475,14 +480,30 @@ function updateRunner(dt){
     }
   }else if(rollTime>0){
     rollTime+=dt;
+    const t=THREE.MathUtils.clamp(rollTime/rollDuration,0,1);
+
+    // Guarantee a visible forward somersault in place. The gameplay root
+    // stays fixed in its lane; only the visual rig rotates.
+    const eased=t*t*(3-2*t);
+    runnerVisual.rotation.x=-Math.PI*2*eased;
 
     if(rollTime>=rollDuration){
       rollTime=0;
+      runnerVisual.rotation.x=0;
       setState(locomotionState());
     }
   }else{
     const wanted=locomotionState();
     if(runnerState!==wanted)setState(wanted);
+  }
+
+  if(rollTime<=0){
+    runnerVisual.rotation.x=THREE.MathUtils.damp(
+      runnerVisual.rotation.x,
+      0,
+      18,
+      dt
+    );
   }
 
   runnerRoot.position.y=y;
