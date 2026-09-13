@@ -28,3 +28,36 @@ body{background:radial-gradient(circle at 50% 20%,#1c1634 0,#090b1a 44%,#03040a 
   .brand strong{font-size:14px}
   .controls{font-size:10px;gap:5px 9px}
 }
+.character-switcher{
+  position:absolute;
+  left:50%;
+  bottom:96px;
+  transform:translateX(-50%);
+  display:flex;
+  gap:9px;
+  padding:8px 10px;
+  border-radius:999px;
+  background:rgba(5,7,19,.68);
+  border:1px solid rgba(120,236,255,.22);
+  backdrop-filter:blur(12px);
+  pointer-events:auto;
+}
+.runner-swatch{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,.34);
+  background:var(--swatch);
+  box-shadow:0 0 0 0 rgba(255,255,255,0);
+  cursor:pointer;
+  transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;
+}
+.runner-swatch.selected{
+  transform:scale(1.18);
+  border-color:#fff;
+  box-shadow:0 0 0 3px rgba(255,255,255,.18),0 0 18px var(--swatch);
+}
+@media(max-width:640px){
+  .character-switcher{bottom:104px;gap:7px;padding:7px 9px}
+  .runner-swatch{width:26px;height:26px}
+}
