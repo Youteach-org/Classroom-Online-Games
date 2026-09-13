@@ -43,9 +43,9 @@ const resultMomentum=document.querySelector('#resultMomentum');
 
 const TOTAL_CHALLENGES=12;
 const difficultyPresets={
-  easy:{name:'easy',speed:.88,answerSpacing:1.08,distractors:2,preview:true},
+  easy:{name:'easy',speed:1,answerSpacing:.82,distractors:2,preview:false},
   medium:{name:'medium',speed:1,answerSpacing:.82,distractors:3,preview:false},
-  hard:{name:'hard',speed:1.18,answerSpacing:.64,distractors:4,preview:false}
+  hard:{name:'hard',speed:1,answerSpacing:.82,distractors:4,preview:false}
 };
 let difficulty=difficultyPresets.medium;
 let totalChallenges=TOTAL_CHALLENGES;
@@ -594,8 +594,8 @@ function buildChallenges(){
   const shuffled=window.VerbRunnerChallenge.shuffled(bank);
   challenges=shuffled.slice(0,totalChallenges).map(verb=>
     window.VerbRunnerChallenge.createChallenge(verb,{
-      bank,
-      distractorCount:Math.max(5,gameSettings.distractors+1)
+      difficulty:difficulty.name,
+      distractorCount:gameSettings.distractors
     })
   );
 }
@@ -664,7 +664,7 @@ function launchChallengeChain(initialDelay=.42){
   if(!currentChallenge)return;
 
   const sequence=window.VerbRunnerChallenge.buildAnswerSequence(currentChallenge,{
-    distractorsBeforeCorrect:gameSettings.distractors
+    distractorCount:gameSettings.distractors
   });
 
   pendingAnswers=sequence.map((item,index)=>({
