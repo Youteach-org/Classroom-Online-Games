@@ -1195,8 +1195,8 @@ function animate(){
     }
   }
 
-  distanceEl.textContent=String(Math.floor(distance)).padStart(4,'0');
-  speedEl.textContent=(speed/18).toFixed(2)+'×';
+  if(distanceEl)distanceEl.textContent=String(Math.floor(distance)).padStart(4,'0');
+  if(speedEl)speedEl.textContent=(speed/18).toFixed(2)+'×';
 
   camera.position.x=THREE.MathUtils.damp(camera.position.x,runnerRoot.position.x*.15,3.5,dt);
   renderer.render(scene,camera);
