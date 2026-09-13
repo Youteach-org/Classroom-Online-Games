@@ -719,27 +719,70 @@ function buildChallenges(){
   }
 }
 
+function roundedRectPath(ctx,x,y,w,h,r){
+  const radius=Math.min(r,w*.5,h*.5);
+  ctx.beginPath();
+  ctx.moveTo(x+radius,y);
+  ctx.arcTo(x+w,y,x+w,y+h,radius);
+  ctx.arcTo(x+w,y+h,x,y+h,radius);
+  ctx.arcTo(x,y+h,x,y,radius);
+  ctx.arcTo(x,y,x+w,y,radius);
+  ctx.closePath();
+}
+
 function makeAnswerTexture(word){
   const c=document.createElement('canvas');
-  c.width=768;c.height=256;
+  c.width=1024;c.height=360;
   const ctx=c.getContext('2d');
-  ctx.fillStyle='#123b56';ctx.fillRect(0,0,c.width,c.height);
-  ctx.strokeStyle='#ffffff';ctx.globalAlpha=.95;ctx.lineWidth=14;ctx.strokeRect(10,10,c.width-20,c.height-20);
-  ctx.globalAlpha=1;
-  ctx.fillStyle='#ffffff';
+  ctx.clearRect(0,0,c.width,c.height);
+
+  ctx.save();
+  ctx.shadowColor='rgba(40,220,255,.95)';
+  ctx.shadowBlur=30;
+  roundedRectPath(ctx,34,34,c.width-68,c.height-68,48);
+  ctx.fillStyle='#0a315f';
+  ctx.fill();
+  ctx.restore();
+
+  roundedRectPath(ctx,34,34,c.width-68,c.height-68,48);
+  const grad=ctx.createLinearGradient(0,36,0,c.height-36);
+  grad.addColorStop(0,'#185b98');
+  grad.addColorStop(.42,'#0c4278');
+  grad.addColorStop(1,'#082a55');
+  ctx.fillStyle=grad;
+  ctx.fill();
+
+  ctx.lineWidth=18;
+  ctx.strokeStyle='#45ddff';
+  ctx.stroke();
+
+  roundedRectPath(ctx,54,54,c.width-108,c.height-108,35);
+  ctx.lineWidth=5;
+  ctx.strokeStyle='rgba(218,249,255,.92)';
+  ctx.stroke();
+
   const text=String(word).toUpperCase();
-  let fontSize=82;
+  let fontSize=112;
   ctx.font='900 '+fontSize+'px Arial';
-  const maxWidth=c.width-62;
-  while(fontSize>38&&ctx.measureText(text).width>maxWidth){
-    fontSize-=4;
+  const maxWidth=c.width-150;
+  while(fontSize>48&&ctx.measureText(text).width>maxWidth){
+    fontSize-=5;
     ctx.font='900 '+fontSize+'px Arial';
   }
+
   ctx.textAlign='center';
   ctx.textBaseline='middle';
-  ctx.fillText(text,c.width/2,c.height/2+2);
+  ctx.shadowColor='rgba(73,222,255,.85)';
+  ctx.shadowBlur=15;
+  ctx.lineWidth=9;
+  ctx.strokeStyle='rgba(0,38,72,.85)';
+  ctx.strokeText(text,c.width/2,c.height/2+5);
+  ctx.fillStyle='#f8fdff';
+  ctx.fillText(text,c.width/2,c.height/2+5);
+
   const tex=new THREE.CanvasTexture(c);
   tex.colorSpace=THREE.SRGBColorSpace;
+  tex.minFilter=THREE.LinearFilter;
   return tex;
 }
 
@@ -779,18 +822,18 @@ function spawnAnswer(item){
   }
 
   const group=new THREE.Group();
-  const cardW=IS_MOBILE?3.55:2.85;
-  const cardH=IS_MOBILE?1.28:1.02;
+  const cardW=IS_MOBILE?3.70:3.05;
+  const cardH=IS_MOBILE?1.34:1.10;
   const glow=new THREE.Mesh(
     new THREE.PlaneGeometry(cardW+0.28,cardH+0.18),
-    new THREE.MeshBasicMaterial({color:0x64ddff,transparent:true,opacity:.34,side:THREE.DoubleSide,depthWrite:false,fog:false,toneMapped:false})
+    new THREE.MeshBasicMaterial({color:0x45ddff,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false,fog:false,toneMapped:false})
   );
   glow.scale.set(1.08,1.12,1);
   group.add(glow);
 
   const panel=new THREE.Mesh(
     new THREE.PlaneGeometry(cardW,cardH),
-    new THREE.MeshBasicMaterial({map:makeAnswerTexture(item.value),transparent:false,side:THREE.DoubleSide,fog:false,toneMapped:false})
+    new THREE.MeshBasicMaterial({map:makeAnswerTexture(item.value),transparent:true,side:THREE.DoubleSide,fog:false,toneMapped:false,depthWrite:false})
   );
   panel.position.z=.02;
   group.add(panel);
