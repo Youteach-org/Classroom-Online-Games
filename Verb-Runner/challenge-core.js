@@ -68,7 +68,7 @@
     const out=[];
 
     const patternRules=[
-      ['or',['er','ur','ar','oor','our']],
+      ['or',['er','ur','ar','oor']],
       ['ir',['er','ur','ear','eer']],
       ['er',['ir','ur','ear','eer']],
       ['ar',['er','or','ur','air']],
