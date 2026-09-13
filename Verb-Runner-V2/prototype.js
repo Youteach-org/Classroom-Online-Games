@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
 const canvas=document.querySelector('#game');
 const distanceEl=document.querySelector('#distance');
@@ -75,6 +74,7 @@ for(let i=0;i<34;i++){
   const side=i%2?-1:1;
   const h=3+(i%7)*1.25;
   const w=1.4+(i%4)*.45;
+
   const b=new THREE.Mesh(
     new THREE.BoxGeometry(w,h,w),
     new THREE.MeshStandardMaterial({
@@ -110,14 +110,9 @@ runnerRoot.add(shadow);
 
 let model=null;
 let mixer=null;
-let targetSkin=null;
 const actions={};
 let activeAction=null;
 let runnerState='LOADING';
-
-const baseScale=new THREE.Vector3();
-const basePosition=new THREE.Vector3();
-const baseRotation=new THREE.Euler();
 
 function fitToHeight(root,target=2.35){
   root.updateMatrixWorld(true);
@@ -125,17 +120,13 @@ function fitToHeight(root,target=2.35){
   const size=new THREE.Vector3();
   box.getSize(size);
   if(size.y<=0)return;
+
   const s=target/size.y;
   root.scale.setScalar(s);
   root.updateMatrixWorld(true);
+
   const box2=new THREE.Box3().setFromObject(root);
   root.position.y-=box2.min.y;
-}
-
-function firstSkinnedMesh(root){
-  let found=null;
-  root.traverse(o=>{if(!found && o.isSkinnedMesh)found=o;});
-  return found;
 }
 
 function getClip(clips,name){
@@ -143,9 +134,26 @@ function getClip(clips,name){
     || clips.find(c=>c.name.toLowerCase().includes(name.toLowerCase()));
 }
 
+function sanitizeClip(clip){
+  const copy=clip.clone();
+
+  // Keep gameplay position controlled by the runner engine.
+  // Preserve skeletal motion but strip whole-character translation tracks.
+  copy.tracks=copy.tracks.filter(track=>{
+    const n=track.name.toLowerCase();
+    return !(
+      n==='root.position' ||
+      n==='characterarmature.position' ||
+      n.endsWith('bone.position')
+    );
+  });
+
+  return copy;
+}
+
 function addAction(name,clip,{once=false}={}){
   if(!clip)return null;
-  const action=mixer.clipAction(clip);
+  const action=mixer.clipAction(sanitizeClip(clip));
   action.enabled=true;
   action.clampWhenFinished=once;
   action.setLoop(once?THREE.LoopOnce:THREE.LoopRepeat,once?1:Infinity);
@@ -156,6 +164,7 @@ function addAction(name,clip,{once=false}={}){
 function play(name,{fade=.12,speed=1,reset=false}={}){
   const next=actions[name];
   if(!next)return;
+
   next.enabled=true;
   next.setEffectiveTimeScale(speed);
   next.setEffectiveWeight(1);
@@ -167,101 +176,28 @@ function play(name,{fade=.12,speed=1,reset=false}={}){
   activeAction=next;
 }
 
-function resetSoldierPoseTransform(){
-  if(!model)return;
-  model.scale.copy(baseScale);
-  model.position.copy(basePosition);
-  model.rotation.copy(baseRotation);
-}
-
 function setState(state){
   runnerState=state;
 
   if(state==='RUN')play('run',{fade:.12,speed:1});
-  else if(state==='SPRINT')play('run',{fade:.10,speed:1.34});
-  else if(state==='JUMP')play('jump',{fade:.07,speed:1,reset:true});
-  else if(state==='AIR')play('jumpIdle',{fade:.06,speed:1,reset:true});
-  else if(state==='LAND')play('jumpLand',{fade:.06,speed:1.08,reset:true});
-  else if(state==='CROUCH')play('idle',{fade:.05,speed:1,reset:true});
-  else if(state==='STUMBLE')play('hitReact',{fade:.045,speed:1.05,reset:true});
-  else if(state==='RECOVERY')play('jumpLand',{fade:.07,speed:1.3,reset:true});
+  else if(state==='SPRINT')play('run',{fade:.10,speed:1.32});
+  else if(state==='JUMP')play('jump',{fade:.07,speed:1.0,reset:true});
+  else if(state==='ROLL')play('roll',{fade:.055,speed:1.10,reset:true});
+  else if(state==='STUMBLE')play('hit',{fade:.04,speed:1.05,reset:true});
+  else if(state==='RECOVERY')play('idle',{fade:.07,speed:1,reset:true});
 
-  modelStatus.textContent='Soldier hybrid · '+state;
+  modelStatus.textContent='Casual Female native · '+state;
 }
 
-function buildRetargetOptions(targetScale){
-  const rotateCW45=new THREE.Matrix4().makeRotationY(THREE.MathUtils.degToRad(45));
-  const rotateCCW180=new THREE.Matrix4().makeRotationY(THREE.MathUtils.degToRad(-180));
-  const rotateCW180=new THREE.Matrix4().makeRotationY(THREE.MathUtils.degToRad(180));
-  const rotateFoot=new THREE.Matrix4().makeRotationFromEuler(
-    new THREE.Euler(
-      THREE.MathUtils.degToRad(45),
-      THREE.MathUtils.degToRad(180),
-      0
-    )
-  );
+const loader=new GLTFLoader();
+loader.load(
+  'https://cdn.jsdelivr.net/gh/psqd12137-sudo/dream-channel@3d1f3c91810ac6b73146971d7d6297b12c8f3244/godot/assets/quaternius/animated_characters/Casual_Female.gltf',
+  gltf=>{
+    model=gltf.scene;
 
-  return {
-    hip:'Hips',
-    hipInfluence:new THREE.Vector3(0,1,0),
-    scale:1/targetScale,
-    localOffsets:{
-      mixamorigLeftShoulder:rotateCW45,
-      mixamorigRightShoulder:rotateCCW180,
-      mixamorigLeftArm:rotateCW45,
-      mixamorigRightArm:rotateCCW180,
-      mixamorigLeftForeArm:rotateCW45,
-      mixamorigRightForeArm:rotateCCW180,
-      mixamorigLeftUpLeg:rotateCW180,
-      mixamorigRightUpLeg:rotateCW180,
-      mixamorigLeftLeg:rotateCW180,
-      mixamorigRightLeg:rotateCW180,
-      mixamorigLeftFoot:rotateFoot,
-      mixamorigRightFoot:rotateFoot
-    },
-    names:{
-      mixamorigHips:'Hips',
-      mixamorigSpine:'Abdomen',
-      mixamorigSpine1:'Torso',
-      mixamorigNeck:'Neck',
-      mixamorigHead:'Head',
+    // Same Quaternius coordinate convention as the previous native-action test.
+    model.rotation.y=Math.PI;
 
-      mixamorigLeftShoulder:'Shoulder.L',
-      mixamorigRightShoulder:'Shoulder.R',
-      mixamorigLeftArm:'UpperArm.L',
-      mixamorigRightArm:'UpperArm.R',
-      mixamorigLeftForeArm:'LowerArm.L',
-      mixamorigRightForeArm:'LowerArm.R',
-
-      mixamorigLeftUpLeg:'UpperLeg.L',
-      mixamorigRightUpLeg:'UpperLeg.R',
-      mixamorigLeftLeg:'LowerLeg.L',
-      mixamorigRightLeg:'LowerLeg.R',
-      mixamorigLeftFoot:'Foot.L',
-      mixamorigRightFoot:'Foot.R'
-    }
-  };
-}
-
-function sourceSkeletonFrom(root){
-  const helper=new THREE.SkeletonHelper(root);
-  return new THREE.Skeleton(helper.bones);
-}
-
-async function loadModel(url){
-  const loader=new GLTFLoader();
-  return await new Promise((resolve,reject)=>loader.load(url,resolve,undefined,reject));
-}
-
-async function initRunner(){
-  try{
-    const [soldier,source]=await Promise.all([
-      loadModel('https://threejs.org/examples/models/gltf/Soldier.glb'),
-      loadModel('https://cdn.jsdelivr.net/gh/danvanderboom/Aetherium@main/samples/unity/Aphelion/Assets/ThirdParty/Quaternius/Animated/reclaimer-rae.gltf')
-    ]);
-
-    model=soldier.scene;
-    model.rotation.y=0;
     model.traverse(o=>{
       if(o.isMesh){
         o.castShadow=true;
@@ -270,49 +206,36 @@ async function initRunner(){
     });
 
     fitToHeight(model,2.35);
-    baseScale.copy(model.scale);
-    basePosition.copy(model.position);
-    baseRotation.copy(model.rotation);
-
     runnerRoot.add(model);
-    targetSkin=firstSkinnedMesh(model);
-    if(!targetSkin)throw new Error('Soldier skinned mesh not found');
 
-    mixer=new THREE.AnimationMixer(targetSkin);
+    mixer=new THREE.AnimationMixer(model);
 
-    const soldierRun=getClip(soldier.animations,'Run') || soldier.animations[1];
-    const soldierIdle=getClip(soldier.animations,'Idle') || soldier.animations[0];
+    const clips=gltf.animations;
+    const idleClip=getClip(clips,'Idle');
+    const runClip=getClip(clips,'Run');
+    const jumpClip=getClip(clips,'Jump');
+    const rollClip=getClip(clips,'Roll');
+    const hitClip=getClip(clips,'RecieveHit') || getClip(clips,'ReceiveHit');
 
-    addAction('run',soldierRun);
-    addAction('idle',soldierIdle);
-
-    source.scene.updateMatrixWorld(true);
-    const sourceSkeleton=sourceSkeletonFrom(source.scene);
-    const opts=buildRetargetOptions(baseScale.y);
-
-    const srcJump=getClip(source.animations,'Jump');
-    const srcJumpIdle=getClip(source.animations,'Jump_Idle');
-    const srcJumpLand=getClip(source.animations,'Jump_Land');
-    const srcHit=getClip(source.animations,'HitReact');
-
-    const jumpClip=SkeletonUtils.retargetClip(targetSkin,sourceSkeleton,srcJump,opts);
-    const jumpIdleClip=SkeletonUtils.retargetClip(targetSkin,sourceSkeleton,srcJumpIdle,opts);
-    const jumpLandClip=SkeletonUtils.retargetClip(targetSkin,sourceSkeleton,srcJumpLand,opts);
-    const hitClip=SkeletonUtils.retargetClip(targetSkin,sourceSkeleton,srcHit,opts);
-
+    addAction('idle',idleClip);
+    addAction('run',runClip);
     addAction('jump',jumpClip,{once:true});
-    addAction('jumpIdle',jumpIdleClip);
-    addAction('jumpLand',jumpLandClip,{once:true});
-    addAction('hitReact',hitClip,{once:true});
+    addAction('roll',rollClip,{once:true});
+    addAction('hit',hitClip,{once:true});
+
+    if(rollClip){
+      rollDuration=THREE.MathUtils.clamp(rollClip.duration/1.10,.58,.92);
+    }
 
     setState('RUN');
-    modelStatus.textContent='Soldier RUN + Soldier crouch + retargeted jump/hit';
-  }catch(err){
+    console.table(clips.map(c=>({name:c.name,duration:c.duration.toFixed(2)})));
+  },
+  undefined,
+  err=>{
     console.error(err);
-    modelStatus.textContent='Hybrid Soldier setup failed to load';
+    modelStatus.textContent='Casual Female failed to load';
   }
-}
-initRunner();
+);
 
 const lanes=[-3,0,3];
 let lane=1;
@@ -321,14 +244,14 @@ let targetX=0;
 let jumpTime=0;
 const jumpDuration=.82;
 
-let crouchTime=0;
-const crouchDuration=.68;
+let rollTime=0;
+let rollDuration=.72;
 
 let stumbleTime=0;
-const stumbleDuration=.46;
+const stumbleDuration=.44;
 
 let recoveryTime=0;
-const recoveryDuration=.30;
+const recoveryDuration=.24;
 
 let sprintHeld=false;
 let distance=0;
@@ -337,7 +260,7 @@ let nextSpawn=20;
 let hitCooldown=0;
 
 function busy(){
-  return jumpTime>0 || crouchTime>0 || stumbleTime>0 || recoveryTime>0;
+  return jumpTime>0 || rollTime>0 || stumbleTime>0 || recoveryTime>0;
 }
 
 function locomotionState(){
@@ -353,21 +276,21 @@ function moveLane(dir){
 function jump(){
   if(busy())return;
   jumpTime=.001;
-  resetSoldierPoseTransform();
   setState('JUMP');
 }
 
-function crouch(){
+function roll(){
   if(busy())return;
-  crouchTime=.001;
-  setState('CROUCH');
+  rollTime=.001;
+  setState('ROLL');
 }
 
 addEventListener('keydown',e=>{
   if(['ArrowLeft','KeyA'].includes(e.code))moveLane(-1);
   if(['ArrowRight','KeyD'].includes(e.code))moveLane(1);
   if(['ArrowUp','Space','KeyW'].includes(e.code))jump();
-  if(['ArrowDown','KeyS'].includes(e.code))crouch();
+  if(['ArrowDown','KeyS'].includes(e.code))roll();
+
   if(['ShiftLeft','ShiftRight'].includes(e.code)){
     sprintHeld=true;
     if(!busy())setState('SPRINT');
@@ -382,16 +305,21 @@ addEventListener('keyup',e=>{
 });
 
 let touchStart=null;
-canvas.addEventListener('pointerdown',e=>touchStart={x:e.clientX,y:e.clientY});
+canvas.addEventListener('pointerdown',e=>{
+  touchStart={x:e.clientX,y:e.clientY};
+});
 canvas.addEventListener('pointerup',e=>{
   if(!touchStart)return;
+
   const dx=e.clientX-touchStart.x;
   const dy=e.clientY-touchStart.y;
   touchStart=null;
+
   if(Math.max(Math.abs(dx),Math.abs(dy))<24)return;
+
   if(Math.abs(dx)>Math.abs(dy))moveLane(dx>0?1:-1);
   else if(dy<0)jump();
-  else crouch();
+  else roll();
 });
 
 const obstacles=[];
@@ -415,8 +343,9 @@ const matHigh=new THREE.MeshStandardMaterial({
 });
 
 function spawnObstacle(){
-  const type=Math.random()<.56?'jump':'crouch';
+  const type=Math.random()<.56?'jump':'roll';
   const laneIndex=Math.floor(Math.random()*3);
+
   const mesh=new THREE.Mesh(
     type==='jump'?geoLow:geoHigh,
     type==='jump'?matLow:matHigh
@@ -427,7 +356,7 @@ function spawnObstacle(){
   mesh.position.z=-74;
   mesh.position.y=type==='jump'?.43:2.35;
 
-  if(type==='crouch'){
+  if(type==='roll'){
     for(const x of [-1.1,1.1]){
       const p=new THREE.Mesh(new THREE.BoxGeometry(.18,2.5,.18),matHigh);
       p.position.set(x,-1.1,0);
@@ -444,20 +373,21 @@ function hit(){
 
   hitCooldown=1.0;
   jumpTime=0;
-  crouchTime=0;
+  rollTime=0;
   recoveryTime=0;
   stumbleTime=.001;
 
-  resetSoldierPoseTransform();
   setState('STUMBLE');
 
   flash.classList.add('on');
   setTimeout(()=>flash.classList.remove('on'),180);
+
   distance=Math.max(0,distance-35);
 }
 
 function updateRunner(dt){
   runnerRoot.position.x=THREE.MathUtils.damp(runnerRoot.position.x,targetX,11,dt);
+
   const laneLean=(targetX-runnerRoot.position.x)*-.05;
   runnerRoot.rotation.z=THREE.MathUtils.damp(runnerRoot.rotation.z,laneLean,8,dt);
 
@@ -465,6 +395,7 @@ function updateRunner(dt){
 
   if(stumbleTime>0){
     stumbleTime+=dt;
+
     if(stumbleTime>=stumbleDuration){
       stumbleTime=0;
       recoveryTime=.001;
@@ -472,54 +403,27 @@ function updateRunner(dt){
     }
   }else if(recoveryTime>0){
     recoveryTime+=dt;
+
     if(recoveryTime>=recoveryDuration){
       recoveryTime=0;
-      resetSoldierPoseTransform();
       setState(locomotionState());
     }
   }else if(jumpTime>0){
     jumpTime+=dt;
     const t=jumpTime/jumpDuration;
 
-    if(t>=.26 && t<.72 && runnerState!=='AIR')setState('AIR');
-    else if(t>=.72 && t<1 && runnerState!=='LAND')setState('LAND');
-
     if(t>=1){
       jumpTime=0;
-      resetSoldierPoseTransform();
       setState(locomotionState());
       y=0;
     }else{
       y=Math.sin(Math.PI*t)*2.45;
     }
-  }else if(crouchTime>0){
-    crouchTime+=dt;
-    const t=Math.min(1,crouchTime/crouchDuration);
-    const fold=t<.18?t/.18:t>.78?(1-t)/.22:1;
+  }else if(rollTime>0){
+    rollTime+=dt;
 
-    // This is the exact crouch treatment from the Soldier test,
-    // applied to Soldier itself rather than transplanted onto another rig.
-    if(model){
-      model.scale.set(
-        baseScale.x,
-        baseScale.y*(1-.38*fold),
-        baseScale.z
-      );
-      model.rotation.set(
-        baseRotation.x+.30*fold,
-        baseRotation.y,
-        baseRotation.z
-      );
-      model.position.set(
-        basePosition.x,
-        basePosition.y-.06*fold,
-        basePosition.z
-      );
-    }
-
-    if(crouchTime>=crouchDuration){
-      crouchTime=0;
-      resetSoldierPoseTransform();
+    if(rollTime>=rollDuration){
+      rollTime=0;
       setState(locomotionState());
     }
   }else{
@@ -528,14 +432,21 @@ function updateRunner(dt){
   }
 
   runnerRoot.position.y=y;
-  shadow.scale.setScalar(THREE.MathUtils.lerp(1,.62,Math.min(1,y/2.45)));
-  shadow.material.opacity=THREE.MathUtils.lerp(.34,.1,Math.min(1,y/2.45));
+
+  shadow.scale.setScalar(
+    THREE.MathUtils.lerp(1,.62,Math.min(1,y/2.45))
+  );
+  shadow.material.opacity=THREE.MathUtils.lerp(
+    .34,.1,Math.min(1,y/2.45)
+  );
 }
 
 function travelSpeed(){
   let m=runnerState==='SPRINT'?1.12:1;
+
   if(stumbleTime>0)m*=.42;
   if(recoveryTime>0)m*=.72;
+
   return speed*m;
 }
 
@@ -553,9 +464,17 @@ function updateWorld(dt,v){
 
     if(!o.passed && o.mesh.position.z>1.1){
       o.passed=true;
-      const same=o.laneIndex===lane && Math.abs(o.mesh.position.x-runnerRoot.position.x)<1.25;
-      if(same){
-        const safe=o.type==='jump'?runnerRoot.position.y>1.05:crouchTime>0;
+
+      const sameLane=
+        o.laneIndex===lane &&
+        Math.abs(o.mesh.position.x-runnerRoot.position.x)<1.25;
+
+      if(sameLane){
+        const safe=
+          o.type==='jump'
+            ? runnerRoot.position.y>1.05
+            : rollTime>0;
+
         if(!safe)hit();
       }
     }
@@ -567,6 +486,7 @@ function updateWorld(dt,v){
   }
 
   nextSpawn-=travel;
+
   if(nextSpawn<=0){
     spawnObstacle();
     nextSpawn=22+Math.random()*18;
@@ -577,6 +497,7 @@ const clock=new THREE.Clock();
 
 function animate(){
   requestAnimationFrame(animate);
+
   const dt=Math.min(clock.getDelta(),.04);
 
   if(mixer)mixer.update(dt);
@@ -594,10 +515,23 @@ function animate(){
   speedEl.textContent=(v/18).toFixed(2)+'×';
 
   const sprint=runnerState==='SPRINT'?1:0;
+
   camera.fov=THREE.MathUtils.damp(camera.fov,52+sprint*5.5,4.5,dt);
   camera.updateProjectionMatrix();
-  camera.position.x=THREE.MathUtils.damp(camera.position.x,runnerRoot.position.x*.15,3.5,dt);
-  rim.intensity=THREE.MathUtils.damp(rim.intensity,18+sprint*12,5,dt);
+
+  camera.position.x=THREE.MathUtils.damp(
+    camera.position.x,
+    runnerRoot.position.x*.15,
+    3.5,
+    dt
+  );
+
+  rim.intensity=THREE.MathUtils.damp(
+    rim.intensity,
+    18+sprint*12,
+    5,
+    dt
+  );
 
   renderer.render(scene,camera);
 }
