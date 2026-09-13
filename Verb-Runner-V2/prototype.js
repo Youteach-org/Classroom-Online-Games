@@ -730,8 +730,16 @@ function collectAnswer(answer){
 function missedCorrectAnswer(){
   if(victoryMode)return;
   clearAnswers();
+
+  if(challengeIndex>=challenges.length-1){
+    if(!verbDeck.length)refillVerbDeck();
+    const nextVerb=verbDeck.shift();
+    if(nextVerb)challenges.push(makeChallengeFromVerb(nextVerb));
+  }
+
   const missed=challenges.splice(challengeIndex,1)[0];
   if(missed)challenges.push(missed);
+
   showNotice('CORRECT FORM MISSED · MOVED TO END','info');
   renderChallenge();
   launchChallengeChain(.6);
