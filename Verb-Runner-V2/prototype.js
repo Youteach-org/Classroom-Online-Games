@@ -211,7 +211,10 @@ loader.load(
     // keep the native rig/animations, but reduce the chibi look.
     model.scale.x*=.88;
     const head=model.getObjectByName('Head');
-    if(head)head.scale.multiplyScalar(.82);
+    if(head){
+      head.scale.x*=.82;
+      head.scale.z*=.82;
+    }
 
     runnerRoot.add(model);
 
