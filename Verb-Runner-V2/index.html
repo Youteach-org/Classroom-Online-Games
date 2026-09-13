@@ -31,7 +31,6 @@
       <div class="hud-center" aria-label="Verb challenge">
         <div class="challenge-top">
           <span>CHALLENGE</span>
-          <strong id="challengeNumber">1 / 12</strong>
         </div>
         <div class="principal-parts">
           <div class="part" data-slot="0"><small>BASE FORM</small><b>—</b></div>
@@ -53,15 +52,14 @@
       </div>
     </header>
 
-    <section class="momentum-panel" aria-label="Momentum">
-      <div class="momentum-copy"><span>⚡ MOMENTUM</span><strong id="momentumValue">75%</strong></div>
-      <div class="momentum-track"><div id="momentumFill" class="momentum-fill" style="width:75%"></div></div>
-    </section>
-
     <div id="gameNotice" class="game-notice" aria-live="assertive"></div>
 
     <section class="status">
-      <div id="modelStatus" class="pill">Loading robot…</div>
+      <div id="modelStatus" class="model-status-hidden" aria-live="polite">Loading robot…</div>
+      <section class="momentum-panel" aria-label="Momentum">
+        <div class="momentum-copy"><span>⚡ MOMENTUM</span><strong id="momentumValue">75%</strong></div>
+        <div class="momentum-track"><div id="momentumFill" class="momentum-fill" style="width:75%"></div></div>
+      </section>
       <div class="controls">
         <span>← → lanes</span>
         <span>↑ / SPACE jump</span>
