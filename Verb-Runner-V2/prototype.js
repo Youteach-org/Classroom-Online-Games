@@ -1191,80 +1191,200 @@ function pickObstacleLane(type){
 
 function createRoadCar(index=0){
   const car=new THREE.Group();
-  const colors=[0xc63e3e,0x2f70b4,0xd09a2e,0x43805e,0x767b84,0x8b52a5];
-  const paint=new THREE.MeshStandardMaterial({color:colors[index%colors.length],roughness:.38,metalness:.38});
+  const colors=[0xc83e3e,0x2d6fb3,0xd19a2d,0x3f805c,0x747b86,0x8b54a7];
+  const paint=new THREE.MeshStandardMaterial({color:colors[index%colors.length],roughness:.36,metalness:.34});
+  const trim=new THREE.MeshStandardMaterial({color:0x252a30,roughness:.62,metalness:.28});
+  const glass=new THREE.MeshStandardMaterial({color:0x7eaec1,roughness:.12,metalness:.34,transparent:true,opacity:.9});
+  const chrome=new THREE.MeshStandardMaterial({color:0xc7cfd4,roughness:.25,metalness:.72});
+  const lightFront=new THREE.MeshBasicMaterial({color:0xfff0b1});
+  const lightRear=new THREE.MeshBasicMaterial({color:0xe83a3f});
 
-  const body=new THREE.Mesh(new THREE.CapsuleGeometry(.72,1.72,6,14),paint);
-  body.rotation.x=Math.PI/2;
-  body.scale.set(1.15,1,1);
-  body.position.y=.64;
-  body.castShadow=true;
-  car.add(body);
+  const chassis=new THREE.Mesh(new THREE.BoxGeometry(1.82,.48,3.28),paint);
+  chassis.position.y=.56;
+  chassis.castShadow=true;
+  car.add(chassis);
 
-  const hood=new THREE.Mesh(new THREE.BoxGeometry(1.5,.28,1.05),paint);
-  hood.position.set(0,.77,-1.03);
-  hood.rotation.x=-.08;
+  const lowerSkirt=new THREE.Mesh(new THREE.BoxGeometry(1.92,.18,2.95),trim);
+  lowerSkirt.position.y=.31;
+  car.add(lowerSkirt);
+
+  const hood=new THREE.Mesh(new THREE.BoxGeometry(1.68,.28,1.05),paint);
+  hood.position.set(0,.82,-1.03);
+  hood.rotation.x=-.055;
+  hood.castShadow=true;
   car.add(hood);
 
-  const cabin=new THREE.Mesh(new THREE.CapsuleGeometry(.56,.72,5,12),paint);
-  cabin.rotation.x=Math.PI/2;
-  cabin.scale.set(1.05,.92,1);
-  cabin.position.set(0,1.12,.18);
+  const trunk=new THREE.Mesh(new THREE.BoxGeometry(1.62,.25,.70),paint);
+  trunk.position.set(0,.83,1.24);
+  trunk.rotation.x=.045;
+  car.add(trunk);
+
+  const cabin=new THREE.Mesh(new THREE.BoxGeometry(1.46,.72,1.48),paint);
+  cabin.position.set(0,1.17,.17);
+  cabin.castShadow=true;
   car.add(cabin);
 
-  const windshield=new THREE.Mesh(new THREE.PlaneGeometry(1.12,.48),obstacleMaterials.glass);
-  windshield.position.set(0,1.22,-.62);
-  windshield.rotation.x=-.26;
+  const roof=new THREE.Mesh(new THREE.BoxGeometry(1.30,.13,.92),paint);
+  roof.position.set(0,1.58,.22);
+  car.add(roof);
+
+  const windshield=new THREE.Mesh(new THREE.PlaneGeometry(1.20,.48),glass);
+  windshield.position.set(0,1.28,-.59);
+  windshield.rotation.x=-.40;
   car.add(windshield);
 
-  const rearGlass=windshield.clone();
-  rearGlass.position.z=.92;
-  rearGlass.rotation.x=.26;
-  rearGlass.rotation.y=Math.PI;
-  car.add(rearGlass);
+  const rearWindow=new THREE.Mesh(new THREE.PlaneGeometry(1.16,.44),glass);
+  rearWindow.position.set(0,1.29,.92);
+  rearWindow.rotation.x=.38;
+  rearWindow.rotation.y=Math.PI;
+  car.add(rearWindow);
 
-  for(const x of [-.82,.82]){
+  for(const side of [-1,1]){
+    const sideGlassFront=new THREE.Mesh(new THREE.PlaneGeometry(.62,.43),glass);
+    sideGlassFront.rotation.y=side>0?-Math.PI/2:Math.PI/2;
+    sideGlassFront.position.set(side*.738,1.30,-.18);
+    car.add(sideGlassFront);
+
+    const sideGlassRear=new THREE.Mesh(new THREE.PlaneGeometry(.55,.43),glass);
+    sideGlassRear.rotation.y=side>0?-Math.PI/2:Math.PI/2;
+    sideGlassRear.position.set(side*.738,1.30,.48);
+    car.add(sideGlassRear);
+
+    const mirror=new THREE.Mesh(new THREE.BoxGeometry(.18,.10,.25),paint);
+    mirror.position.set(side*.92,1.15,-.48);
+    car.add(mirror);
+  }
+
+  for(const x of [-.94,.94]){
     for(const z of [-1.02,1.02]){
-      const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.29,.29,.19,16),obstacleMaterials.rubber);
+      const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.30,.30,.20,18),obstacleMaterials.rubber);
       wheel.rotation.z=Math.PI/2;
       wheel.position.set(x,.34,z);
       car.add(wheel);
+
+      const hub=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,.205,12),chrome);
+      hub.rotation.z=Math.PI/2;
+      hub.position.set(x,.34,z);
+      car.add(hub);
     }
   }
 
-  const bumper=new THREE.Mesh(new THREE.BoxGeometry(1.5,.12,.12),obstacleMaterials.metal);
-  bumper.position.set(0,.42,-1.65);
-  car.add(bumper);
+  const grille=new THREE.Mesh(new THREE.BoxGeometry(.90,.20,.08),trim);
+  grille.position.set(0,.58,-1.67);
+  car.add(grille);
 
-  for(const x of [-.52,.52]){
-    const lamp=new THREE.Mesh(new THREE.SphereGeometry(.12,12,8),new THREE.MeshBasicMaterial({color:0xffefad}));
-    lamp.scale.z=.35;
-    lamp.position.set(x,.69,-1.63);
-    car.add(lamp);
+  const frontBumper=new THREE.Mesh(new THREE.BoxGeometry(1.60,.11,.10),chrome);
+  frontBumper.position.set(0,.35,-1.69);
+  car.add(frontBumper);
+
+  const rearBumper=frontBumper.clone();
+  rearBumper.position.z=1.69;
+  car.add(rearBumper);
+
+  for(const x of [-.57,.57]){
+    const headlight=new THREE.Mesh(new THREE.BoxGeometry(.28,.17,.065),lightFront);
+    headlight.position.set(x,.73,-1.665);
+    car.add(headlight);
+
+    const taillight=new THREE.Mesh(new THREE.BoxGeometry(.27,.16,.065),lightRear);
+    taillight.position.set(x,.72,1.665);
+    car.add(taillight);
   }
 
-  car.scale.set(.88,.88,.88);
+  car.scale.set(.82,.82,.82);
   return car;
 }
 
+function makeRoadBarricadeTexture(){
+  const c=document.createElement('canvas');
+  c.width=512;
+  c.height=192;
+  const ctx=c.getContext('2d');
+
+  ctx.fillStyle='#f4f1e8';
+  ctx.fillRect(0,0,c.width,c.height);
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0,0,c.width,c.height);
+  ctx.clip();
+  ctx.lineWidth=64;
+  ctx.strokeStyle='#f07724';
+  for(let x=-180;x<c.width+220;x+=150){
+    ctx.beginPath();
+    ctx.moveTo(x,c.height+45);
+    ctx.lineTo(x+170,-45);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.strokeStyle='#262b30';
+  ctx.lineWidth=16;
+  ctx.strokeRect(8,8,c.width-16,c.height-16);
+
+  ctx.fillStyle='rgba(255,255,255,.30)';
+  ctx.fillRect(20,18,c.width-40,12);
+
+  for(const x of [42,c.width-42]){
+    ctx.fillStyle='#555b60';
+    ctx.beginPath();
+    ctx.arc(x,c.height/2,9,0,Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle='#d9dde0';
+    ctx.beginPath();
+    ctx.arc(x,c.height/2,4,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  const tex=new THREE.CanvasTexture(c);
+  tex.colorSpace=THREE.SRGBColorSpace;
+  tex.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+  return tex;
+}
+
+const roadBarricadeTexture=makeRoadBarricadeTexture();
+
 function createRoadSign(){
   const g=new THREE.Group();
-  const board=new THREE.Mesh(new THREE.BoxGeometry(1.35,.58,.12),obstacleMaterials.orange);
-  board.position.y=.82;
+
+  const boardMat=new THREE.MeshStandardMaterial({
+    map:roadBarricadeTexture,
+    roughness:.48,
+    metalness:.08
+  });
+  const board=new THREE.Mesh(new THREE.BoxGeometry(1.72,.68,.12),boardMat);
+  board.position.y=.94;
   board.castShadow=true;
   g.add(board);
 
-  for(const x of [-.44,.44]){
-    const stripe=new THREE.Mesh(new THREE.BoxGeometry(.16,.54,.13),obstacleMaterials.white);
-    stripe.position.set(x,.82,-.01);
-    stripe.rotation.z=.42;
-    g.add(stripe);
+  const frameMat=new THREE.MeshStandardMaterial({color:0x30363b,roughness:.52,metalness:.42});
+  const reflectorMat=new THREE.MeshBasicMaterial({color:0xffd45a});
+
+  for(const x of [-.72,.72]){
+    const post=new THREE.Mesh(new THREE.BoxGeometry(.10,.88,.11),frameMat);
+    post.position.set(x,.48,.015);
+    g.add(post);
+
+    const foot=new THREE.Mesh(new THREE.BoxGeometry(.52,.12,.58),obstacleMaterials.black);
+    foot.position.set(x,.07,0);
+    foot.rotation.y=x>0?.06:-.06;
+    g.add(foot);
+
+    const reflector=new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.035,16),reflectorMat);
+    reflector.rotation.x=Math.PI/2;
+    reflector.position.set(x,.94,-.075);
+    g.add(reflector);
   }
 
-  for(const x of [-.52,.52]){
-    const leg=cylinderBetween(new THREE.Vector3(x,.55,0),new THREE.Vector3(x*.75,.04,0),.055,obstacleMaterials.metal);
-    g.add(leg);
-  }
+  const topLamp=new THREE.Mesh(new THREE.CylinderGeometry(.10,.10,.07,16),reflectorMat);
+  topLamp.rotation.x=Math.PI/2;
+  topLamp.position.set(0,1.36,-.065);
+  g.add(topLamp);
+
+  const cap=new THREE.Mesh(new THREE.BoxGeometry(1.82,.08,.16),frameMat);
+  cap.position.y=1.30;
+  g.add(cap);
+
   return g;
 }
 
