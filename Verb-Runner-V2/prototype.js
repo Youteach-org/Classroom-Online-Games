@@ -8,15 +8,73 @@ const modelStatus=document.querySelector('#modelStatus');
 const flash=document.querySelector('#flash');
 const characterButtons=[...document.querySelectorAll('[data-runner]')];
 
-const runnerLooks=[
-  {name:'Red',main:0xe43c3c,accent:0xff9b9b,pants:0x14151a,hair:0x6b3428},
-  {name:'Blue',main:0x2475d1,accent:0x8ad8ff,pants:0x121722,hair:0x302622},
-  {name:'Green',main:0x218c4b,accent:0x7be5a2,pants:0x121914,hair:0x4a3024},
-  {name:'Pink',main:0xef4c78,accent:0xff9fbd,pants:0x1b1318,hair:0x3a2528},
-  {name:'White',main:0xd9dde6,accent:0xffffff,pants:0x17191f,hair:0x8a6a4e},
-  {name:'Purple',main:0x9a4de0,accent:0xdd9cff,pants:0x18131d,hair:0x43283f}
+const MODEL_BASE='https://cdn.jsdelivr.net/gh/TheFlameFoundation/MagicWorlds@1230ca734e484d0a8acaeb0e59a47e6b6b3f9c54/worlds/robot-world/glTF_Character/';
+
+const runnerCatalog=[
+  {
+    name:'Red',
+    file:'Casual_Female.gltf',
+    scaleX:.88,
+    headXZ:.82,
+    shirt:0xe43c3c,
+    pants:0x111318,
+    belt:0xff9b9b,
+    hair:0x6d3429
+  },
+  {
+    name:'Blue',
+    file:'Casual_Male.gltf',
+    scaleX:.91,
+    headXZ:.86,
+    shirt:0x2475d1,
+    pants:0x111827,
+    belt:0x8ad8ff,
+    hair:0x2d2522
+  },
+  {
+    name:'Green',
+    file:'Casual2_Male.gltf',
+    scaleX:.90,
+    headXZ:.85,
+    shirt:0x218c4b,
+    pants:0x121713,
+    belt:0x7be5a2,
+    hair:0x4a3024
+  },
+  {
+    name:'Pink',
+    file:'Casual2_Female.gltf',
+    scaleX:.88,
+    headXZ:.82,
+    shirt:0xef4c78,
+    pants:0x191218,
+    belt:0xff9fbd,
+    hair:0x3b2528
+  },
+  {
+    name:'White',
+    file:'Casual3_Female.gltf',
+    scaleX:.88,
+    headXZ:.82,
+    shirt:0xd9dde6,
+    pants:0x15171c,
+    belt:0xffffff,
+    hair:0x80684f
+  },
+  {
+    name:'Purple',
+    file:'Casual3_Male.gltf',
+    scaleX:.90,
+    headXZ:.85,
+    shirt:0x9a4de0,
+    pants:0x17121c,
+    belt:0xdd9cff,
+    hair:0x43283f
+  }
 ];
+
 let currentRunner=0;
+let loadToken=0;
 
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -121,11 +179,11 @@ runnerRoot.add(shadow);
 
 let model=null;
 let mixer=null;
-const actions={};
+let actions={};
 let activeAction=null;
 let runnerState='LOADING';
 
-function cloneRunnerMaterials(root){
+function cloneMaterials(root){
   root.traverse(o=>{
     if(!o.isMesh)return;
     if(Array.isArray(o.material))o.material=o.material.map(m=>m?.clone?.()||m);
@@ -133,39 +191,19 @@ function cloneRunnerMaterials(root){
   });
 }
 
-function applyRunnerLook(index){
-  currentRunner=THREE.MathUtils.clamp(Number(index)||0,0,runnerLooks.length-1);
-  const look=runnerLooks[currentRunner];
-
-  if(model){
-    model.traverse(o=>{
-      if(!o.isMesh)return;
-      const materials=Array.isArray(o.material)?o.material:[o.material];
-      for(const mat of materials){
-        if(!mat?.name)continue;
-        if(mat.name==='Shirt')mat.color.setHex(look.main);
-        else if(mat.name==='Pants')mat.color.setHex(look.pants);
-        else if(mat.name==='Belt')mat.color.setHex(look.accent);
-        else if(mat.name==='Hair')mat.color.setHex(look.hair);
-      }
-    });
-  }
-
-  characterButtons.forEach((button,i)=>{
-    button.classList.toggle('selected',i===currentRunner);
-    button.setAttribute('aria-pressed',String(i===currentRunner));
+function applyRunnerMaterials(root,config){
+  root.traverse(o=>{
+    if(!o.isMesh)return;
+    const mats=Array.isArray(o.material)?o.material:[o.material];
+    for(const mat of mats){
+      if(!mat?.name)continue;
+      if(mat.name==='Shirt')mat.color.setHex(config.shirt);
+      else if(mat.name==='Pants')mat.color.setHex(config.pants);
+      else if(mat.name==='Belt')mat.color.setHex(config.belt);
+      else if(mat.name==='Hair')mat.color.setHex(config.hair);
+    }
   });
-
-  if(modelStatus && model){
-    modelStatus.textContent=look.name+' runner · '+runnerState;
-  }
 }
-
-characterButtons.forEach(button=>{
-  button.addEventListener('click',()=>{
-    applyRunnerLook(Number(button.dataset.runner));
-  });
-});
 
 function fitToHeight(root,target=2.35){
   root.updateMatrixWorld(true);
@@ -239,68 +277,112 @@ function setState(state){
   else if(state==='STUMBLE')play('hit',{fade:.04,speed:1.05,reset:true});
   else if(state==='RECOVERY')play('idle',{fade:.07,speed:1,reset:true});
 
-  modelStatus.textContent=runnerLooks[currentRunner].name+' runner · '+state;
+  modelStatus.textContent=runnerCatalog[currentRunner].name+' runner · '+state;
 }
 
 const loader=new GLTFLoader();
-loader.load(
-  'https://cdn.jsdelivr.net/gh/psqd12137-sudo/dream-channel@3d1f3c91810ac6b73146971d7d6297b12c8f3244/godot/assets/quaternius/animated_characters/Casual_Female.gltf',
-  gltf=>{
-    model=gltf.scene;
 
-    // Same Quaternius coordinate convention as the previous native-action test.
-    model.rotation.y=Math.PI;
+function markRunnerSelection(index){
+  characterButtons.forEach((button,i)=>{
+    button.classList.toggle('selected',i===index);
+    button.setAttribute('aria-pressed',String(i===index));
+  });
+}
 
-    cloneRunnerMaterials(model);
-    model.traverse(o=>{
-      if(o.isMesh){
-        o.castShadow=true;
-        o.receiveShadow=true;
-      }
-    });
-
-    fitToHeight(model,2.35);
-
-    // Proportion pass for the temporary female runner:
-    // keep the native rig/animations, but reduce the chibi look.
-    model.scale.x*=.88;
-    const head=model.getObjectByName('Head');
-    if(head){
-      head.scale.x*=.82;
-      head.scale.z*=.82;
-    }
-
-    runnerRoot.add(model);
-    applyRunnerLook(currentRunner);
-
-    mixer=new THREE.AnimationMixer(model);
-
-    const clips=gltf.animations;
-    const idleClip=getClip(clips,'Idle');
-    const runClip=getClip(clips,'Run');
-    const jumpClip=getClip(clips,'Jump');
-    const rollClip=getClip(clips,'Roll');
-    const hitClip=getClip(clips,'RecieveHit') || getClip(clips,'ReceiveHit');
-
-    addAction('idle',idleClip);
-    addAction('run',runClip);
-    addAction('jump',jumpClip,{once:true});
-    addAction('roll',rollClip,{once:true});
-    addAction('hit',hitClip,{once:true});
-
-    if(rollClip){
-      rollDuration=THREE.MathUtils.clamp(rollClip.duration/1.10,.58,.92);
-    }
-
-    setState('RUN');
-    console.table(clips.map(c=>({name:c.name,duration:c.duration.toFixed(2)})));
-  },
-  undefined,
-  err=>{
-    console.error(err);
-    modelStatus.textContent='Casual Female failed to load';
+function clearCurrentRunner(){
+  if(mixer){
+    mixer.stopAllAction();
+    mixer.uncacheRoot(model);
   }
-);
+  if(model){
+    runnerRoot.remove(model);
+  }
+  model=null;
+  mixer=null;
+  actions={};
+  activeAction=null;
+}
+
+function loadRunner(index){
+  const nextIndex=THREE.MathUtils.clamp(Number(index)||0,0,runnerCatalog.length-1);
+  const config=runnerCatalog[nextIndex];
+  const token=++loadToken;
+
+  currentRunner=nextIndex;
+  markRunnerSelection(nextIndex);
+  modelStatus.textContent='Loading '+config.name+' runner…';
+
+  loader.load(
+    MODEL_BASE+config.file,
+    gltf=>{
+      if(token!==loadToken)return;
+
+      clearCurrentRunner();
+      model=gltf.scene;
+      model.rotation.y=Math.PI;
+
+      cloneMaterials(model);
+
+      model.traverse(o=>{
+        if(o.isMesh){
+          o.castShadow=true;
+          o.receiveShadow=true;
+        }
+      });
+
+      fitToHeight(model,2.35);
+
+      // Keep the red girl's approved proportions and apply closely matched
+      // proportions to each compatible body without changing vertical height.
+      model.scale.x*=config.scaleX;
+      const head=model.getObjectByName('Head');
+      if(head){
+        head.scale.x*=config.headXZ;
+        head.scale.z*=config.headXZ;
+      }
+
+      applyRunnerMaterials(model,config);
+      runnerRoot.add(model);
+
+      mixer=new THREE.AnimationMixer(model);
+
+      const clips=gltf.animations;
+      const idleClip=getClip(clips,'Idle');
+      const runClip=getClip(clips,'Run');
+      const jumpClip=getClip(clips,'Jump');
+      const rollClip=getClip(clips,'Roll');
+      const hitClip=getClip(clips,'RecieveHit') || getClip(clips,'ReceiveHit');
+
+      addAction('idle',idleClip);
+      addAction('run',runClip);
+      addAction('jump',jumpClip,{once:true});
+      addAction('roll',rollClip,{once:true});
+      addAction('hit',hitClip,{once:true});
+
+      if(rollClip){
+        rollDuration=THREE.MathUtils.clamp(rollClip.duration/1.10,.58,.92);
+      }
+
+      setState('RUN');
+      console.info('Runner model:',config.name,config.file);
+    },
+    undefined,
+    err=>{
+      if(token!==loadToken)return;
+      console.error(err);
+      modelStatus.textContent=config.name+' runner failed to load';
+    }
+  );
+}
+
+characterButtons.forEach(button=>{
+  button.addEventListener('click',()=>{
+    loadRunner(Number(button.dataset.runner));
+  });
+});
+
+markRunnerSelection(0);
+loadRunner(0);
 
 const lanes=[-3,0,3];
 let lane=1;
