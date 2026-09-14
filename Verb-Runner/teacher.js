@@ -1,10 +1,11 @@
-import {createSession,subscribeSession,closeSession} from './session-sync.js';
+import {createSession,subscribeSessions,closeSession} from './session-sync.js';
 
 const $=id=>document.getElementById(id);
 const esc=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
-let activeCode='';
-let unsubscribe=null;
-let currentStudents=[];
+const ONLINE_MS=50000;
+
+let sessions={};
+let active='all';
 let focusId=null;
 let hideOffline=false;
 
@@ -19,7 +20,6 @@ function readSettings(){
     medium:{preview:false,answerSpacing:820,distractors:3,speedScale:1.00,penalty:1},
     hard:{preview:false,answerSpacing:820,distractors:4,speedScale:1.15,penalty:2}
   }[d];
-
   const previewChoice=$('previewEnabled').value;
   return {
     difficulty:d,
@@ -42,19 +42,38 @@ function openSettings(open){
   $('settingsToggle').textContent=open?'GAME SETTINGS ▴':'GAME SETTINGS ▾';
 }
 
-function setFrozen(frozen){
-  document.querySelectorAll('#settingsMenu input,#settingsMenu select').forEach(el=>el.disabled=frozen);
-  $('createSession').hidden=frozen;
-  $('closeSession').hidden=!frozen;
-  if(frozen)openSettings(false);
+function isOnline(student){
+  if(student.online===false)return false;
+  const seen=Number(student.lastSeen)||0;
+  return !seen||Date.now()-seen<ONLINE_MS;
+}
+
+function activeCatalog(){
+  return Object.entries(sessions)
+    .filter(([,session])=>session&&session.status==='active')
+    .map(([code,session])=>({code,...session}))
+    .sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+}
+
+function studentsFor(code,session){
+  return Object.values(session?.students||{}).map(student=>({
+    ...student,
+    _sessionCode:code,
+    _key:code+'::'+String(student.id||student.studentName||'runner')
+  }));
+}
+
+function visibleStudents(){
+  const catalog=activeCatalog();
+  let students=active==='all'
+    ?catalog.flatMap(item=>studentsFor(item.code,item))
+    :studentsFor(active,sessions[active]);
+  if(hideOffline)students=students.filter(isOnline);
+  return students;
 }
 
 function displayName(student){
   return student.studentName||student.nickname||student.name||student.id||'Runner';
-}
-
-function isOnline(student){
-  return student.online!==false;
 }
 
 function accuracyFor(student){
@@ -67,41 +86,97 @@ function statusLabel(student){
   const status=String(student.status||'waiting').toLowerCase();
   if(status==='finished'||status==='victory')return 'COMPLETED';
   if(status==='paused')return 'PAUSED';
-  if(status==='offline'||student.online===false)return 'OFFLINE';
+  if(!isOnline(student)||status==='offline')return 'OFFLINE';
   if(status==='running')return 'RUNNING';
   return status.toUpperCase();
 }
 
+function resultLabel(student){
+  const result=String(student.latestResult||'waiting').toLowerCase();
+  if(result==='correct')return 'CORRECT';
+  if(result==='incorrect'||result==='wrong')return 'INCORRECT';
+  if(result==='missed')return 'MISSED';
+  if(result==='obstacle')return 'OBSTACLE';
+  if(result==='completed')return 'COMPLETED';
+  return result.toUpperCase();
+}
+
+function sessionCard(item){
+  const students=studentsFor(item.code,item);
+  const online=students.filter(isOnline).length;
+  const selected=item.code===active;
+  const difficulty=String(item.settings?.difficulty||'medium').toUpperCase();
+  return `<button class="session-card${selected?' selected':''}" type="button" data-session-id="${esc(item.code)}">
+    <strong>SESSION ${esc(item.code)}</strong>
+    <span>${students.length} runner${students.length===1?'':'s'} · <span class="session-live">${online} LIVE</span></span>
+    <small>${difficulty} · ${Number(item.settings?.challengeCount)||20} challenges</small>
+  </button>`;
+}
+
+function refreshSessionList(){
+  const catalog=activeCatalog();
+  if(active!=='all'&&!catalog.some(item=>item.code===active))active='all';
+  const allStudents=catalog.flatMap(item=>studentsFor(item.code,item));
+  const allOnline=allStudents.filter(isOnline).length;
+  const allSelected=active==='all'?' selected':'';
+  const allCard=`<button class="session-card${allSelected}" type="button" data-session-id="all">
+    <strong>ALL ACTIVE RUNNERS</strong>
+    <span>${allStudents.length} runners · <span class="session-live">${allOnline} LIVE</span></span>
+    <small>${catalog.length} active session${catalog.length===1?'':'s'}</small>
+  </button>`;
+  $('sessionList').innerHTML=allCard+catalog.map(sessionCard).join('');
+
+  const selected=active==='all'?null:sessions[active];
+  $('shareBox').hidden=!selected||selected.status!=='active';
+  $('closeSession').hidden=!selected||selected.status!=='active';
+  if(selected){
+    const link=new URL('./',location.href);
+    link.searchParams.set('session',active);
+    $('studentLink').value=link.href;
+  }
+}
+
 function studentCard(student){
   const node=document.createElement('article');
-  const id=String(student.id||displayName(student));
+  const key=student._key;
   const online=isOnline(student);
   const total=Number(student.total)||20;
   const progress=Number(student.progress)||0;
   const challenge=Number(student.challenge)||Math.min(progress+1,total);
   const level=Number(student.level)||1;
-  const status=String(student.status||'waiting').toLowerCase();
   const mode=student.mode?String(student.mode).replace(/[-_]/g,' '):'Race';
+  const status=String(student.status||'waiting').toLowerCase();
+  const result=String(student.latestResult||'waiting').toLowerCase();
+  const choice=student.latestChoice||'—';
+  const correct=student.correctAnswer||'—';
+
   node.className='student-card'+(online?'':' offline');
   node.tabIndex=0;
-  node.dataset.id=id;
+  node.dataset.id=key;
   node.setAttribute('role','button');
   node.setAttribute('aria-label',displayName(student)+', '+statusLabel(student));
-  node.innerHTML=`<div class="student-top"><div class="student-name">${esc(displayName(student))}</div><span class="${online?'online-badge':'offline-badge'}">${online?'● LIVE':statusLabel(student)}</span></div>
-    <div class="activity-title">Level ${level} · Challenge ${Math.min(challenge,total)} / ${total}</div>
+
+  node.innerHTML=`<div class="student-top">
+      <div class="student-name">${esc(displayName(student))}${active==='all'?'<span class="session-chip">'+esc(student._sessionCode)+'</span>':''}</div>
+      <span class="${online?'online-badge':'offline-badge'}">${online?'● LIVE':statusLabel(student)}</span>
+    </div>
+    <div class="activity-title">Level ${level} · Challenge ${Math.min(challenge,total)} / ${total} · ${esc(mode)}</div>
     <div class="activity-summary">${esc(student.challengeLabel||'Waiting for the next challenge')}</div>
+    <div class="last-action">${esc(student.lastAction||'Waiting for activity')}</div>
     <div class="live-grid">
-      <div class="live-item">Mode<strong>${esc(mode)}</strong></div>
-      <div class="live-item">Status<strong class="result-${esc(status)}">${esc(statusLabel(student))}</strong></div>
-      <div class="live-item">Progress<strong>${progress} / ${total}</strong></div>
-      <div class="live-item">Momentum<strong>${Math.round(Number(student.momentum) || 0)}%</strong></div>
+      <div class="live-item">Selected<strong>${esc(choice)}</strong></div>
+      <div class="live-item">Result<strong class="result-${esc(result)}">${esc(resultLabel(student))}</strong></div>
+      <div class="live-item">Correct<strong>${esc(correct)}</strong></div>
+      <div class="live-item">Attempt<strong>${Number(student.attempt)||1}</strong></div>
     </div>
     <div class="stats">
+      <div><small>Progress</small><strong>${progress}/${total}</strong></div>
+      <div><small>Momentum</small><strong>${Math.round(Number(student.momentum)||0)}%</strong></div>
       <div><small>Accuracy</small><strong>${accuracyFor(student)}%</strong></div>
       <div><small>Streak</small><strong>${Number(student.bestStreak??student.streak)||0}</strong></div>
     </div>`;
 
-  const activate=()=>{focusId=focusId===id?null:id;renderStudents();};
+  const activate=()=>{focusId=focusId===key?null:key;renderStudents();};
   node.addEventListener('click',activate);
   node.addEventListener('keydown',event=>{
     if(event.key==='Enter'||event.key===' '){event.preventDefault();activate();}
@@ -110,17 +185,21 @@ function studentCard(student){
 }
 
 function renderStudents(){
-  const visible=hideOffline?currentStudents.filter(isOnline):currentStudents;
+  const all=active==='all'
+    ?activeCatalog().flatMap(item=>studentsFor(item.code,item))
+    :studentsFor(active,sessions[active]);
+  const visible=hideOffline?all.filter(isOnline):all;
+
   $('studentGrid').innerHTML='';
   $('focusedStudent').innerHTML='';
   $('thumbnailRail').innerHTML='';
 
-  if(focusId&&!visible.some(student=>String(student.id||displayName(student))===focusId))focusId=null;
+  if(focusId&&!visible.some(student=>student._key===focusId))focusId=null;
 
   if(focusId){
-    const focused=visible.find(student=>String(student.id||displayName(student))===focusId);
+    const focused=visible.find(student=>student._key===focusId);
     if(focused)$('focusedStudent').appendChild(studentCard(focused));
-    visible.filter(student=>String(student.id||displayName(student))!==focusId).forEach(student=>$('thumbnailRail').appendChild(studentCard(student)));
+    visible.filter(student=>student._key!==focusId).forEach(student=>$('thumbnailRail').appendChild(studentCard(student)));
   }else{
     visible.forEach(student=>$('studentGrid').appendChild(studentCard(student)));
   }
@@ -128,14 +207,14 @@ function renderStudents(){
   $('studentGrid').hidden=Boolean(focusId);
   $('focusStage').hidden=!focusId;
   $('emptyMonitor').hidden=visible.length>0;
-  if(!visible.length)$('emptyMonitor').textContent=activeCode?'Waiting for runners to join.':'Create a session to begin.';
+  if(!visible.length)$('emptyMonitor').textContent=active==='all'?'No active runners are visible yet.':'No runners have joined this session yet.';
 
-  $('studentCount').textContent=`${currentStudents.length} runner${currentStudents.length===1?'':'s'}`;
-  $('onlineCount').textContent=`${currentStudents.filter(isOnline).length} online`;
+  $('studentCount').textContent=`${all.length} runner${all.length===1?'':'s'}`;
+  $('onlineCount').textContent=`${all.filter(isOnline).length} online`;
 }
 
-function renderSession(data){
-  currentStudents=Object.values(data?.students||{});
+function refresh(){
+  refreshSessionList();
   renderStudents();
 }
 
@@ -149,46 +228,69 @@ $('hideOffline').addEventListener('click',()=>{
   renderStudents();
 });
 
+$('sessionList').addEventListener('click',event=>{
+  const button=event.target.closest('[data-session-id]');
+  if(!button)return;
+  active=button.dataset.sessionId;
+  focusId=null;
+  refresh();
+});
+
 $('createSession').addEventListener('click',async()=>{
   $('teacherNotice').textContent='';
+  $('createSession').disabled=true;
   try{
-    const settings=readSettings();
-    activeCode=await createSession(settings);
-    const link=new URL('./',location.href);
-    link.searchParams.set('session',activeCode);
-    $('sessionCode').textContent=activeCode;
-    $('studentLink').value=link.href;
-    $('sessionBox').hidden=false;
-    $('connectionState').textContent='LIVE · '+activeCode;
-    $('monitorDot').classList.add('live');
-    setFrozen(true);
-    unsubscribe?.();
-    unsubscribe=subscribeSession(activeCode,renderSession);
+    const code=await createSession(readSettings());
+    active=code;
+    focusId=null;
+    openSettings(false);
+    $('teacherNotice').textContent='Session '+code+' created.';
   }catch(err){
     console.error(err);
-    $('teacherNotice').textContent='Could not create the session. Check Firebase connectivity.';
+    $('teacherNotice').textContent='Could not create the session. Firebase rejected or could not reach the request.';
+  }finally{
+    $('createSession').disabled=false;
   }
 });
 
 $('closeSession').addEventListener('click',async()=>{
-  if(!activeCode)return;
-  await closeSession(activeCode);
-  unsubscribe?.();
-  unsubscribe=null;
-  $('connectionState').textContent='CLOSED';
-  $('monitorDot').classList.remove('live');
-  $('teacherNotice').textContent='Session closed. Create a new session to continue.';
-  setFrozen(false);
+  if(active==='all'||!sessions[active])return;
+  const code=active;
+  try{
+    await closeSession(code);
+    active='all';
+    focusId=null;
+    $('teacherNotice').textContent='Session '+code+' ended.';
+  }catch(err){
+    console.error(err);
+    $('teacherNotice').textContent='Could not end the selected session.';
+  }
 });
 
 $('copyLink').addEventListener('click',async()=>{
   try{
     await navigator.clipboard.writeText($('studentLink').value);
     $('copyLink').textContent='COPIED!';
-    setTimeout(()=>$('copyLink').textContent='COPY LINK',1000);
+    setTimeout(()=>$('copyLink').textContent='COPY STUDENT LINK',1100);
   }catch{
     $('studentLink').select();
   }
 });
 
-renderStudents();
+subscribeSessions(
+  data=>{
+    sessions=data||{};
+    $('monitorDot').classList.add('live');
+    $('connectionState').textContent='Firebase Live';
+    refresh();
+  },
+  error=>{
+    console.error('Verb Runner Firebase monitor error',error);
+    $('monitorDot').classList.remove('live');
+    $('connectionState').textContent='Firebase Error';
+    $('teacherNotice').textContent='Firebase connection failed or database rules do not allow Verb Runner sessions.';
+  }
+);
+
+setInterval(()=>renderStudents(),15000);
+refresh();
