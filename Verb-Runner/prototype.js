@@ -3743,16 +3743,19 @@ function animate(){
       // high momentum pushes the runner faster; mistakes lower momentum and
       // visibly ease the pace again.
       const momentum=THREE.MathUtils.clamp((runState?.momentum??75)/100,0,1);
-      const momentumBoost=THREE.MathUtils.lerp(.82,1.14,momentum);
+      const momentumBoost=currentLevel===5
+        ?THREE.MathUtils.lerp(.80,1.24,momentum)
+        :THREE.MathUtils.lerp(.82,1.14,momentum);
 
-      // Every level accelerates gradually as the student gets closer to the
-      // last question. Final Race keeps the strongest finishing ramp.
+      // Every level accelerates gradually. Final Race has a much stronger
+      // late-race surge so the last questions feel genuinely fast.
+      const finalCurve=Math.pow(progress,1.12);
       const progressBoost=currentLevel===5
-        ?THREE.MathUtils.lerp(.90,1.32,progress)
+        ?THREE.MathUtils.lerp(.92,1.60,finalCurve)
         :THREE.MathUtils.lerp(.92,1.20,progress);
 
       const capBoost=currentLevel===5
-        ?THREE.MathUtils.lerp(.90,1.14,progress)
+        ?THREE.MathUtils.lerp(.94,1.36,finalCurve)
         :THREE.MathUtils.lerp(.92,1.08,progress);
 
       const baseTarget=(gameSettings.initialSpeed+distance/700)
@@ -3763,9 +3766,9 @@ function animate(){
       const dynamicCap=gameSettings.maxSpeed*capBoost*playerSpeedMultiplier;
       const targetSpeed=Math.min(dynamicCap,baseTarget*progressBoost);
 
-      // Smooth acceleration/deceleration prevents abrupt jumps when momentum
-      // or progress changes.
-      speed=THREE.MathUtils.damp(speed,targetSpeed,currentLevel===5?2.15:1.85,dt);
+      // Final Race reacts faster to each progress/momentum change so the
+      // acceleration is clearly felt instead of being barely noticeable.
+      speed=THREE.MathUtils.damp(speed,targetSpeed,currentLevel===5?3.1:1.85,dt);
 
       distance+=speed*dt;
       updateRunner(dt);
