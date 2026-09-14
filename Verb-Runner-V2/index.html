@@ -39,7 +39,7 @@
           <i>|</i>
           <div class="part" data-slot="2"><small>PAST PARTICIPLE</small><b>—</b></div>
         </div>
-        <div id="sentenceChallenge" class="sentence-challenge" hidden>
+        <div id="sentenceChallenge" class="sentence-challenge" hidden role="button" tabindex="0" aria-label="Pause to read the sentence">
           <strong id="sentenceText">—</strong>
           <small>VERB: <b id="sentenceCue">—</b></small>
         </div>
@@ -106,9 +106,9 @@
 
         <div class="picker-section-title">CHOOSE DIFFICULTY</div>
         <div class="difficulty" aria-label="Difficulty">
-          <button type="button" data-difficulty="easy"><b>EASY</b><small>2 distractors · slower pace · no advance loss</small></button>
-          <button type="button" data-difficulty="medium" class="active"><b>MEDIUM</b><small>3 plausible distractors · balanced pace · −1</small></button>
-          <button type="button" data-difficulty="hard"><b>HARD</b><small>4 close distractors · faster pace · −2</small></button>
+          <button type="button" data-difficulty="easy"><b>EASY</b><small>2 distractors · basic tenses · no advance loss</small></button>
+          <button type="button" data-difficulty="medium" class="active"><b>MEDIUM</b><small>3 plausible distractors · intermediate tenses · −1</small></button>
+          <button type="button" data-difficulty="hard"><b>HARD</b><small>4 close distractors · advanced tenses · −2</small></button>
         </div>
 
         <button id="startButton" class="start-button" type="button" disabled>START VERB RUNNER</button>
@@ -122,6 +122,11 @@
       <div class="pause-card">
         <span>PAUSED</span>
         <strong id="pauseRaceTitle">VERB RUNNER</strong>
+        <div id="pauseReadingCard" class="pause-reading-card" hidden>
+          <span id="pauseReadingMode">READ AT YOUR OWN PACE</span>
+          <div id="pauseSentenceText" class="pause-sentence-text">—</div>
+          <small>No timer while paused. Resume when you are ready.</small>
+        </div>
         <div class="pause-settings" aria-label="Game settings">
           <div class="pause-settings-title">GAME SETTINGS</div>
 

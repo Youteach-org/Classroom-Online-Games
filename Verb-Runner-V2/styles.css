@@ -397,3 +397,51 @@ button,a{-webkit-tap-highlight-color:transparent}
   font-weight:950;
   box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 0 14px rgba(255,230,109,.35);
 }
+
+
+/* Learning-first pause reading mode */
+.sentence-challenge:not([hidden]){cursor:pointer}
+.sentence-challenge:not([hidden]):hover{box-shadow:0 0 0 1px rgba(255,230,109,.28) inset}
+.pause-reading-card{
+  width:min(510px,100%);
+  margin:0 auto 14px;
+  padding:14px 16px 15px;
+  border-radius:16px;
+  background:linear-gradient(180deg,rgba(16,63,97,.96),rgba(8,37,62,.96));
+  border:2px solid rgba(133,231,255,.58);
+  box-shadow:0 0 24px rgba(67,216,255,.14);
+}
+.pause-reading-card>span{
+  display:block;
+  color:#ffe66d!important;
+  font-size:8px!important;
+  font-weight:950!important;
+  letter-spacing:.15em!important;
+  margin-bottom:8px
+}
+.pause-sentence-text{
+  color:#fff;
+  font-size:clamp(20px,3.2vw,32px);
+  line-height:1.18;
+  font-weight:950;
+  text-align:center
+}
+.pause-sentence-text .sentence-blank{
+  min-width:60px;
+  padding:1px 7px;
+  margin:0 3px;
+}
+.pause-sentence-text .time-expression{
+  padding:1px 5px;
+  margin:0 2px
+}
+.pause-reading-card>small{
+  display:block;
+  margin-top:9px;
+  color:#b9cfdd;
+  font-size:9px
+}
+@media(max-width:640px){
+  .pause-reading-card{padding:12px 10px}
+  .pause-sentence-text{font-size:clamp(17px,5vw,24px)}
+}

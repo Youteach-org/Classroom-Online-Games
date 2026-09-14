@@ -86,6 +86,9 @@ const soundToggle=document.querySelector('#soundToggle');
 const musicControl=document.querySelector('#musicControl');
 const musicValue=document.querySelector('#musicValue');
 const musicToggle=document.querySelector('#musicToggle');
+const pauseReadingCard=document.querySelector('#pauseReadingCard');
+const pauseReadingMode=document.querySelector('#pauseReadingMode');
+const pauseSentenceText=document.querySelector('#pauseSentenceText');
 
 const TOTAL_CHALLENGES=20;
 const difficultyPresets={
@@ -156,8 +159,15 @@ function playSfx(name){
   if(!sfxEnabled||sfxVolume<=0)return;
   const v=.12*sfxVolume;
   if(name==='click')synthTone(520,.055,v*.45,'square');
+  else if(name==='select'){synthTone(660,.045,v*.30,'sine');synthTone(880,.055,v*.26,'sine',.035);}
   else if(name==='jump'){synthTone(360,.08,v*.6,'sine');synthTone(620,.10,v*.55,'sine',.055);}
-  else if(name==='correct'){synthTone(523,.08,v*.55,'triangle');synthTone(659,.10,v*.62,'triangle',.07);synthTone(784,.14,v*.7,'triangle',.14);}
+  else if(name==='correct'){
+    synthTone(659,.07,v*.50,'triangle');
+    synthTone(784,.08,v*.56,'triangle',.055);
+    synthTone(988,.10,v*.64,'triangle',.11);
+    synthTone(1319,.16,v*.70,'sine',.18);
+    synthTone(1568,.12,v*.34,'sine',.24);
+  }
   else if(name==='wrong'){synthTone(190,.18,v*.8,'sawtooth');synthTone(145,.20,v*.55,'square',.07);}
   else if(name==='pause')synthTone(310,.08,v*.45,'triangle');
   else if(name==='resume'){synthTone(420,.07,v*.45,'triangle');synthTone(560,.08,v*.5,'triangle',.06);}
@@ -772,7 +782,9 @@ function setLevelUI(){
   if(taskInstruction)taskInstruction.textContent=sentenceMode
     ?(difficulty.name==='easy'
       ?'Use the verb hint and choose the form that completes the sentence'
-      :'Choose the verb and form that best complete the sentence')
+      :difficulty.name==='hard'
+        ?'Choose the best form · tap the sentence to pause and read'
+        :'Choose the verb and form that best complete the sentence')
     :'Collect the correct verb form';
   if(resultKicker)resultKicker.textContent=raceLabel()+' COMPLETE';
   if(nextLevelButton)nextLevelButton.hidden=currentLevel!==1;
@@ -1450,6 +1462,7 @@ async function collectAnswer(answer){
   answer.resolved=true;
   answerResolutionActive=true;
   const item=answer.item;
+  playSfx('select');
 
   if(item.correct){
     const startPoint=answerScreenPoint(answer);
@@ -1575,6 +1588,28 @@ function restartCurrentRace(){
   launchChallengeChain(gameSettings.preview?1.55:.55);
 }
 
+function updatePauseReadingCard(){
+  const sentenceMode=currentLevel===2&&currentChallenge;
+  if(!pauseReadingCard)return;
+  pauseReadingCard.hidden=!sentenceMode;
+  if(!sentenceMode)return;
+  if(pauseReadingMode){
+    pauseReadingMode.textContent=difficulty.name==='hard'
+      ?'HARD MODE · TAKE YOUR TIME'
+      :'READ AT YOUR OWN PACE';
+  }
+  if(pauseSentenceText){
+    pauseSentenceText.replaceChildren();
+    if(sentenceText){
+      for(const node of sentenceText.childNodes){
+        pauseSentenceText.append(node.cloneNode(true));
+      }
+    }else{
+      pauseSentenceText.textContent=String(currentChallenge.text||'');
+    }
+  }
+}
+
 function setPaused(next){
   if(!gameStarted||victoryMode)return;
   gamePaused=next;
@@ -1584,8 +1619,11 @@ function setPaused(next){
     setPlayerSpeedPercent(Math.round(playerSpeedMultiplier*100));
     hidePauseConfirmation();
     hidePauseSubpanels();
+    updatePauseReadingCard();
+    stopMusic();
     playSfx('pause');
   }else{
+    if(musicEnabled)startMusic();
     playSfx('resume');
   }
   pauseButton.textContent=next?'▶':'Ⅱ';
@@ -1861,6 +1899,15 @@ runnerChip.addEventListener('click',()=>{
 
 pauseButton.addEventListener('click',()=>setPaused(!gamePaused));
 resumeButton.addEventListener('click',()=>setPaused(false));
+sentenceChallenge?.addEventListener('click',()=>{
+  if(gameStarted&&!gamePaused&&currentLevel===2)setPaused(true);
+});
+sentenceChallenge?.addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&gameStarted&&!gamePaused&&currentLevel===2){
+    e.preventDefault();
+    setPaused(true);
+  }
+});
 speedControl?.addEventListener('input',()=>setPlayerSpeedPercent(speedControl.value));
 changeRunnerButton?.addEventListener('click',()=>{
   playSfx('click');
