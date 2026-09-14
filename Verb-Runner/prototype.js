@@ -1703,7 +1703,7 @@ function makeAnswerTexture(word){
 const answers=[];
 let lastCorrectLane=-1;
 
-function spawnAnswer(item,forcedLane=null){
+function spawnAnswer(item,forcedLane=null,forceSpawn=false){
   if(!gameStarted||gamePaused||victoryMode)return false;
 
   const spawnZ=currentLevel===3?(IS_MOBILE?-62:-84):((currentLevel===4||currentLevel===5)?(IS_MOBILE?-58:-80):ANSWER_SPAWN_Z);
@@ -1712,7 +1712,7 @@ function spawnAnswer(item,forcedLane=null){
     o?.mesh &&
     Math.abs(o.mesh.position.z-spawnZ)<18
   );
-  if(pedestrianTooClose)return false;
+  if(pedestrianTooClose&&!forceSpawn)return false;
 
   let heightMode=Math.random()<.5?'low':'high';
   const nearSpawn=obstacles.filter(o=>o?.mesh);
@@ -1726,30 +1726,37 @@ function spawnAnswer(item,forcedLane=null){
       .map(o=>o.laneIndex)
   );
 
-  let availableLanes=[0,1,2].filter(i=>!blockedByObstacle.has(i));
+  let availableLanes=forceSpawn
+    ?[0,1,2]
+    :[0,1,2].filter(i=>!blockedByObstacle.has(i));
+
   if(!availableLanes.length&&heightMode==='high'){
     heightMode='low';
     const lowBlocked=new Set(
       nearSpawn.filter(o=>Math.abs(o.mesh.position.z-spawnZ)<12).map(o=>o.laneIndex)
     );
-    availableLanes=[0,1,2].filter(i=>!lowBlocked.has(i));
+    availableLanes=forceSpawn
+      ?[0,1,2]
+      :[0,1,2].filter(i=>!lowBlocked.has(i));
   }
 
+  if(!availableLanes.length)return false;
+
+  // Do not repeat the correct-answer lane when another lane is available,
+  // but never let that preference stop the answer chain.
   if(item.correct&&lastCorrectLane>=0){
     const correctAlternates=availableLanes.filter(i=>i!==lastCorrectLane);
-    if(!correctAlternates.length)return false;
-    availableLanes=correctAlternates;
+    if(correctAlternates.length)availableLanes=correctAlternates;
   }
 
-  if(Number.isInteger(forcedLane)&&!availableLanes.includes(forcedLane))return false;
-
-  let laneIndex=Number.isInteger(forcedLane)
+  // A forced lane is only a layout preference. If an obstacle or the
+  // correct-lane alternation rule makes it unavailable, use another safe lane.
+  const useForced=Number.isInteger(forcedLane)&&availableLanes.includes(forcedLane);
+  let laneIndex=useForced
     ?forcedLane
-    :(availableLanes.length
-      ?availableLanes[Math.floor(Math.random()*availableLanes.length)]
-      :Math.floor(Math.random()*3));
+    :availableLanes[Math.floor(Math.random()*availableLanes.length)];
 
-  if(!Number.isInteger(forcedLane)&&answers.length&&answers.at(-1)?.laneIndex===laneIndex&&availableLanes.length>1){
+  if(!useForced&&answers.length&&answers.at(-1)?.laneIndex===laneIndex&&availableLanes.length>1){
     const alternates=availableLanes.filter(i=>i!==laneIndex);
     laneIndex=alternates[Math.floor(Math.random()*alternates.length)];
   }
@@ -1819,6 +1826,23 @@ function launchChallengeChain(initialDelay=.42){
         });
 
   let correctIndex=sequence.findIndex(item=>item.correct);
+  if(correctIndex<0){
+    const fallback=currentChallenge.correctAnswer??currentChallenge.correctAnswers?.[0];
+    if(fallback!=null){
+      sequence.push({value:fallback,correct:true});
+      correctIndex=sequence.length-1;
+    }
+  }
+  if(!sequence.length||correctIndex<0){
+    console.error('Answer sequence has no correct option',currentChallenge);
+    setTimeout(()=>{
+      if(gameStarted&&!gamePaused&&!victoryMode){
+        renderChallenge();
+        launchChallengeChain(.35);
+      }
+    },350);
+    return;
+  }
   const lastIndex=sequence.length-1;
   const recentLastCount=recentCorrectPositions.filter(i=>i===lastIndex).length;
 
@@ -1843,7 +1867,8 @@ function launchChallengeChain(initialDelay=.42){
   pendingAnswers=sequence.map((item,index)=>({
     item,
     forcedLane:choiceLanes?.[index]??null,
-    at:initialDelay+index*gameSettings.answerSpacing
+    at:initialDelay+index*gameSettings.answerSpacing,
+    blockedFor:0
   }));
   answerSpawnClock=0;
 
@@ -1857,11 +1882,24 @@ function updateAnswerSpawns(dt){
   answerSpawnClock+=dt;
   while(pendingAnswers.length&&answerSpawnClock>=pendingAnswers[0].at){
     const next=pendingAnswers[0];
-    if(!spawnAnswer(next.item,next.forcedLane)){
-      answerSpawnClock=Math.min(answerSpawnClock,next.at);
-      break;
+
+    if(spawnAnswer(next.item,next.forcedLane)){
+      pendingAnswers.shift();
+      continue;
     }
-    pendingAnswers.shift();
+
+    next.blockedFor=(next.blockedFor||0)+dt;
+
+    // Answers are more important than scenery. If the spawn corridor has
+    // remained blocked for a short moment, force a safe recovery spawn so
+    // the player can never run forever waiting for the next choice.
+    if(next.blockedFor>=1.25&&spawnAnswer(next.item,null,true)){
+      pendingAnswers.shift();
+      continue;
+    }
+
+    answerSpawnClock=Math.min(answerSpawnClock,next.at);
+    break;
   }
 }
 
