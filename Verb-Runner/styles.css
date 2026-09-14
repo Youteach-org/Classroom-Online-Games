@@ -1201,3 +1201,36 @@ button,a{-webkit-tap-highlight-color:transparent}
     padding:6px 12px!important;
   }
 }
+
+
+/* Make Error Report unmistakable in the pause menu. */
+#pauseOverlay .pause-error-button{
+  background:#ffd84d!important;
+  color:#182532!important;
+  border:2px solid #fff1a0!important;
+  box-shadow:0 0 0 2px rgba(255,216,77,.18),0 8px 20px rgba(0,0,0,.22)!important;
+  font-size:11px!important;
+  font-weight:950!important;
+  letter-spacing:.08em!important;
+}
+#pauseOverlay .pause-error-button::before{
+  content:'!';
+  display:grid;
+  place-items:center;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:#b52b3e;
+  color:#fff;
+  font-size:13px;
+  line-height:1;
+}
+#pauseOverlay .pause-error-button>span{
+  background:#b52b3e!important;
+  color:#fff!important;
+  font-weight:950!important;
+}
+#pauseOverlay .pause-error-button:hover{
+  filter:brightness(1.06);
+  transform:translateY(-1px);
+}

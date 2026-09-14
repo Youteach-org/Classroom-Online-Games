@@ -751,9 +751,14 @@ function createFacadeBuilding(side,index,z){
 
 for(let i=0;i<(IS_MOBILE?12:18);i++){
   const z=-5-i*9.6;
-  const building=createFacadeBuilding(1,i+2,z-4.2);
-  city.add(building);
-  addMover(building,{speedFactor:.9,span:177,startZ:building.position.z});
+
+  const rightBuilding=createFacadeBuilding(1,i+2,z-4.2);
+  city.add(rightBuilding);
+  addMover(rightBuilding,{speedFactor:.9,span:177,startZ:rightBuilding.position.z});
+
+  const leftBuilding=createFacadeBuilding(-1,i+5,z-1.2);
+  city.add(leftBuilding);
+  addMover(leftBuilding,{speedFactor:.9,span:177,startZ:leftBuilding.position.z});
 }
 
 const coast=new THREE.Group();
@@ -2183,18 +2188,17 @@ function updateErrorReport(){
 
   errorReportList.innerHTML=mistakeLog.slice().reverse().map((entry,index)=>{
     const number=count-index;
-    const missed=entry.type==='missed';
     return `
-      <article class="error-report-item ${missed?'missed':''}">
+      <article class="error-report-item">
         <div class="error-report-meta">
           <span>#${number} · ${escapeReportHtml(entry.race)}</span>
-          <span>${missed?'MISSED':'WRONG CHOICE'}</span>
+          <span>WRONG CHOICE</span>
         </div>
         <div class="error-report-question">${escapeReportHtml(entry.question)}</div>
         <div class="error-report-answer-grid">
           <div class="error-report-wrong">
-            <span>${missed?'YOU MISSED':'YOU CHOSE'}</span>
-            <b>${escapeReportHtml(missed?'NO ANSWER':entry.chosen)}</b>
+            <span>YOU CHOSE</span>
+            <b>${escapeReportHtml(entry.chosen)}</b>
           </div>
           <div class="error-report-correct">
             <span>CORRECT</span>
@@ -2259,7 +2263,6 @@ async function collectAnswer(answer){
 
 function missedCorrectAnswer(){
   if(victoryMode)return;
-  recordMistake({type:'missed'});
   clearAnswers();
 
   if(challengeIndex>=challenges.length-1){
