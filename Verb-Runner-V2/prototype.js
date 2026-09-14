@@ -2738,35 +2738,9 @@ function showPedestrianComplaint(mesh,text){
   setTimeout(()=>bubble.remove(),1250);
 }
 
-function speakPedestrianComplaint(mesh,text){
-  if(!sfxEnabled||sfxVolume<=0)return;
-  if(!('speechSynthesis' in window)||typeof SpeechSynthesisUtterance==='undefined'){
-    synthTone(310,.08,.055*sfxVolume,'sawtooth');
-    synthTone(220,.12,.04*sfxVolume,'triangle',.055);
-    return;
-  }
-
-  try{
-    window.speechSynthesis.cancel();
-    const utterance=new SpeechSynthesisUtterance(text);
-    utterance.lang='en-US';
-    const variant=Number(mesh?.userData?.voiceVariant)||0;
-    utterance.rate=.98+(variant%3)*.06;
-    utterance.pitch=.88+(variant%4)*.08;
-    utterance.volume=Math.max(.25,Math.min(1,sfxVolume));
-
-    const voices=window.speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang||''));
-    if(voices.length)utterance.voice=voices[variant%voices.length];
-    window.speechSynthesis.speak(utterance);
-  }catch{
-    synthTone(310,.08,.055*sfxVolume,'sawtooth');
-  }
-}
-
 function pedestrianComplain(mesh){
   const text=pickPedestrianComplaint();
   showPedestrianComplaint(mesh,text);
-  speakPedestrianComplaint(mesh,text);
 }
 
 function hit(){
