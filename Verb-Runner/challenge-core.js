@@ -7,7 +7,15 @@
   };
 
   function clampIndex(value){return Math.max(0,Math.min(2,Math.floor(Number(value)*3)));}
-  function unique(values){return [...new Set(values.filter(Boolean).map(v=>String(v).toLowerCase()))];}
+  const BLOCKED_DISTRACTORS=new Set(['buey']);
+  function unique(values){
+    return [...new Set(
+      values
+        .filter(Boolean)
+        .map(v=>String(v).toLowerCase())
+        .filter(v=>!BLOCKED_DISTRACTORS.has(v))
+    )];
+  }
   function shuffled(values,random=Math.random){
     const copy=[...values];
     for(let i=copy.length-1;i>0;i--){
