@@ -1,1 +1,1 @@
-Redeploy trigger after 20-verb race and curated distractor updates.
+Redeploy trigger after Level 2 Sentence Run implementation and validation.
