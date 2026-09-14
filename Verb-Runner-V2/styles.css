@@ -571,3 +571,119 @@ button,a{-webkit-tap-highlight-color:transparent}
     font-size:clamp(26px,8vw,40px);
   }
 }
+
+
+/* Pause menu learning hierarchy: prioritize the instructional hint */
+#pauseOverlay .pause-card{
+  padding:18px 20px;
+}
+#pauseOverlay .pause-card>span:first-child{
+  font-size:8px;
+  letter-spacing:.18em;
+}
+#pauseRaceTitle{
+  margin:3px 0 9px!important;
+  font-size:20px!important;
+  line-height:1.05;
+}
+#pauseOverlay .pause-reading-card{
+  margin-bottom:9px;
+  padding:11px 13px 12px;
+}
+#pauseOverlay .pause-reading-card>span{
+  font-size:7px!important;
+  margin-bottom:5px;
+}
+#pauseOverlay .pause-sentence-text{
+  /* Keep the evaluated sentence prominent, but do not enlarge it further. */
+  font-size:clamp(22px,3.6vw,36px);
+  padding:11px 12px;
+  line-height:1.24;
+}
+#pauseOverlay .pause-reading-card>small{
+  margin-top:6px;
+  font-size:8px;
+}
+#pauseOverlay .pause-hint-box{
+  margin-top:9px;
+  padding:13px 14px;
+}
+#pauseOverlay .pause-hint-box b{
+  margin-bottom:7px;
+  font-size:12px;
+  line-height:1.1;
+  letter-spacing:.10em;
+}
+#pauseOverlay .pause-hint-box p{
+  font-size:17px;
+  line-height:1.42;
+  font-weight:650;
+}
+#pauseOverlay .pause-settings{
+  margin-bottom:11px;
+  padding:10px 13px 9px;
+}
+#pauseOverlay .pause-settings-title{
+  margin-bottom:7px;
+  font-size:7px;
+}
+#pauseOverlay .speed-setting{
+  font-size:9px;
+}
+#pauseOverlay .speed-setting b{
+  font-size:14px;
+}
+#pauseOverlay .speed-control{
+  margin:6px 0 2px;
+}
+#pauseOverlay .speed-scale{
+  font-size:6px;
+}
+#pauseOverlay .speed-description{
+  margin:4px 0 6px!important;
+  font-size:8px!important;
+}
+#pauseOverlay .pause-option-grid{
+  margin-top:5px;
+  gap:6px;
+}
+#pauseOverlay .pause-option-button{
+  padding:7px 8px!important;
+  font-size:9px!important;
+}
+#pauseOverlay .audio-settings{
+  margin-top:8px;
+  gap:6px;
+}
+#pauseOverlay .pause-actions{
+  gap:7px;
+}
+#pauseOverlay .pause-actions button{
+  padding-top:8px!important;
+  padding-bottom:8px!important;
+}
+@media(max-width:640px){
+  #pauseOverlay .pause-card{
+    padding:13px 12px;
+  }
+  #pauseRaceTitle{
+    font-size:17px!important;
+  }
+  #pauseOverlay .pause-reading-card{
+    padding:9px 9px 10px;
+  }
+  #pauseOverlay .pause-sentence-text{
+    font-size:clamp(17px,5vw,24px);
+    padding:9px 8px;
+  }
+  #pauseOverlay .pause-hint-box{
+    padding:11px 10px;
+  }
+  #pauseOverlay .pause-hint-box b{
+    font-size:11px;
+  }
+  #pauseOverlay .pause-hint-box p{
+    font-size:15px;
+    line-height:1.38;
+  }
+}
