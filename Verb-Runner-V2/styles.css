@@ -445,3 +445,56 @@ button,a{-webkit-tap-highlight-color:transparent}
   .pause-reading-card{padding:12px 10px}
   .pause-sentence-text{font-size:clamp(17px,5vw,24px)}
 }
+
+
+/* Clear learning view in pause: no yellow bands over the sentence */
+.pause-reading-card{
+  background:#0b2438;
+  border-color:rgba(133,231,255,.55);
+}
+.pause-sentence-text{
+  padding:13px 14px;
+  border-radius:12px;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.10);
+  color:#ffffff;
+  font-size:clamp(22px,3.6vw,36px);
+  line-height:1.28;
+  letter-spacing:-.01em;
+}
+.pause-sentence-text .sentence-blank,
+.pause-sentence-text .time-expression{
+  all:unset;
+}
+.pause-hint-box{
+  margin-top:13px;
+  padding:12px 13px;
+  border-radius:12px;
+  background:rgba(133,231,255,.07);
+  border:1px solid rgba(133,231,255,.22);
+  text-align:left;
+}
+.pause-hint-box b{
+  display:block;
+  margin-bottom:5px;
+  color:#85e7ff;
+  font-size:9px;
+  letter-spacing:.12em;
+}
+.pause-hint-box p{
+  margin:0;
+  color:#dceaf2;
+  font-size:11px;
+  line-height:1.45;
+}
+.music-note{
+  display:block;
+  margin-top:4px;
+  color:#8fa6b4;
+  font-size:8px;
+}
+.audio-control-line input:disabled,
+.audio-toggle:disabled{
+  opacity:.38;
+  cursor:not-allowed;
+}

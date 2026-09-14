@@ -1006,7 +1006,7 @@
       "wait",
       "waited",
       "are waiting",
-      "have waited"
+      "will wait"
     ]
   },
   {
@@ -1347,7 +1347,7 @@
       "before the quiz began"
     ],
     "correctAnswers": [
-      "had studied"
+      "will study"
     ],
     "distractors": [
       "studied",
@@ -1562,7 +1562,7 @@
       "by next year"
     ],
     "correctAnswers": [
-      "will have built"
+      "had been building"
     ],
     "distractors": [
       "builds",
@@ -1629,9 +1629,10 @@
     "id": "ppc01",
     "group": "present-perfect-continuous",
     "base": "study",
-    "text": "I ___ for two hours and I am still not finished.",
+    "text": "I ___ continuously for two hours, and I am still not finished.",
     "timeExpressions": [
-      "for two hours"
+      "continuously for two hours",
+      "still not finished"
     ],
     "correctAnswers": [
       "have been studying"
@@ -1640,16 +1641,17 @@
       "study",
       "studied",
       "am studying",
-      "have studied"
+      "had studied"
     ]
   },
   {
     "id": "ppc02",
     "group": "present-perfect-continuous",
     "base": "work",
-    "text": "She ___ here since January and still enjoys the job.",
+    "text": "She ___ nonstop since 8:00 this morning, and she is still working now.",
     "timeExpressions": [
-      "since January"
+      "since 8:00 this morning",
+      "still working now"
     ],
     "correctAnswers": [
       "has been working"
@@ -1658,16 +1660,17 @@
       "works",
       "worked",
       "is working",
-      "has worked"
+      "will work"
     ]
   },
   {
     "id": "ppc03",
     "group": "present-perfect-continuous",
     "base": "rain",
-    "text": "It ___ all morning and the streets are wet.",
+    "text": "It is still raining; it ___ continuously all morning.",
     "timeExpressions": [
-      "all morning"
+      "still raining",
+      "continuously all morning"
     ],
     "correctAnswers": [
       "has been raining"
@@ -1676,14 +1679,14 @@
       "rains",
       "rained",
       "is raining",
-      "has rained"
+      "will rain"
     ]
   },
   {
     "id": "ppc04",
     "group": "present-perfect-continuous",
     "base": "wait",
-    "text": "We ___ for the bus for thirty minutes.",
+    "text": "We ___ at this bus stop for thirty minutes, and the bus still has not arrived.",
     "timeExpressions": [
       "for thirty minutes"
     ],
@@ -1701,7 +1704,7 @@
     "id": "ppc05",
     "group": "present-perfect-continuous",
     "base": "practice",
-    "text": "He ___ the piano since breakfast.",
+    "text": "He ___ the piano since breakfast and has not stopped yet.",
     "timeExpressions": [
       "since breakfast"
     ],
@@ -1712,16 +1715,17 @@
       "practices",
       "practiced",
       "is practicing",
-      "has practiced"
+      "will practice"
     ]
   },
   {
     "id": "ppc06",
     "group": "present-perfect-continuous",
     "base": "learn",
-    "text": "They ___ Spanish for three years.",
+    "text": "They ___ Spanish continuously for three years, and they are still taking classes every week.",
     "timeExpressions": [
-      "for three years"
+      "continuously for three years",
+      "still taking classes every week"
     ],
     "correctAnswers": [
       "have been learning"
@@ -1730,14 +1734,14 @@
       "learn",
       "learned",
       "are learning",
-      "have learned"
+      "had learned"
     ]
   },
   {
     "id": "ppc07",
     "group": "present-perfect-continuous",
     "base": "run",
-    "text": "You look tired because you ___ for an hour.",
+    "text": "You are still breathing hard because you ___ continuously for an hour.",
     "timeExpressions": [
       "for an hour"
     ],
@@ -1748,14 +1752,14 @@
       "run",
       "ran",
       "are running",
-      "have run"
+      "had run"
     ]
   },
   {
     "id": "ppc08",
     "group": "present-perfect-continuous",
     "base": "clean",
-    "text": "Mom ___ the kitchen all afternoon.",
+    "text": "Mom ___ the kitchen all afternoon, and she is still cleaning it now.",
     "timeExpressions": [
       "all afternoon"
     ],
@@ -1766,14 +1770,14 @@
       "cleans",
       "cleaned",
       "is cleaning",
-      "has cleaned"
+      "had cleaned"
     ]
   },
   {
     "id": "ppc09",
     "group": "present-perfect-continuous",
     "base": "try",
-    "text": "I ___ to call you since noon.",
+    "text": "I ___ to call you since noon, but the line is still busy.",
     "timeExpressions": [
       "since noon"
     ],
@@ -1784,14 +1788,14 @@
       "try",
       "tried",
       "am trying",
-      "have tried"
+      "had tried"
     ]
   },
   {
     "id": "ppc10",
     "group": "present-perfect-continuous",
     "base": "snow",
-    "text": "It ___ since early this morning.",
+    "text": "Snow is still falling; it ___ continuously since early this morning.",
     "timeExpressions": [
       "since early this morning"
     ],
@@ -1802,7 +1806,7 @@
       "snows",
       "snowed",
       "is snowing",
-      "has snowed"
+      "had snowed"
     ]
   },
   {
@@ -1897,7 +1901,7 @@
       "drove",
       "were driving",
       "have been driving",
-      "had driven"
+      "will drive"
     ]
   },
   {
@@ -1934,7 +1938,7 @@
       "lived",
       "were living",
       "have been living",
-      "had lived"
+      "will live"
     ]
   },
   {
@@ -1953,7 +1957,7 @@
       "talked",
       "were talking",
       "have been talking",
-      "had talked"
+      "will talk"
     ]
   },
   {
@@ -1972,7 +1976,7 @@
       "slept",
       "was sleeping",
       "has been sleeping",
-      "had slept"
+      "will sleep"
     ]
   },
   {
@@ -1991,7 +1995,7 @@
       "trained",
       "was training",
       "has been training",
-      "had trained"
+      "will train"
     ]
   },
   {
@@ -2010,7 +2014,7 @@
       "works",
       "will be working",
       "has been working",
-      "will have worked"
+      "had been working"
     ]
   },
   {
@@ -2029,7 +2033,7 @@
       "study",
       "will be studying",
       "have been studying",
-      "will have studied"
+      "had been studying"
     ]
   },
   {
@@ -2049,7 +2053,7 @@
       "travel",
       "will be traveling",
       "have been traveling",
-      "will have traveled"
+      "had been traveling"
     ]
   },
   {
@@ -2068,7 +2072,7 @@
       "live",
       "will be living",
       "have been living",
-      "will have lived"
+      "had been living"
     ]
   },
   {
@@ -2087,7 +2091,7 @@
       "teaches",
       "will be teaching",
       "has been teaching",
-      "will have taught"
+      "had been teaching"
     ]
   },
   {
@@ -2106,7 +2110,7 @@
       "wait",
       "will be waiting",
       "have been waiting",
-      "will have waited"
+      "had been waiting"
     ]
   },
   {
@@ -2125,7 +2129,7 @@
       "runs",
       "will be running",
       "has been running",
-      "will have run"
+      "had been running"
     ]
   },
   {
@@ -2163,7 +2167,7 @@
       "practices",
       "will be practicing",
       "has been practicing",
-      "will have practiced"
+      "had been practicing"
     ]
   },
   {
@@ -2182,7 +2186,7 @@
       "use",
       "will be using",
       "have been using",
-      "will have used"
+      "had been using"
     ]
   },
   {

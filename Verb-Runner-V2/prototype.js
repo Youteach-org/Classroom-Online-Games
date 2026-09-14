@@ -89,6 +89,7 @@ const musicToggle=document.querySelector('#musicToggle');
 const pauseReadingCard=document.querySelector('#pauseReadingCard');
 const pauseReadingMode=document.querySelector('#pauseReadingMode');
 const pauseSentenceText=document.querySelector('#pauseSentenceText');
+const pauseHintText=document.querySelector('#pauseHintText');
 
 const TOTAL_CHALLENGES=20;
 const difficultyPresets={
@@ -123,9 +124,9 @@ function setPlayerSpeedPercent(value){
 
 let audioCtx=null;
 let sfxEnabled=true;
-let musicEnabled=true;
+let musicEnabled=false;
 let sfxVolume=.70;
-let musicVolume=.25;
+let musicVolume=0;
 let musicTimer=null;
 let musicStep=0;
 
@@ -175,19 +176,11 @@ function playSfx(name){
 }
 
 function musicTick(){
-  if(!musicEnabled||musicVolume<=0||!gameStarted)return;
-  const notes=[261.63,329.63,392,329.63,293.66,349.23,440,349.23];
-  const bass=[130.81,146.83,164.81,146.83];
-  synthTone(notes[musicStep%notes.length],.24,.025*musicVolume,'triangle');
-  if(musicStep%2===0)synthTone(bass[Math.floor(musicStep/2)%bass.length],.34,.018*musicVolume,'sine');
-  musicStep=(musicStep+1)%notes.length;
+  // Background music intentionally disabled. Learning comes first; keep only useful SFX.
 }
 
 function startMusic(){
-  ensureAudio();
-  if(musicTimer||!musicEnabled)return;
-  musicTick();
-  musicTimer=setInterval(musicTick,420);
+  stopMusic();
 }
 
 function stopMusic(){
@@ -205,20 +198,25 @@ function saveAudioSettings(){
 
 function updateAudioUI(){
   const sfxPercent=Math.round(sfxVolume*100);
-  const musicPercent=Math.round(musicVolume*100);
+  const musicPercent=0;
   if(soundControl)soundControl.value=String(sfxPercent);
-  if(musicControl)musicControl.value=String(musicPercent);
+  if(musicControl){
+    musicControl.value='0';
+    musicControl.disabled=true;
+  }
   if(soundValue)soundValue.textContent=sfxPercent+'%';
-  if(musicValue)musicValue.textContent=musicPercent+'%';
+  if(musicValue)musicValue.textContent='OFF';
   if(soundToggle){
     soundToggle.textContent=sfxEnabled?'ON':'OFF';
     soundToggle.classList.toggle('active',sfxEnabled);
     soundToggle.setAttribute('aria-pressed',String(sfxEnabled));
   }
   if(musicToggle){
-    musicToggle.textContent=musicEnabled?'ON':'OFF';
-    musicToggle.classList.toggle('active',musicEnabled);
-    musicToggle.setAttribute('aria-pressed',String(musicEnabled));
+    musicEnabled=false;
+    musicToggle.textContent='OFF';
+    musicToggle.classList.remove('active');
+    musicToggle.setAttribute('aria-pressed','false');
+    musicToggle.disabled=true;
   }
 }
 
@@ -227,9 +225,9 @@ function loadAudioSettings(){
     const saved=JSON.parse(localStorage.getItem('verbRunnerV2Audio')||'null');
     if(saved){
       sfxEnabled=saved.sfxEnabled!==false;
-      musicEnabled=saved.musicEnabled!==false;
+      musicEnabled=false;
       sfxVolume=Math.max(0,Math.min(1,Number(saved.sfxVolume)??.70));
-      musicVolume=Math.max(0,Math.min(1,Number(saved.musicVolume)??.25));
+      musicVolume=0;
     }
   }catch{}
   updateAudioUI();
@@ -1588,6 +1586,31 @@ function restartCurrentRace(){
   launchChallengeChain(gameSettings.preview?1.55:.55);
 }
 
+
+function sentenceHintFor(challenge){
+  if(!challenge)return 'Look for time clues and decide when the action happens.';
+  const clues=(challenge.timeExpressions||[]).filter(Boolean);
+  const clueText=clues.length?' Time clue'+(clues.length>1?'s':'')+': '+clues.join(' + ')+'.':'';
+  const hints={
+    'present-simple':'Use Present Simple for routines, repeated actions, facts, and schedules. Look for words such as usually, every day, or always.',
+    'past-simple':'Use Past Simple when the action is finished at a finished past time such as yesterday, last week, or two days ago.',
+    'future-will':'Use will + base verb for a prediction, spontaneous decision, promise, or future statement when the context points forward.',
+    'present-continuous':'Use am/is/are + -ing for an action happening now or a temporary situation around now.',
+    'past-continuous':'Use was/were + -ing for an action that was in progress at a specific moment in the past.',
+    'future-continuous':'Use will be + -ing for an action that will be in progress at a specific future time.',
+    'present-perfect':'Use have/has + past participle for a result, experience, or completed action connected to now. Avoid it with a finished past-time expression.',
+    'past-perfect':'Use had + past participle for an action completed before another past action or past reference point.',
+    'future-perfect':'Use will have + past participle when the action will be completed by a future deadline.',
+    'present-perfect-continuous':'Use have/has been + -ing when the sentence emphasizes an activity continuing up to now, its duration, or visible ongoing/recent effects. Words such as still, continuously, or hasn\'t stopped make that focus clearer.',
+    'past-perfect-continuous':'Use had been + -ing when an activity continued for a period before another past event, especially when the duration or ongoing activity matters.',
+    'future-perfect-continuous':'Use will have been + -ing when an activity will have continued for a duration up to a future point. Focus on duration and continuity, not completion.',
+    'going-to':'Use am/is/are going to + base verb for a prior plan or a prediction based on present evidence.',
+    'imperative':'Use the base form of the verb for a command or instruction. The subject you is normally omitted.',
+    'modals':'After a modal such as can, could, may, might, must, should, or would, use the base form of the verb.'
+  };
+  return (hints[challenge.group]||'Identify the time reference, decide whether the action is completed or ongoing, and then choose the matching verb structure.')+clueText;
+}
+
 function updatePauseReadingCard(){
   const sentenceMode=currentLevel===2&&currentChallenge;
   if(!pauseReadingCard)return;
@@ -1599,14 +1622,10 @@ function updatePauseReadingCard(){
       :'READ AT YOUR OWN PACE';
   }
   if(pauseSentenceText){
-    pauseSentenceText.replaceChildren();
-    if(sentenceText){
-      for(const node of sentenceText.childNodes){
-        pauseSentenceText.append(node.cloneNode(true));
-      }
-    }else{
-      pauseSentenceText.textContent=String(currentChallenge.text||'');
-    }
+    pauseSentenceText.textContent=String(currentChallenge.text||'').replace(/___/g,'_____');
+  }
+  if(pauseHintText){
+    pauseHintText.textContent=sentenceHintFor(currentChallenge);
   }
 }
 
@@ -1945,19 +1964,15 @@ soundToggle?.addEventListener('click',()=>{
   if(sfxEnabled)playSfx('click');
 });
 musicControl?.addEventListener('input',()=>{
-  musicVolume=Math.max(0,Math.min(1,Number(musicControl.value)/100));
-  if(musicVolume>0)musicEnabled=true;
+  musicEnabled=false;
+  musicVolume=0;
   updateAudioUI();
-  saveAudioSettings();
-  if(musicEnabled&&gameStarted)startMusic();
 });
 musicToggle?.addEventListener('click',()=>{
-  musicEnabled=!musicEnabled;
+  musicEnabled=false;
+  musicVolume=0;
+  stopMusic();
   updateAudioUI();
-  saveAudioSettings();
-  if(musicEnabled&&gameStarted)startMusic();
-  else stopMusic();
-  playSfx('click');
 });
 setPlayerSpeedPercent(100);
 runAgainButton.addEventListener('click',()=>{
@@ -2003,6 +2018,24 @@ nextLevelButton?.addEventListener('click',async()=>{
   }
   launchChallengeChain(gameSettings.preview?1.55:.55);
 });
+
+
+function autoPauseForFocusChange(reason='window'){
+  if(!gameStarted||gamePaused||victoryMode)return;
+  setPaused(true);
+  if(pauseReadingMode){
+    pauseReadingMode.textContent=currentLevel===2
+      ?'AUTO-PAUSED · TAKE YOUR TIME'
+      :'AUTO-PAUSED';
+  }
+  modelStatus.textContent='Auto-paused when the app lost focus';
+}
+
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden)autoPauseForFocusChange('visibility');
+});
+window.addEventListener('blur',()=>autoPauseForFocusChange('blur'));
+window.addEventListener('pagehide',()=>autoPauseForFocusChange('pagehide'));
 
 const lanes=[-3,0,3];
 let lane=1;

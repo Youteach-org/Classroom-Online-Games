@@ -126,6 +126,10 @@
           <span id="pauseReadingMode">READ AT YOUR OWN PACE</span>
           <div id="pauseSentenceText" class="pause-sentence-text">—</div>
           <small>No timer while paused. Resume when you are ready.</small>
+          <div class="pause-hint-box">
+            <b>HOW TO SOLVE IT</b>
+            <p id="pauseHintText">Look for time clues and decide when the action happens.</p>
+          </div>
         </div>
         <div class="pause-settings" aria-label="Game settings">
           <div class="pause-settings-title">GAME SETTINGS</div>
@@ -173,11 +177,12 @@
               </div>
             </div>
             <div class="audio-row">
-              <label for="musicControl"><span>MUSIC</span><b id="musicValue">25%</b></label>
+              <label for="musicControl"><span>MUSIC</span><b id="musicValue">OFF</b></label>
               <div class="audio-control-line">
-                <input id="musicControl" type="range" min="0" max="100" step="5" value="25" />
-                <button id="musicToggle" class="audio-toggle active" type="button" aria-pressed="true">ON</button>
+                <input id="musicControl" type="range" min="0" max="100" step="5" value="0" disabled />
+                <button id="musicToggle" class="audio-toggle" type="button" aria-pressed="false" disabled>OFF</button>
               </div>
+              <small class="music-note">Background music is off. Game sounds stay available.</small>
             </div>
           </div>
         </div>
