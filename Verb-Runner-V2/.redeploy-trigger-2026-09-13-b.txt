@@ -1,1 +1,1 @@
-Redeploy trigger after Level 2 Sentence Run implementation and validation.
+Final redeploy trigger for Sentence Run: 60-item bank, readable speeds, Easy-only verb hints, highlighted time expressions, and real verb options.
