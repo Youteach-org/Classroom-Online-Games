@@ -826,7 +826,14 @@ function makeAnswerTexture(word){
 const answers=[];
 
 function spawnAnswer(item){
-  if(!gameStarted||gamePaused||victoryMode)return;
+  if(!gameStarted||gamePaused||victoryMode)return false;
+
+  const pedestrianTooClose=obstacles.some(o=>
+    o?.kind==='pedestrian' &&
+    o?.mesh &&
+    Math.abs(o.mesh.position.z-ANSWER_SPAWN_Z)<18
+  );
+  if(pedestrianTooClose)return false;
 
   let heightMode=Math.random()<.5?'low':'high';
   const nearSpawn=obstacles.filter(o=>o?.mesh);
@@ -879,6 +886,7 @@ function spawnAnswer(item){
   group.position.set(lanes[laneIndex],answerY,ANSWER_SPAWN_Z);
   scene.add(group);
   answers.push({mesh:group,laneIndex,item,resolved:false,heightMode});
+  return true;
 }
 
 function clearAnswers(){
@@ -938,8 +946,12 @@ function updateAnswerSpawns(dt){
   if(answerResolutionActive||!pendingAnswers.length)return;
   answerSpawnClock+=dt;
   while(pendingAnswers.length&&answerSpawnClock>=pendingAnswers[0].at){
-    const next=pendingAnswers.shift();
-    spawnAnswer(next.item);
+    const next=pendingAnswers[0];
+    if(!spawnAnswer(next.item)){
+      answerSpawnClock=Math.min(answerSpawnClock,next.at);
+      break;
+    }
+    pendingAnswers.shift();
   }
 }
 
@@ -1717,6 +1729,16 @@ function spawnObstacle(){
   else if(roll<.68){type='jump';kind='boxes';}
   else {type='dodge';kind='pedestrian';}
 
+  if(kind==='pedestrian'){
+    const answerCorridorBusy=
+      pendingAnswers.length>0 ||
+      answers.some(a=>a?.mesh&&Math.abs(a.mesh.position.z-OBSTACLE_SPAWN_Z)<18);
+    if(answerCorridorBusy){
+      kind=Math.random()<.5?'sign':'boxes';
+      type='jump';
+    }
+  }
+
   const laneIndex=pickObstacleLane(type);
   if(laneIndex===null)return;
 
@@ -1836,9 +1858,14 @@ function updateWorld(dt){
     if(o.kind==='pedestrian'){
       const closeZ=Math.abs(o.mesh.position.z-runnerRoot.position.z)<1.15;
       const closeX=Math.abs(o.mesh.position.x-runnerRoot.position.x)<.72;
+      const protectedByAnswer=answerResolutionActive||answers.some(a=>
+        !a.resolved &&
+        Math.abs(a.mesh.position.z-o.mesh.position.z)<12
+      );
+
       if(!o.passed&&closeZ&&closeX){
         o.passed=true;
-        hit();
+        if(!protectedByAnswer)hit();
       }else if(o.mesh.position.z>4.2){
         o.passed=true;
       }
