@@ -19,7 +19,7 @@ function readSettings(){
   const previewChoice=$('previewEnabled').value;
   return {
     difficulty:d,
-    challengeCount:Number($('challengeCount').value)||12,
+    challengeCount:Number($('challengeCount').value)||20,
     preview:previewChoice==='auto'?defaults.preview:previewChoice==='yes',
     initialSpeed:Number($('initialSpeed').value)||18,
     maxSpeed:Number($('maxSpeed').value)||31,
@@ -44,7 +44,7 @@ function runnerCard(student){
   return `<article class="student-card ${student.online===false?'offline':''}">
     <div class="student-head"><strong>${student.id||'Runner'}</strong><span class="status-dot"></span></div>
     <div class="student-meta">
-      <div><span>ADVANCE</span><b>${student.progress||0} / ${student.total||12}</b></div>
+      <div><span>ADVANCE</span><b>${student.progress||0} / ${student.total||20}</b></div>
       <div><span>MOMENTUM</span><b>${student.momentum??75}%</b></div>
       <div><span>STREAK</span><b>${student.streak||0}</b></div>
       <div><span>ACCURACY</span><b>${accuracy}%</b></div>
