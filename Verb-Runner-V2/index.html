@@ -52,7 +52,7 @@
         </button>
         <div class="mini-stat"><span>TIME</span><b id="raceTime">00:00.000</b></div>
         <div class="mini-stat"><span>STREAK</span><b id="streakValue">0</b></div>
-        <div class="mini-stat"><span>ADVANCE</span><b id="progressValue">0 / 12</b></div>
+        <div class="mini-stat"><span>ADVANCE</span><b id="progressValue">0 / 20</b></div>
       </div>
     </header>
 
@@ -73,10 +73,28 @@
 
     <section id="picker" class="picker" aria-label="Choose runner">
       <div class="picker-card">
-        <span class="picker-kicker">VERB RUNNER</span>
-        <h1>Choose your runner</h1>
-        <p>All six robots have the same abilities. Pick a color and difficulty.</p>
+        <span class="picker-kicker">RUNNER SERIES</span>
+        <h1>Choose your race</h1>
+        <p>Select the challenge you want to run. New races will appear here as they are created.</p>
 
+        <div class="race-options" aria-label="Choose race">
+          <button class="race-option active" type="button" data-race="verb" data-level="1">
+            <span class="race-icon" aria-hidden="true">V1</span>
+            <span class="race-copy">
+              <b>VERB RUNNER</b>
+              <small>Complete the missing principal part and dodge the wrong verb forms.</small>
+            </span>
+          </button>
+          <button class="race-option" type="button" data-race="sentence" data-level="2">
+            <span class="race-icon" aria-hidden="true">S2</span>
+            <span class="race-copy">
+              <b>SENTENCE RUNNER</b>
+              <small>Read the sentence and choose the verb or verb phrase that fits the context.</small>
+            </span>
+          </button>
+        </div>
+
+        <div class="picker-section-title">CHOOSE YOUR RUNNER</div>
         <div class="robot-options">
           <button class="robot-option active" type="button" data-runner="0" style="--runner:#e43c3c"><span></span><b>RED</b></button>
           <button class="robot-option" type="button" data-runner="1" style="--runner:#2475d1"><span></span><b>BLUE</b></button>
@@ -86,13 +104,14 @@
           <button class="robot-option" type="button" data-runner="5" style="--runner:#9a4de0"><span></span><b>PURPLE</b></button>
         </div>
 
+        <div class="picker-section-title">CHOOSE DIFFICULTY</div>
         <div class="difficulty" aria-label="Difficulty">
           <button type="button" data-difficulty="easy"><b>EASY</b><small>2 clear distractors · slower · no advance loss</small></button>
           <button type="button" data-difficulty="medium" class="active"><b>MEDIUM</b><small>3 plausible distractors · standard speed · −1</small></button>
           <button type="button" data-difficulty="hard"><b>HARD</b><small>4 close vowel traps · faster · −2</small></button>
         </div>
 
-        <button id="startButton" class="start-button" type="button" disabled>START RUN</button>
+        <button id="startButton" class="start-button" type="button" disabled>START VERB RUNNER</button>
       </div>
     </section>
 
