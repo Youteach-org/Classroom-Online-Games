@@ -833,6 +833,7 @@ function makeAnswerTexture(word){
 }
 
 const answers=[];
+let lastCorrectLane=-1;
 
 function spawnAnswer(item){
   if(!gameStarted||gamePaused||victoryMode)return false;
@@ -865,6 +866,12 @@ function spawnAnswer(item){
     availableLanes=[0,1,2].filter(i=>!lowBlocked.has(i));
   }
 
+  if(item.correct&&lastCorrectLane>=0){
+    const correctAlternates=availableLanes.filter(i=>i!==lastCorrectLane);
+    if(!correctAlternates.length)return false;
+    availableLanes=correctAlternates;
+  }
+
   let laneIndex=availableLanes.length
     ? availableLanes[Math.floor(Math.random()*availableLanes.length)]
     : Math.floor(Math.random()*3);
@@ -873,6 +880,8 @@ function spawnAnswer(item){
     const alternates=availableLanes.filter(i=>i!==laneIndex);
     laneIndex=alternates[Math.floor(Math.random()*alternates.length)];
   }
+
+  if(item.correct)lastCorrectLane=laneIndex;
 
   const group=new THREE.Group();
   const cardW=IS_MOBILE?3.70:3.05;
@@ -1221,6 +1230,7 @@ function resetRun(){
   victoryMode=false;
   gamePaused=false;
   clearAnswers();
+  lastCorrectLane=-1;
   verbDeck=[];
   buildChallenges();
   renderChallenge();
