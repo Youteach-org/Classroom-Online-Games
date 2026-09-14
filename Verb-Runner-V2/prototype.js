@@ -64,6 +64,10 @@ const sentenceCue=document.querySelector('#sentenceCue');
 const taskInstruction=document.querySelector('#taskInstruction');
 const resultKicker=document.querySelector('#resultKicker');
 const nextLevelButton=document.querySelector('#nextLevelButton');
+const pauseRaceTitle=document.querySelector('#pauseRaceTitle');
+const speedControl=document.querySelector('#speedControl');
+const speedValue=document.querySelector('#speedValue');
+const speedDescription=document.querySelector('#speedDescription');
 
 const TOTAL_CHALLENGES=20;
 const difficultyPresets={
@@ -72,12 +76,29 @@ const difficultyPresets={
   hard:{name:'hard',speed:1.15,answerSpacing:.82,distractors:4,preview:false,penalty:2}
 };
 const sentenceRunTuning={
-  easy:{speedScale:.62,answerSpacing:1.35,initialDelay:2.8,initialSpeed:18,maxSpeed:23},
-  medium:{speedScale:.72,answerSpacing:1.18,initialDelay:2.45,initialSpeed:18,maxSpeed:25},
-  hard:{speedScale:.82,answerSpacing:1.05,initialDelay:2.15,initialSpeed:18,maxSpeed:27}
+  easy:{speedScale:.58,answerSpacing:1.35,initialDelay:2.8,initialSpeed:17,maxSpeed:22},
+  medium:{speedScale:.66,answerSpacing:1.18,initialDelay:2.45,initialSpeed:17,maxSpeed:24},
+  hard:{speedScale:.76,answerSpacing:1.05,initialDelay:2.15,initialSpeed:18,maxSpeed:26}
 };
 let difficulty=difficultyPresets.medium;
 let totalChallenges=TOTAL_CHALLENGES;
+let playerSpeedMultiplier=1;
+
+function speedDescriptionFor(percent){
+  if(percent<=90)return 'Controlled · minimum speed';
+  if(percent<=105)return 'Normal race speed';
+  if(percent<=125)return 'Fast';
+  if(percent<=145)return 'Very fast';
+  return 'Turbo · maximum speed';
+}
+
+function setPlayerSpeedPercent(value){
+  const percent=Math.max(85,Math.min(165,Math.round(Number(value)||100)));
+  playerSpeedMultiplier=percent/100;
+  if(speedControl)speedControl.value=String(percent);
+  if(speedValue)speedValue.textContent=percent+'%';
+  if(speedDescription)speedDescription.textContent=speedDescriptionFor(percent);
+}
 let gameSettings={
   preview:false,
   answerSpacing:.82,
@@ -819,6 +840,20 @@ function appendSentencePrompt(raw,timeExpressions=[]){
   }
 }
 
+function fitSentencePrompt(){
+  if(!sentenceText||!sentenceChallenge||currentLevel!==2||sentenceChallenge.hidden)return;
+  sentenceText.style.whiteSpace='nowrap';
+  sentenceText.style.fontSize='';
+  const maxSize=IS_MOBILE?30:42;
+  const minSize=13;
+  let size=maxSize;
+  sentenceText.style.fontSize=size+'px';
+  while(size>minSize&&sentenceText.scrollWidth>sentenceText.clientWidth){
+    size-=1;
+    sentenceText.style.fontSize=size+'px';
+  }
+}
+
 function renderChallenge(){
   ensureChallengeAvailable();
   currentChallenge=challenges[challengeIndex];
@@ -832,6 +867,7 @@ function renderChallenge(){
     if(sentenceCue)sentenceCue.textContent=String(currentChallenge.cue||currentChallenge.base||'').toUpperCase();
     const cueBadge=sentenceCue?.closest('small');
     if(cueBadge)cueBadge.hidden=difficulty.name!=='easy';
+    requestAnimationFrame(fitSentencePrompt);
     if(sessionCode&&sessionData){
       sessionUpdate({
         level:currentLevel,
@@ -1354,6 +1390,8 @@ function setPaused(next){
   if(!gameStarted||victoryMode)return;
   gamePaused=next;
   pauseOverlay.hidden=!next;
+  if(pauseRaceTitle)pauseRaceTitle.textContent=raceLabel();
+  if(next)setPlayerSpeedPercent(Math.round(playerSpeedMultiplier*100));
   pauseButton.textContent=next?'▶':'Ⅱ';
   modelStatus.textContent=next?'Paused':variants[selectedVariant].name+' robot · DAY CITY AVENUE';
   if(sessionCode&&sessionData)sessionUpdate({status:next?'paused':'running'}).catch(()=>{});
@@ -1612,6 +1650,8 @@ runnerChip.addEventListener('click',()=>{
 
 pauseButton.addEventListener('click',()=>setPaused(!gamePaused));
 resumeButton.addEventListener('click',()=>setPaused(false));
+speedControl?.addEventListener('input',()=>setPlayerSpeedPercent(speedControl.value));
+setPlayerSpeedPercent(100);
 runAgainButton.addEventListener('click',()=>{
   resultOverlay.hidden=true;
   picker.classList.remove('hidden');
@@ -1699,10 +1739,16 @@ canvas.addEventListener('pointerup',e=>{
     return;
   }
 
+  if(dy<=-36&&Math.abs(dy)>Math.abs(dx)*1.05){
+    jump();
+    return;
+  }
+
   if(Math.abs(dx)>=36&&Math.abs(dx)>Math.abs(dy)*1.15){
     moveLane(dx>0?1:-1);
   }
 });
+canvas.addEventListener('pointercancel',()=>{touchStart=null;});
 
 const obstacles=[];
 
@@ -2257,7 +2303,10 @@ function animate(){
       }
     }else{
       const momentumBoost=.78+(runState?.momentum||75)/340;
-      speed=Math.min(gameSettings.maxSpeed,(gameSettings.initialSpeed+distance/620)*gameSettings.speedScale*momentumBoost);
+      speed=Math.min(
+        gameSettings.maxSpeed*playerSpeedMultiplier,
+        (gameSettings.initialSpeed+distance/620)*gameSettings.speedScale*momentumBoost*playerSpeedMultiplier
+      );
       distance+=speed*dt;
       updateRunner(dt);
       updateWorld(dt);
@@ -2280,6 +2329,7 @@ function resize(){
   renderer.setSize(w,h,false);
   camera.aspect=w/h;
   camera.updateProjectionMatrix();
+  requestAnimationFrame(fitSentencePrompt);
 }
 
 addEventListener('resize',resize);
