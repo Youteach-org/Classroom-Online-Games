@@ -1347,7 +1347,7 @@
       "before the quiz began"
     ],
     "correctAnswers": [
-      "will study"
+      "had studied"
     ],
     "distractors": [
       "studied",
@@ -1562,7 +1562,7 @@
       "by next year"
     ],
     "correctAnswers": [
-      "had been building"
+      "will have built"
     ],
     "distractors": [
       "builds",

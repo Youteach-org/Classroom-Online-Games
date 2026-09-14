@@ -1601,9 +1601,9 @@ function sentenceHintFor(challenge){
     'present-perfect':'Use have/has + past participle for a result, experience, or completed action connected to now. Avoid it with a finished past-time expression.',
     'past-perfect':'Use had + past participle for an action completed before another past action or past reference point.',
     'future-perfect':'Use will have + past participle when the action will be completed by a future deadline.',
-    'present-perfect-continuous':'Use have/has been + -ing when the sentence emphasizes an activity continuing up to now, its duration, or visible ongoing/recent effects. Words such as still, continuously, or hasn\'t stopped make that focus clearer.',
-    'past-perfect-continuous':'Use had been + -ing when an activity continued for a period before another past event, especially when the duration or ongoing activity matters.',
-    'future-perfect-continuous':'Use will have been + -ing when an activity will have continued for a duration up to a future point. Focus on duration and continuity, not completion.',
+    'present-perfect-continuous':'Use have/has been + -ing when the sentence emphasizes an activity continuing up to now, its duration, or visible ongoing/recent effects. Compare: Perfect Simple (have learned) focuses more on result or achievement; Perfect Continuous (have been learning) focuses on the ongoing activity and its duration. Here, clues such as still, continuously, or has not stopped make the continuous form the better choice.',
+    'past-perfect-continuous':'Use had been + -ing when an activity continued for a period before another past event, especially when duration or the ongoing process matters. Past Perfect Simple focuses more on a completed result; this exercise gives continuity clues so the continuous form is the intended choice.',
+    'future-perfect-continuous':'Use will have been + -ing when an activity will have continued for a duration up to a future point. Future Perfect Simple focuses on what will be completed by that point; Future Perfect Continuous focuses on how long the activity will have been continuing.',
     'going-to':'Use am/is/are going to + base verb for a prior plan or a prediction based on present evidence.',
     'imperative':'Use the base form of the verb for a command or instruction. The subject you is normally omitted.',
     'modals':'After a modal such as can, could, may, might, must, should, or would, use the base form of the verb.'
