@@ -737,6 +737,53 @@ function updateHud(){
   }
 }
 
+function appendSentencePrompt(raw,timeExpressions=[]){
+  if(!sentenceText)return;
+  sentenceText.replaceChildren();
+  const text=String(raw||'___');
+  const expressions=[...new Set((timeExpressions||[]).filter(Boolean))];
+  const lower=text.toLowerCase();
+  let cursor=0;
+
+  while(cursor<text.length){
+    let bestIndex=text.indexOf('___',cursor);
+    let bestToken='___';
+    let isBlank=bestIndex>=0;
+
+    for(const expression of expressions){
+      const index=lower.indexOf(String(expression).toLowerCase(),cursor);
+      if(index>=0&&(bestIndex<0||index<bestIndex)){
+        bestIndex=index;
+        bestToken=expression;
+        isBlank=false;
+      }
+    }
+
+    if(bestIndex<0){
+      sentenceText.append(document.createTextNode(text.slice(cursor)));
+      break;
+    }
+
+    if(bestIndex>cursor){
+      sentenceText.append(document.createTextNode(text.slice(cursor,bestIndex)));
+    }
+
+    if(isBlank){
+      const blank=document.createElement('span');
+      blank.className='sentence-blank';
+      blank.textContent='___';
+      sentenceText.append(blank);
+      cursor=bestIndex+3;
+    }else{
+      const mark=document.createElement('mark');
+      mark.className='time-expression';
+      mark.textContent=text.slice(bestIndex,bestIndex+bestToken.length);
+      sentenceText.append(mark);
+      cursor=bestIndex+bestToken.length;
+    }
+  }
+}
+
 function renderChallenge(){
   ensureChallengeAvailable();
   currentChallenge=challenges[challengeIndex];
@@ -746,26 +793,15 @@ function renderChallenge(){
   if(currentLevel===2){
     if(principalParts)principalParts.hidden=true;
     if(sentenceChallenge)sentenceChallenge.hidden=false;
-    if(sentenceText){
-      const raw=String(currentChallenge.text||'___');
-      const marker='___';
-      const at=raw.indexOf(marker);
-      const before=at>=0?raw.slice(0,at):raw;
-      const after=at>=0?raw.slice(at+marker.length):'';
-      sentenceText.replaceChildren();
-      sentenceText.append(document.createTextNode(before));
-      const blank=document.createElement('span');
-      blank.className='sentence-blank';
-      blank.textContent='___';
-      sentenceText.append(blank);
-      sentenceText.append(document.createTextNode(after));
-    }
+    appendSentencePrompt(currentChallenge.text,currentChallenge.timeExpressions);
     if(sentenceCue)sentenceCue.textContent=String(currentChallenge.cue||currentChallenge.base||'').toUpperCase();
+    const cueBadge=sentenceCue?.closest('small');
+    if(cueBadge)cueBadge.hidden=difficulty.name!=='easy';
     if(sessionCode&&sessionData){
       sessionUpdate({
         level:currentLevel,
         challenge:challengeIndex+1,
-        challengeLabel:String(currentChallenge.text||'')+' ['+String(currentChallenge.cue||'').toUpperCase()+']'
+        challengeLabel:String(currentChallenge.text||'')+(difficulty.name==='easy'?' ['+String(currentChallenge.cue||'').toUpperCase()+']':'')
       }).catch(()=>{});
     }
     return;
