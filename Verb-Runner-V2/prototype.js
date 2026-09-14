@@ -1529,42 +1529,134 @@ async function animateAnswerToBlank(answer,correct,startOverride=null){
 
   const finalBg=correct?'#178b4c':'#b8243e';
   const finalBorder=correct?'#66f0a0':'#ff7185';
-  const keyframes=[
-    {
-      left:start.x+'px',
-      top:start.y+'px',
-      transform:'translate(-50%,-50%) scale(.9)',
-      background:'#123b56',
-      borderColor:'#ffffff',
-      opacity:1
-    },
-    {
-      offset:.72,
-      left:target.x+'px',
-      top:(target.y+5)+'px',
-      transform:'translate(-50%,-50%) scale(1.18)',
-      background:finalBg,
-      borderColor:finalBorder,
-      opacity:1
-    },
-    {
-      left:target.x+'px',
-      top:target.y+'px',
-      transform:'translate(-50%,-50%) scale(1)',
-      background:finalBg,
-      borderColor:finalBorder,
-      opacity:1
-    }
-  ];
 
-  if(flyer.animate){
-    const anim=flyer.animate(keyframes,{duration:560,easing:'cubic-bezier(.2,.8,.22,1)',fill:'forwards'});
-    await anim.finished.catch(()=>{});
+  // Verb Runner learning-focus animation:
+  // correct form moves to the center, grows, stays readable, then flies into the blank.
+  if(correct&&!sentenceMode){
+    const center={
+      x:window.innerWidth/2,
+      y:Math.max(150,window.innerHeight*.42)
+    };
+
+    const shade=document.createElement('div');
+    shade.className='answer-focus-backdrop';
+    document.body.appendChild(shade);
+    requestAnimationFrame(()=>shade.classList.add('show'));
+
+    flyer.classList.add('learning-focus');
+
+    if(flyer.animate){
+      const toCenter=flyer.animate([
+        {
+          left:start.x+'px',
+          top:start.y+'px',
+          transform:'translate(-50%,-50%) scale(.88)',
+          background:'#123b56',
+          borderColor:'#ffffff',
+          opacity:1
+        },
+        {
+          left:center.x+'px',
+          top:center.y+'px',
+          transform:'translate(-50%,-50%) scale(1.72)',
+          background:'#159447',
+          borderColor:'#98ffc0',
+          boxShadow:'0 18px 45px rgba(0,0,0,.34),0 0 42px rgba(75,255,137,.68)',
+          opacity:1
+        }
+      ],{duration:330,easing:'cubic-bezier(.18,.86,.24,1)',fill:'forwards'});
+      await toCenter.finished.catch(()=>{});
+    }else{
+      flyer.style.left=center.x+'px';
+      flyer.style.top=center.y+'px';
+      flyer.style.transform='translate(-50%,-50%) scale(1.72)';
+      flyer.style.background='#159447';
+      flyer.style.borderColor='#98ffc0';
+      await waitMs(330);
+    }
+
+    playSfx('correct');
+
+    // Hold the verb long enough for the student to actually read and register it.
+    await waitMs(720);
+
+    if(flyer.animate){
+      const toBlank=flyer.animate([
+        {
+          left:center.x+'px',
+          top:center.y+'px',
+          transform:'translate(-50%,-50%) scale(1.72)',
+          background:'#159447',
+          borderColor:'#98ffc0',
+          boxShadow:'0 18px 45px rgba(0,0,0,.34),0 0 42px rgba(75,255,137,.68)',
+          opacity:1
+        },
+        {
+          offset:.82,
+          left:target.x+'px',
+          top:(target.y+4)+'px',
+          transform:'translate(-50%,-50%) scale(1.10)',
+          background:'#178b4c',
+          borderColor:'#66f0a0',
+          opacity:1
+        },
+        {
+          left:target.x+'px',
+          top:target.y+'px',
+          transform:'translate(-50%,-50%) scale(1)',
+          background:'#178b4c',
+          borderColor:'#66f0a0',
+          opacity:1
+        }
+      ],{duration:500,easing:'cubic-bezier(.22,.72,.18,1)',fill:'forwards'});
+      await toBlank.finished.catch(()=>{});
+    }else{
+      flyer.style.left=target.x+'px';
+      flyer.style.top=target.y+'px';
+      flyer.style.transform='translate(-50%,-50%) scale(1)';
+      await waitMs(500);
+    }
+
+    shade.classList.remove('show');
+    setTimeout(()=>shade.remove(),180);
   }else{
-    flyer.style.left=target.x+'px';
-    flyer.style.top=target.y+'px';
-    flyer.style.background=finalBg;
-    await waitMs(560);
+    const keyframes=[
+      {
+        left:start.x+'px',
+        top:start.y+'px',
+        transform:'translate(-50%,-50%) scale(.9)',
+        background:'#123b56',
+        borderColor:'#ffffff',
+        opacity:1
+      },
+      {
+        offset:.72,
+        left:target.x+'px',
+        top:(target.y+5)+'px',
+        transform:'translate(-50%,-50%) scale(1.18)',
+        background:finalBg,
+        borderColor:finalBorder,
+        opacity:1
+      },
+      {
+        left:target.x+'px',
+        top:target.y+'px',
+        transform:'translate(-50%,-50%) scale(1)',
+        background:finalBg,
+        borderColor:finalBorder,
+        opacity:1
+      }
+    ];
+
+    if(flyer.animate){
+      const anim=flyer.animate(keyframes,{duration:560,easing:'cubic-bezier(.2,.8,.22,1)',fill:'forwards'});
+      await anim.finished.catch(()=>{});
+    }else{
+      flyer.style.left=target.x+'px';
+      flyer.style.top=target.y+'px';
+      flyer.style.background=finalBg;
+      await waitMs(560);
+    }
   }
 
   blankPart.classList.remove('blank');
@@ -1594,7 +1686,7 @@ async function collectAnswer(answer){
     clearAnswers();
     await animateAnswerToBlank(selectedCopy,true,startPoint);
     applyRunEvent('correct');
-    playSfx('correct');
+    if(currentLevel!==1)playSfx('correct');
     showNotice('CORRECT!','correct');
     challengeIndex++;
 

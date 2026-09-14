@@ -540,3 +540,34 @@ button,a{-webkit-tap-highlight-color:transparent}
   opacity:0;
   transform:translate(-50%,-125%) scale(.92);
 }
+
+
+/* Verb Runner learning-focus reinforcement */
+.answer-focus-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:48;
+  pointer-events:none;
+  background:rgba(5,18,28,.18);
+  opacity:0;
+  transition:opacity .16s ease;
+}
+.answer-focus-backdrop.show{opacity:1}
+
+.answer-flight.learning-focus{
+  z-index:55;
+  min-width:170px;
+  padding:14px 28px;
+  border-radius:16px;
+  font-size:clamp(28px,4.2vw,48px);
+  letter-spacing:.055em;
+  text-align:center;
+  text-shadow:0 2px 0 rgba(0,65,31,.48);
+}
+@media(max-width:640px){
+  .answer-flight.learning-focus{
+    min-width:145px;
+    padding:12px 20px;
+    font-size:clamp(26px,8vw,40px);
+  }
+}
