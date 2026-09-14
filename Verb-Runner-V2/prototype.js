@@ -71,6 +71,11 @@ const difficultyPresets={
   medium:{name:'medium',speed:1.00,answerSpacing:.82,distractors:3,preview:false,penalty:1},
   hard:{name:'hard',speed:1.15,answerSpacing:.82,distractors:4,preview:false,penalty:2}
 };
+const sentenceRunTuning={
+  easy:{speedScale:.62,answerSpacing:1.35,initialDelay:2.8,initialSpeed:18,maxSpeed:23},
+  medium:{speedScale:.72,answerSpacing:1.18,initialDelay:2.45,initialSpeed:18,maxSpeed:25},
+  hard:{speedScale:.82,answerSpacing:1.05,initialDelay:2.15,initialSpeed:18,maxSpeed:27}
+};
 let difficulty=difficultyPresets.medium;
 let totalChallenges=TOTAL_CHALLENGES;
 let gameSettings={
@@ -607,11 +612,32 @@ function setLevelUI(){
   if(levelTitle)levelTitle.textContent=sentenceMode?'LEVEL 2 · SENTENCE RUN':'LEVEL 1 · VERB HUNT';
   if(principalParts)principalParts.hidden=sentenceMode;
   if(sentenceChallenge)sentenceChallenge.hidden=!sentenceMode;
+  const cueBadge=sentenceCue?.closest('small');
+  if(cueBadge)cueBadge.hidden=!sentenceMode||difficulty.name!=='easy';
   if(taskInstruction)taskInstruction.textContent=sentenceMode
-    ?'Complete the sentence with the correct verb form'
+    ?(difficulty.name==='easy'
+      ?'Use the verb hint and choose the form that completes the sentence'
+      :'Choose the verb and form that best complete the sentence')
     :'Collect the correct verb form';
   if(resultKicker)resultKicker.textContent='LEVEL '+currentLevel+' COMPLETE';
   if(nextLevelButton)nextLevelButton.hidden=currentLevel!==1;
+}
+
+function applySentenceRunTuning(){
+  if(currentLevel!==2)return;
+  const tuning=sentenceRunTuning[difficulty.name]||sentenceRunTuning.medium;
+  gameSettings={
+    ...gameSettings,
+    speedScale:tuning.speedScale,
+    answerSpacing:tuning.answerSpacing,
+    initialSpeed:tuning.initialSpeed,
+    maxSpeed:tuning.maxSpeed
+  };
+}
+
+function sentenceInitialDelay(fallback=.55){
+  if(currentLevel!==2)return fallback;
+  return (sentenceRunTuning[difficulty.name]||sentenceRunTuning.medium).initialDelay;
 }
 
 setLevelUI();
@@ -626,6 +652,8 @@ function applyDifficultyDefaults(preset){
     speedScale:preset.speed,
     penalty:preset.penalty
   };
+  applySentenceRunTuning();
+  setLevelUI();
 }
 
 function applySessionSettings(settings={}){
@@ -834,13 +862,12 @@ function buildChallenges(){
   challengeIndex=0;
 
   if(currentLevel===2){
-    refillSentenceDeck();
-    while(challenges.length<totalChallenges){
-      if(!sentenceDeck.length)refillSentenceDeck();
-      const nextSentence=sentenceDeck.shift();
-      if(!nextSentence)break;
-      challenges.push(makeSentenceChallenge(nextSentence));
-    }
+    applySentenceRunTuning();
+    challenges=window.VerbRunnerSentenceBank.buildRound(totalChallenges,{
+      difficulty:difficulty.name,
+      distractorCount:gameSettings.distractors
+    });
+    sentenceDeck=[];
     return;
   }
 
@@ -1011,9 +1038,14 @@ function launchChallengeChain(initialDelay=.42){
   retryQueued=false;
   if(!currentChallenge)return;
 
-  const sequence=window.VerbRunnerChallenge.buildAnswerSequence(currentChallenge,{
-    distractorCount:gameSettings.distractors
-  });
+  initialDelay=sentenceInitialDelay(initialDelay);
+  const sequence=currentLevel===2
+    ?window.VerbRunnerSentenceBank.buildAnswerSequence(currentChallenge,{
+        distractorCount:gameSettings.distractors
+      })
+    :window.VerbRunnerChallenge.buildAnswerSequence(currentChallenge,{
+        distractorCount:gameSettings.distractors
+      });
 
   let correctIndex=sequence.findIndex(item=>item.correct);
   const lastIndex=sequence.length-1;
@@ -1338,6 +1370,7 @@ function resetRun(){
   lastCorrectLane=-1;
   verbDeck=[];
   sentenceDeck=[];
+  applySentenceRunTuning();
   setLevelUI();
   buildChallenges();
   renderChallenge();
@@ -1514,6 +1547,7 @@ nextLevelButton?.addEventListener('click',async()=>{
   if(currentLevel!==1)return;
   currentLevel=2;
   resultOverlay.hidden=true;
+  applySentenceRunTuning();
   setLevelUI();
   resetRun();
   gameStarted=true;
@@ -2029,8 +2063,12 @@ function updateWorld(dt){
       scene.remove(a.mesh);
       answers.splice(i,1);
       if(wasCorrect){
-        missedCorrectAnswer();
-        break;
+        const anotherCorrectActive=answers.some(other=>!other.resolved&&other.item.correct);
+        const anotherCorrectPending=pendingAnswers.some(other=>other.item.correct);
+        if(!anotherCorrectActive&&!anotherCorrectPending){
+          missedCorrectAnswer();
+          break;
+        }
       }
     }
   }
