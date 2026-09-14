@@ -1,0 +1,12 @@
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root)root.HundredSSCore=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
+'use strict';
+const defaults={mode:'question-bank',answerSeconds:10,strikeLimit:2,teamScores:{'Team 1':0,'Team 2':0},roundBank:0,strikes:{'Team 1':0,'Team 2':0},activeTeam:'',phase:'faceoff',questionIndex:0,revealed:false,usedStudents:{},turnStudentKey:'',content:[]};
+function normalize(raw={}){return {...defaults,...raw,answerSeconds:Math.max(1,Number(raw.answerSeconds||10)),strikeLimit:Math.min(3,Math.max(1,Number(raw.strikeLimit||2))),teamScores:{...defaults.teamScores,...raw.teamScores},strikes:{...defaults.strikes,...raw.strikes},usedStudents:{...(raw.usedStudents||{})},content:Array.isArray(raw.content)?raw.content:[]};}
+function canBuzz(state,studentKey,team){const s=normalize(state);return Boolean(studentKey&&team&&!s.usedStudents[studentKey]&&(!s.turnStudentKey||s.turnStudentKey===studentKey));}
+function markParticipation(state,studentKey){const s=normalize(state);return {...s,usedStudents:{...s.usedStudents,[studentKey]:true}};}
+function validate(state,correct,team){let s=normalize(state);if(correct){const bank=s.roundBank+Number(s.content[s.questionIndex]?.points||10);return {...s,roundBank:bank,revealed:true};}const strikes={...s.strikes,[team]:Math.min(s.strikeLimit,Number(s.strikes[team]||0)+1)};return {...s,strikes,revealed:true,phase:strikes[team]>=s.strikeLimit?'steal':s.phase};}
+function awardBank(state,team){const s=normalize(state);return {...s,teamScores:{...s.teamScores,[team]:Number(s.teamScores[team]||0)+s.roundBank},roundBank:0,strikes:{'Team 1':0,'Team 2':0},usedStudents:{},activeTeam:team,phase:'control'};}
+function nextQuestion(state){const s=normalize(state);return {...s,questionIndex:Math.min(s.content.length-1,s.questionIndex+1),revealed:false,turnStudentKey:''};}
+function parseCsv(text){const lines=String(text||'').trim().split(/\r?\n/).filter(Boolean);if(lines.length<2)return[];const cells=line=>line.split(',').map(v=>v.trim().replace(/^"|"$/g,''));const headers=cells(lines[0]).map(x=>x.toLowerCase());return lines.slice(1).map(line=>{const row=cells(line),get=n=>row[headers.indexOf(n)]||'';return{prompt:get('prompt')||get('question'),answer:get('answer'),guide:get('guide')||get('teacher guide'),points:Number(get('points')||10)};}).filter(x=>x.prompt);}
+return{defaults,normalize,canBuzz,markParticipation,validate,awardBank,nextQuestion,parseCsv};
+});
