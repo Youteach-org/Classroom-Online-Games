@@ -3,9 +3,18 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
 const ROBOT_URL='https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb';
-const PEDESTRIAN_URL='https://cdn.jsdelivr.net/gh/rodrigoluis/CG@4f2004438ce7e0bc6c482766d007d617ca8147fd/assets/objects/walkingMan.glb';
+const PEDESTRIAN_URL='https://cdn.jsdelivr.net/gh/psqd12137-sudo/dream-channel@3d1f3c91810ac6b73146971d7d6297b12c8f3244/godot/assets/quaternius/animated_characters/Casual_Female.gltf';
 let pedestrianTemplate=null;
 let pedestrianAnimations=[];
+
+const pedestrianLooks=[
+  {shirt:0xd94a48,pants:0x26354c,belt:0xf1c45b,hair:0x4a2a20,shoes:0xf2eee8,skin:0xd99b79,height:1.00,width:1.00,walkSpeed:1.00},
+  {shirt:0x2f9fa4,pants:0x1f2940,belt:0xe8d6b0,hair:0x241a18,shoes:0xe7edf2,skin:0xc98668,height:.95,width:.96,walkSpeed:1.07},
+  {shirt:0xe0a62f,pants:0x6d3548,belt:0x5a3828,hair:0x7a3f2b,shoes:0x35363b,skin:0xe0a17e,height:1.06,width:1.03,walkSpeed:.96},
+  {shirt:0x8b67cf,pants:0x30343d,belt:0xe7c7a4,hair:0xd2a46d,shoes:0xf4f2ed,skin:0xe2ad8c,height:1.02,width:.94,walkSpeed:1.03},
+  {shirt:0x4b83c4,pants:0xd9d0bd,belt:0x3e5368,hair:0x3a2822,shoes:0x2c3035,skin:0xb9785e,height:.92,width:1.05,walkSpeed:1.10},
+  {shirt:0x4f9b5f,pants:0x365a78,belt:0xd9b26b,hair:0x9a4d35,shoes:0xefe9de,skin:0xf0bc98,height:1.08,width:.98,walkSpeed:.93}
+];
 const IS_MOBILE=matchMedia('(pointer:coarse)').matches||innerWidth<=700;
 const ANSWER_SPAWN_Z=IS_MOBILE?-50:-70;
 const OBSTACLE_SPAWN_Z=IS_MOBILE?-58:-74;
@@ -1285,7 +1294,7 @@ pedestrianLoader.load(
   gltf=>{
     pedestrianTemplate=gltf.scene;
     pedestrianAnimations=gltf.animations||[];
-    fitToHeight(pedestrianTemplate,2.05);
+    fitToHeight(pedestrianTemplate,2.02);
     pedestrianTemplate.traverse(obj=>{
       if(obj.isMesh){
         obj.castShadow=!IS_MOBILE;
@@ -1294,7 +1303,7 @@ pedestrianLoader.load(
     });
   },
   undefined,
-  err=>console.warn('Pedestrian model failed to load',err)
+  err=>console.warn('Pedestrian doll failed to load',err)
 );
 
 const loader=new GLTFLoader();
@@ -1687,30 +1696,68 @@ function createDeliveryBoxes(){
   return g;
 }
 
+function stylePedestrian(root,index=0){
+  const look=pedestrianLooks[index%pedestrianLooks.length];
+
+  root.traverse(obj=>{
+    if(!obj.isMesh)return;
+
+    const source=Array.isArray(obj.material)?obj.material:[obj.material];
+    const styled=source.map(material=>{
+      if(!material)return material;
+      const mat=material.clone();
+      const name=(mat.name||'').toLowerCase();
+
+      if(name.includes('shirt')||name.includes('top'))mat.color?.setHex(look.shirt);
+      else if(name.includes('pants')||name.includes('trouser'))mat.color?.setHex(look.pants);
+      else if(name.includes('belt'))mat.color?.setHex(look.belt);
+      else if(name.includes('hair'))mat.color?.setHex(look.hair);
+      else if(name.includes('shoe')||name.includes('sneaker'))mat.color?.setHex(look.shoes);
+      else if(name==='skin'||name.includes('skin'))mat.color?.setHex(look.skin);
+
+      if('roughness' in mat)mat.roughness=.74;
+      if('metalness' in mat)mat.metalness=.02;
+      return mat;
+    });
+
+    obj.material=Array.isArray(obj.material)?styled:styled[0];
+    obj.castShadow=!IS_MOBILE;
+    obj.receiveShadow=false;
+  });
+
+  root.scale.x*=look.width;
+  root.scale.z*=look.width;
+  root.scale.y*=look.height;
+  return look;
+}
+
 function createPedestrian(index=0){
   if(!pedestrianTemplate)return null;
-  const g=SkeletonUtils.clone(pedestrianTemplate);
-  const crossDir=Math.random()<.5?1:-1;
-  g.userData.crossDir=crossDir;
-  g.userData.crossSpeed=1.55+Math.random()*.5;
-  g.userData.startSide=crossDir>0?-1:1;
-  g.rotation.y=crossDir>0?-Math.PI/2:Math.PI/2;
-  g.userData.facingDir=crossDir;
-  g.scale.multiplyScalar(.94+Math.random()*.10);
 
-  g.traverse(obj=>{
-    if(obj.isMesh){
-      obj.castShadow=!IS_MOBILE;
-      obj.receiveShadow=false;
-    }
-  });
+  const g=SkeletonUtils.clone(pedestrianTemplate);
+  const look=stylePedestrian(g,index);
+  const crossDir=Math.random()<.5?1:-1;
+
+  g.userData.crossDir=crossDir;
+  g.userData.crossSpeed=(1.48+Math.random()*.42)*look.walkSpeed;
+  g.userData.startSide=crossDir>0?-1:1;
+
+  // Casual_Female faces +Z natively. +90° faces +X; -90° faces -X.
+  // Match orientation to travel direction so the pedestrian walks forward.
+  g.rotation.y=crossDir>0?Math.PI/2:-Math.PI/2;
+  g.userData.facingDir=crossDir;
 
   if(pedestrianAnimations.length){
     const mixer=new THREE.AnimationMixer(g);
-    const walkClip=pedestrianAnimations.find(c=>/walk/i.test(c.name))||pedestrianAnimations[0];
+    const walkClip=
+      pedestrianAnimations.find(c=>c.name.toLowerCase().endsWith('|walk')) ||
+      pedestrianAnimations.find(c=>c.name.toLowerCase()==='walk') ||
+      pedestrianAnimations.find(c=>/walk/i.test(c.name));
+
     if(walkClip){
       const action=mixer.clipAction(walkClip);
-      action.timeScale=.92+Math.random()*.14;
+      action.setLoop(THREE.LoopRepeat,Infinity);
+      action.timeScale=(.92+Math.random()*.12)*look.walkSpeed;
       action.play();
     }
     g.userData.mixer=mixer;
@@ -1747,7 +1794,7 @@ function spawnObstacle(){
   else if(kind==='sign')mesh=createRoadSign();
   else if(kind==='boxes')mesh=createDeliveryBoxes();
   else{
-    mesh=createPedestrian(Math.floor(Math.random()*12));
+    mesh=createPedestrian(Math.floor(Math.random()*pedestrianLooks.length));
     if(!mesh){
       kind='boxes';
       type='jump';
