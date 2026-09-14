@@ -109,10 +109,15 @@ const timeClueRunTuning={
   medium:{speedScale:.62,answerSpacing:.56,initialDelay:2.35,initialSpeed:17,maxSpeed:23},
   hard:{speedScale:.70,answerSpacing:.52,initialDelay:2.20,initialSpeed:17,maxSpeed:25}
 };
-const perfectRunTuning={
+const perfectRaceTuning={
   easy:{speedScale:.54,answerSpacing:.68,initialDelay:2.65,initialSpeed:16,maxSpeed:21},
   medium:{speedScale:.62,answerSpacing:.62,initialDelay:2.45,initialSpeed:17,maxSpeed:23},
   hard:{speedScale:.70,answerSpacing:.58,initialDelay:2.30,initialSpeed:17,maxSpeed:25}
+};
+const finalRaceTuning={
+  easy:{speedScale:.56,answerSpacing:.68,initialDelay:2.70,initialSpeed:16,maxSpeed:22},
+  medium:{speedScale:.64,answerSpacing:.62,initialDelay:2.48,initialSpeed:17,maxSpeed:24},
+  hard:{speedScale:.72,answerSpacing:.58,initialDelay:2.30,initialSpeed:17,maxSpeed:26}
 };
 let difficulty=difficultyPresets.medium;
 let totalChallenges=TOTAL_CHALLENGES;
@@ -866,6 +871,8 @@ let runnerReady=false;
 let runnerLoadFailed=false;
 let gamePaused=false;
 let victoryMode=false;
+let victoryArmBlend=0;
+let victoryArmRig={left:null,right:null};
 let runState=null;
 let currentLevel=1;
 let challenges=[];
@@ -873,7 +880,8 @@ let challengeIndex=0;
 let verbDeck=[];
 let sentenceDeck=[];
 let timeClueDeck=[];
-let perfectRunDeck=[];
+let perfectRaceDeck=[];
+let finalRaceDeck=[];
 let runElapsed=0;
 let noticeTimer=0;
 let pendingAnswers=[];
@@ -913,18 +921,20 @@ function updateStartButtonState(){
 }
 
 function isTextRace(){
-  return currentLevel===2||currentLevel===3||currentLevel===4;
+  return currentLevel>=2&&currentLevel<=5;
 }
 
 function raceMode(){
-  if(currentLevel===4)return 'perfect-run';
+  if(currentLevel===5)return 'final-race';
+  if(currentLevel===4)return 'perfect-race';
   if(currentLevel===3)return 'time-clues';
   if(currentLevel===2)return 'sentence-run';
   return 'verb-hunt';
 }
 
 function raceLabel(){
-  if(currentLevel===4)return 'PERFECT RUN';
+  if(currentLevel===5)return 'FINAL RACE';
+  if(currentLevel===4)return 'PERFECT RACE';
   if(currentLevel===3)return 'TIME CLUES';
   if(currentLevel===2)return 'SENTENCE RUNNER';
   return 'VERB RUNNER';
@@ -932,7 +942,13 @@ function raceLabel(){
 
 function setDifficultyCopy(){
   let copy;
-  if(currentLevel===4){
+  if(currentLevel===5){
+    copy={
+      easy:'3 options · concept clue shown · no advance loss',
+      medium:'3 options · mixed grammar · −1',
+      hard:'3 options · subtle mixed contexts · −2'
+    };
+  }else if(currentLevel===4){
     copy={
       easy:'3 options · focus shown · no advance loss',
       medium:'3 options · choose Simple vs Continuous · −1',
@@ -961,25 +977,34 @@ function setLevelUI(){
   const textMode=isTextRace();
   const timeMode=currentLevel===3;
   const perfectMode=currentLevel===4;
+  const finalMode=currentLevel===5;
 
   if(levelTitle){
-    levelTitle.textContent=perfectMode
-      ?'PERFECT RUN · RESULT VS PROCESS'
-      :timeMode
-        ?'TIME CLUES · MATCH THE MOMENT'
-        :currentLevel===2
-          ?'SENTENCE RUNNER · ALL TENSES'
-          :'VERB RUNNER · VERB HUNT';
+    levelTitle.textContent=finalMode
+      ?'FINAL RACE · EVERYTHING COUNTS'
+      :perfectMode
+        ?'PERFECT RACE · RESULT VS PROCESS'
+        :timeMode
+          ?'TIME CLUES · MATCH THE MOMENT'
+          :currentLevel===2
+            ?'SENTENCE RUNNER · ALL TENSES'
+            :'VERB RUNNER · VERB HUNT';
   }
 
   if(principalParts)principalParts.hidden=textMode;
   if(sentenceChallenge)sentenceChallenge.hidden=!textMode;
-  if(sentenceCueLabel)sentenceCueLabel.textContent=perfectMode?'FOCUS':(timeMode?'GRAMMAR':'VERB');
+  if(sentenceCueLabel)sentenceCueLabel.textContent=(perfectMode||finalMode)?'FOCUS':(timeMode?'GRAMMAR':'VERB');
   const cueBadge=sentenceCue?.closest('small');
   if(cueBadge)cueBadge.hidden=!textMode||difficulty.name!=='easy';
 
   if(taskInstruction){
-    if(perfectMode){
+    if(finalMode){
+      taskInstruction.textContent=difficulty.name==='easy'
+        ?'Use the concept clue, then solve the mixed challenge'
+        :difficulty.name==='hard'
+          ?'Everything counts · read the whole context before choosing'
+          :'Choose the option that makes the whole context work';
+    }else if(perfectMode){
       taskInstruction.textContent=difficulty.name==='easy'
         ?'Use the focus hint and choose the Perfect form that matches the meaning'
         :difficulty.name==='hard'
@@ -1004,12 +1029,14 @@ function setLevelUI(){
 
   if(resultKicker)resultKicker.textContent=raceLabel()+' COMPLETE';
   if(nextLevelButton){
-    nextLevelButton.hidden=currentLevel>=4;
+    nextLevelButton.hidden=currentLevel>=5;
     nextLevelButton.textContent=currentLevel===1
       ?'TRY NEXT RACE · SENTENCE RUNNER'
       :currentLevel===2
         ?'TRY NEXT RACE · TIME CLUES'
-        :'TRY NEXT RACE · PERFECT RUN';
+        :currentLevel===3
+          ?'TRY NEXT RACE · PERFECT RACE'
+          :'TRY NEXT RACE · FINAL RACE';
   }
 
   updateStartButtonState();
@@ -1022,9 +1049,11 @@ function setLevelUI(){
 
 function applySentenceRunTuning(){
   if(!isTextRace())return;
-  const source=currentLevel===4
-    ?perfectRunTuning
-    :currentLevel===3
+  const source=currentLevel===5
+    ?finalRaceTuning
+    :currentLevel===4
+      ?perfectRaceTuning
+      :currentLevel===3
       ?timeClueRunTuning
       :sentenceRunTuning;
   const tuning=source[difficulty.name]||source.medium;
@@ -1039,9 +1068,11 @@ function applySentenceRunTuning(){
 
 function sentenceInitialDelay(fallback=.55){
   if(!isTextRace())return fallback;
-  const source=currentLevel===4
-    ?perfectRunTuning
-    :currentLevel===3
+  const source=currentLevel===5
+    ?finalRaceTuning
+    :currentLevel===4
+      ?perfectRaceTuning
+      :currentLevel===3
       ?timeClueRunTuning
       :sentenceRunTuning;
   return (source[difficulty.name]||source.medium).initialDelay;
@@ -1065,7 +1096,8 @@ function applyDifficultyDefaults(preset){
 
 function selectRace(level){
   if(gameStarted)return;
-  currentLevel=Math.max(1,Math.min(4,Number(level)||1));
+  currentLevel=Math.max(1,Math.min(5,Number(level)||1));
+  totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
 
   if(sessionCode&&sessionData){
     applySessionSettings(sessionData.settings||{});
@@ -1245,20 +1277,22 @@ function renderChallenge(){
     );
     if(sentenceCue){
       sentenceCue.textContent=String(
-        currentLevel===4
+        currentLevel===5
           ?currentChallenge.focus
-          :currentLevel===3
+          :currentLevel===4
+            ?currentChallenge.focus
+            :currentLevel===3
             ?currentChallenge.grammarLabel
             :(currentChallenge.cue||currentChallenge.base||'')
       ).toUpperCase();
     }
-    if(sentenceCueLabel)sentenceCueLabel.textContent=currentLevel===4?'FOCUS':(currentLevel===3?'GRAMMAR':'VERB');
+    if(sentenceCueLabel)sentenceCueLabel.textContent=(currentLevel===4||currentLevel===5)?'FOCUS':(currentLevel===3?'GRAMMAR':'VERB');
     const cueBadge=sentenceCue?.closest('small');
     if(cueBadge)cueBadge.hidden=difficulty.name!=='easy';
     requestAnimationFrame(fitSentencePrompt);
     if(sessionCode&&sessionData){
       const easyHint=difficulty.name==='easy'
-        ?' ['+String(currentLevel===4?currentChallenge.focus:(currentLevel===3?currentChallenge.grammarLabel:(currentChallenge.cue||''))).toUpperCase()+']'
+        ?' ['+String(currentLevel===5?currentChallenge.focus:(currentLevel===4?currentChallenge.focus:(currentLevel===3?currentChallenge.grammarLabel:(currentChallenge.cue||'')))).toUpperCase()+']'
         :'';
       sessionUpdate({
         level:currentLevel,
@@ -1352,26 +1386,99 @@ function refillTimeClueDeck(){
   );
 }
 
-function makePerfectRunChallenge(template){
-  return window.VerbRunnerPerfectRunBank.createChallenge(template,{
+function makePerfectRaceChallenge(template){
+  return window.VerbRunnerPerfectRaceBank.createChallenge(template,{
     difficulty:difficulty.name,
     distractorCount:2
   });
 }
 
-function refillPerfectRunDeck(){
-  perfectRunDeck=window.VerbRunnerPerfectRunBank.shuffled(
-    (window.VerbRunnerPerfectRunBank?.ITEMS||[]).filter(item=>item.tier===difficulty.name)
+function refillPerfectRaceDeck(){
+  perfectRaceDeck=window.VerbRunnerPerfectRaceBank.shuffled(
+    (window.VerbRunnerPerfectRaceBank?.ITEMS||[]).filter(item=>item.tier===difficulty.name)
   );
+}
+
+function makeFinalPrincipalChallenge(verb){
+  const baseChallenge=window.VerbRunnerChallenge.createChallenge(verb,{
+    difficulty:difficulty.name,
+    distractorCount:2
+  });
+  const labels=['BASE','PAST','PARTICIPLE'];
+  const text=baseChallenge.slots.map((value,index)=>
+    labels[index]+': '+(value==null?'___':String(value).toUpperCase())
+  ).join('  ·  ');
+  return {
+    ...baseChallenge,
+    level:5,
+    mode:'final-race',
+    text,
+    timeExpressions:[],
+    focus:'PRINCIPAL PARTS',
+    finalCategory:'principal-parts',
+    correctAnswers:[baseChallenge.correctAnswer],
+    distractors:[...(baseChallenge.distractors||[])].slice(0,2)
+  };
+}
+
+function makeFinalSentenceChallenge(template){
+  const challenge=window.VerbRunnerSentenceBank.createChallenge(template,{
+    difficulty:difficulty.name,
+    distractorCount:2
+  });
+  return {...challenge,level:5,mode:'final-race',focus:'CONTEXT + VERB FORM',finalCategory:'tense-context'};
+}
+
+function makeFinalTimeClueChallenge(template){
+  const challenge=window.VerbRunnerTimeCluesBank.createChallenge(template,{
+    difficulty:difficulty.name,
+    distractorCount:2
+  });
+  return {...challenge,level:5,mode:'final-race',focus:'TIME RELATIONSHIP',finalCategory:'time-clue'};
+}
+
+function makeFinalPerfectChallenge(template){
+  const challenge=window.VerbRunnerPerfectRaceBank.createChallenge(template,{
+    difficulty:difficulty.name,
+    distractorCount:2
+  });
+  return {...challenge,level:5,mode:'final-race',finalCategory:'perfect'};
+}
+
+function buildFinalRaceChallenges(){
+  const randomPick=(values,count)=>window.VerbRunnerFinalRaceBank.shuffled([...values]).slice(0,count);
+  const combo=window.VerbRunnerFinalRaceBank.buildComboRound(18,{difficulty:difficulty.name});
+  const verbs=randomPick(window.VerbRunnerBank?.VERBS||[],3).map(makeFinalPrincipalChallenge);
+  const sentences=randomPick(window.VerbRunnerSentenceBank?.SENTENCES||[],3).map(makeFinalSentenceChallenge);
+  const timeClues=randomPick(
+    (window.VerbRunnerTimeCluesBank?.ITEMS||[]).filter(item=>item.tier===difficulty.name),3
+  ).map(makeFinalTimeClueChallenge);
+  const perfect=randomPick(
+    (window.VerbRunnerPerfectRaceBank?.ITEMS||[]).filter(item=>item.tier===difficulty.name),3
+  ).map(makeFinalPerfectChallenge);
+  return window.VerbRunnerFinalRaceBank.shuffled([
+    ...combo,...verbs,...sentences,...timeClues,...perfect
+  ]);
+}
+
+function makeFinalRaceExtraChallenge(){
+  const combo=window.VerbRunnerFinalRaceBank.buildComboRound(1,{difficulty:difficulty.name})[0];
+  return combo||null;
 }
 
 function ensureChallengeAvailable(){
   while(challengeIndex>=challenges.length){
+    if(currentLevel===5){
+      const nextFinal=makeFinalRaceExtraChallenge();
+      if(!nextFinal)break;
+      challenges.push(nextFinal);
+      continue;
+    }
     if(currentLevel===4){
-      if(!perfectRunDeck.length)refillPerfectRunDeck();
-      const nextPerfect=perfectRunDeck.shift();
+      if(!perfectRaceDeck.length)refillPerfectRaceDeck();
+      const nextPerfect=perfectRaceDeck.shift();
       if(!nextPerfect)break;
-      challenges.push(makePerfectRunChallenge(nextPerfect));
+      challenges.push(makePerfectRaceChallenge(nextPerfect));
       continue;
     }
     if(currentLevel===3){
@@ -1399,13 +1506,20 @@ function buildChallenges(){
   challenges=[];
   challengeIndex=0;
 
+  if(currentLevel===5){
+    applySentenceRunTuning();
+    challenges=buildFinalRaceChallenges();
+    finalRaceDeck=[];
+    return;
+  }
+
   if(currentLevel===4){
     applySentenceRunTuning();
-    challenges=window.VerbRunnerPerfectRunBank.buildRound(totalChallenges,{
+    challenges=window.VerbRunnerPerfectRaceBank.buildRound(totalChallenges,{
       difficulty:difficulty.name,
       distractorCount:2
     });
-    perfectRunDeck=[];
+    perfectRaceDeck=[];
     return;
   }
 
@@ -1447,7 +1561,7 @@ function roundedRectPath(ctx,x,y,w,h,r){
 }
 
 function makeAnswerTexture(word){
-  const timeClue=currentLevel===3||currentLevel===4;
+  const timeClue=currentLevel>=3&&currentLevel<=5;
   const c=document.createElement('canvas');
   c.width=timeClue?1280:1024;
   c.height=timeClue?480:360;
@@ -1551,7 +1665,7 @@ let lastCorrectLane=-1;
 function spawnAnswer(item,forcedLane=null){
   if(!gameStarted||gamePaused||victoryMode)return false;
 
-  const spawnZ=currentLevel===3?(IS_MOBILE?-62:-84):(currentLevel===4?(IS_MOBILE?-58:-80):ANSWER_SPAWN_Z);
+  const spawnZ=currentLevel===3?(IS_MOBILE?-62:-84):((currentLevel===4||currentLevel===5)?(IS_MOBILE?-58:-80):ANSWER_SPAWN_Z);
   const pedestrianTooClose=obstacles.some(o=>
     o?.kind==='pedestrian' &&
     o?.mesh &&
@@ -1602,8 +1716,8 @@ function spawnAnswer(item,forcedLane=null){
   if(item.correct)lastCorrectLane=laneIndex;
 
   const group=new THREE.Group();
-  const cardW=(currentLevel===3||currentLevel===4)?(IS_MOBILE?4.20:3.65):(IS_MOBILE?3.70:3.05);
-  const cardH=(currentLevel===3||currentLevel===4)?(IS_MOBILE?1.58:1.38):(IS_MOBILE?1.34:1.10);
+  const cardW=(currentLevel>=3&&currentLevel<=5)?(IS_MOBILE?4.20:3.65):(IS_MOBILE?3.70:3.05);
+  const cardH=(currentLevel>=3&&currentLevel<=5)?(IS_MOBILE?1.58:1.38):(IS_MOBILE?1.34:1.10);
   const glow=new THREE.Mesh(
     new THREE.PlaneGeometry(cardW+0.28,cardH+0.18),
     new THREE.MeshBasicMaterial({color:0x45ddff,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false,fog:false,toneMapped:false})
@@ -1645,10 +1759,12 @@ function launchChallengeChain(initialDelay=.42){
   if(!currentChallenge)return;
 
   initialDelay=sentenceInitialDelay(initialDelay);
-  const sequence=currentLevel===4
-    ?window.VerbRunnerPerfectRunBank.buildAnswerSequence(currentChallenge,{
-        distractorCount:2
-      })
+  const sequence=currentLevel===5
+    ?window.VerbRunnerFinalRaceBank.buildAnswerSequence(currentChallenge)
+    :currentLevel===4
+      ?window.VerbRunnerPerfectRaceBank.buildAnswerSequence(currentChallenge,{
+          distractorCount:2
+        })
     :currentLevel===3
       ?window.VerbRunnerTimeCluesBank.buildAnswerSequence(currentChallenge,{
           distractorCount:2
@@ -1680,7 +1796,7 @@ function launchChallengeChain(initialDelay=.42){
   recentCorrectPositions.push(correctIndex);
   if(recentCorrectPositions.length>4)recentCorrectPositions.shift();
 
-  const choiceLanes=(currentLevel===3||currentLevel===4)
+  const choiceLanes=(currentLevel>=3&&currentLevel<=5)
     ?[0,1,2].sort(()=>Math.random()-.5)
     :null;
   pendingAnswers=sequence.map((item,index)=>({
@@ -1771,7 +1887,7 @@ async function animateAnswerToBlank(answer,correct,startOverride=null){
 
   const flyer=document.createElement('div');
   flyer.className='answer-flight';
-  if(currentLevel===3||currentLevel===4)flyer.classList.add('time-clue-flight');
+  if(currentLevel>=3&&currentLevel<=5)flyer.classList.add('time-clue-flight');
   flyer.textContent=String(answer.item.value).toUpperCase();
   flyer.style.left=start.x+'px';
   flyer.style.top=start.y+'px';
@@ -1967,10 +2083,13 @@ function missedCorrectAnswer(){
   clearAnswers();
 
   if(challengeIndex>=challenges.length-1){
-    if(currentLevel===4){
-      if(!perfectRunDeck.length)refillPerfectRunDeck();
-      const nextPerfect=perfectRunDeck.shift();
-      if(nextPerfect)challenges.push(makePerfectRunChallenge(nextPerfect));
+    if(currentLevel===5){
+      const nextFinal=makeFinalRaceExtraChallenge();
+      if(nextFinal)challenges.push(nextFinal);
+    }else if(currentLevel===4){
+      if(!perfectRaceDeck.length)refillPerfectRaceDeck();
+      const nextPerfect=perfectRaceDeck.shift();
+      if(nextPerfect)challenges.push(makePerfectRaceChallenge(nextPerfect));
     }else if(currentLevel===3){
       if(!timeClueDeck.length)refillTimeClueDeck();
       const nextTimeClue=timeClueDeck.shift();
@@ -1996,7 +2115,7 @@ function missedCorrectAnswer(){
     }
   }
 
-  showNotice((currentLevel===4?'CORRECT PERFECT FORM':(currentLevel===3?'CORRECT TIME CLUE':'CORRECT FORM'))+' MISSED · MOVED TO END','info');
+  showNotice((currentLevel===5?'CORRECT ANSWER':(currentLevel===4?'CORRECT PERFECT FORM':(currentLevel===3?'CORRECT TIME CLUE':'CORRECT FORM')))+' MISSED · MOVED TO END','info');
   renderChallenge();
   launchChallengeChain(.6);
 }
@@ -2109,7 +2228,7 @@ function timeClueHintFor(challenge){
   return (challenge.grammarLabel||'This structure')+': '+(hints[challenge.group]||'Match the verb structure to the time relationship expressed by the clue.');
 }
 
-function perfectRunHintFor(challenge){
+function perfectRaceHintFor(challenge){
   if(!challenge)return 'Ask two questions: is the context emphasizing a completed result, or the duration/process of an activity?';
   const group=String(challenge.group||'');
   const simple=group.endsWith('-simple');
@@ -2125,6 +2244,15 @@ function perfectRunHintFor(challenge){
   return anchors[period]+' '+contrast;
 }
 
+function finalRaceHintFor(challenge){
+  if(!challenge)return 'Read the whole context before choosing. First locate the time reference, then decide what grammar relationship the sentence needs.';
+  if(challenge.finalCategory==='principal-parts')return 'Identify which principal part is missing: base form, Simple Past, or Past Participle. Ignore tense clues because this item is testing the verb form itself.';
+  if(challenge.finalCategory==='time-clue')return 'The verb is already fixed. Choose the time expression that is compatible with that tense, aspect, and reference point.';
+  if(challenge.finalCategory==='perfect')return perfectRaceHintFor(challenge);
+  if(challenge.finalCategory==='tense-context')return 'Use the entire context: when does the action happen, and is it a routine, completed event, action in progress, future event, or Perfect relationship?';
+  return 'Mixed challenge: identify the time reference first, then decide whether the sentence emphasizes completion/result or duration/process. Check every part of the context before choosing.';
+}
+
 function updatePauseReadingCard(){
   const sentenceMode=isTextRace()&&currentChallenge;
   if(!pauseReadingCard)return;
@@ -2132,11 +2260,13 @@ function updatePauseReadingCard(){
   if(!sentenceMode)return;
 
   if(pauseReadingMode){
-    pauseReadingMode.textContent=currentLevel===4
-      ?(difficulty.name==='hard'?'PERFECT RUN · COMPARE THE MEANING':'PERFECT COACH')
-      :currentLevel===3
-        ?(difficulty.name==='hard'?'TIME CLUES · THINK IT THROUGH':'TIME CLUE COACH')
-        :(difficulty.name==='hard'?'HARD MODE · TAKE YOUR TIME':'READ AT YOUR OWN PACE');
+    pauseReadingMode.textContent=currentLevel===5
+      ?(difficulty.name==='hard'?'FINAL RACE · READ THE WHOLE CONTEXT':'FINAL RACE COACH')
+      :currentLevel===4
+        ?(difficulty.name==='hard'?'PERFECT RACE · COMPARE THE MEANING':'PERFECT COACH')
+        :currentLevel===3
+          ?(difficulty.name==='hard'?'TIME CLUES · THINK IT THROUGH':'TIME CLUE COACH')
+          :(difficulty.name==='hard'?'HARD MODE · TAKE YOUR TIME':'READ AT YOUR OWN PACE');
   }
 
   if(pauseSentenceText){
@@ -2144,11 +2274,13 @@ function updatePauseReadingCard(){
   }
 
   if(pauseHintText){
-    pauseHintText.textContent=currentLevel===4
-      ?perfectRunHintFor(currentChallenge)
-      :currentLevel===3
-        ?timeClueHintFor(currentChallenge)
-        :sentenceHintFor(currentChallenge);
+    pauseHintText.textContent=currentLevel===5
+      ?finalRaceHintFor(currentChallenge)
+      :currentLevel===4
+        ?perfectRaceHintFor(currentChallenge)
+        :currentLevel===3
+          ?timeClueHintFor(currentChallenge)
+          :sentenceHintFor(currentChallenge);
   }
 }
 
@@ -2178,6 +2310,7 @@ function finishRun(){
   playSfx('victory');
   gameStarted=false;
   victoryMode=false;
+  victoryArmBlend=0;
   gamePaused=false;
   answerResolutionActive=false;
   lastCorrectAnswerIndex=-1;
@@ -2197,7 +2330,7 @@ function finishRun(){
   resultObstacles.textContent=String(summary.obstacleHits);
   resultMomentum.textContent=summary.momentum+'%';
   if(resultKicker)resultKicker.textContent=raceLabel()+' COMPLETE';
-  if(nextLevelButton)nextLevelButton.hidden=currentLevel>=4;
+  if(nextLevelButton)nextLevelButton.hidden=currentLevel>=5;
   resultOverlay.hidden=false;
 
   try{
@@ -2228,8 +2361,59 @@ function finishRun(){
   }
 }
 
+function configureVictoryArmRig(root){
+  const bones=[];
+  root?.traverse?.(obj=>{if(obj.isBone)bones.push(obj);});
+  const clean=name=>String(name||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const pick=side=>{
+    const sideWord=side==='left'?'left':'right';
+    const sideLetter=side==='left'?'l':'r';
+    const strong=bones.filter(b=>{
+      const n=clean(b.name);
+      return (n.includes('upperarm')||n.includes('uparm'))&&
+        (n.includes(sideWord)||n.endsWith(sideLetter));
+    });
+    if(strong.length)return strong[0];
+    return bones.find(b=>{
+      const n=clean(b.name);
+      return !n.includes('armature')&&!n.includes('fore')&&!n.includes('lower')&&!n.includes('hand')&&
+        n.includes('arm')&&(n.includes(sideWord)||n.endsWith(sideLetter));
+    })||null;
+  };
+  const makeRig=bone=>{
+    if(!bone)return null;
+    const lower=bone.children.find(child=>child.isBone)||null;
+    const childDir=lower&&lower.position.lengthSq()>.0001
+      ?lower.position.clone().normalize()
+      :new THREE.Vector3(0,-1,0);
+    return {
+      bone,
+      lower,
+      childDir,
+      lowerRest:lower?lower.quaternion.clone():null
+    };
+  };
+  victoryArmRig={left:makeRig(pick('left')),right:makeRig(pick('right'))};
+}
+
+function applyVictoryArmPose(){
+  if(!victoryMode||victoryArmBlend<=0)return;
+  const pose=(rig,worldDirection)=>{
+    if(!rig?.bone?.parent)return;
+    const parentQ=new THREE.Quaternion();
+    rig.bone.parent.getWorldQuaternion(parentQ);
+    const localTarget=worldDirection.clone().applyQuaternion(parentQ.invert()).normalize();
+    const targetQ=new THREE.Quaternion().setFromUnitVectors(rig.childDir,localTarget);
+    rig.bone.quaternion.slerp(targetQ,victoryArmBlend);
+    if(rig.lower&&rig.lowerRest)rig.lower.quaternion.slerp(rig.lowerRest,Math.min(1,victoryArmBlend*.9));
+  };
+  pose(victoryArmRig.left,new THREE.Vector3(-.72,.76,0));
+  pose(victoryArmRig.right,new THREE.Vector3(.72,.76,0));
+}
+
 function beginVictorySprint(){
   victoryMode=true;
+  victoryArmBlend=0;
   clearAnswers();
   for(const o of obstacles.splice(0))scene.remove(o.mesh);
   showNotice('VICTORY SPRINT!','correct');
@@ -2239,11 +2423,13 @@ function beginVictorySprint(){
   }
   setTimeout(()=>{
     if(actions.run)actions.run.timeScale=1.2;
+    victoryArmBlend=0;
     finishRun();
-  },2200);
+  },2500);
 }
 
 function resetRun(){
+  totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
   runState=window.VerbRunnerGameCore.createRunState(totalChallenges);
   challengeIndex=0;
   runElapsed=0;
@@ -2258,7 +2444,8 @@ function resetRun(){
   verbDeck=[];
   sentenceDeck=[];
   timeClueDeck=[];
-  perfectRunDeck=[];
+  perfectRaceDeck=[];
+  finalRaceDeck=[];
   applySentenceRunTuning();
   setLevelUI();
   buildChallenges();
@@ -2356,6 +2543,7 @@ loader.load(
     model.rotation.y=Math.PI;
     model.position.y=0;
     runnerRoot.add(model);
+    configureVictoryArmRig(model);
 
     mixer=new THREE.AnimationMixer(model);
     const runClip=chooseClip(gltf.animations,['running','run'])||gltf.animations[0];
@@ -2528,8 +2716,9 @@ runAgainButton.addEventListener('click',()=>{
 });
 
 nextLevelButton?.addEventListener('click',async()=>{
-  if(currentLevel>=4)return;
+  if(currentLevel>=5)return;
   currentLevel+=1;
+  totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
   resultOverlay.hidden=true;
   if(sessionCode&&sessionData)applySessionSettings(sessionData.settings||{});
   else{
@@ -3220,6 +3409,10 @@ function animate(){
   const dt=Math.min(clock.getDelta(),.04);
 
   if(mixer&&!gamePaused)mixer.update(dt);
+  if(victoryMode&&!gamePaused){
+    victoryArmBlend=Math.min(1,victoryArmBlend+dt*4.2);
+    applyVictoryArmPose();
+  }
   hitCooldown=Math.max(0,hitCooldown-dt);
 
   if(noticeTimer>0){
