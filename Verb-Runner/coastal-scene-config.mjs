@@ -12,7 +12,7 @@ export const COASTAL_SCENE = Object.freeze({
 });
 
 export function buildCoastalSceneSvg(){
-  return \`
+  return `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 720">
   <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
@@ -214,5 +214,5 @@ export function buildCoastalSceneSvg(){
   </g>
 
   <rect width="1920" height="720" fill="#ffd889" opacity=".08"/>
-</svg>\`;
+</svg>`;
 }
