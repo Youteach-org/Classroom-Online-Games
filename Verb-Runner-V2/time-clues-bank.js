@@ -15,6 +15,33 @@
     "going-to":"Be going to"
   };
 
+  const EXTRA_HARD={
+    th01:"during the next two years",
+    th02:"at noon yesterday",
+    th03:"before joining the hospital",
+    th04:"during the next few weeks",
+    th05:"until early March last year",
+    th06:"tomorrow afternoon",
+    th07:"after the doctor returns tomorrow",
+    th08:"during the trip next month",
+    th09:"for three hours next Saturday",
+    th10:"from dawn tomorrow",
+    th11:"for nearly an hour tomorrow",
+    th12:"during the previous week",
+    th13:"after you return tomorrow",
+    th14:"after the trip begins",
+    th15:"ten years from now",
+    th16:"three hours from now",
+    th17:"during the next six months",
+    th18:"throughout last month",
+    th19:"during the previous month",
+    th20:"when the alarm sounds tomorrow",
+    th21:"before the meeting starts tomorrow",
+    th22:"after the results were confirmed",
+    th23:"at the beginning of last year",
+    th24:"at 10:30 tomorrow night"
+  };
+
   const rows=[
     // EASY — highly visible time markers.
     ["te01","easy","present-simple","Maya drinks coffee ___.","every morning",["yesterday morning","right now","by tomorrow"]],
@@ -99,7 +126,7 @@
     id,tier,group,text,
     grammarLabel:GROUP_LABELS[group]||group,
     correctAnswers:[correct],
-    distractors
+    distractors:[...distractors,...(tier==='hard'&&EXTRA_HARD[id]?[EXTRA_HARD[id]]:[])]
   }));
 
   function shuffled(values,random=Math.random){
