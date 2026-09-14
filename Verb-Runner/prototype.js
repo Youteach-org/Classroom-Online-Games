@@ -1262,6 +1262,29 @@ function fitSentencePrompt(){
   }
 }
 
+function fitPrincipalPartText(){
+  document.querySelectorAll('[data-slot] b').forEach(label=>{
+    const part=label.closest('.part');
+    if(!part)return;
+    label.style.fontSize='';
+    label.style.whiteSpace='nowrap';
+    label.style.lineHeight='';
+    if(part.classList.contains('blank'))return;
+
+    const available=Math.max(42,part.clientWidth-12);
+    let size=parseFloat(getComputedStyle(label).fontSize)||36;
+    const minimum=window.innerWidth<=640?11:13;
+    while(label.scrollWidth>available&&size>minimum){
+      size-=1;
+      label.style.fontSize=size+'px';
+    }
+    if(label.scrollWidth>available){
+      label.style.whiteSpace='normal';
+      label.style.lineHeight='.95';
+    }
+  });
+}
+
 function renderChallenge(){
   ensureChallengeAvailable();
   currentChallenge=challenges[challengeIndex];
@@ -1314,6 +1337,7 @@ function renderChallenge(){
     if(value&&display.length>=11)el.classList.add('very-long-form');
     else if(value&&display.length>=8)el.classList.add('long-form');
   });
+  requestAnimationFrame(fitPrincipalPartText);
   if(sessionCode&&sessionData){
     const known=currentChallenge.slots.map(v=>v?String(v).toUpperCase():'?').join(' · ');
     sessionUpdate({
@@ -2152,7 +2176,7 @@ function returnToRaceMenu(){
   answerResolutionActive=false;
   pauseOverlay.hidden=true;
   resultOverlay.hidden=true;
-  pauseButton.textContent='Ⅱ';
+  pauseButton.classList.remove('is-paused'); pauseButton.setAttribute('aria-label','Pause game');
   hidePauseConfirmation();
   hidePauseSubpanels();
   clearAnswers();
@@ -2173,7 +2197,7 @@ function restartCurrentRace(){
   resetRun();
   gameStarted=true;
   gamePaused=false;
-  pauseButton.textContent='Ⅱ';
+  pauseButton.classList.remove('is-paused'); pauseButton.setAttribute('aria-label','Pause game');
   play('run',.10);
   playSfx('resume');
   startMusic();
@@ -2300,7 +2324,7 @@ function setPaused(next){
     if(musicEnabled)startMusic();
     playSfx('resume');
   }
-  pauseButton.textContent=next?'▶':'Ⅱ';
+  pauseButton.classList.toggle('is-paused',next); pauseButton.setAttribute('aria-label',next?'Resume game':'Pause game');
   modelStatus.textContent=next?'Paused':variants[selectedVariant].name+' robot · DAY CITY AVENUE';
   if(sessionCode&&sessionData)sessionUpdate({status:next?'paused':'running'}).catch(()=>{});
 }
@@ -2795,10 +2819,16 @@ function jump(){
 }
 
 window.addEventListener('keydown',e=>{
+  if(e.code==='Escape'&&gameStarted&&gamePaused){
+    e.preventDefault();
+    setPaused(false);
+    return;
+  }
   if(['ArrowLeft','KeyA'].includes(e.code))moveLane(-1);
   if(['ArrowRight','KeyD'].includes(e.code))moveLane(1);
   if(['ArrowUp','Space','KeyW'].includes(e.code))jump();
 });
+window.addEventListener('resize',()=>requestAnimationFrame(fitPrincipalPartText));
 
 let touchStart=null;
 canvas.addEventListener('pointerdown',e=>{
