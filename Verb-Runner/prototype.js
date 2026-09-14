@@ -75,6 +75,11 @@ const speedValue=document.querySelector('#speedValue');
 const speedDescription=document.querySelector('#speedDescription');
 const changeRunnerButton=document.querySelector('#changeRunnerButton');
 const controlsButton=document.querySelector('#controlsButton');
+const errorReportButton=document.querySelector('#errorReportButton');
+const errorReportCount=document.querySelector('#errorReportCount');
+const errorReportPanel=document.querySelector('#errorReportPanel');
+const errorReportSummary=document.querySelector('#errorReportSummary');
+const errorReportList=document.querySelector('#errorReportList');
 const pauseRunnerPanel=document.querySelector('#pauseRunnerPanel');
 const controlsPanel=document.querySelector('#controlsPanel');
 const restartRaceButton=document.querySelector('#restartRaceButton');
@@ -892,6 +897,7 @@ let answerSpawnClock=0;
 let currentChallenge=null;
 let retryQueued=false;
 let answerResolutionActive=false;
+let mistakeLog=[];
 let lastCorrectAnswerIndex=-1;
 let recentCorrectPositions=[];
 let blankUsage=[0,0,0];
@@ -2118,6 +2124,77 @@ async function animateAnswerToBlank(answer,correct,startOverride=null){
   }
 }
 
+function escapeReportHtml(value){
+  return String(value??'').replace(/[&<>"']/g,char=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[char]));
+}
+
+function reportQuestionText(challenge=currentChallenge){
+  if(!challenge)return 'Unknown challenge';
+  if(challenge.text)return String(challenge.text).replace(/___/g,'_____');
+  if(Array.isArray(challenge.slots)){
+    return challenge.slots
+      .map(value=>value==null?'_____':String(value).toUpperCase())
+      .join(' · ');
+  }
+  return String(challenge.base||challenge.cue||'Verb challenge').toUpperCase();
+}
+
+function reportCorrectAnswer(challenge=currentChallenge){
+  const answers=challenge?.correctAnswers?.length
+    ?challenge.correctAnswers
+    :[challenge?.correctAnswer].filter(Boolean);
+  return answers.map(value=>String(value)).join(' / ')||'—';
+}
+
+function updateErrorReport(){
+  const count=mistakeLog.length;
+  if(errorReportCount)errorReportCount.textContent=String(count);
+  if(errorReportSummary)errorReportSummary.textContent=count+' '+(count===1?'ERROR':'ERRORS');
+  if(!errorReportList)return;
+
+  if(!count){
+    errorReportList.innerHTML='<div class="error-report-empty">No mistakes yet.</div>';
+    return;
+  }
+
+  errorReportList.innerHTML=mistakeLog.slice().reverse().map((entry,index)=>{
+    const number=count-index;
+    const missed=entry.type==='missed';
+    return `
+      <article class="error-report-item ${missed?'missed':''}">
+        <div class="error-report-meta">
+          <span>#${number} · ${escapeReportHtml(entry.race)}</span>
+          <span>${missed?'MISSED':'WRONG CHOICE'}</span>
+        </div>
+        <div class="error-report-question">${escapeReportHtml(entry.question)}</div>
+        <div class="error-report-answer-grid">
+          <div class="error-report-wrong">
+            <span>${missed?'YOU MISSED':'YOU CHOSE'}</span>
+            <b>${escapeReportHtml(missed?'NO ANSWER':entry.chosen)}</b>
+          </div>
+          <div class="error-report-correct">
+            <span>CORRECT</span>
+            <b>${escapeReportHtml(entry.correct)}</b>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+function recordMistake({type='wrong',chosen=''}={}){
+  mistakeLog.push({
+    type,
+    race:raceLabel(),
+    question:reportQuestionText(currentChallenge),
+    chosen:String(chosen||''),
+    correct:reportCorrectAnswer(currentChallenge)
+  });
+  updateErrorReport();
+}
+
 async function collectAnswer(answer){
   if(answer.resolved||answerResolutionActive)return;
   answer.resolved=true;
@@ -2146,6 +2223,7 @@ async function collectAnswer(answer){
     launchChallengeChain(.55);
     answerResolutionActive=false;
   }else{
+    recordMistake({type:'wrong',chosen:item.value});
     const startPoint=answerScreenPoint(answer);
     const selectedCopy={mesh:answer.mesh,item:answer.item};
     disposeAnswer(answer);
@@ -2159,6 +2237,7 @@ async function collectAnswer(answer){
 
 function missedCorrectAnswer(){
   if(victoryMode)return;
+  recordMistake({type:'missed'});
   clearAnswers();
 
   if(challengeIndex>=challenges.length-1){
@@ -2204,6 +2283,7 @@ let pendingPauseAction=null;
 function hidePauseSubpanels(){
   if(pauseRunnerPanel)pauseRunnerPanel.hidden=true;
   if(controlsPanel)controlsPanel.hidden=true;
+  if(errorReportPanel)errorReportPanel.hidden=true;
 }
 
 function showPauseConfirmation(action){
@@ -2373,6 +2453,7 @@ function setPaused(next){
     hidePauseConfirmation();
     hidePauseSubpanels();
     updatePauseReadingCard();
+    updateErrorReport();
     stopMusic();
     playSfx('pause');
   }else{
@@ -2518,6 +2599,8 @@ function resetRun(){
   hitCooldown=0;
   victoryMode=false;
   gamePaused=false;
+  mistakeLog=[];
+  updateErrorReport();
   clearAnswers();
   lastCorrectLane=-1;
   verbDeck=[];
@@ -2752,6 +2835,13 @@ controlsButton?.addEventListener('click',()=>{
   const nextHidden=!controlsPanel?.hidden;
   hidePauseSubpanels();
   if(controlsPanel)controlsPanel.hidden=nextHidden;
+});
+errorReportButton?.addEventListener('click',()=>{
+  playSfx('click');
+  const nextHidden=!errorReportPanel?.hidden;
+  hidePauseSubpanels();
+  updateErrorReport();
+  if(errorReportPanel)errorReportPanel.hidden=nextHidden;
 });
 restartRaceButton?.addEventListener('click',()=>{playSfx('click');showPauseConfirmation('restart');});
 quitRaceButton?.addEventListener('click',()=>{playSfx('click');showPauseConfirmation('quit');});

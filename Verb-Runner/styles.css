@@ -934,3 +934,124 @@ button,a{-webkit-tap-highlight-color:transparent}
     word-break:normal;
   }
 }
+
+
+/* Pause error report */
+#pauseOverlay .pause-option-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+#pauseOverlay .pause-error-button{
+  grid-column:1 / -1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+}
+#pauseOverlay .pause-error-button>span{
+  display:inline-grid;
+  place-items:center;
+  min-width:22px;
+  height:22px;
+  padding:0 6px;
+  border-radius:999px;
+  background:rgba(255,101,123,.18);
+  color:#ff9cab;
+  font-size:10px;
+  letter-spacing:0;
+}
+.error-report-panel{
+  text-align:left;
+  max-height:42vh;
+  overflow:auto;
+}
+.error-report-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  position:sticky;
+  top:0;
+  z-index:2;
+  padding-bottom:9px;
+  background:#0b1f2d;
+}
+.error-report-head .pause-subpanel-title{margin-bottom:3px}
+.error-report-head small{
+  color:#a8bbc7;
+  font-size:9px;
+  line-height:1.35;
+}
+.error-report-head>b{
+  flex:0 0 auto;
+  color:#ff9cab;
+  font-size:10px;
+  letter-spacing:.05em;
+}
+.error-report-list{
+  display:grid;
+  gap:8px;
+}
+.error-report-empty{
+  padding:14px 10px;
+  border-radius:10px;
+  background:rgba(255,255,255,.04);
+  color:#a8bbc7;
+  font-size:10px;
+  text-align:center;
+}
+.error-report-item{
+  padding:10px;
+  border:1px solid rgba(255,101,123,.22);
+  border-radius:11px;
+  background:rgba(73,19,31,.24);
+}
+.error-report-item.missed{
+  border-color:rgba(255,213,92,.22);
+  background:rgba(76,57,10,.20);
+}
+.error-report-meta{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:6px;
+  color:#85e7ff;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.error-report-question{
+  margin-bottom:8px;
+  color:#f4fbff;
+  font-size:11px;
+  font-weight:800;
+  line-height:1.35;
+}
+.error-report-answer-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+}
+.error-report-answer-grid>div{
+  padding:7px 8px;
+  border-radius:8px;
+  background:rgba(255,255,255,.04);
+}
+.error-report-answer-grid span{
+  display:block;
+  margin-bottom:3px;
+  color:#91a7b4;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.error-report-answer-grid b{
+  display:block;
+  font-size:10px;
+  line-height:1.25;
+}
+.error-report-wrong b{color:#ff8798}
+.error-report-correct b{color:#7cf0a8}
+@media (max-width:640px){
+  .error-report-answer-grid{grid-template-columns:1fr}
+  .error-report-panel{max-height:36vh}
+}

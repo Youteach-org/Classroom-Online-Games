@@ -172,6 +172,9 @@
           <div class="pause-option-grid">
             <button id="changeRunnerButton" class="pause-option-button" type="button">CHANGE RUNNER</button>
             <button id="controlsButton" class="pause-option-button" type="button">CONTROLS</button>
+            <button id="errorReportButton" class="pause-option-button pause-error-button" type="button">
+              ERROR REPORT <span id="errorReportCount">0</span>
+            </button>
           </div>
 
           <div id="pauseRunnerPanel" class="pause-subpanel" hidden>
@@ -190,6 +193,19 @@
             <div class="pause-subpanel-title">CONTROLS</div>
             <div><b>LANES</b><span>← → / A D · Swipe left or right</span></div>
             <div><b>JUMP</b><span>↑ / W / Space · Tap or swipe up</span></div>
+          </div>
+
+          <div id="errorReportPanel" class="pause-subpanel error-report-panel" hidden>
+            <div class="error-report-head">
+              <div>
+                <div class="pause-subpanel-title">ERROR REPORT</div>
+                <small>Wrong choices and missed answers from this race.</small>
+              </div>
+              <b id="errorReportSummary">0 ERRORS</b>
+            </div>
+            <div id="errorReportList" class="error-report-list">
+              <div class="error-report-empty">No mistakes yet.</div>
+            </div>
           </div>
 
           <div class="audio-settings">
