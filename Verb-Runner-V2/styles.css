@@ -242,3 +242,28 @@ button,a{-webkit-tap-highlight-color:transparent}
   .result-actions{flex-wrap:wrap}
   .next-level-button{min-width:min(230px,88vw)}
 }
+
+.sentence-blank{
+  display:inline-block;
+  min-width:76px;
+  margin:0 5px;
+  padding:2px 8px;
+  border-radius:8px;
+  color:#15191d;
+  background:#ffd83d;
+  border:2px solid #ffe96f;
+  box-shadow:0 0 18px rgba(255,216,61,.5);
+  vertical-align:baseline;
+}
+.sentence-blank.feedback-correct{
+  color:#fff;
+  background:#178b4c;
+  border-color:#66f0a0;
+  box-shadow:0 0 20px rgba(102,240,160,.55);
+}
+.sentence-blank.feedback-wrong{
+  color:#fff;
+  background:#b8243e;
+  border-color:#ff7185;
+  box-shadow:0 0 20px rgba(255,113,133,.55);
+}
