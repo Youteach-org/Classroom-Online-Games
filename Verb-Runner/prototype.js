@@ -1893,9 +1893,24 @@ function launchChallengeChain(initialDelay=.42){
   if(recentCorrectPositions.length>4)recentCorrectPositions.shift();
 
   const lockOnePerLane=sequence.length===3;
-  const choiceLanes=lockOnePerLane
-    ?[0,1,2].sort(()=>Math.random()-.5)
-    :null;
+  let choiceLanes=null;
+
+  if(lockOnePerLane){
+    const correctSequenceIndex=sequence.findIndex(item=>item.correct);
+    const correctLaneChoices=[0,1,2].filter(lane=>lane!==lastCorrectLane);
+    const correctLane=correctLaneChoices[Math.floor(Math.random()*correctLaneChoices.length)];
+    const otherLanes=[0,1,2].filter(lane=>lane!==correctLane).sort(()=>Math.random()-.5);
+
+    choiceLanes=new Array(3);
+    choiceLanes[correctSequenceIndex]=correctLane;
+
+    let otherIndex=0;
+    for(let index=0;index<sequence.length;index++){
+      if(index===correctSequenceIndex)continue;
+      choiceLanes[index]=otherLanes[otherIndex++];
+    }
+  }
+
   pendingAnswers=sequence.map((item,index)=>({
     item,
     forcedLane:choiceLanes?.[index]??null,
