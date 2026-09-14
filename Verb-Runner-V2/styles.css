@@ -267,3 +267,14 @@ button,a{-webkit-tap-highlight-color:transparent}
   border-color:#ff7185;
   box-shadow:0 0 20px rgba(255,113,133,.55);
 }
+
+.time-expression{
+  display:inline-block;
+  margin:0 3px;
+  padding:1px 6px 2px;
+  border-radius:7px;
+  background:#ffe66d;
+  color:#102534;
+  font-weight:950;
+  box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 0 14px rgba(255,230,109,.35);
+}
