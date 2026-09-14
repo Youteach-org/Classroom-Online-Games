@@ -955,8 +955,12 @@ function updateStartButtonState(){
   if(startButtonLabel)startButtonLabel.textContent='START '+raceLabel();
 }
 
+function isPrincipalPartsChallenge(challenge=currentChallenge){
+  return currentLevel===1||(currentLevel===5&&challenge?.finalCategory==='principal-parts');
+}
+
 function isTextRace(){
-  return currentLevel>=2&&currentLevel<=5;
+  return currentLevel>=2&&currentLevel<=5&&!isPrincipalPartsChallenge();
 }
 
 function raceMode(){
@@ -1343,6 +1347,13 @@ function renderChallenge(){
   if(isTextRace()){
     if(principalParts)principalParts.hidden=true;
     if(sentenceChallenge)sentenceChallenge.hidden=false;
+    if(taskInstruction&&currentLevel===5){
+      taskInstruction.textContent=difficulty.name==='easy'
+        ?'Use the concept clue, then solve the mixed challenge'
+        :difficulty.name==='hard'
+          ?'Everything counts · read the whole context before choosing'
+          :'Choose the option that makes the whole context work';
+    }
     appendSentencePrompt(
       currentChallenge.text,
       currentLevel===2?currentChallenge.timeExpressions:[]
@@ -1377,6 +1388,7 @@ function renderChallenge(){
 
   if(principalParts)principalParts.hidden=false;
   if(sentenceChallenge)sentenceChallenge.hidden=true;
+  if(taskInstruction)taskInstruction.textContent='Collect the correct verb form';
   document.querySelectorAll('[data-slot]').forEach((el,index)=>{
     const value=currentChallenge.slots[index];
     el.classList.remove('feedback-correct','feedback-wrong','long-form','very-long-form');
@@ -1473,20 +1485,13 @@ function refillPerfectRaceDeck(){
 }
 
 function makeFinalPrincipalChallenge(verb){
-  const baseChallenge=window.VerbRunnerChallenge.createChallenge(verb,{
-    difficulty:difficulty.name,
-    distractorCount:2
-  });
-  const labels=['BASE','PAST','PARTICIPLE'];
-  const text=baseChallenge.slots.map((value,index)=>
-    labels[index]+': '+(value==null?'___':String(value).toUpperCase())
-  ).join('  ·  ');
+  // Reuse Verb Runner's original challenge generator and balanced blank logic.
+  // Final Race changes only the verb/question, not the exercise format.
+  const baseChallenge=makeChallengeFromVerb(verb);
   return {
     ...baseChallenge,
     level:5,
     mode:'final-race',
-    text,
-    timeExpressions:[],
     focus:'PRINCIPAL PARTS',
     finalCategory:'principal-parts',
     correctAnswers:[baseChallenge.correctAnswer],
@@ -1634,7 +1639,7 @@ function roundedRectPath(ctx,x,y,w,h,r){
 }
 
 function makeAnswerTexture(word){
-  const timeClue=currentLevel>=3&&currentLevel<=5;
+  const timeClue=isTextRace()&&currentLevel>=3&&currentLevel<=5;
   const c=document.createElement('canvas');
   c.width=timeClue?1280:1024;
   c.height=timeClue?480:360;
@@ -1754,7 +1759,7 @@ function clearAnswerLaneAtSpawn(laneIndex,spawnZ){
 function spawnAnswer(item,forcedLane=null,forceSpawn=false,lockLane=false){
   if(!gameStarted||gamePaused||victoryMode)return false;
 
-  const spawnZ=currentLevel===3?(IS_MOBILE?-62:-84):((currentLevel===4||currentLevel===5)?(IS_MOBILE?-58:-80):ANSWER_SPAWN_Z);
+  const spawnZ=isPrincipalPartsChallenge()?ANSWER_SPAWN_Z:(currentLevel===3?(IS_MOBILE?-62:-84):((currentLevel===4||currentLevel===5)?(IS_MOBILE?-58:-80):ANSWER_SPAWN_Z));
   if(lockLane&&Number.isInteger(forcedLane)){
     clearAnswerLaneAtSpawn(forcedLane,spawnZ);
   }
@@ -1816,8 +1821,9 @@ function spawnAnswer(item,forcedLane=null,forceSpawn=false,lockLane=false){
   if(item.correct)lastCorrectLane=laneIndex;
 
   const group=new THREE.Group();
-  const cardW=(currentLevel>=3&&currentLevel<=5)?(IS_MOBILE?4.20:3.65):(IS_MOBILE?3.70:3.05);
-  const cardH=(currentLevel>=3&&currentLevel<=5)?(IS_MOBILE?1.58:1.38):(IS_MOBILE?1.34:1.10);
+  const wideTextAnswer=isTextRace()&&currentLevel>=3&&currentLevel<=5;
+  const cardW=wideTextAnswer?(IS_MOBILE?4.20:3.65):(IS_MOBILE?3.70:3.05);
+  const cardH=wideTextAnswer?(IS_MOBILE?1.58:1.38):(IS_MOBILE?1.34:1.10);
   const glow=new THREE.Mesh(
     new THREE.PlaneGeometry(cardW+0.28,cardH+0.18),
     new THREE.MeshBasicMaterial({color:0x45ddff,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false,fog:false,toneMapped:false})
@@ -2035,7 +2041,7 @@ async function animateAnswerToBlank(answer,correct,startOverride=null){
 
   const flyer=document.createElement('div');
   flyer.className='answer-flight';
-  if(currentLevel>=3&&currentLevel<=5)flyer.classList.add('time-clue-flight');
+  if(isTextRace()&&currentLevel>=3&&currentLevel<=5)flyer.classList.add('time-clue-flight');
   flyer.textContent=String(answer.item.value).toUpperCase();
   flyer.style.left=start.x+'px';
   flyer.style.top=start.y+'px';
@@ -2669,6 +2675,7 @@ function resetRun(){
   timeClueDeck=[];
   perfectRaceDeck=[];
   finalRaceDeck=[];
+  currentChallenge=null;
   applySentenceRunTuning();
   setLevelUI();
   buildChallenges();
