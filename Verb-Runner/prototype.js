@@ -653,173 +653,290 @@ for(const x of [-1.5,1.5]){
 const city=new THREE.Group();
 world.add(city);
 
-const facadeMaterials=[
-  new THREE.MeshToonMaterial({color:0xd8c6b5}),
-  new THREE.MeshToonMaterial({color:0xc9d1cf}),
-  new THREE.MeshToonMaterial({color:0xcbb9a7}),
-  new THREE.MeshToonMaterial({color:0xbfc8d3}),
-  new THREE.MeshToonMaterial({color:0xd5c0b7}),
-  new THREE.MeshToonMaterial({color:0xc8c3b8})
+// Coastal-village palette: small homes, cafés, shops and market details
+// replace the old repeated office-district façades.
+const villageWalls=[
+  new THREE.MeshToonMaterial({color:0xf3dfb4}),
+  new THREE.MeshToonMaterial({color:0xf0c986}),
+  new THREE.MeshToonMaterial({color:0xe6eee7}),
+  new THREE.MeshToonMaterial({color:0xf4e7d6}),
+  new THREE.MeshToonMaterial({color:0xd9e8dd}),
+  new THREE.MeshToonMaterial({color:0xe8c8b5})
 ];
-const facadeAccentMaterials=[
-  new THREE.MeshToonMaterial({color:0x7f4f42}),
-  new THREE.MeshToonMaterial({color:0x456b73}),
-  new THREE.MeshToonMaterial({color:0x8a6a45}),
-  new THREE.MeshToonMaterial({color:0x596a84}),
-  new THREE.MeshToonMaterial({color:0x6f5d58}),
-  new THREE.MeshToonMaterial({color:0x557368})
-];
-
-const glassMat=new THREE.MeshBasicMaterial({color:0x5fa8bf,transparent:true,opacity:.80});
-const darkGlassMat=new THREE.MeshBasicMaterial({color:0x284653,transparent:true,opacity:.94});
-const warmWindowMat=new THREE.MeshBasicMaterial({color:0xffd486});
-const coolWindowMat=new THREE.MeshBasicMaterial({color:0x6db9cf});
-const concreteMat=new THREE.MeshToonMaterial({color:0xc9c5bd});
-const trimDarkMat=new THREE.MeshToonMaterial({color:0x4c5359});
-const roofDarkMat=new THREE.MeshToonMaterial({color:0x66635f});
+const roofTerracotta=new THREE.MeshToonMaterial({color:0xb96543});
+const roofOchre=new THREE.MeshToonMaterial({color:0xc28a49});
+const woodMat=new THREE.MeshToonMaterial({color:0x8a5b38});
+const darkWoodMat=new THREE.MeshToonMaterial({color:0x5d3b28});
+const trimDarkMat=new THREE.MeshToonMaterial({color:0x40515a});
+const concreteMat=new THREE.MeshToonMaterial({color:0xd5d1c8});
 const curbMat=new THREE.MeshToonMaterial({color:0xe5dccd});
-const balconyRailMat=new THREE.MeshBasicMaterial({color:0x5f7580,transparent:true,opacity:.70});
+const shopGlassMat=new THREE.MeshBasicMaterial({color:0x73bdd0,transparent:true,opacity:.84});
+const awningRed=new THREE.MeshToonMaterial({color:0xd95e55});
+const awningBlue=new THREE.MeshToonMaterial({color:0x4c9fc2});
+const awningCream=new THREE.MeshToonMaterial({color:0xf7e8c7});
+const foliageMats=[
+  new THREE.MeshToonMaterial({color:0x4f9f55}),
+  new THREE.MeshToonMaterial({color:0x6cad59}),
+  new THREE.MeshToonMaterial({color:0x3f8550})
+];
+const flowerMats=[
+  new THREE.MeshBasicMaterial({color:0xf46c78}),
+  new THREE.MeshBasicMaterial({color:0xffc95f}),
+  new THREE.MeshBasicMaterial({color:0xe887d6})
+];
+const fruitMats=[
+  new THREE.MeshToonMaterial({color:0xf28a2f}),
+  new THREE.MeshToonMaterial({color:0xe94b48}),
+  new THREE.MeshToonMaterial({color:0xe7d84c}),
+  new THREE.MeshToonMaterial({color:0x65a84d})
+];
 
-function createFacadeBuilding(side,index,z){
-  const group=new THREE.Group();
-  const floors=3+(index%5);
-  const floorH=1.28;
-  const h=floors*floorH+1.10;
-  const w=3.45+(index%4)*.42;
-  const d=5.2+(index%5)*.58;
-  const facade=facadeMaterials[index%facadeMaterials.length];
-  const accent=facadeAccentMaterials[index%facadeAccentMaterials.length];
-  const variant=index%4;
-
-  // Main mass.
-  const body=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),facade);
-  body.position.y=h/2;
-  body.castShadow=true;
-  body.receiveShadow=true;
-  group.add(body);
-
-  const roadFaceX=-side*w/2-side*.04;
-
-  // Recessed commercial base keeps the street level from looking like a plain box.
-  const shopBase=new THREE.Mesh(new THREE.BoxGeometry(.18,1.38,d*.84),trimDarkMat);
-  shopBase.position.set(roadFaceX,.72,0);
-  group.add(shopBase);
-
-  const shopGlass=new THREE.Mesh(new THREE.BoxGeometry(.07,1.08,d*.72),darkGlassMat);
-  shopGlass.position.set(roadFaceX-side*.10,.72,0);
-  group.add(shopGlass);
-
-  const awning=new THREE.Mesh(new THREE.BoxGeometry(.72,.10,d*.70),accent);
-  awning.position.set(roadFaceX-side*.37,1.37,0);
-  group.add(awning);
-
-  // Break the silhouette with stepped tops / side towers.
-  if(variant===0||variant===2){
-    const upperH=1.25+(index%3)*.38;
-    const upper=new THREE.Mesh(
-      new THREE.BoxGeometry(w*.68,upperH,d*.72),
-      facade
-    );
-    upper.position.set(side*w*.09,h+upperH/2-.02,d*.04);
-    upper.castShadow=true;
-    group.add(upper);
-
-    const cap=new THREE.Mesh(new THREE.BoxGeometry(w*.74,.14,d*.76),accent);
-    cap.position.set(side*w*.09,h+upperH+.03,d*.04);
-    group.add(cap);
-  }else{
-    const roofSlab=new THREE.Mesh(new THREE.BoxGeometry(w+.15,.18,d+.14),roofDarkMat);
-    roofSlab.position.y=h+.08;
-    group.add(roofSlab);
-  }
-
-  // Vertical corner volume gives depth and keeps rows from reading as flat blocks.
-  if(variant===1||variant===3){
-    const towerH=h*.78;
-    const tower=new THREE.Mesh(new THREE.BoxGeometry(w*.26,towerH,d*.34),accent);
-    tower.position.set(side*w*.43,towerH/2,d*.24);
-    tower.castShadow=true;
-    group.add(tower);
-  }
-
-  const rows=Math.max(2,floors-1);
-  const cols=IS_MOBILE?2:3;
-  for(let r=0;r<rows;r++){
-    const y=2.02+r*1.20;
-    for(let col=0;col<cols;col++){
-      const zPos=THREE.MathUtils.lerp(-d*.28,d*.28,cols===1?.5:col/(cols-1));
-      const frame=new THREE.Mesh(new THREE.BoxGeometry(.085,.72,.80),trimDarkMat);
-      frame.position.set(roadFaceX-side*.035,y,zPos);
-      group.add(frame);
-
-      const win=new THREE.Mesh(
-        new THREE.BoxGeometry(.055,.58,.64),
-        (index+r+col)%6===0?warmWindowMat:coolWindowMat
-      );
-      win.position.set(roadFaceX-side*.085,y,zPos);
-      group.add(win);
-    }
-
-    // Only some floors get balconies, so the façades are less repetitive.
-    if((r+index)%3===1){
-      const balcony=new THREE.Mesh(new THREE.BoxGeometry(.56,.10,d*.62),concreteMat);
-      balcony.position.set(roadFaceX-side*.27,y-.47,0);
-      group.add(balcony);
-
-      const rail=new THREE.Mesh(new THREE.BoxGeometry(.055,.36,d*.58),balconyRailMat);
-      rail.position.set(roadFaceX-side*.54,y-.28,0);
-      group.add(rail);
-    }
-  }
-
-  // Street-facing vertical sign/light strip, no text, for a more urban avenue feel.
-  if(!IS_MOBILE&&index%3!==1){
-    const sign=new THREE.Mesh(
-      new THREE.BoxGeometry(.10,1.55,.34),
-      new THREE.MeshBasicMaterial({color:index%2?0xffc866:0x71d6df})
-    );
-    sign.position.set(roadFaceX-side*.17,2.35,-d*.38);
-    group.add(sign);
-  }
-
-  // Rooftop detail varies from building to building.
-  if(!IS_MOBILE){
-    if(index%3===0){
-      const tank=new THREE.Mesh(new THREE.CylinderGeometry(.34,.42,.72,10),roofDarkMat);
-      tank.position.set(0,h+.46,d*.18);
-      group.add(tank);
-    }else if(index%3===1){
-      const rooftop=new THREE.Mesh(new THREE.BoxGeometry(w*.36,.55,d*.28),concreteMat);
-      rooftop.position.set(-side*w*.16,h+.27,-d*.17);
-      group.add(rooftop);
-    }else{
-      for(const xx of [-w*.22,w*.22]){
-        const post=new THREE.Mesh(new THREE.BoxGeometry(.08,.48,.08),accent);
-        post.position.set(xx,h+.25,-d*.22);
-        group.add(post);
-      }
-      const beam=new THREE.Mesh(new THREE.BoxGeometry(w*.54,.08,.10),accent);
-      beam.position.set(0,h+.48,-d*.22);
-      group.add(beam);
-    }
-  }
-
-  // A little stagger between the curb and the building line keeps the city organic.
-  const setback=(index%3)*.24;
-  group.position.set(side*(8.25+w/2+setback),0,z);
-  return group;
+function addBox(group,w,h,d,mat,x=0,y=0,z=0){
+  const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+  mesh.position.set(x,y,z);
+  mesh.castShadow=!IS_MOBILE;
+  mesh.receiveShadow=true;
+  group.add(mesh);
+  return mesh;
 }
 
-for(let i=0;i<(IS_MOBILE?12:18);i++){
-  const z=-5-i*9.6;
+function addWindow(group,x,y,z,side,lit=false){
+  const frame=addBox(group,.09,.78,.72,trimDarkMat,x,y,z);
+  const glass=addBox(
+    group,.055,.62,.56,
+    lit?new THREE.MeshBasicMaterial({color:0xffda91}):shopGlassMat,
+    x-side*.075,y,z
+  );
+  frame.castShadow=false;
+  glass.castShadow=false;
+}
 
-  const rightBuilding=createFacadeBuilding(1,i+2,z-4.2);
-  city.add(rightBuilding);
-  addMover(rightBuilding,{speedFactor:.9,span:177,startZ:rightBuilding.position.z});
+function addPlanter(group,x,z,scale=1){
+  addBox(group,.66*scale,.42*scale,.66*scale,new THREE.MeshToonMaterial({color:0xb66f4c}),x,.21*scale,z);
+  for(let i=0;i<5;i++){
+    const flower=new THREE.Mesh(
+      new THREE.SphereGeometry(.10*scale,8,6),
+      flowerMats[i%flowerMats.length]
+    );
+    flower.position.set(
+      x+((i%2)?-.16:.16)*scale,
+      .50*scale+(i%3)*.04,
+      z+((i%3)-1)*.13*scale
+    );
+    group.add(flower);
+  }
+}
 
-  const leftBuilding=createFacadeBuilding(-1,i+5,z-1.2);
-  city.add(leftBuilding);
-  addMover(leftBuilding,{speedFactor:.9,span:177,startZ:leftBuilding.position.z});
+function addTree(group,x,z,scale=1){
+  const trunk=new THREE.Mesh(
+    new THREE.CylinderGeometry(.13*scale,.18*scale,2.7*scale,8),
+    woodMat
+  );
+  trunk.position.set(x,1.35*scale,z);
+  trunk.castShadow=!IS_MOBILE;
+  group.add(trunk);
+
+  const crown=new THREE.Group();
+  crown.position.set(x,3.05*scale,z);
+  for(let i=0;i<5;i++){
+    const leaf=new THREE.Mesh(
+      new THREE.SphereGeometry((.72+(i%2)*.14)*scale,10,8),
+      foliageMats[i%foliageMats.length]
+    );
+    leaf.position.set(
+      ((i%3)-1)*.48*scale,
+      (i%2)*.34*scale,
+      (Math.floor(i/3)-.35)*.42*scale
+    );
+    crown.add(leaf);
+  }
+  group.add(crown);
+}
+
+function addBench(group,x,z,rotationY=0){
+  const bench=new THREE.Group();
+  addBox(bench,1.30,.13,.42,woodMat,0,.56,0);
+  addBox(bench,1.30,.52,.12,woodMat,0,.90,.18);
+  for(const sx of [-.46,.46]){
+    addBox(bench,.10,.54,.10,trimDarkMat,sx,.27,0);
+  }
+  bench.position.set(x,0,z);
+  bench.rotation.y=rotationY;
+  group.add(bench);
+}
+
+function addAwning(group,side,width,z=0,matA=awningRed,matB=awningCream){
+  const awning=new THREE.Group();
+  const stripes=6;
+  for(let i=0;i<stripes;i++){
+    const stripe=addBox(
+      awning,.46,.12,width/stripes,
+      i%2?matB:matA,
+      0,0,-width/2+(i+.5)*(width/stripes)
+    );
+    stripe.castShadow=false;
+  }
+  awning.position.set(-side*.72,1.70,z);
+  group.add(awning);
+}
+
+function addRoof(group,w,d,h,mat){
+  const roof=new THREE.Mesh(
+    new THREE.CylinderGeometry(0,Math.max(w,d)*.62,h,4,1,false,Math.PI/4),
+    mat
+  );
+  roof.scale.z=d/w;
+  roof.position.y=h*.48;
+  roof.castShadow=!IS_MOBILE;
+  group.add(roof);
+  return roof;
+}
+
+function createVillageHouse(side,index,z){
+  const g=new THREE.Group();
+  const w=3.35+(index%3)*.34;
+  const d=4.1+(index%2)*.55;
+  const floors=index%4===0?2:1;
+  const wallH=floors===2?4.5:3.15;
+  const wall=villageWalls[index%villageWalls.length];
+
+  addBox(g,w,wallH,d,wall,0,wallH/2,0);
+  const roof=addRoof(g,w*1.07,d*1.06,1.35,index%2?roofTerracotta:roofOchre);
+  roof.position.y=wallH+.48;
+
+  const roadFace=-side*w/2-side*.04;
+  addBox(g,.09,1.80,.72,darkWoodMat,roadFace,.90,0);
+  addWindow(g,roadFace,1.65,-d*.25,side,false);
+  addWindow(g,roadFace,1.65,d*.25,side,index%3===0);
+  if(floors===2){
+    addWindow(g,roadFace,3.35,-d*.25,side,false);
+    addWindow(g,roadFace,3.35,d*.25,side,false);
+  }
+
+  addPlanter(g,roadFace-side*.48,-d*.33,.78);
+  addPlanter(g,roadFace-side*.48,d*.33,.78);
+
+  g.position.set(side*(8.45+w/2+(index%2)*.18),0,z);
+  return g;
+}
+
+function createCafe(side,index,z){
+  const g=new THREE.Group();
+  const w=3.55,d=4.7,h=3.35;
+  addBox(g,w,h,d,villageWalls[(index+2)%villageWalls.length],0,h/2,0);
+  const roof=addRoof(g,w*1.08,d*1.05,1.25,roofTerracotta);
+  roof.position.y=h+.44;
+
+  const face=-side*w/2-side*.04;
+  addBox(g,.10,1.50,d*.72,darkWoodMat,face,.78,0);
+  addBox(g,.06,1.18,d*.58,shopGlassMat,face-side*.08,.82,0);
+  addAwning(g,side,d*.76,0,awningBlue,awningCream);
+
+  // Tiny café terrace.
+  for(const zz of [-1.20,1.15]){
+    const table=new THREE.Mesh(new THREE.CylinderGeometry(.36,.36,.08,12),woodMat);
+    table.position.set(face-side*.95,.72,zz);
+    g.add(table);
+    const stem=new THREE.Mesh(new THREE.CylinderGeometry(.06,.07,.70,8),trimDarkMat);
+    stem.position.set(face-side*.95,.35,zz);
+    g.add(stem);
+  }
+  addPlanter(g,face-side*.88,-1.80,.72);
+  addPlanter(g,face-side*.88,1.78,.72);
+
+  g.position.set(side*(8.35+w/2),0,z);
+  return g;
+}
+
+function createFruitShop(side,index,z){
+  const g=new THREE.Group();
+  const w=3.65,d=5.0,h=3.05;
+  addBox(g,w,h,d,villageWalls[(index+1)%villageWalls.length],0,h/2,0);
+
+  const face=-side*w/2-side*.04;
+  addBox(g,.12,1.54,d*.78,darkWoodMat,face,.78,0);
+  addBox(g,.07,1.18,d*.66,shopGlassMat,face-side*.08,.80,0);
+  addAwning(g,side,d*.86,0,awningRed,awningCream);
+
+  // Produce crates at street level.
+  for(let row=0;row<2;row++){
+    for(let col=0;col<3;col++){
+      const zz=-1.45+col*1.42;
+      const xx=face-side*(.92+row*.48);
+      addBox(g,.62,.34,1.00,woodMat,xx,.17,zz);
+      for(let k=0;k<6;k++){
+        const fruit=new THREE.Mesh(
+          new THREE.SphereGeometry(.12,8,6),
+          fruitMats[(index+row+col+k)%fruitMats.length]
+        );
+        fruit.position.set(
+          xx+((k%3)-1)*.16,
+          .43+(k>=3?.15:0),
+          zz+(k%2?-.20:.20)
+        );
+        g.add(fruit);
+      }
+    }
+  }
+
+  addPlanter(g,face-side*.55,-2.05,.65);
+  addPlanter(g,face-side*.55,2.05,.65);
+
+  g.position.set(side*(8.30+w/2),0,z);
+  return g;
+}
+
+function createCornerShop(side,index,z){
+  const g=new THREE.Group();
+  const w=3.55,d=4.75,h=3.25;
+  addBox(g,w,h,d,villageWalls[(index+4)%villageWalls.length],0,h/2,0);
+  const roof=addRoof(g,w*1.06,d*1.06,1.18,index%2?roofOchre:roofTerracotta);
+  roof.position.y=h+.42;
+
+  const face=-side*w/2-side*.04;
+  addBox(g,.10,1.48,d*.70,darkWoodMat,face,.76,0);
+  addBox(g,.06,1.14,d*.56,shopGlassMat,face-side*.08,.80,0);
+  addAwning(g,side,d*.74,0,index%2?awningBlue:awningRed,awningCream);
+
+  // Hanging sign board, intentionally without text.
+  const signPost=addBox(g,.10,1.62,.10,darkWoodMat,face-side*.92,1.60,-d*.33);
+  signPost.castShadow=false;
+  addBox(g,.08,.72,.86,darkWoodMat,face-side*.93,2.06,-d*.33);
+  addPlanter(g,face-side*.68,d*.36,.72);
+
+  g.position.set(side*(8.40+w/2),0,z);
+  return g;
+}
+
+function createVillageUnit(side,index,z,type){
+  if(type==='fruit')return createFruitShop(side,index,z);
+  if(type==='cafe')return createCafe(side,index,z);
+  if(type==='shop')return createCornerShop(side,index,z);
+  return createVillageHouse(side,index,z);
+}
+
+// Right side: varied small-town street instead of a repeated urban district.
+const villageTypes=['house','fruit','house','cafe','shop','house','fruit','cafe'];
+for(let i=0;i<(IS_MOBILE?9:15);i++){
+  const z=-7-i*11.0;
+  const unit=createVillageUnit(1,i+2,z,villageTypes[i%villageTypes.length]);
+  city.add(unit);
+  addMover(unit,{speedFactor:.90,span:176,startZ:unit.position.z});
+}
+
+// Left side: open seaside promenade with trees, benches, flowers and the
+// occasional low kiosk so the ocean remains visible like the reference image.
+const promenade=new THREE.Group();
+city.add(promenade);
+for(let i=0;i<(IS_MOBILE?7:12);i++){
+  const z=-8-i*14.0;
+  const cluster=new THREE.Group();
+  addTree(cluster,-7.85,0,IS_MOBILE?.78:.90);
+  if(i%2===0)addBench(cluster,-7.35,1.65,Math.PI/2);
+  if(i%3!==1)addPlanter(cluster,-7.20,-1.55,.82);
+  cluster.position.z=z;
+  promenade.add(cluster);
+  addMover(cluster,{speedFactor:.95,span:174,startZ:z});
 }
 
 const coast=new THREE.Group();
@@ -2443,7 +2560,7 @@ function restartCurrentRace(){
   play('run',.10);
   playSfx('resume');
   startMusic();
-  modelStatus.textContent=variants[selectedVariant].name+' robot · DAY CITY AVENUE';
+  modelStatus.textContent=variants[selectedVariant].name+' robot · COASTAL VILLAGE';
   launchChallengeChain(gameSettings.preview?1.55:.55);
 }
 
@@ -2568,7 +2685,7 @@ function setPaused(next){
     playSfx('resume');
   }
   pauseButton.classList.toggle('is-paused',next); pauseButton.setAttribute('aria-label',next?'Resume game':'Pause game');
-  modelStatus.textContent=next?'Paused':variants[selectedVariant].name+' robot · DAY CITY AVENUE';
+  modelStatus.textContent=next?'Paused':variants[selectedVariant].name+' robot · COASTAL VILLAGE';
   if(sessionCode&&sessionData)sessionUpdate({status:next?'paused':'running'}).catch(()=>{});
 }
 
@@ -2894,7 +3011,7 @@ startButton.addEventListener('click',async()=>{
   playSfx('click');
   startMusic();
   play('run',.12);
-  modelStatus.textContent=variants[selectedVariant].name+' robot · DAY CITY AVENUE';
+  modelStatus.textContent=variants[selectedVariant].name+' robot · COASTAL VILLAGE';
   if(sessionCode&&sessionData){
     await sessionConnect({
       level:currentLevel,
@@ -3024,7 +3141,7 @@ nextLevelButton?.addEventListener('click',async()=>{
   playSfx('click');
   startMusic();
   play('run',.12);
-  modelStatus.textContent=variants[selectedVariant].name+' robot · DAY CITY AVENUE';
+  modelStatus.textContent=variants[selectedVariant].name+' robot · COASTAL VILLAGE';
   if(sessionCode&&sessionData){
     await sessionConnect({
       level:currentLevel,
