@@ -57,7 +57,7 @@ const resultStreak=document.querySelector('#resultStreak');
 const resultObstacles=document.querySelector('#resultObstacles');
 const resultMomentum=document.querySelector('#resultMomentum');
 
-const TOTAL_CHALLENGES=12;
+const TOTAL_CHALLENGES=20;
 const difficultyPresets={
   easy:{name:'easy',speed:.90,answerSpacing:.82,distractors:2,preview:false,penalty:0},
   medium:{name:'medium',speed:1.00,answerSpacing:.82,distractors:3,preview:false,penalty:1},
