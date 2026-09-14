@@ -112,6 +112,9 @@
         </div>
 
         <button id="startButton" class="start-button" type="button" disabled>START VERB RUNNER</button>
+        <div class="picker-footer">
+          <a class="ghost-button menu-back-games" href="/">BACK TO GAMES</a>
+        </div>
       </div>
     </section>
 
@@ -121,6 +124,7 @@
         <strong id="pauseRaceTitle">VERB RUNNER</strong>
         <div class="pause-settings" aria-label="Game settings">
           <div class="pause-settings-title">GAME SETTINGS</div>
+
           <label class="speed-setting" for="speedControl">
             <span>GAME SPEED</span>
             <b id="speedValue">100%</b>
@@ -131,8 +135,62 @@
             <span>165% · TURBO</span>
           </div>
           <p id="speedDescription" class="speed-description">Normal race speed</p>
+
+          <div class="pause-option-grid">
+            <button id="changeRunnerButton" class="pause-option-button" type="button">CHANGE RUNNER</button>
+            <button id="controlsButton" class="pause-option-button" type="button">CONTROLS</button>
+          </div>
+
+          <div id="pauseRunnerPanel" class="pause-subpanel" hidden>
+            <div class="pause-subpanel-title">CHOOSE RUNNER</div>
+            <div class="pause-runner-grid">
+              <button type="button" data-pause-runner="0" style="--runner:#e43c3c"><span></span><b>RED</b></button>
+              <button type="button" data-pause-runner="1" style="--runner:#2475d1"><span></span><b>BLUE</b></button>
+              <button type="button" data-pause-runner="2" style="--runner:#29a65a"><span></span><b>GREEN</b></button>
+              <button type="button" data-pause-runner="3" style="--runner:#ef4c78"><span></span><b>PINK</b></button>
+              <button type="button" data-pause-runner="4" style="--runner:#eef1f7"><span></span><b>WHITE / BLACK</b></button>
+              <button type="button" data-pause-runner="5" style="--runner:#9a4de0"><span></span><b>PURPLE</b></button>
+            </div>
+          </div>
+
+          <div id="controlsPanel" class="pause-subpanel controls-panel" hidden>
+            <div class="pause-subpanel-title">CONTROLS</div>
+            <div><b>LANES</b><span>← → / A D · Swipe left or right</span></div>
+            <div><b>JUMP</b><span>↑ / W / Space · Tap or swipe up</span></div>
+          </div>
+
+          <div class="audio-settings">
+            <div class="audio-row">
+              <label for="soundControl"><span>SOUND</span><b id="soundValue">70%</b></label>
+              <div class="audio-control-line">
+                <input id="soundControl" type="range" min="0" max="100" step="5" value="70" />
+                <button id="soundToggle" class="audio-toggle active" type="button" aria-pressed="true">ON</button>
+              </div>
+            </div>
+            <div class="audio-row">
+              <label for="musicControl"><span>MUSIC</span><b id="musicValue">25%</b></label>
+              <div class="audio-control-line">
+                <input id="musicControl" type="range" min="0" max="100" step="5" value="25" />
+                <button id="musicToggle" class="audio-toggle active" type="button" aria-pressed="true">ON</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <button id="resumeButton" type="button">RESUME</button>
+
+        <div class="pause-actions">
+          <button id="resumeButton" class="pause-primary" type="button">RESUME</button>
+          <button id="restartRaceButton" class="pause-secondary" type="button">RESTART RACE</button>
+          <button id="quitRaceButton" class="pause-danger" type="button">QUIT TO MENU</button>
+        </div>
+
+        <div id="pauseConfirm" class="pause-confirm" hidden>
+          <strong id="pauseConfirmTitle">RESTART THIS RACE?</strong>
+          <p id="pauseConfirmText">Your current progress will be lost.</p>
+          <div>
+            <button id="cancelPauseAction" class="pause-secondary" type="button">CANCEL</button>
+            <button id="confirmPauseAction" class="pause-danger" type="button">RESTART</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -152,7 +210,7 @@
         <div class="result-actions">
           <button id="nextLevelButton" class="start-button next-level-button" type="button">TRY NEXT RACE · SENTENCE RUNNER</button>
           <button id="runAgainButton" class="start-button secondary-run-button" type="button">RUN AGAIN</button>
-          <a class="ghost-button" href="/">BACK TO GAMES</a>
+          <button id="backToMenuButton" class="ghost-button" type="button">BACK TO MENU</button>
         </div>
       </div>
     </section>

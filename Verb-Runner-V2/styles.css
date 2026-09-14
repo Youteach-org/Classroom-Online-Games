@@ -220,6 +220,8 @@ button,a{-webkit-tap-highlight-color:transparent}
   font-weight:950;letter-spacing:.08em;cursor:pointer;box-shadow:0 12px 30px color-mix(in srgb,var(--runner-accent) 28%,transparent)
 }
 .start-button:disabled{opacity:.35;cursor:wait;box-shadow:none}
+.picker-footer{margin-top:9px}
+.menu-back-games{margin-top:0!important}
 
 .pause-overlay,.result-overlay{
   position:absolute;inset:0;z-index:30;display:grid;place-items:center;padding:18px;background:rgba(10,25,36,.58);backdrop-filter:blur(7px)
@@ -228,6 +230,7 @@ button,a{-webkit-tap-highlight-color:transparent}
   width:min(560px,94vw);padding:26px;border-radius:22px;background:#102534;color:#fff;border:1px solid rgba(255,255,255,.2);
   box-shadow:0 26px 80px rgba(0,0,0,.3);text-align:center
 }
+.pause-card{max-height:94vh;overflow:auto}
 .pause-card span,.result-kicker{display:block;color:#85e7ff;font-size:10px;font-weight:900;letter-spacing:.22em}
 .pause-card strong{display:block;margin:6px 0 16px;font-size:32px}
 .pause-settings{
@@ -244,14 +247,41 @@ button,a{-webkit-tap-highlight-color:transparent}
 .speed-setting b{font-size:18px;color:#ffe66d}
 .speed-control{width:100%;margin:10px 0 3px;accent-color:var(--runner-accent);cursor:pointer}
 .speed-scale{display:flex;justify-content:space-between;gap:10px;color:#9eb3c1;font-size:7px;font-weight:900;letter-spacing:.04em}
-.speed-description{margin:7px 0 0!important;color:#d7e5ee!important;font-size:10px!important;text-align:center}
-.pause-card button{border:0;border-radius:999px;padding:11px 26px;background:#fff;color:#102534;font-weight:900;cursor:pointer}
+.speed-description{margin:7px 0 10px!important;color:#d7e5ee!important;font-size:10px!important;text-align:center}
+.pause-option-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.pause-option-button{width:100%;border:1px solid rgba(133,231,255,.35)!important;border-radius:12px!important;padding:9px 10px!important;background:rgba(67,216,255,.08)!important;color:#e9f9ff!important;font-size:10px!important;letter-spacing:.05em}
+.pause-subpanel{margin-top:10px;padding:11px;border-radius:13px;background:rgba(5,20,31,.42);border:1px solid rgba(255,255,255,.09)}
+.pause-subpanel-title{margin-bottom:8px;color:#85e7ff;font-size:8px;font-weight:950;letter-spacing:.14em;text-align:left}
+.pause-runner-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pause-runner-grid button{min-width:0!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:10px!important;padding:7px 5px!important;background:rgba(255,255,255,.04)!important;color:#fff!important}
+.pause-runner-grid button.active{border-color:var(--runner)!important;box-shadow:0 0 14px color-mix(in srgb,var(--runner) 45%,transparent)}
+.pause-runner-grid button span{display:block!important;width:15px;height:15px;margin:0 auto 4px;border-radius:50%;background:var(--runner);box-shadow:0 0 8px var(--runner)}
+.pause-runner-grid button b{font-size:8px}
+.controls-panel{display:grid;gap:7px;text-align:left}
+.controls-panel>div:not(.pause-subpanel-title){display:grid;grid-template-columns:58px 1fr;gap:8px;align-items:center}
+.controls-panel b{font-size:8px;color:#ffe66d}.controls-panel span{font-size:9px;color:#d4e0e8;letter-spacing:0}
+.audio-settings{display:grid;gap:9px;margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,255,255,.10)}
+.audio-row label{display:flex;justify-content:space-between;align-items:center;font-size:9px;font-weight:900;letter-spacing:.08em}
+.audio-row label b{color:#ffe66d;font-size:12px}
+.audio-control-line{display:grid;grid-template-columns:1fr 50px;gap:8px;align-items:center;margin-top:4px}
+.audio-control-line input{width:100%;accent-color:var(--runner-accent)}
+.audio-toggle{border:1px solid rgba(255,255,255,.16)!important;border-radius:999px!important;padding:6px 8px!important;background:#2b3b47!important;color:#aab8c2!important;font-size:8px!important}
+.audio-toggle.active{background:#16824a!important;color:#fff!important;border-color:#4ed58a!important}
+.pause-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.pause-card button{border:0;border-radius:999px;padding:11px 20px;background:#fff;color:#102534;font-weight:900;cursor:pointer}
+.pause-primary{background:#fff!important;color:#102534!important}
+.pause-secondary{background:rgba(255,255,255,.09)!important;color:#e7f1f7!important;border:1px solid rgba(255,255,255,.16)!important}
+.pause-danger{background:#a4263d!important;color:#fff!important;border:1px solid #ff657b!important}
+.pause-confirm{margin-top:14px;padding:13px;border-radius:14px;background:#2b1720;border:1px solid rgba(255,101,123,.4)}
+.pause-confirm strong{margin:0 0 5px!important;font-size:16px!important;color:#fff}
+.pause-confirm p{margin:0 0 11px;color:#dcb9c0;font-size:10px}
+.pause-confirm>div{display:flex;justify-content:center;gap:8px}
 .result-card h2{margin:8px 0 4px;font-size:34px}.result-stars{color:#ffd34d;font-size:30px;letter-spacing:.12em;margin-bottom:16px}
 .result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .result-grid div{padding:12px 8px;border-radius:13px;background:rgba(255,255,255,.06)}
 .result-grid span{display:block;color:#a8b9c5;font-size:8px;letter-spacing:.08em}.result-grid strong{display:block;margin-top:4px;font-size:18px}
 .result-actions{display:flex;justify-content:center;gap:10px;align-items:center;margin-top:5px}
-.ghost-button{display:inline-block;margin-top:16px;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:11px 20px;color:#fff;text-decoration:none;font-size:11px;font-weight:900}
+.ghost-button{display:inline-block;margin-top:16px;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:11px 20px;color:#fff;background:transparent;text-decoration:none;font-size:11px;font-weight:900;cursor:pointer}
 
 .flash{position:absolute;inset:0;z-index:12;pointer-events:none;background:radial-gradient(circle at 50% 60%,rgba(255,55,80,.3),transparent 50%);opacity:0;transition:opacity .16s}
 .flash.on{opacity:1}
@@ -274,6 +304,12 @@ button,a{-webkit-tap-highlight-color:transparent}
   .robot-options{grid-template-columns:repeat(2,minmax(0,1fr))}.robot-option{min-height:60px}
   .difficulty{gap:5px}.difficulty small{display:none}
   .result-grid{grid-template-columns:repeat(2,1fr)}
+  .pause-card{padding:18px 14px}
+  .pause-settings{padding:12px}
+  .pause-option-grid{grid-template-columns:1fr 1fr}
+  .pause-runner-grid{grid-template-columns:repeat(2,1fr)}
+  .pause-actions{gap:6px}
+  .pause-actions button{padding:9px 12px;font-size:9px}
 }
 
 

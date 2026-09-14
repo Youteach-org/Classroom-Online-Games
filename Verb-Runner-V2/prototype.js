@@ -68,6 +68,24 @@ const pauseRaceTitle=document.querySelector('#pauseRaceTitle');
 const speedControl=document.querySelector('#speedControl');
 const speedValue=document.querySelector('#speedValue');
 const speedDescription=document.querySelector('#speedDescription');
+const changeRunnerButton=document.querySelector('#changeRunnerButton');
+const controlsButton=document.querySelector('#controlsButton');
+const pauseRunnerPanel=document.querySelector('#pauseRunnerPanel');
+const controlsPanel=document.querySelector('#controlsPanel');
+const restartRaceButton=document.querySelector('#restartRaceButton');
+const quitRaceButton=document.querySelector('#quitRaceButton');
+const pauseConfirm=document.querySelector('#pauseConfirm');
+const pauseConfirmTitle=document.querySelector('#pauseConfirmTitle');
+const pauseConfirmText=document.querySelector('#pauseConfirmText');
+const cancelPauseAction=document.querySelector('#cancelPauseAction');
+const confirmPauseAction=document.querySelector('#confirmPauseAction');
+const backToMenuButton=document.querySelector('#backToMenuButton');
+const soundControl=document.querySelector('#soundControl');
+const soundValue=document.querySelector('#soundValue');
+const soundToggle=document.querySelector('#soundToggle');
+const musicControl=document.querySelector('#musicControl');
+const musicValue=document.querySelector('#musicValue');
+const musicToggle=document.querySelector('#musicToggle');
 
 const TOTAL_CHALLENGES=20;
 const difficultyPresets={
@@ -99,6 +117,114 @@ function setPlayerSpeedPercent(value){
   if(speedValue)speedValue.textContent=percent+'%';
   if(speedDescription)speedDescription.textContent=speedDescriptionFor(percent);
 }
+
+let audioCtx=null;
+let sfxEnabled=true;
+let musicEnabled=true;
+let sfxVolume=.70;
+let musicVolume=.25;
+let musicTimer=null;
+let musicStep=0;
+
+function ensureAudio(){
+  if(!audioCtx){
+    const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+    if(!AudioContextClass)return null;
+    audioCtx=new AudioContextClass();
+  }
+  if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
+  return audioCtx;
+}
+
+function synthTone(freq,duration=.10,volume=.05,type='sine',delay=0){
+  const ctx=ensureAudio();
+  if(!ctx||volume<=0)return;
+  const osc=ctx.createOscillator();
+  const gain=ctx.createGain();
+  const now=ctx.currentTime+delay;
+  osc.type=type;
+  osc.frequency.setValueAtTime(freq,now);
+  gain.gain.setValueAtTime(.0001,now);
+  gain.gain.exponentialRampToValueAtTime(Math.max(.0001,volume),now+.012);
+  gain.gain.exponentialRampToValueAtTime(.0001,now+duration);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now+duration+.03);
+}
+
+function playSfx(name){
+  if(!sfxEnabled||sfxVolume<=0)return;
+  const v=.12*sfxVolume;
+  if(name==='click')synthTone(520,.055,v*.45,'square');
+  else if(name==='jump'){synthTone(360,.08,v*.6,'sine');synthTone(620,.10,v*.55,'sine',.055);}
+  else if(name==='correct'){synthTone(523,.08,v*.55,'triangle');synthTone(659,.10,v*.62,'triangle',.07);synthTone(784,.14,v*.7,'triangle',.14);}
+  else if(name==='wrong'){synthTone(190,.18,v*.8,'sawtooth');synthTone(145,.20,v*.55,'square',.07);}
+  else if(name==='pause')synthTone(310,.08,v*.45,'triangle');
+  else if(name==='resume'){synthTone(420,.07,v*.45,'triangle');synthTone(560,.08,v*.5,'triangle',.06);}
+  else if(name==='victory'){[523,659,784,1047].forEach((f,i)=>synthTone(f,.18,v*.65,'triangle',i*.09));}
+}
+
+function musicTick(){
+  if(!musicEnabled||musicVolume<=0||!gameStarted)return;
+  const notes=[261.63,329.63,392,329.63,293.66,349.23,440,349.23];
+  const bass=[130.81,146.83,164.81,146.83];
+  synthTone(notes[musicStep%notes.length],.24,.025*musicVolume,'triangle');
+  if(musicStep%2===0)synthTone(bass[Math.floor(musicStep/2)%bass.length],.34,.018*musicVolume,'sine');
+  musicStep=(musicStep+1)%notes.length;
+}
+
+function startMusic(){
+  ensureAudio();
+  if(musicTimer||!musicEnabled)return;
+  musicTick();
+  musicTimer=setInterval(musicTick,420);
+}
+
+function stopMusic(){
+  if(musicTimer)clearInterval(musicTimer);
+  musicTimer=null;
+}
+
+function saveAudioSettings(){
+  try{
+    localStorage.setItem('verbRunnerV2Audio',JSON.stringify({
+      sfxEnabled,musicEnabled,sfxVolume,musicVolume
+    }));
+  }catch{}
+}
+
+function updateAudioUI(){
+  const sfxPercent=Math.round(sfxVolume*100);
+  const musicPercent=Math.round(musicVolume*100);
+  if(soundControl)soundControl.value=String(sfxPercent);
+  if(musicControl)musicControl.value=String(musicPercent);
+  if(soundValue)soundValue.textContent=sfxPercent+'%';
+  if(musicValue)musicValue.textContent=musicPercent+'%';
+  if(soundToggle){
+    soundToggle.textContent=sfxEnabled?'ON':'OFF';
+    soundToggle.classList.toggle('active',sfxEnabled);
+    soundToggle.setAttribute('aria-pressed',String(sfxEnabled));
+  }
+  if(musicToggle){
+    musicToggle.textContent=musicEnabled?'ON':'OFF';
+    musicToggle.classList.toggle('active',musicEnabled);
+    musicToggle.setAttribute('aria-pressed',String(musicEnabled));
+  }
+}
+
+function loadAudioSettings(){
+  try{
+    const saved=JSON.parse(localStorage.getItem('verbRunnerV2Audio')||'null');
+    if(saved){
+      sfxEnabled=saved.sfxEnabled!==false;
+      musicEnabled=saved.musicEnabled!==false;
+      sfxVolume=Math.max(0,Math.min(1,Number(saved.sfxVolume)??.70));
+      musicVolume=Math.max(0,Math.min(1,Number(saved.musicVolume)??.25));
+    }
+  }catch{}
+  updateAudioUI();
+}
+loadAudioSettings();
 let gameSettings={
   preview:false,
   answerSpacing:.82,
@@ -1331,6 +1457,7 @@ async function collectAnswer(answer){
     clearAnswers();
     await animateAnswerToBlank(selectedCopy,true,startPoint);
     applyRunEvent('correct');
+    playSfx('correct');
     showNotice('CORRECT!','correct');
     challengeIndex++;
 
@@ -1350,6 +1477,7 @@ async function collectAnswer(answer){
     disposeAnswer(answer);
     await animateAnswerToBlank(selectedCopy,false,startPoint);
     applyRunEvent('grammar-error');
+    playSfx('wrong');
     showNotice(String(item.value).toUpperCase()+' — WRONG · −'+gameSettings.penalty+' ADVANCE','wrong');
     answerResolutionActive=false;
   }
@@ -1386,18 +1514,88 @@ function missedCorrectAnswer(){
   launchChallengeChain(.6);
 }
 
+let pendingPauseAction=null;
+
+function hidePauseSubpanels(){
+  if(pauseRunnerPanel)pauseRunnerPanel.hidden=true;
+  if(controlsPanel)controlsPanel.hidden=true;
+}
+
+function showPauseConfirmation(action){
+  pendingPauseAction=action;
+  if(!pauseConfirm)return;
+  const restart=action==='restart';
+  pauseConfirmTitle.textContent=restart?'RESTART THIS RACE?':'QUIT THIS RACE?';
+  pauseConfirmText.textContent=restart
+    ?'Your current progress will be lost and this race will start again.'
+    :'Your current progress will be lost. You will return to the race menu.';
+  confirmPauseAction.textContent=restart?'RESTART':'QUIT';
+  pauseConfirm.hidden=false;
+}
+
+function hidePauseConfirmation(){
+  pendingPauseAction=null;
+  if(pauseConfirm)pauseConfirm.hidden=true;
+}
+
+function returnToRaceMenu(){
+  stopMusic();
+  gameStarted=false;
+  gamePaused=false;
+  victoryMode=false;
+  answerResolutionActive=false;
+  pauseOverlay.hidden=true;
+  resultOverlay.hidden=true;
+  pauseButton.textContent='Ⅱ';
+  hidePauseConfirmation();
+  hidePauseSubpanels();
+  clearAnswers();
+  for(const o of obstacles.splice(0)){
+    o.mixer?.stopAllAction?.();
+    scene.remove(o.mesh);
+  }
+  picker.classList.remove('hidden');
+  play('idle',.12);
+  setLevelUI();
+  modelStatus.textContent='Choose a race, runner and difficulty';
+}
+
+function restartCurrentRace(){
+  hidePauseConfirmation();
+  hidePauseSubpanels();
+  pauseOverlay.hidden=true;
+  resetRun();
+  gameStarted=true;
+  gamePaused=false;
+  pauseButton.textContent='Ⅱ';
+  play('run',.10);
+  playSfx('resume');
+  startMusic();
+  modelStatus.textContent=variants[selectedVariant].name+' robot · DAY CITY AVENUE';
+  launchChallengeChain(gameSettings.preview?1.55:.55);
+}
+
 function setPaused(next){
   if(!gameStarted||victoryMode)return;
   gamePaused=next;
   pauseOverlay.hidden=!next;
   if(pauseRaceTitle)pauseRaceTitle.textContent=raceLabel();
-  if(next)setPlayerSpeedPercent(Math.round(playerSpeedMultiplier*100));
+  if(next){
+    setPlayerSpeedPercent(Math.round(playerSpeedMultiplier*100));
+    hidePauseConfirmation();
+    hidePauseSubpanels();
+    playSfx('pause');
+  }else{
+    playSfx('resume');
+  }
   pauseButton.textContent=next?'▶':'Ⅱ';
   modelStatus.textContent=next?'Paused':variants[selectedVariant].name+' robot · DAY CITY AVENUE';
   if(sessionCode&&sessionData)sessionUpdate({status:next?'paused':'running'}).catch(()=>{});
 }
 
 function finishRun(){
+  stopMusic();
+  playSfx('victory');
   gameStarted=false;
   victoryMode=false;
   gamePaused=false;
@@ -1520,6 +1718,7 @@ function applyRobotPalette(index){
   runnerDot.style.boxShadow='0 0 15px '+hex;
 
   document.querySelectorAll('.robot-option').forEach((btn,i)=>btn.classList.toggle('active',i===index));
+  document.querySelectorAll('[data-pause-runner]').forEach((btn,i)=>btn.classList.toggle('active',i===index));
 }
 
 function fitToHeight(root,target=2.35){
@@ -1608,7 +1807,16 @@ document.querySelectorAll('[data-race]').forEach(btn=>{
 });
 
 document.querySelectorAll('.robot-option').forEach((btn,index)=>{
-  btn.addEventListener('click',()=>applyRobotPalette(index));
+  btn.addEventListener('click',()=>{
+    playSfx('click');
+    applyRobotPalette(index);
+  });
+});
+document.querySelectorAll('[data-pause-runner]').forEach((btn,index)=>{
+  btn.addEventListener('click',()=>{
+    playSfx('click');
+    applyRobotPalette(index);
+  });
 });
 
 document.querySelectorAll('[data-difficulty]').forEach(btn=>{
@@ -1626,6 +1834,9 @@ startButton.addEventListener('click',async()=>{
   picker.classList.add('hidden');
   resultOverlay.hidden=true;
   gameStarted=true;
+  ensureAudio();
+  playSfx('click');
+  startMusic();
   play('run',.12);
   modelStatus.textContent=variants[selectedVariant].name+' robot · DAY CITY AVENUE';
   if(sessionCode&&sessionData){
@@ -1651,8 +1862,59 @@ runnerChip.addEventListener('click',()=>{
 pauseButton.addEventListener('click',()=>setPaused(!gamePaused));
 resumeButton.addEventListener('click',()=>setPaused(false));
 speedControl?.addEventListener('input',()=>setPlayerSpeedPercent(speedControl.value));
+changeRunnerButton?.addEventListener('click',()=>{
+  playSfx('click');
+  const nextHidden=!pauseRunnerPanel?.hidden;
+  hidePauseSubpanels();
+  if(pauseRunnerPanel)pauseRunnerPanel.hidden=nextHidden;
+});
+controlsButton?.addEventListener('click',()=>{
+  playSfx('click');
+  const nextHidden=!controlsPanel?.hidden;
+  hidePauseSubpanels();
+  if(controlsPanel)controlsPanel.hidden=nextHidden;
+});
+restartRaceButton?.addEventListener('click',()=>{playSfx('click');showPauseConfirmation('restart');});
+quitRaceButton?.addEventListener('click',()=>{playSfx('click');showPauseConfirmation('quit');});
+cancelPauseAction?.addEventListener('click',()=>{playSfx('click');hidePauseConfirmation();});
+confirmPauseAction?.addEventListener('click',()=>{
+  playSfx('click');
+  if(pendingPauseAction==='restart')restartCurrentRace();
+  else if(pendingPauseAction==='quit')returnToRaceMenu();
+});
+backToMenuButton?.addEventListener('click',()=>{playSfx('click');returnToRaceMenu();});
+
+soundControl?.addEventListener('input',()=>{
+  sfxVolume=Math.max(0,Math.min(1,Number(soundControl.value)/100));
+  if(sfxVolume>0)sfxEnabled=true;
+  updateAudioUI();
+  saveAudioSettings();
+});
+soundControl?.addEventListener('change',()=>playSfx('click'));
+soundToggle?.addEventListener('click',()=>{
+  sfxEnabled=!sfxEnabled;
+  updateAudioUI();
+  saveAudioSettings();
+  if(sfxEnabled)playSfx('click');
+});
+musicControl?.addEventListener('input',()=>{
+  musicVolume=Math.max(0,Math.min(1,Number(musicControl.value)/100));
+  if(musicVolume>0)musicEnabled=true;
+  updateAudioUI();
+  saveAudioSettings();
+  if(musicEnabled&&gameStarted)startMusic();
+});
+musicToggle?.addEventListener('click',()=>{
+  musicEnabled=!musicEnabled;
+  updateAudioUI();
+  saveAudioSettings();
+  if(musicEnabled&&gameStarted)startMusic();
+  else stopMusic();
+  playSfx('click');
+});
 setPlayerSpeedPercent(100);
 runAgainButton.addEventListener('click',()=>{
+  playSfx('click');
   resultOverlay.hidden=true;
   picker.classList.remove('hidden');
   play('idle',.12);
@@ -1711,6 +1973,7 @@ function moveLane(dir){
 function jump(){
   if(!gameStarted||gamePaused||victoryMode||jumpTime>0)return;
   jumpTime=.001;
+  playSfx('jump');
   if(actions.jump)play('jump',.08);
 }
 
