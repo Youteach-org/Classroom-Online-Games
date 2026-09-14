@@ -24,7 +24,7 @@
         <button id="pauseButton" class="icon-button" type="button" aria-label="Pause game">Ⅱ</button>
         <div class="brand">
           <span class="eyebrow">VERB RUNNER</span>
-          <strong>LEVEL 1 · VERB HUNT</strong>
+          <strong id="levelTitle">LEVEL 1 · VERB HUNT</strong>
         </div>
       </div>
 
@@ -32,12 +32,16 @@
         <div class="challenge-top">
           <span>CHALLENGE</span>
         </div>
-        <div class="principal-parts">
+        <div id="principalParts" class="principal-parts">
           <div class="part" data-slot="0"><small>BASE FORM</small><b>—</b></div>
           <i>|</i>
           <div class="part" data-slot="1"><small>SIMPLE PAST</small><b>—</b></div>
           <i>|</i>
           <div class="part" data-slot="2"><small>PAST PARTICIPLE</small><b>—</b></div>
+        </div>
+        <div id="sentenceChallenge" class="sentence-challenge" hidden>
+          <strong id="sentenceText">—</strong>
+          <small>VERB: <b id="sentenceCue">—</b></small>
         </div>
       </div>
 
@@ -63,7 +67,7 @@
       <div class="controls">
         <span>← → lanes</span>
         <span>↑ / SPACE jump</span>
-        <span>Collect the correct verb form</span>
+        <span id="taskInstruction">Collect the correct verb form</span>
       </div>
     </section>
 
@@ -102,7 +106,7 @@
 
     <section id="resultOverlay" class="result-overlay" hidden>
       <div class="result-card">
-        <span class="result-kicker">LEVEL 1 COMPLETE</span>
+        <span id="resultKicker" class="result-kicker">LEVEL 1 COMPLETE</span>
         <h2>Great run!</h2>
         <div class="result-stars">★ ★ ★</div>
         <div class="result-grid">
@@ -114,7 +118,8 @@
           <div><span>FINAL MOMENTUM</span><strong id="resultMomentum">—</strong></div>
         </div>
         <div class="result-actions">
-          <button id="runAgainButton" class="start-button" type="button">RUN AGAIN</button>
+          <button id="nextLevelButton" class="start-button next-level-button" type="button">NEXT LEVEL · SENTENCE RUN</button>
+          <button id="runAgainButton" class="start-button secondary-run-button" type="button">RUN AGAIN</button>
           <a class="ghost-button" href="/">BACK TO GAMES</a>
         </div>
       </div>
@@ -126,6 +131,7 @@
   <script src="../Verb-Runner/verb-bank.js"></script>
   <script src="../Verb-Runner/challenge-core.js"></script>
   <script src="../Verb-Runner/game-core.js"></script>
+  <script src="./sentence-bank.js"></script>
   <script type="module" src="./prototype.js"></script>
 </body>
 </html>
