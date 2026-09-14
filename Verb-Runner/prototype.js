@@ -3733,28 +3733,39 @@ function animate(){
         if(m.position.z>8)m.position.z-=160;
       }
     }else{
-      const momentumBoost=.78+(runState?.momentum||75)/340;
-      const baseTarget=(gameSettings.initialSpeed+distance/620)*gameSettings.speedScale*momentumBoost*playerSpeedMultiplier;
+      const progress=THREE.MathUtils.clamp(
+        totalChallenges>1?(runState?.completed||0)/(totalChallenges-1):0,
+        0,
+        1
+      );
 
-      if(currentLevel===5){
-        const finalProgress=THREE.MathUtils.clamp(
-          totalChallenges>1?challengeIndex/(totalChallenges-1):0,
-          0,
-          1
-        );
-        const progressBoost=THREE.MathUtils.lerp(.90,1.32,finalProgress);
-        const dynamicCap=gameSettings.maxSpeed*THREE.MathUtils.lerp(.90,1.14,finalProgress)*playerSpeedMultiplier;
-        const targetSpeed=Math.min(dynamicCap,baseTarget*progressBoost);
+      // Momentum now matters in every race:
+      // high momentum pushes the runner faster; mistakes lower momentum and
+      // visibly ease the pace again.
+      const momentum=THREE.MathUtils.clamp((runState?.momentum??75)/100,0,1);
+      const momentumBoost=THREE.MathUtils.lerp(.82,1.14,momentum);
 
-        // Smooth acceleration: every solved question nudges the race faster,
-        // with the highest speed reserved for the final questions.
-        speed=THREE.MathUtils.damp(speed,targetSpeed,2.15,dt);
-      }else{
-        speed=Math.min(
-          gameSettings.maxSpeed*playerSpeedMultiplier,
-          baseTarget
-        );
-      }
+      // Every level accelerates gradually as the student gets closer to the
+      // last question. Final Race keeps the strongest finishing ramp.
+      const progressBoost=currentLevel===5
+        ?THREE.MathUtils.lerp(.90,1.32,progress)
+        :THREE.MathUtils.lerp(.92,1.20,progress);
+
+      const capBoost=currentLevel===5
+        ?THREE.MathUtils.lerp(.90,1.14,progress)
+        :THREE.MathUtils.lerp(.92,1.08,progress);
+
+      const baseTarget=(gameSettings.initialSpeed+distance/700)
+        *gameSettings.speedScale
+        *momentumBoost
+        *playerSpeedMultiplier;
+
+      const dynamicCap=gameSettings.maxSpeed*capBoost*playerSpeedMultiplier;
+      const targetSpeed=Math.min(dynamicCap,baseTarget*progressBoost);
+
+      // Smooth acceleration/deceleration prevents abrupt jumps when momentum
+      // or progress changes.
+      speed=THREE.MathUtils.damp(speed,targetSpeed,currentLevel===5?2.15:1.85,dt);
 
       distance+=speed*dt;
       updateRunner(dt);
