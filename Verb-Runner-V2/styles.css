@@ -201,3 +201,44 @@ button,a{-webkit-tap-highlight-color:transparent}
   .difficulty{gap:5px}.difficulty small{display:none}
   .result-grid{grid-template-columns:repeat(2,1fr)}
 }
+
+
+/* Level 2 · Sentence Run */
+.sentence-challenge{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  text-align:center;
+}
+.sentence-challenge[hidden]{display:none!important}
+.sentence-challenge>strong{
+  font-size:clamp(18px,2vw,28px);
+  line-height:1.12;
+  font-weight:950;
+  text-shadow:0 2px 0 rgba(0,22,48,.8),0 0 12px rgba(86,218,255,.22);
+}
+.sentence-challenge>small{
+  flex:0 0 auto;
+  border:1px solid rgba(117,223,247,.45);
+  border-radius:999px;
+  padding:6px 9px;
+  color:#bfe9f6;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.08em;
+  white-space:nowrap;
+}
+.sentence-challenge>small b{color:#ffe04b;font-size:10px}
+.next-level-button{min-width:230px}
+.secondary-run-button{opacity:.9}
+
+@media(max-width:700px){
+  .sentence-challenge{min-height:49px;gap:7px;flex-direction:column}
+  .sentence-challenge>strong{font-size:clamp(15px,4.4vw,20px)}
+  .sentence-challenge>small{font-size:6px;padding:4px 7px}
+  .sentence-challenge>small b{font-size:8px}
+  .result-actions{flex-wrap:wrap}
+  .next-level-button{min-width:min(230px,88vw)}
+}
