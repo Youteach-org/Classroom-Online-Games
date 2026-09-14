@@ -124,11 +124,12 @@ function setPlayerSpeedPercent(value){
 
 let audioCtx=null;
 let sfxEnabled=true;
-let musicEnabled=false;
+let musicEnabled=true;
 let sfxVolume=.70;
-let musicVolume=0;
+let musicVolume=.15;
 let musicTimer=null;
 let musicStep=0;
+let musicBus=null;
 
 function ensureAudio(){
   if(!audioCtx){
@@ -175,17 +176,87 @@ function playSfx(name){
   else if(name==='victory'){[523,659,784,1047].forEach((f,i)=>synthTone(f,.18,v*.65,'triangle',i*.09));}
 }
 
+const ambientChords=[
+  [196.00,246.94,293.66,369.99],
+  [174.61,220.00,261.63,329.63],
+  [146.83,196.00,246.94,293.66],
+  [164.81,207.65,246.94,329.63],
+  [130.81,174.61,220.00,261.63],
+  [146.83,184.99,220.00,293.66],
+  [174.61,220.00,261.63,349.23],
+  [196.00,246.94,293.66,392.00]
+];
+
+function ensureMusicBus(){
+  const ctx=ensureAudio();
+  if(!ctx)return null;
+  if(!musicBus){
+    musicBus=ctx.createGain();
+    musicBus.gain.setValueAtTime(musicVolume,ctx.currentTime);
+    musicBus.connect(ctx.destination);
+  }
+  return musicBus;
+}
+
+function playAmbientChord(frequencies,duration=5.2){
+  const ctx=ensureAudio();
+  const bus=ensureMusicBus();
+  if(!ctx||!bus||!musicEnabled||musicVolume<=0)return;
+
+  const chordGain=ctx.createGain();
+  const filter=ctx.createBiquadFilter();
+  const now=ctx.currentTime;
+  filter.type='lowpass';
+  filter.frequency.setValueAtTime(900,now);
+  filter.Q.setValueAtTime(.35,now);
+
+  chordGain.gain.setValueAtTime(.0001,now);
+  chordGain.gain.exponentialRampToValueAtTime(.022,now+.85);
+  chordGain.gain.setValueAtTime(.022,now+Math.max(1,duration-1.25));
+  chordGain.gain.exponentialRampToValueAtTime(.0001,now+duration);
+
+  chordGain.connect(filter).connect(bus);
+
+  frequencies.forEach((freq,index)=>{
+    const osc=ctx.createOscillator();
+    osc.type=index%2?'sine':'triangle';
+    osc.frequency.setValueAtTime(freq,now);
+    osc.detune.setValueAtTime(index%2?3:-3,now);
+    osc.connect(chordGain);
+    osc.start(now);
+    osc.stop(now+duration+.05);
+  });
+}
+
 function musicTick(){
-  // Background music intentionally disabled. Learning comes first; keep only useful SFX.
+  if(!musicEnabled||musicVolume<=0||!gameStarted||gamePaused)return;
+  const chord=ambientChords[musicStep%ambientChords.length];
+  playAmbientChord(chord,5.2);
+  musicStep=(musicStep+1)%ambientChords.length;
 }
 
 function startMusic(){
-  stopMusic();
+  if(!musicEnabled||musicVolume<=0||!gameStarted||gamePaused)return;
+  ensureMusicBus();
+  if(musicBus&&audioCtx){
+    musicBus.gain.cancelScheduledValues(audioCtx.currentTime);
+    musicBus.gain.setTargetAtTime(musicVolume,audioCtx.currentTime,.08);
+  }
+  if(musicTimer)return;
+  musicTick();
+  musicTimer=setInterval(musicTick,4400);
 }
 
 function stopMusic(){
   if(musicTimer)clearInterval(musicTimer);
   musicTimer=null;
+  if(musicBus&&audioCtx){
+    const bus=musicBus;
+    musicBus=null;
+    bus.gain.cancelScheduledValues(audioCtx.currentTime);
+    bus.gain.setTargetAtTime(.0001,audioCtx.currentTime,.035);
+    setTimeout(()=>{try{bus.disconnect();}catch{}},180);
+  }
 }
 
 function saveAudioSettings(){
@@ -198,25 +269,24 @@ function saveAudioSettings(){
 
 function updateAudioUI(){
   const sfxPercent=Math.round(sfxVolume*100);
-  const musicPercent=0;
+  const musicPercent=Math.round(musicVolume*100);
   if(soundControl)soundControl.value=String(sfxPercent);
   if(musicControl){
-    musicControl.value='0';
-    musicControl.disabled=true;
+    musicControl.value=String(musicPercent);
+    musicControl.disabled=false;
   }
   if(soundValue)soundValue.textContent=sfxPercent+'%';
-  if(musicValue)musicValue.textContent='OFF';
+  if(musicValue)musicValue.textContent=musicEnabled?musicPercent+'%':'OFF';
   if(soundToggle){
     soundToggle.textContent=sfxEnabled?'ON':'OFF';
     soundToggle.classList.toggle('active',sfxEnabled);
     soundToggle.setAttribute('aria-pressed',String(sfxEnabled));
   }
   if(musicToggle){
-    musicEnabled=false;
-    musicToggle.textContent='OFF';
-    musicToggle.classList.remove('active');
-    musicToggle.setAttribute('aria-pressed','false');
-    musicToggle.disabled=true;
+    musicToggle.textContent=musicEnabled?'ON':'OFF';
+    musicToggle.classList.toggle('active',musicEnabled);
+    musicToggle.setAttribute('aria-pressed',String(musicEnabled));
+    musicToggle.disabled=false;
   }
 }
 
@@ -225,9 +295,12 @@ function loadAudioSettings(){
     const saved=JSON.parse(localStorage.getItem('verbRunnerV2Audio')||'null');
     if(saved){
       sfxEnabled=saved.sfxEnabled!==false;
-      musicEnabled=false;
+      musicEnabled=saved.musicEnabled!==false;
       sfxVolume=Math.max(0,Math.min(1,Number(saved.sfxVolume)??.70));
-      musicVolume=0;
+      const storedMusic=Number(saved.musicVolume);
+      musicVolume=Number.isFinite(storedMusic)&&storedMusic>0
+        ?Math.max(.05,Math.min(.35,storedMusic))
+        :.15;
     }
   }catch{}
   updateAudioUI();
@@ -1964,15 +2037,23 @@ soundToggle?.addEventListener('click',()=>{
   if(sfxEnabled)playSfx('click');
 });
 musicControl?.addEventListener('input',()=>{
-  musicEnabled=false;
-  musicVolume=0;
+  musicVolume=Math.max(0,Math.min(.35,Number(musicControl.value)/100));
+  if(musicVolume>0)musicEnabled=true;
+  if(musicBus&&audioCtx){
+    musicBus.gain.setTargetAtTime(musicVolume,audioCtx.currentTime,.08);
+  }
   updateAudioUI();
+  saveAudioSettings();
+  if(musicEnabled&&gameStarted&&!gamePaused)startMusic();
 });
 musicToggle?.addEventListener('click',()=>{
-  musicEnabled=false;
-  musicVolume=0;
-  stopMusic();
+  musicEnabled=!musicEnabled;
+  if(musicEnabled&&musicVolume<=0)musicVolume=.15;
+  if(musicEnabled&&gameStarted&&!gamePaused)startMusic();
+  else stopMusic();
   updateAudioUI();
+  saveAudioSettings();
+  playSfx('click');
 });
 setPlayerSpeedPercent(100);
 runAgainButton.addEventListener('click',()=>{

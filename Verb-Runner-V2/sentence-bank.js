@@ -1629,10 +1629,11 @@
     "id": "ppc01",
     "group": "present-perfect-continuous",
     "base": "study",
-    "text": "I ___ continuously for two hours, and I am still not finished.",
+    "text": "I started two hours ago and I'm still at it. I ___ for two hours.",
     "timeExpressions": [
-      "continuously for two hours",
-      "still not finished"
+      "started two hours ago",
+      "still at it",
+      "for two hours"
     ],
     "correctAnswers": [
       "have been studying"
@@ -1648,10 +1649,11 @@
     "id": "ppc02",
     "group": "present-perfect-continuous",
     "base": "work",
-    "text": "She ___ nonstop since 8:00 this morning, and she is still working now.",
+    "text": "She started at 8:00 and is still at her desk. She ___ since then.",
     "timeExpressions": [
-      "since 8:00 this morning",
-      "still working now"
+      "started at 8:00",
+      "still at her desk",
+      "since then"
     ],
     "correctAnswers": [
       "has been working"
@@ -1667,10 +1669,11 @@
     "id": "ppc03",
     "group": "present-perfect-continuous",
     "base": "rain",
-    "text": "It is still raining; it ___ continuously all morning.",
+    "text": "The rain started at dawn and hasn't stopped. It ___ all morning.",
     "timeExpressions": [
-      "still raining",
-      "continuously all morning"
+      "started at dawn",
+      "hasn't stopped",
+      "all morning"
     ],
     "correctAnswers": [
       "has been raining"
@@ -1686,10 +1689,10 @@
     "id": "ppc04",
     "group": "present-perfect-continuous",
     "base": "wait",
-    "text": "We ___ at this bus stop for thirty minutes, and the bus still has not arrived.",
+    "text": "The bus still isn't here. We ___ for thirty minutes.",
     "timeExpressions": [
-      "for thirty minutes",
-      "still has not arrived"
+      "still isn't here",
+      "for thirty minutes"
     ],
     "correctAnswers": [
       "have been waiting"
@@ -1705,10 +1708,11 @@
     "id": "ppc05",
     "group": "present-perfect-continuous",
     "base": "practice",
-    "text": "He ___ the piano since breakfast and has not stopped yet.",
+    "text": "He started after breakfast and hasn't stopped. He ___ the piano all morning.",
     "timeExpressions": [
-      "since breakfast",
-      "has not stopped yet"
+      "started after breakfast",
+      "hasn't stopped",
+      "all morning"
     ],
     "correctAnswers": [
       "has been practicing"
@@ -1724,10 +1728,10 @@
     "id": "ppc06",
     "group": "present-perfect-continuous",
     "base": "learn",
-    "text": "They ___ Spanish continuously for three years, and they are still taking classes every week.",
+    "text": "They still take classes every week. They ___ Spanish for three years.",
     "timeExpressions": [
-      "continuously for three years",
-      "still taking classes every week"
+      "still take classes",
+      "for three years"
     ],
     "correctAnswers": [
       "have been learning"
@@ -1743,10 +1747,10 @@
     "id": "ppc07",
     "group": "present-perfect-continuous",
     "base": "run",
-    "text": "You are still breathing hard because you ___ continuously for an hour.",
+    "text": "You're out of breath. You ___ for an hour.",
     "timeExpressions": [
-      "still breathing hard",
-      "continuously for an hour"
+      "out of breath",
+      "for an hour"
     ],
     "correctAnswers": [
       "have been running"
@@ -1762,10 +1766,10 @@
     "id": "ppc08",
     "group": "present-perfect-continuous",
     "base": "clean",
-    "text": "Mom ___ the kitchen all afternoon, and she is still cleaning it now.",
+    "text": "Mom is still in the kitchen. She ___ all afternoon.",
     "timeExpressions": [
-      "all afternoon",
-      "still cleaning it now"
+      "still in the kitchen",
+      "all afternoon"
     ],
     "correctAnswers": [
       "has been cleaning"
@@ -1781,10 +1785,10 @@
     "id": "ppc09",
     "group": "present-perfect-continuous",
     "base": "try",
-    "text": "I ___ to call you since noon, but the line is still busy.",
+    "text": "The line is still busy. I ___ to call you since noon.",
     "timeExpressions": [
-      "since noon",
-      "still busy"
+      "still busy",
+      "since noon"
     ],
     "correctAnswers": [
       "have been trying"
@@ -1800,10 +1804,10 @@
     "id": "ppc10",
     "group": "present-perfect-continuous",
     "base": "snow",
-    "text": "Snow is still falling; it ___ continuously since early this morning.",
+    "text": "Snow is still falling. It ___ since early this morning.",
     "timeExpressions": [
       "still falling",
-      "continuously since early this morning"
+      "since early this morning"
     ],
     "correctAnswers": [
       "has been snowing"
@@ -1819,10 +1823,11 @@
     "id": "papc01",
     "group": "past-perfect-continuous",
     "base": "study",
-    "text": "She ___ continuously for three hours when the exam finally began.",
+    "text": "She was exhausted; she ___ for three hours before the exam.",
     "timeExpressions": [
-      "continuously for three hours",
-      "when the exam finally began"
+      "exhausted",
+      "for three hours",
+      "before the exam"
     ],
     "correctAnswers": [
       "had been studying"
@@ -1838,9 +1843,9 @@
     "id": "papc02",
     "group": "past-perfect-continuous",
     "base": "wait",
-    "text": "We ___ continuously for forty minutes when the bus finally arrived.",
+    "text": "We ___ for forty minutes when the bus finally arrived.",
     "timeExpressions": [
-      "continuously for forty minutes",
+      "for forty minutes",
       "when the bus finally arrived"
     ],
     "correctAnswers": [
@@ -1857,10 +1862,11 @@
     "id": "papc03",
     "group": "past-perfect-continuous",
     "base": "work",
-    "text": "He was exhausted because he ___ without a break all day before he went home.",
+    "text": "He was exhausted because he ___ all day before going home.",
     "timeExpressions": [
-      "without a break all day",
-      "before he went home"
+      "exhausted",
+      "all day",
+      "before going home"
     ],
     "correctAnswers": [
       "had been working"
@@ -1876,9 +1882,10 @@
     "id": "papc04",
     "group": "past-perfect-continuous",
     "base": "rain",
-    "text": "The ground was soaked because it ___ nonstop for hours before the sky cleared.",
+    "text": "The ground was soaked; it ___ for hours before the sky cleared.",
     "timeExpressions": [
-      "nonstop for hours",
+      "ground was soaked",
+      "for hours",
       "before the sky cleared"
     ],
     "correctAnswers": [
@@ -1895,10 +1902,11 @@
     "id": "papc05",
     "group": "past-perfect-continuous",
     "base": "drive",
-    "text": "They were exhausted because they ___ continuously for six hours when they stopped for dinner.",
+    "text": "They were tired; they ___ for six hours when they stopped.",
     "timeExpressions": [
-      "continuously for six hours",
-      "when they stopped for dinner"
+      "were tired",
+      "for six hours",
+      "when they stopped"
     ],
     "correctAnswers": [
       "had been driving"
@@ -1914,10 +1922,11 @@
     "id": "papc06",
     "group": "past-perfect-continuous",
     "base": "practice",
-    "text": "Mia's hands were sore because she ___ every day for months before the competition started.",
+    "text": "Mia's hands were sore because she ___ every day before the competition.",
     "timeExpressions": [
-      "every day for months",
-      "before the competition started"
+      "hands were sore",
+      "every day",
+      "before the competition"
     ],
     "correctAnswers": [
       "had been practicing"
@@ -1932,29 +1941,29 @@
   {
     "id": "papc07",
     "group": "past-perfect-continuous",
-    "base": "live",
-    "text": "We ___ there continuously for five years before we moved away.",
+    "base": "work",
+    "text": "The crew ___ on the tunnel for five years before it opened.",
     "timeExpressions": [
-      "continuously for five years",
-      "before we moved away"
+      "for five years",
+      "before it opened"
     ],
     "correctAnswers": [
-      "had been living"
+      "had been working"
     ],
     "distractors": [
-      "lived",
-      "were living",
-      "have been living",
-      "will live"
+      "worked",
+      "were working",
+      "have been working",
+      "will work"
     ]
   },
   {
     "id": "papc08",
     "group": "past-perfect-continuous",
     "base": "talk",
-    "text": "They ___ nonstop for an hour when the teacher interrupted them.",
+    "text": "They ___ for an hour when the teacher interrupted them.",
     "timeExpressions": [
-      "nonstop for an hour",
+      "for an hour",
       "when the teacher interrupted them"
     ],
     "correctAnswers": [
@@ -1971,9 +1980,9 @@
     "id": "papc09",
     "group": "past-perfect-continuous",
     "base": "sleep",
-    "text": "The baby ___ continuously for only twenty minutes when the noise woke him.",
+    "text": "The baby ___ for twenty minutes when the noise woke him.",
     "timeExpressions": [
-      "continuously for only twenty minutes",
+      "for twenty minutes",
       "when the noise woke him"
     ],
     "correctAnswers": [
@@ -1990,9 +1999,9 @@
     "id": "papc10",
     "group": "past-perfect-continuous",
     "base": "train",
-    "text": "The team ___ intensely for months before the championship began.",
+    "text": "The team ___ for months before the championship began.",
     "timeExpressions": [
-      "intensely for months",
+      "for months",
       "before the championship began"
     ],
     "correctAnswers": [
@@ -2009,10 +2018,11 @@
     "id": "fupc01",
     "group": "future-perfect-continuous",
     "base": "work",
-    "text": "By next January, she ___ here continuously for ten years, and she plans to continue.",
+    "text": "By next January, she ___ here for ten years, with no plans to stop.",
     "timeExpressions": [
       "by next January",
-      "continuously for ten years"
+      "for ten years",
+      "no plans to stop"
     ],
     "correctAnswers": [
       "will have been working"
@@ -2028,10 +2038,11 @@
     "id": "fupc02",
     "group": "future-perfect-continuous",
     "base": "study",
-    "text": "By midnight, I ___ continuously for six hours, and I still will not be finished.",
+    "text": "By midnight, I ___ for six hours and still won't be done.",
     "timeExpressions": [
       "by midnight",
-      "continuously for six hours"
+      "for six hours",
+      "still won't be done"
     ],
     "correctAnswers": [
       "will have been studying"
@@ -2047,10 +2058,11 @@
     "id": "fupc03",
     "group": "future-perfect-continuous",
     "base": "travel",
-    "text": "By the end of June, they ___ continuously for three months, with another month still planned.",
+    "text": "By June, they ___ for three months and will still have a month left.",
     "timeExpressions": [
-      "by the end of June",
-      "continuously for three months"
+      "by June",
+      "for three months",
+      "still have a month left"
     ],
     "correctAnswers": [
       "will have been traveling",
@@ -2067,10 +2079,11 @@
     "id": "fupc04",
     "group": "future-perfect-continuous",
     "base": "live",
-    "text": "By 2030, we ___ in this house continuously for twenty years, and we plan to stay.",
+    "text": "By 2030, we ___ here for twenty years, with no plans to move.",
     "timeExpressions": [
       "by 2030",
-      "continuously for twenty years"
+      "for twenty years",
+      "no plans to move"
     ],
     "correctAnswers": [
       "will have been living"
@@ -2086,10 +2099,11 @@
     "id": "fupc05",
     "group": "future-perfect-continuous",
     "base": "teach",
-    "text": "By next semester, Mr. Lee ___ continuously at the school for five years, and he will still be teaching there.",
+    "text": "By next semester, Mr. Lee ___ here for five years and will still be teaching.",
     "timeExpressions": [
       "by next semester",
-      "continuously for five years"
+      "for five years",
+      "still be teaching"
     ],
     "correctAnswers": [
       "will have been teaching"
@@ -2105,10 +2119,11 @@
     "id": "fupc06",
     "group": "future-perfect-continuous",
     "base": "wait",
-    "text": "By noon, we ___ continuously for three hours, and the line still may not have moved.",
+    "text": "By noon, we ___ for three hours and may still be in line.",
     "timeExpressions": [
       "by noon",
-      "continuously for three hours"
+      "for three hours",
+      "still be in line"
     ],
     "correctAnswers": [
       "will have been waiting"
@@ -2124,10 +2139,10 @@
     "id": "fupc07",
     "group": "future-perfect-continuous",
     "base": "run",
-    "text": "By the finish line, she ___ continuously for nearly four hours.",
+    "text": "At the finish line, she ___ for nearly four hours.",
     "timeExpressions": [
-      "by the finish line",
-      "continuously for nearly four hours"
+      "at the finish line",
+      "for nearly four hours"
     ],
     "correctAnswers": [
       "will have been running"
@@ -2143,10 +2158,11 @@
     "id": "fupc08",
     "group": "future-perfect-continuous",
     "base": "build",
-    "text": "By next month, they ___ the stadium continuously for a year, and construction will still be underway.",
+    "text": "By next month, they ___ the stadium for a year, and work will continue.",
     "timeExpressions": [
       "by next month",
-      "continuously for a year"
+      "for a year",
+      "work will continue"
     ],
     "correctAnswers": [
       "will have been building"
@@ -2162,10 +2178,11 @@
     "id": "fupc09",
     "group": "future-perfect-continuous",
     "base": "practice",
-    "text": "By the concert, he ___ this piece continuously for six months, and he will still be practicing it.",
+    "text": "By the concert, he ___ this piece for six months and will still be practicing.",
     "timeExpressions": [
       "by the concert",
-      "continuously for six months"
+      "for six months",
+      "still be practicing"
     ],
     "correctAnswers": [
       "will have been practicing"
@@ -2181,10 +2198,11 @@
     "id": "fupc10",
     "group": "future-perfect-continuous",
     "base": "use",
-    "text": "By Friday, we ___ this system continuously for two weeks, and the trial will still be running.",
+    "text": "By Friday, we ___ this system for two weeks, and the trial will continue.",
     "timeExpressions": [
       "by Friday",
-      "continuously for two weeks"
+      "for two weeks",
+      "trial will continue"
     ],
     "correctAnswers": [
       "will have been using"
