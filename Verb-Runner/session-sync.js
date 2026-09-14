@@ -38,14 +38,17 @@ function makeRunnerId(){
 
 async function createSession(settings){
   let code=makeCode();
-  for(let tries=0;tries<5;tries++){
+  for(let tries=0;tries<8;tries++){
     const snap=await get(ref(db,`${ROOT}/sessions/${code}`));
     if(!snap.exists())break;
     code=makeCode();
   }
+  const now=serverTimestamp();
   await set(ref(db,`${ROOT}/sessions/${code}`),{
+    code,
     status:'active',
-    createdAt:serverTimestamp(),
+    createdAt:now,
+    lastActivity:now,
     settings,
     students:{}
   });
@@ -59,15 +62,31 @@ async function loadSession(code){
   return snap.exists()?snap.val():null;
 }
 
-function subscribeSession(code,callback){
+function subscribeSession(code,callback,onError){
   code=normalizeCode(code);
-  return onValue(ref(db,`${ROOT}/sessions/${code}`),snap=>callback(snap.exists()?snap.val():null));
+  return onValue(
+    ref(db,`${ROOT}/sessions/${code}`),
+    snap=>callback(snap.exists()?snap.val():null),
+    error=>onError?.(error)
+  );
+}
+
+function subscribeSessions(callback,onError){
+  return onValue(
+    ref(db,`${ROOT}/sessions`),
+    snap=>callback(snap.exists()?snap.val():{}),
+    error=>onError?.(error)
+  );
 }
 
 async function closeSession(code){
   code=normalizeCode(code);
   if(!code)return;
-  await update(ref(db,`${ROOT}/sessions/${code}`),{status:'closed',closedAt:serverTimestamp()});
+  await update(ref(db,`${ROOT}/sessions/${code}`),{
+    status:'closed',
+    closedAt:serverTimestamp(),
+    lastActivity:serverTimestamp()
+  });
 }
 
 async function connectRunner(code,runnerId,data={}){
@@ -76,6 +95,7 @@ async function connectRunner(code,runnerId,data={}){
   const studentRef=ref(db,`${ROOT}/sessions/${code}/students/${runnerId}`);
   await set(studentRef,{
     id:runnerId,
+    studentName:String(data.studentName||runnerId).slice(0,60),
     status:'running',
     online:true,
     joinedAt:serverTimestamp(),
@@ -88,10 +108,26 @@ async function connectRunner(code,runnerId,data={}){
     grammarErrors:0,
     obstacleHits:0,
     runner:Number(data.runner)||0,
-    difficulty:data.difficulty||'medium'
+    difficulty:data.difficulty||'medium',
+    level:Number(data.level)||1,
+    mode:data.mode||'race',
+    challenge:1,
+    challengeLabel:'Preparing challenge',
+    lastAction:'Started Verb Runner',
+    latestChoice:'',
+    latestResult:'waiting',
+    correctAnswer:'',
+    lastPrompt:'',
+    attempt:1,
+    lastEventAt:Date.now()
   });
+  await update(ref(db,`${ROOT}/sessions/${code}`),{lastActivity:serverTimestamp()});
   try{
-    await onDisconnect(studentRef).update({online:false,lastSeen:serverTimestamp(),status:'offline'});
+    await onDisconnect(studentRef).update({
+      online:false,
+      lastSeen:serverTimestamp(),
+      status:'offline'
+    });
   }catch{}
 }
 
@@ -103,13 +139,21 @@ async function updateRunner(code,runnerId,patch={}){
     online:true,
     lastSeen:serverTimestamp()
   });
+  await update(ref(db,`${ROOT}/sessions/${code}`),{lastActivity:serverTimestamp()});
 }
 
 async function finishRunner(code,runnerId,result={}){
-  return updateRunner(code,runnerId,{...result,status:'finished',finishedAt:serverTimestamp()});
+  return updateRunner(code,runnerId,{
+    ...result,
+    status:'finished',
+    latestResult:'completed',
+    lastAction:'Finished race',
+    finishedAt:serverTimestamp(),
+    lastEventAt:Date.now()
+  });
 }
 
 export {
-  normalizeCode,makeRunnerId,createSession,loadSession,subscribeSession,closeSession,
+  normalizeCode,makeRunnerId,createSession,loadSession,subscribeSession,subscribeSessions,closeSession,
   connectRunner,updateRunner,finishRunner
 };
