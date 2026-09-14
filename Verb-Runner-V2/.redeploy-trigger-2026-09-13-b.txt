@@ -1,1 +1,1 @@
-Redeploy Sentence Run with 150 questions across 15 grammar categories: all 12 tense-aspect combinations plus going to, imperatives, and modal verbs.
+Redeploy start-screen race selector: Verb Runner and Sentence Runner are independently selectable; future races will be added as they are created.
