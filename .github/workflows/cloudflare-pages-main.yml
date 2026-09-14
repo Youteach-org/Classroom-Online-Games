@@ -40,8 +40,18 @@ jobs:
         run: |
           npx wrangler@4 pages project create classroom-online-games --production-branch main || true
 
+      - name: Pin production branch to main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          curl -fsS -X PATCH \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/classroom-online-games" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"production_branch":"main"}' > /dev/null
+
       - name: Deploy to Cloudflare Pages
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          npx wrangler@4 pages deploy dist --project-name=classroom-online-games --commit-hash=${{ github.sha }}
+          npx wrangler@4 pages deploy dist --project-name=classroom-online-games --branch=main --commit-hash=${{ github.sha }}
