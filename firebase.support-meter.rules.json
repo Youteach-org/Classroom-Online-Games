@@ -9,12 +9,31 @@
         }
       },
       "sessionTokens": {
-        "$token": { ".validate": "!newData.exists() || (newData.hasChild('sessionId') && newData.child('sessionId').isString())" }
+        "$token": {
+          ".validate": "!newData.exists() || (newData.hasChild('sessionId') && newData.child('sessionId').isString())"
+        }
       },
       "runs": {
-        ".indexOn": ["sessionId", "lastSeen"],
+        ".indexOn": [
+          "sessionId",
+          "lastSeen"
+        ],
         "$runId": {
           ".validate": "!newData.exists() || (newData.hasChildren(['studentName','sessionId','setNumber','lastSeen']) && newData.child('studentName').isString() && newData.child('studentName').val().length <= 60 && newData.child('sessionId').isString() && newData.child('setNumber').isNumber() && newData.child('setNumber').val() >= 1 && newData.child('setNumber').val() <= 3 && newData.child('lastSeen').isNumber())"
+        }
+      }
+    },
+    "verbRunnerV2": {
+      ".read": true,
+      ".write": true,
+      "sessions": {
+        "$sessionCode": {
+          ".validate": "!newData.exists() || (newData.hasChildren(['status','createdAt','settings']) && (newData.child('status').val() === 'active' || newData.child('status').val() === 'closed'))",
+          "students": {
+            "$runnerId": {
+              ".validate": "!newData.exists() || (newData.hasChildren(['id','studentName','status','lastSeen']) && newData.child('id').isString() && newData.child('studentName').isString() && newData.child('studentName').val().length <= 60 && newData.child('status').isString())"
+            }
+          }
         }
       }
     }
