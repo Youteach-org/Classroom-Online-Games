@@ -41,7 +41,7 @@
         </div>
         <div id="sentenceChallenge" class="sentence-challenge" hidden role="button" tabindex="0" aria-label="Pause to read the sentence">
           <strong id="sentenceText">—</strong>
-          <small>VERB: <b id="sentenceCue">—</b></small>
+          <small><span id="sentenceCueLabel">VERB</span>: <b id="sentenceCue">—</b></small>
         </div>
       </div>
 
@@ -90,6 +90,13 @@
             <span class="race-copy">
               <b>SENTENCE RUNNER</b>
               <small>Read the sentence and choose the verb or verb phrase that fits the context.</small>
+            </span>
+          </button>
+          <button class="race-option" type="button" data-race="time-clues" data-level="3">
+            <span class="race-icon" aria-hidden="true">T3</span>
+            <span class="race-copy">
+              <b>TIME CLUES</b>
+              <small>Read the conjugated sentence and collect the time expression that truly fits.</small>
             </span>
           </button>
         </div>
@@ -182,7 +189,7 @@
                 <input id="musicControl" type="range" min="0" max="100" step="5" value="10" />
                 <button id="musicToggle" class="audio-toggle active" type="button" aria-pressed="true">ON</button>
               </div>
-              <small class="music-note">Soft ambient background · separate from game sounds.</small>
+              <small class="music-note">Upbeat platformer background · separate from game sounds.</small>
             </div>
           </div>
         </div>
@@ -232,6 +239,7 @@
   <script src="../Verb-Runner/challenge-core.js"></script>
   <script src="../Verb-Runner/game-core.js"></script>
   <script src="./sentence-bank.js"></script>
+  <script src="./time-clues-bank.js"></script>
   <script type="module" src="./prototype.js"></script>
 </body>
 </html>

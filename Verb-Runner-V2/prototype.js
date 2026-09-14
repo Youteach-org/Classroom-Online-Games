@@ -61,6 +61,7 @@ const principalParts=document.querySelector('#principalParts');
 const sentenceChallenge=document.querySelector('#sentenceChallenge');
 const sentenceText=document.querySelector('#sentenceText');
 const sentenceCue=document.querySelector('#sentenceCue');
+const sentenceCueLabel=document.querySelector('#sentenceCueLabel');
 const taskInstruction=document.querySelector('#taskInstruction');
 const resultKicker=document.querySelector('#resultKicker');
 const nextLevelButton=document.querySelector('#nextLevelButton');
@@ -101,6 +102,11 @@ const sentenceRunTuning={
   easy:{speedScale:.58,answerSpacing:1.35,initialDelay:2.8,initialSpeed:17,maxSpeed:22},
   medium:{speedScale:.66,answerSpacing:1.18,initialDelay:2.45,initialSpeed:17,maxSpeed:24},
   hard:{speedScale:.76,answerSpacing:1.05,initialDelay:2.15,initialSpeed:18,maxSpeed:26}
+};
+const timeClueRunTuning={
+  easy:{speedScale:.54,answerSpacing:1.45,initialDelay:3.0,initialSpeed:16,maxSpeed:21},
+  medium:{speedScale:.62,answerSpacing:1.30,initialDelay:2.7,initialSpeed:17,maxSpeed:23},
+  hard:{speedScale:.70,answerSpacing:1.18,initialDelay:2.45,initialSpeed:17,maxSpeed:25}
 };
 let difficulty=difficultyPresets.medium;
 let totalChallenges=TOTAL_CHALLENGES;
@@ -876,6 +882,7 @@ let challenges=[];
 let challengeIndex=0;
 let verbDeck=[];
 let sentenceDeck=[];
+let timeClueDeck=[];
 let runElapsed=0;
 let noticeTimer=0;
 let pendingAnswers=[];
@@ -888,31 +895,83 @@ let recentCorrectPositions=[];
 let blankUsage=[0,0,0];
 const lastBlankByVerb=new Map();
 
+function isTextRace(){
+  return currentLevel===2||currentLevel===3;
+}
+
 function raceMode(){
-  return currentLevel===2?'sentence-run':'verb-hunt';
+  if(currentLevel===3)return 'time-clues';
+  if(currentLevel===2)return 'sentence-run';
+  return 'verb-hunt';
 }
 
 function raceLabel(){
-  return currentLevel===2?'SENTENCE RUNNER':'VERB RUNNER';
+  if(currentLevel===3)return 'TIME CLUES';
+  if(currentLevel===2)return 'SENTENCE RUNNER';
+  return 'VERB RUNNER';
+}
+
+function setDifficultyCopy(){
+  const copy=currentLevel===3
+    ?{
+      easy:'2 distractors · tense shown · no advance loss',
+      medium:'3 plausible clues · recognize the tense · −1',
+      hard:'4 close clues · advanced time markers · −2'
+    }
+    :{
+      easy:'2 distractors · basic tenses · no advance loss',
+      medium:'3 plausible distractors · intermediate tenses · −1',
+      hard:'4 close distractors · advanced tenses · −2'
+    };
+  document.querySelectorAll('[data-difficulty]').forEach(btn=>{
+    const small=btn.querySelector('small');
+    if(small)small.textContent=copy[btn.dataset.difficulty]||'';
+  });
 }
 
 function setLevelUI(){
-  const sentenceMode=currentLevel===2;
-  if(levelTitle)levelTitle.textContent=sentenceMode?'SENTENCE RUNNER · ALL TENSES':'VERB RUNNER · VERB HUNT';
-  if(principalParts)principalParts.hidden=sentenceMode;
-  if(sentenceChallenge)sentenceChallenge.hidden=!sentenceMode;
+  const textMode=isTextRace();
+  const timeMode=currentLevel===3;
+  if(levelTitle){
+    levelTitle.textContent=timeMode
+      ?'TIME CLUES · MATCH THE MOMENT'
+      :currentLevel===2
+        ?'SENTENCE RUNNER · ALL TENSES'
+        :'VERB RUNNER · VERB HUNT';
+  }
+  if(principalParts)principalParts.hidden=textMode;
+  if(sentenceChallenge)sentenceChallenge.hidden=!textMode;
+  if(sentenceCueLabel)sentenceCueLabel.textContent=timeMode?'TENSE':'VERB';
   const cueBadge=sentenceCue?.closest('small');
-  if(cueBadge)cueBadge.hidden=!sentenceMode||difficulty.name!=='easy';
-  if(taskInstruction)taskInstruction.textContent=sentenceMode
-    ?(difficulty.name==='easy'
-      ?'Use the verb hint and choose the form that completes the sentence'
-      :difficulty.name==='hard'
-        ?'Choose the best form · tap the sentence to pause and read'
-        :'Choose the verb and form that best complete the sentence')
-    :'Collect the correct verb form';
+  if(cueBadge)cueBadge.hidden=!textMode||difficulty.name!=='easy';
+
+  if(taskInstruction){
+    if(timeMode){
+      taskInstruction.textContent=difficulty.name==='easy'
+        ?'Use the tense hint and collect the time clue that fits'
+        :difficulty.name==='hard'
+          ?'Match the conjugation to the best time clue · tap the sentence to pause'
+          :'Recognize the tense and choose the compatible time expression';
+    }else if(currentLevel===2){
+      taskInstruction.textContent=difficulty.name==='easy'
+        ?'Use the verb hint and choose the form that completes the sentence'
+        :difficulty.name==='hard'
+          ?'Choose the best form · tap the sentence to pause and read'
+          :'Choose the verb and form that best complete the sentence';
+    }else{
+      taskInstruction.textContent='Collect the correct verb form';
+    }
+  }
+
   if(resultKicker)resultKicker.textContent=raceLabel()+' COMPLETE';
-  if(nextLevelButton)nextLevelButton.hidden=currentLevel!==1;
+  if(nextLevelButton){
+    nextLevelButton.hidden=currentLevel>=3;
+    nextLevelButton.textContent=currentLevel===1
+      ?'TRY NEXT RACE · SENTENCE RUNNER'
+      :'TRY NEXT RACE · TIME CLUES';
+  }
   if(startButton)startButton.textContent='START '+raceLabel();
+  setDifficultyCopy();
   document.querySelectorAll('[data-race]').forEach(btn=>{
     btn.classList.toggle('active',Number(btn.dataset.level)===currentLevel);
     btn.setAttribute('aria-pressed',Number(btn.dataset.level)===currentLevel?'true':'false');
@@ -920,8 +979,9 @@ function setLevelUI(){
 }
 
 function applySentenceRunTuning(){
-  if(currentLevel!==2)return;
-  const tuning=sentenceRunTuning[difficulty.name]||sentenceRunTuning.medium;
+  if(!isTextRace())return;
+  const source=currentLevel===3?timeClueRunTuning:sentenceRunTuning;
+  const tuning=source[difficulty.name]||source.medium;
   gameSettings={
     ...gameSettings,
     speedScale:tuning.speedScale,
@@ -932,8 +992,9 @@ function applySentenceRunTuning(){
 }
 
 function sentenceInitialDelay(fallback=.55){
-  if(currentLevel!==2)return fallback;
-  return (sentenceRunTuning[difficulty.name]||sentenceRunTuning.medium).initialDelay;
+  if(!isTextRace())return fallback;
+  const source=currentLevel===3?timeClueRunTuning:sentenceRunTuning;
+  return (source[difficulty.name]||source.medium).initialDelay;
 }
 
 setLevelUI();
@@ -954,7 +1015,7 @@ function applyDifficultyDefaults(preset){
 
 function selectRace(level){
   if(gameStarted)return;
-  currentLevel=Number(level)===2?2:1;
+  currentLevel=Math.max(1,Math.min(3,Number(level)||1));
 
   if(sessionCode&&sessionData){
     applySessionSettings(sessionData.settings||{});
@@ -971,7 +1032,7 @@ function selectRace(level){
     applyDifficultyDefaults(difficulty);
   }
 
-  modelStatus.textContent=(currentLevel===2?'Sentence Runner':'Verb Runner')+' selected · choose runner and difficulty';
+  modelStatus.textContent=raceLabel()+' selected · choose runner and difficulty';
 }
 
 function applySessionSettings(settings={}){
@@ -1103,7 +1164,7 @@ function appendSentencePrompt(raw,timeExpressions=[]){
 }
 
 function fitSentencePrompt(){
-  if(!sentenceText||!sentenceChallenge||currentLevel!==2||sentenceChallenge.hidden)return;
+  if(!sentenceText||!sentenceChallenge||!isTextRace()||sentenceChallenge.hidden)return;
   sentenceText.style.whiteSpace='nowrap';
   sentenceText.style.fontSize='';
   const maxSize=IS_MOBILE?30:42;
@@ -1122,19 +1183,32 @@ function renderChallenge(){
   if(!currentChallenge)return;
   if(challengeNumber)challengeNumber.textContent='';
 
-  if(currentLevel===2){
+  if(isTextRace()){
     if(principalParts)principalParts.hidden=true;
     if(sentenceChallenge)sentenceChallenge.hidden=false;
-    appendSentencePrompt(currentChallenge.text,currentChallenge.timeExpressions);
-    if(sentenceCue)sentenceCue.textContent=String(currentChallenge.cue||currentChallenge.base||'').toUpperCase();
+    appendSentencePrompt(
+      currentChallenge.text,
+      currentLevel===2?currentChallenge.timeExpressions:[]
+    );
+    if(sentenceCue){
+      sentenceCue.textContent=String(
+        currentLevel===3
+          ?currentChallenge.grammarLabel
+          :(currentChallenge.cue||currentChallenge.base||'')
+      ).toUpperCase();
+    }
+    if(sentenceCueLabel)sentenceCueLabel.textContent=currentLevel===3?'TENSE':'VERB';
     const cueBadge=sentenceCue?.closest('small');
     if(cueBadge)cueBadge.hidden=difficulty.name!=='easy';
     requestAnimationFrame(fitSentencePrompt);
     if(sessionCode&&sessionData){
+      const easyHint=difficulty.name==='easy'
+        ?' ['+String(currentLevel===3?currentChallenge.grammarLabel:(currentChallenge.cue||'')).toUpperCase()+']'
+        :'';
       sessionUpdate({
         level:currentLevel,
         challenge:challengeIndex+1,
-        challengeLabel:String(currentChallenge.text||'')+(difficulty.name==='easy'?' ['+String(currentChallenge.cue||'').toUpperCase()+']':'')
+        challengeLabel:String(currentChallenge.text||'')+easyHint
       }).catch(()=>{});
     }
     return;
@@ -1210,8 +1284,28 @@ function refillSentenceDeck(){
   sentenceDeck=window.VerbRunnerSentenceBank.shuffled([...(window.VerbRunnerSentenceBank?.SENTENCES||[])]);
 }
 
+function makeTimeClueChallenge(template){
+  return window.VerbRunnerTimeCluesBank.createChallenge(template,{
+    difficulty:difficulty.name,
+    distractorCount:gameSettings.distractors
+  });
+}
+
+function refillTimeClueDeck(){
+  timeClueDeck=window.VerbRunnerTimeCluesBank.shuffled(
+    (window.VerbRunnerTimeCluesBank?.ITEMS||[]).filter(item=>item.tier===difficulty.name)
+  );
+}
+
 function ensureChallengeAvailable(){
   while(challengeIndex>=challenges.length){
+    if(currentLevel===3){
+      if(!timeClueDeck.length)refillTimeClueDeck();
+      const nextTimeClue=timeClueDeck.shift();
+      if(!nextTimeClue)break;
+      challenges.push(makeTimeClueChallenge(nextTimeClue));
+      continue;
+    }
     if(currentLevel===2){
       if(!sentenceDeck.length)refillSentenceDeck();
       const nextSentence=sentenceDeck.shift();
@@ -1229,6 +1323,16 @@ function ensureChallengeAvailable(){
 function buildChallenges(){
   challenges=[];
   challengeIndex=0;
+
+  if(currentLevel===3){
+    applySentenceRunTuning();
+    challenges=window.VerbRunnerTimeCluesBank.buildRound(totalChallenges,{
+      difficulty:difficulty.name,
+      distractorCount:gameSettings.distractors
+    });
+    timeClueDeck=[];
+    return;
+  }
 
   if(currentLevel===2){
     applySentenceRunTuning();
@@ -1289,11 +1393,23 @@ function makeAnswerTexture(word){
   ctx.stroke();
 
   const text=String(word).toUpperCase();
-  let fontSize=112;
+  const words=text.split(/\s+/).filter(Boolean);
+  let lines=[text];
+  if(text.length>21&&words.length>1){
+    let best=null;
+    for(let cut=1;cut<words.length;cut++){
+      const pair=[words.slice(0,cut).join(' '),words.slice(cut).join(' ')];
+      const score=Math.abs(pair[0].length-pair[1].length);
+      if(!best||score<best.score)best={pair,score};
+    }
+    if(best)lines=best.pair;
+  }
+
+  let fontSize=lines.length>1?82:112;
+  const maxWidth=c.width-145;
   ctx.font='900 '+fontSize+'px Arial';
-  const maxWidth=c.width-150;
-  while(fontSize>48&&ctx.measureText(text).width>maxWidth){
-    fontSize-=5;
+  while(fontSize>34&&Math.max(...lines.map(line=>ctx.measureText(line).width))>maxWidth){
+    fontSize-=4;
     ctx.font='900 '+fontSize+'px Arial';
   }
 
@@ -1303,9 +1419,13 @@ function makeAnswerTexture(word){
   ctx.shadowBlur=15;
   ctx.lineWidth=9;
   ctx.strokeStyle='rgba(0,38,72,.85)';
-  ctx.strokeText(text,c.width/2,c.height/2+5);
   ctx.fillStyle='#f8fdff';
-  ctx.fillText(text,c.width/2,c.height/2+5);
+  const lineHeight=fontSize*.94;
+  lines.forEach((line,index)=>{
+    const y=c.height/2+5+(index-(lines.length-1)/2)*lineHeight;
+    ctx.strokeText(line,c.width/2,y);
+    ctx.fillText(line,c.width/2,y);
+  });
 
   const tex=new THREE.CanvasTexture(c);
   tex.colorSpace=THREE.SRGBColorSpace;
@@ -1365,8 +1485,8 @@ function spawnAnswer(item){
   if(item.correct)lastCorrectLane=laneIndex;
 
   const group=new THREE.Group();
-  const cardW=IS_MOBILE?3.70:3.05;
-  const cardH=IS_MOBILE?1.34:1.10;
+  const cardW=currentLevel===3?(IS_MOBILE?4.05:3.35):(IS_MOBILE?3.70:3.05);
+  const cardH=currentLevel===3?(IS_MOBILE?1.42:1.20):(IS_MOBILE?1.34:1.10);
   const glow=new THREE.Mesh(
     new THREE.PlaneGeometry(cardW+0.28,cardH+0.18),
     new THREE.MeshBasicMaterial({color:0x45ddff,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false,fog:false,toneMapped:false})
@@ -1408,13 +1528,17 @@ function launchChallengeChain(initialDelay=.42){
   if(!currentChallenge)return;
 
   initialDelay=sentenceInitialDelay(initialDelay);
-  const sequence=currentLevel===2
-    ?window.VerbRunnerSentenceBank.buildAnswerSequence(currentChallenge,{
+  const sequence=currentLevel===3
+    ?window.VerbRunnerTimeCluesBank.buildAnswerSequence(currentChallenge,{
         distractorCount:gameSettings.distractors
       })
-    :window.VerbRunnerChallenge.buildAnswerSequence(currentChallenge,{
-        distractorCount:gameSettings.distractors
-      });
+    :currentLevel===2
+      ?window.VerbRunnerSentenceBank.buildAnswerSequence(currentChallenge,{
+          distractorCount:gameSettings.distractors
+        })
+      :window.VerbRunnerChallenge.buildAnswerSequence(currentChallenge,{
+          distractorCount:gameSettings.distractors
+        });
 
   let correctIndex=sequence.findIndex(item=>item.correct);
   const lastIndex=sequence.length-1;
@@ -1506,7 +1630,7 @@ function answerScreenPoint(answer){
 function waitMs(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
 
 async function animateAnswerToBlank(answer,correct,startOverride=null){
-  const sentenceMode=currentLevel===2;
+  const sentenceMode=isTextRace();
   const blankPart=sentenceMode
     ?document.querySelector('.sentence-blank')
     :document.querySelector('.part.blank');
@@ -1717,7 +1841,11 @@ function missedCorrectAnswer(){
   clearAnswers();
 
   if(challengeIndex>=challenges.length-1){
-    if(currentLevel===2){
+    if(currentLevel===3){
+      if(!timeClueDeck.length)refillTimeClueDeck();
+      const nextTimeClue=timeClueDeck.shift();
+      if(nextTimeClue)challenges.push(makeTimeClueChallenge(nextTimeClue));
+    }else if(currentLevel===2){
       if(!sentenceDeck.length)refillSentenceDeck();
       const nextSentence=sentenceDeck.shift();
       if(nextSentence)challenges.push(makeSentenceChallenge(nextSentence));
@@ -1730,7 +1858,7 @@ function missedCorrectAnswer(){
 
   const missed=challenges.splice(challengeIndex,1)[0];
   if(missed){
-    if(currentLevel===2){
+    if(isTextRace()){
       challenges.push(missed);
     }else{
       const verb=window.VerbRunnerBank?.findVerb?.(missed.base);
@@ -1738,7 +1866,7 @@ function missedCorrectAnswer(){
     }
   }
 
-  showNotice('CORRECT FORM MISSED · MOVED TO END','info');
+  showNotice((currentLevel===3?'CORRECT TIME CLUE':'CORRECT FORM')+' MISSED · MOVED TO END','info');
   renderChallenge();
   launchChallengeChain(.6);
 }
@@ -1829,21 +1957,43 @@ function sentenceHintFor(challenge){
   return (hints[challenge.group]||'Identify the time reference, decide whether the action is completed or ongoing, and then choose the matching verb structure.')+clueText;
 }
 
+function timeClueHintFor(challenge){
+  if(!challenge)return 'First identify the tense. Then choose the time expression that matches it.';
+  const hints={
+    'present-simple':'Present Simple usually matches routines, frequency, schedules, and repeated-time expressions such as every..., usually, or on Mondays.',
+    'past-simple':'Past Simple needs a finished past time: yesterday, last..., ...ago, or a completed past date or event.',
+    'future-will':'Future with will pairs with a future point or future clause such as tomorrow, next..., later, when..., or as soon as....',
+    'present-continuous':'Present Continuous commonly matches now, right now, at the moment, currently, or a temporary period around now.',
+    'past-continuous':'Past Continuous describes an action in progress at a past moment, often with at [time] yesterday, while..., or when another past event happened.',
+    'future-continuous':'Future Continuous describes an action in progress at a specific future moment, such as this time tomorrow or at 10 tomorrow morning.',
+    'present-perfect':'Present Perfect connects the past to now. Look for since, for, already, yet, ever, recently, so far, or unfinished time periods.',
+    'past-perfect':'Past Perfect places one completed event before another past point. Look for before..., by the time..., or already in a past sequence.',
+    'future-perfect':'Future Perfect looks toward a future deadline. The strongest clues are by..., before..., or by the time... plus a future reference.',
+    'present-perfect-continuous':'Present Perfect Continuous emphasizes duration or ongoing activity up to now. Look especially for since, for, all morning, or for the past....',
+    'past-perfect-continuous':'Past Perfect Continuous emphasizes how long an activity had continued before another past event. Look for duration + before/when a past event.',
+    'future-perfect-continuous':'Future Perfect Continuous measures duration up to a future point. Look for by [future time] together with a duration such as for ten years.',
+    'going-to':'Be going to describes a future plan or evidence-based prediction, so choose a genuinely future time expression.'
+  };
+  return (challenge.grammarLabel||'This tense')+': '+(hints[challenge.group]||'Match the verb structure to the time relationship expressed by the clue.');
+}
+
 function updatePauseReadingCard(){
-  const sentenceMode=currentLevel===2&&currentChallenge;
+  const sentenceMode=isTextRace()&&currentChallenge;
   if(!pauseReadingCard)return;
   pauseReadingCard.hidden=!sentenceMode;
   if(!sentenceMode)return;
   if(pauseReadingMode){
-    pauseReadingMode.textContent=difficulty.name==='hard'
-      ?'HARD MODE · TAKE YOUR TIME'
-      :'READ AT YOUR OWN PACE';
+    pauseReadingMode.textContent=currentLevel===3
+      ?(difficulty.name==='hard'?'TIME CLUES · THINK IT THROUGH':'TIME CLUE COACH')
+      :(difficulty.name==='hard'?'HARD MODE · TAKE YOUR TIME':'READ AT YOUR OWN PACE');
   }
   if(pauseSentenceText){
     pauseSentenceText.textContent=String(currentChallenge.text||'').replace(/___/g,'_____');
   }
   if(pauseHintText){
-    pauseHintText.textContent=sentenceHintFor(currentChallenge);
+    pauseHintText.textContent=currentLevel===3
+      ?timeClueHintFor(currentChallenge)
+      :sentenceHintFor(currentChallenge);
   }
 }
 
@@ -1892,7 +2042,7 @@ function finishRun(){
   resultObstacles.textContent=String(summary.obstacleHits);
   resultMomentum.textContent=summary.momentum+'%';
   if(resultKicker)resultKicker.textContent=raceLabel()+' COMPLETE';
-  if(nextLevelButton)nextLevelButton.hidden=currentLevel!==1;
+  if(nextLevelButton)nextLevelButton.hidden=currentLevel>=3;
   resultOverlay.hidden=false;
 
   try{
@@ -1952,6 +2102,7 @@ function resetRun(){
   lastCorrectLane=-1;
   verbDeck=[];
   sentenceDeck=[];
+  timeClueDeck=[];
   applySentenceRunTuning();
   setLevelUI();
   buildChallenges();
@@ -2137,10 +2288,10 @@ runnerChip.addEventListener('click',()=>{
 pauseButton.addEventListener('click',()=>setPaused(!gamePaused));
 resumeButton.addEventListener('click',()=>setPaused(false));
 sentenceChallenge?.addEventListener('click',()=>{
-  if(gameStarted&&!gamePaused&&currentLevel===2)setPaused(true);
+  if(gameStarted&&!gamePaused&&isTextRace())setPaused(true);
 });
 sentenceChallenge?.addEventListener('keydown',e=>{
-  if((e.key==='Enter'||e.key===' ')&&gameStarted&&!gamePaused&&currentLevel===2){
+  if((e.key==='Enter'||e.key===' ')&&gameStarted&&!gamePaused&&isTextRace()){
     e.preventDefault();
     setPaused(true);
   }
@@ -2209,8 +2360,8 @@ runAgainButton.addEventListener('click',()=>{
 });
 
 nextLevelButton?.addEventListener('click',async()=>{
-  if(currentLevel!==1)return;
-  currentLevel=2;
+  if(currentLevel>=3)return;
+  currentLevel+=1;
   resultOverlay.hidden=true;
   if(sessionCode&&sessionData)applySessionSettings(sessionData.settings||{});
   else{
@@ -2234,7 +2385,7 @@ nextLevelButton?.addEventListener('click',async()=>{
   if(sessionCode&&sessionData){
     await sessionConnect({
       level:currentLevel,
-      mode:'sentence-run',
+      mode:raceMode(),
       total:totalChallenges,
       runner:selectedVariant,
       difficulty:difficulty.name
@@ -2250,7 +2401,7 @@ function autoPauseForFocusChange(reason='window'){
   if(!gameStarted||gamePaused||victoryMode)return;
   setPaused(true);
   if(pauseReadingMode){
-    pauseReadingMode.textContent=currentLevel===2
+    pauseReadingMode.textContent=isTextRace()
       ?'AUTO-PAUSED · TAKE YOUR TIME'
       :'AUTO-PAUSED';
   }
