@@ -2308,6 +2308,11 @@ runnerChip.addEventListener('click',()=>{
 
 pauseButton.addEventListener('click',()=>setPaused(!gamePaused));
 resumeButton.addEventListener('click',()=>setPaused(false));
+pauseOverlay?.addEventListener('click',event=>{
+  if(event.target===pauseOverlay&&gamePaused){
+    setPaused(false);
+  }
+});
 sentenceChallenge?.addEventListener('click',()=>{
   if(gameStarted&&!gamePaused&&isTextRace())setPaused(true);
 });
