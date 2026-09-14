@@ -512,19 +512,17 @@
   {
     "id": "fw10",
     "group": "future-will",
-    "base": "probably",
-    "text": "Our team ___ probably win the final.",
-    "timeExpressions": [
-      "probably"
-    ],
+    "base": "win",
+    "text": "I think our team ___ the final.",
+    "timeExpressions": [],
     "correctAnswers": [
-      "will"
+      "will win"
     ],
     "distractors": [
-      "does",
-      "did",
-      "is",
-      "has"
+      "wins",
+      "won",
+      "is winning",
+      "has won"
     ]
   },
   {
@@ -693,19 +691,18 @@
     "id": "pc10",
     "group": "present-continuous",
     "base": "look",
-    "text": "Why ___ you ___ at me right now?",
+    "text": "Why ___ at me right now?",
     "timeExpressions": [
       "right now"
     ],
     "correctAnswers": [
-      "are",
-      "looking"
+      "are you looking"
     ],
     "distractors": [
-      "do",
-      "did",
-      "have",
-      "will"
+      "do you look",
+      "did you look",
+      "have you looked",
+      "will you look"
     ]
   },
   {
@@ -1074,17 +1071,17 @@
     "id": "pp01",
     "group": "present-perfect",
     "base": "finish",
-    "text": "I have already ___ my homework.",
+    "text": "I ___ my homework already.",
     "timeExpressions": [
       "already"
     ],
     "correctAnswers": [
-      "finished"
+      "have finished"
     ],
     "distractors": [
       "finish",
-      "finished yesterday",
-      "been finishing",
+      "finished",
+      "am finishing",
       "will finish"
     ]
   },
@@ -1092,36 +1089,36 @@
     "id": "pp02",
     "group": "present-perfect",
     "base": "see",
-    "text": "She has never ___ snow before.",
+    "text": "She ___ snow before.",
     "timeExpressions": [
       "never",
       "before"
     ],
     "correctAnswers": [
-      "seen"
+      "has never seen"
     ],
     "distractors": [
-      "saw",
-      "sees",
-      "been seeing",
-      "will see"
+      "never sees",
+      "never saw",
+      "is never seeing",
+      "will never see"
     ]
   },
   {
     "id": "pp03",
     "group": "present-perfect",
     "base": "visit",
-    "text": "We have ___ that museum three times this year.",
+    "text": "We ___ that museum three times this year.",
     "timeExpressions": [
       "three times this year"
     ],
     "correctAnswers": [
-      "visited"
+      "have visited"
     ],
     "distractors": [
       "visit",
-      "visited last year",
-      "been visiting",
+      "visited",
+      "are visiting",
       "will visit"
     ]
   },
@@ -1129,17 +1126,17 @@
     "id": "pp04",
     "group": "present-perfect",
     "base": "lose",
-    "text": "He has just ___ his keys.",
+    "text": "He ___ his keys just now.",
     "timeExpressions": [
       "just"
     ],
     "correctAnswers": [
-      "lost"
+      "has just lost"
     ],
     "distractors": [
       "loses",
-      "lost yesterday",
-      "been losing",
+      "lost",
+      "is losing",
       "will lose"
     ]
   },
@@ -1147,17 +1144,17 @@
     "id": "pp05",
     "group": "present-perfect",
     "base": "read",
-    "text": "They have ___ five chapters so far.",
+    "text": "They ___ five chapters so far.",
     "timeExpressions": [
       "so far"
     ],
     "correctAnswers": [
-      "read"
+      "have read"
     ],
     "distractors": [
-      "read yesterday",
+      "read",
+      "were reading",
       "are reading",
-      "been reading since noon",
       "will read"
     ]
   },
@@ -1165,17 +1162,17 @@
     "id": "pp06",
     "group": "present-perfect",
     "base": "live",
-    "text": "I have ___ here since 2020.",
+    "text": "I ___ here since 2020.",
     "timeExpressions": [
       "since 2020"
     ],
     "correctAnswers": [
-      "lived"
+      "have lived"
     ],
     "distractors": [
-      "lived in 2020",
+      "live",
+      "lived",
       "am living",
-      "been living yesterday",
       "will live"
     ]
   },
@@ -1183,53 +1180,53 @@
     "id": "pp07",
     "group": "present-perfect",
     "base": "meet",
-    "text": "Have you ever ___ a famous actor?",
+    "text": "___ a famous actor?",
     "timeExpressions": [
       "ever"
     ],
     "correctAnswers": [
-      "met"
+      "Have you ever met"
     ],
     "distractors": [
-      "meet",
-      "met last week",
-      "been meeting",
-      "will meet"
+      "Do you ever meet",
+      "Did you ever meet",
+      "Are you meeting",
+      "Will you meet"
     ]
   },
   {
     "id": "pp08",
     "group": "present-perfect",
     "base": "arrive",
-    "text": "The package has not ___ yet.",
+    "text": "The package ___ yet.",
     "timeExpressions": [
       "yet"
     ],
     "correctAnswers": [
-      "arrived"
+      "has not arrived"
     ],
     "distractors": [
-      "arrives",
-      "arrived yesterday",
-      "been arriving",
-      "will arrive"
+      "does not arrive",
+      "did not arrive",
+      "is not arriving",
+      "will not arrive"
     ]
   },
   {
     "id": "pp09",
     "group": "present-perfect",
     "base": "change",
-    "text": "The city has ___ a lot recently.",
+    "text": "The city ___ a lot recently.",
     "timeExpressions": [
       "recently"
     ],
     "correctAnswers": [
-      "changed"
+      "has changed"
     ],
     "distractors": [
       "changes",
-      "changed in 2010",
-      "been changing yesterday",
+      "changed",
+      "is changing",
       "will change"
     ]
   },
@@ -1237,17 +1234,17 @@
     "id": "pp10",
     "group": "present-perfect",
     "base": "complete",
-    "text": "Our class has ___ four projects this semester.",
+    "text": "Our class ___ four projects this semester.",
     "timeExpressions": [
       "this semester"
     ],
     "correctAnswers": [
-      "completed"
+      "has completed"
     ],
     "distractors": [
       "completes",
-      "completed last semester",
-      "been completing yesterday",
+      "completed",
+      "is completing",
       "will complete"
     ]
   },
@@ -1255,182 +1252,182 @@
     "id": "pap01",
     "group": "past-perfect",
     "base": "leave",
-    "text": "The train had already ___ before we reached the station.",
+    "text": "The train ___ before we reached the station.",
     "timeExpressions": [
       "before we reached the station",
       "already"
     ],
     "correctAnswers": [
-      "left"
+      "had already left"
     ],
     "distractors": [
-      "leaves",
       "left",
       "was leaving",
-      "has left"
+      "has left",
+      "will leave"
     ]
   },
   {
     "id": "pap02",
     "group": "past-perfect",
     "base": "finish",
-    "text": "She had ___ the report by the time the meeting started.",
+    "text": "She ___ the report by the time the meeting started.",
     "timeExpressions": [
       "by the time the meeting started"
     ],
     "correctAnswers": [
-      "finished"
+      "had finished"
     ],
     "distractors": [
-      "finishes",
       "finished",
       "was finishing",
-      "has finished"
+      "has finished",
+      "will finish"
     ]
   },
   {
     "id": "pap03",
     "group": "past-perfect",
     "base": "eat",
-    "text": "They had already ___ when we arrived for dinner.",
+    "text": "They ___ when we arrived for dinner.",
     "timeExpressions": [
       "when we arrived",
       "already"
     ],
     "correctAnswers": [
-      "eaten"
+      "had already eaten"
     ],
     "distractors": [
-      "eat",
       "ate",
       "were eating",
-      "have eaten"
+      "have eaten",
+      "will eat"
     ]
   },
   {
     "id": "pap04",
     "group": "past-perfect",
     "base": "see",
-    "text": "I had never ___ the ocean before that trip.",
+    "text": "I ___ the ocean before that trip.",
     "timeExpressions": [
       "before that trip",
       "never"
     ],
     "correctAnswers": [
-      "seen"
+      "had never seen"
     ],
     "distractors": [
-      "see",
-      "saw",
-      "was seeing",
-      "have seen"
+      "never saw",
+      "was never seeing",
+      "has never seen",
+      "will never see"
     ]
   },
   {
     "id": "pap05",
     "group": "past-perfect",
     "base": "study",
-    "text": "He had ___ the chapter before the quiz began.",
+    "text": "He ___ the chapter before the quiz began.",
     "timeExpressions": [
       "before the quiz began"
     ],
     "correctAnswers": [
-      "studied"
+      "had studied"
     ],
     "distractors": [
-      "studies",
       "studied",
       "was studying",
-      "has studied"
+      "has studied",
+      "will study"
     ]
   },
   {
     "id": "pap06",
     "group": "past-perfect",
     "base": "close",
-    "text": "The store had ___ by the time we got there.",
+    "text": "The store ___ by the time we got there.",
     "timeExpressions": [
       "by the time we got there"
     ],
     "correctAnswers": [
-      "closed"
+      "had closed"
     ],
     "distractors": [
-      "closes",
       "closed",
       "was closing",
-      "has closed"
+      "has closed",
+      "will close"
     ]
   },
   {
     "id": "pap07",
     "group": "past-perfect",
     "base": "forget",
-    "text": "She realized that she had ___ her wallet at home.",
+    "text": "She realized that she ___ her wallet at home.",
     "timeExpressions": [],
     "correctAnswers": [
-      "forgotten"
+      "had forgotten"
     ],
     "distractors": [
-      "forgets",
       "forgot",
       "was forgetting",
-      "has forgotten"
+      "has forgotten",
+      "will forget"
     ]
   },
   {
     "id": "pap08",
     "group": "past-perfect",
     "base": "send",
-    "text": "They had ___ the email before the system crashed.",
+    "text": "They ___ the email before the system crashed.",
     "timeExpressions": [
       "before the system crashed"
     ],
     "correctAnswers": [
-      "sent"
+      "had sent"
     ],
     "distractors": [
-      "send",
       "sent",
       "were sending",
-      "have sent"
+      "have sent",
+      "will send"
     ]
   },
   {
     "id": "pap09",
     "group": "past-perfect",
     "base": "start",
-    "text": "The movie had already ___ when we found our seats.",
+    "text": "The movie ___ when we found our seats.",
     "timeExpressions": [
       "when we found our seats",
       "already"
     ],
     "correctAnswers": [
-      "started"
+      "had already started"
     ],
     "distractors": [
-      "starts",
       "started",
       "was starting",
-      "has started"
+      "has started",
+      "will start"
     ]
   },
   {
     "id": "pap10",
     "group": "past-perfect",
     "base": "break",
-    "text": "The pipe had ___ before the plumber arrived.",
+    "text": "The pipe ___ before the plumber arrived.",
     "timeExpressions": [
       "before the plumber arrived"
     ],
     "correctAnswers": [
-      "broken"
+      "had broken"
     ],
     "distractors": [
-      "breaks",
       "broke",
       "was breaking",
-      "has broken"
+      "has broken",
+      "will break"
     ]
   },
   {
@@ -2791,15 +2788,16 @@
   }
 
   function buildRound(count=20,{difficulty='medium',distractorCount=null,random=Math.random}={}){
-    const total=Math.max(GROUPS.length,Math.min(SENTENCES.length,Math.floor(count)));
-    const baseEach=Math.floor(total/GROUPS.length);
-    const remainder=total-baseEach*GROUPS.length;
-    const bonusOrder=shuffled(GROUPS,random);
-    const quotas=Object.fromEntries(GROUPS.map(group=>[group,baseEach]));
+    const total=Math.max(3,Math.min(SENTENCES.length,Math.floor(count)));
+    const activeGroups=total>=GROUPS.length?GROUPS:shuffled(GROUPS,random).slice(0,total);
+    const baseEach=Math.floor(total/activeGroups.length);
+    const remainder=total-baseEach*activeGroups.length;
+    const bonusOrder=shuffled(activeGroups,random);
+    const quotas=Object.fromEntries(activeGroups.map(group=>[group,baseEach]));
     for(let i=0;i<remainder;i++)quotas[bonusOrder[i]]+=1;
 
     const picked=[];
-    for(const group of GROUPS){
+    for(const group of activeGroups){
       const pool=shuffled(SENTENCES.filter(item=>item.group===group),random);
       picked.push(...pool.slice(0,quotas[group]));
     }
