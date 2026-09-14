@@ -12,10 +12,12 @@
     "present-perfect-continuous":"Present Perfect Continuous",
     "past-perfect-continuous":"Past Perfect Continuous",
     "future-perfect-continuous":"Future Perfect Continuous",
-    "going-to":"Be going to"
+    "going-to":"Be going to",
+    "imperative":"Imperatives",
+    "modals":"Modals"
   };
 
-  // Ten items per tense/form. Difficulty distribution per group:
+  // Ten items per tense/form/structure. Difficulty distribution per group:
   // 3 Easy + 4 Medium + 3 Hard = 10.
   // In Perfect forms, a second time reference is intentionally kept when it is
   // necessary to establish the past/future anchor; only redundant clues are removed.
@@ -175,6 +177,30 @@
       ["I am going to talk to the teacher ___.","after class today",["after class yesterday","every class","since class began yesterday","last week"]],
       ["They are going to repaint the classroom ___.","during the holiday break",["during last year's break","every break","since the break ended","last semester"]],
       ["We are going to begin the new unit ___.","on Monday",["last Monday","every Monday","since Monday","yesterday"]]
+    ],
+    "imperative":[
+      ["Take this medicine ___.","after meals",["last night","since breakfast","two days ago","by last month"]],
+      ["Please submit the assignment ___.","by Friday",["last Friday","since Friday","two days ago","yesterday"]],
+      ["Turn off the lights ___.","before you leave",["after you left yesterday","since you left","last week","two days ago"]],
+      ["Wash your hands ___.","before eating",["yesterday morning","since breakfast","two hours ago","last week"]],
+      ["Call me ___.","as soon as you arrive",["as soon as you arrived yesterday","since you arrived","two days ago","last month"]],
+      ["Don't open the door ___.","until I get back",["until I got back yesterday","since I got back","last night","two days ago"]],
+      ["Remember to charge the tablet ___.","before class tomorrow",["before class yesterday","since class began","last week","three days ago"]],
+      ["Keep the bandage dry ___.","for the next 24 hours",["24 hours ago","last week","yesterday morning","since yesterday"]],
+      ["Leave the documents on my desk ___.","before noon today",["before noon yesterday","since noon","last Friday","two days ago"]],
+      ["Do not use the machine ___.","until the light turns green",["until the light turned green yesterday","since the light turned green","last week","yesterday"]]
+    ],
+    "modals":[
+      ["You must submit the form ___.","by Friday",["last Friday","since Friday","two days ago","yesterday"]],
+      ["You should stretch ___.","before exercising",["yesterday morning","since breakfast","two hours ago","last week"]],
+      ["We can meet ___.","after class today",["after class yesterday","since class began yesterday","last week","two days ago"]],
+      ["You may leave ___.","when the bell rings",["when the bell rang yesterday","since the bell rang","last week","two days ago"]],
+      ["You must not eat ___.","for eight hours before the test",["eight hours ago","next week","yesterday morning","since breakfast"]],
+      ["She should arrive ___.","before noon tomorrow",["before noon yesterday","since noon","last week","three days ago"]],
+      ["They might finish the repairs ___.","later this afternoon",["yesterday afternoon","every afternoon last year","since yesterday","last month"]],
+      ["You can use the study room ___.","during opening hours",["last night","two days ago","since yesterday","last month"]],
+      ["He must take the second dose ___.","in six hours",["six hours ago","since six hours ago","yesterday","last week"]],
+      ["You should be at the station ___.","at least 20 minutes before departure",["20 minutes after yesterday's departure","since departure","last week","two days ago"]]
     ]
   };
 
@@ -191,7 +217,9 @@
     "present-perfect-continuous":"ppc",
     "past-perfect-continuous":"papc",
     "future-perfect-continuous":"fupc",
-    "going-to":"gt"
+    "going-to":"gt",
+    "imperative":"imp",
+    "modals":"mod"
   };
 
   function tierForIndex(index){
@@ -260,7 +288,7 @@
     ],random);
   }
 
-  // Balanced round: each tense/form appears once before any tense repeats.
+  // Balanced round: each grammar category appears once before any category repeats.
   function buildRound(count=20,{difficulty="medium",distractorCount=3,random=Math.random}={}){
     const tier=["easy","medium","hard"].includes(difficulty)?difficulty:"medium";
     const groups=shuffled(Object.keys(GROUP_LABELS),random);

@@ -914,8 +914,8 @@ function raceLabel(){
 function setDifficultyCopy(){
   const copy=currentLevel===3
     ?{
-      easy:'2 distractors · tense shown · no advance loss',
-      medium:'3 plausible clues · recognize the tense · −1',
+      easy:'2 distractors · grammar shown · no advance loss',
+      medium:'3 plausible clues · recognize the grammar · −1',
       hard:'4 close clues · advanced time markers · −2'
     }
     :{
@@ -941,7 +941,7 @@ function setLevelUI(){
   }
   if(principalParts)principalParts.hidden=textMode;
   if(sentenceChallenge)sentenceChallenge.hidden=!textMode;
-  if(sentenceCueLabel)sentenceCueLabel.textContent=timeMode?'TENSE':'VERB';
+  if(sentenceCueLabel)sentenceCueLabel.textContent=timeMode?'GRAMMAR':'VERB';
   const cueBadge=sentenceCue?.closest('small');
   if(cueBadge)cueBadge.hidden=!textMode||difficulty.name!=='easy';
 
@@ -951,7 +951,7 @@ function setLevelUI(){
         ?'Use the tense hint and collect the time clue that fits'
         :difficulty.name==='hard'
           ?'Match the conjugation to the best time clue · tap the sentence to pause'
-          :'Recognize the tense and choose the compatible time expression';
+          :'Recognize the grammar and choose the compatible time expression';
     }else if(currentLevel===2){
       taskInstruction.textContent=difficulty.name==='easy'
         ?'Use the verb hint and choose the form that completes the sentence'
@@ -1197,7 +1197,7 @@ function renderChallenge(){
           :(currentChallenge.cue||currentChallenge.base||'')
       ).toUpperCase();
     }
-    if(sentenceCueLabel)sentenceCueLabel.textContent=currentLevel===3?'TENSE':'VERB';
+    if(sentenceCueLabel)sentenceCueLabel.textContent=currentLevel===3?'GRAMMAR':'VERB';
     const cueBadge=sentenceCue?.closest('small');
     if(cueBadge)cueBadge.hidden=difficulty.name!=='easy';
     requestAnimationFrame(fitSentencePrompt);
@@ -1958,7 +1958,7 @@ function sentenceHintFor(challenge){
 }
 
 function timeClueHintFor(challenge){
-  if(!challenge)return 'First identify the tense. Then choose the time expression that matches it.';
+  if(!challenge)return 'First identify the tense or grammar structure. Then choose the time expression that matches it.';
   const hints={
     'present-simple':'Present Simple usually matches routines, frequency, schedules, and repeated-time expressions such as every..., usually, or on Mondays.',
     'past-simple':'Past Simple needs a finished past time: yesterday, last..., ...ago, or a completed past date or event.',
@@ -1972,9 +1972,11 @@ function timeClueHintFor(challenge){
     'present-perfect-continuous':'Present Perfect Continuous emphasizes duration or ongoing activity up to now. Look especially for since, for, all morning, or for the past....',
     'past-perfect-continuous':'Past Perfect Continuous emphasizes how long an activity had continued before another past event. Look for duration + before/when a past event.',
     'future-perfect-continuous':'Future Perfect Continuous measures duration up to a future point. Look for by [future time] together with a duration such as for ten years.',
-    'going-to':'Be going to describes a future plan or evidence-based prediction, so choose a genuinely future time expression.'
+    'going-to':'Be going to describes a future plan or evidence-based prediction, so choose a genuinely future time expression.',
+    'imperative':'Imperatives give instructions or commands. Choose the time expression that tells when, how long, or until when the instruction should be followed.',
+    'modals':'Modals express obligation, advice, permission, possibility, or ability. Use the rest of the sentence to choose the time expression that makes that meaning and timing natural.'
   };
-  return (challenge.grammarLabel||'This tense')+': '+(hints[challenge.group]||'Match the verb structure to the time relationship expressed by the clue.');
+  return (challenge.grammarLabel||'This structure')+': '+(hints[challenge.group]||'Match the verb structure to the time relationship expressed by the clue.');
 }
 
 function updatePauseReadingCard(){
