@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#8ec9ee" />
+  <title>Verb Runner V2</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <main id="app">
+    <canvas id="game" aria-label="Verb Runner V2 3D game"></canvas>
+
+    <header class="hud">
+      <div class="hud-left">
+        <button id="pauseButton" class="icon-button" type="button" aria-label="Pause game">Ⅱ</button>
+        <div class="brand">
+          <span class="eyebrow">VERB RUNNER</span>
+          <strong id="levelTitle">LEVEL 1 · VERB HUNT</strong>
+        </div>
+      </div>
+
+      <div class="hud-center" aria-label="Verb challenge">
+        <div class="challenge-top">
+          <span>CHALLENGE</span>
+        </div>
+        <div id="principalParts" class="principal-parts">
+          <div class="part" data-slot="0"><small>BASE FORM</small><b>—</b></div>
+          <i>|</i>
+          <div class="part" data-slot="1"><small>SIMPLE PAST</small><b>—</b></div>
+          <i>|</i>
+          <div class="part" data-slot="2"><small>PAST PARTICIPLE</small><b>—</b></div>
+        </div>
+        <div id="sentenceChallenge" class="sentence-challenge" hidden role="button" tabindex="0" aria-label="Pause to read the sentence">
+          <strong id="sentenceText">—</strong>
+          <small><span id="sentenceCueLabel">VERB</span>: <b id="sentenceCue">—</b></small>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <button id="runnerChip" class="runner-chip" type="button" aria-label="Change robot">
+          <span id="runnerDot" class="runner-dot"></span>
+          <span id="runnerName">RED</span>
+        </button>
+        <div class="mini-stat"><span>TIME</span><b id="raceTime">00:00.000</b></div>
+        <div class="mini-stat"><span>STREAK</span><b id="streakValue">0</b></div>
+        <div class="mini-stat"><span>ADVANCE</span><b id="progressValue">0 / 20</b></div>
+      </div>
+    </header>
+
+    <div id="gameNotice" class="game-notice" aria-live="assertive"></div>
+
+    <section class="status">
+      <div id="modelStatus" class="model-status-hidden" aria-live="polite">Loading robot…</div>
+      <section class="momentum-panel" aria-label="Momentum">
+        <div class="momentum-copy"><span>⚡ MOMENTUM</span><strong id="momentumValue">75%</strong></div>
+        <div class="momentum-track"><div id="momentumFill" class="momentum-fill" style="width:75%"></div></div>
+      </section>
+      <div class="controls">
+        <span>← → lanes</span>
+        <span>↑ / SPACE / SWIPE UP jump</span>
+        <span id="taskInstruction">Collect the correct verb form</span>
+      </div>
+    </section>
+
+    <section id="picker" class="picker" aria-label="Choose runner">
+      <div class="picker-card">
+        <span class="picker-kicker">RUNNER SERIES</span>
+        <h1>Choose your race</h1>
+        <p>Select the challenge you want to run. New races will appear here as they are created.</p>
+
+        <div class="race-options" aria-label="Choose race">
+          <button class="race-option active" type="button" data-race="verb" data-level="1">
+            <span class="race-icon" aria-hidden="true">V1</span>
+            <span class="race-copy">
+              <b>VERB RUNNER</b>
+              <small>Complete the missing principal part and dodge the wrong verb forms.</small>
+            </span>
+          </button>
+          <button class="race-option" type="button" data-race="sentence" data-level="2">
+            <span class="race-icon" aria-hidden="true">S2</span>
+            <span class="race-copy">
+              <b>SENTENCE RUNNER</b>
+              <small>Read the sentence and choose the verb or verb phrase that fits the context.</small>
+            </span>
+          </button>
+          <button class="race-option" type="button" data-race="time-clues" data-level="3">
+            <span class="race-icon" aria-hidden="true">T3</span>
+            <span class="race-copy">
+              <b>TIME CLUES</b>
+              <small>Read the sentence and collect the time expression that truly fits its grammar and context.</small>
+            </span>
+          </button>
+          <button class="race-option" type="button" data-race="perfect-race" data-level="4">
+            <span class="race-icon" aria-hidden="true">P4</span>
+            <span class="race-copy">
+              <b>PERFECT RACE</b>
+              <small>Choose Perfect Simple or Perfect Continuous from result, quantity, duration, and process clues.</small>
+            </span>
+          </button>
+          <button class="race-option" type="button" data-race="final-race" data-level="5">
+            <span class="race-icon" aria-hidden="true">F5</span>
+            <span class="race-copy">
+              <b>FINAL RACE</b>
+              <small>Everything counts: principal parts, tense, time clues, Perfect aspect, and brand-new mixed-context combos.</small>
+            </span>
+          </button>
+        </div>
+
+        <div class="picker-section-title">CHOOSE YOUR RUNNER</div>
+        <div class="robot-options">
+          <button class="robot-option active" type="button" data-runner="0" style="--runner:#e43c3c"><span></span><b>RED</b></button>
+          <button class="robot-option" type="button" data-runner="1" style="--runner:#2475d1"><span></span><b>BLUE</b></button>
+          <button class="robot-option" type="button" data-runner="2" style="--runner:#29a65a"><span></span><b>GREEN</b></button>
+          <button class="robot-option" type="button" data-runner="3" style="--runner:#ef4c78"><span></span><b>PINK</b></button>
+          <button class="robot-option" type="button" data-runner="4" style="--runner:#eef1f7"><span></span><b>WHITE / BLACK</b></button>
+          <button class="robot-option" type="button" data-runner="5" style="--runner:#9a4de0"><span></span><b>PURPLE</b></button>
+        </div>
+
+        <div class="picker-section-title">CHOOSE DIFFICULTY</div>
+        <div class="difficulty" aria-label="Difficulty">
+          <button type="button" data-difficulty="easy"><b>EASY</b><small>2 distractors · basic tenses · no advance loss</small></button>
+          <button type="button" data-difficulty="medium" class="active"><b>MEDIUM</b><small>3 plausible distractors · intermediate tenses · −1</small></button>
+          <button type="button" data-difficulty="hard"><b>HARD</b><small>4 close distractors · advanced tenses · −2</small></button>
+        </div>
+
+        <button id="startButton" class="start-button loading" type="button" disabled aria-busy="true">
+          <span class="start-spinner" aria-hidden="true"></span>
+          <span id="startButtonLabel">LOADING RUNNER…</span>
+        </button>
+        <div class="picker-footer">
+          <a class="ghost-button menu-back-games" href="/">BACK TO GAMES</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="pauseOverlay" class="pause-overlay" hidden>
+      <div class="pause-card">
+        <span>PAUSED</span>
+        <strong id="pauseRaceTitle">VERB RUNNER</strong>
+        <div id="pauseReadingCard" class="pause-reading-card" hidden>
+          <span id="pauseReadingMode">READ AT YOUR OWN PACE</span>
+          <div id="pauseSentenceText" class="pause-sentence-text">—</div>
+          <small>No timer while paused. Resume when you are ready.</small>
+          <div class="pause-hint-box">
+            <b>HOW TO SOLVE IT</b>
+            <p id="pauseHintText">Look for time clues and decide when the action happens.</p>
+          </div>
+        </div>
+        <div class="pause-settings" aria-label="Game settings">
+          <div class="pause-settings-title">GAME SETTINGS</div>
+
+          <label class="speed-setting" for="speedControl">
+            <span>GAME SPEED</span>
+            <b id="speedValue">100%</b>
+          </label>
+          <input id="speedControl" class="speed-control" type="range" min="85" max="165" step="5" value="100" />
+          <div class="speed-scale" aria-hidden="true">
+            <span>85% · CONTROLLED</span>
+            <span>165% · TURBO</span>
+          </div>
+          <p id="speedDescription" class="speed-description">Normal race speed</p>
+
+          <div class="pause-option-grid">
+            <button id="changeRunnerButton" class="pause-option-button" type="button">CHANGE RUNNER</button>
+            <button id="controlsButton" class="pause-option-button" type="button">CONTROLS</button>
+          </div>
+
+          <div id="pauseRunnerPanel" class="pause-subpanel" hidden>
+            <div class="pause-subpanel-title">CHOOSE RUNNER</div>
+            <div class="pause-runner-grid">
+              <button type="button" data-pause-runner="0" style="--runner:#e43c3c"><span></span><b>RED</b></button>
+              <button type="button" data-pause-runner="1" style="--runner:#2475d1"><span></span><b>BLUE</b></button>
+              <button type="button" data-pause-runner="2" style="--runner:#29a65a"><span></span><b>GREEN</b></button>
+              <button type="button" data-pause-runner="3" style="--runner:#ef4c78"><span></span><b>PINK</b></button>
+              <button type="button" data-pause-runner="4" style="--runner:#eef1f7"><span></span><b>WHITE / BLACK</b></button>
+              <button type="button" data-pause-runner="5" style="--runner:#9a4de0"><span></span><b>PURPLE</b></button>
+            </div>
+          </div>
+
+          <div id="controlsPanel" class="pause-subpanel controls-panel" hidden>
+            <div class="pause-subpanel-title">CONTROLS</div>
+            <div><b>LANES</b><span>← → / A D · Swipe left or right</span></div>
+            <div><b>JUMP</b><span>↑ / W / Space · Tap or swipe up</span></div>
+          </div>
+
+          <div class="audio-settings">
+            <div class="audio-row">
+              <label for="soundControl"><span>SOUND</span><b id="soundValue">70%</b></label>
+              <div class="audio-control-line">
+                <input id="soundControl" type="range" min="0" max="100" step="5" value="70" />
+                <button id="soundToggle" class="audio-toggle active" type="button" aria-pressed="true">ON</button>
+              </div>
+            </div>
+            <div class="audio-row">
+              <label for="musicControl"><span>MUSIC</span><b id="musicValue">12%</b></label>
+              <div class="audio-control-line">
+                <input id="musicControl" type="range" min="0" max="100" step="5" value="10" />
+                <button id="musicToggle" class="audio-toggle active" type="button" aria-pressed="true">ON</button>
+              </div>
+              <small class="music-note">Upbeat platformer background · separate from game sounds.</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="pause-actions">
+          <button id="resumeButton" class="pause-primary" type="button">RESUME</button>
+          <button id="restartRaceButton" class="pause-secondary" type="button">RESTART RACE</button>
+          <button id="quitRaceButton" class="pause-danger" type="button">QUIT TO MENU</button>
+        </div>
+
+        <div id="pauseConfirm" class="pause-confirm" hidden>
+          <strong id="pauseConfirmTitle">RESTART THIS RACE?</strong>
+          <p id="pauseConfirmText">Your current progress will be lost.</p>
+          <div>
+            <button id="cancelPauseAction" class="pause-secondary" type="button">CANCEL</button>
+            <button id="confirmPauseAction" class="pause-danger" type="button">RESTART</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultOverlay" class="result-overlay" hidden>
+      <div class="result-card">
+        <span id="resultKicker" class="result-kicker">LEVEL 1 COMPLETE</span>
+        <h2>Great run!</h2>
+        <div class="result-stars">★ ★ ★</div>
+        <div class="result-grid">
+          <div><span>TIME</span><strong id="resultTime">—</strong></div>
+          <div><span>ACCURACY</span><strong id="resultAccuracy">—</strong></div>
+          <div><span>CORRECT / ATTEMPTS</span><strong id="resultCorrect">—</strong></div>
+          <div><span>BEST STREAK</span><strong id="resultStreak">—</strong></div>
+          <div><span>OBSTACLES HIT</span><strong id="resultObstacles">—</strong></div>
+          <div><span>FINAL MOMENTUM</span><strong id="resultMomentum">—</strong></div>
+        </div>
+        <div class="result-actions">
+          <button id="nextLevelButton" class="start-button next-level-button" type="button">TRY NEXT RACE · SENTENCE RUNNER</button>
+          <button id="runAgainButton" class="start-button secondary-run-button" type="button">RUN AGAIN</button>
+          <button id="backToMenuButton" class="ghost-button" type="button">BACK TO MENU</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="flash" class="flash" aria-hidden="true"></div>
+  </main>
+
+  <script src="./verb-bank.js"></script>
+  <script src="./challenge-core.js"></script>
+  <script src="./game-core.js"></script>
+  <script src="./sentence-bank.js"></script>
+  <script src="./time-clues-bank.js"></script>
+  <script src="./perfect-race-bank.js"></script>
+  <script src="./final-race-bank.js"></script>
+  <script type="module" src="./prototype.js"></script>
+</body>
+</html>

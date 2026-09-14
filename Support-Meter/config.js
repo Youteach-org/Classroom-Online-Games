@@ -9,7 +9,7 @@ window.SUPPORT_METER_CONFIG = {
     appId: '1:302548732789:web:b230b7f74366488d45a13c'
   },
   firebaseRoot: 'classroomGames/supportMeter',
-  defaultClassCode: 'CONNECT5',
+  defaultClassCode: 'SUPPORT',
   heartbeatMs: 30000,
   onlineThresholdMs: 40000
 };

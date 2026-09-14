@@ -7,7 +7,7 @@ let catalog=[],active='all',runs={},focusId=null,hideOffline=false;
 const esc=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
 const online=run=>run.status==='online'&&Date.now()-Number(run.lastSeen||0)<(cfg.onlineThresholdMs||40000);
 const current=()=>catalog.find(item=>item.sessionId===active);
-const studentUrl=item=>`${location.origin}/Connectivity5/Support-Meter/?join=${encodeURIComponent(item.joinToken)}`;
+const studentUrl=item=>`${location.origin}/Support-Meter/?join=${encodeURIComponent(item.joinToken)}`;
 function status(ok,text){el.dot.className=`dot${ok?' live':''}`;el.status.textContent=text;}
 function frame(run,n){const set=run.setNumber||Math.floor(Number(run.currentStory)/10)||1,story=Number(run.currentStory)%10||1;return `assets/stories-v16/set-${set}/story-${story}-frame-${n}.webp`;}
 function sessionCard(item){const selected=item.sessionId===active,date=item.sessionType==='assigned'?new Date(Number(item.createdAt||Date.now())).toLocaleString():'';return `<button class="session-card${selected?' selected':''}" type="button" data-session-id="${esc(item.sessionId)}"><strong>${esc(item.title)}</strong><span class="session-count">${item.studentCount} student${item.studentCount===1?'':'s'} · <span class="session-live">${item.onlineCount} LIVE</span></span>${date?`<small>${esc(date)}</small>`:'<small>Independent practice</small>'}</button>`;}
