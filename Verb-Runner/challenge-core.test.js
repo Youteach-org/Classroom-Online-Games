@@ -73,3 +73,17 @@ test('base-form challenges for y verbs still have enough present-shaped distract
   assert.equal(ch.distractors.length,4);
   assert.ok(ch.distractors.every(v=>!['flew','flown','flyed','flied'].includes(v)));
 });
+
+test('past participle challenges include the distinct simple-past form as a distractor',()=>{
+  const freeze=bank.findVerb('freeze');
+  const distractors=core.chooseDistractors(freeze,2,'medium',()=>0.42,3);
+  assert.ok(distractors.includes('froze'));
+  assert.ok(!distractors.includes('frozen'));
+});
+
+test('simple past challenges include the distinct participle form as a distractor',()=>{
+  const begin=bank.findVerb('begin');
+  const distractors=core.chooseDistractors(begin,1,'hard',()=>0.42,4);
+  assert.ok(distractors.includes('begun'));
+  assert.ok(!distractors.includes('began'));
+});
