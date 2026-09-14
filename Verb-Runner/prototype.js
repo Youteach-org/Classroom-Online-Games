@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { COASTAL_SCENE, buildCoastalSceneSvg } from './coastal-scene-config.mjs?v=coastal-20260914-1';
+import { COASTAL_SCENE, buildCoastalSceneSvg } from './coastal-scene-config.mjs?v=coastal-20260914-2';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
