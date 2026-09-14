@@ -654,119 +654,159 @@ const city=new THREE.Group();
 world.add(city);
 
 const facadeMaterials=[
-  new THREE.MeshToonMaterial({color:0xf2ede3}),
-  new THREE.MeshToonMaterial({color:0xe7dccb}),
-  new THREE.MeshToonMaterial({color:0xf0e2d3}),
-  new THREE.MeshToonMaterial({color:0xdce5df}),
-  new THREE.MeshToonMaterial({color:0xe7ddd8})
+  new THREE.MeshToonMaterial({color:0xd8c6b5}),
+  new THREE.MeshToonMaterial({color:0xc9d1cf}),
+  new THREE.MeshToonMaterial({color:0xcbb9a7}),
+  new THREE.MeshToonMaterial({color:0xbfc8d3}),
+  new THREE.MeshToonMaterial({color:0xd5c0b7}),
+  new THREE.MeshToonMaterial({color:0xc8c3b8})
 ];
 const facadeAccentMaterials=[
-  new THREE.MeshToonMaterial({color:0xb86f55}),
-  new THREE.MeshToonMaterial({color:0x6e9b91}),
-  new THREE.MeshToonMaterial({color:0xc49a55}),
-  new THREE.MeshToonMaterial({color:0x7798aa}),
-  new THREE.MeshToonMaterial({color:0x9a7669})
+  new THREE.MeshToonMaterial({color:0x7f4f42}),
+  new THREE.MeshToonMaterial({color:0x456b73}),
+  new THREE.MeshToonMaterial({color:0x8a6a45}),
+  new THREE.MeshToonMaterial({color:0x596a84}),
+  new THREE.MeshToonMaterial({color:0x6f5d58}),
+  new THREE.MeshToonMaterial({color:0x557368})
 ];
 
-const glassMat=new THREE.MeshBasicMaterial({color:0x78c2d6,transparent:true,opacity:.82});
-const darkGlassMat=new THREE.MeshBasicMaterial({color:0x315d70,transparent:true,opacity:.92});
-const warmWindowMat=new THREE.MeshBasicMaterial({color:0xffd98a});
-const coolWindowMat=new THREE.MeshBasicMaterial({color:0x83c9da});
-const concreteMat=new THREE.MeshToonMaterial({color:0xd7d2c8});
+const glassMat=new THREE.MeshBasicMaterial({color:0x5fa8bf,transparent:true,opacity:.80});
+const darkGlassMat=new THREE.MeshBasicMaterial({color:0x284653,transparent:true,opacity:.94});
+const warmWindowMat=new THREE.MeshBasicMaterial({color:0xffd486});
+const coolWindowMat=new THREE.MeshBasicMaterial({color:0x6db9cf});
+const concreteMat=new THREE.MeshToonMaterial({color:0xc9c5bd});
+const trimDarkMat=new THREE.MeshToonMaterial({color:0x4c5359});
+const roofDarkMat=new THREE.MeshToonMaterial({color:0x66635f});
 const curbMat=new THREE.MeshToonMaterial({color:0xe5dccd});
-const balconyRailMat=new THREE.MeshBasicMaterial({color:0x6f909d,transparent:true,opacity:.58});
+const balconyRailMat=new THREE.MeshBasicMaterial({color:0x5f7580,transparent:true,opacity:.70});
 
 function createFacadeBuilding(side,index,z){
   const group=new THREE.Group();
-  const floors=4+(index%4);
-  const floorH=1.34;
-  const h=floors*floorH+1.22;
-  const w=3.8+(index%3)*.48;
-  const d=5.7+(index%4)*.72;
+  const floors=3+(index%5);
+  const floorH=1.28;
+  const h=floors*floorH+1.10;
+  const w=3.45+(index%4)*.42;
+  const d=5.2+(index%5)*.58;
   const facade=facadeMaterials[index%facadeMaterials.length];
   const accent=facadeAccentMaterials[index%facadeAccentMaterials.length];
+  const variant=index%4;
 
+  // Main mass.
   const body=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),facade);
   body.position.y=h/2;
   body.castShadow=true;
   body.receiveShadow=true;
   group.add(body);
 
-  const roadFaceX=-side*w/2-side*.035;
+  const roadFaceX=-side*w/2-side*.04;
 
-  // Ground-floor glass storefront, kept clean and understated.
-  const store=new THREE.Mesh(new THREE.BoxGeometry(.09,1.20,d*.82),darkGlassMat);
-  store.position.set(roadFaceX,.70,0);
-  group.add(store);
+  // Recessed commercial base keeps the street level from looking like a plain box.
+  const shopBase=new THREE.Mesh(new THREE.BoxGeometry(.18,1.38,d*.84),trimDarkMat);
+  shopBase.position.set(roadFaceX,.72,0);
+  group.add(shopBase);
 
-  const canopy=new THREE.Mesh(new THREE.BoxGeometry(.62,.10,d*.86),accent);
-  canopy.position.set(roadFaceX-side*.28,1.34,0);
-  group.add(canopy);
+  const shopGlass=new THREE.Mesh(new THREE.BoxGeometry(.07,1.08,d*.72),darkGlassMat);
+  shopGlass.position.set(roadFaceX-side*.10,.72,0);
+  group.add(shopGlass);
 
-  // Vertical architectural strip breaks the old "plain box" silhouette.
-  const accentStrip=new THREE.Mesh(new THREE.BoxGeometry(.10,h*.72,.88),accent);
-  accentStrip.position.set(roadFaceX-side*.055,2.05+h*.28,-d*.30);
-  group.add(accentStrip);
+  const awning=new THREE.Mesh(new THREE.BoxGeometry(.72,.10,d*.70),accent);
+  awning.position.set(roadFaceX-side*.37,1.37,0);
+  group.add(awning);
+
+  // Break the silhouette with stepped tops / side towers.
+  if(variant===0||variant===2){
+    const upperH=1.25+(index%3)*.38;
+    const upper=new THREE.Mesh(
+      new THREE.BoxGeometry(w*.68,upperH,d*.72),
+      facade
+    );
+    upper.position.set(side*w*.09,h+upperH/2-.02,d*.04);
+    upper.castShadow=true;
+    group.add(upper);
+
+    const cap=new THREE.Mesh(new THREE.BoxGeometry(w*.74,.14,d*.76),accent);
+    cap.position.set(side*w*.09,h+upperH+.03,d*.04);
+    group.add(cap);
+  }else{
+    const roofSlab=new THREE.Mesh(new THREE.BoxGeometry(w+.15,.18,d+.14),roofDarkMat);
+    roofSlab.position.y=h+.08;
+    group.add(roofSlab);
+  }
+
+  // Vertical corner volume gives depth and keeps rows from reading as flat blocks.
+  if(variant===1||variant===3){
+    const towerH=h*.78;
+    const tower=new THREE.Mesh(new THREE.BoxGeometry(w*.26,towerH,d*.34),accent);
+    tower.position.set(side*w*.43,towerH/2,d*.24);
+    tower.castShadow=true;
+    group.add(tower);
+  }
 
   const rows=Math.max(2,floors-1);
-  const windowCols=IS_MOBILE?2:3;
+  const cols=IS_MOBILE?2:3;
   for(let r=0;r<rows;r++){
-    const y=2.12+r*1.23;
-    for(let col=0;col<windowCols;col++){
-      const zPos=THREE.MathUtils.lerp(-d*.27,d*.27,windowCols===1?.5:col/(windowCols-1));
+    const y=2.02+r*1.20;
+    for(let col=0;col<cols;col++){
+      const zPos=THREE.MathUtils.lerp(-d*.28,d*.28,cols===1?.5:col/(cols-1));
+      const frame=new THREE.Mesh(new THREE.BoxGeometry(.085,.72,.80),trimDarkMat);
+      frame.position.set(roadFaceX-side*.035,y,zPos);
+      group.add(frame);
+
       const win=new THREE.Mesh(
-        new THREE.BoxGeometry(.065,.60,.72),
-        (index+r+col)%5===0?warmWindowMat:coolWindowMat
+        new THREE.BoxGeometry(.055,.58,.64),
+        (index+r+col)%6===0?warmWindowMat:coolWindowMat
       );
-      win.position.set(roadFaceX-side*.045,y,zPos);
+      win.position.set(roadFaceX-side*.085,y,zPos);
       group.add(win);
     }
 
-    // Alternating glass balconies create a modern coastal-apartment rhythm.
-    if(r%2===1){
-      const balcony=new THREE.Mesh(new THREE.BoxGeometry(.48,.09,d*.68),concreteMat);
-      balcony.position.set(roadFaceX-side*.22,y-.50,0);
+    // Only some floors get balconies, so the façades are less repetitive.
+    if((r+index)%3===1){
+      const balcony=new THREE.Mesh(new THREE.BoxGeometry(.56,.10,d*.62),concreteMat);
+      balcony.position.set(roadFaceX-side*.27,y-.47,0);
       group.add(balcony);
 
-      const rail=new THREE.Mesh(new THREE.BoxGeometry(.055,.38,d*.64),balconyRailMat);
-      rail.position.set(roadFaceX-side*.46,y-.29,0);
+      const rail=new THREE.Mesh(new THREE.BoxGeometry(.055,.36,d*.58),balconyRailMat);
+      rail.position.set(roadFaceX-side*.54,y-.28,0);
       group.add(rail);
     }
   }
 
-  // Slim roof parapet rather than the old colored cap.
-  const parapetFront=new THREE.Mesh(new THREE.BoxGeometry(.12,.32,d+.10),concreteMat);
-  parapetFront.position.set(roadFaceX,h+.16,0);
-  group.add(parapetFront);
-  const parapetBack=parapetFront.clone();
-  parapetBack.position.x=-roadFaceX;
-  group.add(parapetBack);
+  // Street-facing vertical sign/light strip, no text, for a more urban avenue feel.
+  if(!IS_MOBILE&&index%3!==1){
+    const sign=new THREE.Mesh(
+      new THREE.BoxGeometry(.10,1.55,.34),
+      new THREE.MeshBasicMaterial({color:index%2?0xffc866:0x71d6df})
+    );
+    sign.position.set(roadFaceX-side*.17,2.35,-d*.38);
+    group.add(sign);
+  }
 
-  if(!IS_MOBILE&&index%3===0){
-    // Small rooftop pergola adds silhouette variety without giant signs.
-    const topY=h+.42;
-    for(const zz of [-d*.24,0,d*.24]){
-      const beam=new THREE.Mesh(new THREE.BoxGeometry(w*.56,.09,.11),accent);
-      beam.position.set(0,topY,zz);
+  // Rooftop detail varies from building to building.
+  if(!IS_MOBILE){
+    if(index%3===0){
+      const tank=new THREE.Mesh(new THREE.CylinderGeometry(.34,.42,.72,10),roofDarkMat);
+      tank.position.set(0,h+.46,d*.18);
+      group.add(tank);
+    }else if(index%3===1){
+      const rooftop=new THREE.Mesh(new THREE.BoxGeometry(w*.36,.55,d*.28),concreteMat);
+      rooftop.position.set(-side*w*.16,h+.27,-d*.17);
+      group.add(rooftop);
+    }else{
+      for(const xx of [-w*.22,w*.22]){
+        const post=new THREE.Mesh(new THREE.BoxGeometry(.08,.48,.08),accent);
+        post.position.set(xx,h+.25,-d*.22);
+        group.add(post);
+      }
+      const beam=new THREE.Mesh(new THREE.BoxGeometry(w*.54,.08,.10),accent);
+      beam.position.set(0,h+.48,-d*.22);
       group.add(beam);
     }
-    for(const xx of [-w*.25,w*.25]){
-      const post=new THREE.Mesh(new THREE.BoxGeometry(.09,.48,.09),accent);
-      post.position.set(xx,h+.23,-d*.24);
-      group.add(post);
-    }
   }
 
-  // Subtle side volume gives some buildings an L-shaped mass.
-  if(index%2===0){
-    const wingH=h*.58;
-    const wing=new THREE.Mesh(new THREE.BoxGeometry(w*.34,wingH,d*.34),facade);
-    wing.position.set(side*w*.42,wingH/2,d*.22);
-    wing.castShadow=true;
-    group.add(wing);
-  }
-
-  group.position.set(side*(8.55+w/2),0,z);
+  // A little stagger between the curb and the building line keeps the city organic.
+  const setback=(index%3)*.24;
+  group.position.set(side*(8.25+w/2+setback),0,z);
   return group;
 }
 
@@ -3694,10 +3734,28 @@ function animate(){
       }
     }else{
       const momentumBoost=.78+(runState?.momentum||75)/340;
-      speed=Math.min(
-        gameSettings.maxSpeed*playerSpeedMultiplier,
-        (gameSettings.initialSpeed+distance/620)*gameSettings.speedScale*momentumBoost*playerSpeedMultiplier
-      );
+      const baseTarget=(gameSettings.initialSpeed+distance/620)*gameSettings.speedScale*momentumBoost*playerSpeedMultiplier;
+
+      if(currentLevel===5){
+        const finalProgress=THREE.MathUtils.clamp(
+          totalChallenges>1?challengeIndex/(totalChallenges-1):0,
+          0,
+          1
+        );
+        const progressBoost=THREE.MathUtils.lerp(.90,1.32,finalProgress);
+        const dynamicCap=gameSettings.maxSpeed*THREE.MathUtils.lerp(.90,1.14,finalProgress)*playerSpeedMultiplier;
+        const targetSpeed=Math.min(dynamicCap,baseTarget*progressBoost);
+
+        // Smooth acceleration: every solved question nudges the race faster,
+        // with the highest speed reserved for the final questions.
+        speed=THREE.MathUtils.damp(speed,targetSpeed,2.15,dt);
+      }else{
+        speed=Math.min(
+          gameSettings.maxSpeed*playerSpeedMultiplier,
+          baseTarget
+        );
+      }
+
       distance+=speed*dt;
       updateRunner(dt);
       updateWorld(dt);
