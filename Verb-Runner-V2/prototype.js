@@ -607,9 +607,17 @@ let recentCorrectPositions=[];
 let blankUsage=[0,0,0];
 const lastBlankByVerb=new Map();
 
+function raceMode(){
+  return currentLevel===2?'sentence-run':'verb-hunt';
+}
+
+function raceLabel(){
+  return currentLevel===2?'SENTENCE RUNNER':'VERB RUNNER';
+}
+
 function setLevelUI(){
   const sentenceMode=currentLevel===2;
-  if(levelTitle)levelTitle.textContent=sentenceMode?'LEVEL 2 · SENTENCE RUN':'LEVEL 1 · VERB HUNT';
+  if(levelTitle)levelTitle.textContent=sentenceMode?'SENTENCE RUNNER · ALL TENSES':'VERB RUNNER · VERB HUNT';
   if(principalParts)principalParts.hidden=sentenceMode;
   if(sentenceChallenge)sentenceChallenge.hidden=!sentenceMode;
   const cueBadge=sentenceCue?.closest('small');
@@ -619,8 +627,13 @@ function setLevelUI(){
       ?'Use the verb hint and choose the form that completes the sentence'
       :'Choose the verb and form that best complete the sentence')
     :'Collect the correct verb form';
-  if(resultKicker)resultKicker.textContent='LEVEL '+currentLevel+' COMPLETE';
+  if(resultKicker)resultKicker.textContent=raceLabel()+' COMPLETE';
   if(nextLevelButton)nextLevelButton.hidden=currentLevel!==1;
+  if(startButton)startButton.textContent='START '+raceLabel();
+  document.querySelectorAll('[data-race]').forEach(btn=>{
+    btn.classList.toggle('active',Number(btn.dataset.level)===currentLevel);
+    btn.setAttribute('aria-pressed',Number(btn.dataset.level)===currentLevel?'true':'false');
+  });
 }
 
 function applySentenceRunTuning(){
@@ -654,6 +667,28 @@ function applyDifficultyDefaults(preset){
   };
   applySentenceRunTuning();
   setLevelUI();
+}
+
+function selectRace(level){
+  if(gameStarted)return;
+  currentLevel=Number(level)===2?2:1;
+
+  if(sessionCode&&sessionData){
+    applySessionSettings(sessionData.settings||{});
+    applySentenceRunTuning();
+    setLevelUI();
+  }else{
+    gameSettings={
+      ...gameSettings,
+      initialSpeed:18,
+      maxSpeed:31,
+      speedScale:difficulty.speed,
+      answerSpacing:difficulty.answerSpacing
+    };
+    applyDifficultyDefaults(difficulty);
+  }
+
+  modelStatus.textContent=(currentLevel===2?'Sentence Runner':'Verb Runner')+' selected · choose runner and difficulty';
 }
 
 function applySessionSettings(settings={}){
@@ -1345,7 +1380,7 @@ function finishRun(){
   resultStreak.textContent=String(summary.bestStreak);
   resultObstacles.textContent=String(summary.obstacleHits);
   resultMomentum.textContent=summary.momentum+'%';
-  if(resultKicker)resultKicker.textContent='LEVEL '+currentLevel+' COMPLETE';
+  if(resultKicker)resultKicker.textContent=raceLabel()+' COMPLETE';
   if(nextLevelButton)nextLevelButton.hidden=currentLevel!==1;
   resultOverlay.hidden=false;
 
@@ -1355,7 +1390,7 @@ function finishRun(){
       difficulty:difficulty.name,
       runner:selectedVariant,
       level:currentLevel,
-      mode:currentLevel===2?'sentence-run':'verb-hunt',
+      mode:raceMode(),
       completedAt:Date.now()
     }));
   }catch{}
@@ -1363,7 +1398,7 @@ function finishRun(){
   if(sessionCode&&sessionData){
     sessionFinish({
       level:currentLevel,
-      mode:currentLevel===2?'sentence-run':'verb-hunt',
+      mode:raceMode(),
       progress:totalChallenges,
       total:totalChallenges,
       momentum:summary.momentum,
@@ -1530,6 +1565,10 @@ loader.load(
   }
 );
 
+document.querySelectorAll('[data-race]').forEach(btn=>{
+  btn.addEventListener('click',()=>selectRace(btn.dataset.level));
+});
+
 document.querySelectorAll('.robot-option').forEach((btn,index)=>{
   btn.addEventListener('click',()=>applyRobotPalette(index));
 });
@@ -1554,7 +1593,7 @@ startButton.addEventListener('click',async()=>{
   if(sessionCode&&sessionData){
     await sessionConnect({
       level:currentLevel,
-      mode:currentLevel===2?'sentence-run':'verb-hunt',
+      mode:raceMode(),
       total:totalChallenges,
       runner:selectedVariant,
       difficulty:difficulty.name
@@ -1583,6 +1622,16 @@ nextLevelButton?.addEventListener('click',async()=>{
   if(currentLevel!==1)return;
   currentLevel=2;
   resultOverlay.hidden=true;
+  if(sessionCode&&sessionData)applySessionSettings(sessionData.settings||{});
+  else{
+    gameSettings={
+      ...gameSettings,
+      initialSpeed:18,
+      maxSpeed:31,
+      speedScale:difficulty.speed,
+      answerSpacing:difficulty.answerSpacing
+    };
+  }
   applySentenceRunTuning();
   setLevelUI();
   resetRun();
