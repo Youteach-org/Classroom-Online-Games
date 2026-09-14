@@ -15,17 +15,20 @@ test('Sentence Run contains 150 challenges across 15 grammar categories',()=>{
   }
 });
 
-test('the default 20-question round covers every grammar category',()=>{
-  const round=sentenceBank.buildRound(20,{
-    difficulty:'medium',
-    distractorCount:3,
-    random:()=>0.37
-  });
-  assert.equal(round.length,20);
-  assert.equal(new Set(round.map(x=>x.id)).size,20);
-  for(const group of sentenceBank.GROUPS){
-    const count=round.filter(x=>x.group===group).length;
-    assert.ok(count===1||count===2,group+' appears '+count+' times');
+test('20-question rounds only use the grammar pool for their difficulty',()=>{
+  for(const difficulty of ['easy','medium','hard']){
+    const round=sentenceBank.buildRound(20,{
+      difficulty,
+      distractorCount:difficulty==='easy'?2:difficulty==='medium'?3:4,
+      random:()=>0.37
+    });
+    assert.equal(round.length,20,difficulty);
+    assert.equal(new Set(round.map(x=>x.id)).size,20,difficulty);
+    const allowed=new Set(sentenceBank.DIFFICULTY_GROUPS[difficulty]);
+    assert.ok(round.every(x=>allowed.has(x.group)),difficulty+' leaked another grammar group');
+    for(const group of allowed){
+      assert.ok(round.some(x=>x.group===group),difficulty+' missed '+group);
+    }
   }
 });
 
@@ -48,7 +51,7 @@ test('every Sentence Run item has one blank and four real-form distractor choice
   }
 });
 
-test('difficulty samples 2, 3 and 4 distractors without changing grammar coverage',()=>{
+test('difficulty samples 2, 3 and 4 real-form distractors',()=>{
   for(const item of sentenceBank.SENTENCES){
     const easy=sentenceBank.createChallenge(item,{difficulty:'easy',distractorCount:2,random:()=>0.21});
     const medium=sentenceBank.createChallenge(item,{difficulty:'medium',distractorCount:3,random:()=>0.47});
