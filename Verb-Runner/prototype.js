@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { COASTAL_SCENE, buildCoastalSceneSvg } from './coastal-scene-config.mjs?v=coastal-20260914-1';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
@@ -582,16 +583,30 @@ function makeAnimeCoastBackdrop(){
   return tex;
 }
 
+const coastalSceneTexture=new THREE.TextureLoader().load(
+  'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(buildCoastalSceneSvg()),
+  texture=>{
+    texture.colorSpace=THREE.SRGBColorSpace;
+    texture.minFilter=THREE.LinearFilter;
+    texture.magFilter=THREE.LinearFilter;
+    texture.needsUpdate=true;
+  }
+);
+coastalSceneTexture.colorSpace=THREE.SRGBColorSpace;
+coastalSceneTexture.minFilter=THREE.LinearFilter;
+coastalSceneTexture.magFilter=THREE.LinearFilter;
+
 const animeBackdrop=new THREE.Mesh(
-  new THREE.PlaneGeometry(320,70),
+  new THREE.PlaneGeometry(COASTAL_SCENE.backdrop.width,COASTAL_SCENE.backdrop.height),
   new THREE.MeshBasicMaterial({
-    map:makeAnimeCoastBackdrop(),
+    map:coastalSceneTexture,
     fog:false,
     depthWrite:false,
+    depthTest:true,
     toneMapped:false
   })
 );
-animeBackdrop.position.set(0,22,-166);
+animeBackdrop.position.set(0,COASTAL_SCENE.backdrop.y,COASTAL_SCENE.backdrop.z);
 world.add(animeBackdrop);
 
 function addMover(object,{speedFactor=1,span=180,startZ=null}={}){
@@ -606,7 +621,7 @@ function addFarMover(object,{speedFactor=.28,span=210,startZ=null}={}){
 
 const road=new THREE.Mesh(
   new THREE.PlaneGeometry(12,170),
-  new THREE.MeshToonMaterial({color:0x384759})
+  new THREE.MeshToonMaterial({color:COASTAL_SCENE.roadColor})
 );
 road.rotation.x=-Math.PI/2;
 road.position.z=-68;
@@ -620,7 +635,7 @@ for(const x of [-6,6]){
   world.add(rail);
 }
 
-const sidewalkMat=new THREE.MeshToonMaterial({color:0xe8d2ab});
+const sidewalkMat=new THREE.MeshToonMaterial({color:COASTAL_SCENE.sidewalkColor});
 for(const x of [-7.2,7.2]){
   const sidewalk=new THREE.Mesh(new THREE.BoxGeometry(2.2,.18,170),sidewalkMat);
   sidewalk.position.set(x,.08,-68);
@@ -651,6 +666,7 @@ for(const x of [-1.5,1.5]){
 }
 
 const city=new THREE.Group();
+city.visible=!COASTAL_SCENE.hideProceduralScenery;
 world.add(city);
 
 // Coastal-village palette: small homes, cafés, shops and market details
@@ -940,6 +956,7 @@ for(let i=0;i<(IS_MOBILE?7:12);i++){
 }
 
 const coast=new THREE.Group();
+coast.visible=!COASTAL_SCENE.hideProceduralScenery;
 world.add(coast);
 
 const ocean=new THREE.Mesh(
@@ -1009,6 +1026,7 @@ for(let i=0;i<(IS_MOBILE?8:14);i++){
 }
 
 const streetProps=new THREE.Group();
+streetProps.visible=!COASTAL_SCENE.hideProceduralScenery;
 world.add(streetProps);
 
 const lampPostMat=new THREE.MeshToonMaterial({color:0x34536a});
