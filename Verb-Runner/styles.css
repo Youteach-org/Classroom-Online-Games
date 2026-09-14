@@ -916,3 +916,21 @@ button,a{-webkit-tap-highlight-color:transparent}
 @media (max-width:999px){
   .picker-card{width:min(860px,100%)}
 }
+
+
+/* Perfect Running and long text prompts: wrap instead of clipping. */
+.sentence-challenge{
+  overflow:visible;
+  height:auto;
+}
+.sentence-challenge>strong{
+  overflow:visible;
+  text-overflow:clip;
+  max-width:100%;
+}
+@media (min-width:701px){
+  .sentence-challenge>strong{
+    overflow-wrap:normal;
+    word-break:normal;
+  }
+}

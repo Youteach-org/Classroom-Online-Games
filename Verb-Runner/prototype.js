@@ -937,7 +937,7 @@ function raceMode(){
 
 function raceLabel(){
   if(currentLevel===5)return 'FINAL RACE';
-  if(currentLevel===4)return 'PERFECT RACE';
+  if(currentLevel===4)return 'PERFECT RUNNING';
   if(currentLevel===3)return 'TIME CLUES';
   if(currentLevel===2)return 'SENTENCE RUNNER';
   return 'VERB RUNNER';
@@ -986,7 +986,7 @@ function setLevelUI(){
     levelTitle.textContent=finalMode
       ?'FINAL RACE · EVERYTHING COUNTS'
       :perfectMode
-        ?'PERFECT RACE · RESULT VS PROCESS'
+        ?'PERFECT RUNNING · RESULT VS PROCESS'
         :timeMode
           ?'TIME CLUES · MATCH THE MOMENT'
           :currentLevel===2
@@ -1038,7 +1038,7 @@ function setLevelUI(){
       :currentLevel===2
         ?'TRY NEXT RACE · TIME CLUES'
         :currentLevel===3
-          ?'TRY NEXT RACE · PERFECT RACE'
+          ?'TRY NEXT RACE · PERFECT RUNNING'
           :'TRY NEXT RACE · FINAL RACE';
   }
 
@@ -1253,14 +1253,28 @@ function appendSentencePrompt(raw,timeExpressions=[]){
 
 function fitSentencePrompt(){
   if(!sentenceText||!sentenceChallenge||!isTextRace()||sentenceChallenge.hidden)return;
+
   sentenceText.style.whiteSpace='nowrap';
   sentenceText.style.fontSize='';
+  sentenceText.style.lineHeight='1.04';
+  sentenceText.style.overflow='visible';
+  sentenceText.style.textOverflow='clip';
+
   const maxSize=IS_MOBILE?30:42;
-  const minSize=13;
+  const oneLineMin=IS_MOBILE?17:19;
   let size=maxSize;
   sentenceText.style.fontSize=size+'px';
-  while(size>minSize&&sentenceText.scrollWidth>sentenceText.clientWidth){
+
+  while(size>oneLineMin&&sentenceText.scrollWidth>sentenceText.clientWidth){
     size-=1;
+    sentenceText.style.fontSize=size+'px';
+  }
+
+  const needsWrap=currentLevel===4||sentenceText.scrollWidth>sentenceText.clientWidth;
+  if(needsWrap){
+    sentenceText.style.whiteSpace='normal';
+    sentenceText.style.lineHeight='1.12';
+    size=Math.min(size,currentLevel===4?(IS_MOBILE?22:30):(IS_MOBILE?24:32));
     sentenceText.style.fontSize=size+'px';
   }
 }
@@ -2290,7 +2304,7 @@ function updatePauseReadingCard(){
     pauseReadingMode.textContent=currentLevel===5
       ?(difficulty.name==='hard'?'FINAL RACE · READ THE WHOLE CONTEXT':'FINAL RACE COACH')
       :currentLevel===4
-        ?(difficulty.name==='hard'?'PERFECT RACE · COMPARE THE MEANING':'PERFECT COACH')
+        ?(difficulty.name==='hard'?'PERFECT RUNNING · COMPARE THE MEANING':'PERFECT RUNNING COACH')
         :currentLevel===3
           ?(difficulty.name==='hard'?'TIME CLUES · THINK IT THROUGH':'TIME CLUE COACH')
           :(difficulty.name==='hard'?'HARD MODE · TAKE YOUR TIME':'READ AT YOUR OWN PACE');
