@@ -2,7 +2,10 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
-const ROBOT_URL='https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb';
+const ROBOT_URLS=[
+  'https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb',
+  'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r180/examples/models/gltf/RobotExpressive/RobotExpressive.glb'
+];
 const PEDESTRIAN_URL='https://cdn.jsdelivr.net/gh/psqd12137-sudo/dream-channel@3d1f3c91810ac6b73146971d7d6297b12c8f3244/godot/assets/quaternius/animated_characters/Casual_Female.gltf';
 let pedestrianTemplate=null;
 let pedestrianAnimations=[];
@@ -2558,48 +2561,57 @@ pedestrianLoader.load(
 );
 
 const loader=new GLTFLoader();
-loader.load(
-  ROBOT_URL,
-  gltf=>{
-    model=gltf.scene;
-    fitToHeight(model,2.35);
-    baseScale=model.scale.clone();
-    model.rotation.y=Math.PI;
-    model.position.y=0;
-    runnerRoot.add(model);
-    configureVictoryArmRig(model);
+function loadRunnerModel(attempt=0){
+  const url=ROBOT_URLS[attempt];
+  loader.load(
+    url,
+    gltf=>{
+      model=gltf.scene;
+      fitToHeight(model,2.35);
+      baseScale=model.scale.clone();
+      model.rotation.y=Math.PI;
+      model.position.y=0;
+      runnerRoot.add(model);
+      configureVictoryArmRig(model);
 
-    mixer=new THREE.AnimationMixer(model);
-    const runClip=chooseClip(gltf.animations,['running','run'])||gltf.animations[0];
-    const jumpClip=chooseClip(gltf.animations,['jump']);
-    const idleClip=chooseClip(gltf.animations,['idle','standing']);
+      mixer=new THREE.AnimationMixer(model);
+      const runClip=chooseClip(gltf.animations,['running','run'])||gltf.animations[0];
+      const jumpClip=chooseClip(gltf.animations,['jump']);
+      const idleClip=chooseClip(gltf.animations,['idle','standing']);
 
-    actions.run=mixer.clipAction(runClip);
-    if(jumpClip)actions.jump=mixer.clipAction(jumpClip);
-    if(idleClip)actions.idle=mixer.clipAction(idleClip);
+      actions.run=mixer.clipAction(runClip);
+      if(jumpClip)actions.jump=mixer.clipAction(jumpClip);
+      if(idleClip)actions.idle=mixer.clipAction(idleClip);
 
-    actions.run.timeScale=1.2;
-    if(actions.jump){
-      actions.jump.setLoop(THREE.LoopOnce,1);
-      actions.jump.clampWhenFinished=false;
+      actions.run.timeScale=1.2;
+      if(actions.jump){
+        actions.jump.setLoop(THREE.LoopOnce,1);
+        actions.jump.clampWhenFinished=false;
+      }
+
+      applyRobotPalette(selectedVariant);
+      play('idle',0);
+      runnerReady=true;
+      runnerLoadFailed=false;
+      updateStartButtonState();
+      modelStatus.textContent='Robot ready · choose a color and start';
+    },
+    undefined,
+    err=>{
+      console.warn('Runner model failed from',url,err);
+      if(attempt+1<ROBOT_URLS.length){
+        modelStatus.textContent='Retrying runner model…';
+        loadRunnerModel(attempt+1);
+        return;
+      }
+      runnerReady=false;
+      runnerLoadFailed=true;
+      updateStartButtonState();
+      modelStatus.textContent='Robot failed to load — check network/CDN';
     }
-
-    applyRobotPalette(selectedVariant);
-    play('idle',0);
-    runnerReady=true;
-    runnerLoadFailed=false;
-    updateStartButtonState();
-    modelStatus.textContent='Robot ready · choose a color and start';
-  },
-  undefined,
-  err=>{
-    console.error(err);
-    runnerReady=false;
-    runnerLoadFailed=true;
-    updateStartButtonState();
-    modelStatus.textContent='Robot failed to load — check network/CDN';
-  }
-);
+  );
+}
+loadRunnerModel();
 
 document.querySelectorAll('[data-race]').forEach(btn=>{
   btn.addEventListener('click',()=>selectRace(btn.dataset.level));
