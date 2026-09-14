@@ -397,7 +397,14 @@ let gameSettings={
   speedScale:1
 };
 
-const sessionCode=(new URLSearchParams(location.search).get('session')||'').toUpperCase();
+const sessionParams=new URLSearchParams(location.search);
+const sessionCode=(sessionParams.get('session')||'').toUpperCase();
+const sessionStudentName=String(
+  sessionParams.get('studentName')||
+  sessionParams.get('nickname')||
+  sessionParams.get('name')||
+  ''
+).trim().slice(0,60);
 let sessionApi=null;
 let sessionData=null;
 let sessionLoadPromise=Promise.resolve(null);
@@ -2444,6 +2451,17 @@ async function collectAnswer(answer){
   answerResolutionActive=true;
   const item=answer.item;
   playSfx('select');
+  if(sessionCode&&sessionData){
+    sessionUpdate({
+      lastPrompt:reportQuestionText(currentChallenge),
+      latestChoice:String(item.value||''),
+      correctAnswer:reportCorrectAnswer(currentChallenge),
+      latestResult:item.correct?'correct':'incorrect',
+      lastAction:item.correct?'Selected correct answer':'Selected wrong answer',
+      attempt:(Number(runState?.correct)||0)+(Number(runState?.grammarErrors)||0)+1,
+      lastEventAt:Date.now()
+    }).catch(()=>{});
+  }
 
   if(item.correct){
     const startPoint=answerScreenPoint(answer);
@@ -2480,6 +2498,17 @@ async function collectAnswer(answer){
 
 function missedCorrectAnswer(){
   if(victoryMode)return;
+  if(sessionCode&&sessionData){
+    sessionUpdate({
+      lastPrompt:reportQuestionText(currentChallenge),
+      latestChoice:'',
+      correctAnswer:reportCorrectAnswer(currentChallenge),
+      latestResult:'missed',
+      lastAction:'Correct answer missed',
+      attempt:(Number(runState?.correct)||0)+(Number(runState?.grammarErrors)||0)+1,
+      lastEventAt:Date.now()
+    }).catch(()=>{});
+  }
   clearAnswers();
 
   if(challengeIndex>=challenges.length-1){
@@ -3036,7 +3065,8 @@ startButton.addEventListener('click',async()=>{
       mode:raceMode(),
       total:totalChallenges,
       runner:selectedVariant,
-      difficulty:difficulty.name
+      difficulty:difficulty.name,
+      studentName:sessionStudentName||runnerSessionId
     }).catch(()=>{});
     renderChallenge();
     updateHud();
@@ -3166,7 +3196,8 @@ nextLevelButton?.addEventListener('click',async()=>{
       mode:raceMode(),
       total:totalChallenges,
       runner:selectedVariant,
-      difficulty:difficulty.name
+      difficulty:difficulty.name,
+      studentName:sessionStudentName||runnerSessionId
     }).catch(()=>{});
     renderChallenge();
     updateHud();
@@ -3684,6 +3715,13 @@ function hit(){
   flash.classList.add('on');
   setTimeout(()=>flash.classList.remove('on'),180);
   applyRunEvent('obstacle-hit');
+  if(sessionCode&&sessionData){
+    sessionUpdate({
+      latestResult:'obstacle',
+      lastAction:'Obstacle hit',
+      lastEventAt:Date.now()
+    }).catch(()=>{});
+  }
   showNotice('OBSTACLE HIT · −'+gameSettings.penalty+' ADVANCE','wrong');
 }
 
