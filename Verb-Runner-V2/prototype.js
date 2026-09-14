@@ -1854,7 +1854,7 @@ startButton.addEventListener('click',async()=>{
 });
 
 runnerChip.addEventListener('click',()=>{
-  if(gameStarted){showNotice('FINISH THE RUN TO CHANGE ROBOT','info');return;}
+  if(gameStarted){showNotice('PAUSE THE RACE TO CHANGE RUNNER','info');return;}
   picker.classList.remove('hidden');
   play('idle',.12);
 });
@@ -1938,6 +1938,9 @@ nextLevelButton?.addEventListener('click',async()=>{
   setLevelUI();
   resetRun();
   gameStarted=true;
+  ensureAudio();
+  playSfx('click');
+  startMusic();
   play('run',.12);
   modelStatus.textContent=variants[selectedVariant].name+' robot · DAY CITY AVENUE';
   if(sessionCode&&sessionData){
