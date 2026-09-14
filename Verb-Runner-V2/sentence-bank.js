@@ -94,9 +94,10 @@
     "id": "ps06",
     "group": "present-simple",
     "base": "work",
-    "text": "Daniel ___ at a hospital during the week.",
+    "text": "Daniel normally ___ at a hospital from Monday to Friday.",
     "timeExpressions": [
-      "during the week"
+      "normally",
+      "from Monday to Friday"
     ],
     "correctAnswers": [
       "works"
@@ -112,8 +113,9 @@
     "id": "ps07",
     "group": "present-simple",
     "base": "take",
-    "text": "The bus ___ about twenty minutes to reach downtown.",
+    "text": "A ride on this bus usually ___ about twenty minutes.",
     "timeExpressions": [
+      "usually",
       "about twenty minutes"
     ],
     "correctAnswers": [
@@ -148,8 +150,10 @@
     "id": "ps09",
     "group": "present-simple",
     "base": "need",
-    "text": "This machine ___ regular maintenance.",
-    "timeExpressions": [],
+    "text": "This machine always ___ regular maintenance to operate safely.",
+    "timeExpressions": [
+      "always"
+    ],
     "correctAnswers": [
       "needs"
     ],
@@ -379,8 +383,10 @@
     "id": "fw02",
     "group": "future-will",
     "base": "help",
-    "text": "Do not worry; I ___ you with the boxes.",
-    "timeExpressions": [],
+    "text": "I just decided: I ___ you with the boxes.",
+    "timeExpressions": [
+      "just decided"
+    ],
     "correctAnswers": [
       "will help"
     ],
@@ -413,8 +419,9 @@
     "id": "fw04",
     "group": "future-will",
     "base": "be",
-    "text": "I think tomorrow's test ___ difficult.",
+    "text": "I predict tomorrow's test ___ harder than today's.",
     "timeExpressions": [
+      "I predict",
       "tomorrow"
     ],
     "correctAnswers": [
@@ -449,8 +456,11 @@
     "id": "fw06",
     "group": "future-will",
     "base": "remember",
-    "text": "Do not worry. She ___ your birthday.",
-    "timeExpressions": [],
+    "text": "I'm sure she ___ your birthday tomorrow.",
+    "timeExpressions": [
+      "I'm sure",
+      "tomorrow"
+    ],
     "correctAnswers": [
       "will remember"
     ],
@@ -515,8 +525,9 @@
     "id": "fw10",
     "group": "future-will",
     "base": "win",
-    "text": "I think our team ___ the final next week.",
+    "text": "I predict our team ___ the final next week.",
     "timeExpressions": [
+      "I predict",
       "next week"
     ],
     "correctAnswers": [
@@ -2721,6 +2732,30 @@
   "imperative",
   "modals"
 ];
+  const DIFFICULTY_GROUPS={
+  easy:[
+    "present-simple",
+    "past-simple",
+    "future-will",
+    "present-continuous",
+    "going-to",
+    "imperative",
+    "modals"
+  ],
+  medium:[
+    "past-continuous",
+    "future-continuous",
+    "present-perfect",
+    "past-perfect"
+  ],
+  hard:[
+    "future-perfect",
+    "present-perfect-continuous",
+    "past-perfect-continuous",
+    "future-perfect-continuous"
+  ]
+};
+
   const GROUP_LABELS={
   "present-simple": "Present Simple",
   "past-simple": "Past Simple",
@@ -2794,7 +2829,10 @@
 
   function buildRound(count=20,{difficulty='medium',distractorCount=null,random=Math.random}={}){
     const total=Math.max(3,Math.min(SENTENCES.length,Math.floor(count)));
-    const activeGroups=total>=GROUPS.length?GROUPS:shuffled(GROUPS,random).slice(0,total);
+    const difficultyGroups=DIFFICULTY_GROUPS[difficulty]||DIFFICULTY_GROUPS.medium;
+    const activeGroups=total>=difficultyGroups.length
+      ?[...difficultyGroups]
+      :shuffled(difficultyGroups,random).slice(0,total);
     const baseEach=Math.floor(total/activeGroups.length);
     const remainder=total-baseEach*activeGroups.length;
     const bonusOrder=shuffled(activeGroups,random);
@@ -2814,7 +2852,7 @@
     }));
   }
 
-  const api={SENTENCES,GROUPS,GROUP_LABELS,createChallenge,buildAnswerSequence,buildRound,shuffled};
+  const api={SENTENCES,GROUPS,GROUP_LABELS,DIFFICULTY_GROUPS,createChallenge,buildAnswerSequence,buildRound,shuffled};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   global.VerbRunnerSentenceBank=api;
 })(typeof window!=='undefined'?window:globalThis);
