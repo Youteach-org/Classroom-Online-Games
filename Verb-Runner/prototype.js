@@ -2883,9 +2883,9 @@ function jump(){
 }
 
 window.addEventListener('keydown',e=>{
-  if(e.code==='Escape'&&gameStarted&&gamePaused){
+  if(e.code==='Escape'&&gameStarted&&!victoryMode){
     e.preventDefault();
-    setPaused(false);
+    setPaused(!gamePaused);
     return;
   }
   if(['ArrowLeft','KeyA'].includes(e.code))moveLane(-1);
