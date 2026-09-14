@@ -126,7 +126,7 @@ let audioCtx=null;
 let sfxEnabled=true;
 let musicEnabled=true;
 let sfxVolume=.70;
-let musicVolume=.15;
+let musicVolume=.12;
 let musicTimer=null;
 let musicStep=0;
 let musicBus=null;
@@ -176,63 +176,116 @@ function playSfx(name){
   else if(name==='victory'){[523,659,784,1047].forEach((f,i)=>synthTone(f,.18,v*.65,'triangle',i*.09));}
 }
 
-const ambientChords=[
-  [196.00,246.94,293.66,369.99],
-  [174.61,220.00,261.63,329.63],
-  [146.83,196.00,246.94,293.66],
-  [164.81,207.65,246.94,329.63],
-  [130.81,174.61,220.00,261.63],
-  [146.83,184.99,220.00,293.66],
-  [174.61,220.00,261.63,349.23],
-  [196.00,246.94,293.66,392.00]
+const PLATFORM_BEAT=.18;
+const PLATFORM_STEPS=64;
+
+// Original upbeat platformer-style loop. It does not copy a game melody.
+const platformMelody=[
+  76,null,79,81,79,null,76,74,
+  72,null,76,79,76,null,74,72,
+  69,null,72,76,74,null,72,69,
+  71,null,74,79,77,74,71,null,
+  76,79,83,null,81,79,76,null,
+  69,72,76,null,74,72,69,null,
+  74,77,81,79,77,null,74,72,
+  71,74,79,null,77,74,72,null
 ];
+
+const platformRoots=[48,45,41,43,52,45,50,43];
+const platformChordTones=[
+  [0,4,7],   // C
+  [0,3,7],   // A minor
+  [0,4,7],   // F
+  [0,4,7],   // G
+  [0,3,7],   // E minor
+  [0,3,7],   // A minor
+  [0,3,7],   // D minor
+  [0,4,7]    // G
+];
+
+function midiFreq(note){
+  return 440*Math.pow(2,(note-69)/12);
+}
 
 function ensureMusicBus(){
   const ctx=ensureAudio();
   if(!ctx)return null;
   if(!musicBus){
     musicBus=ctx.createGain();
-    musicBus.gain.setValueAtTime(musicVolume,ctx.currentTime);
+    musicBus.gain.setValueAtTime(Math.max(.0001,musicVolume),ctx.currentTime);
     musicBus.connect(ctx.destination);
   }
   return musicBus;
 }
 
-function playAmbientChord(frequencies,duration=5.2){
+function scheduleMusicTone(note,start,duration,level=.06,type='square'){
   const ctx=ensureAudio();
   const bus=ensureMusicBus();
-  if(!ctx||!bus||!musicEnabled||musicVolume<=0)return;
+  if(!ctx||!bus||note==null)return;
 
-  const chordGain=ctx.createGain();
+  const osc=ctx.createOscillator();
+  const gain=ctx.createGain();
   const filter=ctx.createBiquadFilter();
-  const now=ctx.currentTime;
+
+  osc.type=type;
+  osc.frequency.setValueAtTime(midiFreq(note),start);
+
   filter.type='lowpass';
-  filter.frequency.setValueAtTime(900,now);
-  filter.Q.setValueAtTime(.35,now);
+  filter.frequency.setValueAtTime(type==='square'?2600:1800,start);
+  filter.Q.setValueAtTime(.55,start);
 
-  chordGain.gain.setValueAtTime(.0001,now);
-  chordGain.gain.exponentialRampToValueAtTime(.022,now+.85);
-  chordGain.gain.setValueAtTime(.022,now+Math.max(1,duration-1.25));
-  chordGain.gain.exponentialRampToValueAtTime(.0001,now+duration);
+  gain.gain.setValueAtTime(.0001,start);
+  gain.gain.exponentialRampToValueAtTime(level,start+.012);
+  gain.gain.exponentialRampToValueAtTime(Math.max(.0001,level*.42),start+Math.max(.035,duration*.42));
+  gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
 
-  chordGain.connect(filter).connect(bus);
+  osc.connect(filter).connect(gain).connect(bus);
+  osc.start(start);
+  osc.stop(start+duration+.03);
+}
 
-  frequencies.forEach((freq,index)=>{
-    const osc=ctx.createOscillator();
-    osc.type=index%2?'sine':'triangle';
-    osc.frequency.setValueAtTime(freq,now);
-    osc.detune.setValueAtTime(index%2?3:-3,now);
-    osc.connect(chordGain);
-    osc.start(now);
-    osc.stop(now+duration+.05);
-  });
+function schedulePlatformBar(barIndex){
+  const ctx=ensureAudio();
+  if(!ctx||!musicEnabled||musicVolume<=0||!gameStarted||gamePaused)return;
+
+  const now=ctx.currentTime+.035;
+  const firstStep=(barIndex*8)%PLATFORM_STEPS;
+  const root=platformRoots[barIndex%platformRoots.length];
+  const chord=platformChordTones[barIndex%platformChordTones.length];
+
+  for(let local=0;local<8;local++){
+    const step=(firstStep+local)%PLATFORM_STEPS;
+    const t=now+local*PLATFORM_BEAT;
+    const melody=platformMelody[step];
+
+    // Bright lead with rests so it stays playful rather than constant.
+    if(melody!=null){
+      scheduleMusicTone(melody,t,PLATFORM_BEAT*.72,.040,'square');
+    }
+
+    // Light arpeggio on the offbeats.
+    if(local%2===1){
+      const arpNote=root+12+chord[(local>>1)%chord.length];
+      scheduleMusicTone(arpNote,t,PLATFORM_BEAT*.52,.018,'triangle');
+    }
+
+    // Bouncy bass on beats 1 and 3.
+    if(local===0||local===4){
+      scheduleMusicTone(root,t,PLATFORM_BEAT*1.45,.032,'triangle');
+      scheduleMusicTone(root+12,t+.075,PLATFORM_BEAT*.34,.012,'sine');
+    }
+
+    // Tiny rhythmic click, deliberately sparse.
+    if(local===2||local===6){
+      scheduleMusicTone(84,t,PLATFORM_BEAT*.16,.006,'square');
+    }
+  }
 }
 
 function musicTick(){
   if(!musicEnabled||musicVolume<=0||!gameStarted||gamePaused)return;
-  const chord=ambientChords[musicStep%ambientChords.length];
-  playAmbientChord(chord,5.2);
-  musicStep=(musicStep+1)%ambientChords.length;
+  schedulePlatformBar(musicStep);
+  musicStep=(musicStep+1)%8;
 }
 
 function startMusic(){
@@ -240,11 +293,11 @@ function startMusic(){
   ensureMusicBus();
   if(musicBus&&audioCtx){
     musicBus.gain.cancelScheduledValues(audioCtx.currentTime);
-    musicBus.gain.setTargetAtTime(musicVolume,audioCtx.currentTime,.08);
+    musicBus.gain.setTargetAtTime(musicVolume,audioCtx.currentTime,.05);
   }
   if(musicTimer)return;
   musicTick();
-  musicTimer=setInterval(musicTick,4400);
+  musicTimer=setInterval(musicTick,Math.round(PLATFORM_BEAT*8*1000)-45);
 }
 
 function stopMusic(){
@@ -254,8 +307,8 @@ function stopMusic(){
     const bus=musicBus;
     musicBus=null;
     bus.gain.cancelScheduledValues(audioCtx.currentTime);
-    bus.gain.setTargetAtTime(.0001,audioCtx.currentTime,.035);
-    setTimeout(()=>{try{bus.disconnect();}catch{}},180);
+    bus.gain.setTargetAtTime(.0001,audioCtx.currentTime,.025);
+    setTimeout(()=>{try{bus.disconnect();}catch{}},150);
   }
 }
 
@@ -300,7 +353,7 @@ function loadAudioSettings(){
       const storedMusic=Number(saved.musicVolume);
       musicVolume=Number.isFinite(storedMusic)&&storedMusic>0
         ?Math.max(.05,Math.min(.35,storedMusic))
-        :.15;
+         :.12;
     }
   }catch{}
   updateAudioUI();
@@ -2048,7 +2101,7 @@ musicControl?.addEventListener('input',()=>{
 });
 musicToggle?.addEventListener('click',()=>{
   musicEnabled=!musicEnabled;
-  if(musicEnabled&&musicVolume<=0)musicVolume=.15;
+  if(musicEnabled&&musicVolume<=0)musicVolume=.12;
   if(musicEnabled&&gameStarted&&!gamePaused)startMusic();
   else stopMusic();
   updateAudioUI();
