@@ -165,9 +165,7 @@
         ]
       : [
           regularized,
-          ...spellingMutations(correct),
-          correct+'ed',
-          base+'ed'
+          ...spellingMutations(correct)
         ];
 
     return unique([
@@ -211,7 +209,6 @@
     const pool=sameVerbDistractors(verb,blankIndex);
     const count=Math.max(1,Math.floor(countOverride??LEVELS[difficulty]?.count??3));
     const principalDecoys=alternatePrincipalForms(verb,blankIndex,correct);
-    const mustInclude=principalDecoys[0]||null;
     const correctSkeleton=consonantSkeleton(correct);
     const baseSkeleton=consonantSkeleton(verb.forms[0]);
     const vowelFocused=pool.filter(value=>{
@@ -230,9 +227,10 @@
     }
 
     function ensurePrincipal(selected){
-      if(!mustInclude)return selected.slice(0,count);
-      const remaining=selected.filter(v=>v!==mustInclude);
-      return [mustInclude,...remaining].slice(0,count);
+      const realForms=principalDecoys.slice(0,count);
+      if(!realForms.length)return selected.slice(0,count);
+      const remaining=selected.filter(v=>!realForms.includes(v));
+      return [...realForms,...remaining].slice(0,count);
     }
 
     if(difficulty==='hard'){
