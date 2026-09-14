@@ -104,9 +104,9 @@ const sentenceRunTuning={
   hard:{speedScale:.76,answerSpacing:1.05,initialDelay:2.15,initialSpeed:18,maxSpeed:26}
 };
 const timeClueRunTuning={
-  easy:{speedScale:.54,answerSpacing:1.45,initialDelay:3.0,initialSpeed:16,maxSpeed:21},
-  medium:{speedScale:.62,answerSpacing:1.30,initialDelay:2.7,initialSpeed:17,maxSpeed:23},
-  hard:{speedScale:.70,answerSpacing:1.18,initialDelay:2.45,initialSpeed:17,maxSpeed:25}
+  easy:{speedScale:.54,answerSpacing:.60,initialDelay:2.55,initialSpeed:16,maxSpeed:21},
+  medium:{speedScale:.62,answerSpacing:.56,initialDelay:2.35,initialSpeed:17,maxSpeed:23},
+  hard:{speedScale:.70,answerSpacing:.52,initialDelay:2.20,initialSpeed:17,maxSpeed:25}
 };
 let difficulty=difficultyPresets.medium;
 let totalChallenges=TOTAL_CHALLENGES;
@@ -449,18 +449,22 @@ const farMovers=[];
 
 function makeAnimeCoastBackdrop(){
   const c=document.createElement('canvas');
-  c.width=1200;c.height=600;
+  c.width=1400;c.height=700;
   const ctx=c.getContext('2d');
 
-  const sky=ctx.createLinearGradient(0,0,0,430);
-  sky.addColorStop(0,'#4ba8e8');
-  sky.addColorStop(.50,'#83d3ef');
-  sky.addColorStop(1,'#d8eff5');
+  const sky=ctx.createLinearGradient(0,0,0,500);
+  sky.addColorStop(0,'#55afe8');
+  sky.addColorStop(.48,'#91d6ed');
+  sky.addColorStop(1,'#e5f2ef');
   ctx.fillStyle=sky;
   ctx.fillRect(0,0,c.width,c.height);
 
-  ctx.fillStyle='rgba(255,255,255,.55)';
-  const clouds=[[110,105,180,42],[430,82,210,46],[835,118,180,38]];
+  // Soft sun and clouds keep the horizon bright without competing with answer cards.
+  ctx.fillStyle='rgba(255,235,171,.88)';
+  ctx.beginPath();ctx.arc(1040,125,52,0,Math.PI*2);ctx.fill();
+
+  ctx.fillStyle='rgba(255,255,255,.62)';
+  const clouds=[[145,118,210,46],[505,82,235,50],[920,175,180,38]];
   for(const [x,y,w,h] of clouds){
     ctx.beginPath();
     ctx.ellipse(x,y,w*.32,h,0,0,Math.PI*2);
@@ -469,65 +473,68 @@ function makeAnimeCoastBackdrop(){
     ctx.fill();
   }
 
-  const sea=ctx.createLinearGradient(0,365,0,600);
-  sea.addColorStop(0,'#35bfd5');
-  sea.addColorStop(.50,'#159bbf');
-  sea.addColorStop(1,'#0b78a8');
-  ctx.fillStyle=sea;
-  ctx.fillRect(0,365,c.width,235);
-
-  const layers=[
-    {color:'#9d6771',pts:[[0,365],[0,198],[98,252],[155,160],[230,274],[315,198],[390,365]]},
-    {color:'#cf876f',pts:[[665,365],[725,254],[782,168],[840,265],[900,142],[975,238],[1045,170],[1200,235],[1200,365]]},
-    {color:'#e1a270',pts:[[745,365],[792,278],[842,212],[890,274],[930,195],[995,270],[1060,210],[1120,285],[1200,250],[1200,365]]}
+  // Complete mountain silhouettes: every peak starts and ends inside the panorama.
+  const ridges=[
+    {color:'#8a7282',pts:[[35,445],[82,405],[126,350],[175,260],[220,324],[266,382],[318,422],[370,445]]},
+    {color:'#ba806f',pts:[[755,445],[802,405],[850,338],[902,245],[950,318],[1002,224],[1054,302],[1112,365],[1170,330],[1245,405],[1335,445]]},
+    {color:'#d3a276',pts:[[790,445],[835,414],[884,356],[930,303],[970,350],[1018,282],[1068,350],[1125,392],[1180,365],[1258,420],[1310,445]]}
   ];
-  for(const layer of layers){
-    ctx.fillStyle=layer.color;
+  for(const ridge of ridges){
+    ctx.fillStyle=ridge.color;
     ctx.beginPath();
-    layer.pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
-    ctx.closePath();ctx.fill();
+    ridge.pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+    ctx.lineTo(ridge.pts.at(-1)[0],470);
+    ctx.lineTo(ridge.pts[0][0],470);
+    ctx.closePath();
+    ctx.fill();
   }
 
-  ctx.fillStyle='rgba(255,213,164,.28)';
-  ctx.beginPath();
-  ctx.moveTo(790,235);ctx.lineTo(842,212);ctx.lineTo(890,274);ctx.lineTo(854,294);ctx.closePath();ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(120,214);ctx.lineTo(155,160);ctx.lineTo(204,249);ctx.closePath();ctx.fill();
+  // Simple highlight planes make the mountains feel intentional rather than cut-outs.
+  ctx.fillStyle='rgba(255,220,178,.22)';
+  ctx.beginPath();ctx.moveTo(140,335);ctx.lineTo(175,260);ctx.lineTo(212,316);ctx.lineTo(182,338);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(870,330);ctx.lineTo(902,245);ctx.lineTo(940,312);ctx.lineTo(914,332);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(980,300);ctx.lineTo(1002,224);ctx.lineTo(1040,294);ctx.closePath();ctx.fill();
 
-  const cityColors=['#efc39a','#dc8b73','#f0d59d','#8cbac6','#d69bad'];
-  let x=405;
-  for(let i=0;i<20;i++){
-    const w=19+(i%3)*7;
-    const h=50+(i%5)*18;
-    ctx.fillStyle=cityColors[i%cityColors.length];
-    ctx.fillRect(x,365-h,w,h);
-    ctx.fillStyle='rgba(38,72,91,.42)';
-    for(let wy=365-h+12;wy<352;wy+=16){
-      ctx.fillRect(x+5,wy,4,6);
-      if(w>25)ctx.fillRect(x+w-9,wy,4,6);
+  const sea=ctx.createLinearGradient(0,445,0,700);
+  sea.addColorStop(0,'#43c4d6');
+  sea.addColorStop(.52,'#1b9fc0');
+  sea.addColorStop(1,'#117ca8');
+  ctx.fillStyle=sea;
+  ctx.fillRect(0,445,c.width,255);
+
+  // A low, quiet skyline sits fully below the mountains.
+  const skyline=['#e5d8c8','#d8c6b5','#d7e0db','#dbc7bf','#d9d5c8'];
+  let x=410;
+  for(let i=0;i<18;i++){
+    const w=24+(i%4)*7;
+    const h=42+(i%4)*14;
+    ctx.fillStyle=skyline[i%skyline.length];
+    ctx.fillRect(x,445-h,w,h);
+    ctx.fillStyle='rgba(65,101,118,.25)';
+    for(let wy=445-h+13;wy<437;wy+=15){
+      ctx.fillRect(x+6,wy,5,6);
+      if(w>31)ctx.fillRect(x+w-11,wy,5,6);
     }
-    x+=w+5;
+    x+=w+7;
   }
 
   ctx.save();
-  ctx.strokeStyle='#4c7e9a';
-  ctx.lineWidth=13;
+  ctx.strokeStyle='rgba(78,124,146,.82)';
+  ctx.lineWidth=11;
+  ctx.beginPath();ctx.arc(650,430,58,Math.PI,0);ctx.stroke();
+  ctx.lineWidth=7;
   ctx.beginPath();
-  ctx.arc(590,350,62,Math.PI,0);
-  ctx.stroke();
-  ctx.lineWidth=9;
-  ctx.beginPath();
-  ctx.moveTo(528,350);ctx.lineTo(528,395);
-  ctx.moveTo(652,350);ctx.lineTo(652,395);
+  ctx.moveTo(592,430);ctx.lineTo(592,466);
+  ctx.moveTo(708,430);ctx.lineTo(708,466);
   ctx.stroke();
   ctx.restore();
 
-  const haze=ctx.createLinearGradient(0,300,0,405);
-  haze.addColorStop(0,'rgba(255,236,188,0)');
-  haze.addColorStop(.55,'rgba(255,236,188,.32)');
-  haze.addColorStop(1,'rgba(255,236,188,0)');
+  const haze=ctx.createLinearGradient(0,365,0,475);
+  haze.addColorStop(0,'rgba(255,244,218,0)');
+  haze.addColorStop(.62,'rgba(255,244,218,.34)');
+  haze.addColorStop(1,'rgba(255,244,218,0)');
   ctx.fillStyle=haze;
-  ctx.fillRect(0,285,c.width,145);
+  ctx.fillRect(0,350,c.width,150);
 
   const tex=new THREE.CanvasTexture(c);
   tex.colorSpace=THREE.SRGBColorSpace;
@@ -536,7 +543,7 @@ function makeAnimeCoastBackdrop(){
 }
 
 const animeBackdrop=new THREE.Mesh(
-  new THREE.PlaneGeometry(125,62),
+  new THREE.PlaneGeometry(140,70),
   new THREE.MeshBasicMaterial({
     map:makeAnimeCoastBackdrop(),
     fog:false,
@@ -544,7 +551,7 @@ const animeBackdrop=new THREE.Mesh(
     toneMapped:false
   })
 );
-animeBackdrop.position.set(0,20,-160);
+animeBackdrop.position.set(0,22,-166);
 world.add(animeBackdrop);
 
 function addMover(object,{speedFactor=1,span=180,startZ=null}={}){
@@ -607,152 +614,127 @@ const city=new THREE.Group();
 world.add(city);
 
 const facadeMaterials=[
-  new THREE.MeshToonMaterial({color:0xf2bf8e}),
-  new THREE.MeshToonMaterial({color:0xe7866f}),
-  new THREE.MeshToonMaterial({color:0xf0d490}),
-  new THREE.MeshToonMaterial({color:0x82b8ca}),
-  new THREE.MeshToonMaterial({color:0xd995ad})
+  new THREE.MeshToonMaterial({color:0xf2ede3}),
+  new THREE.MeshToonMaterial({color:0xe7dccb}),
+  new THREE.MeshToonMaterial({color:0xf0e2d3}),
+  new THREE.MeshToonMaterial({color:0xdce5df}),
+  new THREE.MeshToonMaterial({color:0xe7ddd8})
+];
+const facadeAccentMaterials=[
+  new THREE.MeshToonMaterial({color:0xb86f55}),
+  new THREE.MeshToonMaterial({color:0x6e9b91}),
+  new THREE.MeshToonMaterial({color:0xc49a55}),
+  new THREE.MeshToonMaterial({color:0x7798aa}),
+  new THREE.MeshToonMaterial({color:0x9a7669})
 ];
 
-const glassMat=new THREE.MeshBasicMaterial({color:0x55c5e4});
-const warmWindowMat=new THREE.MeshBasicMaterial({color:0xffd477});
-const coolWindowMat=new THREE.MeshBasicMaterial({color:0x68d6ef});
-const dimWindowMat=new THREE.MeshBasicMaterial({color:0x47788f});
-const concreteMat=new THREE.MeshToonMaterial({color:0x637889});
+const glassMat=new THREE.MeshBasicMaterial({color:0x78c2d6,transparent:true,opacity:.82});
+const darkGlassMat=new THREE.MeshBasicMaterial({color:0x315d70,transparent:true,opacity:.92});
+const warmWindowMat=new THREE.MeshBasicMaterial({color:0xffd98a});
+const coolWindowMat=new THREE.MeshBasicMaterial({color:0x83c9da});
+const concreteMat=new THREE.MeshToonMaterial({color:0xd7d2c8});
 const curbMat=new THREE.MeshToonMaterial({color:0xe5dccd});
-const signNames=['CAFE','MARKET','ARCADE','HOTEL','METRO','PIZZA','BOOKS','SHOP'];
-
-function makeSignTexture(text,bg,fg='#ffffff'){
-  const c=document.createElement('canvas');
-  c.width=256;c.height=96;
-  const ctx=c.getContext('2d');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,c.width,c.height);
-  ctx.strokeStyle='rgba(255,255,255,.28)';ctx.lineWidth=6;ctx.strokeRect(5,5,c.width-10,c.height-10);
-  ctx.fillStyle=fg;
-  ctx.font='900 46px Arial';
-  ctx.textAlign='center';
-  ctx.textBaseline='middle';
-  ctx.fillText(text,c.width/2,c.height/2+2);
-  const tex=new THREE.CanvasTexture(c);
-  tex.colorSpace=THREE.SRGBColorSpace;
-  return tex;
-}
+const balconyRailMat=new THREE.MeshBasicMaterial({color:0x6f909d,transparent:true,opacity:.58});
 
 function createFacadeBuilding(side,index,z){
   const group=new THREE.Group();
-  const floors=3+(index%5);
-  const floorH=1.25;
-  const h=floors*floorH+1.25;
-  const w=3.4+(index%3)*.65;
-  const d=5.2+(index%4)*.9;
+  const floors=4+(index%4);
+  const floorH=1.34;
+  const h=floors*floorH+1.22;
+  const w=3.8+(index%3)*.48;
+  const d=5.7+(index%4)*.72;
+  const facade=facadeMaterials[index%facadeMaterials.length];
+  const accent=facadeAccentMaterials[index%facadeAccentMaterials.length];
 
-  const body=new THREE.Mesh(
-    new THREE.BoxGeometry(w,h,d),
-    facadeMaterials[index%facadeMaterials.length]
-  );
+  const body=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),facade);
   body.position.y=h/2;
   body.castShadow=true;
   body.receiveShadow=true;
   group.add(body);
 
-  if(!IS_MOBILE){
-    const outline=new THREE.Mesh(
-      body.geometry,
-      new THREE.MeshBasicMaterial({color:0x16364a,side:THREE.BackSide})
-    );
-    outline.position.copy(body.position);
-    outline.scale.set(1.025,1.015,1.02);
-    group.add(outline);
-  }
-
-  const roofCap=new THREE.Mesh(
-    new THREE.BoxGeometry(w+.18,.24,d+.18),
-    new THREE.MeshToonMaterial({color:index%2?0xb85e4d:0xd67a4e})
-  );
-  roofCap.position.set(0,h+.12,0);
-  group.add(roofCap);
-
   const roadFaceX=-side*w/2-side*.035;
 
-  const store=new THREE.Mesh(new THREE.BoxGeometry(.08,1.05,d*.78),glassMat);
-  store.position.set(roadFaceX,.68,0);
+  // Ground-floor glass storefront, kept clean and understated.
+  const store=new THREE.Mesh(new THREE.BoxGeometry(.09,1.20,d*.82),darkGlassMat);
+  store.position.set(roadFaceX,.70,0);
   group.add(store);
 
-  const storeFrame=new THREE.Mesh(new THREE.BoxGeometry(.12,.14,d*.84),concreteMat);
-  storeFrame.position.set(roadFaceX-side*.03,1.23,0);
-  group.add(storeFrame);
+  const canopy=new THREE.Mesh(new THREE.BoxGeometry(.62,.10,d*.86),accent);
+  canopy.position.set(roadFaceX-side*.28,1.34,0);
+  group.add(canopy);
 
-  if(!IS_MOBILE||index%2===0){
-    const signText=signNames[index%signNames.length];
-    const signColors=['#b51f3d','#1669a8','#6d35a4','#a85a16','#127b6f'];
-    const signTex=makeSignTexture(signText,signColors[index%signColors.length]);
-    const sign=new THREE.Mesh(
-      new THREE.PlaneGeometry(1.55,.58),
-      new THREE.MeshBasicMaterial({map:signTex,transparent:true,side:THREE.DoubleSide})
-    );
-    sign.rotation.y=side>0?-Math.PI/2:Math.PI/2;
-    sign.position.set(roadFaceX-side*.075,1.72,-d*.18);
-    group.add(sign);
-  }
+  // Vertical architectural strip breaks the old "plain box" silhouette.
+  const accentStrip=new THREE.Mesh(new THREE.BoxGeometry(.10,h*.72,.88),accent);
+  accentStrip.position.set(roadFaceX-side*.055,2.05+h*.28,-d*.30);
+  group.add(accentStrip);
 
-  const rows=IS_MOBILE?2:Math.max(2,floors-1);
-  const cols=IS_MOBILE?2:3;
+  const rows=Math.max(2,floors-1);
+  const windowCols=IS_MOBILE?2:3;
   for(let r=0;r<rows;r++){
-    for(let c=0;c<cols;c++){
+    const y=2.12+r*1.23;
+    for(let col=0;col<windowCols;col++){
+      const zPos=THREE.MathUtils.lerp(-d*.27,d*.27,windowCols===1?.5:col/(windowCols-1));
       const win=new THREE.Mesh(
-        new THREE.BoxGeometry(.055,.48,.62),
-        (index+r+c)%4===0?warmWindowMat:((index+r+c)%3===0?dimWindowMat:coolWindowMat)
+        new THREE.BoxGeometry(.065,.60,.72),
+        (index+r+col)%5===0?warmWindowMat:coolWindowMat
       );
-      win.position.set(
-        roadFaceX-side*.04,
-        2.45+r*1.05,
-        THREE.MathUtils.lerp(-d*.3,d*.3,c/(cols-1))
-      );
+      win.position.set(roadFaceX-side*.045,y,zPos);
       group.add(win);
     }
-  }
 
-  if(!IS_MOBILE){
-    const balconyMat=new THREE.MeshToonMaterial({color:0xf1d6ae});
-    const railMat=new THREE.MeshBasicMaterial({color:0x35566b});
-    const levels=[3.0,4.25].filter(y=>y<h-.45);
-    for(const y of levels){
-      const balcony=new THREE.Mesh(new THREE.BoxGeometry(.42,.10,d*.54),balconyMat);
-      balcony.position.set(roadFaceX-side*.20,y,0);
+    // Alternating glass balconies create a modern coastal-apartment rhythm.
+    if(r%2===1){
+      const balcony=new THREE.Mesh(new THREE.BoxGeometry(.48,.09,d*.68),concreteMat);
+      balcony.position.set(roadFaceX-side*.22,y-.50,0);
       group.add(balcony);
-      const rail=new THREE.Mesh(new THREE.BoxGeometry(.07,.36,d*.50),railMat);
-      rail.position.set(roadFaceX-side*.40,y+.22,0);
+
+      const rail=new THREE.Mesh(new THREE.BoxGeometry(.055,.38,d*.64),balconyRailMat);
+      rail.position.set(roadFaceX-side*.46,y-.29,0);
       group.add(rail);
     }
   }
 
+  // Slim roof parapet rather than the old colored cap.
+  const parapetFront=new THREE.Mesh(new THREE.BoxGeometry(.12,.32,d+.10),concreteMat);
+  parapetFront.position.set(roadFaceX,h+.16,0);
+  group.add(parapetFront);
+  const parapetBack=parapetFront.clone();
+  parapetBack.position.x=-roadFaceX;
+  group.add(parapetBack);
+
   if(!IS_MOBILE&&index%3===0){
-    const awning=new THREE.Mesh(
-      new THREE.BoxGeometry(.55,.08,d*.7),
-      new THREE.MeshToonMaterial({color:index%2?0xd84d5c:0x168bb2})
-    );
-    awning.position.set(roadFaceX-side*.28,1.38,0);
-    awning.rotation.z=side*.08;
-    group.add(awning);
+    // Small rooftop pergola adds silhouette variety without giant signs.
+    const topY=h+.42;
+    for(const zz of [-d*.24,0,d*.24]){
+      const beam=new THREE.Mesh(new THREE.BoxGeometry(w*.56,.09,.11),accent);
+      beam.position.set(0,topY,zz);
+      group.add(beam);
+    }
+    for(const xx of [-w*.25,w*.25]){
+      const post=new THREE.Mesh(new THREE.BoxGeometry(.09,.48,.09),accent);
+      post.position.set(xx,h+.23,-d*.24);
+      group.add(post);
+    }
   }
 
-  if(!IS_MOBILE&&index%4===0){
-    const roofUnit=new THREE.Mesh(new THREE.BoxGeometry(w*.42,.55,d*.34),concreteMat);
-    roofUnit.position.set(0,h+.28,0);
-    group.add(roofUnit);
+  // Subtle side volume gives some buildings an L-shaped mass.
+  if(index%2===0){
+    const wingH=h*.58;
+    const wing=new THREE.Mesh(new THREE.BoxGeometry(w*.34,wingH,d*.34),facade);
+    wing.position.set(side*w*.42,wingH/2,d*.22);
+    wing.castShadow=true;
+    group.add(wing);
   }
 
-  group.position.set(side*(8.65+w/2),0,z);
+  group.position.set(side*(8.55+w/2),0,z);
   return group;
 }
 
-for(let i=0;i<(IS_MOBILE?13:19);i++){
-  const z=-4-i*9.2;
-  for(const side of [1]){
-    const building=createFacadeBuilding(side,i+2,z-3.8);
-    city.add(building);
-    addMover(building,{speedFactor:.9,span:175,startZ:building.position.z});
-  }
+for(let i=0;i<(IS_MOBILE?12:18);i++){
+  const z=-5-i*9.6;
+  const building=createFacadeBuilding(1,i+2,z-4.2);
+  city.add(building);
+  addMover(building,{speedFactor:.9,span:177,startZ:building.position.z});
 }
 
 const coast=new THREE.Group();
@@ -914,9 +896,9 @@ function raceLabel(){
 function setDifficultyCopy(){
   const copy=currentLevel===3
     ?{
-      easy:'2 distractors · grammar shown · no advance loss',
-      medium:'3 plausible clues · recognize the grammar · −1',
-      hard:'4 close clues · advanced time markers · −2'
+      easy:'3 options · grammar shown · no advance loss',
+      medium:'3 options · recognize the grammar · −1',
+      hard:'3 options · advanced time clues · −2'
     }
     :{
       easy:'2 distractors · basic tenses · no advance loss',
@@ -1287,7 +1269,7 @@ function refillSentenceDeck(){
 function makeTimeClueChallenge(template){
   return window.VerbRunnerTimeCluesBank.createChallenge(template,{
     difficulty:difficulty.name,
-    distractorCount:gameSettings.distractors
+    distractorCount:2
   });
 }
 
@@ -1328,7 +1310,7 @@ function buildChallenges(){
     applySentenceRunTuning();
     challenges=window.VerbRunnerTimeCluesBank.buildRound(totalChallenges,{
       difficulty:difficulty.name,
-      distractorCount:gameSettings.distractors
+      distractorCount:2
     });
     timeClueDeck=[];
     return;
@@ -1362,20 +1344,22 @@ function roundedRectPath(ctx,x,y,w,h,r){
 }
 
 function makeAnswerTexture(word){
+  const timeClue=currentLevel===3;
   const c=document.createElement('canvas');
-  c.width=1024;c.height=360;
+  c.width=timeClue?1280:1024;
+  c.height=timeClue?480:360;
   const ctx=c.getContext('2d');
   ctx.clearRect(0,0,c.width,c.height);
 
   ctx.save();
   ctx.shadowColor='rgba(40,220,255,.95)';
-  ctx.shadowBlur=30;
-  roundedRectPath(ctx,34,34,c.width-68,c.height-68,48);
+  ctx.shadowBlur=timeClue?38:30;
+  roundedRectPath(ctx,34,34,c.width-68,c.height-68,timeClue?58:48);
   ctx.fillStyle='#0a315f';
   ctx.fill();
   ctx.restore();
 
-  roundedRectPath(ctx,34,34,c.width-68,c.height-68,48);
+  roundedRectPath(ctx,34,34,c.width-68,c.height-68,timeClue?58:48);
   const grad=ctx.createLinearGradient(0,36,0,c.height-36);
   grad.addColorStop(0,'#185b98');
   grad.addColorStop(.42,'#0c4278');
@@ -1383,44 +1367,69 @@ function makeAnswerTexture(word){
   ctx.fillStyle=grad;
   ctx.fill();
 
-  ctx.lineWidth=18;
+  ctx.lineWidth=timeClue?20:18;
   ctx.strokeStyle='#45ddff';
   ctx.stroke();
 
-  roundedRectPath(ctx,54,54,c.width-108,c.height-108,35);
+  roundedRectPath(ctx,54,54,c.width-108,c.height-108,timeClue?42:35);
   ctx.lineWidth=5;
   ctx.strokeStyle='rgba(218,249,255,.92)';
   ctx.stroke();
 
   const text=String(word).toUpperCase();
   const words=text.split(/\s+/).filter(Boolean);
-  let lines=[text];
-  if(text.length>21&&words.length>1){
+
+  function balancedLines(lineCount){
+    if(lineCount<=1||words.length<=1)return [text];
     let best=null;
-    for(let cut=1;cut<words.length;cut++){
-      const pair=[words.slice(0,cut).join(' '),words.slice(cut).join(' ')];
-      const score=Math.abs(pair[0].length-pair[1].length);
-      if(!best||score<best.score)best={pair,score};
+    if(lineCount===2){
+      for(let a=1;a<words.length;a++){
+        const lines=[words.slice(0,a).join(' '),words.slice(a).join(' ')];
+        const lengths=lines.map(x=>x.length);
+        const score=Math.max(...lengths)+(Math.max(...lengths)-Math.min(...lengths))*.45;
+        if(!best||score<best.score)best={lines,score};
+      }
+    }else{
+      for(let a=1;a<words.length-1;a++){
+        for(let b=a+1;b<words.length;b++){
+          const lines=[
+            words.slice(0,a).join(' '),
+            words.slice(a,b).join(' '),
+            words.slice(b).join(' ')
+          ];
+          const lengths=lines.map(x=>x.length);
+          const score=Math.max(...lengths)+(Math.max(...lengths)-Math.min(...lengths))*.38;
+          if(!best||score<best.score)best={lines,score};
+        }
+      }
     }
-    if(best)lines=best.pair;
+    return best?.lines||[text];
   }
 
-  let fontSize=lines.length>1?82:112;
-  const maxWidth=c.width-145;
+  const desiredLines=timeClue
+    ?(text.length>35&&words.length>=3?3:(text.length>18?2:1))
+    :(text.length>21?2:1);
+  const lines=balancedLines(desiredLines);
+
+  let fontSize=timeClue
+    ?(lines.length===3?70:(lines.length===2?86:116))
+    :(lines.length>1?82:112);
+  const minFont=timeClue?44:34;
+  const maxWidth=c.width-(timeClue?180:145);
   ctx.font='900 '+fontSize+'px Arial';
-  while(fontSize>34&&Math.max(...lines.map(line=>ctx.measureText(line).width))>maxWidth){
+  while(fontSize>minFont&&Math.max(...lines.map(line=>ctx.measureText(line).width))>maxWidth){
     fontSize-=4;
     ctx.font='900 '+fontSize+'px Arial';
   }
 
   ctx.textAlign='center';
   ctx.textBaseline='middle';
-  ctx.shadowColor='rgba(73,222,255,.85)';
-  ctx.shadowBlur=15;
-  ctx.lineWidth=9;
-  ctx.strokeStyle='rgba(0,38,72,.85)';
-  ctx.fillStyle='#f8fdff';
-  const lineHeight=fontSize*.94;
+  ctx.shadowColor='rgba(0,25,52,.95)';
+  ctx.shadowBlur=timeClue?12:15;
+  ctx.lineWidth=timeClue?11:9;
+  ctx.strokeStyle='rgba(0,28,58,.95)';
+  ctx.fillStyle='#ffffff';
+  const lineHeight=fontSize*(timeClue?.90:.94);
   lines.forEach((line,index)=>{
     const y=c.height/2+5+(index-(lines.length-1)/2)*lineHeight;
     ctx.strokeText(line,c.width/2,y);
@@ -1436,13 +1445,14 @@ function makeAnswerTexture(word){
 const answers=[];
 let lastCorrectLane=-1;
 
-function spawnAnswer(item){
+function spawnAnswer(item,forcedLane=null){
   if(!gameStarted||gamePaused||victoryMode)return false;
 
+  const spawnZ=currentLevel===3?(IS_MOBILE?-62:-84):ANSWER_SPAWN_Z;
   const pedestrianTooClose=obstacles.some(o=>
     o?.kind==='pedestrian' &&
     o?.mesh &&
-    Math.abs(o.mesh.position.z-ANSWER_SPAWN_Z)<18
+    Math.abs(o.mesh.position.z-spawnZ)<18
   );
   if(pedestrianTooClose)return false;
 
@@ -1451,7 +1461,7 @@ function spawnAnswer(item){
   const blockedByObstacle=new Set(
     nearSpawn
       .filter(o=>{
-        const dz=Math.abs(o.mesh.position.z-ANSWER_SPAWN_Z);
+        const dz=Math.abs(o.mesh.position.z-spawnZ);
         if(heightMode==='high'&&o.type==='slide')return dz<28;
         return dz<12;
       })
@@ -1462,7 +1472,7 @@ function spawnAnswer(item){
   if(!availableLanes.length&&heightMode==='high'){
     heightMode='low';
     const lowBlocked=new Set(
-      nearSpawn.filter(o=>Math.abs(o.mesh.position.z-ANSWER_SPAWN_Z)<12).map(o=>o.laneIndex)
+      nearSpawn.filter(o=>Math.abs(o.mesh.position.z-spawnZ)<12).map(o=>o.laneIndex)
     );
     availableLanes=[0,1,2].filter(i=>!lowBlocked.has(i));
   }
@@ -1473,11 +1483,15 @@ function spawnAnswer(item){
     availableLanes=correctAlternates;
   }
 
-  let laneIndex=availableLanes.length
-    ? availableLanes[Math.floor(Math.random()*availableLanes.length)]
-    : Math.floor(Math.random()*3);
+  if(Number.isInteger(forcedLane)&&!availableLanes.includes(forcedLane))return false;
 
-  if(answers.length&&answers.at(-1)?.laneIndex===laneIndex&&availableLanes.length>1){
+  let laneIndex=Number.isInteger(forcedLane)
+    ?forcedLane
+    :(availableLanes.length
+      ?availableLanes[Math.floor(Math.random()*availableLanes.length)]
+      :Math.floor(Math.random()*3));
+
+  if(!Number.isInteger(forcedLane)&&answers.length&&answers.at(-1)?.laneIndex===laneIndex&&availableLanes.length>1){
     const alternates=availableLanes.filter(i=>i!==laneIndex);
     laneIndex=alternates[Math.floor(Math.random()*alternates.length)];
   }
@@ -1485,8 +1499,8 @@ function spawnAnswer(item){
   if(item.correct)lastCorrectLane=laneIndex;
 
   const group=new THREE.Group();
-  const cardW=currentLevel===3?(IS_MOBILE?4.05:3.35):(IS_MOBILE?3.70:3.05);
-  const cardH=currentLevel===3?(IS_MOBILE?1.42:1.20):(IS_MOBILE?1.34:1.10);
+  const cardW=currentLevel===3?(IS_MOBILE?4.20:3.55):(IS_MOBILE?3.70:3.05);
+  const cardH=currentLevel===3?(IS_MOBILE?1.58:1.38):(IS_MOBILE?1.34:1.10);
   const glow=new THREE.Mesh(
     new THREE.PlaneGeometry(cardW+0.28,cardH+0.18),
     new THREE.MeshBasicMaterial({color:0x45ddff,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false,fog:false,toneMapped:false})
@@ -1502,7 +1516,7 @@ function spawnAnswer(item){
   group.add(panel);
 
   const answerY=heightMode==='low'?1.15:(IS_MOBILE?2.78:3.15);
-  group.position.set(lanes[laneIndex],answerY,ANSWER_SPAWN_Z);
+  group.position.set(lanes[laneIndex],answerY,spawnZ);
   scene.add(group);
   answers.push({mesh:group,laneIndex,item,resolved:false,heightMode});
   return true;
@@ -1530,7 +1544,7 @@ function launchChallengeChain(initialDelay=.42){
   initialDelay=sentenceInitialDelay(initialDelay);
   const sequence=currentLevel===3
     ?window.VerbRunnerTimeCluesBank.buildAnswerSequence(currentChallenge,{
-        distractorCount:gameSettings.distractors
+        distractorCount:2
       })
     :currentLevel===2
       ?window.VerbRunnerSentenceBank.buildAnswerSequence(currentChallenge,{
@@ -1559,8 +1573,12 @@ function launchChallengeChain(initialDelay=.42){
   recentCorrectPositions.push(correctIndex);
   if(recentCorrectPositions.length>4)recentCorrectPositions.shift();
 
+  const timeClueLanes=currentLevel===3
+    ?[0,1,2].sort(()=>Math.random()-.5)
+    :null;
   pendingAnswers=sequence.map((item,index)=>({
     item,
+    forcedLane:timeClueLanes?.[index]??null,
     at:initialDelay+index*gameSettings.answerSpacing
   }));
   answerSpawnClock=0;
@@ -1575,7 +1593,7 @@ function updateAnswerSpawns(dt){
   answerSpawnClock+=dt;
   while(pendingAnswers.length&&answerSpawnClock>=pendingAnswers[0].at){
     const next=pendingAnswers[0];
-    if(!spawnAnswer(next.item)){
+    if(!spawnAnswer(next.item,next.forcedLane)){
       answerSpawnClock=Math.min(answerSpawnClock,next.at);
       break;
     }
@@ -1646,6 +1664,7 @@ async function animateAnswerToBlank(answer,correct,startOverride=null){
 
   const flyer=document.createElement('div');
   flyer.className='answer-flight';
+  if(currentLevel===3)flyer.classList.add('time-clue-flight');
   flyer.textContent=String(answer.item.value).toUpperCase();
   flyer.style.left=start.x+'px';
   flyer.style.top=start.y+'px';
