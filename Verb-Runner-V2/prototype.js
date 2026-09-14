@@ -56,6 +56,14 @@ const resultCorrect=document.querySelector('#resultCorrect');
 const resultStreak=document.querySelector('#resultStreak');
 const resultObstacles=document.querySelector('#resultObstacles');
 const resultMomentum=document.querySelector('#resultMomentum');
+const levelTitle=document.querySelector('#levelTitle');
+const principalParts=document.querySelector('#principalParts');
+const sentenceChallenge=document.querySelector('#sentenceChallenge');
+const sentenceText=document.querySelector('#sentenceText');
+const sentenceCue=document.querySelector('#sentenceCue');
+const taskInstruction=document.querySelector('#taskInstruction');
+const resultKicker=document.querySelector('#resultKicker');
+const nextLevelButton=document.querySelector('#nextLevelButton');
 
 const TOTAL_CHALLENGES=20;
 const difficultyPresets={
@@ -577,9 +585,11 @@ let gameStarted=false;
 let gamePaused=false;
 let victoryMode=false;
 let runState=null;
+let currentLevel=1;
 let challenges=[];
 let challengeIndex=0;
 let verbDeck=[];
+let sentenceDeck=[];
 let runElapsed=0;
 let noticeTimer=0;
 let pendingAnswers=[];
@@ -591,6 +601,20 @@ let lastCorrectAnswerIndex=-1;
 let recentCorrectPositions=[];
 let blankUsage=[0,0,0];
 const lastBlankByVerb=new Map();
+
+function setLevelUI(){
+  const sentenceMode=currentLevel===2;
+  if(levelTitle)levelTitle.textContent=sentenceMode?'LEVEL 2 · SENTENCE RUN':'LEVEL 1 · VERB HUNT';
+  if(principalParts)principalParts.hidden=sentenceMode;
+  if(sentenceChallenge)sentenceChallenge.hidden=!sentenceMode;
+  if(taskInstruction)taskInstruction.textContent=sentenceMode
+    ?'Complete the sentence with the correct verb form'
+    :'Collect the correct verb form';
+  if(resultKicker)resultKicker.textContent='LEVEL '+currentLevel+' COMPLETE';
+  if(nextLevelButton)nextLevelButton.hidden=currentLevel!==1;
+}
+
+setLevelUI();
 
 function applyDifficultyDefaults(preset){
   difficulty=preset;
@@ -690,6 +714,37 @@ function renderChallenge(){
   currentChallenge=challenges[challengeIndex];
   if(!currentChallenge)return;
   if(challengeNumber)challengeNumber.textContent='';
+
+  if(currentLevel===2){
+    if(principalParts)principalParts.hidden=true;
+    if(sentenceChallenge)sentenceChallenge.hidden=false;
+    if(sentenceText){
+      const raw=String(currentChallenge.text||'___');
+      const marker='___';
+      const at=raw.indexOf(marker);
+      const before=at>=0?raw.slice(0,at):raw;
+      const after=at>=0?raw.slice(at+marker.length):'';
+      sentenceText.replaceChildren();
+      sentenceText.append(document.createTextNode(before));
+      const blank=document.createElement('span');
+      blank.className='sentence-blank';
+      blank.textContent='___';
+      sentenceText.append(blank);
+      sentenceText.append(document.createTextNode(after));
+    }
+    if(sentenceCue)sentenceCue.textContent=String(currentChallenge.cue||currentChallenge.base||'').toUpperCase();
+    if(sessionCode&&sessionData){
+      sessionUpdate({
+        level:currentLevel,
+        challenge:challengeIndex+1,
+        challengeLabel:String(currentChallenge.text||'')+' ['+String(currentChallenge.cue||'').toUpperCase()+']'
+      }).catch(()=>{});
+    }
+    return;
+  }
+
+  if(principalParts)principalParts.hidden=false;
+  if(sentenceChallenge)sentenceChallenge.hidden=true;
   document.querySelectorAll('[data-slot]').forEach((el,index)=>{
     const value=currentChallenge.slots[index];
     el.classList.remove('feedback-correct','feedback-wrong','long-form','very-long-form');
@@ -747,8 +802,26 @@ function refillVerbDeck(){
   verbDeck=window.VerbRunnerChallenge.shuffled([...(window.VerbRunnerBank?.VERBS||[])]);
 }
 
+function makeSentenceChallenge(template){
+  return window.VerbRunnerSentenceBank.createChallenge(template,{
+    difficulty:difficulty.name,
+    distractorCount:gameSettings.distractors
+  });
+}
+
+function refillSentenceDeck(){
+  sentenceDeck=window.VerbRunnerSentenceBank.shuffled([...(window.VerbRunnerSentenceBank?.SENTENCES||[])]);
+}
+
 function ensureChallengeAvailable(){
   while(challengeIndex>=challenges.length){
+    if(currentLevel===2){
+      if(!sentenceDeck.length)refillSentenceDeck();
+      const nextSentence=sentenceDeck.shift();
+      if(!nextSentence)break;
+      challenges.push(makeSentenceChallenge(nextSentence));
+      continue;
+    }
     if(!verbDeck.length)refillVerbDeck();
     const nextVerb=verbDeck.shift();
     if(!nextVerb)break;
@@ -759,6 +832,18 @@ function ensureChallengeAvailable(){
 function buildChallenges(){
   challenges=[];
   challengeIndex=0;
+
+  if(currentLevel===2){
+    refillSentenceDeck();
+    while(challenges.length<totalChallenges){
+      if(!sentenceDeck.length)refillSentenceDeck();
+      const nextSentence=sentenceDeck.shift();
+      if(!nextSentence)break;
+      challenges.push(makeSentenceChallenge(nextSentence));
+    }
+    return;
+  }
+
   refillVerbDeck();
   while(challenges.length<totalChallenges&&verbDeck.length){
     challenges.push(makeChallengeFromVerb(verbDeck.shift()));
@@ -1020,8 +1105,11 @@ function answerScreenPoint(answer){
 function waitMs(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
 
 async function animateAnswerToBlank(answer,correct,startOverride=null){
-  const blankPart=document.querySelector('.part.blank');
-  const blankText=blankPart?.querySelector('b');
+  const sentenceMode=currentLevel===2;
+  const blankPart=sentenceMode
+    ?document.querySelector('.sentence-blank')
+    :document.querySelector('.part.blank');
+  const blankText=sentenceMode?blankPart:blankPart?.querySelector('b');
   if(!blankPart||!blankText)return;
 
   const start=startOverride||answerScreenPoint(answer);
@@ -1087,8 +1175,8 @@ async function animateAnswerToBlank(answer,correct,startOverride=null){
 
   if(!correct){
     blankPart.classList.remove('feedback-wrong');
-    blankPart.classList.add('blank');
-    blankText.textContent='?';
+    if(!sentenceMode)blankPart.classList.add('blank');
+    blankText.textContent=sentenceMode?'___':'?';
   }
 }
 
@@ -1133,15 +1221,25 @@ function missedCorrectAnswer(){
   clearAnswers();
 
   if(challengeIndex>=challenges.length-1){
-    if(!verbDeck.length)refillVerbDeck();
-    const nextVerb=verbDeck.shift();
-    if(nextVerb)challenges.push(makeChallengeFromVerb(nextVerb));
+    if(currentLevel===2){
+      if(!sentenceDeck.length)refillSentenceDeck();
+      const nextSentence=sentenceDeck.shift();
+      if(nextSentence)challenges.push(makeSentenceChallenge(nextSentence));
+    }else{
+      if(!verbDeck.length)refillVerbDeck();
+      const nextVerb=verbDeck.shift();
+      if(nextVerb)challenges.push(makeChallengeFromVerb(nextVerb));
+    }
   }
 
   const missed=challenges.splice(challengeIndex,1)[0];
   if(missed){
-    const verb=window.VerbRunnerBank?.findVerb?.(missed.base);
-    challenges.push(verb?makeChallengeFromVerb(verb):missed);
+    if(currentLevel===2){
+      challenges.push(missed);
+    }else{
+      const verb=window.VerbRunnerBank?.findVerb?.(missed.base);
+      challenges.push(verb?makeChallengeFromVerb(verb):missed);
+    }
   }
 
   showNotice('CORRECT FORM MISSED · MOVED TO END','info');
@@ -1167,6 +1265,7 @@ function finishRun(){
   recentCorrectPositions=[];
   blankUsage=[0,0,0];
   lastBlankByVerb.clear();
+  setLevelUI();
   clearAnswers();
   for(const o of obstacles.splice(0))scene.remove(o.mesh);
   if(activeAction&&actions.idle)play('idle',.15);
@@ -1178,6 +1277,8 @@ function finishRun(){
   resultStreak.textContent=String(summary.bestStreak);
   resultObstacles.textContent=String(summary.obstacleHits);
   resultMomentum.textContent=summary.momentum+'%';
+  if(resultKicker)resultKicker.textContent='LEVEL '+currentLevel+' COMPLETE';
+  if(nextLevelButton)nextLevelButton.hidden=currentLevel!==1;
   resultOverlay.hidden=false;
 
   try{
@@ -1185,12 +1286,16 @@ function finishRun(){
       ...summary,
       difficulty:difficulty.name,
       runner:selectedVariant,
+      level:currentLevel,
+      mode:currentLevel===2?'sentence-run':'verb-hunt',
       completedAt:Date.now()
     }));
   }catch{}
 
   if(sessionCode&&sessionData){
     sessionFinish({
+      level:currentLevel,
+      mode:currentLevel===2?'sentence-run':'verb-hunt',
       progress:totalChallenges,
       total:totalChallenges,
       momentum:summary.momentum,
@@ -1232,6 +1337,8 @@ function resetRun(){
   clearAnswers();
   lastCorrectLane=-1;
   verbDeck=[];
+  sentenceDeck=[];
+  setLevelUI();
   buildChallenges();
   renderChallenge();
   updateHud();
@@ -1377,6 +1484,8 @@ startButton.addEventListener('click',async()=>{
   modelStatus.textContent=variants[selectedVariant].name+' robot · DAY CITY AVENUE';
   if(sessionCode&&sessionData){
     await sessionConnect({
+      level:currentLevel,
+      mode:currentLevel===2?'sentence-run':'verb-hunt',
       total:totalChallenges,
       runner:selectedVariant,
       difficulty:difficulty.name
@@ -1399,6 +1508,29 @@ runAgainButton.addEventListener('click',()=>{
   resultOverlay.hidden=true;
   picker.classList.remove('hidden');
   play('idle',.12);
+});
+
+nextLevelButton?.addEventListener('click',async()=>{
+  if(currentLevel!==1)return;
+  currentLevel=2;
+  resultOverlay.hidden=true;
+  setLevelUI();
+  resetRun();
+  gameStarted=true;
+  play('run',.12);
+  modelStatus.textContent=variants[selectedVariant].name+' robot · DAY CITY AVENUE';
+  if(sessionCode&&sessionData){
+    await sessionConnect({
+      level:currentLevel,
+      mode:'sentence-run',
+      total:totalChallenges,
+      runner:selectedVariant,
+      difficulty:difficulty.name
+    }).catch(()=>{});
+    renderChallenge();
+    updateHud();
+  }
+  launchChallengeChain(gameSettings.preview?1.55:.55);
 });
 
 const lanes=[-3,0,3];
