@@ -35,6 +35,7 @@ const modelStatus=document.querySelector('#modelStatus');
 const flash=document.querySelector('#flash');
 const picker=document.querySelector('#picker');
 const startButton=document.querySelector('#startButton');
+const startButtonLabel=document.querySelector('#startButtonLabel');
 const runnerChip=document.querySelector('#runnerChip');
 const runnerName=document.querySelector('#runnerName');
 const runnerDot=document.querySelector('#runnerDot');
@@ -856,6 +857,8 @@ let actions={};
 let activeAction=null;
 let selectedVariant=0;
 let gameStarted=false;
+let runnerReady=false;
+let runnerLoadFailed=false;
 let gamePaused=false;
 let victoryMode=false;
 let runState=null;
@@ -876,6 +879,32 @@ let lastCorrectAnswerIndex=-1;
 let recentCorrectPositions=[];
 let blankUsage=[0,0,0];
 const lastBlankByVerb=new Map();
+
+function updateStartButtonState(){
+  if(!startButton)return;
+  if(runnerLoadFailed){
+    startButton.disabled=true;
+    startButton.classList.remove('loading');
+    startButton.classList.add('load-error');
+    startButton.setAttribute('aria-busy','false');
+    if(startButtonLabel)startButtonLabel.textContent='RUNNER FAILED TO LOAD';
+    return;
+  }
+
+  if(!runnerReady){
+    startButton.disabled=true;
+    startButton.classList.add('loading');
+    startButton.classList.remove('load-error');
+    startButton.setAttribute('aria-busy','true');
+    if(startButtonLabel)startButtonLabel.textContent='LOADING RUNNER…';
+    return;
+  }
+
+  startButton.disabled=false;
+  startButton.classList.remove('loading','load-error');
+  startButton.setAttribute('aria-busy','false');
+  if(startButtonLabel)startButtonLabel.textContent='START '+raceLabel();
+}
 
 function isTextRace(){
   return currentLevel===2||currentLevel===3;
@@ -952,7 +981,7 @@ function setLevelUI(){
       ?'TRY NEXT RACE · SENTENCE RUNNER'
       :'TRY NEXT RACE · TIME CLUES';
   }
-  if(startButton)startButton.textContent='START '+raceLabel();
+  updateStartButtonState();
   setDifficultyCopy();
   document.querySelectorAll('[data-race]').forEach(btn=>{
     btn.classList.toggle('active',Number(btn.dataset.level)===currentLevel);
@@ -1014,7 +1043,10 @@ function selectRace(level){
     applyDifficultyDefaults(difficulty);
   }
 
-  modelStatus.textContent=raceLabel()+' selected · choose runner and difficulty';
+  modelStatus.textContent=runnerReady
+    ?raceLabel()+' selected · choose runner and difficulty'
+    :raceLabel()+' selected · loading runner…';
+  updateStartButtonState();
 }
 
 function applySessionSettings(settings={}){
@@ -2239,12 +2271,17 @@ loader.load(
 
     applyRobotPalette(selectedVariant);
     play('idle',0);
-    startButton.disabled=false;
+    runnerReady=true;
+    runnerLoadFailed=false;
+    updateStartButtonState();
     modelStatus.textContent='Robot ready · choose a color and start';
   },
   undefined,
   err=>{
     console.error(err);
+    runnerReady=false;
+    runnerLoadFailed=true;
+    updateStartButtonState();
     modelStatus.textContent='Robot failed to load — check network/CDN';
   }
 );
@@ -2272,6 +2309,8 @@ document.querySelectorAll('[data-difficulty]').forEach(btn=>{
     const preset=difficultyPresets[btn.dataset.difficulty]||difficultyPresets.medium;
     applyDifficultyDefaults(preset);
     document.querySelectorAll('[data-difficulty]').forEach(b=>b.classList.toggle('active',b===btn));
+    if(!runnerReady&&!runnerLoadFailed)modelStatus.textContent='Difficulty selected · loading runner…';
+    updateStartButtonState();
   });
 });
 

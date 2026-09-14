@@ -216,10 +216,21 @@ button,a{-webkit-tap-highlight-color:transparent}
 .difficulty button.active{border-color:#73dcff;background:rgba(60,183,224,.15)}
 .difficulty b,.difficulty small{display:block}.difficulty b{font-size:11px}.difficulty small{margin-top:2px;color:#aab9c5;font-size:9px}
 .start-button{
-  margin-top:16px;min-width:205px;border:0;border-radius:999px;padding:12px 26px;background:var(--runner-accent);color:#fff;
-  font-weight:950;letter-spacing:.08em;cursor:pointer;box-shadow:0 12px 30px color-mix(in srgb,var(--runner-accent) 28%,transparent)
+  margin-top:16px;min-width:235px;border:0;border-radius:999px;padding:12px 26px;background:var(--runner-accent);color:#fff;
+  font-weight:950;letter-spacing:.08em;cursor:pointer;box-shadow:0 12px 30px color-mix(in srgb,var(--runner-accent) 28%,transparent);
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px
 }
-.start-button:disabled{opacity:.35;cursor:wait;box-shadow:none}
+.start-button:disabled{opacity:.72;cursor:wait;box-shadow:none}
+.start-spinner{
+  width:17px;height:17px;flex:0 0 17px;border-radius:50%;
+  border:3px solid rgba(255,255,255,.30);border-top-color:#fff;
+  animation:startSpinner .72s linear infinite
+}
+.start-button:not(.loading) .start-spinner{display:none}
+.start-button.loading{background:#476273;color:#fff}
+.start-button.load-error{background:#8b3340;cursor:not-allowed}
+.start-button.load-error .start-spinner{display:none}
+@keyframes startSpinner{to{transform:rotate(360deg)}}
 .picker-footer{margin-top:9px}
 .menu-back-games{margin-top:0!important}
 

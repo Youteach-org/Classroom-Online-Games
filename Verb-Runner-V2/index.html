@@ -118,7 +118,10 @@
           <button type="button" data-difficulty="hard"><b>HARD</b><small>4 close distractors · advanced tenses · −2</small></button>
         </div>
 
-        <button id="startButton" class="start-button" type="button" disabled>START VERB RUNNER</button>
+        <button id="startButton" class="start-button loading" type="button" disabled aria-busy="true">
+          <span class="start-spinner" aria-hidden="true"></span>
+          <span id="startButtonLabel">LOADING RUNNER…</span>
+        </button>
         <div class="picker-footer">
           <a class="ghost-button menu-back-games" href="/">BACK TO GAMES</a>
         </div>
