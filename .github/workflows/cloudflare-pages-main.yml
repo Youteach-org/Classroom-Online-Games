@@ -27,6 +27,11 @@ jobs:
           CLEAN_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID_RAW" | tr -d '[:space:]')"
           printf 'CLOUDFLARE_ACCOUNT_ID=%s\n' "$CLEAN_ACCOUNT_ID" >> "$GITHUB_ENV"
 
+      - name: Verify Verb Runner JavaScript modules
+        run: |
+          node --check Verb-Runner/coastal-scene-config.mjs
+          node --check Verb-Runner/prototype.js
+
       - name: Prepare static site
         run: |
           rm -rf dist
