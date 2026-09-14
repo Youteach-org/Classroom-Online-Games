@@ -81,7 +81,7 @@ async function connectRunner(code,runnerId,data={}){
     joinedAt:serverTimestamp(),
     lastSeen:serverTimestamp(),
     progress:0,
-    total:Number(data.total)||12,
+    total:Number(data.total)||20,
     momentum:75,
     streak:0,
     correct:0,
