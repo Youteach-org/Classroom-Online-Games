@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
 const ROBOT_URL='https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb';
-const PEDESTRIAN_URL='https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/CesiumMan/glTF-Binary/CesiumMan.glb';
+const PEDESTRIAN_URL='https://cdn.jsdelivr.net/gh/rodrigoluis/CG@4f2004438ce7e0bc6c482766d007d617ca8147fd/assets/objects/walkingMan.glb';
 let pedestrianTemplate=null;
 let pedestrianAnimations=[];
 const IS_MOBILE=matchMedia('(pointer:coarse)').matches||innerWidth<=700;
@@ -1683,6 +1683,7 @@ function createPedestrian(index=0){
   g.userData.crossSpeed=1.55+Math.random()*.5;
   g.userData.startSide=crossDir>0?-1:1;
   g.rotation.y=crossDir>0?-Math.PI/2:Math.PI/2;
+  g.userData.facingDir=crossDir;
   g.scale.multiplyScalar(.94+Math.random()*.10);
 
   g.traverse(obj=>{
@@ -1694,8 +1695,9 @@ function createPedestrian(index=0){
 
   if(pedestrianAnimations.length){
     const mixer=new THREE.AnimationMixer(g);
-    for(const clip of pedestrianAnimations){
-      const action=mixer.clipAction(clip);
+    const walkClip=pedestrianAnimations.find(c=>/walk/i.test(c.name))||pedestrianAnimations[0];
+    if(walkClip){
+      const action=mixer.clipAction(walkClip);
       action.timeScale=.92+Math.random()*.14;
       action.play();
     }
