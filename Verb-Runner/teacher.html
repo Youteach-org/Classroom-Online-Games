@@ -3,66 +3,90 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Verb Runner · Teacher</title>
+  <title>Verb Runner — Teacher Monitor</title>
   <link rel="stylesheet" href="./teacher.css">
 </head>
 <body>
-  <main class="teacher-shell">
+  <div class="monitor-sticky-header">
     <header class="teacher-header">
       <div>
-        <a href="/" class="back-link">← CLASSROOM ONLINE GAMES</a>
-        <span class="eyebrow">VERB RUNNER</span>
-        <h1>Teacher Control</h1>
-        <p>Create an anonymous classroom session and monitor each runner's progress.</p>
+        <a href="/" class="teacher-menu-link">← Back to Teacher Menu</a>
+        <h1>VERB RUNNER · <span>Teacher Monitor</span></h1>
+        <p>Live activity · click or touch a student to focus</p>
       </div>
-      <div id="connectionState" class="connection-state">SETUP</div>
+      <div class="status">
+        <span class="dot" id="monitorDot"></span>
+        <strong id="connectionState">Ready</strong>
+      </div>
     </header>
 
-    <section class="panel setup-panel">
-      <div class="section-heading">
-        <div><span class="eyebrow">RACE SETUP</span><h2>Session settings</h2></div>
-        <span class="note">Settings freeze when the session is created.</span>
+    <section class="control-panel" aria-label="Verb Runner session controls">
+      <div class="settings-menu-wrap">
+        <button id="settingsToggle" type="button" aria-expanded="false" aria-controls="settingsMenu">GAME SETTINGS ▾</button>
+        <section id="settingsMenu" class="settings-menu" hidden aria-label="Game settings">
+          <div class="settings-menu-head">
+            <div>
+              <span class="eyebrow">RACE SETUP</span>
+              <h2>Game settings</h2>
+            </div>
+            <button id="settingsClose" class="icon-button" type="button" aria-label="Close game settings">×</button>
+          </div>
+
+          <div class="difficulty-row">
+            <label><input type="radio" name="difficulty" value="easy"><span><b>EASY</b><small>2 clear distractors · slower · 0 advance loss</small></span></label>
+            <label><input type="radio" name="difficulty" value="medium" checked><span><b>MEDIUM</b><small>3 plausible distractors · standard · −1 error/hit</small></span></label>
+            <label><input type="radio" name="difficulty" value="hard"><span><b>HARD</b><small>4 close vowel traps · faster · −2 error/hit</small></span></label>
+          </div>
+
+          <div class="settings-grid">
+            <label>Challenges<input id="challengeCount" type="number" min="5" max="40" value="20"></label>
+            <label>Answer preview<select id="previewEnabled"><option value="auto">Difficulty default</option><option value="yes">On</option><option value="no">Off</option></select></label>
+            <label>Initial speed<input id="initialSpeed" type="number" min="12" max="28" step="1" value="18"></label>
+            <label>Maximum speed<input id="maxSpeed" type="number" min="20" max="45" step="1" value="31"></label>
+            <label>Answer spacing (ms)<input id="answerSpacing" type="number" min="450" max="1600" step="10" value="820"></label>
+            <label>Distractors before correct<input id="distractors" type="number" min="1" max="6" value="3"></label>
+            <label>Obstacle frequency %<input id="obstacleFrequency" type="number" min="0" max="100" value="45"></label>
+            <label>Correct Momentum +<input id="momentumCorrect" type="number" min="0" max="30" value="8"></label>
+          </div>
+          <p class="settings-note">Settings freeze while a session is live.</p>
+        </section>
       </div>
 
-      <div class="difficulty-row">
-        <label><input type="radio" name="difficulty" value="easy"><span><b>EASY</b><small>2 clear distractors · slower · 0 advance loss</small></span></label>
-        <label><input type="radio" name="difficulty" value="medium" checked><span><b>MEDIUM</b><small>3 plausible distractors · standard · −1 error/hit</small></span></label>
-        <label><input type="radio" name="difficulty" value="hard"><span><b>HARD</b><small>4 close vowel traps · faster · −2 error/hit</small></span></label>
-      </div>
-
-      <div class="settings-grid">
-        <label>Challenges<input id="challengeCount" type="number" min="5" max="40" value="20"></label>
-        <label>Answer preview<select id="previewEnabled"><option value="auto">Difficulty default</option><option value="yes">On</option><option value="no">Off</option></select></label>
-        <label>Initial speed<input id="initialSpeed" type="number" min="12" max="28" step="1" value="18"></label>
-        <label>Maximum speed<input id="maxSpeed" type="number" min="20" max="45" step="1" value="31"></label>
-        <label>Answer spacing (ms)<input id="answerSpacing" type="number" min="450" max="1600" step="10" value="820"></label>
-        <label>Distractors before correct<input id="distractors" type="number" min="1" max="6" value="3"></label>
-        <label>Obstacle frequency %<input id="obstacleFrequency" type="number" min="0" max="100" value="45"></label>
-        <label>Correct Momentum +<input id="momentumCorrect" type="number" min="0" max="30" value="8"></label>
-        
-      </div>
-
-      <div class="setup-actions">
-        <button id="createSession" class="primary" type="button">CREATE SESSION</button>
-        <button id="closeSession" class="danger" type="button" hidden>END SESSION</button>
-      </div>
+      <button id="createSession" class="primary" type="button">CREATE SESSION</button>
+      <button id="closeSession" class="danger" type="button" hidden>END SESSION</button>
 
       <div id="sessionBox" class="session-box" hidden>
-        <div><span>SESSION CODE</span><strong id="sessionCode">------</strong></div>
-        <div class="share-wrap"><input id="studentLink" readonly><button id="copyLink" type="button">COPY LINK</button></div>
+        <span>SESSION</span>
+        <strong id="sessionCode">------</strong>
+        <input id="studentLink" readonly aria-label="Student link">
+        <button id="copyLink" type="button">COPY LINK</button>
       </div>
-      <div id="teacherNotice" class="teacher-notice"></div>
+
+      <div class="statusbar">
+        <strong id="onlineCount">0 online</strong>
+        <span id="studentCount">0 runners</span>
+        <button id="hideOffline" type="button">Hide offline</button>
+      </div>
+      <div id="teacherNotice" class="teacher-notice" role="status"></div>
+    </section>
+  </div>
+
+  <main class="monitor-main">
+    <section class="activity-heading" aria-labelledby="activityTitle">
+      <div>
+        <span class="eyebrow">TEACHER MONITOR</span>
+        <h2 id="activityTitle">Student activity</h2>
+      </div>
     </section>
 
-    <section class="panel monitor-panel">
-      <div class="section-heading">
-        <div><span class="eyebrow">TEACHER MONITOR</span><h2>Student activity</h2></div>
-        <div class="monitor-summary"><strong id="onlineCount">0 online</strong><span id="studentCount">0 runners</span></div>
-      </div>
-      <div id="studentGrid" class="student-grid"></div>
-      <div id="emptyMonitor" class="empty-monitor">Create a session to begin.</div>
-    </section>
+    <div id="studentGrid" class="grid"></div>
+    <div id="focusStage" class="focus-stage" hidden>
+      <div id="focusedStudent"></div>
+      <aside id="thumbnailRail" class="thumbnail-rail" aria-label="Other students"></aside>
+    </div>
+    <div id="emptyMonitor" class="empty">Create a session to begin.</div>
   </main>
+
   <script type="module" src="./teacher.js"></script>
 </body>
 </html>
