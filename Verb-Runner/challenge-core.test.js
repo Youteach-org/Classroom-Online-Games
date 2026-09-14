@@ -87,3 +87,48 @@ test('simple past challenges include the distinct participle form as a distracto
   assert.ok(distractors.includes('begun'));
   assert.ok(!distractors.includes('began'));
 });
+
+
+test('non-base challenges prioritize all distinct real principal forms before artificial traps',()=>{
+  const freeze=bank.findVerb('freeze');
+  const distractors=core.chooseDistractors(freeze,2,'hard',()=>0.42,4);
+  assert.equal(distractors[0],'froze');
+  assert.equal(distractors[1],'freeze');
+  assert.ok(!distractors.includes('frozen'));
+});
+
+test('requested distractor cleanup is preserved',()=>{
+  assert.ok(bank.findVerb('blow').decoys.includes('blowen'));
+  assert.ok(!bank.findVerb('blow').decoys.includes('blewen'));
+
+  const doVerb=bank.findVerb('do');
+  assert.ok(doVerb.decoys.includes('does'));
+  assert.ok(!doVerb.decoys.includes('didone'));
+
+  const feel=bank.findVerb('feel');
+  assert.ok(feel.decoys.includes('fell'));
+  assert.ok(feel.decoys.includes('fallen'));
+  assert.ok(!feel.decoys.includes('feeld'));
+
+  assert.ok(bank.findVerb('fall').decoys.includes('felt'));
+
+  const fit=bank.findVerb('fit');
+  assert.deepEqual(fit.decoys,['fitted','fitten','fet']);
+
+  const forbid=bank.findVerb('forbid');
+  assert.ok(forbid.decoys.includes('forbiden'));
+  assert.ok(!forbid.decoys.includes('forbiddened'));
+
+  assert.ok(!bank.findVerb('ask').irregularDecoys.includes('osk'));
+  assert.ok(!bank.findVerb('call').irregularDecoys.includes('coll'));
+  assert.ok(!bank.findVerb('call').irregularDecoys.includes('culled'));
+  assert.ok(!bank.findVerb('clean').irregularDecoys.includes('clan'));
+});
+
+test('blocked Spanish distractor buey can never be returned',()=>{
+  const buy=bank.findVerb('buy');
+  for(let blankIndex=0;blankIndex<3;blankIndex++){
+    const distractors=core.chooseDistractors(buy,blankIndex,'hard',()=>0.42,6);
+    assert.ok(!distractors.includes('buey'));
+  }
+});
