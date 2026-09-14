@@ -16,9 +16,14 @@
       </div>
       <div class="status">
         <span class="dot" id="monitorDot"></span>
-        <strong id="connectionState">Ready</strong>
+        <strong id="connectionState">Connecting…</strong>
       </div>
     </header>
+
+    <section class="session-list-wrap" aria-labelledby="sessionsTitle">
+      <h2 id="sessionsTitle">Sessions</h2>
+      <div id="sessionList" class="session-list"></div>
+    </section>
 
     <section class="control-panel" aria-label="Verb Runner session controls">
       <div class="settings-menu-wrap">
@@ -48,25 +53,25 @@
             <label>Obstacle frequency %<input id="obstacleFrequency" type="number" min="0" max="100" value="45"></label>
             <label>Correct Momentum +<input id="momentumCorrect" type="number" min="0" max="30" value="8"></label>
           </div>
-          <p class="settings-note">Settings freeze while a session is live.</p>
+          <p class="settings-note">These settings apply to the next session you create.</p>
         </section>
       </div>
 
       <button id="createSession" class="primary" type="button">CREATE SESSION</button>
-      <button id="closeSession" class="danger" type="button" hidden>END SESSION</button>
 
-      <div id="sessionBox" class="session-box" hidden>
-        <span>SESSION</span>
-        <strong id="sessionCode">------</strong>
+      <div id="shareBox" class="share-box" hidden>
         <input id="studentLink" readonly aria-label="Student link">
-        <button id="copyLink" type="button">COPY LINK</button>
+        <button id="copyLink" type="button">COPY STUDENT LINK</button>
       </div>
+
+      <button id="closeSession" class="danger" type="button" hidden>END SESSION</button>
 
       <div class="statusbar">
         <strong id="onlineCount">0 online</strong>
         <span id="studentCount">0 runners</span>
         <button id="hideOffline" type="button">Hide offline</button>
       </div>
+
       <div id="teacherNotice" class="teacher-notice" role="status"></div>
     </section>
   </div>
@@ -84,7 +89,7 @@
       <div id="focusedStudent"></div>
       <aside id="thumbnailRail" class="thumbnail-rail" aria-label="Other students"></aside>
     </div>
-    <div id="emptyMonitor" class="empty">Create a session to begin.</div>
+    <div id="emptyMonitor" class="empty">Create or select a session to begin.</div>
   </main>
 
   <script type="module" src="./teacher.js"></script>
