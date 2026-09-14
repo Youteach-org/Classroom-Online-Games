@@ -1,1 +1,1 @@
-Final redeploy trigger for Sentence Run: 60-item bank, readable speeds, Easy-only verb hints, highlighted time expressions, and real verb options.
+Redeploy Sentence Run with 150 questions across 15 grammar categories: all 12 tense-aspect combinations plus going to, imperatives, and modal verbs.
