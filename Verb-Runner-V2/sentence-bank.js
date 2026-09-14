@@ -413,8 +413,10 @@
     "id": "fw04",
     "group": "future-will",
     "base": "be",
-    "text": "I think the test ___ difficult.",
-    "timeExpressions": [],
+    "text": "I think tomorrow's test ___ difficult.",
+    "timeExpressions": [
+      "tomorrow"
+    ],
     "correctAnswers": [
       "will be"
     ],
@@ -513,8 +515,10 @@
     "id": "fw10",
     "group": "future-will",
     "base": "win",
-    "text": "I think our team ___ the final.",
-    "timeExpressions": [],
+    "text": "I think our team ___ the final next week.",
+    "timeExpressions": [
+      "next week"
+    ],
     "correctAnswers": [
       "will win"
     ],
@@ -2614,17 +2618,19 @@
   {
     "id": "mo06",
     "group": "modals",
-    "base": "help",
-    "text": "___ you help me carry this box, please?",
-    "timeExpressions": [],
+    "base": "swim",
+    "text": "When I was six, I ___ across the pool without help.",
+    "timeExpressions": [
+      "when I was six"
+    ],
     "correctAnswers": [
-      "could"
+      "could swim"
     ],
     "distractors": [
-      "must",
-      "should",
-      "might",
-      "would"
+      "can swim",
+      "must swim",
+      "should swim",
+      "might swim"
     ]
   },
   {
@@ -2665,18 +2671,16 @@
     "id": "mo09",
     "group": "modals",
     "base": "be",
-    "text": "That ___ be Ana at the door; she said she was coming now.",
-    "timeExpressions": [
-      "now"
-    ],
+    "text": "I'm not sure, but the person at the door ___ Ana.",
+    "timeExpressions": [],
     "correctAnswers": [
-      "could"
+      "could be"
     ],
     "distractors": [
-      "must",
-      "should",
-      "would",
-      "can"
+      "must be",
+      "should be",
+      "would be",
+      "is"
     ]
   },
   {
@@ -2688,7 +2692,8 @@
       "during this section"
     ],
     "correctAnswers": [
-      "may use"
+      "may use",
+      "can use"
     ],
     "distractors": [
       "must use",
