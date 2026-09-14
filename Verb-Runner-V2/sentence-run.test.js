@@ -50,3 +50,19 @@ test('valid alternative forms are all offered as correct choices',()=>{
     assert.deepEqual(correctValues,[...challenge.correctAnswers].sort());
   }
 });
+
+
+test('every sentence keeps a four-option contextual distractor pool and difficulty samples it correctly',()=>{
+  for(const item of sentenceBank.SENTENCES){
+    assert.equal(item.distractors.length,4,'expected four distractors for '+item.id);
+    assert.equal(new Set(item.distractors).size,4,'duplicate distractor in '+item.id);
+
+    const easy=sentenceBank.createChallenge(item,{difficulty:'easy',distractorCount:2,random:()=>0.21});
+    const medium=sentenceBank.createChallenge(item,{difficulty:'medium',distractorCount:3,random:()=>0.47});
+    const hard=sentenceBank.createChallenge(item,{difficulty:'hard',distractorCount:4,random:()=>0.73});
+
+    assert.equal(easy.distractors.length,2);
+    assert.equal(medium.distractors.length,3);
+    assert.equal(hard.distractors.length,4);
+  }
+});
