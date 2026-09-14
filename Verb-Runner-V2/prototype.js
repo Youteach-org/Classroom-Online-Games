@@ -2528,6 +2528,7 @@ function createPedestrian(index=0){
   g.userData.crossDir=crossDir;
   g.userData.crossSpeed=(1.48+Math.random()*.42)*look.walkSpeed;
   g.userData.startSide=crossDir>0?-1:1;
+  g.userData.voiceVariant=index;
 
   // Casual_Female faces +Z natively. +90° faces +X; -90° faces -X.
   // Match orientation to travel direction so the pedestrian walks forward.
@@ -2597,6 +2598,83 @@ function spawnObstacle(){
 
   scene.add(mesh);
   obstacles.push({mesh,type,kind,laneIndex,passed:false,mixer:mesh.userData.mixer||null});
+}
+
+
+const PEDESTRIAN_COMPLAINTS=[
+  'Ow!',
+  'Hey!',
+  'Careful!',
+  'Watch it, buddy!',
+  'Watch where you’re going!',
+  'Whoa! Easy there!',
+  'These kids today!',
+  'Come on!',
+  'Seriously?',
+  'Ouch! That hurt!'
+];
+let lastPedestrianComplaint=-1;
+
+function pickPedestrianComplaint(){
+  let index=Math.floor(Math.random()*PEDESTRIAN_COMPLAINTS.length);
+  if(PEDESTRIAN_COMPLAINTS.length>1&&index===lastPedestrianComplaint){
+    index=(index+1+Math.floor(Math.random()*(PEDESTRIAN_COMPLAINTS.length-1)))%PEDESTRIAN_COMPLAINTS.length;
+  }
+  lastPedestrianComplaint=index;
+  return PEDESTRIAN_COMPLAINTS[index];
+}
+
+function showPedestrianComplaint(mesh,text){
+  if(!mesh)return;
+  const bubble=document.createElement('div');
+  bubble.className='pedestrian-complaint';
+  bubble.textContent=text;
+  document.querySelector('#app')?.appendChild(bubble);
+
+  const world=new THREE.Vector3();
+  mesh.getWorldPosition(world);
+  world.y+=2.55;
+  world.project(camera);
+  const rect=canvas.getBoundingClientRect();
+  const x=rect.left+(world.x*.5+.5)*rect.width;
+  const y=rect.top+(-world.y*.5+.5)*rect.height;
+  bubble.style.left=x+'px';
+  bubble.style.top=y+'px';
+
+  requestAnimationFrame(()=>bubble.classList.add('show'));
+  setTimeout(()=>bubble.classList.add('leave'),900);
+  setTimeout(()=>bubble.remove(),1250);
+}
+
+function speakPedestrianComplaint(mesh,text){
+  if(!sfxEnabled||sfxVolume<=0)return;
+  if(!('speechSynthesis' in window)||typeof SpeechSynthesisUtterance==='undefined'){
+    synthTone(310,.08,.055*sfxVolume,'sawtooth');
+    synthTone(220,.12,.04*sfxVolume,'triangle',.055);
+    return;
+  }
+
+  try{
+    window.speechSynthesis.cancel();
+    const utterance=new SpeechSynthesisUtterance(text);
+    utterance.lang='en-US';
+    const variant=Number(mesh?.userData?.voiceVariant)||0;
+    utterance.rate=.98+(variant%3)*.06;
+    utterance.pitch=.88+(variant%4)*.08;
+    utterance.volume=Math.max(.25,Math.min(1,sfxVolume));
+
+    const voices=window.speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang||''));
+    if(voices.length)utterance.voice=voices[variant%voices.length];
+    window.speechSynthesis.speak(utterance);
+  }catch{
+    synthTone(310,.08,.055*sfxVolume,'sawtooth');
+  }
+}
+
+function pedestrianComplain(mesh){
+  const text=pickPedestrianComplaint();
+  showPedestrianComplaint(mesh,text);
+  speakPedestrianComplaint(mesh,text);
 }
 
 function hit(){
@@ -2703,7 +2781,10 @@ function updateWorld(dt){
 
       if(!o.passed&&closeZ&&closeX){
         o.passed=true;
-        if(!protectedByAnswer)hit();
+        if(!protectedByAnswer){
+          pedestrianComplain(o.mesh);
+          hit();
+        }
       }else if(o.mesh.position.z>4.2){
         o.passed=true;
       }

@@ -498,3 +498,45 @@ button,a{-webkit-tap-highlight-color:transparent}
   opacity:.38;
   cursor:not-allowed;
 }
+
+
+/* Pedestrian collision reactions */
+.pedestrian-complaint{
+  position:fixed;
+  z-index:70;
+  transform:translate(-50%,-100%) scale(.86);
+  max-width:min(230px,72vw);
+  padding:8px 12px;
+  border-radius:15px 15px 15px 4px;
+  background:#fff;
+  color:#172330;
+  border:2px solid #172330;
+  box-shadow:0 5px 0 rgba(23,35,48,.18),0 12px 28px rgba(0,0,0,.18);
+  font-size:clamp(12px,2.2vw,17px);
+  font-weight:950;
+  line-height:1.08;
+  text-align:center;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .12s ease,transform .16s cubic-bezier(.2,.85,.28,1.25);
+}
+.pedestrian-complaint::after{
+  content:'';
+  position:absolute;
+  left:13px;
+  bottom:-9px;
+  width:13px;
+  height:13px;
+  background:#fff;
+  border-right:2px solid #172330;
+  border-bottom:2px solid #172330;
+  transform:rotate(45deg);
+}
+.pedestrian-complaint.show{
+  opacity:1;
+  transform:translate(-50%,-110%) scale(1);
+}
+.pedestrian-complaint.leave{
+  opacity:0;
+  transform:translate(-50%,-125%) scale(.92);
+}
