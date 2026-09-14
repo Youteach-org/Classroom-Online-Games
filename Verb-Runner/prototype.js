@@ -468,7 +468,8 @@ const farMovers=[];
 
 function makeAnimeCoastBackdrop(){
   const c=document.createElement('canvas');
-  c.width=1400;c.height=700;
+  c.width=3200;
+  c.height=700;
   const ctx=c.getContext('2d');
 
   const sky=ctx.createLinearGradient(0,0,0,500);
@@ -478,12 +479,16 @@ function makeAnimeCoastBackdrop(){
   ctx.fillStyle=sky;
   ctx.fillRect(0,0,c.width,c.height);
 
-  // Soft sun and clouds keep the horizon bright without competing with answer cards.
+  // Wide panorama: clouds and sun extend well beyond the center so no
+  // solid-color strip is exposed on wide desktop screens.
   ctx.fillStyle='rgba(255,235,171,.88)';
-  ctx.beginPath();ctx.arc(1040,125,52,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(2500,125,52,0,Math.PI*2);ctx.fill();
 
   ctx.fillStyle='rgba(255,255,255,.62)';
-  const clouds=[[145,118,210,46],[505,82,235,50],[920,175,180,38]];
+  const clouds=[
+    [120,118,220,46],[520,82,250,50],[980,168,210,42],
+    [1460,96,250,48],[1940,155,220,42],[2380,82,245,48],[2840,150,205,40]
+  ];
   for(const [x,y,w,h] of clouds){
     ctx.beginPath();
     ctx.ellipse(x,y,w*.32,h,0,0,Math.PI*2);
@@ -492,27 +497,38 @@ function makeAnimeCoastBackdrop(){
     ctx.fill();
   }
 
-  // Complete mountain silhouettes: every peak starts and ends inside the panorama.
-  const ridges=[
-    {color:'#8a7282',pts:[[35,445],[82,405],[126,350],[175,260],[220,324],[266,382],[318,422],[370,445]]},
-    {color:'#ba806f',pts:[[755,445],[802,405],[850,338],[902,245],[950,318],[1002,224],[1054,302],[1112,365],[1170,330],[1245,405],[1335,445]]},
-    {color:'#d3a276',pts:[[790,445],[835,414],[884,356],[930,303],[970,350],[1018,282],[1068,350],[1125,392],[1180,365],[1258,420],[1310,445]]}
-  ];
-  for(const ridge of ridges){
-    ctx.fillStyle=ridge.color;
+  // Continuous mountain bands across the full panorama. The paths begin
+  // outside the visible frame and end outside it, so there are no cut edges.
+  const drawRidge=(color,points,base=470)=>{
+    ctx.fillStyle=color;
     ctx.beginPath();
-    ridge.pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
-    ctx.lineTo(ridge.pts.at(-1)[0],470);
-    ctx.lineTo(ridge.pts[0][0],470);
+    points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+    ctx.lineTo(points.at(-1)[0],base);
+    ctx.lineTo(points[0][0],base);
     ctx.closePath();
     ctx.fill();
-  }
+  };
 
-  // Simple highlight planes make the mountains feel intentional rather than cut-outs.
-  ctx.fillStyle='rgba(255,220,178,.22)';
-  ctx.beginPath();ctx.moveTo(140,335);ctx.lineTo(175,260);ctx.lineTo(212,316);ctx.lineTo(182,338);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.moveTo(870,330);ctx.lineTo(902,245);ctx.lineTo(940,312);ctx.lineTo(914,332);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.moveTo(980,300);ctx.lineTo(1002,224);ctx.lineTo(1040,294);ctx.closePath();ctx.fill();
+  drawRidge('#92788a',[
+    [-80,445],[40,405],[160,342],[285,262],[405,335],[535,398],[660,445],
+    [790,410],[930,326],[1070,238],[1205,320],[1340,395],[1470,445],
+    [1600,404],[1735,330],[1870,255],[2000,318],[2135,390],[2265,445],
+    [2400,400],[2535,310],[2665,232],[2795,315],[2925,388],[3060,430],[3280,445]
+  ]);
+
+  drawRidge('#bd806f',[
+    [-100,458],[80,425],[230,365],[365,305],[510,374],[650,430],[820,458],
+    [970,418],[1110,350],[1245,282],[1390,360],[1530,430],[1690,458],
+    [1840,420],[1990,338],[2135,270],[2280,354],[2430,428],[2580,458],
+    [2730,420],[2860,350],[2990,292],[3130,380],[3300,458]
+  ],482);
+
+  drawRidge('#d3a276',[
+    [-100,470],[120,444],[285,392],[420,344],[560,405],[720,452],[900,470],
+    [1070,440],[1230,385],[1375,330],[1530,405],[1690,452],[1860,470],
+    [2020,438],[2190,380],[2340,325],[2500,402],[2670,452],[2840,470],
+    [2990,438],[3150,390],[3300,470]
+  ],495);
 
   const sea=ctx.createLinearGradient(0,445,0,700);
   sea.addColorStop(0,'#43c4d6');
@@ -521,31 +537,36 @@ function makeAnimeCoastBackdrop(){
   ctx.fillStyle=sea;
   ctx.fillRect(0,445,c.width,255);
 
-  // A low, quiet skyline sits fully below the mountains.
+  // Long skyline across the horizon, instead of a short central cluster.
   const skyline=['#e5d8c8','#d8c6b5','#d7e0db','#dbc7bf','#d9d5c8'];
-  let x=410;
-  for(let i=0;i<18;i++){
-    const w=24+(i%4)*7;
-    const h=42+(i%4)*14;
+  let x=170;
+  let i=0;
+  while(x<3050){
+    const w=24+(i%5)*7;
+    const h=38+(i%6)*11;
     ctx.fillStyle=skyline[i%skyline.length];
     ctx.fillRect(x,445-h,w,h);
     ctx.fillStyle='rgba(65,101,118,.25)';
-    for(let wy=445-h+13;wy<437;wy+=15){
+    for(let wy=445-h+12;wy<438;wy+=15){
       ctx.fillRect(x+6,wy,5,6);
-      if(w>31)ctx.fillRect(x+w-11,wy,5,6);
+      if(w>32)ctx.fillRect(x+w-11,wy,5,6);
     }
-    x+=w+7;
+    x+=w+8;
+    i++;
   }
 
+  // A few low bridges break up the skyline without creating hard panorama seams.
   ctx.save();
-  ctx.strokeStyle='rgba(78,124,146,.82)';
-  ctx.lineWidth=11;
-  ctx.beginPath();ctx.arc(650,430,58,Math.PI,0);ctx.stroke();
-  ctx.lineWidth=7;
-  ctx.beginPath();
-  ctx.moveTo(592,430);ctx.lineTo(592,466);
-  ctx.moveTo(708,430);ctx.lineTo(708,466);
-  ctx.stroke();
+  ctx.strokeStyle='rgba(78,124,146,.78)';
+  for(const bx of [720,1600,2470]){
+    ctx.lineWidth=10;
+    ctx.beginPath();ctx.arc(bx,432,62,Math.PI,0);ctx.stroke();
+    ctx.lineWidth=6;
+    ctx.beginPath();
+    ctx.moveTo(bx-62,432);ctx.lineTo(bx-62,466);
+    ctx.moveTo(bx+62,432);ctx.lineTo(bx+62,466);
+    ctx.stroke();
+  }
   ctx.restore();
 
   const haze=ctx.createLinearGradient(0,365,0,475);
@@ -562,7 +583,7 @@ function makeAnimeCoastBackdrop(){
 }
 
 const animeBackdrop=new THREE.Mesh(
-  new THREE.PlaneGeometry(140,70),
+  new THREE.PlaneGeometry(320,70),
   new THREE.MeshBasicMaterial({
     map:makeAnimeCoastBackdrop(),
     fog:false,
