@@ -400,7 +400,7 @@ button,a{-webkit-tap-highlight-color:transparent}
 
 
 /* Learning-first pause reading mode */
-.sentence-challenge:not([hidden]){cursor:pointer}
+.sentence-challenge:not([hidden]){cursor:pointer;pointer-events:auto}
 .sentence-challenge:not([hidden]):hover{box-shadow:0 0 0 1px rgba(255,230,109,.28) inset}
 .pause-reading-card{
   width:min(510px,100%);
