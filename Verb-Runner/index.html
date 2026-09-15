@@ -3,6 +3,119 @@
 <head>
   <meta charset="utf-8" />
   <meta name="google" content="notranslate" />
+  <meta http-equiv="Content-Language" content="en" />
+  <style>
+    #translationBlocker {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483647;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: #101826;
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+      text-align: center;
+    }
+
+    #translationBlocker .translation-blocker-card {
+      width: min(560px, 92vw);
+      padding: 32px 28px;
+      border-radius: 20px;
+      background: #182538;
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
+    }
+
+    #translationBlocker strong {
+      display: block;
+      margin-bottom: 14px;
+      font-size: clamp(24px, 5vw, 38px);
+      letter-spacing: .04em;
+    }
+
+    #translationBlocker p {
+      margin: 10px 0;
+      font-size: clamp(16px, 3.2vw, 21px);
+      line-height: 1.45;
+    }
+
+    html.translation-blocked #app {
+      pointer-events: none !important;
+      user-select: none !important;
+      filter: blur(10px);
+    }
+  </style>
+  <script>
+  (() => {
+    const TRANSLATION_CLASSES = /(^|\s)(translated-ltr|translated-rtl)(\s|$)/i;
+
+    function translationDetected() {
+      const root = document.documentElement;
+      const lang = String(root.getAttribute('lang') || '').toLowerCase();
+
+      if (lang && !lang.startsWith('en')) return true;
+      if (TRANSLATION_CLASSES.test(root.className || '')) return true;
+
+      if (document.body) {
+        if (document.body.querySelector('font')) return true;
+        if (document.body.querySelector(
+          '.goog-te-banner-frame, .goog-te-spinner-pos, .skiptranslate, ' +
+          '[class*="VIpgJd"], iframe[src*="translate.google"], ' +
+          'iframe[name*="translate"], [id*="google_translate"]'
+        )) return true;
+      }
+      return false;
+    }
+
+    function blockTranslatedGame() {
+      if (document.documentElement.classList.contains('translation-blocked')) return;
+      document.documentElement.classList.add('translation-blocked');
+
+      const blocker = document.createElement('div');
+      blocker.id = 'translationBlocker';
+      blocker.setAttribute('translate', 'no');
+      blocker.className = 'notranslate';
+      blocker.innerHTML =
+        '<div class="translation-blocker-card">' +
+          '<strong>TRANSLATION DISABLED</strong>' +
+          '<p>Verb Runner must stay in English for the activity to work correctly.</p>' +
+          '<p>Choose <b>Show original</b> in your browser, then reload the page.</p>' +
+        '</div>';
+      document.body.appendChild(blocker);
+    }
+
+    function enforceEnglish() {
+      document.documentElement.setAttribute('lang', 'en');
+      document.documentElement.setAttribute('translate', 'no');
+      document.documentElement.classList.add('notranslate');
+      if (document.body) {
+        document.body.setAttribute('translate', 'no');
+        document.body.classList.add('notranslate');
+      }
+
+      if (translationDetected()) blockTranslatedGame();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      enforceEnglish();
+
+      const observer = new MutationObserver(() => {
+        if (translationDetected()) blockTranslatedGame();
+      });
+
+      observer.observe(document.documentElement, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['class', 'lang']
+      });
+
+      window.setInterval(() => {
+        if (translationDetected()) blockTranslatedGame();
+      }, 750);
+    });
+  })();
+  </script>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
   <meta name="theme-color" content="#8ec9ee" />
   <title>Verb Runner</title>
