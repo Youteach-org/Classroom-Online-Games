@@ -782,7 +782,7 @@ export function buildCoastalWorld({
     const type=sequence[i%sequence.length];
     const building=createMediterraneanBuilding({index:i+2,type,mobile:isMobile});
     const width=building.userData.bounds?.width||4.7;
-    building.position.set(COASTAL_SCENE.layout.villageX+width/2+(i%3===1?.18:0),0,-4-i*12.0);
+    building.position.set(VILLAGE_X+width/2+(i%3===1?.18:0),0,-4-i*12.0);
     world.add(building);
     registerMover(building,{speedFactor:.90,span:COASTAL_SCENE.loop.nearSpan,startZ:building.position.z});
 
