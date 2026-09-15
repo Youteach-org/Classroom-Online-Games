@@ -1,0 +1,20 @@
+name: Viewport Safe Overlay Regression
+
+on:
+  push:
+    branches:
+      - fix/viewport-safe-overlays
+    paths:
+      - "Verb-Runner/styles.css"
+      - "Verb-Runner/index.html"
+      - "Verb-Runner/tests/viewport-safe-layout.test.mjs"
+      - ".github/workflows/viewport-safe-overlay-test.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run viewport layout regression tests
+        run: node --test Verb-Runner/tests/viewport-safe-layout.test.mjs
