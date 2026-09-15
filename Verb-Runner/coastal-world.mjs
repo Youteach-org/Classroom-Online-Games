@@ -18,7 +18,7 @@ const TOWN_HILLSIDE_RISE=1.95;
 const COASTAL_V5_LIGHTING=Object.freeze({canopyShadows:false});
 const COASTAL_V5_SEA=Object.freeze({deep:0x20a6c7,shallow:0x79dce3});
 const COASTAL_V5_TERRACOTTA=Object.freeze({deep:0xc96842,light:0xe18b59});
-const ROOFTOP_SIGN_CLEARANCE=.48;
+const ROOFTOP_SIGN_CLEARANCE=.16;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const COASTAL_V4_PALETTE=Object.freeze({
   terracotta:COASTAL_V5_TERRACOTTA.deep,
@@ -930,13 +930,13 @@ function mountRooftopSign(group,text,{
   roofHeight=1.35
 }={}){
   const ridgeY=roofBase+roofHeight;
-  const signY=ridgeY+ROOFTOP_SIGN_CLEARANCE+signHeight/2;
+  const signY=ridgeY+ROOFTOP_SIGN_CLEARANCE+signHeight*.35;
   const sign=createSign(text,{width,height:signHeight,bg,fg,font});
   sign.position.set(faceX-.18,signY,z);
   group.add(sign);
 
-  const postTop=signY-signHeight*.46;
-  const postBottom=ridgeY-.08;
+  const postTop=signY-signHeight*.40;
+  const postBottom=ridgeY-.02;
   const postHeight=Math.max(.28,postTop-postBottom);
   for(const dz of [-width*.32,width*.32]){
     addBox(
