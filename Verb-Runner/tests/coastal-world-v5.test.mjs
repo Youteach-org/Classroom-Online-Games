@@ -43,12 +43,12 @@ test('gable roofs render opaque from both sides',()=>{
 });
 
 
-test('rooftop business signs clear the roof ridge instead of intersecting it',()=>{
-  assert.match(world,/ROOFTOP_SIGN_CLEARANCE/);
-  assert.match(world,/function mountRooftopSign/);
+test('rooftop business signs sit close above the roof instead of floating high',()=>{
+  assert.match(world,/const ROOFTOP_SIGN_CLEARANCE=\.16/);
+  assert.match(world,/const signY=ridgeY\+ROOFTOP_SIGN_CLEARANCE\+signHeight\*\.35/);
+  assert.match(world,/const postTop=signY-signHeight\*\.40/);
+  assert.match(world,/const postBottom=ridgeY-.02/);
   assert.match(world,/mountRooftopSign\(detail,'Café Vida'/);
   assert.match(world,/mountRooftopSign\(detail,'La Tiendita'/);
   assert.match(world,/mountRooftopSign\(g,'Mercado'/);
-  assert.doesNotMatch(world,/storeSign\.position\.set\(face-.18,3\.20/);
-  assert.doesNotMatch(world,/sign\.position\.set\(face-.18,2\.95/);
 });
