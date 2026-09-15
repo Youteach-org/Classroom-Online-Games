@@ -810,7 +810,7 @@ export function buildCoastalWorld({
     mid.add(palm);
     mid.position.z=-48-i*20;
     world.add(mid);
-    registerFarMover(mid,{speedFactor:.32,span:COASTAL_SCENE.loop.farSpan,startZ:mid.position.z});
+    registerFarMover(mid,{speedFactor:.32,span:FAR_SPAN,startZ:mid.position.z});
   }
 
   return {laneMarkers};
