@@ -1610,6 +1610,8 @@ function launchChallengeChain(initialDelay=.42){
     }
   }
 
+  window.VerbRunnerPronunciation?.preloadPronunciation(sequence[correctIndex].value);
+
   lastCorrectAnswerIndex=correctIndex;
   recentCorrectPositions.push(correctIndex);
   if(recentCorrectPositions.length>4)recentCorrectPositions.shift();
@@ -1977,19 +1979,16 @@ async function collectAnswer(answer){
   }
 
   if(item.correct){
+    if(currentLevel!==1)playSfx('correct');
+    window.VerbRunnerPronunciation?.playCorrectPronunciation(item.value,{
+      enabled:sfxEnabled,
+      volume:sfxVolume
+    });
     const startPoint=answerScreenPoint(answer);
     const selectedCopy={mesh:answer.mesh,item:answer.item};
     clearAnswers();
     await animateAnswerToBlank(selectedCopy,true,startPoint);
     applyRunEvent('correct');
-    if(currentLevel!==1)playSfx('correct');
-    const pronunciationDelay=currentLevel===1?0:140;
-    setTimeout(()=>{
-      window.VerbRunnerPronunciation?.playCorrectPronunciation(item.value,{
-        enabled:sfxEnabled,
-        volume:sfxVolume
-      });
-    },pronunciationDelay);
     showNotice('CORRECT!','correct');
     challengeIndex++;
 
