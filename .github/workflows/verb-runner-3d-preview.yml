@@ -75,7 +75,8 @@ jobs:
             await browser.close();
           })();
           NODE
-          BROWSER="$BROWSER" npm exec --yes --package=playwright -- node capture-preview.cjs
+          npm install --no-save --no-package-lock playwright
+          BROWSER="$BROWSER" node capture-preview.cjs
           test -s verb-runner-coastal-preview.png
 
       - name: Upload preview screenshot
