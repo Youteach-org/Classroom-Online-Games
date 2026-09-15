@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#8fd4ef">
+  <title>Verb Runner · 3D Coastal World Preview</title>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#8fd4ef;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+    #scene{display:block;width:100%;height:100%;touch-action:none}
+    .panel{position:fixed;z-index:5;left:16px;top:16px;max-width:min(440px,calc(100vw - 32px));padding:14px 16px;border-radius:18px;background:rgba(10,29,45,.86);color:white;backdrop-filter:blur(12px);box-shadow:0 12px 38px rgba(0,0,0,.25)}
+    .panel b{display:block;font-size:15px;letter-spacing:.08em}
+    .panel p{margin:6px 0 10px;font-size:12px;line-height:1.35;opacity:.86}
+    .buttons{display:flex;flex-wrap:wrap;gap:7px}
+    button{border:0;border-radius:999px;padding:8px 11px;font:800 11px/1 system-ui;cursor:pointer;background:#f4f1e7;color:#173047}
+    button.active{background:#ffd45b}
+    .status{position:fixed;z-index:5;right:14px;bottom:14px;padding:8px 11px;border-radius:999px;background:rgba(10,29,45,.82);color:#fff;font:700 11px/1.2 system-ui;backdrop-filter:blur(10px)}
+    @media(max-width:700px){.panel{left:10px;top:10px;max-width:calc(100vw - 20px)}.panel p{display:none}.buttons{margin-top:8px}}
+  </style>
+  <script type="importmap">
+  {
+    "imports":{
+      "three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+      "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="scene" aria-label="Interactive 3D preview of the Verb Runner coastal world"></canvas>
+  <section class="panel">
+    <b>VERB RUNNER · 3D COASTAL WORLD</b>
+    <p>Evaluation preview only. Drag to orbit, wheel/pinch to zoom, right-drag to pan. This page does not change the production game.</p>
+    <div class="buttons">
+      <button data-view="game" class="active">GAME CAMERA</button>
+      <button data-view="wide">WIDE VIEW</button>
+      <button data-view="promenade">PROMENADE</button>
+      <button data-view="village">VILLAGE</button>
+      <button id="reset">RESET</button>
+    </div>
+  </section>
+  <div class="status" id="status">Loading 3D construction…</div>
+  <script type="module" src="./coastal-preview.mjs?v=20260914-1"></script>
+</body>
+</html>
