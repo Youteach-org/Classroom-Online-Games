@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from 'three'; // renderer
 import { COASTAL_SCENE } from './coastal-scene-config.mjs?v=coastal-20260914-6';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
