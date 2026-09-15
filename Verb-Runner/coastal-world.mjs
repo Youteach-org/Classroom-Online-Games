@@ -842,27 +842,25 @@ function createRoadsidePalmCluster(index=0,mobile=false){
 }
 
 function createMountainBackdrop(scene,mobile=false){
-  const g=new THREE.Group();
-  const makeHill=(x,y,z,r,h,material)=>{
-    const hill=mesh(new THREE.ConeGeometry(r,h,mobile?18:28,1),material,{cast:false,receive:false});
-    hill.scale.z=.72;
-    hill.position.set(x,y,z);
-    g.add(hill);
-    return hill;
-  };
+  const back=createMountainLayer([
+    [-37,-1,-236,39,38,2],
+    [24,-2,-242,43,34,5]
+  ],MATERIALS.foothill);
+  scene.add(back);
 
-  makeHill(-28,10,-228,33,42,MATERIALS.foothill);
-  makeHill( 24,8,-235,36,34,MATERIALS.mountainLight);
-  makeHill(-10,15,-244,29,58,MATERIALS.mountain);
+  const main=createMountainLayer([
+    [-15,-2,-250,34,58,8],
+    [18,-1,-258,28,46,11]
+  ],MATERIALS.mountain);
+  scene.add(main);
 
-  // Pale summit facets catch the warm daylight instead of reading as a flat triangle.
-  const summit=mesh(new THREE.ConeGeometry(10,18,mobile?14:22,1),mat(0xaec4a7,.98,0),{cast:false,receive:false});
-  summit.scale.z=.72;
-  summit.position.set(-10,35,-244);
-  g.add(summit);
+  const lit=createMountainLayer([
+    [-12,30,-248,12,21,8],
+    [19,24,-256,9,15,11]
+  ],MATERIALS.mountainLight);
+  scene.add(lit);
 
-  scene.add(g);
-  return g;
+  return main;
 }
 
 function createTinyHouse(index=0){
