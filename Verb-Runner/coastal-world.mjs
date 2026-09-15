@@ -37,7 +37,7 @@ const MATERIALS={
     transparent:true,opacity:.88
   }),
   sea:new THREE.MeshPhysicalMaterial({
-    color:COASTAL_SCENE.seaColor,roughness:.25,metalness:.02,
+    color:SEA_COLOR,roughness:.25,metalness:.02,
     transparent:true,opacity:.97
   }),
   shallow:new THREE.MeshPhysicalMaterial({
@@ -130,7 +130,7 @@ function createSkyDome(scene){
     toneMapped:false,
     uniforms:{
       topColor:{value:new THREE.Color(0x43aee7)},
-      horizonColor:{value:new THREE.Color(COASTAL_SCENE.skyColor)},
+      horizonColor:{value:new THREE.Color(SKY_COLOR)},
       lowColor:{value:new THREE.Color(0xe8f2ec)}
     },
     vertexShader:`
