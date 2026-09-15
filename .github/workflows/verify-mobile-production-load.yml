@@ -1,0 +1,94 @@
+name: Verify Mobile Production Load
+
+on:
+  push:
+    branches:
+      - verify/mobile-production-load
+    paths:
+      - ".github/workflows/verify-mobile-production-load.yml"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify production Verb Runner on tablet viewport
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$BROWSER"
+          cat > verify-mobile.cjs <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({
+              headless:true,
+              executablePath:process.env.BROWSER,
+              args:['--no-sandbox','--disable-gpu']
+            });
+            const page=await browser.newPage({
+              viewport:{width:960,height:1536},
+              deviceScaleFactor:1,
+              isMobile:true,
+              hasTouch:true
+            });
+
+            const errors=[];
+            page.on('pageerror',e=>errors.push('PAGE: '+e.message));
+            page.on('console',msg=>{
+              if(msg.type()==='error')errors.push('CONSOLE: '+msg.text());
+            });
+
+            const response=await page.goto(
+              'https://classroom-online-games.pages.dev/Verb-Runner/',
+              {waitUntil:'domcontentloaded',timeout:30000}
+            );
+            if(!response || !response.ok()){
+              throw new Error('HTTP load failed: '+(response?.status() ?? 'no response'));
+            }
+
+            await page.waitForSelector('#game',{state:'attached',timeout:15000});
+            await page.waitForSelector('#startButton',{state:'attached',timeout:15000});
+
+            await page.waitForFunction(()=>{
+              const b=document.querySelector('#startButton');
+              return b && !b.disabled && !b.classList.contains('loading');
+            },{timeout:30000});
+
+            const state=await page.evaluate(()=>({
+              title:document.title,
+              startLabel:document.querySelector('#startButtonLabel')?.textContent||'',
+              canvas:{
+                width:document.querySelector('#game')?.clientWidth||0,
+                height:document.querySelector('#game')?.clientHeight||0
+              },
+              translationBlocked:document.documentElement.classList.contains('translation-blocked')
+            }));
+
+            if(state.canvas.width<100 || state.canvas.height<100){
+              throw new Error('Game canvas did not render: '+JSON.stringify(state.canvas));
+            }
+            if(state.translationBlocked){
+              throw new Error('Translation blocker unexpectedly active');
+            }
+            if(errors.length){
+              throw new Error('Runtime errors:\n'+errors.join('\n'));
+            }
+
+            console.log(JSON.stringify(state,null,2));
+            await page.screenshot({path:'verb-runner-mobile-production.png',fullPage:true});
+            await browser.close();
+          })().catch(err=>{
+            console.error(err);
+            process.exit(1);
+          });
+          NODE
+          npm install --no-save --no-package-lock playwright
+          BROWSER="$BROWSER" node verify-mobile.cjs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verb-runner-mobile-production
+          path: verb-runner-mobile-production.png
+          retention-days: 2
