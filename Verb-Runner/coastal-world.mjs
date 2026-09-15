@@ -581,8 +581,8 @@ function addRailSection(group,x,z0,length){
 function createPromenadeSegment({index=0,mobile=false,length=15}={}){
   const g=new THREE.Group();
   // Rail, broadleaf trees, benches and flowerpots occupy the promenade but keep the sea open.
-  addRailSection(g,COASTAL_SCENE.layout.seaWallX,0,length+1.2);
-  addBox(g,.42,.62,length+1.2,MATERIALS.stone,COASTAL_SCENE.layout.seaWallX,.31,0);
+  addRailSection(g,SEA_WALL_X,0,length+1.2);
+  addBox(g,.42,.62,length+1.2,MATERIALS.stone,SEA_WALL_X,.31,0);
 
   const bigTree=createBroadleafTree(index%3===0?1.15:1.0,mobile);
   bigTree.position.set(-8.35,0,-2.0);
