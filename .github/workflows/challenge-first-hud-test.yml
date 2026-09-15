@@ -1,0 +1,19 @@
+name: Challenge First HUD Regression
+
+on:
+  push:
+    branches:
+      - fix/challenge-full-width-hud
+    paths:
+      - "Verb-Runner/styles.css"
+      - "Verb-Runner/tests/challenge-first-hud.test.mjs"
+      - ".github/workflows/challenge-first-hud-test.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run challenge-first HUD regression tests
+        run: node --test Verb-Runner/tests/challenge-first-hud.test.mjs
