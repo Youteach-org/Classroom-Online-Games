@@ -1,5 +1,5 @@
 export const COASTAL_SCENE = Object.freeze({
-  assetPath: './assets/verb-runner-coastal-target.webp',
+  assetPath: './assets/coastal-scene.svg',
   hideProceduralScenery: true,
   roadColor: 0x6a798b,
   sidewalkColor: 0xeadfce,
