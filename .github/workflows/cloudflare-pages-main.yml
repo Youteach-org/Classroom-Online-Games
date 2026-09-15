@@ -51,15 +51,24 @@ jobs:
         run: |
           npx wrangler@4 pages project create classroom-online-games --production-branch main || true
 
-      - name: Pin production branch to main
+      - name: Pin production build settings
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
+          BUILD_COMMAND='rm -rf dist && mkdir -p dist && cp index.html dist/ && cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Engineering teacher dist/'
+          jq -n --arg cmd "$BUILD_COMMAND" '{
+            production_branch:"main",
+            build_config:{
+              build_command:$cmd,
+              destination_dir:"dist",
+              root_dir:""
+            }
+          }' > pages-project.json
           curl -fsS -X PATCH \
             "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/classroom-online-games" \
             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
             -H "Content-Type: application/json" \
-            --data '{"production_branch":"main"}' > /dev/null
+            --data @pages-project.json > /dev/null
 
       - name: Deploy to Cloudflare Pages
         env:
