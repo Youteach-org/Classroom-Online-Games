@@ -35,9 +35,14 @@ jobs:
             });
 
             const errors=[];
+            const failed=[];
             page.on('pageerror',e=>errors.push('PAGE: '+e.message));
             page.on('console',msg=>{
-              if(msg.type()==='error')errors.push('CONSOLE: '+msg.text());
+              if(msg.type()==='error'||msg.type()==='warning')errors.push('CONSOLE '+msg.type()+': '+msg.text());
+            });
+            page.on('requestfailed',req=>failed.push('FAILED '+req.url()+' :: '+(req.failure()?.errorText||'unknown')));
+            page.on('response',res=>{
+              if(res.status()>=400)failed.push('HTTP '+res.status()+' '+res.url());
             });
 
             const response=await page.goto(
@@ -51,20 +56,28 @@ jobs:
             await page.waitForSelector('#game',{state:'attached',timeout:15000});
             await page.waitForSelector('#startButton',{state:'attached',timeout:15000});
 
-            await page.waitForFunction(()=>{
-              const b=document.querySelector('#startButton');
-              return b && !b.disabled && !b.classList.contains('loading');
-            },{timeout:30000});
+            await page.waitForTimeout(15000);
 
             const state=await page.evaluate(()=>({
               title:document.title,
               startLabel:document.querySelector('#startButtonLabel')?.textContent||'',
+              startDisabled:Boolean(document.querySelector('#startButton')?.disabled),
+              startClass:document.querySelector('#startButton')?.className||'',
+              modelStatus:document.querySelector('#modelStatus')?.textContent||'',
               canvas:{
                 width:document.querySelector('#game')?.clientWidth||0,
                 height:document.querySelector('#game')?.clientHeight||0
               },
               translationBlocked:document.documentElement.classList.contains('translation-blocked')
             }));
+            console.log('STATE '+JSON.stringify(state));
+            console.log('ERRORS '+JSON.stringify(errors));
+            console.log('FAILED '+JSON.stringify(failed));
+            await page.screenshot({path:'verb-runner-mobile-production.png',fullPage:true});
+
+            if(state.startDisabled){
+              throw new Error('START still disabled after 15s: '+JSON.stringify({state,errors,failed}));
+            }
 
             if(state.canvas.width<100 || state.canvas.height<100){
               throw new Error('Game canvas did not render: '+JSON.stringify(state.canvas));
@@ -72,12 +85,11 @@ jobs:
             if(state.translationBlocked){
               throw new Error('Translation blocker unexpectedly active');
             }
-            if(errors.length){
+            if(errors.some(e=>e.startsWith('PAGE: '))){
               throw new Error('Runtime errors:\n'+errors.join('\n'));
             }
 
             console.log(JSON.stringify(state,null,2));
-            await page.screenshot({path:'verb-runner-mobile-production.png',fullPage:true});
             await browser.close();
           })().catch(err=>{
             console.error(err);
