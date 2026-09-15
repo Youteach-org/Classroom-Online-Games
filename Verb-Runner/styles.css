@@ -1390,3 +1390,88 @@ button,a{-webkit-tap-highlight-color:transparent}
   .ghost-button{padding:6px 12px;font-size:8px}
   .concept-credit{font-size:7px}
 }
+
+
+/* Challenge-first HUD hierarchy */
+.hud{
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:"left right" "center center";
+  align-items:stretch;
+  gap:7px 10px;
+  padding:clamp(8px,1.2vw,14px);
+}
+.hud-left{
+  grid-area:left;
+  display:flex;
+  align-items:stretch;
+  gap:7px;
+  min-width:0;
+}
+.hud-right{
+  grid-area:right;
+  display:flex;
+  align-items:stretch;
+  justify-content:flex-end;
+  gap:7px;
+  min-width:0;
+}
+.hud-center{
+  grid-area:center;
+  width:100%;
+  max-width:none;
+  justify-self:stretch;
+  min-width:0;
+}
+.principal-parts{
+  width:100%;
+}
+.sentence-challenge{
+  width:100%;
+}
+
+@media(max-width:640px){
+  .hud{
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"left right" "center center";
+    gap:5px 6px;
+    padding:7px;
+  }
+  .hud-left{gap:4px}
+  .hud-right{gap:3px}
+  .hud-center{
+    width:100%;
+    max-width:none;
+    padding-left:8px;
+    padding-right:8px;
+  }
+  .momentum-panel{
+    width:min(92px,26vw);
+    padding:4px 6px;
+  }
+  .runner-chip{
+    padding:6px 5px;
+    font-size:7px;
+  }
+  .mini-stat{
+    min-width:46px;
+    padding:6px 4px;
+  }
+  .mini-stat span{font-size:6px}
+  .mini-stat b{font-size:10px}
+}
+
+@media(max-width:380px){
+  .hud{
+    grid-template-columns:1fr;
+    grid-template-areas:"left" "right" "center";
+    gap:4px;
+  }
+  .hud-left,
+  .hud-right{
+    width:100%;
+    justify-content:center;
+  }
+  .hud-center{
+    width:100%;
+  }
+}
