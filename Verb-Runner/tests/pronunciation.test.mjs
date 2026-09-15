@@ -52,3 +52,18 @@ test('pronunciation is preloaded before selection and starts immediately on a co
   const correctBlock=game.slice(start,game.indexOf('}else{',start));
   assert.doesNotMatch(correctBlock,/pronunciationDelay/);
 });
+
+
+test('START unlocks pronunciation inside the user gesture before any await',()=>{
+  const pronunciation=readFileSync(join(root,'pronunciation.js'),'utf8');
+  assert.match(pronunciation,/function unlockPronunciation/);
+
+  const start=game.indexOf("startButton.addEventListener('click',async()=>{");
+  const end=game.indexOf("runnerChip.addEventListener",start);
+  const handler=game.slice(start,end);
+  const unlock=handler.indexOf('unlockPronunciation');
+  const firstAwait=handler.indexOf('await sessionLoadPromise');
+  assert.ok(unlock>=0,'START must unlock pronunciation');
+  assert.ok(firstAwait>=0,'START handler should still await session loading');
+  assert.ok(unlock<firstAwait,'pronunciation unlock must happen before the first await');
+});
