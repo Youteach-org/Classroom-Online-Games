@@ -1,6 +1,6 @@
 export const COASTAL_SCENE = Object.freeze({
-  hideProceduralScenery: true,
-  roadColor: 0x6a798b,
+  hideProceduralScenery: false,
+  roadColor: 0x657486,
   sidewalkColor: 0xeadfce,
   backdrop: Object.freeze({
     width: 168,
