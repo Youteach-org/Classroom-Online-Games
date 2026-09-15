@@ -11,15 +11,22 @@ const SEA_WALL_X=-10.42;
 const VILLAGE_X=8.35;
 const NEAR_SPAN=195;
 const FAR_SPAN=235;
+const SEA_LEFT_EDGE=-72;
+const SEA_RIGHT_EDGE=SEA_WALL_X-.48;
+const MOUNTAIN_FOCUS_Z=-222;
+const TOWN_HILLSIDE_RISE=1.95;
+const COASTAL_V5_LIGHTING=Object.freeze({canopyShadows:false});
+const COASTAL_V5_SEA=Object.freeze({deep:0x20a6c7,shallow:0x79dce3});
+const COASTAL_V5_TERRACOTTA=Object.freeze({deep:0xc96842,light:0xe18b59});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const COASTAL_V4_PALETTE=Object.freeze({
-  terracotta:0xc86f46,
-  terracottaLight:0xdf8a5c,
+  terracotta:COASTAL_V5_TERRACOTTA.deep,
+  terracottaLight:COASTAL_V5_TERRACOTTA.light,
   mountain:0x5d8268,
   mountainLight:0x769b7d,
   foothill:0x8aaa74,
-  seaDeep:0x148faf,
-  seaShallow:0x64d0da
+  seaDeep:COASTAL_V5_SEA.deep,
+  seaShallow:COASTAL_V5_SEA.shallow
 });
 
 function mat(color,roughness=.78,metalness=.02){
@@ -273,9 +280,9 @@ function createWaterMaterial(animators){
       varying vec2 vUv2;
       void main(){
         vec3 p=position;
-        float w1=sin((p.x+uTime*2.0)*0.22)*0.11;
-        float w2=sin((p.y-uTime*1.35)*0.31)*0.075;
-        float w3=sin((p.x+p.y+uTime*.9)*0.14)*0.055;
+        float w1=sin((p.x+uTime*2.0)*0.22)*0.055;
+        float w2=sin((p.y-uTime*1.35)*0.31)*0.035;
+        float w3=sin((p.x+p.y+uTime*.9)*0.14)*0.025;
         p.z+=w1+w2+w3;
         vWave=w1+w2+w3;
         vUv2=uv;
@@ -620,7 +627,11 @@ function createCanopyCluster(group,scale=1,mobile=false,seed=0){
   for(let i=0;i<clusters;i++){
     const a=(i+seed*.31)*2.399;
     const ring=.28+(i%5)*.25;
-    const leaf=mesh(ORGANIC_FOLIAGE[(i+seed)%ORGANIC_FOLIAGE.length],[MATERIALS.leafA,MATERIALS.leafB,MATERIALS.leafC][(i+seed)%3]);
+    const leaf=mesh(
+      ORGANIC_FOLIAGE[(i+seed)%ORGANIC_FOLIAGE.length],
+      [MATERIALS.leafA,MATERIALS.leafB,MATERIALS.leafC][(i+seed)%3],
+      {cast:false,receive:false}
+    );
     leaf.scale.set(
       (.90+(i%4)*.12)*scale,
       (.68+(i%3)*.13)*scale,
@@ -743,7 +754,7 @@ function createTownTerrace(town,{row=0,count=10,mobile=false}={}){
     const scale=.62+(i%4)*.055-(row*.035);
     house.scale.setScalar(scale);
     const x=-15+i*3.4+(row%2)*1.35;
-    const y=1.6+row*1.55+Math.sin(i*.75+row)*.48;
+    const y=1.6+row*TOWN_HILLSIDE_RISE+Math.sin(i*.75+row)*.52+(i/count)*row*.55;
     const z=-178-row*5.0-i*.32;
     house.position.set(x,y,z);
     house.rotation.y=(Math.sin(i*1.3+row)*7)*DEG;
@@ -865,7 +876,13 @@ function createGableRoof(width,depth,height,material){
   geo.setAttribute('position',new THREE.BufferAttribute(vertices,3));
   geo.setIndex(indices);
   geo.computeVertexNormals();
-  return mesh(geo,material);
+  const roofMaterial=material.clone();
+  roofMaterial.side=THREE.DoubleSide;
+  roofMaterial.transparent=false;
+  roofMaterial.opacity=1;
+  roofMaterial.depthWrite=true;
+  roofMaterial.needsUpdate=true;
+  return mesh(geo,roofMaterial);
 }
 
 function createSign(text,{width=1.75,height=.55,bg='#5c3b2b',fg='#fff1d6',font=54}={}){
@@ -1294,24 +1311,24 @@ function createRoadsidePalmCluster(index=0,mobile=false){
 function createMountainBackdrop(scene,mobile=false){
   const COASTAL_V4_MOUNTAINS=true;
   const back=createMountainLayer([
-    [-30,-5,-270,31,27,2],
-    [28,-6,-278,30,23,5]
+    [-34,-6,MOUNTAIN_FOCUS_Z-28,31,28,2],
+    [30,-7,MOUNTAIN_FOCUS_Z-34,29,24,5]
   ],MATERIALS.foothill);
   scene.add(back);
 
   const main=createMountainLayer([
-    [-9,-5,-286,23,41,8],
-    [27,-6,-292,19,29,11]
+    [-9,-5,MOUNTAIN_FOCUS_Z,27,48,8],
+    [27,-6,MOUNTAIN_FOCUS_Z-20,20,31,11]
   ],MATERIALS.mountain);
   scene.add(main);
 
   const lit=createMountainLayer([
-    [-13,18,-284,10,15,8],
-    [25,12,-290,7,10,11]
+    [-12,22,MOUNTAIN_FOCUS_Z+1,10,17,8],
+    [25,13,MOUNTAIN_FOCUS_Z-19,7,11,11]
   ],MATERIALS.mountainLight);
   scene.add(lit);
 
-  return {main,COASTAL_V4_MOUNTAINS};
+  return {main,COASTAL_V4_MOUNTAINS,MOUNTAIN_FOCUS_Z};
 }
 
 function createTinyHouse(index=0){
@@ -1338,22 +1355,35 @@ function createHillsideTown(scene,mobile=false){
 
 function createSea(scene,mobile=false,animators=[]){
   const waterMaterial=createWaterMaterial(animators);
-  waterMaterial.uniforms.uDeep.value.set(COASTAL_V4_PALETTE.seaDeep);
-  waterMaterial.uniforms.uShallow.value.set(COASTAL_V4_PALETTE.seaShallow);
+  waterMaterial.uniforms.uDeep.value.set(COASTAL_V5_SEA.deep);
+  waterMaterial.uniforms.uShallow.value.set(COASTAL_V5_SEA.shallow);
 
-  const sea=mesh(new THREE.PlaneGeometry(76,250,mobile?28:52,mobile?70:110),waterMaterial,{cast:false,receive:false});
+  const seaWidth=SEA_RIGHT_EDGE-SEA_LEFT_EDGE;
+  const seaCenterX=(SEA_RIGHT_EDGE+SEA_LEFT_EDGE)/2;
+  const sea=mesh(
+    new THREE.PlaneGeometry(seaWidth,250,mobile?26:48,mobile?70:108),
+    waterMaterial,
+    {cast:false,receive:false}
+  );
   sea.rotation.x=-Math.PI/2;
-  sea.position.set(-36,-.13,-92);
+  sea.position.set(seaCenterX,-.15,-92);
   scene.add(sea);
 
+  const shallowRight=SEA_RIGHT_EDGE-.05;
+  const shallowWidth=7.2;
+  const shallowCenter=shallowRight-shallowWidth/2;
   const shallowMat=waterMaterial.clone();
   shallowMat.uniforms=THREE.UniformsUtils.clone(waterMaterial.uniforms);
-  shallowMat.uniforms.uDeep.value.set(0x28aeca);
-  shallowMat.uniforms.uShallow.value.set(0x7bdce1);
+  shallowMat.uniforms.uDeep.value.set(0x3bbbd1);
+  shallowMat.uniforms.uShallow.value.set(0x8be4e5);
   animators.push(time=>{shallowMat.uniforms.uTime.value=time+.55;});
-  const shallow=mesh(new THREE.PlaneGeometry(9.5,235,mobile?10:18,mobile?48:88),shallowMat,{cast:false,receive:false});
+  const shallow=mesh(
+    new THREE.PlaneGeometry(shallowWidth,235,mobile?10:18,mobile?48:88),
+    shallowMat,
+    {cast:false,receive:false}
+  );
   shallow.rotation.x=-Math.PI/2;
-  shallow.position.set(-14.4,-.085,-86);
+  shallow.position.set(shallowCenter,-.11,-86);
   scene.add(shallow);
 }
 
