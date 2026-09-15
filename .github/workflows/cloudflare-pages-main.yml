@@ -32,6 +32,11 @@ jobs:
           node --check Verb-Runner/coastal-scene-config.mjs
           node --check Verb-Runner/prototype.js
 
+      - name: Run Verb Runner regression tests
+        run: |
+          node --test Verb-Runner/tests/*.test.mjs
+          node --test Verb-Runner/sentence-run.test.js
+
       - name: Prepare static site
         run: |
           rm -rf dist
