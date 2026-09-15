@@ -408,6 +408,7 @@ const sessionStudentName=String(
 ).trim().slice(0,60);
 let sessionApi=null;
 let sessionData=null;
+let sessionRunFinished=false;
 let sessionLoadPromise=Promise.resolve(null);
 
 function localRunnerId(){
@@ -802,11 +803,19 @@ if(sessionCode){
       sessionApi=api;
       return api.loadSession(sessionCode);
     })
-    .then(data=>{
+    .then(async data=>{
       if(!data||data.status!=='active')throw new Error('Session not active');
       sessionData=data;
       applySessionSettings(data.settings||{});
-      modelStatus.textContent='Session '+sessionCode+' ready · choose a robot';
+      await sessionApi.registerRunnerPresence(sessionCode,runnerSessionId,{
+        level:currentLevel,
+        mode:raceMode(),
+        total:totalChallenges,
+        runner:selectedVariant,
+        difficulty:difficulty.name,
+        studentName:sessionStudentName||runnerSessionId
+      });
+      modelStatus.textContent='Session '+sessionCode+' ready · connected';
       return data;
     })
     .catch(err=>{
@@ -2168,6 +2177,7 @@ function setPaused(next){
 }
 
 function finishRun(){
+  sessionRunFinished=true;
   stopMusic();
   playSfx('victory');
   gameStarted=false;
@@ -2481,6 +2491,7 @@ document.querySelectorAll('[data-difficulty]').forEach(btn=>{
 
 startButton.addEventListener('click',async()=>{
   await sessionLoadPromise;
+  sessionRunFinished=false;
   resetRun();
   picker.classList.add('hidden');
   resultOverlay.hidden=true;
@@ -2599,6 +2610,7 @@ runAgainButton.addEventListener('click',()=>{
 
 nextLevelButton?.addEventListener('click',async()=>{
   if(currentLevel>=5)return;
+  sessionRunFinished=false;
   currentLevel+=1;
   totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
   resultOverlay.hidden=true;
@@ -3288,9 +3300,9 @@ function updateWorld(dt){
 
 
 setInterval(()=>{
-  if(sessionCode&&sessionData&&gameStarted){
+  if(sessionCode&&sessionData&&!sessionRunFinished){
     sessionUpdate({
-      status:gamePaused?'paused':(victoryMode?'victory':'running'),
+      status:gameStarted?(gamePaused?'paused':(victoryMode?'victory':'running')):'waiting',
       progress:runState?.completed||0,
       total:totalChallenges,
       momentum:runState?.momentum??75
