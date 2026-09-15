@@ -1,10 +1,11 @@
-import {createSession,subscribeSessions,closeSession} from './session-sync.js';
+import {createSession,subscribeSessions,subscribeFreeRunners,closeSession} from './session-sync.js';
 
 const $=id=>document.getElementById(id);
 const esc=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
 const ONLINE_MS=50000;
 
 let sessions={};
+let freeRunners={};
 let active='all';
 let focusId=null;
 let hideOffline=false;
@@ -63,11 +64,20 @@ function studentsFor(code,session){
   }));
 }
 
+function studentsForFree(){
+  return Object.values(freeRunners||{}).map(student=>({
+    ...student,
+    _sessionCode:'FREE MODE',
+    _key:'free::'+String(student.id||student.studentName||'runner')
+  }));
+}
+
 function visibleStudents(){
   const catalog=activeCatalog();
+  const allSessionStudents=catalog.flatMap(item=>studentsFor(item.code,item));
   let students=active==='all'
-    ?catalog.flatMap(item=>studentsFor(item.code,item))
-    :studentsFor(active,sessions[active]);
+    ?allSessionStudents.concat(studentsForFree())
+    :(active==='free'?studentsForFree():studentsFor(active,sessions[active]));
   if(hideOffline)students=students.filter(isOnline);
   return students;
 }
@@ -115,22 +125,34 @@ function sessionCard(item){
 
 function refreshSessionList(){
   const catalog=activeCatalog();
-  if(active!=='all'&&!catalog.some(item=>item.code===active))active='all';
-  const allStudents=catalog.flatMap(item=>studentsFor(item.code,item));
+  if(active!=='all'&&active!=='free'&&!catalog.some(item=>item.code===active))active='all';
+
+  const allSessionStudents=catalog.flatMap(item=>studentsFor(item.code,item));
+  const freeStudents=studentsForFree();
+  const allStudents=allSessionStudents.concat(studentsForFree());
   const allOnline=allStudents.filter(isOnline).length;
   const allSelected=active==='all'?' selected':'';
   const allCard=`<button class="session-card${allSelected}" type="button" data-session-id="all">
-    <strong>ALL ACTIVE RUNNERS</strong>
+    <strong>ALL RUNNERS</strong>
     <span>${allStudents.length} runners · <span class="session-live">${allOnline} LIVE</span></span>
-    <small>${catalog.length} active session${catalog.length===1?'':'s'}</small>
+    <small>${catalog.length} active session${catalog.length===1?'':'s'} + free mode</small>
   </button>`;
-  $('sessionList').innerHTML=allCard+catalog.map(sessionCard).join('');
 
-  const selected=active==='all'?null:sessions[active];
+  const freeSelected=active==='free'?' selected':'';
+  const freeOnline=freeStudents.filter(isOnline).length;
+  const freeCard=`<button class="session-card${freeSelected}" type="button" data-session-id="free">
+    <strong>FREE MODE</strong>
+    <span>${freeStudents.length} runner${freeStudents.length===1?'':'s'} · <span class="session-live">${freeOnline} LIVE</span></span>
+    <small>Players who opened Verb Runner without a class session</small>
+  </button>`;
+
+  $('sessionList').innerHTML=allCard+freeCard+catalog.map(sessionCard).join('');
+
+  const selected=(active==='all'||active==='free')?null:sessions[active];
   $('shareBox').hidden=!selected||selected.status!=='active';
   $('closeSession').hidden=!selected||selected.status!=='active';
   if(selected){
-    const link=new URL('./',location.href);
+    const link=new URL('../',location.href);
     link.searchParams.set('session',active);
     $('studentLink').value=link.href;
   }
@@ -185,9 +207,10 @@ function studentCard(student){
 }
 
 function renderStudents(){
+  const allSessionStudents=activeCatalog().flatMap(item=>studentsFor(item.code,item));
   const all=active==='all'
-    ?activeCatalog().flatMap(item=>studentsFor(item.code,item))
-    :studentsFor(active,sessions[active]);
+    ?allSessionStudents.concat(studentsForFree())
+    :(active==='free'?studentsForFree():studentsFor(active,sessions[active]));
   const visible=hideOffline?all.filter(isOnline):all;
 
   $('studentGrid').innerHTML='';
@@ -207,7 +230,7 @@ function renderStudents(){
   $('studentGrid').hidden=Boolean(focusId);
   $('focusStage').hidden=!focusId;
   $('emptyMonitor').hidden=visible.length>0;
-  if(!visible.length)$('emptyMonitor').textContent=active==='all'?'No active runners are visible yet.':'No runners have joined this session yet.';
+  if(!visible.length)$('emptyMonitor').textContent=active==='all'?'No runners are visible yet.':(active==='free'?'No free-mode runners are visible yet.':'No runners have joined this session yet.');
 
   $('studentCount').textContent=`${all.length} runner${all.length===1?'':'s'}`;
   $('onlineCount').textContent=`${all.filter(isOnline).length} online`;
@@ -254,7 +277,7 @@ $('createSession').addEventListener('click',async()=>{
 });
 
 $('closeSession').addEventListener('click',async()=>{
-  if(active==='all'||!sessions[active])return;
+  if(active==='all'||active==='free'||!sessions[active])return;
   const code=active;
   try{
     await closeSession(code);
@@ -289,6 +312,21 @@ subscribeSessions(
     $('monitorDot').classList.remove('live');
     $('connectionState').textContent='Firebase Error';
     $('teacherNotice').textContent='Firebase connection failed or database rules do not allow Verb Runner sessions.';
+  }
+);
+
+subscribeFreeRunners(
+  data=>{
+    freeRunners=data||{};
+    $('monitorDot').classList.add('live');
+    $('connectionState').textContent='Firebase Live';
+    refresh();
+  },
+  error=>{
+    console.error('Verb Runner free-mode monitor error',error);
+    $('monitorDot').classList.remove('live');
+    $('connectionState').textContent='Firebase Error';
+    $('teacherNotice').textContent='Firebase connection failed or database rules do not allow Verb Runner free mode.';
   }
 );
 
