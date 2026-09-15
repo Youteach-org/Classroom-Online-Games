@@ -18,6 +18,7 @@ const TOWN_HILLSIDE_RISE=1.95;
 const COASTAL_V5_LIGHTING=Object.freeze({canopyShadows:false});
 const COASTAL_V5_SEA=Object.freeze({deep:0x20a6c7,shallow:0x79dce3});
 const COASTAL_V5_TERRACOTTA=Object.freeze({deep:0xc96842,light:0xe18b59});
+const ROOFTOP_SIGN_CLEARANCE=.48;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const COASTAL_V4_PALETTE=Object.freeze({
   terracotta:COASTAL_V5_TERRACOTTA.deep,
@@ -917,6 +918,42 @@ function createSign(text,{width=1.75,height=.55,bg='#5c3b2b',fg='#fff1d6',font=5
   return plane;
 }
 
+function mountRooftopSign(group,text,{
+  faceX,
+  z=0,
+  width=1.8,
+  signHeight=.55,
+  bg='#76513b',
+  fg='#fff1d6',
+  font=46,
+  roofBase=3.10,
+  roofHeight=1.35
+}={}){
+  const ridgeY=roofBase+roofHeight;
+  const signY=ridgeY+ROOFTOP_SIGN_CLEARANCE+signHeight/2;
+  const sign=createSign(text,{width,height:signHeight,bg,fg,font});
+  sign.position.set(faceX-.18,signY,z);
+  group.add(sign);
+
+  const postTop=signY-signHeight*.46;
+  const postBottom=ridgeY-.08;
+  const postHeight=Math.max(.28,postTop-postBottom);
+  for(const dz of [-width*.32,width*.32]){
+    addBox(
+      group,
+      .055,
+      postHeight,
+      .055,
+      MATERIALS.darkWood,
+      faceX-.10,
+      postBottom+postHeight/2,
+      z+dz,
+      {cast:false}
+    );
+  }
+  return sign;
+}
+
 function addWindow(group,faceX,y,z,{shutters=true,balcony=false,lit=false}={}){
   addBox(group,.10,1.08,.98,MATERIALS.trimDark,faceX,y,z,{cast:false});
   addBox(group,.055,.88,.79,lit?MATERIALS.warmGlass:MATERIALS.glassWindow,faceX-.075,y,z,{cast:false});
@@ -1022,9 +1059,14 @@ function createCafe(width=4.8,depth=6.2){
   awning.position.set(face-.02,2.35,.75);
   detail.add(awning);
 
-  const sign=createSign('Café Vida',{width:1.28,height:.48,bg:'#72503a',font:46});
-  sign.position.set(face-.18,2.98,-1.15);
-  detail.add(sign);
+  mountRooftopSign(detail,'Café Vida',{
+    faceX:face,
+    z:-1.15,
+    width:1.28,
+    signHeight:.48,
+    bg:'#72503a',
+    font:46
+  });
 
   const service=createCafeService();
   service.position.set(face-1.72,0,2.22);
@@ -1058,9 +1100,15 @@ function createFruitShop(width=5.2,depth=6.6){
   awning.position.set(face-.02,2.45,.60);
   detail.add(awning);
 
-  const storeSign=createSign('La Tiendita',{width:2.1,height:.58,bg:'#f0e4c4',fg:'#3e765f',font:48});
-  storeSign.position.set(face-.18,3.20,.65);
-  detail.add(storeSign);
+  mountRooftopSign(detail,'La Tiendita',{
+    faceX:face,
+    z:.65,
+    width:2.1,
+    signHeight:.58,
+    bg:'#f0e4c4',
+    fg:'#3e765f',
+    font:48
+  });
 
   const marketDisplay=createMarketDisplay();
   marketDisplay.position.set(face-1.35,0,.25);
@@ -1092,9 +1140,14 @@ function createShopDetail(width=4.7){
   const awning=createStripedAwning(2.75,1.15,'red');
   awning.position.set(face-.03,2.25,1.0);
   g.add(awning);
-  const sign=createSign('Mercado',{width:1.45,height:.48,bg:'#76513b',font:44});
-  sign.position.set(face-.18,2.95,.85);
-  g.add(sign);
+  mountRooftopSign(g,'Mercado',{
+    faceX:face,
+    z:.85,
+    width:1.45,
+    signHeight:.48,
+    bg:'#76513b',
+    font:44
+  });
   return g;
 }
 
