@@ -18,7 +18,7 @@ const TOWN_HILLSIDE_RISE=1.95;
 const COASTAL_V5_LIGHTING=Object.freeze({canopyShadows:false});
 const COASTAL_V5_SEA=Object.freeze({deep:0x20a6c7,shallow:0x79dce3});
 const COASTAL_V5_TERRACOTTA=Object.freeze({deep:0xc96842,light:0xe18b59});
-const ROOFTOP_SIGN_CLEARANCE=.16;
+const ROOFTOP_SIGN_CLEARANCE=.08;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const COASTAL_V4_PALETTE=Object.freeze({
   terracotta:COASTAL_V5_TERRACOTTA.deep,
@@ -927,17 +927,20 @@ function mountRooftopSign(group,text,{
   fg='#fff1d6',
   font=46,
   roofBase=3.10,
-  roofHeight=1.35
+  roofHeight=1.35,
+  roofWidth=4.8
 }={}){
-  const ridgeY=roofBase+roofHeight;
-  const signY=ridgeY+ROOFTOP_SIGN_CLEARANCE+signHeight*.35;
+  const signX=faceX-.18;
+  const roofHalfWidth=roofWidth/2;
+  const roofSurfaceY=roofBase+roofHeight*clamp(1-Math.abs(signX)/roofHalfWidth,0,1);
+  const signY=roofSurfaceY+ROOFTOP_SIGN_CLEARANCE+signHeight/2;
   const sign=createSign(text,{width,height:signHeight,bg,fg,font});
-  sign.position.set(faceX-.18,signY,z);
+  sign.position.set(signX,signY,z);
   group.add(sign);
 
-  const postTop=signY-signHeight*.40;
-  const postBottom=ridgeY-.02;
-  const postHeight=Math.max(.28,postTop-postBottom);
+  const postTop=signY-signHeight/2+.03;
+  const postBottom=roofSurfaceY+.02;
+  const postHeight=Math.max(.12,postTop-postBottom);
   for(const dz of [-width*.32,width*.32]){
     addBox(
       group,
@@ -1062,6 +1065,7 @@ function createCafe(width=4.8,depth=6.2){
   mountRooftopSign(detail,'Café Vida',{
     faceX:face,
     z:-1.15,
+    roofWidth:width+.68,
     width:1.28,
     signHeight:.48,
     bg:'#72503a',
@@ -1103,6 +1107,7 @@ function createFruitShop(width=5.2,depth=6.6){
   mountRooftopSign(detail,'La Tiendita',{
     faceX:face,
     z:.65,
+    roofWidth:width+.68,
     width:2.1,
     signHeight:.58,
     bg:'#f0e4c4',
@@ -1143,6 +1148,7 @@ function createShopDetail(width=4.7){
   mountRooftopSign(g,'Mercado',{
     faceX:face,
     z:.85,
+    roofWidth:width+.68,
     width:1.45,
     signHeight:.48,
     bg:'#76513b',
