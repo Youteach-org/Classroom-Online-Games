@@ -1,0 +1,20 @@
+name: Challenge Label Credit Regression
+
+on:
+  push:
+    branches:
+      - fix/challenge-label-game-credit
+    paths:
+      - "Verb-Runner/index.html"
+      - "Verb-Runner/styles.css"
+      - "Verb-Runner/tests/challenge-label-credit.test.mjs"
+      - ".github/workflows/challenge-label-credit-test.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run challenge label and credit regression tests
+        run: node --test Verb-Runner/tests/challenge-label-credit.test.mjs
