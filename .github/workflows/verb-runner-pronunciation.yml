@@ -1,0 +1,67 @@
+name: Verb Runner Pronunciation
+
+on:
+  push:
+    branches:
+      - verb-pronunciation
+    paths:
+      - "Verb-Runner/verb-bank.js"
+      - "Verb-Runner/sentence-bank.js"
+      - "Verb-Runner/perfect-race-bank.js"
+      - "Verb-Runner/final-race-bank.js"
+      - "Verb-Runner/pronunciation.js"
+      - "Verb-Runner/pronunciation-manifest.js"
+      - "Verb-Runner/scripts/generate-pronunciation.py"
+      - "Verb-Runner/tests/pronunciation.test.mjs"
+      - ".github/workflows/verb-runner-pronunciation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    if: github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[skip pronunciation]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Kokoro dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y espeak-ng
+          python -m pip install --upgrade pip
+          python -m pip install "kokoro>=0.9.4" numpy soundfile
+
+      - name: Generate individual Bella clips
+        run: python Verb-Runner/scripts/generate-pronunciation.py
+
+      - name: Verify pronunciation integration
+        run: |
+          node --test Verb-Runner/tests/pronunciation.test.mjs
+          count=$(find Verb-Runner/audio/pronunciation -type f -name '*.wav' | wc -l)
+          echo "Generated $count pronunciation clips"
+          test "$count" -ge 400
+
+      - name: Commit generated pronunciation assets
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain -- Verb-Runner/audio/pronunciation Verb-Runner/pronunciation-manifest.js)" ]; then
+            echo "No generated pronunciation changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Verb-Runner/audio/pronunciation Verb-Runner/pronunciation-manifest.js
+          git commit -m "Verb Runner: generate Bella pronunciation assets [skip pronunciation]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
