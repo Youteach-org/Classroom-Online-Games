@@ -1,0 +1,35 @@
+name: Fix Cloudflare Project Config
+
+on:
+  push:
+    branches:
+      - verify/mobile-production-load
+    paths:
+      - ".github/workflows/fix-cloudflare-project-config.yml"
+  workflow_dispatch:
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fix Pages automatic Git build output
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID_RAW: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -e
+          ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID_RAW" | tr -d '[:space:]')"
+          BUILD_COMMAND='rm -rf dist && mkdir -p dist && cp index.html dist/ && cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Engineering teacher dist/'
+          jq -n --arg cmd "$BUILD_COMMAND" '{
+            production_branch:"main",
+            build_config:{
+              build_command:$cmd,
+              destination_dir:"dist",
+              root_dir:""
+            }
+          }' > payload.json
+
+          curl -fsS -X PATCH             "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/classroom-online-games"             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"             -H "Content-Type: application/json"             --data @payload.json             | jq '{success,errors,result:{production_branch:.result.production_branch,build_config:.result.build_config}}'
+
+          echo "=== VERIFY ==="
+          curl -fsS             "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/classroom-online-games"             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"             | jq '{success,result:{production_branch:.result.canonical_deployment.production_branch,build_config:.result.canonical_deployment.build_config}}'
