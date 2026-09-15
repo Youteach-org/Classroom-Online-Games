@@ -89,6 +89,42 @@ async function closeSession(code){
   });
 }
 
+async function registerRunnerPresence(code,runnerId,data={}){
+  code=normalizeCode(code);
+  if(!code||!runnerId)return;
+  const studentRef=ref(db,`${ROOT}/sessions/${code}/students/${runnerId}`);
+  const existingSnap=await get(studentRef);
+  const existing=existingSnap.exists()?existingSnap.val():null;
+  const now=serverTimestamp();
+
+  await update(studentRef,{
+    id:runnerId,
+    studentName:String(data.studentName||existing?.studentName||runnerId).slice(0,60),
+    status:'waiting',
+    online:true,
+    joinedAt:existing?.joinedAt||now,
+    lastSeen:now,
+    runner:Number(data.runner??existing?.runner??0),
+    difficulty:data.difficulty||existing?.difficulty||'medium',
+    level:Number(data.level??existing?.level??1),
+    mode:data.mode||existing?.mode||'race',
+    challenge:Number(existing?.challenge)||1,
+    challengeLabel:existing?.challengeLabel||'Choosing race and runner',
+    lastAction:'Connected to Verb Runner',
+    latestResult:existing?.latestResult||'waiting',
+    lastEventAt:Date.now()
+  });
+
+  await update(ref(db,`${ROOT}/sessions/${code}`),{lastActivity:serverTimestamp()});
+
+  try{
+    await onDisconnect(studentRef).update({
+      online:false,
+      lastSeen:serverTimestamp()
+    });
+  }catch{}
+}
+
 async function connectRunner(code,runnerId,data={}){
   code=normalizeCode(code);
   if(!code||!runnerId)return;
@@ -125,8 +161,7 @@ async function connectRunner(code,runnerId,data={}){
   try{
     await onDisconnect(studentRef).update({
       online:false,
-      lastSeen:serverTimestamp(),
-      status:'offline'
+      lastSeen:serverTimestamp()
     });
   }catch{}
 }
@@ -155,5 +190,5 @@ async function finishRunner(code,runnerId,result={}){
 
 export {
   normalizeCode,makeRunnerId,createSession,loadSession,subscribeSession,subscribeSessions,closeSession,
-  connectRunner,updateRunner,finishRunner
+  registerRunnerPresence,connectRunner,updateRunner,finishRunner
 };
