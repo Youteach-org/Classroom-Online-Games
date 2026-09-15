@@ -43,12 +43,15 @@ test('gable roofs render opaque from both sides',()=>{
 });
 
 
-test('rooftop business signs sit close above the roof instead of floating high',()=>{
-  assert.match(world,/const ROOFTOP_SIGN_CLEARANCE=\.16/);
-  assert.match(world,/const signY=ridgeY\+ROOFTOP_SIGN_CLEARANCE\+signHeight\*\.35/);
-  assert.match(world,/const postTop=signY-signHeight\*\.40/);
-  assert.match(world,/const postBottom=ridgeY-.02/);
-  assert.match(world,/mountRooftopSign\(detail,'Café Vida'/);
-  assert.match(world,/mountRooftopSign\(detail,'La Tiendita'/);
-  assert.match(world,/mountRooftopSign\(g,'Mercado'/);
+test('rooftop business signs are mounted to the roof surface at the facade, not to the ridge height',()=>{
+  assert.match(world,/const ROOFTOP_SIGN_CLEARANCE=\.08/);
+  assert.match(world,/roofWidth=4\.8/);
+  assert.match(world,/const roofHalfWidth=roofWidth\/2/);
+  assert.match(world,/const roofSurfaceY=roofBase\+roofHeight\*clamp\(1-Math\.abs\(signX\)\/roofHalfWidth,0,1\)/);
+  assert.match(world,/const signY=roofSurfaceY\+ROOFTOP_SIGN_CLEARANCE\+signHeight\/2/);
+  assert.match(world,/const postBottom=roofSurfaceY\+.02/);
+  assert.doesNotMatch(world,/const ridgeY=roofBase\+roofHeight/);
+  assert.match(world,/mountRooftopSign\(detail,'Café Vida',[\s\S]*?roofWidth:width\+\.68/);
+  assert.match(world,/mountRooftopSign\(detail,'La Tiendita',[\s\S]*?roofWidth:width\+\.68/);
+  assert.match(world,/mountRooftopSign\(g,'Mercado',[\s\S]*?roofWidth:width\+\.68/);
 });
