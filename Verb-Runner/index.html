@@ -119,7 +119,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
   <meta name="theme-color" content="#8ec9ee" />
   <title>Verb Runner</title>
-  <link rel="stylesheet" href="./styles.css?v=coastal-production-20260915-1" />
+  <link rel="stylesheet" href="./styles.css?v=cog-start-speed-20260915-1" />
   <script type="importmap">
   {
     "imports": {
@@ -239,12 +239,27 @@
           <button type="button" data-difficulty="hard"><b>HARD</b><small>4 close distractors · advanced tenses · −2</small></button>
         </div>
 
+        <div class="picker-section-title">STARTING SPEED</div>
+        <div class="picker-speed-setting">
+          <label for="startingSpeedControl">
+            <span>STARTING SPEED</span>
+            <b id="startingSpeedValue">100%</b>
+          </label>
+          <input id="startingSpeedControl" class="speed-control" type="range" min="60" max="165" step="5" value="100" />
+          <div class="speed-scale" aria-hidden="true">
+            <span>60% · BEGINNER</span>
+            <span>165% · TURBO</span>
+          </div>
+          <p id="startingSpeedDescription" class="speed-description">Normal race speed · Momentum increases speed during the run</p>
+        </div>
+
         <button id="startButton" class="start-button loading" type="button" disabled aria-busy="true">
           <span class="start-spinner" aria-hidden="true"></span>
           <span id="startButtonLabel">LOADING RUNNER…</span>
         </button>
         <div class="picker-footer">
           <a class="ghost-button menu-back-games" href="/">BACK TO GAMES</a>
+          <div class="concept-credit">Concept by <a href="mailto:youteach.tk@gmail.com">YouTeach</a> by Armando Anota</div>
         </div>
       </div>
     </section>
@@ -372,6 +387,27 @@
       </div>
     </section>
 
+    <aside class="cog-mark" aria-label="Classroom Online Games">
+      <svg viewBox="0 0 154 54" role="img" aria-hidden="true">
+        <g class="cog-rings" fill="none" stroke="currentColor" stroke-width="4.5">
+          <circle cx="31" cy="27" r="18"></circle>
+          <circle cx="77" cy="27" r="18"></circle>
+          <circle cx="123" cy="27" r="18"></circle>
+        </g>
+        <g class="cog-teeth" fill="currentColor">
+          <rect x="28" y="3" width="6" height="8" rx="2"></rect><rect x="28" y="43" width="6" height="8" rx="2"></rect>
+          <rect x="5" y="24" width="8" height="6" rx="2"></rect><rect x="49" y="24" width="8" height="6" rx="2"></rect>
+          <rect x="74" y="3" width="6" height="8" rx="2"></rect><rect x="74" y="43" width="6" height="8" rx="2"></rect>
+          <rect x="51" y="24" width="8" height="6" rx="2"></rect><rect x="95" y="24" width="8" height="6" rx="2"></rect>
+          <rect x="120" y="3" width="6" height="8" rx="2"></rect><rect x="120" y="43" width="6" height="8" rx="2"></rect>
+          <rect x="97" y="24" width="8" height="6" rx="2"></rect><rect x="141" y="24" width="8" height="6" rx="2"></rect>
+        </g>
+        <text x="31" y="34" text-anchor="middle">C</text>
+        <text x="77" y="34" text-anchor="middle">O</text>
+        <text x="123" y="34" text-anchor="middle">G</text>
+      </svg>
+    </aside>
+
     <div id="flash" class="flash" aria-hidden="true"></div>
   </main>
 
@@ -384,6 +420,6 @@
   <script src="./final-race-bank.js"></script>
   <script src="./pronunciation-manifest.js"></script>
   <script src="./pronunciation.js"></script>
-  <script type="module" src="./prototype.js?v=pronunciation-20260915-1"></script>
+  <script type="module" src="./prototype.js?v=cog-start-speed-20260915-1"></script>
 </body>
 </html>
