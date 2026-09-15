@@ -1,0 +1,30 @@
+name: Diagnose Cloudflare Assets
+
+on:
+  push:
+    branches:
+      - verify/mobile-production-load
+    paths:
+      - ".github/workflows/diagnose-cloudflare-assets.yml"
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compare production alias and immutable deployment
+        run: |
+          set -e
+          for base in             "https://classroom-online-games.pages.dev"             "https://420a2ce4.classroom-online-games.pages.dev"
+          do
+            echo "=== $base ==="
+            for path in               "/Verb-Runner/"               "/Verb-Runner/styles.css?v=check"               "/Verb-Runner/verb-bank.js"               "/Verb-Runner/prototype.js?v=check"
+            do
+              echo "--- $path"
+              curl -sS -L -o body.tmp -D headers.tmp "$base$path"
+              status=$(awk 'toupper($1) ~ /^HTTP\// {code=$2} END{print code}' headers.tmp)
+              ctype=$(awk -F': ' 'tolower($1)=="content-type" {gsub("\r","",$2); type=$2} END{print type}' headers.tmp)
+              echo "status=$status type=$ctype bytes=$(wc -c < body.tmp)"
+              head -c 80 body.tmp | tr '\n' ' '; echo
+            done
+          done
