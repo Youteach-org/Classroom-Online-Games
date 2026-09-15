@@ -39,3 +39,16 @@ test('a correct selection plays its exact answer through the SFX controls',()=>{
   assert.match(correctBlock,/enabled:sfxEnabled/);
   assert.match(correctBlock,/volume:sfxVolume/);
 });
+
+
+test('pronunciation is preloaded before selection and starts immediately on a correct hit',()=>{
+  const pronunciation=readFileSync(join(root,'pronunciation.js'),'utf8');
+  assert.match(pronunciation,/function preloadPronunciation/);
+  assert.match(game,/preloadPronunciation\(sequence\[correctIndex\]\.value/);
+  const start=game.indexOf('if(item.correct){');
+  const animate=game.indexOf('await animateAnswerToBlank',start);
+  const speak=game.indexOf('playCorrectPronunciation(item.value',start);
+  assert.ok(speak>start&&speak<animate,'pronunciation should start before answer animation completes');
+  const correctBlock=game.slice(start,game.indexOf('}else{',start));
+  assert.doesNotMatch(correctBlock,/pronunciationDelay/);
+});
