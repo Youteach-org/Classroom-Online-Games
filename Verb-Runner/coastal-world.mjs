@@ -12,6 +12,15 @@ const VILLAGE_X=8.35;
 const NEAR_SPAN=195;
 const FAR_SPAN=235;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const COASTAL_V4_PALETTE=Object.freeze({
+  terracotta:0xc86f46,
+  terracottaLight:0xdf8a5c,
+  mountain:0x5d8268,
+  mountainLight:0x769b7d,
+  foothill:0x8aaa74,
+  seaDeep:0x148faf,
+  seaShallow:0x64d0da
+});
 
 function mat(color,roughness=.78,metalness=.02){
   return new THREE.MeshStandardMaterial({color,roughness,metalness});
@@ -46,8 +55,8 @@ const MATERIALS={
   foam:basic(0xdff8f4,.46),
   wood:mat(0x8e5c38,.78,0),
   darkWood:mat(0x5c3b2b,.75,0),
-  terracotta:mat(0xb95f3d,.84,0),
-  terracottaLight:mat(0xcb7650,.84,0),
+  terracotta:mat(COASTAL_V4_PALETTE.terracotta,.83,0),
+  terracottaLight:mat(COASTAL_V4_PALETTE.terracottaLight,.83,0),
   trim:mat(0xf0e3cc,.8,0),
   trimDark:mat(0x3c545a,.72,.06),
   glassWindow:new THREE.MeshPhysicalMaterial({
@@ -59,9 +68,9 @@ const MATERIALS={
   fabricBlue:mat(0x3c96bd,.82,0),
   fabricCream:mat(0xf6e8c8,.86,0),
   stone:mat(0xcfc9bb,.9,0),
-  mountain:mat(0x648b78,.98,0),
-  mountainLight:mat(0x789c80,.98,0),
-  foothill:mat(0x83a16f,.98,0),
+  mountain:mat(COASTAL_V4_PALETTE.mountain,.97,0),
+  mountainLight:mat(COASTAL_V4_PALETTE.mountainLight,.97,0),
+  foothill:mat(COASTAL_V4_PALETTE.foothill,.97,0),
   trunk:mat(0x86583c,.9,0),
   palmTrunk:mat(0x9b6c43,.88,0),
   leafA:toon(0x3d8e4f),
@@ -75,13 +84,13 @@ const MATERIALS={
 };
 
 const WALLS=[
-  mat(0xf1d28d,.9,0),
-  mat(0xf6e4c4,.9,0),
-  mat(0xf5eddc,.9,0),
-  mat(0xe8ddc8,.9,0),
-  mat(0xf0c993,.9,0),
-  mat(0xe8e8d8,.9,0),
-  mat(0xf2d7b7,.9,0)
+  mat(0xf0c77d,.9,0),
+  mat(0xf3dda7,.9,0),
+  mat(0xf4ead4,.9,0),
+  mat(0xdde7d5,.9,0),
+  mat(0xedc3a5,.9,0),
+  mat(0xf1dfc8,.9,0),
+  mat(0xe7d1b5,.9,0)
 ];
 const SHUTTERS=[
   mat(0x3c7b68,.78,.02),
@@ -342,7 +351,7 @@ function makeCanvasTexture(size,draw){
 
 function createStuccoTexture(){
   const texture=makeCanvasTexture(256,(ctx,size)=>{
-    ctx.fillStyle='#efe5cf';
+    ctx.fillStyle='#faf7ef';
     ctx.fillRect(0,0,size,size);
     for(let i=0;i<1800;i++){
       const x=(Math.sin(i*12.9898)*43758.5453)%1;
@@ -580,6 +589,187 @@ function createSunGlitter(scene,mobile=false){
   }
 }
 
+
+function cylinderBetween(a,b,r0,r1,material){
+  const dir=new THREE.Vector3().subVectors(b,a);
+  const len=dir.length();
+  const m=mesh(new THREE.CylinderGeometry(r0,r1,len,9),material);
+  m.position.copy(a).add(b).multiplyScalar(.5);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());
+  return m;
+}
+
+function createNaturalTreeBranches(group,scale=1){
+  const starts=[
+    [0,2.85,0],[.03,3.05,.02],[-.03,3.18,-.01],[.02,3.28,.02],[0,3.38,0]
+  ];
+  const ends=[
+    [-.75,4.18,.20],[.70,4.22,-.28],[-.42,4.58,-.52],[.38,4.62,.50],[.05,4.86,.12]
+  ];
+  for(let i=0;i<starts.length;i++){
+    const a=new THREE.Vector3(...starts[i]).multiplyScalar(scale);
+    const b=new THREE.Vector3(...ends[i]).multiplyScalar(scale);
+    group.add(cylinderBetween(a,b,.055*scale,.115*scale,MATERIALS.trunk));
+    const twigEnd=b.clone().add(new THREE.Vector3((i%2?.28:-.24)*scale,.35*scale,(i%3-.8)*.16*scale));
+    group.add(cylinderBetween(b,twigEnd,.026*scale,.052*scale,MATERIALS.trunk));
+  }
+}
+
+function createCanopyCluster(group,scale=1,mobile=false,seed=0){
+  const clusters=mobile?11:18;
+  for(let i=0;i<clusters;i++){
+    const a=(i+seed*.31)*2.399;
+    const ring=.28+(i%5)*.25;
+    const leaf=mesh(ORGANIC_FOLIAGE[(i+seed)%ORGANIC_FOLIAGE.length],[MATERIALS.leafA,MATERIALS.leafB,MATERIALS.leafC][(i+seed)%3]);
+    leaf.scale.set(
+      (.90+(i%4)*.12)*scale,
+      (.68+(i%3)*.13)*scale,
+      (.92+((i+1)%4)*.11)*scale
+    );
+    leaf.position.set(
+      Math.cos(a)*ring*scale,
+      (4.30+(i%5)*.26)*scale,
+      Math.sin(a)*ring*.82*scale
+    );
+    group.add(leaf);
+  }
+}
+
+function createPalmFrondGeometry(){
+  const shape=new THREE.Shape();
+  shape.moveTo(0,0);
+  shape.bezierCurveTo(.28,.28,.34,1.18,.18,2.28);
+  shape.bezierCurveTo(.08,2.86,-.03,3.16,-.08,3.32);
+  shape.bezierCurveTo(-.22,2.54,-.29,1.25,0,0);
+  const geo=new THREE.ShapeGeometry(shape,10);
+  return geo;
+}
+
+const PALM_FROND_V4=createPalmFrondGeometry();
+
+function createBougainvilleaCascade(group,faceX,y,z,scale=1){
+  const flowerMats=[MATERIALS.flowerPink,MATERIALS.flowerRed,MATERIALS.flowerPurple];
+  for(let i=0;i<16;i++){
+    const a=i*2.399;
+    const leaf=mesh(ORGANIC_FOLIAGE[i%ORGANIC_FOLIAGE.length],i%3===0?flowerMats[i%flowerMats.length]:MATERIALS.leafB,{cast:false,receive:false});
+    leaf.scale.set(.18*scale,.22*scale,.17*scale);
+    leaf.position.set(
+      faceX-.18-Math.abs(Math.sin(a))*.08,
+      y-i*.12*scale,
+      z+Math.sin(a)*.56*scale
+    );
+    group.add(leaf);
+  }
+}
+
+function createAwningValance(width,variant='red'){
+  const g=new THREE.Group();
+  const count=10;
+  const mats=variant==='blue'?[MATERIALS.fabricBlue,MATERIALS.fabricCream]:[MATERIALS.fabricRed,MATERIALS.fabricCream];
+  for(let i=0;i<count;i++){
+    const flap=mesh(new THREE.CylinderGeometry(width/count*.40,width/count*.40,.12,10,1,false,0,Math.PI),mats[i%2]);
+    flap.rotation.z=Math.PI/2;
+    flap.position.set(0,-.08,-width/2+(i+.5)*width/count);
+    g.add(flap);
+  }
+  return g;
+}
+
+function addRoofEdgeTiles(group,width,depth,height){
+  const count=Math.max(8,Math.floor(depth/.36));
+  for(const side of [-1,1]){
+    for(let i=0;i<count;i++){
+      const tile=mesh(new THREE.CylinderGeometry(.055,.055,.28,8),i%2?MATERIALS.terracotta:MATERIALS.terracottaLight,{cast:false});
+      tile.rotation.z=Math.PI/2;
+      tile.position.set(side*(width/2+.27),height+.08,-depth/2+(i+.5)*depth/count);
+      group.add(tile);
+    }
+  }
+}
+
+function createPromenadePlanterCluster(){
+  const g=new THREE.Group();
+  const sizes=[.82,.62,.54];
+  const positions=[[-.35,0,-.42],[.30,0,.12],[-.15,0,.55]];
+  for(let i=0;i<positions.length;i++){
+    const p=createPot(sizes[i],true);
+    p.position.set(...positions[i]);
+    g.add(p);
+  }
+  const low=mesh(ORGANIC_FOLIAGE[1],MATERIALS.leafC,{cast:false});
+  low.scale.set(.62,.28,.42);
+  low.position.set(.15,.42,-.34);
+  g.add(low);
+  return g;
+}
+
+function createCafeTerraceCluster(){
+  const g=new THREE.Group();
+  const umbrella=createStreetUmbrella(.72,'blue');
+  umbrella.position.set(0,0,0);
+  g.add(umbrella);
+  for(const z of [-.66,.68]){
+    const table=mesh(new THREE.CylinderGeometry(.32,.32,.07,14),MATERIALS.wood);
+    table.position.set(.72,.70,z);g.add(table);
+    const stem=mesh(new THREE.CylinderGeometry(.045,.055,.65,8),MATERIALS.rail);
+    stem.position.set(.72,.35,z);g.add(stem);
+  }
+  return g;
+}
+
+function createSeasideBanner(text='GOOD FOOD\nBRIGHTER DAYS'){
+  const g=new THREE.Group();
+  addBox(g,.09,2.65,.09,MATERIALS.darkWood,0,1.32,0);
+  addBox(g,.95,.08,.08,MATERIALS.darkWood,.42,2.38,0);
+  const sign=createSign(text,{width:1.05,height:1.38,bg:'#d8b25e',fg:'#47351d',font:34});
+  sign.rotation.y=0;
+  sign.position.set(.42,1.56,.02);
+  g.add(sign);
+  return g;
+}
+
+function createCoastalHillside(scene){
+  const hillMat=mat(0x87a872,.98,0);
+  const hill=mesh(createIrregularMountain(38,20,21,42,7),hillMat,{cast:false,receive:false});
+  hill.scale.set(1.35,.62,.66);
+  hill.position.set(6,-5,-215);
+  scene.add(hill);
+  return hill;
+}
+
+function createTownTerrace(town,{row=0,count=10,mobile=false}={}){
+  for(let i=0;i<count;i++){
+    const house=createTinyHouse(row*17+i);
+    const scale=.62+(i%4)*.055-(row*.035);
+    house.scale.setScalar(scale);
+    const x=-15+i*3.4+(row%2)*1.35;
+    const y=1.6+row*1.55+Math.sin(i*.75+row)*.48;
+    const z=-178-row*5.0-i*.32;
+    house.position.set(x,y,z);
+    house.rotation.y=(Math.sin(i*1.3+row)*7)*DEG;
+    town.add(house);
+    if(!mobile&&i%4===1){
+      const cypress=createCypress(.27+row*.015);
+      cypress.position.set(x+1.15,y-.10,z-.7);
+      town.add(cypress);
+    }
+  }
+}
+
+function createLayeredHillsideTown(scene,mobile=false){
+  const town=new THREE.Group();
+  const rows=mobile?3:5;
+  for(let row=0;row<rows;row++){
+    createTownTerrace(town,{row,count:mobile?7:11,mobile});
+  }
+  const tower=createBellTower();
+  tower.scale.setScalar(.60);
+  tower.position.set(17.5,4.1,-194);
+  town.add(tower);
+  scene.add(town);
+  return town;
+}
+
 function mesh(geometry,material,{cast=true,receive=true}={}){
   const m=new THREE.Mesh(geometry,material);
   m.castShadow=cast;
@@ -784,6 +974,9 @@ function createStripedAwning(width,projection,variant='red'){
     const stripe=addBox(g,projection,.105,stripeW,mats[i%2],-projection/2,0,-width/2+(i+.5)*stripeW);
     stripe.rotation.z=-9*DEG;
   }
+  const valance=createAwningValance(width,variant);
+  valance.position.set(-projection+.05,-.09,0);
+  g.add(valance);
   return g;
 }
 
@@ -910,6 +1103,7 @@ function createMediterraneanBuilding({index=0,type='house',mobile=false}={}){
   g.add(roof);
   addBox(g,width+.88,.15,.30,MATERIALS.terracotta,0,height+.05,-depth/2-.24);
   addBox(g,width+.88,.15,.30,MATERIALS.terracotta,0,height+.05, depth/2+.24);
+  addRoofEdgeTiles(g,width+.68,depth+.62,height);
 
   const face=-width/2-.065;
   addFacadeTrim(g,face,depth,height,variant);
@@ -934,6 +1128,9 @@ function createMediterraneanBuilding({index=0,type='house',mobile=false}={}){
     pot.position.set(face-.65,0,z);
     g.add(pot);
   }
+  if(index%2===0){
+    createBougainvilleaCascade(g,face,Math.min(height-.75,4.9),depth*.36,.92);
+  }
   if(!mobile&&index%3===0){
     for(let i=0;i<4;i++){
       const leaf=mesh(GEO.sphereLow,MATERIALS.leafA,{cast:false});
@@ -956,73 +1153,46 @@ function createMediterraneanBuilding({index=0,type='house',mobile=false}={}){
 
 function createBroadleafTree(scale=1,mobile=false){
   const g=new THREE.Group();
-  const trunk=mesh(new THREE.CylinderGeometry(.20*scale,.30*scale,3.8*scale,10),MATERIALS.trunk);
-  trunk.position.y=1.9*scale;
-  trunk.rotation.z=-.025;
+  const trunk=mesh(new THREE.CylinderGeometry(.17*scale,.30*scale,3.75*scale,12),MATERIALS.trunk);
+  trunk.position.y=1.88*scale;
+  trunk.rotation.z=-.018;
   g.add(trunk);
-
-  const branchGeom=new THREE.CylinderGeometry(.055*scale,.12*scale,2.0*scale,7);
-  for(const [rx,rz,px,pz] of [
-    [-.55,.10,-.46,.12],[.48,-.14,.42,-.18],[.25,.46,.15,.38]
-  ]){
-    const branch=mesh(branchGeom,MATERIALS.trunk);
-    branch.position.set(px*scale,3.5*scale,pz*scale);
-    branch.rotation.z=rx;
-    branch.rotation.x=rz;
-    g.add(branch);
-  }
-
-  const clusters=mobile?8:13;
-  for(let i=0;i<clusters;i++){
-    const a=i*2.399;
-    const ring=.38+(i%4)*.33;
-    const leaf=mesh(GEO.sphere12,[MATERIALS.leafA,MATERIALS.leafB,MATERIALS.leafC][i%3]);
-    leaf.scale.set(
-      (1.05+(i%3)*.18)*scale,
-      (.82+(i%4)*.10)*scale,
-      (1.00+((i+1)%3)*.16)*scale
-    );
-    leaf.position.set(
-      Math.cos(a)*ring*scale,
-      (4.1+(i%5)*.34)*scale,
-      Math.sin(a)*ring*.78*scale
-    );
-    g.add(leaf);
-  }
+  createNaturalTreeBranches(g,scale);
+  createCanopyCluster(g,scale,mobile,Math.round(scale*7));
   return g;
 }
 
 function makePalmLeaf(){
-  const shape=new THREE.Shape();
-  shape.moveTo(0,0);
-  shape.quadraticCurveTo(.18,.72,.08,1.45);
-  shape.quadraticCurveTo(0,2.15,-.10,2.55);
-  shape.quadraticCurveTo(-.22,1.25,0,0);
-  const geo=new THREE.ShapeGeometry(shape,6);
-  geo.translate(0,0,0);
-  return geo;
+  return PALM_FROND_V4;
 }
-const PALM_LEAF_GEO=makePalmLeaf();
+const PALM_LEAF_GEO=PALM_FROND_V4;
 
 function createPalm(scale=1,mobile=false){
   const g=new THREE.Group();
-  const segments=mobile?4:6;
+  const segments=mobile?5:7;
   let y=0;
   for(let i=0;i<segments;i++){
-    const segH=.78*scale;
-    const seg=mesh(new THREE.CylinderGeometry((.12-i*.008)*scale,(.16-i*.006)*scale,segH,9),MATERIALS.palmTrunk);
-    seg.position.set(i*.035*scale,y+segH/2,-i*.014*scale);
-    seg.rotation.z=-.035;
+    const segH=.72*scale;
+    const seg=mesh(new THREE.CylinderGeometry((.105-i*.006)*scale,(.16-i*.006)*scale,segH,10),MATERIALS.palmTrunk);
+    seg.position.set(i*.032*scale,y+segH/2,-i*.018*scale);
+    seg.rotation.z=-.032;
     g.add(seg);
-    y+=segH*.96;
+    y+=segH*.95;
   }
-  for(let i=0;i<9;i++){
+  const fronds=mobile?10:14;
+  for(let i=0;i<fronds;i++){
     const leaf=mesh(PALM_LEAF_GEO,MATERIALS.palmLeaf,{cast:!mobile,receive:false});
-    leaf.scale.set(.72*scale,.75*scale,.75*scale);
-    leaf.rotation.x=-66*DEG;
-    leaf.rotation.z=(i*40)*DEG;
-    leaf.position.set(.12*scale,y+.08*scale,0);
+    const angle=i/fronds*Math.PI*2;
+    leaf.scale.set((.58+(i%3)*.055)*scale,(.62+(i%2)*.045)*scale,.62*scale);
+    leaf.rotation.set((-70+(i%4)*5)*DEG,0,angle);
+    leaf.position.set(.10*scale,y+.04*scale,0);
     g.add(leaf);
+  }
+  for(let i=0;i<6;i++){
+    const fruit=mesh(GEO.fruit,mat(0x8c5d33,.8,0),{cast:false});
+    fruit.scale.setScalar(.075*scale);
+    fruit.position.set(.08*scale+Math.cos(i)*.15*scale,(y-.12)*scale,Math.sin(i)*.14*scale);
+    g.add(fruit);
   }
   return g;
 }
@@ -1094,9 +1264,14 @@ function createPromenadeSegment({index=0,mobile=false,length=15}={}){
     g.add(bench);
   }
   if(index%3!==1){
-    const pot=createPot(.9,true);
-    pot.position.set(-7.55,0,4.8);
-    g.add(pot);
+    const planters=createPromenadePlanterCluster();
+    planters.position.set(-7.75,0,4.55);
+    g.add(planters);
+  }
+  if(index===0||index%5===0){
+    const banner=createSeasideBanner(index===0?'GOOD FOOD\nBRIGHTER DAYS':'SEA · SUN\nCAFÉ');
+    banner.position.set(-9.05,0,1.15);
+    g.add(banner);
   }
 
   // Lamps sit closer to the road so their silhouettes read like the target.
@@ -1117,25 +1292,26 @@ function createRoadsidePalmCluster(index=0,mobile=false){
 }
 
 function createMountainBackdrop(scene,mobile=false){
+  const COASTAL_V4_MOUNTAINS=true;
   const back=createMountainLayer([
-    [-37,-1,-236,39,38,2],
-    [24,-2,-242,43,34,5]
+    [-30,-5,-270,31,27,2],
+    [28,-6,-278,30,23,5]
   ],MATERIALS.foothill);
   scene.add(back);
 
   const main=createMountainLayer([
-    [-15,-2,-250,34,58,8],
-    [18,-1,-258,28,46,11]
+    [-9,-5,-286,23,41,8],
+    [27,-6,-292,19,29,11]
   ],MATERIALS.mountain);
   scene.add(main);
 
   const lit=createMountainLayer([
-    [-12,30,-248,12,21,8],
-    [19,24,-256,9,15,11]
+    [-13,18,-284,10,15,8],
+    [25,12,-290,7,10,11]
   ],MATERIALS.mountainLight);
   scene.add(lit);
 
-  return main;
+  return {main,COASTAL_V4_MOUNTAINS};
 }
 
 function createTinyHouse(index=0){
@@ -1156,48 +1332,29 @@ function createTinyHouse(index=0){
 }
 
 function createHillsideTown(scene,mobile=false){
-  const town=new THREE.Group();
-  const count=mobile?22:42;
-  for(let i=0;i<count;i++){
-    const row=i%7;
-    const col=Math.floor(i/7);
-    const house=createTinyHouse(i);
-    const x=3+row*3.1+(col%2)*1.1;
-    const y=1.7+col*1.45+Math.sin(row*.8)*.8;
-    const z=-187-col*5.8-row*.9;
-    house.position.set(x,y,z);
-    house.rotation.y=(Math.sin(i*1.7)*5)*DEG;
-    town.add(house);
-  }
-  // A second, smaller cluster left of the road gives the coastline depth without blocking the sea.
-  const leftCount=mobile?7:12;
-  for(let i=0;i<leftCount;i++){
-    const house=createTinyHouse(i+50);
-    house.scale.setScalar(.72);
-    house.position.set(-16-i%4*2.5,2.0+Math.floor(i/4)*1.5,-190-Math.floor(i/4)*5);
-    town.add(house);
-  }
-  scene.add(town);
-  return town;
+  createCoastalHillside(scene);
+  return createLayeredHillsideTown(scene,mobile);
 }
 
-function createSea(scene,mobile=false){
-  const sea=mesh(new THREE.PlaneGeometry(76,250,mobile?1:2,mobile?1:8),MATERIALS.sea,{cast:false,receive:true});
+function createSea(scene,mobile=false,animators=[]){
+  const waterMaterial=createWaterMaterial(animators);
+  waterMaterial.uniforms.uDeep.value.set(COASTAL_V4_PALETTE.seaDeep);
+  waterMaterial.uniforms.uShallow.value.set(COASTAL_V4_PALETTE.seaShallow);
+
+  const sea=mesh(new THREE.PlaneGeometry(76,250,mobile?28:52,mobile?70:110),waterMaterial,{cast:false,receive:false});
   sea.rotation.x=-Math.PI/2;
-  sea.position.set(-36,-.12,-92);
+  sea.position.set(-36,-.13,-92);
   scene.add(sea);
 
-  const shallow=mesh(new THREE.PlaneGeometry(9.5,235),MATERIALS.shallow,{cast:false,receive:false});
+  const shallowMat=waterMaterial.clone();
+  shallowMat.uniforms=THREE.UniformsUtils.clone(waterMaterial.uniforms);
+  shallowMat.uniforms.uDeep.value.set(0x28aeca);
+  shallowMat.uniforms.uShallow.value.set(0x7bdce1);
+  animators.push(time=>{shallowMat.uniforms.uTime.value=time+.55;});
+  const shallow=mesh(new THREE.PlaneGeometry(9.5,235,mobile?10:18,mobile?48:88),shallowMat,{cast:false,receive:false});
   shallow.rotation.x=-Math.PI/2;
   shallow.position.set(-14.4,-.085,-86);
   scene.add(shallow);
-
-  for(let i=0;i<(mobile?9:17);i++){
-    const glint=mesh(new THREE.PlaneGeometry(3.6+(i%4),.08),MATERIALS.foam,{cast:false,receive:false});
-    glint.rotation.x=-Math.PI/2;
-    glint.position.set(-15.5-(i%4)*7,-.045,-12-i*12.5);
-    scene.add(glint);
-  }
 }
 
 function createRoadAndWalkways(world,mobile=false){
@@ -1301,6 +1458,14 @@ export function buildCoastalWorld({
       lamp.position.set(6.68,0,-7-i*12.0);
       world.add(lamp);
       registerMover(lamp,{speedFactor:.98,span:NEAR_SPAN,startZ:lamp.position.z});
+    }
+
+    if(!isMobile&&i%4===2){
+      const terrace=createCafeTerraceCluster();
+      terrace.position.set(7.25,0,-10-i*12.0);
+      terrace.scale.setScalar(.82);
+      world.add(terrace);
+      registerMover(terrace,{speedFactor:.96,span:NEAR_SPAN,startZ:terrace.position.z});
     }
   }
 
