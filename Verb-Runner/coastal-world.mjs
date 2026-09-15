@@ -704,34 +704,34 @@ function createSea(scene,mobile=false){
 }
 
 function createRoadAndWalkways(world,mobile=false){
-  const road=mesh(new THREE.PlaneGeometry(COASTAL_SCENE.layout.roadWidth,192),MATERIALS.road,{cast:false,receive:true});
+  const road=mesh(new THREE.PlaneGeometry(ROAD_WIDTH,192),MATERIALS.road,{cast:false,receive:true});
   road.rotation.x=-Math.PI/2;
   road.position.set(0,0,-76);
   world.add(road);
 
-  const rightWalk=mesh(new THREE.BoxGeometry(COASTAL_SCENE.layout.rightSidewalkWidth,.18,192),MATERIALS.sidewalk);
-  rightWalk.position.set(COASTAL_SCENE.layout.roadWidth/2+COASTAL_SCENE.layout.rightSidewalkWidth/2,.09,-76);
+  const rightWalk=mesh(new THREE.BoxGeometry(RIGHT_SIDEWALK_WIDTH,.18,192),MATERIALS.sidewalk);
+  rightWalk.position.set(ROAD_WIDTH/2+RIGHT_SIDEWALK_WIDTH/2,.09,-76);
   rightWalk.receiveShadow=true;
   world.add(rightWalk);
 
-  const leftWalk=mesh(new THREE.BoxGeometry(COASTAL_SCENE.layout.leftPromenadeWidth,.18,192),MATERIALS.promenade);
-  leftWalk.position.set(-COASTAL_SCENE.layout.roadWidth/2-COASTAL_SCENE.layout.leftPromenadeWidth/2,.09,-76);
+  const leftWalk=mesh(new THREE.BoxGeometry(LEFT_PROMENADE_WIDTH,.18,192),MATERIALS.promenade);
+  leftWalk.position.set(-ROAD_WIDTH/2-LEFT_PROMENADE_WIDTH/2,.09,-76);
   leftWalk.receiveShadow=true;
   world.add(leftWalk);
 
   for(const side of [-1,1]){
-    addBox(world,.22,.24,192,MATERIALS.curb,side*(COASTAL_SCENE.layout.roadWidth/2+.04),.12,-76);
+    addBox(world,.22,.24,192,MATERIALS.curb,side*(ROAD_WIDTH/2+.04),.12,-76);
   }
 
   // Road edge highlights and paver seams.
   for(const side of [-1,1]){
-    addBox(world,.08,.025,192,basic(0xece6d7,.72),side*(COASTAL_SCENE.layout.roadWidth/2-.18),.025,-76,{cast:false});
+    addBox(world,.08,.025,192,basic(0xece6d7,.72),side*(ROAD_WIDTH/2-.18),.025,-76,{cast:false});
   }
   const paverMat=basic(0xcfbeaa,.32);
   for(let i=0;i<22;i++){
     const z=6-i*8.6;
-    addBox(world,COASTAL_SCENE.layout.leftPromenadeWidth-.25,.02,.055,paverMat,-8.25,.20,z,{cast:false});
-    addBox(world,COASTAL_SCENE.layout.rightSidewalkWidth-.20,.02,.055,paverMat,7.15,.20,z,{cast:false});
+    addBox(world,LEFT_PROMENADE_WIDTH-.25,.02,.055,paverMat,-8.25,.20,z,{cast:false});
+    addBox(world,RIGHT_SIDEWALK_WIDTH-.20,.02,.055,paverMat,7.15,.20,z,{cast:false});
   }
 
   const laneMarkers=[];
