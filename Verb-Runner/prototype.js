@@ -75,6 +75,9 @@ const pauseRaceTitle=document.querySelector('#pauseRaceTitle');
 const speedControl=document.querySelector('#speedControl');
 const speedValue=document.querySelector('#speedValue');
 const speedDescription=document.querySelector('#speedDescription');
+const startingSpeedControl=document.querySelector('#startingSpeedControl');
+const startingSpeedValue=document.querySelector('#startingSpeedValue');
+const startingSpeedDescription=document.querySelector('#startingSpeedDescription');
 const changeRunnerButton=document.querySelector('#changeRunnerButton');
 const controlsButton=document.querySelector('#controlsButton');
 const errorReportButton=document.querySelector('#errorReportButton');
@@ -145,9 +148,13 @@ function speedDescriptionFor(percent){
 function setPlayerSpeedPercent(value){
   const percent=Math.max(60,Math.min(165,Math.round(Number(value)||100)));
   playerSpeedMultiplier=percent/100;
+  const description=speedDescriptionFor(percent);
   if(speedControl)speedControl.value=String(percent);
   if(speedValue)speedValue.textContent=percent+'%';
-  if(speedDescription)speedDescription.textContent=speedDescriptionFor(percent);
+  if(speedDescription)speedDescription.textContent=description;
+  if(startingSpeedControl)startingSpeedControl.value=String(percent);
+  if(startingSpeedValue)startingSpeedValue.textContent=percent+'%';
+  if(startingSpeedDescription)startingSpeedDescription.textContent=description+' · Momentum increases speed during the run';
 }
 
 let audioCtx=null;
@@ -2620,6 +2627,7 @@ sentenceChallenge?.addEventListener('keydown',e=>{
   }
 });
 speedControl?.addEventListener('input',()=>setPlayerSpeedPercent(speedControl.value));
+startingSpeedControl?.addEventListener('input',()=>setPlayerSpeedPercent(startingSpeedControl.value));
 changeRunnerButton?.addEventListener('click',()=>{
   playSfx('click');
   const nextHidden=!pauseRunnerPanel?.hidden;
