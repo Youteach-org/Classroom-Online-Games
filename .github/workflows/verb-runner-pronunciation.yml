@@ -10,6 +10,8 @@ on:
       - "Verb-Runner/perfect-race-bank.js"
       - "Verb-Runner/final-race-bank.js"
       - "Verb-Runner/pronunciation.js"
+      - "Verb-Runner/index.html"
+      - "Verb-Runner/prototype.js"
       - "Verb-Runner/pronunciation-manifest.js"
       - "Verb-Runner/scripts/generate-pronunciation.py"
       - "Verb-Runner/tests/pronunciation.test.mjs"
