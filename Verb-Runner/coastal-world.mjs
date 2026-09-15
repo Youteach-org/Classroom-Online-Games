@@ -767,12 +767,12 @@ export function buildCoastalWorld({
     const segment=createPromenadeSegment({index:i,mobile:isMobile,length:15});
     segment.position.z=-3-i*15;
     world.add(segment);
-    registerMover(segment,{speedFactor:.96,span:COASTAL_SCENE.loop.nearSpan,startZ:segment.position.z});
+    registerMover(segment,{speedFactor:.96,span:NEAR_SPAN,startZ:segment.position.z});
 
     const palms=createRoadsidePalmCluster(i,isMobile);
     palms.position.z=-16-i*18;
     world.add(palms);
-    registerMover(palms,{speedFactor:.91,span:COASTAL_SCENE.loop.nearSpan,startZ:palms.position.z});
+    registerMover(palms,{speedFactor:.91,span:NEAR_SPAN,startZ:palms.position.z});
   }
 
   // Right: varied 1–2 story Mediterranean frontage. No left-side buildings.
@@ -784,21 +784,21 @@ export function buildCoastalWorld({
     const width=building.userData.bounds?.width||4.7;
     building.position.set(VILLAGE_X+width/2+(i%3===1?.18:0),0,-4-i*12.0);
     world.add(building);
-    registerMover(building,{speedFactor:.90,span:COASTAL_SCENE.loop.nearSpan,startZ:building.position.z});
+    registerMover(building,{speedFactor:.90,span:NEAR_SPAN,startZ:building.position.z});
 
     // Street pots between façades add the dense foreground rhythm of the target.
     if(i%2===0){
       const pot=createPot(.85,true);
       pot.position.set(6.78,0,-9-i*12.0);
       world.add(pot);
-      registerMover(pot,{speedFactor:.98,span:COASTAL_SCENE.loop.nearSpan,startZ:pot.position.z});
+      registerMover(pot,{speedFactor:.98,span:NEAR_SPAN,startZ:pot.position.z});
     }
 
     if(i%2===1){
       const lamp=createLampPost();
       lamp.position.set(6.68,0,-7-i*12.0);
       world.add(lamp);
-      registerMover(lamp,{speedFactor:.98,span:COASTAL_SCENE.loop.nearSpan,startZ:lamp.position.z});
+      registerMover(lamp,{speedFactor:.98,span:NEAR_SPAN,startZ:lamp.position.z});
     }
   }
 
