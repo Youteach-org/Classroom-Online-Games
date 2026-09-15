@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { COASTAL_SCENE } from './coastal-scene-config.mjs';
 
-const DEG=Math.PI/180;
+const DEG=Math.PI/180; // degrees to radians
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
 function mat(color,roughness=.78,metalness=.02){
