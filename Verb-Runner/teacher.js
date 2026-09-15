@@ -26,7 +26,7 @@ function readSettings(){
     difficulty:d,
     challengeCount:Number($('challengeCount').value)||20,
     preview:previewChoice==='auto'?defaults.preview:previewChoice==='yes',
-    initialSpeed:Number($('initialSpeed').value)||18,
+    initialSpeed:Number($('initialSpeed').value)||12,
     maxSpeed:Number($('maxSpeed').value)||31,
     answerSpacing:(Number($('answerSpacing').value)||defaults.answerSpacing)/1000,
     distractors:Number($('distractors').value)||defaults.distractors,
