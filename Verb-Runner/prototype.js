@@ -134,7 +134,8 @@ let totalChallenges=TOTAL_CHALLENGES;
 let playerSpeedMultiplier=1;
 
 function speedDescriptionFor(percent){
-  if(percent<=90)return 'Controlled · minimum speed';
+  if(percent<=75)return 'Beginner pace · extra time to read';
+  if(percent<=90)return 'Controlled · slow speed';
   if(percent<=105)return 'Normal race speed';
   if(percent<=125)return 'Fast';
   if(percent<=145)return 'Very fast';
@@ -142,7 +143,7 @@ function speedDescriptionFor(percent){
 }
 
 function setPlayerSpeedPercent(value){
-  const percent=Math.max(85,Math.min(165,Math.round(Number(value)||100)));
+  const percent=Math.max(60,Math.min(165,Math.round(Number(value)||100)));
   playerSpeedMultiplier=percent/100;
   if(speedControl)speedControl.value=String(percent);
   if(speedValue)speedValue.textContent=percent+'%';
@@ -393,7 +394,7 @@ let gameSettings={
   obstacleFrequency:45,
   momentumCorrect:8,
   penalty:1,
-  initialSpeed:18,
+  initialSpeed:12,
   maxSpeed:31,
   speedScale:1
 };
@@ -809,7 +810,7 @@ function selectRace(level){
   }else{
     gameSettings={
       ...gameSettings,
-      initialSpeed:18,
+      initialSpeed:12,
       maxSpeed:31,
       speedScale:difficulty.speed,
       answerSpacing:difficulty.answerSpacing
@@ -834,7 +835,7 @@ function applySessionSettings(settings={}){
     obstacleFrequency:Math.max(0,Math.min(100,Number(settings.obstacleFrequency)??45)),
     momentumCorrect:Math.max(0,Number(settings.momentumCorrect)??8),
     penalty:preset.penalty,
-    initialSpeed:Math.max(12,Number(settings.initialSpeed)||18),
+    initialSpeed:Math.max(8,Number(settings.initialSpeed)||12),
     maxSpeed:Math.max(20,Number(settings.maxSpeed)||31),
     speedScale:Number(settings.speedScale)||preset.speed
   };
@@ -2378,7 +2379,7 @@ function resetRun(){
   challengeIndex=0;
   runElapsed=0;
   distance=0;
-  speed=18;
+  speed=Math.max(6,gameSettings.initialSpeed*gameSettings.speedScale*playerSpeedMultiplier);
   nextSpawn=26;
   hitCooldown=0;
   victoryMode=false;
@@ -2690,7 +2691,7 @@ nextLevelButton?.addEventListener('click',async()=>{
   else{
     gameSettings={
       ...gameSettings,
-      initialSpeed:18,
+      initialSpeed:12,
       maxSpeed:31,
       speedScale:difficulty.speed,
       answerSpacing:difficulty.answerSpacing
@@ -2744,7 +2745,7 @@ let targetX=lanes[lane];
 let jumpTime=0;
 const jumpDuration=.78;
 let distance=0;
-let speed=18;
+let speed=12;
 let nextSpawn=26;
 let hitCooldown=0;
 
@@ -3466,7 +3467,10 @@ function animate(){
   }
 
   if(distanceEl)distanceEl.textContent=String(Math.floor(distance)).padStart(4,'0');
-  if(speedEl)speedEl.textContent=(speed/18).toFixed(2)+'×';
+  if(speedEl){
+    const referenceSpeed=Math.max(1,gameSettings.initialSpeed*gameSettings.speedScale*playerSpeedMultiplier);
+    speedEl.textContent=(speed/referenceSpeed).toFixed(2)+'×';
+  }
 
   camera.position.x=THREE.MathUtils.damp(camera.position.x,runnerRoot.position.x*.15,3.5,dt);
   renderer.render(scene,camera);
