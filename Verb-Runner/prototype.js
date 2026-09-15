@@ -813,17 +813,17 @@ sessionLoadPromise=import('./session-sync.js')
 
     if(sessionCode){
       modelStatus.textContent='Loading classroom session '+sessionCode+'…';
-      const data=await api.loadSession(sessionCode);
+      const data=await sessionApi.loadSession(sessionCode);
       if(!data||data.status!=='active')throw new Error('Session not active');
       sessionData=data;
       applySessionSettings(data.settings||{});
-      await api.registerRunnerPresence(sessionCode,runnerSessionId,presenceData);
+      await sessionApi.registerRunnerPresence(sessionCode,runnerSessionId,presenceData);
       modelStatus.textContent='Session '+sessionCode+' ready · connected';
       return data;
     }
 
     sessionData={status:'free'};
-    await api.registerFreeRunnerPresence(runnerSessionId,presenceData);
+    await sessionApi.registerFreeRunnerPresence(runnerSessionId,presenceData);
     return sessionData;
   })
   .catch(err=>{
