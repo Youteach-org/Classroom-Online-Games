@@ -1,0 +1,21 @@
+name: Mobile Village Load Regression
+
+on:
+  push:
+    branches:
+      - fix/mobile-village-load
+    paths:
+      - "Verb-Runner/coastal-world.mjs"
+      - "Verb-Runner/tests/hud-village-layout.test.mjs"
+      - ".github/workflows/mobile-village-load-test.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify lightweight village recycling
+        run: |
+          node --check Verb-Runner/coastal-world.mjs
+          node --test Verb-Runner/tests/hud-village-layout.test.mjs
