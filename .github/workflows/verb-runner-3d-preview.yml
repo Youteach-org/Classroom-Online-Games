@@ -10,6 +10,7 @@ on:
       - 'Verb-Runner/coastal-preview.html'
       - 'Verb-Runner/coastal-preview.mjs'
       - 'Verb-Runner/tests/coastal-world-v2.test.mjs'
+      - 'Verb-Runner/tests/coastal-world-v3.test.mjs'
       - '.github/workflows/verb-runner-3d-preview.yml'
   workflow_dispatch:
 
@@ -28,9 +29,9 @@ jobs:
           node --check Verb-Runner/coastal-world.mjs
           node --check Verb-Runner/coastal-preview.mjs
 
-      - name: Run coastal V2 acceptance tests
+      - name: Run coastal visual acceptance tests
         run: |
-          node --test Verb-Runner/tests/coastal-world-v2.test.mjs
+          node --test Verb-Runner/tests/coastal-world-v2.test.mjs Verb-Runner/tests/coastal-world-v3.test.mjs
 
       - name: Prepare preview
         run: |
