@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { COASTAL_SCENE } from './coastal-scene-config.mjs?v=coastal-20260914-4';
+import { COASTAL_SCENE } from './coastal-scene-config.mjs?v=coastal-20260914-5';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
@@ -435,7 +435,7 @@ function sessionFinish(data={}){
   return sessionApi.finishRunner(sessionCode,runnerSessionId,data);
 }
 
-const renderer=new THREE.WebGLRenderer({canvas,antialias:!IS_MOBILE,alpha:false,powerPreference:'high-performance'});
+const renderer=new THREE.WebGLRenderer({canvas,antialias:!IS_MOBILE,alpha:true,powerPreference:'high-performance'});
 renderer.setPixelRatio(IS_MOBILE?Math.min(devicePixelRatio||1,1.1):Math.min(devicePixelRatio||1,2));
 renderer.shadowMap.enabled=!IS_MOBILE;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -444,7 +444,8 @@ renderer.toneMapping=THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure=1.18;
 
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x69c6f0);
+scene.background=null;
+renderer.setClearColor(0x000000,0);
 scene.fog=new THREE.FogExp2(0xd3edf5,IS_MOBILE?0.0065:0.009);
 
 const camera=new THREE.PerspectiveCamera(52,1,.1,180);
@@ -607,7 +608,7 @@ const animeBackdrop=new THREE.Mesh(
   })
 );
 animeBackdrop.position.set(0,COASTAL_SCENE.backdrop.y,COASTAL_SCENE.backdrop.z);
-world.add(animeBackdrop);
+animeBackdrop.visible=false;
 
 function addMover(object,{speedFactor=1,span=180,startZ=null}={}){
   const initialZ=startZ??object.position.z;
