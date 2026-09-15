@@ -1526,28 +1526,29 @@ export function buildCoastalWorld({
 
   // Right: varied 1–2 story Mediterranean frontage. No left-side buildings.
   const sequence=['fruit','house','cafe','house','shop','house','house','cafe','fruit','house','shop','house'];
-  const buildingCount=Math.ceil(NEAR_SPAN/VILLAGE_BUILDING_SPACING);
+  const buildingCount=isMobile?10:15;
+  const villageSpan=buildingCount*VILLAGE_BUILDING_SPACING;
   for(let i=0;i<buildingCount;i++){
     const type=sequence[i%sequence.length];
     const building=createMediterraneanBuilding({index:i+2,type,mobile:isMobile});
     const width=building.userData.bounds?.width||4.7;
     building.position.set(VILLAGE_X+width/2+(i%3===1?.18:0),0,-4-i*VILLAGE_BUILDING_SPACING);
     world.add(building);
-    registerMover(building,{speedFactor:.90,span:NEAR_SPAN,startZ:building.position.z});
+    registerMover(building,{speedFactor:.90,span:villageSpan,startZ:building.position.z});
 
     // Street pots between façades add the dense foreground rhythm of the target.
     if(i%2===0){
       const pot=createPot(.85,true);
       pot.position.set(6.78,0,-9-i*VILLAGE_BUILDING_SPACING);
       world.add(pot);
-      registerMover(pot,{speedFactor:.98,span:NEAR_SPAN,startZ:pot.position.z});
+      registerMover(pot,{speedFactor:.98,span:villageSpan,startZ:pot.position.z});
     }
 
     if(i%2===1){
       const lamp=createLampPost();
       lamp.position.set(6.68,0,-7-i*VILLAGE_BUILDING_SPACING);
       world.add(lamp);
-      registerMover(lamp,{speedFactor:.98,span:NEAR_SPAN,startZ:lamp.position.z});
+      registerMover(lamp,{speedFactor:.98,span:villageSpan,startZ:lamp.position.z});
     }
 
     if(!isMobile&&i%4===2){
@@ -1555,7 +1556,7 @@ export function buildCoastalWorld({
       terrace.position.set(7.25,0,-10-i*VILLAGE_BUILDING_SPACING);
       terrace.scale.setScalar(.82);
       world.add(terrace);
-      registerMover(terrace,{speedFactor:.96,span:NEAR_SPAN,startZ:terrace.position.z});
+      registerMover(terrace,{speedFactor:.96,span:villageSpan,startZ:terrace.position.z});
     }
   }
 
