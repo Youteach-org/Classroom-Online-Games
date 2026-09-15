@@ -846,7 +846,7 @@ function applySessionSettings(settings={}){
   progressValue.textContent='0 / '+totalChallenges;
 }
 
-sessionLoadPromise=import('./session-sync.js')
+sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
   .then(async api=>{
     sessionApi=api;
 
