@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { COASTAL_SCENE } from './coastal-scene-config.mjs?v=coastal-20260914-3';
+import { COASTAL_SCENE } from './coastal-scene-config.mjs?v=coastal-20260914-4';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
@@ -590,23 +590,11 @@ function makeAnimeCoastBackdrop(){
   return tex;
 }
 
-const coastalSceneTexture=new THREE.TextureLoader().load(
-  COASTAL_SCENE.assetPath,
-  texture=>{
-    texture.colorSpace=THREE.SRGBColorSpace;
-    texture.minFilter=THREE.LinearFilter;
-    texture.magFilter=THREE.LinearFilter;
-    texture.needsUpdate=true;
-  },
-  undefined,
-  err=>{
-    console.error('Coastal scene texture failed to load',err);
-    animeBackdrop.visible=false;
-  }
-);
+const coastalSceneTexture=makeAnimeCoastBackdrop();
 coastalSceneTexture.colorSpace=THREE.SRGBColorSpace;
 coastalSceneTexture.minFilter=THREE.LinearFilter;
 coastalSceneTexture.magFilter=THREE.LinearFilter;
+coastalSceneTexture.needsUpdate=true;
 
 const animeBackdrop=new THREE.Mesh(
   new THREE.PlaneGeometry(COASTAL_SCENE.backdrop.width,COASTAL_SCENE.backdrop.height),
