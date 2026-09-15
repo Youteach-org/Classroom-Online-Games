@@ -27,3 +27,17 @@ test('V5 gives the distant settlement a real hillside rise instead of a flat str
   assert.match(world,/TOWN_HILLSIDE_RISE/);
   assert.match(world,/createTownTerrace[\s\S]*?TOWN_HILLSIDE_RISE/);
 });
+
+test('water geometry stops before the seawall and never extends beneath the road',()=>{
+  assert.match(world,/SEA_RIGHT_EDGE/);
+  assert.match(world,/SEA_LEFT_EDGE/);
+  assert.match(world,/const seaWidth=SEA_RIGHT_EDGE-SEA_LEFT_EDGE/);
+  assert.match(world,/const seaCenterX=\(SEA_RIGHT_EDGE\+SEA_LEFT_EDGE\)\/2/);
+  assert.doesNotMatch(world,/new THREE\.PlaneGeometry\(76,250/);
+});
+
+test('gable roofs render opaque from both sides',()=>{
+  assert.match(world,/function createGableRoof[\s\S]*?THREE\.DoubleSide/);
+  assert.match(world,/function createGableRoof[\s\S]*?transparent=false/);
+  assert.match(world,/function createGableRoof[\s\S]*?depthWrite=true/);
+});
