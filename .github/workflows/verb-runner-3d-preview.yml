@@ -11,7 +11,8 @@ on:
       - 'Verb-Runner/coastal-preview.mjs'
       - 'Verb-Runner/tests/coastal-world-v2.test.mjs'
       - 'Verb-Runner/tests/coastal-world-v3.test.mjs'
-      - 'Verb-Runner/tests/coastal-world-v4.test.mjs'
+      - 'Verb-Runner/tests/coastal-world-v4.test.mjs Verb-Runner/tests/coastal-world-v5.test.mjs'
+      - 'Verb-Runner/tests/coastal-world-v5.test.mjs'
       - '.github/workflows/verb-runner-3d-preview.yml'
   workflow_dispatch:
 
