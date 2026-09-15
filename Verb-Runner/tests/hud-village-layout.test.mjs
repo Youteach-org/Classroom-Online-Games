@@ -24,9 +24,12 @@ test('momentum lives in the top-left HUD cluster instead of the bottom status st
   assert.match(css,/\.momentum-panel\{[\s\S]*?width:min\(170px,32vw\)/);
 });
 
-test('Mediterranean village fills the whole recycle span without a long empty sector',()=>{
+test('Mediterranean village stays lightweight on mobile while recycling without a long empty sector',()=>{
   assert.match(coastal,/const VILLAGE_BUILDING_SPACING=12;/);
-  assert.match(coastal,/const buildingCount=Math\.ceil\(NEAR_SPAN\/VILLAGE_BUILDING_SPACING\);/);
-  assert.doesNotMatch(coastal,/const buildingCount=isMobile\?10:15;/);
-  assert.match(coastal,/building\.position\.set\([\s\S]*?-4-i\*VILLAGE_BUILDING_SPACING\)/);
+  assert.match(coastal,/const buildingCount=isMobile\?10:15;/);
+  assert.match(coastal,/const villageSpan=buildingCount\*VILLAGE_BUILDING_SPACING;/);
+  assert.match(coastal,/registerMover\(building,\{speedFactor:\.90,span:villageSpan/);
+  assert.match(coastal,/registerMover\(pot,\{speedFactor:\.98,span:villageSpan/);
+  assert.match(coastal,/registerMover\(lamp,\{speedFactor:\.98,span:villageSpan/);
+  assert.doesNotMatch(coastal,/Math\.ceil\(NEAR_SPAN\/VILLAGE_BUILDING_SPACING\)/);
 });
