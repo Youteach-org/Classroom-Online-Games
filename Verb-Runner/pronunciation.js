@@ -1,7 +1,7 @@
 (function(global){
   let currentAudio=null;
-  const preloadedAudio=new Map();
-  const MAX_PRELOADED=24;
+  const prefetchedAssets=new Set();
+  const SILENT_WAV='data:audio/wav;base64,UklGRmQBAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YUABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==';
 
   function normalizePronunciationKey(value){
     return String(value??'').trim().toLowerCase().replace(/\s+/g,' ');
@@ -14,82 +14,88 @@
     return manifest[key]||null;
   }
 
-  function rememberPreloaded(key,audio){
-    preloadedAudio.delete(key);
-    preloadedAudio.set(key,audio);
-    while(preloadedAudio.size>MAX_PRELOADED){
-      const oldest=preloadedAudio.keys().next().value;
-      if(oldest==null)break;
-      const stale=preloadedAudio.get(oldest);
-      if(stale!==currentAudio){
-        try{stale?.pause?.();}catch{}
-      }
-      preloadedAudio.delete(oldest);
+  function ensurePlaybackAudio(AudioCtor=global.Audio){
+    if(currentAudio)return currentAudio;
+    if(typeof AudioCtor!=='function')return null;
+    try{
+      currentAudio=new AudioCtor();
+      currentAudio.preload='auto';
+      return currentAudio;
+    }catch{
+      return null;
     }
   }
 
-  function preloadPronunciation(value,{AudioCtor=global.Audio}={}){
-    const key=normalizePronunciationKey(value);
-    if(!key||typeof AudioCtor!=='function')return false;
-    const src=pronunciationAsset(key);
-    if(!src)return false;
-
-    const cached=preloadedAudio.get(key);
-    if(cached){
-      rememberPreloaded(key,cached);
-      return true;
-    }
+  function unlockPronunciation({AudioCtor=global.Audio}={}){
+    const audio=ensurePlaybackAudio(AudioCtor);
+    if(!audio)return false;
 
     try{
-      const audio=new AudioCtor(src);
-      audio.preload='auto';
-      rememberPreloaded(key,audio);
-      if(typeof audio.load==='function')audio.load();
+      audio.pause();
+      audio.muted=true;
+      audio.src=SILENT_WAV;
+      audio.currentTime=0;
+      const result=audio.play();
+      if(result&&typeof result.then==='function'){
+        result.then(()=>{
+          try{audio.pause();}catch{}
+          try{audio.currentTime=0;}catch{}
+          audio.muted=false;
+        }).catch(()=>{audio.muted=false;});
+      }else{
+        audio.muted=false;
+      }
       return true;
     }catch{
+      audio.muted=false;
       return false;
     }
+  }
+
+  function preloadPronunciation(value){
+    const src=pronunciationAsset(value);
+    if(!src||prefetchedAssets.has(src))return Boolean(src);
+    prefetchedAssets.add(src);
+    if(typeof global.fetch==='function'){
+      global.fetch(src,{cache:'force-cache'}).catch(()=>prefetchedAssets.delete(src));
+    }
+    return true;
   }
 
   function stopPronunciation(){
     if(!currentAudio)return;
     try{currentAudio.pause();}catch{}
     try{currentAudio.currentTime=0;}catch{}
-    currentAudio=null;
   }
 
   function playCorrectPronunciation(value,{enabled=true,volume=1,AudioCtor=global.Audio}={}){
     if(!enabled)return false;
-    const key=normalizePronunciationKey(value);
-    const src=pronunciationAsset(key);
-    if(!key||!src||typeof AudioCtor!=='function')return false;
+    const src=pronunciationAsset(value);
+    if(!src)return false;
 
-    stopPronunciation();
+    const audio=ensurePlaybackAudio(AudioCtor);
+    if(!audio)return false;
 
-    let audio=preloadedAudio.get(key);
-    if(!audio){
-      try{
-        audio=new AudioCtor(src);
-        audio.preload='auto';
-        rememberPreloaded(key,audio);
-      }catch{
-        return false;
-      }
-    }else{
-      rememberPreloaded(key,audio);
-    }
-
-    currentAudio=audio;
+    try{currentAudio.pause();}catch{}
     try{audio.currentTime=0;}catch{}
-    audio.volume=Math.max(0,Math.min(1,Number.isFinite(Number(volume))?Number(volume):1));
-    if(typeof audio.addEventListener==='function'){
-      audio.addEventListener('ended',()=>{if(currentAudio===audio)currentAudio=null;},{once:true});
+    audio.muted=false;
+    audio.preload='auto';
+    if(audio.src!==new URL(src,global.location?.href||'http://localhost/').href){
+      audio.src=src;
     }
+    audio.volume=Math.max(0,Math.min(1,Number.isFinite(Number(volume))?Number(volume):1));
     try{audio.play().catch(()=>{});}catch{}
     return true;
   }
 
-  const api={normalizePronunciationKey,pronunciationAsset,preloadPronunciation,playCorrectPronunciation,stopPronunciation};
+  const api={
+    normalizePronunciationKey,
+    pronunciationAsset,
+    unlockPronunciation,
+    preloadPronunciation,
+    playCorrectPronunciation,
+    stopPronunciation
+  };
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   global.VerbRunnerPronunciation=api;
 })(typeof window!=='undefined'?window:globalThis);
