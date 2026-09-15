@@ -16,6 +16,7 @@ const firebaseConfig={
 const app=getApps()[0]||initializeApp(firebaseConfig);
 const db=getDatabase(app);
 const ROOT='classroomGames/verbRunnerV2';
+const FREE_ROOT=`${ROOT}/freeMode/students`;
 
 function normalizeCode(code){
   return String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
@@ -86,6 +87,109 @@ async function closeSession(code){
     status:'closed',
     closedAt:serverTimestamp(),
     lastActivity:serverTimestamp()
+  });
+}
+
+async function registerFreeRunnerPresence(runnerId,data={}){
+  if(!runnerId)return;
+  const studentRef=ref(db,`${FREE_ROOT}/${runnerId}`);
+  const existingSnap=await get(studentRef);
+  const existing=existingSnap.exists()?existingSnap.val():null;
+  const now=serverTimestamp();
+
+  await update(studentRef,{
+    id:runnerId,
+    studentName:String(data.studentName||existing?.studentName||runnerId).slice(0,60),
+    status:existing?.status||'waiting',
+    online:true,
+    joinedAt:existing?.joinedAt||now,
+    lastSeen:now,
+    runner:Number(data.runner??existing?.runner??0),
+    difficulty:data.difficulty||existing?.difficulty||'medium',
+    level:Number(data.level??existing?.level??1),
+    mode:data.mode||existing?.mode||'race',
+    total:Number(data.total??existing?.total??20),
+    challenge:Number(existing?.challenge)||1,
+    challengeLabel:existing?.challengeLabel||'Free mode · choosing race and runner',
+    lastAction:'Connected in free mode',
+    latestResult:existing?.latestResult||'waiting',
+    lastEventAt:Date.now()
+  });
+
+  try{
+    await onDisconnect(studentRef).update({
+      online:false,
+      lastSeen:serverTimestamp()
+    });
+  }catch{}
+}
+
+function subscribeFreeRunners(callback,onError){
+  return onValue(
+    ref(db,FREE_ROOT),
+    snap=>callback(snap.exists()?snap.val():{}),
+    error=>onError?.(error)
+  );
+}
+
+async function connectFreeRunner(runnerId,data={}){
+  if(!runnerId)return;
+  const studentRef=ref(db,`${FREE_ROOT}/${runnerId}`);
+  const existingSnap=await get(studentRef);
+  const existing=existingSnap.exists()?existingSnap.val():null;
+  await update(studentRef,{
+    id:runnerId,
+    studentName:String(data.studentName||existing?.studentName||runnerId).slice(0,60),
+    status:'running',
+    online:true,
+    joinedAt:existing?.joinedAt||serverTimestamp(),
+    lastSeen:serverTimestamp(),
+    progress:0,
+    total:Number(data.total)||20,
+    momentum:75,
+    streak:0,
+    correct:0,
+    grammarErrors:0,
+    obstacleHits:0,
+    runner:Number(data.runner)||0,
+    difficulty:data.difficulty||'medium',
+    level:Number(data.level)||1,
+    mode:data.mode||'race',
+    challenge:1,
+    challengeLabel:'Preparing challenge',
+    lastAction:'Started Verb Runner · free mode',
+    latestChoice:'',
+    latestResult:'waiting',
+    correctAnswer:'',
+    lastPrompt:'',
+    attempt:1,
+    lastEventAt:Date.now()
+  });
+  try{
+    await onDisconnect(studentRef).update({
+      online:false,
+      lastSeen:serverTimestamp()
+    });
+  }catch{}
+}
+
+async function updateFreeRunner(runnerId,patch={}){
+  if(!runnerId)return;
+  await update(ref(db,`${FREE_ROOT}/${runnerId}`),{
+    ...patch,
+    online:true,
+    lastSeen:serverTimestamp()
+  });
+}
+
+async function finishFreeRunner(runnerId,result={}){
+  return updateFreeRunner(runnerId,{
+    ...result,
+    status:'finished',
+    latestResult:'completed',
+    lastAction:'Finished race · free mode',
+    finishedAt:serverTimestamp(),
+    lastEventAt:Date.now()
   });
 }
 
@@ -190,5 +294,6 @@ async function finishRunner(code,runnerId,result={}){
 
 export {
   normalizeCode,makeRunnerId,createSession,loadSession,subscribeSession,subscribeSessions,closeSession,
+  registerFreeRunnerPresence,subscribeFreeRunners,connectFreeRunner,updateFreeRunner,finishFreeRunner,
   registerRunnerPresence,connectRunner,updateRunner,finishRunner
 };
