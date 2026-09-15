@@ -36,6 +36,7 @@ test('changing speed synchronizes start and pause controls',()=>{
 
 test('starting speed remains a multiplier while momentum continues to modify target speed',()=>{
   assert.match(game,/playerSpeedMultiplier=percent\/100/);
-  assert.match(game,/const momentumBoost=[\s\S]*?runState\?\.momentum/);
+  assert.match(game,/const momentum=THREE\.MathUtils\.clamp\(\(runState\?\.momentum\?\?75\)\/100/);
+  assert.match(game,/const momentumBoost=[\s\S]*?momentum\)/);
   assert.match(game,/const baseTarget=[\s\S]*?\*momentumBoost[\s\S]*?\*playerSpeedMultiplier/);
 });
