@@ -1983,6 +1983,13 @@ async function collectAnswer(answer){
     await animateAnswerToBlank(selectedCopy,true,startPoint);
     applyRunEvent('correct');
     if(currentLevel!==1)playSfx('correct');
+    const pronunciationDelay=currentLevel===1?0:140;
+    setTimeout(()=>{
+      window.VerbRunnerPronunciation?.playCorrectPronunciation(item.value,{
+        enabled:sfxEnabled,
+        volume:sfxVolume
+      });
+    },pronunciationDelay);
     showNotice('CORRECT!','correct');
     challengeIndex++;
 
