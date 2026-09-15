@@ -83,7 +83,7 @@ function visibleStudents(){
 }
 
 function displayName(student){
-  return student.studentName||student.nickname||student.name||student.id||'Runner';
+  return student.nickname||student.studentName||student.fullName||student.name||student.id||'Runner';
 }
 
 function accuracyFor(student){
@@ -179,10 +179,13 @@ function studentCard(student){
   node.setAttribute('aria-label',displayName(student)+', '+statusLabel(student));
 
   node.innerHTML=`<div class="student-top">
-      <div class="student-name">${esc(displayName(student))}${active==='all'?'<span class="session-chip">'+esc(student._sessionCode)+'</span>':''}</div>
+      <div class="student-name">${esc(displayName(student))}
+        ${student.identitySource==='youteach'?'<span class="identity-chip">YOUTEACH</span>':''}
+        ${active==='all'?'<span class="session-chip">'+esc(student._sessionCode)+'</span>':''}
+      </div>
       <span class="${online?'online-badge':'offline-badge'}">${online?'● LIVE':statusLabel(student)}</span>
     </div>
-    <div class="activity-title">Level ${level} · Challenge ${Math.min(challenge,total)} / ${total} · ${esc(mode)}</div>
+    <div class="activity-title">Level ${level} · Challenge ${Math.min(challenge,total)} / ${total} · ${esc(mode)}${student.groupName?' · '+esc(student.groupName):''}</div>
     <div class="activity-summary">${esc(student.challengeLabel||'Waiting for the next challenge')}</div>
     <div class="last-action">${esc(student.lastAction||'Waiting for activity')}</div>
     <div class="live-grid">
