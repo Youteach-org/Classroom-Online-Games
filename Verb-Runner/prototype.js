@@ -400,16 +400,19 @@ let gameSettings={
 
 const sessionParams=new URLSearchParams(location.search);
 const sessionCode=(sessionParams.get('session')||'').toUpperCase();
+const launchToken=String(sessionParams.get('launch')||'').trim();
 const sessionStudentName=String(
   sessionParams.get('studentName')||
   sessionParams.get('nickname')||
   sessionParams.get('name')||
   ''
 ).trim().slice(0,60);
+const YOUTEACH_IDENTITY_KEY='verbRunnerYouTeachIdentity';
 let sessionApi=null;
 let sessionData=null;
 let sessionRunFinished=false;
 let sessionLoadPromise=Promise.resolve(null);
+let youTeachIdentity=null;
 
 function localRunnerId(){
   try{
@@ -422,22 +425,66 @@ function localRunnerId(){
     return 'R-'+Math.random().toString(36).slice(2,6).toUpperCase();
   }
 }
-const runnerSessionId=localRunnerId();
+
+function readStoredYouTeachIdentity(){
+  try{
+    const raw=localStorage.getItem(YOUTEACH_IDENTITY_KEY);
+    if(!raw)return null;
+    const identity=JSON.parse(raw);
+    return identity?.studentKey?identity:null;
+  }catch{return null;}
+}
+
+function storeYouTeachIdentity(identity){
+  try{
+    if(identity?.studentKey)localStorage.setItem(YOUTEACH_IDENTITY_KEY,JSON.stringify(identity));
+  }catch{}
+}
+
+function cleanLaunchTokenFromUrl(){
+  if(!launchToken)return;
+  const clean=new URL(location.href);
+  clean.searchParams.delete('launch');
+  history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
+}
+
+youTeachIdentity=readStoredYouTeachIdentity();
+let runnerSessionId=localRunnerId();
+if(youTeachIdentity?.studentKey){
+  runnerSessionId='YT-'+String(youTeachIdentity.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
+}
+
+function monitorIdentityData(){
+  return {
+    studentName:youTeachIdentity?.nickname||sessionStudentName||runnerSessionId,
+    studentKey:youTeachIdentity?.studentKey||'',
+    nickname:youTeachIdentity?.nickname||'',
+    fullName:youTeachIdentity?.fullName||'',
+    groupName:youTeachIdentity?.groupName||'',
+    studentNumber:youTeachIdentity?.studentNumber||'',
+    identitySource:youTeachIdentity?'youteach':'local'
+  };
+}
 
 function sessionUpdate(patch={}){
   if(!sessionApi||!sessionData)return Promise.resolve();
   if(sessionCode)return sessionApi.updateRunner(sessionCode,runnerSessionId,patch);
-  return sessionApi.updateFreeRunner(runnerSessionId,patch);
+  if(youTeachIdentity)return sessionApi.updateFreeRunner(runnerSessionId,patch);
+  return Promise.resolve();
 }
 function sessionConnect(data={}){
   if(!sessionApi||!sessionData)return Promise.resolve();
-  if(sessionCode)return sessionApi.connectRunner(sessionCode,runnerSessionId,data);
-  return sessionApi.connectFreeRunner(runnerSessionId,data);
+  const payload={...monitorIdentityData(),...data};
+  if(sessionCode)return sessionApi.connectRunner(sessionCode,runnerSessionId,payload);
+  if(youTeachIdentity)return sessionApi.connectFreeRunner(runnerSessionId,payload);
+  return Promise.resolve();
 }
 function sessionFinish(data={}){
   if(!sessionApi||!sessionData)return Promise.resolve();
-  if(sessionCode)return sessionApi.finishRunner(sessionCode,runnerSessionId,data);
-  return sessionApi.finishFreeRunner(runnerSessionId,data);
+  const payload={...monitorIdentityData(),...data};
+  if(sessionCode)return sessionApi.finishRunner(sessionCode,runnerSessionId,payload);
+  if(youTeachIdentity)return sessionApi.finishFreeRunner(runnerSessionId,payload);
+  return Promise.resolve();
 }
 
 const renderer=new THREE.WebGLRenderer({canvas,antialias:!IS_MOBILE,alpha:false,powerPreference:'high-performance'});
@@ -802,13 +849,23 @@ function applySessionSettings(settings={}){
 sessionLoadPromise=import('./session-sync.js')
   .then(async api=>{
     sessionApi=api;
+
+    if(launchToken){
+      const resolved=await sessionApi.resolveYouTeachLaunchToken(launchToken);
+      if(!resolved)throw new Error('Invalid or expired YouTeach credential');
+      youTeachIdentity=resolved;
+      storeYouTeachIdentity(resolved);
+      runnerSessionId='YT-'+String(resolved.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
+      cleanLaunchTokenFromUrl();
+    }
+
     const presenceData={
       level:currentLevel,
       mode:raceMode(),
       total:totalChallenges,
       runner:selectedVariant,
       difficulty:difficulty.name,
-      studentName:sessionStudentName||runnerSessionId
+      ...monitorIdentityData()
     };
 
     if(sessionCode){
@@ -818,19 +875,27 @@ sessionLoadPromise=import('./session-sync.js')
       sessionData=data;
       applySessionSettings(data.settings||{});
       await sessionApi.registerRunnerPresence(sessionCode,runnerSessionId,presenceData);
-      modelStatus.textContent='Session '+sessionCode+' ready · connected';
+      modelStatus.textContent='Session '+sessionCode+' ready · '+(youTeachIdentity?.nickname||'connected');
       return data;
     }
 
-    sessionData={status:'free'};
-    await sessionApi.registerFreeRunnerPresence(runnerSessionId,presenceData);
+    if(youTeachIdentity){
+      sessionData={status:'free',identitySource:'youteach'};
+      await sessionApi.registerFreeRunnerPresence(runnerSessionId,presenceData);
+      modelStatus.textContent=(youTeachIdentity.nickname||'Student')+' · Free mode';
+      return sessionData;
+    }
+
+    sessionData={status:'local'};
     return sessionData;
   })
   .catch(err=>{
     console.error('Verb Runner monitor presence failed',err);
     sessionApi=null;
     sessionData=null;
-    if(sessionCode)modelStatus.textContent='Session unavailable · local mode';
+    modelStatus.textContent=launchToken
+      ?'YouTeach credential expired · reopen Verb Runner from YouTeach'
+      :(sessionCode?'Session unavailable · local mode':modelStatus.textContent);
     return null;
   });
 
@@ -2515,7 +2580,7 @@ startButton.addEventListener('click',async()=>{
       total:totalChallenges,
       runner:selectedVariant,
       difficulty:difficulty.name,
-      studentName:sessionStudentName||runnerSessionId
+      ...monitorIdentityData()
     }).catch(()=>{});
     renderChallenge();
     updateHud();
@@ -2647,7 +2712,7 @@ nextLevelButton?.addEventListener('click',async()=>{
       total:totalChallenges,
       runner:selectedVariant,
       difficulty:difficulty.name,
-      studentName:sessionStudentName||runnerSessionId
+      ...monitorIdentityData()
     }).catch(()=>{});
     renderChallenge();
     updateHud();
