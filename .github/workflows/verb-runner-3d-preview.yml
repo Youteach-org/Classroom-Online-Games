@@ -56,14 +56,27 @@ jobs:
           npx wrangler@4 pages deploy preview-dist --project-name=classroom-online-games --branch=vr-3d-preview --commit-hash=${{ github.sha }}
 
       - name: Capture deployed preview screenshot
+        timeout-minutes: 2
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
           test -n "$BROWSER"
-          sleep 4
-          "$BROWSER" --headless --no-sandbox --disable-gpu --hide-scrollbars \
-            --window-size=1536,864 --virtual-time-budget=7000 \
-            --screenshot=verb-runner-coastal-preview.png \
-            https://vr-3d-preview.classroom-online-games.pages.dev
+          cat > capture-preview.cjs <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({
+              headless:true,
+              executablePath:process.env.BROWSER,
+              args:['--no-sandbox','--disable-gpu']
+            });
+            const page=await browser.newPage({viewport:{width:1536,height:864}});
+            await page.goto('https://vr-3d-preview.classroom-online-games.pages.dev',{waitUntil:'domcontentloaded',timeout:30000});
+            await page.waitForTimeout(6500);
+            await page.screenshot({path:'verb-runner-coastal-preview.png'});
+            await browser.close();
+          })();
+          NODE
+          BROWSER="$BROWSER" npm exec --yes --package=playwright -- node capture-preview.cjs
+          test -s verb-runner-coastal-preview.png
 
       - name: Upload preview screenshot
         uses: actions/upload-artifact@v4
