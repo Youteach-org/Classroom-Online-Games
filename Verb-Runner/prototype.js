@@ -2569,6 +2569,8 @@ document.querySelectorAll('[data-difficulty]').forEach(btn=>{
 });
 
 startButton.addEventListener('click',async()=>{
+  ensureAudio();
+  window.VerbRunnerPronunciation?.unlockPronunciation();
   await sessionLoadPromise;
   sessionRunFinished=false;
   resetRun();
