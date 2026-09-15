@@ -1475,3 +1475,92 @@ button,a{-webkit-tap-highlight-color:transparent}
     width:100%;
   }
 }
+
+
+/* Compact external challenge label */
+.hud{
+  grid-template-areas:
+    "left right"
+    "label label"
+    "center center";
+  row-gap:4px;
+}
+.challenge-label{
+  grid-area:label;
+  justify-self:center;
+  align-self:end;
+  margin:0;
+  color:#d7e4ec;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.18em;
+  line-height:1;
+  text-transform:uppercase;
+  text-shadow:0 1px 2px rgba(0,0,0,.35);
+}
+.hud-center{
+  padding-top:5px;
+  padding-bottom:10px;
+}
+.principal-parts{
+  min-height:68px;
+  align-items:center;
+}
+.game-concept-credit{
+  position:absolute;
+  z-index:9;
+  left:max(10px,env(safe-area-inset-left));
+  bottom:max(8px,env(safe-area-inset-bottom));
+  color:rgba(230,240,246,.72);
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:.02em;
+  text-shadow:0 1px 3px rgba(0,0,0,.5);
+  pointer-events:auto;
+}
+.game-concept-credit a{
+  color:#9eefff;
+  text-decoration:none;
+  border-bottom:1px dotted rgba(158,239,255,.55);
+}
+.game-concept-credit a:hover,
+.game-concept-credit a:focus-visible{
+  color:#e6fbff;
+  border-bottom-color:#e6fbff;
+}
+
+@media(max-width:640px){
+  .hud{
+    grid-template-areas:
+      "left right"
+      "label label"
+      "center center";
+    row-gap:3px;
+  }
+  .challenge-label{
+    font-size:6.5px;
+    letter-spacing:.15em;
+  }
+  .hud-center{
+    padding-top:4px;
+    padding-bottom:9px;
+  }
+  .principal-parts{
+    min-height:58px;
+  }
+  .game-concept-credit{
+    left:max(7px,env(safe-area-inset-left));
+    bottom:max(6px,env(safe-area-inset-bottom));
+    font-size:6.5px;
+  }
+}
+
+@media(max-width:380px){
+  .hud{
+    grid-template-areas:
+      "left"
+      "right"
+      "label"
+      "center";
+  }
+}
