@@ -1,0 +1,28 @@
+name: Inspect Cloudflare Project
+
+on:
+  push:
+    branches:
+      - verify/mobile-production-load
+    paths:
+      - ".github/workflows/inspect-cloudflare-project.yml"
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect Pages project and deployments
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID_RAW: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -e
+          ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID_RAW" | tr -d '[:space:]')"
+          AUTH=(-H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json")
+
+          echo "=== PROJECT ==="
+          curl -fsS "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/classroom-online-games" "${AUTH[@]}"             | jq '{success, result:{name,subdomain,production_branch,domains,canonical_deployment:(.result.canonical_deployment // null),latest_deployment:(.result.latest_deployment // null)}}'
+
+          echo "=== DEPLOYMENTS ==="
+          curl -fsS "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/classroom-online-games/deployments" "${AUTH[@]}"             | jq '{success, result:[.result[0:8][] | {id,short_id,url,environment,aliases,created_on,source,latest_stage}]}'
