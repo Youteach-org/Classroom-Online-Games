@@ -1,4 +1,4 @@
-import {createSession,subscribeSessions,subscribeFreeRunners,closeSession} from './session-sync.js';
+import {createSession,subscribeSessions,subscribeFreeRunners,closeSession} from './session-sync.js?v=youteach-credentials-20260915-1';
 
 const $=id=>document.getElementById(id);
 const esc=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
