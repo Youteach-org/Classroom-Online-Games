@@ -41,7 +41,7 @@ scene.add(fill);
 
 const world=new THREE.Group();
 scene.add(world);
-buildCoastalWorld({scene,world,isMobile:matchMedia('(pointer:coarse)').matches});
+const coastalWorld=buildCoastalWorld({scene,world,isMobile:matchMedia('(pointer:coarse)').matches});
 
 const views={
   game:{p:[0,4.9,10.6],t:[0,1.62,-22]},
@@ -75,8 +75,9 @@ addEventListener('resize',resize);
 resize();
 
 let firstFrame=true;
-function animate(){
+function animate(time=0){
   requestAnimationFrame(animate);
+  coastalWorld.update(time*0.001);
   controls.update();
   renderer.render(scene,camera);
   if(firstFrame){
