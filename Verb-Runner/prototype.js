@@ -425,16 +425,19 @@ function localRunnerId(){
 const runnerSessionId=localRunnerId();
 
 function sessionUpdate(patch={}){
-  if(!sessionApi||!sessionData||!sessionCode)return Promise.resolve();
-  return sessionApi.updateRunner(sessionCode,runnerSessionId,patch);
+  if(!sessionApi||!sessionData)return Promise.resolve();
+  if(sessionCode)return sessionApi.updateRunner(sessionCode,runnerSessionId,patch);
+  return sessionApi.updateFreeRunner(runnerSessionId,patch);
 }
 function sessionConnect(data={}){
-  if(!sessionApi||!sessionData||!sessionCode)return Promise.resolve();
-  return sessionApi.connectRunner(sessionCode,runnerSessionId,data);
+  if(!sessionApi||!sessionData)return Promise.resolve();
+  if(sessionCode)return sessionApi.connectRunner(sessionCode,runnerSessionId,data);
+  return sessionApi.connectFreeRunner(runnerSessionId,data);
 }
 function sessionFinish(data={}){
-  if(!sessionApi||!sessionData||!sessionCode)return Promise.resolve();
-  return sessionApi.finishRunner(sessionCode,runnerSessionId,data);
+  if(!sessionApi||!sessionData)return Promise.resolve();
+  if(sessionCode)return sessionApi.finishRunner(sessionCode,runnerSessionId,data);
+  return sessionApi.finishFreeRunner(runnerSessionId,data);
 }
 
 const renderer=new THREE.WebGLRenderer({canvas,antialias:!IS_MOBILE,alpha:false,powerPreference:'high-performance'});
@@ -796,36 +799,40 @@ function applySessionSettings(settings={}){
   progressValue.textContent='0 / '+totalChallenges;
 }
 
-if(sessionCode){
-  modelStatus.textContent='Loading classroom session '+sessionCode+'…';
-  sessionLoadPromise=import('./session-sync.js')
-    .then(api=>{
-      sessionApi=api;
-      return api.loadSession(sessionCode);
-    })
-    .then(async data=>{
+sessionLoadPromise=import('./session-sync.js')
+  .then(async api=>{
+    sessionApi=api;
+    const presenceData={
+      level:currentLevel,
+      mode:raceMode(),
+      total:totalChallenges,
+      runner:selectedVariant,
+      difficulty:difficulty.name,
+      studentName:sessionStudentName||runnerSessionId
+    };
+
+    if(sessionCode){
+      modelStatus.textContent='Loading classroom session '+sessionCode+'…';
+      const data=await api.loadSession(sessionCode);
       if(!data||data.status!=='active')throw new Error('Session not active');
       sessionData=data;
       applySessionSettings(data.settings||{});
-      await sessionApi.registerRunnerPresence(sessionCode,runnerSessionId,{
-        level:currentLevel,
-        mode:raceMode(),
-        total:totalChallenges,
-        runner:selectedVariant,
-        difficulty:difficulty.name,
-        studentName:sessionStudentName||runnerSessionId
-      });
+      await api.registerRunnerPresence(sessionCode,runnerSessionId,presenceData);
       modelStatus.textContent='Session '+sessionCode+' ready · connected';
       return data;
-    })
-    .catch(err=>{
-      console.error('Verb Runner session load failed',err);
-      sessionApi=null;
-      sessionData=null;
-      modelStatus.textContent='Session unavailable · local mode';
-      return null;
-    });
-}
+    }
+
+    sessionData={status:'free'};
+    await api.registerFreeRunnerPresence(runnerSessionId,presenceData);
+    return sessionData;
+  })
+  .catch(err=>{
+    console.error('Verb Runner monitor presence failed',err);
+    sessionApi=null;
+    sessionData=null;
+    if(sessionCode)modelStatus.textContent='Session unavailable · local mode';
+    return null;
+  });
 
 
 
@@ -849,7 +856,7 @@ function updateHud(){
   progressValue.textContent=`${runState.completed} / ${totalChallenges}`;
   momentumValue.textContent=`${runState.momentum}%`;
   momentumFill.style.width=`${runState.momentum}%`;
-  if(sessionCode&&sessionData){
+  if(sessionData){
     sessionUpdate({
       progress:runState.completed,
       total:totalChallenges,
@@ -995,7 +1002,7 @@ function renderChallenge(){
     const cueBadge=sentenceCue?.closest('small');
     if(cueBadge)cueBadge.hidden=difficulty.name!=='easy';
     requestAnimationFrame(fitSentencePrompt);
-    if(sessionCode&&sessionData){
+    if(sessionData){
       const easyHint=difficulty.name==='easy'
         ?' ['+String(currentLevel===5?currentChallenge.focus:(currentLevel===4?currentChallenge.focus:(currentLevel===3?currentChallenge.grammarLabel:(currentChallenge.cue||'')))).toUpperCase()+']'
         :'';
@@ -1021,7 +1028,7 @@ function renderChallenge(){
     else if(value&&display.length>=8)el.classList.add('long-form');
   });
   requestAnimationFrame(fitPrincipalPartText);
-  if(sessionCode&&sessionData){
+  if(sessionData){
     const known=currentChallenge.slots.map(v=>v?String(v).toUpperCase():'?').join(' · ');
     sessionUpdate({
       challenge:challengeIndex+1,
@@ -1891,7 +1898,7 @@ async function collectAnswer(answer){
   answerResolutionActive=true;
   const item=answer.item;
   playSfx('select');
-  if(sessionCode&&sessionData){
+  if(sessionData){
     sessionUpdate({
       lastPrompt:reportQuestionText(currentChallenge),
       latestChoice:String(item.value||''),
@@ -1938,7 +1945,7 @@ async function collectAnswer(answer){
 
 function missedCorrectAnswer(){
   if(victoryMode)return;
-  if(sessionCode&&sessionData){
+  if(sessionData){
     sessionUpdate({
       lastPrompt:reportQuestionText(currentChallenge),
       latestChoice:'',
@@ -2173,7 +2180,7 @@ function setPaused(next){
   }
   pauseButton.classList.toggle('is-paused',next); pauseButton.setAttribute('aria-label',next?'Resume game':'Pause game');
   modelStatus.textContent=next?'Paused':variants[selectedVariant].name+' robot · COASTAL VILLAGE';
-  if(sessionCode&&sessionData)sessionUpdate({status:next?'paused':'running'}).catch(()=>{});
+  if(sessionData)sessionUpdate({status:next?'paused':'running'}).catch(()=>{});
 }
 
 function finishRun(){
@@ -2216,7 +2223,7 @@ function finishRun(){
     }));
   }catch{}
 
-  if(sessionCode&&sessionData){
+  if(sessionData){
     sessionFinish({
       level:currentLevel,
       mode:raceMode(),
@@ -2501,7 +2508,7 @@ startButton.addEventListener('click',async()=>{
   startMusic();
   play('run',.12);
   modelStatus.textContent=variants[selectedVariant].name+' robot · COASTAL VILLAGE';
-  if(sessionCode&&sessionData){
+  if(sessionData){
     await sessionConnect({
       level:currentLevel,
       mode:raceMode(),
@@ -2633,7 +2640,7 @@ nextLevelButton?.addEventListener('click',async()=>{
   startMusic();
   play('run',.12);
   modelStatus.textContent=variants[selectedVariant].name+' robot · COASTAL VILLAGE';
-  if(sessionCode&&sessionData){
+  if(sessionData){
     await sessionConnect({
       level:currentLevel,
       mode:raceMode(),
@@ -3158,7 +3165,7 @@ function hit(){
   flash.classList.add('on');
   setTimeout(()=>flash.classList.remove('on'),180);
   applyRunEvent('obstacle-hit');
-  if(sessionCode&&sessionData){
+  if(sessionData){
     sessionUpdate({
       latestResult:'obstacle',
       lastAction:'Obstacle hit',
@@ -3300,7 +3307,7 @@ function updateWorld(dt){
 
 
 setInterval(()=>{
-  if(sessionCode&&sessionData&&!sessionRunFinished){
+  if(sessionData&&!sessionRunFinished){
     sessionUpdate({
       status:gameStarted?(gamePaused?'paused':(victoryMode?'victory':'running')):'waiting',
       progress:runState?.completed||0,
