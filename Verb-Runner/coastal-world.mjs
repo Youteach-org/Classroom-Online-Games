@@ -100,6 +100,230 @@ const GEO={
   fruit:new THREE.IcosahedronGeometry(.5,1)
 };
 
+
+function createOrganicFoliageGeometry(detail=2,seed=1){
+  const geo=new THREE.IcosahedronGeometry(.5,detail).toNonIndexed();
+  const pos=geo.attributes.position;
+  for(let i=0;i<pos.count;i++){
+    const x=pos.getX(i),y=pos.getY(i),z=pos.getZ(i);
+    const n=Math.sin((x*17.31+y*29.17+z*43.73+seed*7.11))*0.5+
+      Math.sin((x*31.7-y*13.9+z*19.3+seed*3.17))*0.5;
+    const scale=1+n*.075;
+    pos.setXYZ(i,x*scale,y*scale,z*scale);
+  }
+  geo.computeVertexNormals();
+  return geo;
+}
+
+const ORGANIC_FOLIAGE=[
+  createOrganicFoliageGeometry(2,1),
+  createOrganicFoliageGeometry(2,2),
+  createOrganicFoliageGeometry(2,3)
+];
+
+function addArchedOpening(group,faceX,y,z,width=.95,height=1.9,material=MATERIALS.darkWood){
+  addBox(group,.10,height-width*.48,width,material,faceX,y-(width*.22),z,{cast:false});
+  const arch=new THREE.Mesh(
+    new THREE.TorusGeometry(width*.5,.075,8,24,Math.PI),
+    MATERIALS.trimDark
+  );
+  arch.rotation.set(0,Math.PI/2,Math.PI/2);
+  arch.position.set(faceX-.07,y+height*.34,z);
+  arch.castShadow=false;
+  group.add(arch);
+  for(const dz of [-width*.48,width*.48]){
+    addBox(group,.09,height*.62,.08,MATERIALS.trim,faceX-.09,y-height*.12,z+dz,{cast:false});
+  }
+}
+
+function addRoofTileRows(group,width,depth,height,material=MATERIALS.terracotta){
+  const rows=5;
+  for(let i=0;i<rows;i++){
+    const t=(i+.45)/rows;
+    const x=-width*.52+t*width;
+    const rise=height*(1-Math.abs(t-.5)*2);
+    const ridge=addBox(group,.10,.08,depth+.44,material,x,rise+.08,0,{cast:false});
+    ridge.rotation.z=(t<.5?-1:1)*27*DEG;
+  }
+  for(const z of [-depth*.5,depth*.5]){
+    const cap=addBox(group,width+.38,.09,.12,MATERIALS.terracottaLight,0,.05,z,{cast:false});
+    cap.rotation.z=0;
+  }
+}
+
+function addChimney(group,width,height,depth,index=0){
+  const x=(index%2?.22:-.18)*width;
+  const z=(index%3-.9)*depth*.18;
+  addBox(group,.48,1.05,.48,MATERIALS.trim,x,height+.45,z);
+  addBox(group,.62,.12,.62,MATERIALS.terracotta,x,height+1.02,z);
+}
+
+function createPergola(width=2.8,depth=1.8){
+  const g=new THREE.Group();
+  for(const z of [-depth*.46,depth*.46]){
+    for(const x of [-width*.46,width*.46]){
+      addBox(g,.10,2.15,.10,MATERIALS.darkWood,x,1.08,z);
+    }
+  }
+  for(let i=0;i<7;i++){
+    addBox(g,width,.09,.11,MATERIALS.wood,0,2.17,-depth*.46+i*(depth*.92/6));
+  }
+  for(const x of [-width*.46,width*.46])addBox(g,.12,.12,depth,MATERIALS.darkWood,x,2.12,0);
+  return g;
+}
+
+function addBougainvillea(group,faceX,y,z,scale=1){
+  const vine=mesh(new THREE.CylinderGeometry(.025,.04,2.2*scale,6),MATERIALS.trunk,{cast:false});
+  vine.position.set(faceX-.14,y,z);
+  vine.rotation.z=.16;
+  group.add(vine);
+  for(let i=0;i<9;i++){
+    const a=i*2.399;
+    const foliage=mesh(ORGANIC_FOLIAGE[i%ORGANIC_FOLIAGE.length],i%3===0?MATERIALS.flowerPink:MATERIALS.leafB,{cast:false});
+    foliage.scale.set(.22*scale,.27*scale,.20*scale);
+    foliage.position.set(faceX-.18,y-.82*scale+i*.19*scale,z+Math.sin(a)*.48*scale);
+    group.add(foliage);
+  }
+}
+
+function createCypress(scale=1){
+  const g=new THREE.Group();
+  const trunk=mesh(new THREE.CylinderGeometry(.08*scale,.12*scale,2.0*scale,8),MATERIALS.trunk);
+  trunk.position.y=1.0*scale;
+  g.add(trunk);
+  for(let i=0;i<5;i++){
+    const crown=mesh(new THREE.ConeGeometry((.55-i*.065)*scale,1.35*scale,10),MATERIALS.leafC);
+    crown.position.y=(1.55+i*.50)*scale;
+    g.add(crown);
+  }
+  return g;
+}
+
+function createIrregularMountain(radius,height,seed=1,segments=34,rings=9){
+  const positions=[];
+  const indices=[];
+  for(let r=0;r<=rings;r++){
+    const t=r/rings;
+    const profile=Math.pow(Math.max(.025,1-t),.58);
+    for(let s=0;s<segments;s++){
+      const a=s/segments*Math.PI*2;
+      const jag=.86+
+        .11*Math.sin(a*3.1+seed*1.7)+
+        .06*Math.sin(a*7.3+seed*2.9)+
+        .035*Math.sin(a*13.7+seed);
+      const asym=1+.12*Math.sin(a+seed*.7);
+      const rr=radius*profile*jag*asym;
+      positions.push(
+        Math.cos(a)*rr,
+        height*t + Math.sin(a*4+seed)*radius*.012*(1-t),
+        Math.sin(a)*rr*.70
+      );
+    }
+  }
+  for(let r=0;r<rings;r++){
+    for(let s=0;s<segments;s++){
+      const n=(s+1)%segments;
+      const a=r*segments+s,b=r*segments+n,c=(r+1)*segments+s,d=(r+1)*segments+n;
+      indices.push(a,c,b,b,c,d);
+    }
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function createMountainLayer(specs,material){
+  const g=new THREE.Group();
+  specs.forEach(([x,y,z,r,h,seed])=>{
+    const m=mesh(createIrregularMountain(r,h,seed),material,{cast:false,receive:false});
+    m.position.set(x,y,z);
+    g.add(m);
+  });
+  return g;
+}
+
+function createWaterMaterial(animators){
+  const uniforms={
+    uTime:{value:0},
+    uDeep:{value:new THREE.Color(0x0f86ad)},
+    uShallow:{value:new THREE.Color(0x55cddd)},
+    uSky:{value:new THREE.Color(0xcdeef3)}
+  };
+  const material=new THREE.ShaderMaterial({
+    uniforms,
+    transparent:true,
+    opacity:.98,
+    side:THREE.DoubleSide,
+    vertexShader:`
+      uniform float uTime;
+      varying float vWave;
+      varying vec2 vUv2;
+      void main(){
+        vec3 p=position;
+        float w1=sin((p.x+uTime*2.0)*0.22)*0.11;
+        float w2=sin((p.y-uTime*1.35)*0.31)*0.075;
+        float w3=sin((p.x+p.y+uTime*.9)*0.14)*0.055;
+        p.z+=w1+w2+w3;
+        vWave=w1+w2+w3;
+        vUv2=uv;
+        gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
+      }`,
+    fragmentShader:`
+      uniform float uTime;
+      uniform vec3 uDeep;
+      uniform vec3 uShallow;
+      uniform vec3 uSky;
+      varying float vWave;
+      varying vec2 vUv2;
+      void main(){
+        float shore=smoothstep(.03,.42,vUv2.x);
+        float shimmer=.5+.5*sin((vUv2.x*86.0+vUv2.y*57.0)+uTime*2.1);
+        float line=smoothstep(.94,1.0,shimmer)*.10;
+        vec3 water=mix(uShallow,uDeep,shore);
+        water=mix(water,uSky,clamp(.08+vWave*.35+line,0.0,.22));
+        gl_FragColor=vec4(water,.97);
+      }`
+  });
+  animators.push(time=>{uniforms.uTime.value=time;});
+  return material;
+}
+
+function createBellTower(){
+  const g=new THREE.Group();
+  addBox(g,1.35,5.4,1.35,MATERIALS.trim,0,2.7,0,{cast:false});
+  for(const z of [-.33,.33]){
+    const opening=mesh(new THREE.CylinderGeometry(.17,.17,.18,14),MATERIALS.darkWood,{cast:false});
+    opening.rotation.z=Math.PI/2;
+    opening.position.set(-.70,4.35,z);
+    g.add(opening);
+  }
+  const roof=new THREE.Mesh(new THREE.ConeGeometry(1.06,1.7,4),MATERIALS.terracotta);
+  roof.rotation.y=45*DEG;
+  roof.position.y=6.15;
+  roof.castShadow=false;
+  g.add(roof);
+  const crossV=addBox(g,.08,.72,.08,MATERIALS.rail,0,7.15,0,{cast:false});
+  const crossH=addBox(g,.08,.08,.52,MATERIALS.rail,0,7.24,0,{cast:false});
+  return g;
+}
+
+function createAtmosphericHaze(scene){
+  const layers=[
+    {z:-155,w:150,h:18,o:.085,c:0xdceff0},
+    {z:-205,w:170,h:22,o:.12,c:0xe9eadb}
+  ];
+  for(const layer of layers){
+    const veil=new THREE.Mesh(
+      new THREE.PlaneGeometry(layer.w,layer.h),
+      new THREE.MeshBasicMaterial({color:layer.c,transparent:true,opacity:layer.o,depthWrite:false,fog:false,toneMapped:false})
+    );
+    veil.position.set(0,8,layer.z);
+    scene.add(veil);
+  }
+}
+
 function mesh(geometry,material,{cast=true,receive=true}={}){
   const m=new THREE.Mesh(geometry,material);
   m.castShadow=cast;
@@ -754,8 +978,10 @@ export function buildCoastalWorld({
 }={}){
   if(!scene||!world)throw new Error('buildCoastalWorld requires scene and world');
 
+  const animators=[];
   createSkyDome(scene);
-  createSea(scene,isMobile);
+  createAtmosphericHaze(scene);
+  createSea(scene,isMobile,animators);
   createMountainBackdrop(scene,isMobile);
   createHillsideTown(scene,isMobile);
 
@@ -813,5 +1039,10 @@ export function buildCoastalWorld({
     registerFarMover(mid,{speedFactor:.32,span:FAR_SPAN,startZ:mid.position.z});
   }
 
-  return {laneMarkers};
+  return {
+    laneMarkers,
+    update(time){
+      for(const animate of animators)animate(time);
+    }
+  };
 }
