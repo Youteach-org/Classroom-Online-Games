@@ -4,6 +4,13 @@ import { COASTAL_SCENE } from './coastal-scene-config.mjs';
 const DEG=Math.PI/180; // degrees to radians
 const SEA_COLOR=0x159fc5;
 const SKY_COLOR=0x8fd4ef;
+const ROAD_WIDTH=12;
+const LEFT_PROMENADE_WIDTH=4.5;
+const RIGHT_SIDEWALK_WIDTH=2.35;
+const SEA_WALL_X=-10.42;
+const VILLAGE_X=8.35;
+const NEAR_SPAN=195;
+const FAR_SPAN=235;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
 function mat(color,roughness=.78,metalness=.02){
