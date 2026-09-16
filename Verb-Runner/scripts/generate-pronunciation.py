@@ -40,6 +40,34 @@ def normalize(value: str) -> str:
     return re.sub(r'\s+', ' ', str(value or '').strip().lower())
 
 
+def load_corrections(root: Path) -> dict[str, dict]:
+    path = root / 'pronunciation-corrections.json'
+    if not path.exists():
+        return {}
+    raw = json.loads(path.read_text(encoding='utf-8'))
+    items = raw.get('items', {})
+    if not isinstance(items, dict):
+        raise RuntimeError('pronunciation-corrections.json items must be an object')
+    return {normalize(key): value for key, value in items.items()}
+
+
+def correction_phonemes(pipeline, spec: dict) -> str:
+    explicit = str(spec.get('kokoro_phonemes') or '').strip()
+    if explicit:
+        return explicit
+
+    target_text = str(spec.get('target_text') or '').strip()
+    if not target_text:
+        raise RuntimeError('Correction is missing target_text')
+
+    _, tokens = pipeline.g2p(target_text)
+    chunks = [ps for _gs, ps, _tks in pipeline.en_tokenize(tokens) if ps]
+    phonemes = ' '.join(chunks).strip()
+    if not phonemes:
+        raise RuntimeError(f'No phonemes resolved for correction text: {target_text!r}')
+    return phonemes
+
+
 def _quoted_values(text: str) -> list[str]:
     return [m.group(2) for m in re.finditer(r'(["\'])(.*?)\1', text, flags=re.S)]
 
@@ -70,16 +98,20 @@ def spoken_text(answer: str) -> str:
     return value.rstrip('.!?') + '.'
 
 
-def pronunciation_signature(answer: str) -> str:
+def pronunciation_signature(answer: str, corrections: dict[str, dict]) -> str:
     key = normalize(answer)
+    correction = corrections.get(key)
+    if correction:
+        payload = json.dumps(correction, ensure_ascii=False, sort_keys=True)
+        return f'{key}|reviewed-correction|{payload}'
     phonemes = VERB_PHONEME_OVERRIDES.get(key, '')
     return f'{key}|{phonemes}' if phonemes else key
 
 
-def asset_filename(answer: str) -> str:
+def asset_filename(answer: str, corrections: dict[str, dict]) -> str:
     key = normalize(answer)
     slug = re.sub(r'[^a-z0-9]+', '-', key).strip('-')[:54] or 'answer'
-    digest = hashlib.sha1(pronunciation_signature(key).encode('utf-8')).hexdigest()[:10]
+    digest = hashlib.sha1(pronunciation_signature(key, corrections).encode('utf-8')).hexdigest()[:10]
     return f'{slug}-{digest}.wav'
 
 
@@ -124,16 +156,25 @@ def validate_aliases(answers: set[str], aliases: dict[str, str]) -> None:
             )
 
 
-def source_for_key(key: str, aliases: dict[str, str]) -> str:
+def source_for_key(key: str, aliases: dict[str, str], corrections: dict[str, dict]) -> str:
     canonical = resolve_alias(key, aliases)
+    if canonical in corrections:
+        return f'./audio/pronunciation/{asset_filename(canonical, corrections)}'
     return TRANSITIONAL_EXTERNAL_AUDIO.get(
         canonical,
-        f'./audio/pronunciation/{asset_filename(canonical)}',
+        f'./audio/pronunciation/{asset_filename(canonical, corrections)}',
     )
 
 
-def build_manifest(answers: set[str], aliases: dict[str, str]) -> dict[str, str]:
-    return {key: source_for_key(key, aliases) for key in sorted(answers)}
+def build_manifest(
+    answers: set[str],
+    aliases: dict[str, str],
+    corrections: dict[str, dict],
+) -> dict[str, str]:
+    return {
+        key: source_for_key(key, aliases, corrections)
+        for key in sorted(answers)
+    }
 
 
 def _as_numpy(audio):
@@ -143,7 +184,12 @@ def _as_numpy(audio):
     return np.asarray(audio, dtype=np.float32).reshape(-1)
 
 
-def generate_audio(root: Path, answers: set[str], aliases: dict[str, str]) -> None:
+def generate_audio(
+    root: Path,
+    answers: set[str],
+    aliases: dict[str, str],
+    corrections: dict[str, dict],
+) -> None:
     import os
 
     out_dir = root / 'audio' / 'pronunciation'
@@ -154,10 +200,11 @@ def generate_audio(root: Path, answers: set[str], aliases: dict[str, str]) -> No
     canonical_answers = sorted({resolve_alias(answer, aliases) for answer in answers})
 
     for index, answer in enumerate(canonical_answers, 1):
-        if answer in TRANSITIONAL_EXTERNAL_AUDIO:
+        correction = corrections.get(answer)
+        if answer in TRANSITIONAL_EXTERNAL_AUDIO and not correction:
             continue
 
-        filename = asset_filename(answer)
+        filename = asset_filename(answer, corrections)
         expected.add(filename)
         path = out_dir / filename
         if path.exists() and path.stat().st_size > 1000:
@@ -178,19 +225,32 @@ def generate_audio(root: Path, answers: set[str], aliases: dict[str, str]) -> No
         tail = np.zeros(int(SAMPLE_RATE * TAIL_SILENCE_SECONDS), dtype=np.float32)
 
         pieces = []
-        override_phonemes = VERB_PHONEME_OVERRIDES.get(answer)
-        if override_phonemes:
+        if correction:
+            override_phonemes = correction_phonemes(pipeline, correction)
+            print(
+                f"correction target: {answer!r} -> "
+                f"{correction.get('target_text')!r} {correction.get('ipa_goal', '')} "
+                f"phones={override_phonemes!r}"
+            )
             generated = pipeline.generate_from_tokens(
                 tokens=override_phonemes,
                 voice=VOICE,
                 speed=SPEED,
             )
         else:
-            generated = pipeline(
-                spoken_text(answer),
-                voice=VOICE,
-                speed=SPEED,
-            )
+            override_phonemes = VERB_PHONEME_OVERRIDES.get(answer)
+            if override_phonemes:
+                generated = pipeline.generate_from_tokens(
+                    tokens=override_phonemes,
+                    voice=VOICE,
+                    speed=SPEED,
+                )
+            else:
+                generated = pipeline(
+                    spoken_text(answer),
+                    voice=VOICE,
+                    speed=SPEED,
+                )
 
         for _graphemes, _phonemes, audio in generated:
             segment = _as_numpy(audio)
@@ -213,8 +273,13 @@ def generate_audio(root: Path, answers: set[str], aliases: dict[str, str]) -> No
             print(f'removed stale pronunciation asset: {stale.name}')
 
 
-def write_manifest(root: Path, answers: set[str], aliases: dict[str, str]) -> None:
-    manifest = build_manifest(answers, aliases)
+def write_manifest(
+    root: Path,
+    answers: set[str],
+    aliases: dict[str, str],
+    corrections: dict[str, dict],
+) -> None:
+    manifest = build_manifest(answers, aliases, corrections)
     payload = json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True)
     (root / 'pronunciation-manifest.js').write_text(
         '(function(global){global.VerbRunnerPronunciationManifest=' + payload + ";})(typeof window!=='undefined'?window:globalThis);\n",
@@ -227,13 +292,23 @@ def main() -> None:
     answers = collect_answers(root)
     answers = set(answers) | CONTEXTUAL_KEYS
     aliases = load_pronunciation_aliases(root)
+    corrections = load_corrections(root)
     validate_aliases(answers, aliases)
+
+    missing_corrections = sorted(set(corrections) - set(answers))
+    if missing_corrections:
+        raise RuntimeError(
+            'Correction keys are not used by Verb Runner: '
+            + ', '.join(missing_corrections)
+        )
+
     print(
         f'Verifying {len(answers)} pronunciation keys, '
-        f'{len(aliases)} aliases. Locked generation profile: Kokoro {VOICE} at {SPEED}x.'
+        f'{len(aliases)} aliases, {len(corrections)} reviewed corrections. '
+        f'Locked generation profile: Kokoro {VOICE} at {SPEED}x.'
     )
-    generate_audio(root, answers, aliases)
-    write_manifest(root, answers, aliases)
+    generate_audio(root, answers, aliases, corrections)
+    write_manifest(root, answers, aliases, corrections)
 
 
 if __name__ == '__main__':
