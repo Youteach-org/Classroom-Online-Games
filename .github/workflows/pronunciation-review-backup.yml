@@ -46,14 +46,6 @@ jobs:
           node --test Verb-Runner/tests/pronunciation-policy.test.mjs
           node --test Verb-Runner/tests/pronunciation-review.test.mjs
 
-      - name: Finalize processed cleanup requests in Firebase
-        run: |
-          if [ "$(python -c 'import json; print(len(json.load(open("/tmp/pronunciation-cleanup-firebase-patch.json"))))')" = "0" ]; then
-            echo "No duplicate cleanup requests to finalize."
-          else
-            curl -fsS -X PATCH               -H "Content-Type: application/json"               --data-binary @/tmp/pronunciation-cleanup-firebase-patch.json               "https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/verbRunnerV2/pronunciationReview.json"
-          fi
-
       - name: Update GitHub review backup
         run: |
           cp /tmp/pronunciation-review.json docs/superpowers/audits/pronunciation-review-live-backup.json
