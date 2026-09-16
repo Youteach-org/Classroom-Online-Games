@@ -19,3 +19,8 @@ test('pronunciation override changes the generated asset filename',()=>{
   assert.match(generator,/pronunciation_signature/);
   assert.match(generator,/sha1\(pronunciation_signature\(key\)\.encode\('utf-8'\)\)/);
 });
+
+
+test('non-ambiguous answers keep their existing asset hashes',()=>{
+  assert.match(generator,/return f'\{key\}\|\{phonemes\}' if phonemes else key/);
+});
