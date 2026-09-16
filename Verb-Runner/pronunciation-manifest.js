@@ -287,7 +287,7 @@
   "like": "./audio/pronunciation/like-c4eb7d7fea.wav",
   "liked": "./audio/pronunciation/liked-ae6684e9c5.wav",
   "listen": "./audio/pronunciation/listen-2147a9e5f9.wav",
-  "live": "./audio/pronunciation/live-387a32607c.wav",
+  "live": "https://cdn.creativeclaw.co/u/ad2cc6b8/audio/03b52154-8af6-4836-8808-c9c264a897d3.mp3",
   "lived": "./audio/pronunciation/lived-8b48fdf8ac.wav",
   "look": "./audio/pronunciation/look-e09315fa02.wav",
   "looked": "./audio/pronunciation/looked-fd31334d1a.wav",
