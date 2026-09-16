@@ -36,3 +36,16 @@ test('Teacher Monitor merges free-mode runners with session runners',()=>{
   assert.match(teacher,/studentsForFree\(\)/);
   assert.match(teacher,/allSessionStudents\.concat\(studentsForFree\(\)\)/);
 });
+
+test('players without a classroom session are reported to free mode even without YouTeach identity',()=>{
+  const updateBlock=game.match(/function sessionUpdate[\s\S]*?function sessionConnect/)?.[0]||'';
+  const connectBlock=game.match(/function sessionConnect[\s\S]*?function sessionFinish/)?.[0]||'';
+  const finishBlock=game.match(/function sessionFinish[\s\S]*?const renderer/)?.[0]||'';
+
+  assert.match(updateBlock,/if\(sessionCode\)return sessionApi\.updateRunner\(sessionCode,runnerSessionId,patch\);\s*return sessionApi\.updateFreeRunner\(runnerSessionId,patch\);/);
+  assert.match(connectBlock,/if\(sessionCode\)return sessionApi\.connectRunner\(sessionCode,runnerSessionId,payload\);\s*return sessionApi\.connectFreeRunner\(runnerSessionId,payload\);/);
+  assert.match(finishBlock,/if\(sessionCode\)return sessionApi\.finishRunner\(sessionCode,runnerSessionId,payload\);\s*return sessionApi\.finishFreeRunner\(runnerSessionId,payload\);/);
+
+  assert.match(game,/if\(sessionCode\)\{[\s\S]*?return data;\s*}\s*sessionData=\{status:'free',identitySource:youTeachIdentity\?'youteach':'local'\};\s*await sessionApi\.registerFreeRunnerPresence\(runnerSessionId,presenceData\);/);
+});
+
