@@ -891,3 +891,15 @@ Confirmed behavior:
 - The downloaded artifact is not treated as a permanently stored individualized report in Turso by default.
 - The downloadable version should remain compact and readable.
 - The default export format is still an open decision.
+
+
+## Download format — confirmed 2026-09-16
+
+The default downloadable format for the on-demand **“What can I improve?”** guidance is a **single-page PDF**.
+
+Confirmed rules:
+
+- The PDF is generated on demand.
+- The PDF is intended to be compact, readable, printable, and easy to share.
+- It is not permanently stored in Turso by default.
+- It is derived from compact report aggregates, predefined error/concept codes, and the shared recommendation library.
