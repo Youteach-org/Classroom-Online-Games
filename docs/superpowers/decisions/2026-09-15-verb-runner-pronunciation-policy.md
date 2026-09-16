@@ -10,6 +10,22 @@ The official pronunciation voice for **new or regenerated Verb Runner audio is N
 
 Do not substitute Bella, another female voice, a browser TTS voice, or any other engine/voice merely because it is available. Existing Bella/Kokoro files are legacy assets only; they are not the voice choice for new or regenerated pronunciation audio.
 
+## Locked synthesis settings
+
+All newly generated or corrected Verb Runner pronunciation clips must use the same approved Nichalia synthesis profile so replacements do not vary in voice character or pacing:
+
+- Provider/model: ElevenLabs `speech/elevenlabs-v3`
+- Voice: Nichalia
+- Voice ID: `XfNU2rGpBa01ckF309OY`
+- Language: English (`en`)
+- Speed: `0.9`
+- Stability: `0.5`
+- Output: MP3
+- For ambiguous or mispronounced words, use an explicit pronunciation/phoneme prompt rather than relying on isolated orthography.
+- Do not change these parameters on individual corrections unless a future explicit user decision updates this policy.
+
+The legacy local WAV bank was generated with a different Kokoro/Bella pipeline and therefore cannot be used as the acoustic reference for regenerated clips. Consistency for all corrections means matching the locked Nichalia profile above.
+
 For isolated verb homographs, generation must not rely on lexical guessing. With the approved Nichalia/ElevenLabs v3 path, generate an explicitly disambiguated pronunciation (for example `live` as /lɪv/) and pin the approved resulting asset. The Kokoro/Misaki phoneme table in `Verb-Runner/scripts/generate-pronunciation.py` is retained only for an explicitly enabled emergency legacy rebuild.
 
 Current protected verb homographs:
