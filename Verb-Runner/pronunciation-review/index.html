@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="google" content="notranslate">
   <title>Verb Runner Pronunciation Review</title>
-  <link rel="stylesheet" href="./review.css?v=4">
+  <link rel="stylesheet" href="./review.css?v=5">
 </head>
 <body>
   <header class="topbar">
@@ -86,11 +86,11 @@
 
       <section class="duplicate-panel panel" hidden>
         <label>
-          Keep this original audio/key:
-          <input class="duplicate-target" list="audioKeys" placeholder="Type the key to keep">
+          Same as / original (optional):
+          <input class="duplicate-target" list="audioKeys" placeholder="Optional: choose the key to keep">
         </label>
         <div class="panel-actions">
-          <button type="button" data-action="mark-duplicate">Mark as duplicate</button>
+          <button type="button" data-action="mark-duplicate">Mark duplicated</button>
           <button class="danger" type="button" data-action="remove-duplicate" hidden>Queue duplicate for deletion</button>
           <button type="button" data-action="restore-duplicate" hidden>Restore</button>
         </div>
@@ -112,6 +112,6 @@
   <script src="../../Support-Meter/config.js"></script>
   <script src="../pronunciation-manifest.js?v=review-console-1"></script>
   <script src="./review-core.js?v=1"></script>
-  <script type="module" src="./review-app.js?v=3"></script>
+  <script type="module" src="./review-app.js?v=4"></script>
 </body>
 </html>
