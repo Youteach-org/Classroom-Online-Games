@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="google" content="notranslate">
   <title>Verb Runner Pronunciation Review</title>
-  <link rel="stylesheet" href="./review.css?v=3">
+  <link rel="stylesheet" href="./review.css?v=4">
 </head>
 <body>
   <header class="topbar">
@@ -56,7 +56,7 @@
         <div class="identity">
           <div class="key-line">
             <strong class="audio-key"></strong>
-            <span class="status-badge"></span>
+            <button class="status-badge" type="button" data-action="toggle-history"></button>
             <span class="changed-badge" hidden>AUDIO CHANGED · REVIEW AGAIN</span>
             <span class="metadata"></span>
             <span class="source"></span>
@@ -96,21 +96,22 @@
         </div>
       </section>
 
-      <details class="reports-section">
-        <summary>Previous reports <span class="report-count"></span></summary>
-        <div class="reports-list"></div>
-      </details>
-
-      <details class="history-section">
-        <summary>Review history <span class="history-count"></span></summary>
-        <div class="history-list"></div>
-      </details>
+      <section class="review-history-panel panel" hidden>
+        <div class="history-group">
+          <div class="history-title">Previous reports <span class="report-count"></span></div>
+          <div class="reports-list"></div>
+        </div>
+        <div class="history-group">
+          <div class="history-title">Review history <span class="history-count"></span></div>
+          <div class="history-list"></div>
+        </div>
+      </section>
     </article>
   </template>
 
   <script src="../../Support-Meter/config.js"></script>
   <script src="../pronunciation-manifest.js?v=review-console-1"></script>
   <script src="./review-core.js?v=1"></script>
-  <script type="module" src="./review-app.js?v=2"></script>
+  <script type="module" src="./review-app.js?v=3"></script>
 </body>
 </html>
