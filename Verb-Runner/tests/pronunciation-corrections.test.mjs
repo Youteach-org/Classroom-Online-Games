@@ -83,3 +83,11 @@ test('correction goals preserve the observed teacher problems without copying th
   assert.match(corrections.items.wrote.observed_issue,/Route/i);
   assert.match(corrections.items.wrote.correction_goal,/route pronunciations/i);
 });
+
+test('asked uses a second-pass explicit phoneme correction after teacher re-review',()=>{
+  assert.equal(corrections.items.asked.method,'raw_phonemes');
+  assert.equal(corrections.items.asked.kokoro_phonemes,'ˈæskt');
+  assert.equal(corrections.items.asked.speed,1.05);
+  assert.match(corrections.items.asked.decision,/second-pass/);
+  assert.match(generator,/correction_speed = float\(correction\.get\('speed'\) or SPEED\)/);
+});
