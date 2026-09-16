@@ -57,7 +57,7 @@ def spoken_text(answer: str) -> str:
 def pronunciation_signature(answer: str) -> str:
     key = normalize(answer)
     phonemes = VERB_PHONEME_OVERRIDES.get(key, '')
-    return f'{key}|{phonemes}'
+    return f'{key}|{phonemes}' if phonemes else key
 
 
 def asset_filename(answer: str) -> str:
