@@ -1,0 +1,23 @@
+name: Read Bella sample review now
+
+on:
+  push:
+    branches:
+      - feat/bella-sample-review-controls
+    paths:
+      - ".github/workflows/read-bella-review-now.yml"
+
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read live Bella review
+        run: |
+          curl -fsS             "https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/verbRunnerV2/bellaSampleReview/items.json"             -o /tmp/bella.json
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/bella.json'))
+          print("BELLA_REVIEW_BEGIN")
+          print(json.dumps(data, ensure_ascii=False, sort_keys=True))
+          print("BELLA_REVIEW_END")
+          PY
