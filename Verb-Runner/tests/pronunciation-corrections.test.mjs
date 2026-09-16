@@ -82,3 +82,20 @@ test('correction goals preserve the observed teacher problems without copying th
   assert.match(corrections.items.wrote.observed_issue,/Route/i);
   assert.match(corrections.items.wrote.correction_goal,/route pronunciations/i);
 });
+
+
+test('R3 pilot uses a genuinely different Bella acoustic strategy',()=>{
+  const keys=['are waiting','ask','ate','bend','build','dug','start','washed','watched','wrote'];
+  assert.equal(corrections.revision,'2026-09-16-r3-pilot');
+  for(const key of keys){
+    const spec=corrections.items[key];
+    assert.equal(spec.strategy,'bella-clarity-r3',key);
+    assert.ok(spec.speed<0.8,key+' should use slower corrective articulation');
+    assert.equal(spec.phoneme_suffix,'.',key);
+  }
+  assert.ok(corrections.items.ask.trim_start_ms>0);
+  assert.ok(corrections.items.start.trim_start_ms>0);
+  assert.ok(corrections.items['are waiting'].trim_start_ms>0);
+  assert.match(generator,/trim_start_ms/);
+  assert.match(generator,/correction_speed/);
+});

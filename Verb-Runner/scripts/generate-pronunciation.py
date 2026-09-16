@@ -65,7 +65,9 @@ def correction_phonemes(pipeline, spec: dict) -> str:
     phonemes = ' '.join(chunks).strip()
     if not phonemes:
         raise RuntimeError(f'No phonemes resolved for correction text: {target_text!r}')
-    return phonemes
+    suffix = str(spec.get('phoneme_suffix') or '')
+    prefix = str(spec.get('phoneme_prefix') or '')
+    return f'{prefix}{phonemes}{suffix}'
 
 
 def _quoted_values(text: str) -> list[str]:
@@ -230,12 +232,15 @@ def generate_audio(
             print(
                 f"correction target: {answer!r} -> "
                 f"{correction.get('target_text')!r} {correction.get('ipa_goal', '')} "
-                f"phones={override_phonemes!r}"
+                f"phones={override_phonemes!r} "
+                f"speed={float(correction.get('speed', SPEED)):.2f} "
+                f"trim={float(correction.get('trim_start_ms', 0) or 0):.0f}ms"
             )
+            correction_speed = float(correction.get('speed', SPEED))
             generated = pipeline.generate_from_tokens(
                 tokens=override_phonemes,
                 voice=VOICE,
-                speed=SPEED,
+                speed=correction_speed,
             )
         else:
             override_phonemes = VERB_PHONEME_OVERRIDES.get(answer)
@@ -260,6 +265,18 @@ def generate_audio(
             raise RuntimeError(f'Kokoro returned no audio for: {answer!r}')
 
         speech = np.concatenate(pieces)
+        trim_start_ms = float((correction or {}).get('trim_start_ms', 0) or 0)
+        if trim_start_ms > 0:
+            trim_samples = min(
+                int(SAMPLE_RATE * trim_start_ms / 1000.0),
+                max(0, speech.size - 1),
+            )
+            if trim_samples:
+                speech = speech[trim_samples:]
+                fade_samples = min(int(SAMPLE_RATE * 0.008), speech.size)
+                if fade_samples:
+                    speech[:fade_samples] *= np.linspace(0.0, 1.0, fade_samples, dtype=np.float32)
+                print(f'trimmed {trim_start_ms:.0f} ms from correction onset: {answer}')
         peak = float(np.max(np.abs(speech))) if speech.size else 0.0
         if peak > 0.98:
             speech = speech * (0.96 / peak)
