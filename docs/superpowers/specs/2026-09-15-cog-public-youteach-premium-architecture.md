@@ -879,3 +879,15 @@ For public COG Premium users, Turso stores at most the **5 most recent detailed 
 Guest users keep gameplay history locally and do not create persistent Turso reports.
 
 YouTeach student reporting remains on the private YouTeach data path and is not constrained by the public Premium retention rule.
+
+
+## Downloadable improvement guidance — confirmed 2026-09-16
+
+When a public COG Premium user requests **“What can I improve?”**, the generated improvement guidance must be **downloadable**.
+
+Confirmed behavior:
+
+- The guidance is generated on demand from the user's recent compact reports, predefined error/concept codes, and the shared recommendation/explanation library.
+- The downloaded artifact is not treated as a permanently stored individualized report in Turso by default.
+- The downloadable version should remain compact and readable.
+- The default export format is still an open decision.
