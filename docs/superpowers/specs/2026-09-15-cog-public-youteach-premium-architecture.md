@@ -455,3 +455,132 @@ A hybrid backend remains under consideration because COG has two very different 
 2. **Identity, subscription state, reports, history and explanations** — favors a managed identity + persistent database layer such as Firebase or Supabase.
 
 No backend/provider decision is final until this comparison is approved.
+
+
+## Persistence database cost spike: D1 vs Turso vs Firestore
+
+**Status:** comparison recorded; no provider selected yet.  
+**Reviewed:** 2026-09-16.
+
+### Comparison workload
+
+This spike compares only the **persistent learning/account database**. High-frequency gameplay/session synchronization is assumed to live outside this database (for example in Cloudflare Durable Objects).
+
+Planning workload per monthly active player:
+
+- 4 completed game sessions/month;
+- about 200 persistent reads/month;
+- about 50 persistent writes/month;
+- about 40 KB of new persistent learning/history data/month.
+
+This is a planning model, not measured production usage. It must later be replaced with real telemetry.
+
+Under this model:
+
+| MAU | Reads/month | Writes/month | New storage/month | Storage after 12 months if all remain active |
+|---:|---:|---:|---:|---:|
+| 10,000 | 2 million | 0.5 million | 0.4 GB | 4.8 GB |
+| 100,000 | 20 million | 5 million | 4 GB | 48 GB |
+| 1,000,000 | 200 million | 50 million | 40 GB | 480 GB |
+
+### Cloudflare D1
+
+Current official pricing/limits reviewed:
+
+- Workers Free: 5M rows read/day, 100K rows written/day, 5 GB total storage.
+- Free maximum database size: 500 MB; maximum 10 databases.
+- Workers Paid: USD 5/month account minimum for Workers.
+- D1 Paid includes 25B rows read/month, 50M rows written/month, 5 GB storage.
+- Overages: USD 0.001/million rows read, USD 1/million rows written, USD 0.75/GB-month stored.
+- Paid maximum database size: 10 GB; 1 TB total storage/account by default; up to 50,000 databases/account.
+- No D1 data transfer/egress charge.
+- D1 indexes can add billed row writes and storage, so schema/index design affects real cost.
+
+Approximate 12-month-storage-stage cost under the planning model, before index/write amplification:
+
+- 10K MAU: about USD 5/month on Workers Paid; Free could cover aggregate storage but the 500 MB/database free cap makes sharding necessary.
+- 100K MAU: about USD 37.25/month (USD 5 base + ~43 GB storage over included 5 GB).
+- 1M MAU: about USD 361.25/month (USD 5 base + ~475 GB storage over included 5 GB), before possible write/index overages.
+
+Capacity consequence: 48 GB needs roughly 5 D1 databases at the 10 GB paid per-database cap; 480 GB needs roughly 48 databases. This is supported by account limits but introduces application-level sharding/partitioning complexity.
+
+Official sources:
+- https://developers.cloudflare.com/d1/platform/pricing/
+- https://developers.cloudflare.com/d1/platform/limits/
+- https://developers.cloudflare.com/workers/platform/pricing/
+
+### Turso
+
+Current official pricing reviewed:
+
+Free:
+- USD 0/month;
+- 100 databases;
+- 5 GB storage;
+- 500M rows read/month;
+- 10M rows written/month.
+
+Developer:
+- USD 4.99/month;
+- unlimited databases;
+- 9 GB storage + USD 0.75/GB;
+- 2.5B rows read/month + USD 1/billion;
+- 25M rows written/month + USD 1/million.
+
+Scaler:
+- USD 24.92/month;
+- 24 GB storage + USD 0.50/GB;
+- 100B rows read/month + USD 0.80/billion;
+- 100M rows written/month + USD 0.80/million.
+
+Approximate 12-month-storage-stage cost under the planning model:
+
+- 10K MAU: USD 0/month fits Free (~4.8 GB, 2M reads, 0.5M writes).
+- 100K MAU: ~USD 34.24/month on Developer (4.99 + ~39 GB storage over 9 GB × 0.75); reads/writes remain inside plan.
+- 1M MAU: ~USD 252.92/month on Scaler (24.92 + ~456 GB storage over 24 GB × 0.50); reads/writes remain inside plan.
+
+Official source:
+- https://turso.tech/pricing
+
+### Firestore Standard
+
+Current official us-central1 pricing reviewed:
+
+- Free quota: 50K document reads/day, 20K writes/day, 20K deletes/day, 1 GiB storage, 10 GiB outbound transfer/month.
+- Reads beyond free quota: USD 0.30/million.
+- Writes beyond free quota: USD 0.90/million.
+- Deletes: USD 0.10/million.
+- Stored data: approximately USD 0.15/GiB-month (USD 0.000205479/GiB-hour).
+- Internet outbound after 10 GiB/month is generally USD 0.12/GiB for the first 1 TiB to worldwide destinations excluding higher-priced regions.
+- Firestore Standard index updates are included in document-write operation pricing, but indexes consume storage.
+
+Approximate 12-month-storage-stage operation + storage cost under the planning model, excluding network egress:
+
+- 10K MAU: ~USD 0.72/month.
+- 100K MAU: ~USD 16.56/month.
+- 1M MAU: ~USD 175.86/month.
+
+If an average billed document response is about 1 KB and every modeled read transfers that response to an external client/API, rough outbound transfer could add about:
+- 10K MAU: USD 0 (below the 10 GiB free monthly allowance);
+- 100K MAU: about USD 1;
+- 1M MAU: about USD 21.
+
+These network estimates are especially sensitive to document size, caching, API architecture, and destination.
+
+Official sources:
+- https://firebase.google.com/docs/firestore/quotas
+- https://firebase.google.com/docs/firestore/standard-edition
+- https://cloud.google.com/firestore/pricing
+
+### What the spike shows
+
+At this planning workload:
+
+- **10K MAU:** all three are inexpensive; Turso can remain entirely free, Firestore is close to free, and D1 Paid is about the existing Workers minimum.
+- **100K MAU:** Firestore is estimated cheapest for the persistent database in this model; Turso and D1 are close to each other but storage dominates their cost.
+- **1M MAU:** Firestore remains cheaper in this model than Turso and D1 for long-lived history. Turso is second. D1 becomes expensive mainly because stored history costs USD 0.75/GB-month and each database is capped at 10 GB.
+- **D1 remains attractive for transient/edge workloads**, but using it as the sole long-term historical store becomes less attractive as hundreds of GB accumulate.
+- **Turso has the strongest no-cost starting allowance** of these three for a traditional SQL store.
+- **Firestore has the strongest modeled economics for large persistent histories** under the assumed read/write pattern, although bandwidth and document/index design can change the result materially.
+
+The backend decision remains open until the architecture section is approved.
