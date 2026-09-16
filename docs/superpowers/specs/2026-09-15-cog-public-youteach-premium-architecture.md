@@ -1462,3 +1462,15 @@ For YouTeach assignments based on COG activities:
 - **C — Instruction changes are forward-looking:** changes to assignment instructions apply from that moment forward and do not retroactively alter already completed/submitted gameplay results.
 - **D — Due-date changes recalculate timeliness:** if the teacher changes the due date/time, the on-time/late status of existing submissions is recalculated against the updated due date.
 - **E — Existing submissions do not block deletion:** the presence of one or more official submissions does **not** by itself prevent the teacher from fully deleting the COG assignment. The exact deletion cascade for submissions, grades, receipts, and retained verification data is defined separately.
+
+
+## Deleting a COG assignment with submissions — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- **A — Delete associated grades/points:** deleting the assignment removes the active COG-derived grades and proportional task points associated with that assignment.
+- **B — Invalidate all QR receipts immediately:** all active verification receipts/QRs tied to the deleted assignment become invalid as soon as the deletion takes effect.
+- **C — Remove associated resubmission/attempt records:** the assignment's associated resubmission counters and attempt-tracking records are removed from the active assignment data according to the same deletion lifecycle.
+- **D — Strong confirmation required:** deleting a task that already has submissions requires an explicit strong confirmation step, such as typing **ELIMINAR**, before the destructive action proceeds.
+- **E — Deletion is recoverable:** deletion is **not immediately irreversible**. The assignment must go through a trash/recovery state rather than being permanently destroyed at once.
+- The retention duration and exact behavior of the trash/recovery state are still to be decided.
