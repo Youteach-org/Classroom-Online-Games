@@ -10,6 +10,8 @@ Reference numbers below are the alphabetical positions in this manifest snapshot
 
 | Ref | Manifest key | Current asset | Reported problem | Status |
 |---:|---|---|---|---|
+| 10 | `are waiting` | `are-waiting-e2d43cd109.wav` | Strange vibrato at the beginning; regenerate. | Pending replacement |
+| 13 | `asked` | `asked-c91c9287c0.wav` | Sounds like “nasked”. | Pending replacement |
 | 15 | `at 11 tonight` | `at-11-tonight-7affdb84dc.wav` | File/audio error; does not play correctly or appears corrupt. | Pending replacement |
 | 16 | `ate` | `ate-189b7ea01f.wav` | Sounds like “great” rather than “ate”. | Pending replacement |
 | 17 | `be` | `be-986b1bc1eb.wav` | Sounds like literal spelling/name rather than English verb /biː/. | Pending replacement |
