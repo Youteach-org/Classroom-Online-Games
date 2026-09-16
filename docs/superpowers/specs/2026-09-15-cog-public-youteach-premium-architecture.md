@@ -1380,8 +1380,9 @@ For YouTeach assignments based on COG activities:
 
 For YouTeach assignments based on COG activities:
 
-- The verification record for the current/final official QR receipt is retained for **6 months after the assignment is definitively closed**.
-- The user's immediately preceding 4-month proposal is superseded by this final 6-month decision.
-- During those 6 months, the QR remains verifiable under the confirmed privacy rules.
-- After the 6-month retention window, the QR verification record expires and the technical verification data is deleted or reduced according to the system's data-minimization policy.
-- Ordinary assignment closure does not invalidate the final QR immediately; it begins the 6-month retention window.
+- The verification record for each current/final official QR receipt is retained for **6 months from the creation timestamp of that receipt**.
+- The retention clock does **not** begin at assignment closure and does not depend on whether the assignment is later reopened.
+- During those 6 months, the QR remains verifiable under the confirmed privacy rules unless it is superseded earlier through **Undo Submission** and replacement.
+- A superseded receipt becomes invalid immediately, regardless of the remaining retention time.
+- After 6 months from that receipt's creation, its verification record expires and the technical verification data is deleted or reduced according to the system's data-minimization policy.
+
