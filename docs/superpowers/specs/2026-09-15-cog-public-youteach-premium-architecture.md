@@ -793,3 +793,17 @@ Reasons recorded during planning:
 - it avoids D1 Free's 500 MB-per-database partitioning constraint for the first phase.
 
 This choice can be revisited when COG has measured production telemetry and revenue.
+
+
+## Premium detailed-report retention — confirmed 2026-09-16
+
+For **public COG Premium users only**:
+
+- Turso stores a maximum of the **5 most recent detailed reports per game**.
+- When a sixth detailed report is created for the same game, the oldest detailed report is no longer kept as a full per-session record.
+- Older performance is compacted into lightweight historical summaries and concept-level aggregates.
+- The local device may retain a larger detailed history in IndexedDB without consuming cloud database storage.
+- Guest users store no permanent detailed reports in Turso.
+- YouTeach student reports are governed by the private YouTeach data policy and are not subject to this public Premium retention limit.
+
+This policy is intended to keep persistent cloud storage small even for high-frequency players.
