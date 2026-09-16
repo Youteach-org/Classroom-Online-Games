@@ -1307,3 +1307,14 @@ For YouTeach assignments based on COG activities:
 - When the replacement submission is accepted, its validated 0–100 result becomes the new official result and YouTeach recalculates the proportional task points from that result.
 - The cumulative attempt count does not reset when Undo Submission is used.
 - The prior receipt remains invalid, with only the minimal internal audit/integrity record previously confirmed.
+
+
+## Teacher-visible resubmission status — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- If a student previously submitted an official result, used **Undo Submission**, and later submits another valid result, the teacher must be able to tell that the current submission is a **resubmission**.
+- The task must not simply appear as though it had never been submitted before.
+- This does **not** require exposing the full content/history of prior replaced submissions in the normal teacher workflow.
+- The current/final submission may include a clear resubmission indicator/status while the previously replaced result remains hidden from normal teacher view, consistent with the earlier decision that only the current/final official submission is displayed.
+- Minimal internal audit data may continue to preserve receipt invalidation and submission integrity.
