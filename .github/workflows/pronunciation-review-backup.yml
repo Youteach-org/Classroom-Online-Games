@@ -90,8 +90,16 @@ jobs:
           python Verb-Runner/scripts/apply-pronunciation-duplicates.py /tmp/pronunciation-review.json
 
       - name: Consolidate pronunciation assets
+        shell: bash
         run: |
-          python Verb-Runner/scripts/generate-pronunciation.py
+          set -euo pipefail
+          if python Verb-Runner/scripts/generate-pronunciation.py; then
+            echo "All pronunciation assets already exist; no synthesis needed."
+          else
+            echo "A pronunciation asset is missing; installing Kokoro only for this repair run."
+            python -m pip install --disable-pip-version-check "kokoro>=0.9.4" "soundfile>=0.12" "numpy>=1.26"
+            ALLOW_KOKORO_BELLA_GENERATION=1 python Verb-Runner/scripts/generate-pronunciation.py
+          fi
 
       - name: Verify pronunciation integration
         run: |
