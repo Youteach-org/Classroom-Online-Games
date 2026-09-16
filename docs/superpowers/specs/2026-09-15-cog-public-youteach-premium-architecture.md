@@ -1486,3 +1486,15 @@ For deleted YouTeach assignments based on COG activities:
 - **D — Manual emptying:** the teacher may manually empty the trash before the one-month retention period ends.
 - **E — Strong confirmation for permanent deletion:** manually emptying the trash requires an explicit strong confirmation before permanent destruction proceeds.
 - After the one-month retention window, or after a teacher-confirmed manual trash purge, the deleted assignment record is permanently removed according to the data-minimization policy.
+
+
+## Restored COG assignment behavior — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities that are restored from trash:
+
+- **A — New Task Code on restore:** the restored assignment does **not** reuse its previous Task Code. Restoration creates/assigns a new Task Code for the restored assignment.
+- **B — No automatic reassignment:** restoring the assignment does **not** automatically republish it to or make it reappear for the same groups/students that previously had it. Any later reassignment/publication is a separate teacher action.
+- **C — Preserve assignment content/configuration:** the restored assignment keeps its original instructions, rubric/criteria, point value, assigned game, mode/modality, difficulty, and optional minimum-performance threshold.
+- Previously removed grades, points, attempts, resubmissions, and QR/receipt records remain removed, consistent with the trash lifecycle decision.
+- **D — Expired restore returns closed:** if the assignment's saved due date/time has already passed when the assignment is restored, it is restored in a **closed** state.
+- **E — Task Codes are never reused:** once a Task Code has existed, permanent deletion does not release that code for future reuse. Old Task Codes remain reserved to avoid ambiguity, collisions, or accidental association with a different assignment.
