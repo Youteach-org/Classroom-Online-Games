@@ -1,0 +1,63 @@
+{
+  "voice": "af_bella",
+  "sample_rate": 24000,
+  "variants": {
+    "a-105-text": {
+      "label": "A · Bella 1.05 · normal text",
+      "speed": 1.05,
+      "mode": "text"
+    },
+    "b-110-text": {
+      "label": "B · Bella 1.10 · normal text",
+      "speed": 1.1,
+      "mode": "text"
+    },
+    "c-100-phoneme": {
+      "label": "C · Bella 1.00 · explicit phonemes",
+      "speed": 1.0,
+      "mode": "phoneme"
+    }
+  },
+  "items": {
+    "ask": {
+      "label": "ask",
+      "files": {
+        "a-105-text": "./round2-audio/ask--a-105-text.wav",
+        "b-110-text": "./round2-audio/ask--b-110-text.wav",
+        "c-100-phoneme": "./round2-audio/ask--c-100-phoneme.wav"
+      }
+    },
+    "bend": {
+      "label": "bend",
+      "files": {
+        "a-105-text": "./round2-audio/bend--a-105-text.wav",
+        "b-110-text": "./round2-audio/bend--b-110-text.wav",
+        "c-100-phoneme": "./round2-audio/bend--c-100-phoneme.wav"
+      }
+    },
+    "build": {
+      "label": "build",
+      "files": {
+        "a-105-text": "./round2-audio/build--a-105-text.wav",
+        "b-110-text": "./round2-audio/build--b-110-text.wav",
+        "c-100-phoneme": "./round2-audio/build--c-100-phoneme.wav"
+      }
+    },
+    "washed": {
+      "label": "washed",
+      "files": {
+        "a-105-text": "./round2-audio/washed--a-105-text.wav",
+        "b-110-text": "./round2-audio/washed--b-110-text.wav",
+        "c-100-phoneme": "./round2-audio/washed--c-100-phoneme.wav"
+      }
+    },
+    "wrote": {
+      "label": "wrote",
+      "files": {
+        "a-105-text": "./round2-audio/wrote--a-105-text.wav",
+        "b-110-text": "./round2-audio/wrote--b-110-text.wav",
+        "c-100-phoneme": "./round2-audio/wrote--c-100-phoneme.wav"
+      }
+    }
+  }
+}
