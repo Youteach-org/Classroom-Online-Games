@@ -1,9 +1,63 @@
 import {
-  markReviewed,saveProblem,resolveReport,deleteReport,
+  markReviewed,saveAutosaveReport,clearAutosaveReport,resolveReport,deleteReport,
   markDuplicate,removeDuplicate,restoreDuplicate
 } from './review-actions.js';
 
 export function bindReviewEvents({audioList,getEntryById,getEntryByKey,getRecordById,reviewer}){
+  const autosaveTimers=new Map();
+
+  function scheduleAutosave(card,entry){
+    const status=card.querySelector('.autosave-status');
+    const textarea=card.querySelector('.report-text');
+    const kind=card.querySelector('.report-kind').value;
+    const by=reviewer(true);
+    if(!by){
+      if(status)status.textContent='Reviewer required';
+      return;
+    }
+
+    if(status)status.textContent='Saving…';
+    const previous=autosaveTimers.get(entry.id);
+    if(previous)clearTimeout(previous);
+
+    const timer=setTimeout(async()=>{
+      try{
+        const record=getRecordById(entry.id);
+        const text=String(textarea.value||'');
+        if(text.trim()){
+          await saveAutosaveReport(entry,record,by,text,kind);
+          if(status)status.textContent='Saved';
+        }else{
+          await clearAutosaveReport(entry,record,by);
+          if(status)status.textContent='';
+        }
+      }catch(error){
+        console.error(error);
+        if(status)status.textContent='Save error';
+      }finally{
+        autosaveTimers.delete(entry.id);
+      }
+    },450);
+
+    autosaveTimers.set(entry.id,timer);
+  }
+
+  audioList.addEventListener('input',event=>{
+    const textarea=event.target.closest('.report-text');
+    if(!textarea)return;
+    const card=textarea.closest('.audio-card');
+    const entry=getEntryById(card?.dataset.audioId);
+    if(entry)scheduleAutosave(card,entry);
+  });
+
+  audioList.addEventListener('change',event=>{
+    const select=event.target.closest('.report-kind');
+    if(!select)return;
+    const card=select.closest('.audio-card');
+    const entry=getEntryById(card?.dataset.audioId);
+    if(entry)scheduleAutosave(card,entry);
+  });
+
   audioList.addEventListener('click',async event=>{
     const button=event.target.closest('button[data-action]');
     if(!button)return;
@@ -23,15 +77,6 @@ export function bindReviewEvents({audioList,getEntryById,getEntryByKey,getRecord
         if(!panel.hidden)panel.querySelector('input').focus();
       }else if(action==='reviewed'){
         const by=reviewer(); if(by)await markReviewed(entry,record,by);
-      }else if(action==='save-report'){
-        const by=reviewer(); if(!by)return;
-        const textarea=card.querySelector('.report-text');
-        const text=String(textarea.value||'').trim();
-        const kind=card.querySelector('.report-kind').value;
-        if(!text){textarea.focus();return;}
-        const result=await saveProblem(entry,record,by,text,kind);
-        if(result.duplicate)alert('That report is already saved for this audio.');
-        else{textarea.value='';card.querySelector('.report-panel').hidden=true;}
       }else if(action==='mark-duplicate'){
         const by=reviewer(); if(!by)return;
         const target=String(card.querySelector('.duplicate-target').value||'').trim();

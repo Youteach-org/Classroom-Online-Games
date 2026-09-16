@@ -103,6 +103,79 @@ export async function saveProblem(entry,record,by,text,kind){
   return {duplicate:false,reportId};
 }
 
+function autosaveReportId(by){
+  return 'autosave-'+core.audioIdForKey(by||'reviewer');
+}
+
+export async function saveAutosaveReport(entry,record,by,text,kind){
+  const value=String(text||'').trim();
+  if(!value)return clearAutosaveReport(entry,record,by);
+
+  const reportId=autosaveReportId(by);
+  const existing=await getReport(entry.id,reportId);
+  const stamp=now();
+
+  if(existing){
+    await updateReport(entry.id,reportId,{
+      text:value,
+      kind,
+      status:'open',
+      reviewer:by,
+      updatedAt:stamp,
+      assetSource:entry.src,
+      deletedAt:null,
+      deletedBy:null
+    });
+  }else{
+    await setNamedReport(entry.id,reportId,{
+      text:value,
+      kind,
+      status:'open',
+      reviewer:by,
+      createdAt:stamp,
+      updatedAt:stamp,
+      assetSource:entry.src,
+      previousStatus:record.status||'unreviewed'
+    });
+    await history(entry,'report-autosave-started',by,{reportId,kind});
+  }
+
+  await touch(entry,record,{
+    status:'needs-fix',
+    reviewedBy:by,
+    firstReviewedAt:record.firstReviewedAt||stamp,
+    reviewedAt:stamp,
+    lastReviewedAt:stamp
+  });
+
+  return {reportId,saved:true};
+}
+
+export async function clearAutosaveReport(entry,record,by){
+  const reportId=autosaveReportId(by);
+  const existing=await getReport(entry.id,reportId);
+  if(!existing||existing.status==='deleted')return {cleared:false};
+
+  const stamp=now();
+  await updateReport(entry.id,reportId,{
+    status:'deleted',
+    text:'',
+    deletedAt:stamp,
+    deletedBy:by,
+    updatedAt:stamp
+  });
+
+  await touch(entry,record,{
+    status:existing.previousStatus||'unreviewed',
+    reviewedBy:by,
+    reviewedAt:stamp,
+    lastReviewedAt:stamp
+  });
+
+  await history(entry,'report-autosave-cleared',by,{reportId});
+  return {cleared:true};
+}
+
 export async function resolveReport(entry,reportId,by){
   await updateReport(entry.id,reportId,{status:'resolved',resolvedAt:now(),resolvedBy:by});
   await history(entry,'report-resolved',by,{reportId});

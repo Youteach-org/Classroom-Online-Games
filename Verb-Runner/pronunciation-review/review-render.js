@@ -95,6 +95,15 @@ export function renderCard(entry,template,audioUrl){
     entry.duplicateOf?`Duplicate of: ${entry.duplicateOf}`:''
   ].filter(Boolean).join(' · ');
   node.querySelector('audio').src=audioUrl(entry.src);
+
+  const autosaved=core.reportEntries(entry.reports)
+    .find(report=>String(report.id||'').startsWith('autosave-')&&report.status==='open');
+  if(autosaved){
+    node.querySelector('.report-text').value=autosaved.text||'';
+    node.querySelector('.report-kind').value=autosaved.kind||'pronunciation';
+    node.querySelector('.autosave-status').textContent='Saved';
+  }
+
   node.querySelector('.duplicate-target').value=entry.duplicateOf||'';
   node.querySelector('[data-action="remove-duplicate"]').hidden=entry.status!=='duplicate';
   node.querySelector('[data-action="restore-duplicate"]').hidden=entry.status!=='removed-duplicate';

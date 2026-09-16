@@ -40,8 +40,10 @@ audio{width:min(570px,100%);height:32px}
 .report-button{border-color:#e0a0a0}
 .duplicate-button{border-color:#d8bb74}
 .panel{margin-top:8px;padding:8px;border:1px solid #dbe2eb;border-radius:8px;background:#f8fafc}
+.panel[hidden]{display:none!important}
 .report-text{width:100%;resize:vertical;min-height:72px}
 .panel-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.autosave-status{font-size:11px;font-weight:700;color:#5e6b7d;min-width:54px}
 .duplicate-panel label{display:grid;gap:5px;font-size:12px;font-weight:700}
 .reports-section,.history-section{margin-top:7px;border-top:1px solid #edf0f4;padding-top:6px}
 summary{cursor:pointer;font-size:12px;font-weight:800;color:#52627b}
