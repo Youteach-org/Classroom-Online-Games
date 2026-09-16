@@ -237,6 +237,21 @@ These are proposals, not yet implementation commitments.
 
 ---
 
+## 8. Public COG backend separation
+
+### Confirmed decision
+
+Public COG will use its **own backend/data project**, independent from YouTeach.
+
+This separation applies to both public user types:
+
+- **Guest users:** use only public COG services and temporary/anonymous session data needed to run games, analytics, and basic result display. Guests do not gain access to YouTeach data and do not receive a persistent COG learning history.
+- **Premium users:** use the same public COG backend but with an authenticated COG account, Premium entitlement, billing state, persistent history, full reports, complete explanations, and preferences.
+
+Public COG must not depend on direct client access to YouTeach's private student/classroom database.
+
+A separate Firebase project/backend for public COG is the preferred target architecture.
+
 ## 8. Security boundary
 
 ### Confirmed security principle
@@ -368,3 +383,4 @@ The following still require explicit decisions before implementation planning is
 - Confirmed the public account model is intentionally simple: **Guest** or **Premium** only. There is no separate free registered account tier.
 - Confirmed the Premium launch sign-in methods: **Google**, **Microsoft**, **Apple**, and **email + password**.
 - Confirmed that multiple sign-in providers may be linked to the **same COG account** so subscription status, history, reports, and preferences remain unified.
+- Confirmed that **all public COG traffic, Guest and Premium, uses a backend/data project independent from YouTeach**. Guests use temporary/anonymous public-session data; Premium users add authenticated persistent account data on that same public COG backend.
