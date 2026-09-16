@@ -1449,6 +1449,5 @@ For YouTeach assignments based on COG activities:
 - **C — Assignment instructions are editable after publication.**
 - **D — Assignment criteria/rubric are editable after publication.**
 - These editable assignment-level fields are distinct from the previously confirmed immutable COG gameplay configuration: assigned game mode/modality, difficulty, and optional minimum-performance threshold remain fixed after publication.
-- If the point value changes after an official COG submission exists, YouTeach must preserve the validated 0–100 game result and recalculate the task points proportionally from the new point value rather than altering the underlying game percentage.
-- Changes to instructions or rubric do not alter the already validated gameplay result itself.
+- The exact effect of changing points, instructions, or rubric on already-submitted work is **not yet decided** and must be defined separately.
 - **E — Delete before any submission:** the teacher may fully delete a published COG assignment if no student has yet created an official submission for it.
