@@ -987,4 +987,14 @@ For YouTeach-linked evaluable COG activities:
 
 ### Open detail
 
-Whether the displayed attempt count should remain cumulative across an Undo Submission or reset after undo is not yet confirmed. The recommended behavior is cumulative so the receipt reflects the total number of completed practice attempts for that assigned activity.
+The displayed attempt count is **cumulative across the entire assignment**, including attempts made before and after an Undo Submission. Undo removes the current official submission, but it does not reset the attempt counter.
+
+
+## Cumulative attempt count — confirmed 2026-09-16
+
+For YouTeach-linked evaluable COG activities:
+
+- The attempt counter is **cumulative for the entire assignment**.
+- Undo Submission removes the current official submitted result but does **not** reset the number of attempts.
+- If a student completes 6 attempts, submits, undoes the submission, completes 3 more attempts, and submits again, the new verified receipt shows **9 attempts**.
+- The counter represents completed practice attempts associated with that assigned activity and student.
