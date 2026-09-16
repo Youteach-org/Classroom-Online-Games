@@ -1,0 +1,14 @@
+name: Pronunciation review compact row verification
+
+on:
+  push:
+    branches:
+      - fix/pronunciation-review-compact-row
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node --test Verb-Runner/tests/pronunciation-review.test.mjs
