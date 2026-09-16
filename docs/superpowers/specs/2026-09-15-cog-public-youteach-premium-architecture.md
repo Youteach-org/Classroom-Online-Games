@@ -1227,3 +1227,18 @@ For YouTeach assignments based on COG activities:
 - Internal stable identifiers should be used for assignable configuration values so display labels may evolve without breaking stored assignments.
 - If an option is retired for new assignments, existing assignments that already use it must remain functional until those assignments are no longer active/relevant.
 - Updates must not silently substitute a materially different configuration for an existing assignment.
+
+
+## Standardized 0–100 game result — confirmed 2026-09-16
+
+For every COG game certified as compatible with YouTeach evaluable assignments:
+
+- The game must return a standardized official performance result on a **0–100 scale**.
+- Each game may calculate that percentage differently according to its own mechanics, objectives, scoring model, accuracy, speed, completion, or other game-specific rules.
+- The game-specific calculation remains internal to that game's result adapter/logic, but the value exposed to YouTeach is always normalized to 0–100.
+- YouTeach uses that standardized percentage for:
+  - the optional overall minimum-performance gate;
+  - proportional conversion into assignment points;
+  - the teacher's final-submission view;
+  - the verified receipt.
+- Certification for YouTeach assignment use requires that the game's 0–100 calculation be deterministic, documented, and compatible with the shared standardized result contract.
