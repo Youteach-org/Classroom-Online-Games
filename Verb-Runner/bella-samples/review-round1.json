@@ -1,0 +1,53 @@
+{
+  "sampleSet": "bella-comparison-v1",
+  "voice": "af_bella",
+  "reviewedAt": "2026-09-16",
+  "results": {
+    "are-waiting": {
+      "decision": "unrated"
+    },
+    "ask": {
+      "decision": "no",
+      "preferred": "none",
+      "note": "Nask sigue diciendo"
+    },
+    "ate": {
+      "decision": "ok",
+      "selected": "bella-10-text"
+    },
+    "bend": {
+      "decision": "no",
+      "preferred": "none",
+      "note": "Dice bent"
+    },
+    "build": {
+      "decision": "no",
+      "preferred": "none",
+      "note": "Dice Built"
+    },
+    "dug": {
+      "decision": "no",
+      "preferred": "0.8",
+      "selected": "bella-08-text"
+    },
+    "start": {
+      "decision": "ok",
+      "selected": "bella-10-text"
+    },
+    "washed": {
+      "decision": "no",
+      "preferred": "none",
+      "note": "Wasst dice"
+    },
+    "watched": {
+      "decision": "no",
+      "preferred": "0.8",
+      "selected": "bella-08-text"
+    },
+    "wrote": {
+      "decision": "no",
+      "preferred": "none",
+      "note": "Parece que dice route"
+    }
+  }
+}
