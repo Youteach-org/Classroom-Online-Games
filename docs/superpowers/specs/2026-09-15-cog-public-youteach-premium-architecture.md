@@ -1132,3 +1132,14 @@ For YouTeach assignments based on COG activities:
 - The teacher may restore submission ability by reopening the assignment or extending its due date.
 - The existing assignment open/closed state remains the authority for whether a result may be submitted.
 - This preserves COG's learning/practice function even after the graded submission window closes.
+
+
+## Reopened assignment may accept prior practice result — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- A student may continue practicing while the assignment is closed.
+- If the teacher later reopens the assignment or extends its due date, the student may **Send to teacher** a valid completed result that was obtained while the assignment was closed.
+- The student is **not required to complete a new attempt after reopening** solely because the submission window changed.
+- The submitted result must still satisfy the assignment's configured game, mode/difficulty, optional minimum threshold, and other validity requirements.
+- The official submission timestamp is the time the student sends the result to the teacher after reopening; the gameplay completion timestamp remains the original completion time.
