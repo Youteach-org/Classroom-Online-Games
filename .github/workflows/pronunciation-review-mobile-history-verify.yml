@@ -1,0 +1,17 @@
+name: Pronunciation review mobile history verification
+
+on:
+  push:
+    branches:
+      - fix/pronunciation-review-mobile-history
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          node --check Verb-Runner/pronunciation-review/review-events.js
+          node --check Verb-Runner/pronunciation-review/review-render.js
+          node --test Verb-Runner/tests/pronunciation-review.test.mjs
