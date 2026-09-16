@@ -969,3 +969,22 @@ Public COG Premium will use:
 A lifetime one-time purchase is not part of the current design.
 
 YouTeach-linked students continue to receive the relevant Premium learning features through their YouTeach entitlement and do not need to purchase a separate public COG Premium subscription for assigned YouTeach activities.
+
+
+## Teacher-directed submission and attempt count — confirmed 2026-09-16
+
+For YouTeach-linked evaluable COG activities:
+
+- The student-facing action is **“Send to teacher”**, not “Send to YouTeach.”
+- YouTeach is the transport/record system; the visible recipient is the teacher.
+- The official submitted receipt must include the **number of completed attempts** associated with that assigned activity before the chosen result is submitted.
+- The student may practice multiple times and select the result they want to send to the teacher.
+- The selected result becomes the current official submission for that assignment.
+- YouTeach's existing **Undo Submission** behavior is reused: while the assignment remains open, the student can undo the official submission, return to practice, and later submit a replacement result.
+- The QR verification receipt corresponds only to the currently submitted official result.
+- Undoing the submission invalidates/removes that current official evidence from the assignment view; later replacement creates a new official receipt.
+- Existing YouTeach behavior already disables Undo Submission when the assignment is closed, so replacement is available only while the assignment is still open unless a future teacher override is explicitly added.
+
+### Open detail
+
+Whether the displayed attempt count should remain cumulative across an Undo Submission or reset after undo is not yet confirmed. The recommended behavior is cumulative so the receipt reflects the total number of completed practice attempts for that assigned activity.
