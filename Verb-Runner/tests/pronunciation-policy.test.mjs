@@ -8,6 +8,7 @@ const here=dirname(fileURLToPath(import.meta.url));
 const root=join(here,'..');
 const generator=readFileSync(join(root,'scripts','generate-pronunciation.py'),'utf8');
 const index=readFileSync(join(root,'index.html'),'utf8');
+const manifest=readFileSync(join(root,'pronunciation-manifest.js'),'utf8');
 
 test('ambiguous isolated verb homographs use explicit verb phonemes',()=>{
   assert.match(generator,/VERB_PHONEME_OVERRIDES\s*=\s*\{[\s\S]*['"]live['"]\s*:\s*['"]lˈɪv['"]/);
@@ -27,6 +28,15 @@ test('non-ambiguous answers keep their existing asset hashes',()=>{
 });
 
 test('Verb Runner cache-busts pronunciation manifest changes',()=>{
-  assert.match(index,/pronunciation-manifest\.js\?v=verb-homographs-20260915-1/);
+  assert.match(index,/pronunciation-manifest\.js\?v=nichalia-live-20260915-1/);
+});
+
+test('Nichalia is the locked pronunciation voice for new or regenerated Verb Runner audio',()=>{
+  assert.match(generator,/APPROVED_VOICE_NAME\s*=\s*['"]Nichalia['"]/);
+  assert.match(generator,/APPROVED_VOICE_ID\s*=\s*['"]XfNU2rGpBa01ckF309OY['"]/);
+  assert.match(generator,/Missing approved Nichalia asset/);
+  assert.match(generator,/APPROVED_AUDIO_OVERRIDES/);
+  assert.match(generator,/['"]live['"]\s*:\s*['"]https:\/\/cdn\.creativeclaw\.co\//);
+  assert.match(manifest,/"live"\s*:\s*"https:\/\/cdn\.creativeclaw\.co\//);
 });
 

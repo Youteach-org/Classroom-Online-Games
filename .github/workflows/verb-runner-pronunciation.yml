@@ -38,15 +38,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Kokoro dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y espeak-ng
-          python -m pip install --upgrade pip
-          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
-          python -m pip install "kokoro>=0.9.4" numpy soundfile
-
-      - name: Generate individual Bella clips
+      - name: Verify approved pronunciation assets
         run: python Verb-Runner/scripts/generate-pronunciation.py
 
       - name: Verify pronunciation integration
