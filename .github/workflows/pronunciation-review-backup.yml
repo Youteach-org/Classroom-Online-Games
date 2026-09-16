@@ -66,6 +66,21 @@ jobs:
             "https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/verbRunnerV2/pronunciationDecisionConsole.json" \
             -o /tmp/pronunciation-decision-console.json
 
+      - name: Generate Bella round 3 candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          count=0
+          if [ -d Verb-Runner/bella-samples/round3-audio ]; then
+            count="$(find Verb-Runner/bella-samples/round3-audio -type f -name '*.wav' | wc -l)"
+          fi
+          if [ -f Verb-Runner/bella-samples/round3-manifest.json ] && [ "$count" -ge 6 ]; then
+            echo "Bella round 3 assets already exist; skipping generation."
+          else
+            python -m pip install --disable-pip-version-check "kokoro>=0.9.4" "soundfile>=0.12" "numpy>=1.26"
+            python Verb-Runner/scripts/generate-bella-round3.py
+          fi
+
       - name: Apply validated pronunciation review decisions
         run: |
           python Verb-Runner/scripts/apply-pronunciation-validation-decisions.py /tmp/pronunciation-review.json
@@ -103,6 +118,8 @@ jobs:
             Verb-Runner/pronunciation-aliases.json
             Verb-Runner/pronunciation-manifest.js
             Verb-Runner/audio/pronunciation
+            Verb-Runner/bella-samples/round3-manifest.json
+            Verb-Runner/bella-samples/round3-audio
           )
 
           if [ -z "$(git status --porcelain -- "${TRACKED[@]}")" ]; then
