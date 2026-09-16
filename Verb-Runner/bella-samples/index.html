@@ -3,68 +3,80 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Kokoro Bella Pronunciation Lab</title>
+  <title>Pronunciation Decision Console</title>
   <style>
     *{box-sizing:border-box}
-    body{font-family:Arial,sans-serif;background:#f5f7fa;color:#18202b;margin:0;padding:18px}
-    main{max-width:1180px;margin:auto}
-    h1{margin:0 0 4px;font-size:26px}
-    .note{margin:0 0 10px;color:#536070}
-    .badge{display:inline-block;padding:3px 7px;border-radius:999px;background:#e8edf4;font-size:12px;font-weight:700}
-    .summary{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
-    .summary span{background:#fff;border:1px solid #dfe5ec;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:700}
-    table{width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden}
-    th,td{padding:10px;border-bottom:1px solid #e5e9ef;vertical-align:middle}
-    th{text-align:left;background:#eef2f7;font-size:13px}
-    td.word{font-size:17px;font-weight:700;white-space:nowrap}
-    audio{width:100%;min-width:145px;height:32px}
-    .review-cell{min-width:235px}
-    .review-buttons{display:flex;gap:6px;flex-wrap:wrap}
-    .review-buttons button{border:1px solid #cbd3de;background:#fff;border-radius:8px;padding:7px 10px;font-weight:800;cursor:pointer}
-    .review-buttons button[data-active="true"]{outline:2px solid #18202b;outline-offset:1px}
-    .ok-btn[data-active="true"]{background:#dff4e7}
-    .no-btn[data-active="true"]{background:#ffe1df}
-    .review-details{display:grid;gap:6px;margin-top:7px}
-    .review-details[hidden]{display:none}
-    .review-details label{font-size:11px;font-weight:700;color:#586575}
-    .review-details select,.review-details textarea{width:100%;margin-top:3px;border:1px solid #cbd3de;border-radius:7px;padding:7px;font:inherit;background:#fff}
-    .review-details textarea{min-height:56px;resize:vertical}
-    .save-state{font-size:10px;color:#6b7582;min-height:12px}
-    @media(max-width:760px){
-      body{padding:10px}
-      table,thead,tbody,tr,th,td{display:block}
-      thead{display:none}
-      tr{padding:12px;border-bottom:1px solid #dfe5ec}
-      td{border:0;padding:5px 0}
-      td.word{font-size:19px;white-space:normal;padding-bottom:8px}
-      td[data-label]::before{content:attr(data-label);display:block;font-size:11px;font-weight:700;color:#627083;margin-bottom:3px}
-      audio{width:100%}
-      .review-cell{min-width:0;margin-top:6px;padding-top:8px;border-top:1px dashed #d5dce5}
+    body{font-family:Arial,sans-serif;background:#f4f6f8;color:#18202b;margin:0;padding:14px}
+    main{max-width:1080px;margin:auto}
+    h1{margin:0 0 3px;font-size:25px}
+    .sub{margin:0 0 12px;color:#5c6775;font-size:13px}
+    .badge{display:inline-block;padding:3px 7px;border-radius:999px;background:#e7ecf2;font-size:11px;font-weight:800}
+    .toolbar{display:flex;align-items:end;gap:9px;flex-wrap:wrap;background:#fff;border:1px solid #dfe5ec;border-radius:11px;padding:10px;margin-bottom:10px}
+    .toolbar label{display:grid;gap:3px;font-size:10px;font-weight:800;color:#5d6876}
+    select,textarea{font:inherit;border:1px solid #cbd3dc;border-radius:7px;background:#fff}
+    select{padding:7px 28px 7px 8px}
+    .filters{display:flex;gap:4px;flex-wrap:wrap}
+    .filters button,.candidate button,.none-button{font:inherit;border:1px solid #cbd3dc;background:#fff;border-radius:7px;padding:7px 10px;font-weight:800;cursor:pointer}
+    .filters button[data-active="true"]{background:#202a36;color:#fff;border-color:#202a36}
+    .summary{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+    .summary span{font-size:11px;font-weight:800;background:#eef2f6;border-radius:999px;padding:5px 8px}
+    .batch-description{font-size:12px;color:#65707d;margin:0 2px 10px}
+    .items{display:grid;gap:9px}
+    .item{background:#fff;border:1px solid #dfe5ec;border-radius:11px;padding:10px}
+    .item.decided{border-left:4px solid #63956f}
+    .item.none-selected{border-left:4px solid #b86d65}
+    .item-head{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:8px}
+    .word{font-size:20px;font-weight:900;line-height:1.1;flex:1 1 180px}
+    .status{font-size:10px;font-weight:900;border-radius:999px;padding:4px 7px;background:#eef2f6}
+    .candidates{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:7px}
+    .candidate{border:1px solid #e0e5eb;border-radius:9px;padding:7px;min-width:0}
+    .candidate[data-selected="true"]{border:2px solid #4d7858;background:#f0f8f2}
+    .candidate-title{font-size:11px;font-weight:900;color:#56616e;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    audio{display:block;width:100%;height:32px;margin-bottom:5px}
+    .candidate button{width:100%;padding:6px 8px}
+    .candidate[data-selected="true"] button{background:#dceddf;border-color:#87a890}
+    .decision-row{display:grid;grid-template-columns:auto minmax(160px,1fr) auto;gap:7px;align-items:start;margin-top:8px}
+    .none-button[data-selected="true"]{background:#ffe5e2;border-color:#c98881}
+    textarea{width:100%;min-height:39px;padding:7px;resize:vertical}
+    .save-state{font-size:10px;color:#6d7784;padding-top:8px;min-width:44px}
+    .hidden{display:none!important}
+    @media(max-width:680px){
+      body{padding:8px}
+      h1{font-size:22px}
+      .toolbar{align-items:stretch}
+      .toolbar>label{width:100%}
+      .toolbar select{width:100%}
+      .summary{margin-left:0;width:100%}
+      .candidates{grid-template-columns:1fr}
+      .decision-row{grid-template-columns:auto 1fr}
+      .save-state{grid-column:1/-1;padding-top:0}
     }
   </style>
 </head>
 <body>
 <main>
-  <h1>Kokoro Bella Pronunciation Lab</h1>
-  <p class="note"><span class="badge">VOICE: af_bella</span> All three columns use the exact same Kokoro Bella voice. Only speed/input method changes.</p>
-  <p class="note"><strong>Review:</strong> mark whether Bella 1.0 is acceptable. If not, choose the better alternative (if any) and leave a note.</p>
-  <div class="summary">
-    <span id="reviewedCount">Reviewed: 0/10</span>
-    <span id="okCount">1.0 OK: 0</span>
-    <span id="noCount">1.0 NO: 0</span>
+  <h1>Pronunciation Decision Console</h1>
+  <p class="sub"><span class="badge">Kokoro · af_bella</span> One permanent console for every pronunciation decision batch.</p>
+
+  <div class="toolbar">
+    <label>
+      Batch
+      <select id="batchSelect"></select>
+    </label>
+    <div class="filters" aria-label="Filters">
+      <button type="button" data-filter="all" data-active="true">All</button>
+      <button type="button" data-filter="pending">Pending</button>
+      <button type="button" data-filter="decided">Decided</button>
+    </div>
+    <div class="summary">
+      <span id="countAll">Total: 0</span>
+      <span id="countPending">Pending: 0</span>
+      <span id="countDecided">Decided: 0</span>
+    </div>
   </div>
-  <table>
-    <thead>
-      <tr>
-        <th>Word / phrase</th>
-        <th>Bella 0.8 · normal text</th>
-        <th>Bella 1.0 · normal text</th>
-        <th>Bella 0.9 · explicit phonemes</th>
-        <th>Your review</th>
-      </tr>
-    </thead>
-    <tbody id="rows"></tbody>
-  </table>
+
+  <p class="batch-description" id="batchDescription"></p>
+  <section class="items" id="items"></section>
 </main>
 
 <script src="../../Support-Meter/config.js"></script>
@@ -75,153 +87,202 @@ import {getDatabase,ref,onValue,update} from 'https://www.gstatic.com/firebasejs
 const cfg=window.SUPPORT_METER_CONFIG;
 if(!cfg?.firebase)throw new Error('Firebase configuration is unavailable.');
 
-const ROOT='classroomGames/verbRunnerV2/bellaSampleReview';
-const db=getDatabase(initializeApp(cfg.firebase));
-const reviewsRef=ref(db,`${ROOT}/items`);
-const rows=document.querySelector('#rows');
-const reviewedCount=document.querySelector('#reviewedCount');
-const okCount=document.querySelector('#okCount');
-const noCount=document.querySelector('#noCount');
+const app=initializeApp(cfg.firebase);
+const db=getDatabase(app);
+const batchSelect=document.querySelector('#batchSelect');
+const itemsNode=document.querySelector('#items');
+const descriptionNode=document.querySelector('#batchDescription');
+const countAll=document.querySelector('#countAll');
+const countPending=document.querySelector('#countPending');
+const countDecided=document.querySelector('#countDecided');
+const filterButtons=[...document.querySelectorAll('[data-filter]')];
 
+let config=null;
+let batchId=null;
+let batch=null;
 let manifest=null;
 let reviews={};
-let saveTimers=new Map();
+let filter='all';
+let unsubscribe=null;
+const noteTimers=new Map();
 
-const escapeHtml=value=>String(value??'')
+const esc=value=>String(value??'')
   .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
   .replaceAll('"','&quot;').replaceAll("'","&#39;");
 
-function updateSummary(){
-  const values=Object.values(reviews||{});
-  const ok=values.filter(item=>item?.decision==='ok').length;
-  const no=values.filter(item=>item?.decision==='no').length;
-  reviewedCount.textContent=`Reviewed: ${ok+no}/${Object.keys(manifest?.items||{}).length}`;
-  okCount.textContent=`1.0 OK: ${ok}`;
-  noCount.textContent=`1.0 NO: ${no}`;
+function reviewRoot(){
+  return `${config.firebaseRoot}/batches/${batchId}/items`;
 }
 
-function applyReviewToRow(slug){
-  const row=rows.querySelector(`tr[data-slug="${CSS.escape(slug)}"]`);
-  if(!row)return;
-  const review=reviews[slug]||{};
-  const ok=row.querySelector('.ok-btn');
-  const no=row.querySelector('.no-btn');
-  const details=row.querySelector('.review-details');
-  const preferred=row.querySelector('.preferred');
-  const note=row.querySelector('.review-note');
+function selectedFor(slug){
+  return reviews?.[slug]?.selectedCandidate||'';
+}
 
-  ok.dataset.active=String(review.decision==='ok');
-  no.dataset.active=String(review.decision==='no');
-  details.hidden=review.decision!=='no';
-  preferred.value=review.preferred||'';
-  if(document.activeElement!==note)note.value=review.note||'';
+function isDecided(slug){
+  return Boolean(selectedFor(slug));
+}
+
+function updateSummary(){
+  const slugs=Object.keys(manifest?.items||{});
+  const decided=slugs.filter(isDecided).length;
+  countAll.textContent=`Total: ${slugs.length}`;
+  countPending.textContent=`Pending: ${slugs.length-decided}`;
+  countDecided.textContent=`Decided: ${decided}`;
+}
+
+function matches(slug){
+  if(filter==='pending')return !isDecided(slug);
+  if(filter==='decided')return isDecided(slug);
+  return true;
+}
+
+function applyItemState(slug){
+  const card=itemsNode.querySelector(`.item[data-slug="${CSS.escape(slug)}"]`);
+  if(!card)return;
+  const selected=selectedFor(slug);
+  card.classList.toggle('decided',Boolean(selected));
+  card.classList.toggle('none-selected',selected==='none');
+  card.querySelector('.status').textContent=selected
+    ? (selected==='none'?'NONE':'DECIDED')
+    : 'PENDING';
+  for(const node of card.querySelectorAll('.candidate')){
+    node.dataset.selected=String(node.dataset.candidate===selected);
+  }
+  const none=card.querySelector('.none-button');
+  none.dataset.selected=String(selected==='none');
+  const note=card.querySelector('textarea');
+  if(document.activeElement!==note)note.value=reviews?.[slug]?.note||'';
+  card.classList.toggle('hidden',!matches(slug));
 }
 
 function render(){
-  rows.replaceChildren();
-  for(const [slug,item] of Object.entries(manifest.items)){
-    const tr=document.createElement('tr');
-    tr.dataset.slug=slug;
-    tr.innerHTML=`
-      <td class="word">${escapeHtml(item.label)}</td>
-      <td data-label="Bella 0.8 · normal text"><audio controls preload="none" src="${item.files['bella-08-text']}"></audio></td>
-      <td data-label="Bella 1.0 · normal text"><audio controls preload="none" src="${item.files['bella-10-text']}"></audio></td>
-      <td data-label="Bella 0.9 · explicit phonemes"><audio controls preload="none" src="${item.files['bella-09-phoneme']}"></audio></td>
-      <td class="review-cell" data-label="Your review">
-        <div class="review-buttons">
-          <button class="ok-btn" type="button" data-decision="ok">1.0 OK</button>
-          <button class="no-btn" type="button" data-decision="no">1.0 NO</button>
+  itemsNode.replaceChildren();
+  const variants=manifest?.variants||{};
+  for(const [slug,item] of Object.entries(manifest?.items||{})){
+    const card=document.createElement('article');
+    card.className='item';
+    card.dataset.slug=slug;
+
+    const candidateHtml=Object.entries(item.files||{}).map(([candidate,src])=>{
+      const label=variants[candidate]?.label||candidate;
+      return `
+        <div class="candidate" data-candidate="${esc(candidate)}">
+          <div class="candidate-title" title="${esc(label)}">${esc(label)}</div>
+          <audio controls preload="none" src="${esc(src)}"></audio>
+          <button type="button" data-select-candidate="${esc(candidate)}">Choose</button>
         </div>
-        <div class="review-details" hidden>
-          <label>
-            If 1.0 is not good, which is better?
-            <select class="preferred">
-              <option value="">Choose…</option>
-              <option value="0.8">0.8 normal text</option>
-              <option value="0.9-phoneme">0.9 explicit phonemes</option>
-              <option value="none">None of them</option>
-            </select>
-          </label>
-          <label>
-            Note
-            <textarea class="review-note" placeholder="What sounds wrong?"></textarea>
-          </label>
-        </div>
+      `;
+    }).join('');
+
+    card.innerHTML=`
+      <div class="item-head">
+        <div class="word">${esc(item.label||slug)}</div>
+        <span class="status">PENDING</span>
+      </div>
+      <div class="candidates">${candidateHtml}</div>
+      <div class="decision-row">
+        <button class="none-button" type="button" data-select-candidate="none">None</button>
+        <textarea placeholder="Optional note: what sounds wrong or why you chose it?"></textarea>
         <div class="save-state"></div>
-      </td>
+      </div>
     `;
-    rows.appendChild(tr);
-    applyReviewToRow(slug);
+    itemsNode.appendChild(card);
+    applyItemState(slug);
   }
   updateSummary();
 }
 
 async function save(slug,patch){
-  const row=rows.querySelector(`tr[data-slug="${CSS.escape(slug)}"]`);
-  const state=row?.querySelector('.save-state');
+  const card=itemsNode.querySelector(`.item[data-slug="${CSS.escape(slug)}"]`);
+  const state=card?.querySelector('.save-state');
   if(state)state.textContent='Saving…';
   try{
-    await update(ref(db,`${ROOT}/items/${slug}`),{
+    await update(ref(db,`${reviewRoot()}/${slug}`),{
       ...patch,
-      voice:'af_bella',
-      sampleSet:'bella-comparison-v1',
+      batchId,
+      voice:config.voice,
       updatedAt:Date.now()
     });
     if(state)state.textContent='Saved';
   }catch(error){
     console.error(error);
-    if(state)state.textContent='Save failed';
+    if(state)state.textContent='Failed';
   }
 }
 
-function scheduleNoteSave(slug,row){
-  clearTimeout(saveTimers.get(slug));
-  const timer=setTimeout(()=>{
-    save(slug,{
-      note:row.querySelector('.review-note').value.trim(),
-      preferred:row.querySelector('.preferred').value
-    });
-  },450);
-  saveTimers.set(slug,timer);
+function scheduleNoteSave(slug,note){
+  clearTimeout(noteTimers.get(slug));
+  noteTimers.set(slug,setTimeout(()=>save(slug,{note:note.trim()}),450));
 }
 
-rows.addEventListener('click',event=>{
-  const button=event.target.closest('[data-decision]');
+itemsNode.addEventListener('click',event=>{
+  const button=event.target.closest('[data-select-candidate]');
   if(!button)return;
-  const row=button.closest('tr[data-slug]');
-  const slug=row.dataset.slug;
-  const decision=button.dataset.decision;
-  reviews[slug]={...(reviews[slug]||{}),decision};
-  applyReviewToRow(slug);
+  const card=button.closest('.item[data-slug]');
+  const slug=card.dataset.slug;
+  const selectedCandidate=button.dataset.selectCandidate;
+  reviews[slug]={...(reviews[slug]||{}),selectedCandidate};
+  applyItemState(slug);
   updateSummary();
-  save(slug,{decision});
+  save(slug,{selectedCandidate});
 });
 
-rows.addEventListener('change',event=>{
-  const row=event.target.closest('tr[data-slug]');
-  if(!row)return;
-  if(event.target.matches('.preferred')){
-    const slug=row.dataset.slug;
-    reviews[slug]={...(reviews[slug]||{}),preferred:event.target.value};
-    save(slug,{preferred:event.target.value});
-  }
-});
-
-rows.addEventListener('input',event=>{
-  const note=event.target.closest('.review-note');
+itemsNode.addEventListener('input',event=>{
+  const note=event.target.closest('textarea');
   if(!note)return;
-  const row=note.closest('tr[data-slug]');
-  scheduleNoteSave(row.dataset.slug,row);
+  const card=note.closest('.item[data-slug]');
+  scheduleNoteSave(card.dataset.slug,note.value);
 });
 
-manifest=await fetch('./manifest.json').then(r=>r.json());
-render();
+for(const button of filterButtons){
+  button.addEventListener('click',()=>{
+    filter=button.dataset.filter;
+    for(const other of filterButtons){
+      other.dataset.active=String(other===button);
+    }
+    for(const slug of Object.keys(manifest?.items||{}))applyItemState(slug);
+  });
+}
 
-onValue(reviewsRef,snapshot=>{
-  reviews=snapshot.exists()?snapshot.val()||{}:{};
-  for(const slug of Object.keys(manifest.items))applyReviewToRow(slug);
-  updateSummary();
-},error=>console.error('Review sync error',error));
+async function loadBatch(nextBatchId){
+  if(unsubscribe){
+    unsubscribe();
+    unsubscribe=null;
+  }
+  batchId=nextBatchId;
+  batch=config.batches[batchId];
+  if(!batch)throw new Error(`Unknown batch: ${batchId}`);
+  descriptionNode.textContent=batch.description||'';
+  manifest=await fetch(batch.manifest,{cache:'no-store'}).then(r=>{
+    if(!r.ok)throw new Error(`Could not load ${batch.manifest}`);
+    return r.json();
+  });
+  reviews={};
+  render();
+
+  const url=new URL(location.href);
+  url.searchParams.set('batch',batchId);
+  history.replaceState(null,'',url);
+
+  unsubscribe=onValue(ref(db,reviewRoot()),snapshot=>{
+    reviews=snapshot.exists()?snapshot.val()||{}:{};
+    for(const slug of Object.keys(manifest.items||{}))applyItemState(slug);
+    updateSummary();
+  },error=>console.error('Decision sync error',error));
+}
+
+config=await fetch('./decision-batches.json',{cache:'no-store'}).then(r=>r.json());
+for(const [id,entry] of Object.entries(config.batches)){
+  const option=document.createElement('option');
+  option.value=id;
+  option.textContent=entry.label;
+  batchSelect.appendChild(option);
+}
+const requested=new URL(location.href).searchParams.get('batch');
+const initial=config.batches[requested]?requested:config.currentBatch;
+batchSelect.value=initial;
+batchSelect.addEventListener('change',()=>loadBatch(batchSelect.value));
+await loadBatch(initial);
 </script>
 </body>
 </html>

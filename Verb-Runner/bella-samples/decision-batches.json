@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "currentBatch": "round2",
+  "voice": "af_bella",
+  "firebaseRoot": "classroomGames/verbRunnerV2/pronunciationDecisionConsole",
+  "batches": {
+    "round1": {
+      "label": "Round 1 · Baseline comparison",
+      "manifest": "./manifest.json",
+      "status": "completed-review",
+      "description": "Initial comparison: Bella 0.8, Bella 1.0, and Bella 0.9 with explicit phonemes."
+    },
+    "round2": {
+      "label": "Round 2 · Failed words",
+      "manifest": "./round2-manifest.json",
+      "status": "active",
+      "description": "Retest of ask, bend, build, washed, and wrote."
+    }
+  }
+}
