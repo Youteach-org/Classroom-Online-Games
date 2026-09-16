@@ -20,9 +20,10 @@ test('ambiguous isolated verb homographs use explicit verb phonemes',()=>{
   assert.match(generator,/generate_from_tokens\(/);
 });
 
-test('pronunciation override changes the generated asset filename',()=>{
+test('pronunciation correction or override changes the generated asset filename',()=>{
   assert.match(generator,/pronunciation_signature/);
-  assert.match(generator,/sha1\(pronunciation_signature\(key\)\.encode\('utf-8'\)\)/);
+  assert.match(generator,/reviewed-correction/);
+  assert.match(generator,/sha1\(pronunciation_signature\(key, corrections\)\.encode\('utf-8'\)\)/);
 });
 
 test('non-ambiguous answers keep their existing asset hashes',()=>{
