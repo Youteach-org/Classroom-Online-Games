@@ -35,6 +35,12 @@ jobs:
           mkdir -p docs/superpowers/audits
           curl -fsS             "https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/verbRunnerV2/pronunciationReview.json"             -o /tmp/pronunciation-review.json
 
+      - name: Download live Bella sample review data
+        run: |
+          curl -fsS \
+            "https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/verbRunnerV2/bellaSampleReview.json" \
+            -o /tmp/bella-sample-review.json
+
       - name: Apply validated pronunciation review decisions
         run: |
           python Verb-Runner/scripts/apply-pronunciation-validation-decisions.py /tmp/pronunciation-review.json
@@ -56,17 +62,18 @@ jobs:
       - name: Update GitHub review backup
         run: |
           cp /tmp/pronunciation-review.json docs/superpowers/audits/pronunciation-review-live-backup.json
+          cp /tmp/bella-sample-review.json docs/superpowers/audits/bella-sample-review-live-backup.json
 
       - name: Commit review backup and deduplicated assets
         shell: bash
         run: |
-          if [ -z "$(git status --porcelain --             docs/superpowers/audits/pronunciation-review-live-backup.json             Verb-Runner/pronunciation-aliases.json             Verb-Runner/pronunciation-manifest.js             Verb-Runner/audio/pronunciation)" ]; then
+          if [ -z "$(git status --porcelain --             docs/superpowers/audits/pronunciation-review-live-backup.json             docs/superpowers/audits/bella-sample-review-live-backup.json             Verb-Runner/pronunciation-aliases.json             Verb-Runner/pronunciation-manifest.js             Verb-Runner/audio/pronunciation)" ]; then
             echo "No pronunciation review sync changes."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add             docs/superpowers/audits/pronunciation-review-live-backup.json             Verb-Runner/pronunciation-aliases.json             Verb-Runner/pronunciation-manifest.js             Verb-Runner/audio/pronunciation
+          git add             docs/superpowers/audits/pronunciation-review-live-backup.json             docs/superpowers/audits/bella-sample-review-live-backup.json             Verb-Runner/pronunciation-aliases.json             Verb-Runner/pronunciation-manifest.js             Verb-Runner/audio/pronunciation
           git commit -m "chore: sync pronunciation review and remove duplicates [skip review backup]"
           git pull --rebase origin main
           git push origin HEAD:main
