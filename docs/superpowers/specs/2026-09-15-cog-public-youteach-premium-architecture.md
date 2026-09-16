@@ -1242,3 +1242,22 @@ For every COG game certified as compatible with YouTeach evaluable assignments:
   - the teacher's final-submission view;
   - the verified receipt.
 - Certification for YouTeach assignment use requires that the game's 0–100 calculation be deterministic, documented, and compatible with the shared standardized result contract.
+
+
+## Server-validated official COG results — confirmed 2026-09-16
+
+For YouTeach evaluable COG activities:
+
+- YouTeach must **never trust a 0–100 result supplied only by the student's browser** as an official grade.
+- A browser/client may calculate and display provisional gameplay state locally, but the result used for an official submission must be validated through the authorized server-side session/result path.
+- The server-side validation must verify at minimum that the result belongs to:
+  - the authenticated student;
+  - the intended YouTeach assignment;
+  - the assigned COG game;
+  - the required mode/modality and difficulty;
+  - a valid authorized launch/session;
+  - a completed attempt;
+  - the applicable assignment state and minimum-performance rules.
+- Only a server-validated result becomes eligible for **Send to teacher**, proportional point conversion, teacher-facing display, and verifiable receipt/QR generation.
+- Client-side manipulation of JavaScript, local storage, network payloads, visible score text, or browser developer tools must not be sufficient to create or alter an official result.
+- This requirement applies to the standardized result contract for every game certified as compatible with YouTeach assignments.
