@@ -163,3 +163,14 @@ test('mobile review row is constrained to the card width',()=>{
   assert.match(css,/\.listen-row audio\{[^}]*max-width:100%[^}]*min-width:0/);
   assert.match(css,/@media\(max-width:680px\)[\s\S]*\.listen-row\{grid-template-columns:minmax\(0,1fr\) auto auto auto/);
 });
+
+
+test('Firebase autosave rerender preserves review position and open panels',()=>{
+  const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
+  assert.match(app,/function captureViewState\(\)/);
+  assert.match(app,/scrollY:window\.scrollY/);
+  assert.match(app,/function restoreViewState\(state\)/);
+  assert.match(app,/window\.scrollTo\(\{top:state\.scrollY,left:0,behavior:'instant'\}\)/);
+  assert.match(app,/const state=captureViewState\(\);[\s\S]*render\(state\)/);
+  assert.match(app,/\.report-panel','\.duplicate-panel','\.review-history-panel'/);
+});
