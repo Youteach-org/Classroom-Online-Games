@@ -90,7 +90,7 @@ Public COG Premium accounts will support at launch:
 - **Apple sign-in**
 - **Email + password**
 
-These methods all resolve into a single COG account/identity. A user may later link more than one sign-in method to the same account rather than creating duplicate Premium profiles.
+**Proposed, not yet confirmed:** these methods should resolve into a single COG account/identity, with optional provider linking to avoid duplicate Premium profiles.
 
 ### Confirmed entitlement rule
 
