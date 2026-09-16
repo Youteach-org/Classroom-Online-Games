@@ -23,6 +23,7 @@ const duplicateCount=document.querySelector('#duplicateCount');
 let records={};
 let catalog=[];
 let seeded=false;
+let renderTimer=null;
 
 const gameRootUrl=()=>new URL('../',window.location.href);
 const audioUrl=src=>/^https?:\/\//i.test(src)?src:new URL(src,gameRootUrl()).href;
@@ -59,6 +60,22 @@ function refreshDatalist(){
   }
 }
 
+function hasPlayingAudio(){
+  return Array.from(audioList.querySelectorAll('audio')).some(audio=>!audio.paused&&!audio.ended);
+}
+
+function requestSafeRender(delay=180){
+  if(renderTimer)clearTimeout(renderTimer);
+  renderTimer=setTimeout(()=>{
+    if(hasPlayingAudio()){
+      requestSafeRender(300);
+      return;
+    }
+    renderTimer=null;
+    render();
+  },delay);
+}
+
 function render(){
   catalog=core.mergeCatalog(manifest,records);
   const visible=catalog.filter(matches);
@@ -89,7 +106,7 @@ syncState.textContent='Firebase: connecting…';
 watchRecords(next=>{
   records=next;
   syncState.textContent='Firebase: saved';
-  render();
+  requestSafeRender();
   if(!seeded){
     seeded=true;
     seedKnownReports(catalog,records).catch(error=>{
@@ -100,5 +117,5 @@ watchRecords(next=>{
 },error=>{
   console.error(error);
   syncState.textContent='Firebase: connection error';
-  render();
+  requestSafeRender();
 });

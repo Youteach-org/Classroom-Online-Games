@@ -87,3 +87,12 @@ test('GitHub backup workflow snapshots Firebase review data',()=>{
   assert.match(workflow,/pronunciation-review-live-backup\.json/);
   assert.match(workflow,/schedule:/);
 });
+
+
+test('review console does not rebuild audio controls while one is playing',()=>{
+  const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
+  assert.match(app,/function hasPlayingAudio\(\)/);
+  assert.match(app,/function requestSafeRender\(/);
+  assert.match(app,/if\(hasPlayingAudio\(\)\)/);
+  assert.match(app,/watchRecords\([\s\S]*requestSafeRender/);
+});
