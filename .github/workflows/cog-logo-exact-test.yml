@@ -1,0 +1,21 @@
+name: COG Logo Exact Regression
+
+on:
+  push:
+    branches:
+      - fix/cog-logo-exact
+    paths:
+      - "Verb-Runner/index.html"
+      - "Verb-Runner/styles.css"
+      - "Verb-Runner/assets/cog-logo.png"
+      - "Verb-Runner/tests/cog-logo-exact.test.mjs"
+      - ".github/workflows/cog-logo-exact-test.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run COG logo regression test
+        run: node --test Verb-Runner/tests/cog-logo-exact.test.mjs
