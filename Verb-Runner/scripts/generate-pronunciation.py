@@ -158,7 +158,11 @@ def validate_aliases(answers: set[str], aliases: dict[str, str]) -> None:
 
 def source_for_key(key: str, aliases: dict[str, str], corrections: dict[str, dict]) -> str:
     canonical = resolve_alias(key, aliases)
-    if canonical in corrections:
+    correction = corrections.get(canonical)
+    if correction:
+        approved_source = str(correction.get('approved_source_url') or '').strip()
+        if approved_source:
+            return approved_source
         return f'./audio/pronunciation/{asset_filename(canonical, corrections)}'
     return TRANSITIONAL_EXTERNAL_AUDIO.get(
         canonical,
@@ -201,6 +205,10 @@ def generate_audio(
 
     for index, answer in enumerate(canonical_answers, 1):
         correction = corrections.get(answer)
+        approved_source = str((correction or {}).get('approved_source_url') or '').strip()
+        if approved_source:
+            print(f"approved external voice exception: {answer!r} -> {approved_source}")
+            continue
         if answer in TRANSITIONAL_EXTERNAL_AUDIO and not correction:
             continue
 
