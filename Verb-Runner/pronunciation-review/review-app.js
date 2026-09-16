@@ -71,6 +71,29 @@ function hasActiveReportEditor(){
   return Boolean(active?.classList?.contains('report-text')||active?.classList?.contains('report-kind'));
 }
 
+function captureViewState(){
+  const openPanels=[];
+  for(const card of audioList.querySelectorAll('.audio-card')){
+    const audioId=card.dataset.audioId;
+    if(!audioId)continue;
+    for(const selector of ['.report-panel','.duplicate-panel','.review-history-panel']){
+      const panel=card.querySelector(selector);
+      if(panel&&!panel.hidden)openPanels.push({audioId,selector});
+    }
+  }
+  return {scrollY:window.scrollY,openPanels};
+}
+
+function restoreViewState(state){
+  if(!state)return;
+  for(const item of state.openPanels||[]){
+    const card=audioList.querySelector(`.audio-card[data-audio-id="${CSS.escape(item.audioId)}"]`);
+    const panel=card?.querySelector(item.selector);
+    if(panel)panel.hidden=false;
+  }
+  window.scrollTo({top:state.scrollY,left:0,behavior:'instant'});
+}
+
 function requestSafeRender(delay=180){
   if(renderTimer)clearTimeout(renderTimer);
   renderTimer=setTimeout(()=>{
@@ -79,11 +102,12 @@ function requestSafeRender(delay=180){
       return;
     }
     renderTimer=null;
-    render();
+    const state=captureViewState();
+    render(state);
   },delay);
 }
 
-function render(){
+function render(viewState=null){
   catalog=core.mergeCatalog(manifest,records);
   const visible=catalog.filter(matches);
   audioList.replaceChildren(...visible.map(entry=>renderCard(entry,template,audioUrl)));
@@ -98,6 +122,7 @@ function render(){
   problemCount.textContent=`Needs fix ${catalog.filter(x=>x.status==='needs-fix').length}`;
   duplicateCount.textContent=`Duplicates ${catalog.filter(x=>x.status==='duplicate'||x.status==='removed-duplicate').length}`;
   refreshDatalist();
+  restoreViewState(viewState);
 }
 
 bindReviewEvents({audioList,getEntryById,getEntryByKey,getRecordById,reviewer});
