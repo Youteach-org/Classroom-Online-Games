@@ -381,8 +381,9 @@ The following still require explicit decisions before implementation planning is
 - Confirmed public COG guests can access a game directly if they have its public link, without registering.
 - Confirmed that possession of a YouTeach private game URL alone never grants YouTeach/Premium access; private access requires a valid authenticated launch credential.
 - Confirmed the public account model is intentionally simple: **Guest** or **Premium** only. There is no separate free registered account tier.
-- Confirmed the Premium launch sign-in methods: **Google**, **Microsoft**, **Apple**, and **email + password**.
+- Confirmed the long-term Premium sign-in methods: **Google**, **Microsoft**, **Apple**, and **email + password**. For the initial zero-cost phase, Apple is deferred because it requires paid Apple Developer Program membership.
 - Confirmed that multiple sign-in providers may be linked to the **same COG account** so subscription status, history, reports, and preferences remain unified.
+- Confirmed that the initial architecture must have **USD 0 mandatory infrastructure cost** until real usage/monetization justifies upgrading.
 - Confirmed that **all public COG traffic, Guest and Premium, uses a backend/data project independent from YouTeach**. Guests use temporary/anonymous public-session data; Premium users add authenticated persistent account data on that same public COG backend.
 - Clarified that moving deployment/hosting to **Cloudflare Pages** did **not** constitute a decision to migrate the database/authentication backend away from Firebase. The backend provider for the new public COG remains an open architectural decision.
 
@@ -584,3 +585,55 @@ At this planning workload:
 - **Firestore has the strongest modeled economics for large persistent histories** under the assumed read/write pattern, although bandwidth and document/index design can change the result materially.
 
 The backend decision remains open until the architecture section is approved.
+
+## Zero-cost launch constraint
+
+### Confirmed decision — 2026-09-16
+
+The initial public COG architecture must operate with **USD 0 mandatory infrastructure cost** while the product is being built and validated.
+
+This means:
+
+- Prefer free tiers that do not require a paid subscription merely to start.
+- Do not select a provider whose minimum paid plan is required for the initial architecture.
+- Paid upgrades may be introduced only after real usage, monetization, or a confirmed need justifies them.
+- The architecture should make free-tier limits measurable so COG can upgrade deliberately before hitting them.
+- "Free now" does not mean choosing an unsafe or unknown hosting provider. Security and data isolation remain mandatory.
+
+### Firestore clarification
+
+Cloud Firestore Standard has a real no-cost quota:
+
+- 1 GiB stored data;
+- 50,000 document reads/day;
+- 20,000 document writes/day;
+- 20,000 document deletes/day;
+- 10 GiB outbound transfer/month;
+- exactly one free Firestore database per project.
+
+Some Firestore features (for example PITR, managed backups/restore, TTL deletes, cloning) require billing and therefore are excluded from the initial zero-cost phase.
+
+### Authentication launch adjustment
+
+The long-term Premium sign-in design remains:
+
+- Google
+- Microsoft
+- Apple
+- email + password
+
+However, **Apple sign-in is deferred from the zero-cost launch phase** because Sign in with Apple can only be configured by Apple Developer Program members and that membership costs USD 99/year.
+
+Initial zero-cost Premium sign-in set:
+
+- Google
+- Microsoft
+- email + password
+
+Apple remains a planned provider to activate once COG begins paying for production/monetization infrastructure.
+
+Official references reviewed:
+- https://firebase.google.com/docs/firestore/quotas
+- https://firebase.google.com/pricing
+- https://firebase.google.com/docs/auth/web/apple
+- https://developer.apple.com/help/account/membership/program-enrollment
