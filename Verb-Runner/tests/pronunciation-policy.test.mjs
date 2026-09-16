@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const here=dirname(fileURLToPath(import.meta.url));
+const root=join(here,'..');
+const generator=readFileSync(join(root,'scripts','generate-pronunciation.py'),'utf8');
+
+test('ambiguous isolated verb homographs use explicit verb phonemes',()=>{
+  assert.match(generator,/VERB_PHONEME_OVERRIDES\s*=\s*\{[\s\S]*['"]live['"]\s*:\s*['"]lˈɪv['"]/);
+  assert.match(generator,/VERB_PHONEME_OVERRIDES\s*=\s*\{[\s\S]*['"]close['"]\s*:\s*['"]klˈOz['"]/);
+  assert.match(generator,/VERB_PHONEME_OVERRIDES\s*=\s*\{[\s\S]*['"]use['"]\s*:\s*['"]jˈuz['"]/);
+  assert.match(generator,/generate_from_tokens\(/);
+});
+
+test('pronunciation override changes the generated asset filename',()=>{
+  assert.match(generator,/pronunciation_signature/);
+  assert.match(generator,/sha1\(pronunciation_signature\(key\)\.encode\('utf-8'\)\)/);
+});
