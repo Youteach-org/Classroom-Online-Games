@@ -1,0 +1,14 @@
+name: Pronunciation review TDD
+
+on:
+  push:
+    branches:
+      - feat/verb-runner-pronunciation-review
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node --test Verb-Runner/tests/pronunciation-review.test.mjs
