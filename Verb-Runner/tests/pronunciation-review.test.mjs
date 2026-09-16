@@ -121,3 +121,24 @@ test('review action labels are concise and descriptive',()=>{
   assert.doesNotMatch(html,/>Reviewed OK<\/button>/);
   assert.doesNotMatch(html,/>Duplicate<\/button>/);
 });
+
+
+test('audio review controls stay on one compact row',()=>{
+  const css=readFileSync(join(reviewRoot,'review.css'),'utf8');
+  assert.match(css,/\.listen-row\{display:grid;grid-template-columns:minmax\(120px,1fr\) auto auto auto/);
+  assert.match(css,/\.listen-row button\{padding:6px 8px;font-size:12px;white-space:nowrap\}/);
+  assert.doesNotMatch(css,/\.listen-row\{[^}]*flex-wrap:wrap/);
+});
+
+
+test('audio metadata stays inline with the name without crowding',()=>{
+  const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
+  const css=readFileSync(join(reviewRoot,'review.css'),'utf8');
+  const render=readFileSync(join(reviewRoot,'review-render.js'),'utf8');
+  assert.match(html,/class="key-line"[\s\S]*class="audio-key"[\s\S]*class="metadata"[\s\S]*class="source"/);
+  assert.match(css,/\.key-line\{[^}]*white-space:nowrap[^}]*overflow:hidden/);
+  assert.match(css,/\.audio-key\{[^}]*text-overflow:ellipsis/);
+  assert.match(css,/\.metadata\{[^}]*text-overflow:ellipsis/);
+  assert.match(css,/\.source\{[^}]*text-overflow:ellipsis/);
+  assert.match(render,/sourceNode\.title=entry\.src/);
+});

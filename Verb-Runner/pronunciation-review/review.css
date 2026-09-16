@@ -28,14 +28,15 @@ main{max-width:1180px;margin:auto;padding:10px 12px 90px}
 .card-head{display:flex;gap:9px;align-items:flex-start}
 .number{flex:0 0 58px;text-align:center;background:#edf1f5;border-radius:8px;padding:5px;font-size:17px;font-weight:800}
 .identity{min-width:0;flex:1}
-.key-line{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-.audio-key{font-size:16px}
-.status-badge,.changed-badge{font-size:10px;font-weight:800;border-radius:999px;padding:4px 6px;background:#edf1f5}
+.key-line{display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden}
+.audio-key{font-size:16px;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.status-badge,.changed-badge{font-size:10px;font-weight:800;border-radius:999px;padding:3px 5px;background:#edf1f5;flex:0 0 auto}
 .changed-badge{background:#ffe4ad;color:#814c00}
-.source{font-size:11px;color:#6e7989;overflow-wrap:anywhere;margin-top:3px}
-.metadata{font-size:11px;color:#566276;margin-top:4px}
-.listen-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:8px}
-audio{width:min(570px,100%);height:32px}
+.metadata{font-size:10px;color:#566276;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.source{font-size:10px;color:#8a93a0;flex:0 1 180px;min-width:70px;overflow:hidden;text-overflow:ellipsis}
+.listen-row{display:grid;grid-template-columns:minmax(120px,1fr) auto auto auto;align-items:center;gap:5px;margin-top:6px}
+.listen-row audio{width:100%;min-width:0;height:30px}
+.listen-row button{padding:6px 8px;font-size:12px;white-space:nowrap}
 .ok-button{border-color:#83c9a5}
 .report-button{border-color:#e0a0a0}
 .duplicate-button{border-color:#d8bb74}
@@ -57,5 +58,9 @@ summary{cursor:pointer;font-size:12px;font-weight:800;color:#52627b}
 @media(max-width:680px){
   .topbar{position:static}
   .reviewer-field input,.search{width:145px}
-  audio{width:100%}
+  .key-line{gap:4px}
+  .metadata{max-width:145px}
+  .source{flex-basis:100px;min-width:55px}
+  .listen-row{grid-template-columns:minmax(92px,1fr) auto auto auto;gap:4px}
+  .listen-row button{padding:5px 6px;font-size:11px}
 }
