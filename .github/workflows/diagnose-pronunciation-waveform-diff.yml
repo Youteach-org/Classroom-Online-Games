@@ -42,7 +42,7 @@ jobs:
               rows.append((key,'NONLOCAL',old,new,'','',''))
               continue
             old_path=old.removeprefix('./')
-            new_path=root/new.removeprefix('./audio/pronunciation/')
+            new_path=root/new.removeprefix('./')
             tmp=Path('/tmp')/('old-'+Path(old_path).name)
             try:
               with tmp.open('wb') as f:
