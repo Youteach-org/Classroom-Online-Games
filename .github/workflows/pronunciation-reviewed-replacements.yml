@@ -61,13 +61,13 @@ jobs:
           text=(root/'pronunciation-manifest.js').read_text()
           payload=text.split('=',1)[1].rsplit(';})',1)[0]
           manifest=json.loads(payload)
-          assert len(spec['items']) == 43
+          assert len(spec['items']) == 42
           for key in spec['items']:
               src=manifest[key]
               assert src.startswith('./audio/pronunciation/'), (key,src)
               path=root/src.removeprefix('./')
               assert path.exists() and path.stat().st_size>1000, (key,path)
-          print('Verified 43 local reviewed replacement assets.')
+          print('Verified 42 local reviewed replacement assets; blew kept unchanged as correct.')
           PY
 
       - name: Commit generated replacements
@@ -79,5 +79,5 @@ jobs:
             echo "No generated changes."
             exit 0
           fi
-          git commit -m "Verb Runner: generate 43 reviewed pronunciation replacements [generated reviewed audio]"
+          git commit -m "Verb Runner: generate 42 validated pronunciation replacements [generated reviewed audio]"
           git push origin HEAD:feat/pronunciation-reviewed-replacements
