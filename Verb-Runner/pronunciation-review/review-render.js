@@ -116,8 +116,6 @@ export function renderCard(entry,template,audioUrl){
     duplicateMatch.textContent=`#${String(entry.duplicateOfRef).padStart(3,'0')} — ${entry.duplicateOf||''}`;
     duplicateMatch.dataset.state='ok';
   }
-  node.querySelector('[data-action="remove-duplicate"]').hidden=entry.status!=='duplicate';
-  node.querySelector('[data-action="restore-duplicate"]').hidden=entry.status!=='removed-duplicate';
   renderReports(entry,node);
   renderHistory(entry,node);
   return node;
