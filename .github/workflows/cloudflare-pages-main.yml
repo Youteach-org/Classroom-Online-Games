@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature/cog-youteach-assignments-phase1
   workflow_dispatch:
 
 permissions:
@@ -49,12 +50,14 @@ jobs:
           cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Engineering teacher dist/
 
       - name: Ensure Cloudflare Pages project exists
+        if: github.ref_name == 'main'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           npx wrangler@4 pages project create classroom-online-games --production-branch main || true
 
       - name: Pin production build settings
+        if: github.ref_name == 'main'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
@@ -77,4 +80,4 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          npx wrangler@4 pages deploy dist --project-name=classroom-online-games --branch=main --commit-hash=${{ github.sha }}
+          npx wrangler@4 pages deploy dist --project-name=classroom-online-games --branch=${{ github.ref_name == 'main' && 'main' || 'cog-youteach-assignments-phase1' }} --commit-hash=${{ github.sha }}
