@@ -8,6 +8,7 @@ on:
       - "Verb-Runner/pronunciation-corrections.json"
       - "Verb-Runner/scripts/generate-pronunciation.py"
       - "Verb-Runner/tests/pronunciation-corrections.test.mjs"
+      - "Verb-Runner/tests/pronunciation-policy.test.mjs"
       - ".github/workflows/pronunciation-reviewed-replacements.yml"
   workflow_dispatch:
 
