@@ -1,0 +1,73 @@
+name: Diagnose reviewed pronunciation waveform changes
+
+on:
+  push:
+    branches:
+      - diagnose/pronunciation-waveform-diff
+  workflow_dispatch:
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy soundfile
+      - name: Compare old and replacement waveforms
+        run: |
+          python - <<'PY'
+          import json, subprocess, tempfile
+          from pathlib import Path
+          import numpy as np, soundfile as sf
+
+          root=Path('Verb-Runner')
+          old_ref='5dda1d2d8c7fd6fd0ea60430125678f256f0fb00'
+          spec=json.loads((root/'pronunciation-corrections.json').read_text())
+          manifest_text=(root/'pronunciation-manifest.js').read_text()
+          manifest=json.loads(manifest_text.split('=',1)[1].rsplit(';})',1)[0])
+
+          # old manifest
+          old_text=subprocess.check_output(['git','show',f'{old_ref}:Verb-Runner/pronunciation-manifest.js'],text=True)
+          old_manifest=json.loads(old_text.split('=',1)[1].rsplit(';})',1)[0])
+
+          rows=[]
+          for key in spec['items']:
+            old=old_manifest.get(key,'')
+            new=manifest.get(key,'')
+            if not old.startswith('./audio/pronunciation/') or not new.startswith('./audio/pronunciation/'):
+              rows.append((key,'NONLOCAL',old,new,'','',''))
+              continue
+            old_path=old.removeprefix('./')
+            new_path=root/new.removeprefix('./audio/pronunciation/')
+            tmp=Path('/tmp')/('old-'+Path(old_path).name)
+            try:
+              with tmp.open('wb') as f:
+                subprocess.run(['git','show',f'{old_ref}:Verb-Runner/{old_path}'],stdout=f,check=True)
+            except subprocess.CalledProcessError:
+              rows.append((key,'MISSING_OLD',old,new,'','',''))
+              continue
+            a,sra=sf.read(tmp,dtype='float32')
+            b,srb=sf.read(new_path,dtype='float32')
+            n=min(len(a),len(b))
+            aa=np.asarray(a[:n]).reshape(-1)
+            bb=np.asarray(b[:n]).reshape(-1)
+            if n:
+              mae=float(np.mean(np.abs(aa-bb)))
+              rmse=float(np.sqrt(np.mean((aa-bb)**2)))
+              corr=float(np.corrcoef(aa,bb)[0,1]) if np.std(aa)>0 and np.std(bb)>0 else 0.0
+            else:
+              mae=rmse=corr=0.0
+            exact=bool(sra==srb and len(a)==len(b) and np.array_equal(a,b))
+            rows.append((key,'EXACT' if exact else 'DIFF',old,new,f'{corr:.6f}',f'{mae:.8f}',f'{rmse:.8f}'))
+
+          print('key\tstatus\tcorr\tmae\trmse\told\tnew')
+          for key,status,old,new,corr,mae,rmse in rows:
+            print(f'{key}\t{status}\t{corr}\t{mae}\t{rmse}\t{old}\t{new}')
+          print('EXACT_COUNT',sum(r[1]=='EXACT' for r in rows))
+          print('DIFF_COUNT',sum(r[1]=='DIFF' for r in rows))
+          print('NONLOCAL_COUNT',sum(r[1]=='NONLOCAL' for r in rows))
+          PY
