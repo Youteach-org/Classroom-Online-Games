@@ -1474,3 +1474,15 @@ For YouTeach assignments based on COG activities:
 - **D — Strong confirmation required:** deleting a task that already has submissions requires an explicit strong confirmation step, such as typing **ELIMINAR**, before the destructive action proceeds.
 - **E — Deletion is recoverable:** deletion is **not immediately irreversible**. The assignment must go through a trash/recovery state rather than being permanently destroyed at once.
 - The retention duration and exact behavior of the trash/recovery state are still to be decided.
+
+
+## COG assignment trash lifecycle — confirmed 2026-09-16
+
+For deleted YouTeach assignments based on COG activities:
+
+- **A — Trash retention:** a deleted assignment remains in the trash/recovery state for **1 month** before permanent deletion.
+- **B — Restore does not recover associated result history:** restoring the assignment from trash restores the assignment itself, but does **not** restore previously removed COG-derived grades, points, attempt counts, resubmission counts, or QR/receipt records.
+- **C — QR status while trashed:** all QR receipts tied to the deleted assignment remain **invalid** while the assignment is in trash.
+- **D — Manual emptying:** the teacher may manually empty the trash before the one-month retention period ends.
+- **E — Strong confirmation for permanent deletion:** manually emptying the trash requires an explicit strong confirmation before permanent destruction proceeds.
+- After the one-month retention window, or after a teacher-confirmed manual trash purge, the deleted assignment record is permanently removed according to the data-minimization policy.
