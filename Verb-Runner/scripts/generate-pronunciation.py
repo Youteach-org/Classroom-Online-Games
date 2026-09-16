@@ -158,8 +158,8 @@ def validate_aliases(answers: set[str], aliases: dict[str, str]) -> None:
 
 def source_for_key(key: str, aliases: dict[str, str], corrections: dict[str, dict]) -> str:
     canonical = resolve_alias(key, aliases)
-    correction = corrections.get(canonical)
-    if correction:
+    if canonical in corrections:
+        correction = corrections[canonical]
         approved_source = str(correction.get('approved_source_url') or '').strip()
         if approved_source:
             return approved_source
