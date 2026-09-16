@@ -1143,3 +1143,16 @@ For YouTeach assignments based on COG activities:
 - The student is **not required to complete a new attempt after reopening** solely because the submission window changed.
 - The submitted result must still satisfy the assignment's configured game, mode/difficulty, optional minimum threshold, and other validity requirements.
 - The official submission timestamp is the time the student sends the result to the teacher after reopening; the gameplay completion timestamp remains the original completion time.
+
+
+## Reopen submission timing decision — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- If a teacher reopens a previously closed/expired assignment, the system must **not automatically decide** whether a later submission is treated as on-time or late.
+- At the moment the teacher reopens the assignment, the teacher chooses how reopened submissions should be classified for that reopening.
+- The reopening control should offer a clear timing treatment such as:
+  - **Accept as on-time for this reopened window**
+  - **Accept but mark as late**
+- The selected treatment applies to submissions made under that reopened window.
+- If the teacher instead changes/extends the due date, the normal due-date logic may determine whether a later submission is on time under the new deadline.
