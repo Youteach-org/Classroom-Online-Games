@@ -254,3 +254,12 @@ test('validated-correct pronunciation questions are resolved persistently',()=>{
   assert.match(workflow,/apply-pronunciation-validation-decisions\.py/);
   assert.match(workflow,/pronunciation-validation-firebase-patch\.json/);
 });
+
+
+test('Review Again filter shows only audios whose source changed after review',()=>{
+  const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
+  const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
+  assert.match(html,/<option value="review-again">Review Again<\/option>/);
+  assert.match(app,/filter==='review-again'&&!entry\.sourceChanged/);
+  assert.match(app,/filter!=='all'&&filter!=='review-again'&&entry\.status!==filter/);
+});

@@ -46,7 +46,8 @@ function reviewer(silent=false){
 function matches(entry){
   const filter=statusFilter.value;
   if(filter==='all'&&entry.status==='removed-duplicate')return false;
-  if(filter!=='all'&&entry.status!==filter)return false;
+  if(filter==='review-again'&&!entry.sourceChanged)return false;
+  if(filter!=='all'&&filter!=='review-again'&&entry.status!==filter)return false;
   const q=String(searchInput.value||'').trim().toLowerCase();
   if(!q)return true;
   const ref=String(entry.n),ref3=ref.padStart(3,'0');
