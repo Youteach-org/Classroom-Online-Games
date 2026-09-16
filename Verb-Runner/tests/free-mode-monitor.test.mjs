@@ -9,6 +9,7 @@ const root=join(here,'..');
 const sync=readFileSync(join(root,'session-sync.js'),'utf8');
 const game=readFileSync(join(root,'prototype.js'),'utf8');
 const teacher=readFileSync(join(root,'teacher.js'),'utf8');
+const index=readFileSync(join(root,'index.html'),'utf8');
 
 test('free-mode players have their own Firebase presence collection',()=>{
   assert.match(sync,/FREE_ROOT/);
@@ -47,5 +48,9 @@ test('players without a classroom session are reported to free mode even without
   assert.match(finishBlock,/if\(sessionCode\)return sessionApi\.finishRunner\(sessionCode,runnerSessionId,payload\);\s*return sessionApi\.finishFreeRunner\(runnerSessionId,payload\);/);
 
   assert.match(game,/if\(sessionCode\)\{[\s\S]*?return data;\s*}\s*sessionData=\{status:'free',identitySource:youTeachIdentity\?'youteach':'local'\};\s*await sessionApi\.registerFreeRunnerPresence\(runnerSessionId,presenceData\);/);
+});
+
+test('Verb Runner entry point cache-busts the free-mode presence fix',()=>{
+  assert.match(index,/prototype\.js\?v=free-mode-presence-20260915-1/);
 });
 
