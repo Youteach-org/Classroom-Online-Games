@@ -31,11 +31,13 @@ const getEntryById=id=>catalog.find(item=>item.id===id)||null;
 const getEntryByKey=key=>catalog.find(item=>item.key===key)||null;
 const getRecordById=id=>records[id]||{};
 
-function reviewer(){
+function reviewer(silent=false){
   const value=String(reviewerName.value||'').trim();
   if(!value){
-    reviewerName.focus();
-    alert('Enter the reviewer name first.');
+    if(!silent){
+      reviewerName.focus();
+      alert('Enter the reviewer name first.');
+    }
     return null;
   }
   localStorage.setItem(REVIEWER_STORAGE,value);
@@ -64,10 +66,15 @@ function hasPlayingAudio(){
   return Array.from(audioList.querySelectorAll('audio')).some(audio=>!audio.paused&&!audio.ended);
 }
 
+function hasActiveReportEditor(){
+  const active=document.activeElement;
+  return Boolean(active?.classList?.contains('report-text')||active?.classList?.contains('report-kind'));
+}
+
 function requestSafeRender(delay=180){
   if(renderTimer)clearTimeout(renderTimer);
   renderTimer=setTimeout(()=>{
-    if(hasPlayingAudio()){
+    if(hasPlayingAudio()||hasActiveReportEditor()){
       requestSafeRender(300);
       return;
     }
