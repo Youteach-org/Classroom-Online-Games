@@ -903,3 +903,36 @@ Confirmed rules:
 - The PDF is intended to be compact, readable, printable, and easy to share.
 - It is not permanently stored in Turso by default.
 - It is derived from compact report aggregates, predefined error/concept codes, and the shared recommendation library.
+
+
+## YouTeach verifiable activity receipts — requirement confirmed 2026-09-16
+
+Some COG activities will be designated as **YouTeach-evaluable / verifiable activities**.
+
+When such an activity is launched from a YouTeach Task, Project task, or other evaluable YouTeach assignment:
+
+- YouTeach must be able to verify that the activity was completed through a valid YouTeach-linked session.
+- The activity must produce a lightweight machine-readable result for YouTeach evaluation.
+- The result must include enough server-trusted metadata to determine whether it was completed on time and under the assigned activity configuration.
+- The result may contain aggregate successes/errors and predefined compact error/concept codes, but must not require storing every question or answer.
+- A human-readable/downloadable report for that completion must include a **QR-based verification receipt**.
+- The QR must not merely encode self-reported client data. It must resolve to or represent a server-verifiable receipt.
+- The QR/receipt must be reusable across future COG activities that opt into the verifiable-activity contract.
+- The same mechanism should support YouTeach's grading/evaluation subsystem so it can consume the verified result rather than manually re-entering it.
+
+### Security boundary
+
+A QR receipt can prove that YouTeach/COG recorded a valid linked activity session and its recorded result. By itself it does not prove physical identity, prevent all external assistance, or constitute remote proctoring.
+
+### Architecture direction under review
+
+Recommended model:
+
+1. YouTeach launches the configured COG activity using a short-lived, server-authorized credential scoped to student, task, activity, mode/configuration, and entitlement.
+2. COG completes the activity locally and produces a standardized compact `GameResult`.
+3. A server endpoint validates the linked session and assigned configuration and creates an immutable/append-only completion receipt with server timestamps.
+4. The private YouTeach task record receives the verified result automatically.
+5. A downloadable report contains a QR with an opaque receipt identifier or verification URL; it does not expose private student data in the QR payload.
+6. Scanning/opening the QR shows a read-only verification view appropriate to the viewer's permissions.
+
+The exact grading conversion rule is still to be confirmed.
