@@ -87,11 +87,13 @@ export function renderCard(entry,template,audioUrl){
   node.querySelector('.audio-key').textContent=entry.key;
   node.querySelector('.status-badge').textContent=statusLabel(entry.status);
   node.querySelector('.changed-badge').hidden=!entry.sourceChanged;
-  node.querySelector('.source').textContent=entry.src;
+  const sourceNode=node.querySelector('.source');
+  sourceNode.textContent=String(entry.src||'').split('/').pop()||entry.src;
+  sourceNode.title=entry.src||'';
   node.querySelector('.metadata').textContent=[
-    `Created: ${fmt(entry.assetCreatedAt)}`,
-    `Reviewed by: ${entry.reviewedBy||'—'}`,
-    `Last review: ${fmt(entry.reviewedAt)}`,
+    `Created ${fmt(entry.assetCreatedAt)}`,
+    `By ${entry.reviewedBy||'—'}`,
+    `Reviewed ${fmt(entry.reviewedAt)}`,
     entry.duplicateOf?`Duplicate of: ${entry.duplicateOf}`:''
   ].filter(Boolean).join(' · ');
   node.querySelector('audio').src=audioUrl(entry.src);
