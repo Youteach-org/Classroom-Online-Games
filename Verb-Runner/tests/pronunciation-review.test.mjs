@@ -264,3 +264,13 @@ test('Review Again filter shows only audios whose source changed after review',(
   assert.match(app,/filter==='review-again'&&!entry\.sourceChanged/);
   assert.match(app,/filter!=='all'&&filter!=='review-again'&&entry\.status!==filter/);
 });
+
+test('new audio source gets a fresh autosave report id and does not reuse the prior report',()=>{
+  const actions=readFileSync(join(reviewRoot,'review-actions.js'),'utf8');
+  const render=readFileSync(join(reviewRoot,'review-render.js'),'utf8');
+  const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
+  assert.match(actions,/function autosaveReportId\(by,src\)/);
+  assert.match(actions,/autosaveReportId\(by,entry\.src\)/);
+  assert.match(render,/report\.assetSource===entry\.src/);
+  assert.match(html,/pronunciation-manifest\.js\?v=review-console-20260916-2/);
+});
