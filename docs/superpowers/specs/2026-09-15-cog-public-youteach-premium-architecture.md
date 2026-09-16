@@ -90,7 +90,7 @@ Public COG Premium accounts will support at launch:
 - **Apple sign-in**
 - **Email + password**
 
-**Proposed, not yet confirmed:** these methods should resolve into a single COG account/identity, with optional provider linking to avoid duplicate Premium profiles.
+These methods resolve into a **single COG account/identity**. A user may link multiple sign-in methods (Google, Microsoft, Apple, and email/password) to the same account so Premium entitlement, billing state, history, reports, and preferences are not duplicated across providers.
 
 ### Confirmed entitlement rule
 
@@ -367,3 +367,4 @@ The following still require explicit decisions before implementation planning is
 - Confirmed that possession of a YouTeach private game URL alone never grants YouTeach/Premium access; private access requires a valid authenticated launch credential.
 - Confirmed the public account model is intentionally simple: **Guest** or **Premium** only. There is no separate free registered account tier.
 - Confirmed the Premium launch sign-in methods: **Google**, **Microsoft**, **Apple**, and **email + password**.
+- Confirmed that multiple sign-in providers may be linked to the **same COG account** so subscription status, history, reports, and preferences remain unified.
