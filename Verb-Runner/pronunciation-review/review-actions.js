@@ -188,10 +188,12 @@ export async function deleteReport(entry,reportId,by){
 
 export async function markDuplicate(entry,record,canonical,by){
   const stamp=now();
-  const duplicateOf=canonical?.key||'';
+  const duplicateOf=canonical.key;
+  const duplicateOfRef=canonical.n;
   await touch(entry,record,{
     status:'duplicate',
     duplicateOf,
+    duplicateOfRef,
     duplicateMarkedAt:stamp,
     duplicateMarkedBy:by,
     reviewedBy:by,
@@ -201,7 +203,7 @@ export async function markDuplicate(entry,record,canonical,by){
     removedAsDuplicate:false,
     cleanupRequested:false
   });
-  await history(entry,'marked-duplicate',by,{duplicateOf});
+  await history(entry,'marked-duplicate',by,{duplicateOf,duplicateOfRef});
 }
 
 export async function removeDuplicate(entry,record,by){
@@ -215,7 +217,7 @@ export async function removeDuplicate(entry,record,by){
     lastReviewedAt:stamp,
     reviewedBy:by
   });
-  await history(entry,'duplicate-removal-requested',by,{duplicateOf:record.duplicateOf});
+  await history(entry,'duplicate-removal-requested',by,{duplicateOf:record.duplicateOf,duplicateOfRef:record.duplicateOfRef||null});
 }
 
 export async function restoreDuplicate(entry,record,by){
@@ -226,5 +228,5 @@ export async function restoreDuplicate(entry,record,by){
     restoredAt:now(),
     restoredBy:by
   });
-  await history(entry,'duplicate-restored',by,{duplicateOf:record.duplicateOf||''});
+  await history(entry,'duplicate-restored',by,{duplicateOf:record.duplicateOf||'',duplicateOfRef:record.duplicateOfRef||null});
 }
