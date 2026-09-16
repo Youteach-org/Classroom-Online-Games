@@ -385,3 +385,73 @@ The following still require explicit decisions before implementation planning is
 - Confirmed that multiple sign-in providers may be linked to the **same COG account** so subscription status, history, reports, and preferences remain unified.
 - Confirmed that **all public COG traffic, Guest and Premium, uses a backend/data project independent from YouTeach**. Guests use temporary/anonymous public-session data; Premium users add authenticated persistent account data on that same public COG backend.
 - Clarified that moving deployment/hosting to **Cloudflare Pages** did **not** constitute a decision to migrate the database/authentication backend away from Firebase. The backend provider for the new public COG remains an open architectural decision.
+
+## Backend evaluation criteria and current cost/capacity comparison
+
+### Confirmed decision criterion
+
+The backend provider must be selected primarily by **quotas, capacity, total operating cost, security, and long-term maintainability** for COG. Availability of a ChatGPT connector/plugin is **not** a selection criterion.
+
+### Current comparison — decision pending
+
+The public COG backend provider is still **not selected**.
+
+Official pricing/limit points reviewed on 2026-09-16:
+
+#### Supabase
+
+- Pro starts at USD 25/month.
+- Pro includes 100,000 MAU, 8 GB database disk, 250 GB uncached egress, 250 GB cached egress, 5 million Realtime messages, and 500 peak Realtime connections.
+- Auth over 100,000 MAU: USD 0.00325 per additional MAU.
+- Database disk over 8 GB: USD 0.125/GB-month.
+- Uncached egress over 250 GB: USD 0.09/GB.
+- Realtime over 5 million messages: USD 2.50 per additional million messages.
+- Realtime peak connections over included quota: USD 10 per 1,000 peak connections.
+- Higher Postgres compute tiers are available up to large dedicated configurations; cost increases with compute size.
+
+Official references:
+- https://supabase.com/pricing
+- https://supabase.com/docs/guides/platform/billing-on-supabase
+- https://supabase.com/docs/guides/realtime/pricing
+- https://supabase.com/docs/guides/platform/compute-and-disk
+
+#### Firebase / Google Cloud
+
+- Base Firebase Authentication supports email/password and social/federated providers; Firebase Authentication with Identity Platform is an **optional** paid/enterprise-style upgrade with different MAU pricing.
+- Identity Platform Tier 1 includes 50,000 MAU free, then tiered pricing beginning at USD 0.0055/MAU for 50K–100K.
+- Realtime Database on Blaze supports 200,000 simultaneous connections per database.
+- Realtime Database includes 1 GB stored and roughly 10 GB/month downloaded, then USD 5/GB-month stored and USD 1/GB downloaded.
+- Firestore Standard includes 50,000 reads/day, 20,000 writes/day, 20,000 deletes/day, 1 GiB storage and 10 GiB/month egress free; in us-central1, reads start around USD 0.03/100K and writes around USD 0.09/100K.
+- Firebase can therefore use different products for different workloads: Authentication, Firestore for persistent reports/accounts, and RTDB where live synchronization is appropriate.
+
+Official references:
+- https://firebase.google.com/pricing
+- https://firebase.google.com/docs/auth/
+- https://firebase.google.com/docs/database/usage/billing
+- https://firebase.google.com/docs/firestore/pricing
+- https://cloud.google.com/identity-platform/pricing
+
+#### Cloudflare-native
+
+- Workers Paid has a USD 5/month minimum.
+- Workers Paid includes 10 million requests/month and 30 million CPU-ms/month; excess requests are USD 0.30/million and excess CPU is USD 0.02/million CPU-ms.
+- D1 Paid includes 25 billion rows read/month, 50 million rows written/month, and 5 GB storage; overages are USD 0.001/million rows read, USD 1/million rows written, and USD 0.75/GB-month.
+- D1 has no data-transfer/egress charge, but each individual database currently has a 10 GB maximum and is single-threaded; horizontal sharding is the intended scale-out model.
+- Durable Objects are designed for stateful real-time workloads and WebSockets. On Paid, incoming WebSocket messages use a 20:1 billing ratio for request billing; outgoing WebSocket messages are not charged as requests. Hibernation can reduce duration charges while sockets remain connected.
+- Cloudflare does **not** provide an equivalent turnkey consumer identity system covering Google + Microsoft + Apple + email/password in the same way Firebase Auth or Supabase Auth do; a Cloudflare-native design therefore needs an authentication layer to be built or integrated.
+
+Official references:
+- https://developers.cloudflare.com/workers/platform/pricing/
+- https://developers.cloudflare.com/d1/platform/pricing/
+- https://developers.cloudflare.com/d1/platform/limits/
+- https://developers.cloudflare.com/durable-objects/platform/pricing/
+- https://developers.cloudflare.com/durable-objects/best-practices/websockets/
+
+### Important architecture implication
+
+A hybrid backend remains under consideration because COG has two very different workloads:
+
+1. **High-frequency transient gameplay state** — favors Cloudflare Durable Objects/WebSockets on price and scale.
+2. **Identity, subscription state, reports, history and explanations** — favors a managed identity + persistent database layer such as Firebase or Supabase.
+
+No backend/provider decision is final until this comparison is approved.
