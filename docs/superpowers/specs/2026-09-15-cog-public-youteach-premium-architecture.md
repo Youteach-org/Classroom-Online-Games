@@ -1045,3 +1045,18 @@ For YouTeach-linked evaluable COG activity receipts:
   - error/concept data;
   - group/class information.
 - Full receipt details are available only after server-side verification that the viewer is an authenticated, authorized teacher for the relevant assignment/student context.
+
+
+## Superseded QR receipt behavior — confirmed 2026-09-16
+
+For YouTeach-linked evaluable COG activity receipts:
+
+- If the student uses **Undo Submission**, the QR/receipt for that official submission becomes **invalid for public verification immediately**.
+- An unauthenticated viewer scanning an old QR sees only **Invalid / no longer valid receipt**.
+- The old receipt is not erased from the teacher audit trail.
+- An authenticated, authorized teacher may still inspect that receipt and see that it was:
+  - previously valid;
+  - later undone, superseded, or replaced;
+  - associated with its original submission metadata.
+- A later replacement submission generates a **new receipt and new QR**.
+- Only the current official submission may have an active valid receipt for that assignment/student pair.
