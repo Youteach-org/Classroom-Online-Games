@@ -1,0 +1,323 @@
+{
+  "revision": "2026-09-16-r1",
+  "profile": {
+    "engine": "Kokoro",
+    "language": "American English",
+    "lang_code": "a",
+    "voice": "af_bella",
+    "speed": 0.8,
+    "sample_rate": 24000,
+    "lead_silence_seconds": 0.04,
+    "tail_silence_seconds": 0.35,
+    "subtype": "PCM_16"
+  },
+  "items": {
+    "are building": {
+      "note": "Are suena raro",
+      "target_text": "are building",
+      "ipa_goal": "/ɑɹ ˈbɪldɪŋ/",
+      "instruction": "Clean onset. “are” must begin directly with /ɑɹ/, with no nasal/vibrato sound before it.",
+      "method": "g2p_tokens"
+    },
+    "are talking": {
+      "note": "Are suena raro",
+      "target_text": "are talking",
+      "ipa_goal": "/ɑɹ ˈtɔkɪŋ/",
+      "instruction": "Clean onset. “are” must begin directly with /ɑɹ/, with no extra sound before it.",
+      "method": "g2p_tokens"
+    },
+    "are waiting": {
+      "note": "Strange vibrato at the beginning; regenerate.",
+      "target_text": "are waiting",
+      "ipa_goal": "/ɑɹ ˈweɪtɪŋ/",
+      "instruction": "Remove the initial vibrato/artifact. Natural American-English phrase.",
+      "method": "g2p_tokens"
+    },
+    "ask": {
+      "note": "Suena nask",
+      "target_text": "ask",
+      "ipa_goal": "/æsk/",
+      "instruction": "Must begin directly with /æ/; no /n/ or other consonant before “ask”.",
+      "method": "g2p_tokens"
+    },
+    "asked": {
+      "note": "Sounds like “nasked”.",
+      "target_text": "asked",
+      "ipa_goal": "/æskt/",
+      "instruction": "Must begin directly with /æ/ and end /skt/; no initial /n/.",
+      "method": "g2p_tokens"
+    },
+    "at 11 tonight": {
+      "note": "File/audio error; does not play correctly or appears corrupt.",
+      "target_text": "at eleven tonight",
+      "ipa_goal": "/æt ɪˈlɛvən təˈnaɪt/",
+      "instruction": "Regenerate a clean playable phrase. Read 11 as “eleven”.",
+      "method": "g2p_tokens"
+    },
+    "ate": {
+      "note": "Sounds like “great” rather than “ate”.",
+      "target_text": "ate",
+      "ipa_goal": "/eɪt/",
+      "instruction": "One syllable /eɪt/. No initial /g/ or /r/.",
+      "method": "g2p_tokens"
+    },
+    "be": {
+      "note": "Does not sound like the English verb /biː/.",
+      "target_text": "be",
+      "ipa_goal": "/biː/",
+      "instruction": "English verb “be”, one syllable /biː/.",
+      "method": "g2p_tokens"
+    },
+    "became": {
+      "note": "Sounds approximately “bequeim”; pronunciation is distorted/incorrect.",
+      "target_text": "became",
+      "ipa_goal": "/bɪˈkeɪm/",
+      "instruction": "Two syllables with stress on “came”: /bɪˈkeɪm/.",
+      "method": "g2p_tokens"
+    },
+    "bend": {
+      "note": "Suena igual que bent",
+      "target_text": "bend",
+      "ipa_goal": "/bɛnd/",
+      "instruction": "Final consonant must be voiced /d/; clearly distinguish from “bent” /bɛnt/.",
+      "method": "g2p_tokens"
+    },
+    "bitten": {
+      "note": "Sounds approximately “betten”.",
+      "target_text": "bitten",
+      "ipa_goal": "/ˈbɪtən/",
+      "instruction": "First vowel /ɪ/, not /ɛ/.",
+      "method": "g2p_tokens"
+    },
+    "blew": {
+      "note": "Suena igual k blue?",
+      "target_text": "blue",
+      "ipa_goal": "/bluː/",
+      "instruction": "Correct target is homophonous with “blue”: /bluː/.",
+      "method": "g2p_tokens"
+    },
+    "build": {
+      "note": "Suena igual que built",
+      "target_text": "build",
+      "ipa_goal": "/bɪld/",
+      "instruction": "Final consonant must be voiced /d/; distinguish from “built” /bɪlt/.",
+      "method": "g2p_tokens"
+    },
+    "change": {
+      "note": "Sounds approximately “kchain”; pronunciation is incorrect.",
+      "target_text": "change",
+      "ipa_goal": "/tʃeɪndʒ/",
+      "instruction": "Start with /tʃ/, not /k/. End with /ndʒ/.",
+      "method": "g2p_tokens"
+    },
+    "changed": {
+      "note": "Sounds approximately “kchaincht”; pronunciation is distorted/incorrect.",
+      "target_text": "changed",
+      "ipa_goal": "/tʃeɪndʒd/",
+      "instruction": "Start /tʃ/ and retain final voiced /d/ after /dʒ/.",
+      "method": "g2p_tokens"
+    },
+    "checks": {
+      "note": "Suena n antes de la palabra",
+      "target_text": "checks",
+      "ipa_goal": "/tʃɛks/",
+      "instruction": "Must begin directly with /tʃ/; no initial nasal sound.",
+      "method": "g2p_tokens"
+    },
+    "close": {
+      "note": "Tiene pronunciacion de verbo o sustantivo?",
+      "target_text": "close",
+      "ipa_goal": "/kloʊz/",
+      "instruction": "Use the VERB pronunciation with final /z/, not adjective/noun-like /s/.",
+      "method": "raw_phonemes",
+      "kokoro_phonemes": "klˈOz"
+    },
+    "crept": {
+      "note": "Suena nasal antes de palabra",
+      "target_text": "crept",
+      "ipa_goal": "/krɛpt/",
+      "instruction": "Must begin directly /kr/; no nasal onset.",
+      "method": "g2p_tokens"
+    },
+    "dug": {
+      "note": "Suena a dog? Comparar",
+      "target_text": "dug",
+      "ipa_goal": "/dʌɡ/",
+      "instruction": "Use /ʌ/ as in “cup”; distinguish from “dog” /dɔɡ/.",
+      "method": "g2p_tokens"
+    },
+    "eat": {
+      "note": "Suena rit",
+      "target_text": "eat",
+      "ipa_goal": "/iːt/",
+      "instruction": "Begin directly with the long /iː/ vowel; no initial /r/.",
+      "method": "g2p_tokens"
+    },
+    "eaten": {
+      "note": "Suena ritten",
+      "target_text": "eaten",
+      "ipa_goal": "/ˈiːtən/",
+      "instruction": "Begin directly with /iː/; no initial /r/.",
+      "method": "g2p_tokens"
+    },
+    "fall": {
+      "note": "Suena foul",
+      "target_text": "fall",
+      "ipa_goal": "/fɔl/",
+      "instruction": "Use /ɔ/ vowel; distinguish from “foul” /faʊl/.",
+      "method": "g2p_tokens"
+    },
+    "follow": {
+      "note": "Suena fala",
+      "target_text": "follow",
+      "ipa_goal": "/ˈfɑloʊ/",
+      "instruction": "Two syllables, second syllable /loʊ/; do not reduce to “fala”.",
+      "method": "g2p_tokens"
+    },
+    "forbade": {
+      "note": "Suena forbad",
+      "target_text": "forbade",
+      "ipa_goal": "/fərˈbeɪd/",
+      "instruction": "Stress second syllable; final vowel /eɪ/ as in “made”.",
+      "method": "g2p_tokens"
+    },
+    "fought": {
+      "note": "Sounds like “fault” / otherwise incorrect.",
+      "target_text": "fought",
+      "ipa_goal": "/fɔt/",
+      "instruction": "One syllable /fɔt/; no /l/ before final /t/.",
+      "method": "g2p_tokens"
+    },
+    "live": {
+      "note": "No es el bot determinado",
+      "target_text": "live",
+      "ipa_goal": "/lɪv/",
+      "instruction": "Use Kokoro Bella and verb pronunciation /lɪv/, not adjective /laɪv/.",
+      "method": "raw_phonemes",
+      "kokoro_phonemes": "lˈɪv"
+    },
+    "read::base": {
+      "note": "Nk es el mismo bot",
+      "target_text": "read",
+      "ipa_goal": "/riːd/",
+      "instruction": "Use Kokoro Bella. Base/present form /riːd/.",
+      "method": "raw_phonemes",
+      "kokoro_phonemes": "ɹˈid"
+    },
+    "read::past": {
+      "note": "No es el mismo bot",
+      "target_text": "read",
+      "ipa_goal": "/rɛd/",
+      "instruction": "Use Kokoro Bella. Past/participle form /rɛd/.",
+      "method": "raw_phonemes",
+      "kokoro_phonemes": "ɹˈɛd"
+    },
+    "saw": {
+      "note": "Suena mal",
+      "target_text": "saw",
+      "ipa_goal": "/sɔ/",
+      "instruction": "One clean syllable /sɔ/ in American English.",
+      "method": "g2p_tokens"
+    },
+    "should study": {
+      "note": "Ashould study dice",
+      "target_text": "should study",
+      "ipa_goal": "/ʃʊd ˈstʌdi/",
+      "instruction": "Begin directly with /ʃ/; no extra vowel before “should”.",
+      "method": "g2p_tokens"
+    },
+    "start": {
+      "note": "Estart dice",
+      "target_text": "start",
+      "ipa_goal": "/stɑrt/",
+      "instruction": "Begin directly with consonant cluster /st/; no initial /e/.",
+      "method": "g2p_tokens"
+    },
+    "started": {
+      "note": "Estarted dice",
+      "target_text": "started",
+      "ipa_goal": "/ˈstɑrtɪd/",
+      "instruction": "Begin directly /st/; no initial /e/. Pronounce -ed as /ɪd/.",
+      "method": "g2p_tokens"
+    },
+    "stop": {
+      "note": "Estop dice",
+      "target_text": "stop",
+      "ipa_goal": "/stɑp/",
+      "instruction": "Begin directly /st/; no initial /e/.",
+      "method": "g2p_tokens"
+    },
+    "stopped": {
+      "note": "Estopped dice",
+      "target_text": "stopped",
+      "ipa_goal": "/stɑpt/",
+      "instruction": "Begin directly /st/; no initial /e/. Final -ed realized /t/.",
+      "method": "g2p_tokens"
+    },
+    "studied": {
+      "note": "Estudid",
+      "target_text": "studied",
+      "ipa_goal": "/ˈstʌdid/",
+      "instruction": "Begin directly /st/; no initial /e/. Natural two-syllable “studied”.",
+      "method": "g2p_tokens"
+    },
+    "studies": {
+      "note": "Estudies",
+      "target_text": "studies",
+      "ipa_goal": "/ˈstʌdiz/",
+      "instruction": "Begin directly /st/; no initial /e/. Final sound /z/.",
+      "method": "g2p_tokens"
+    },
+    "study": {
+      "note": "Estudy",
+      "target_text": "study",
+      "ipa_goal": "/ˈstʌdi/",
+      "instruction": "Begin directly /st/; no initial /e/.",
+      "method": "g2p_tokens"
+    },
+    "use": {
+      "note": "Different bot",
+      "target_text": "use",
+      "ipa_goal": "/juːz/",
+      "instruction": "Use Kokoro Bella and VERB pronunciation /juːz/, final /z/.",
+      "method": "raw_phonemes",
+      "kokoro_phonemes": "jˈuz"
+    },
+    "used": {
+      "note": "Different bot",
+      "target_text": "used",
+      "ipa_goal": "/juːzd/",
+      "instruction": "Use Kokoro Bella. Past/participle of “use”: /juːzd/, not “used to” /juːst/.",
+      "method": "raw_phonemes",
+      "kokoro_phonemes": "jˈuzd"
+    },
+    "washed": {
+      "note": "Wast",
+      "target_text": "washed",
+      "ipa_goal": "/wɑʃt/",
+      "instruction": "Keep /ʃ/ before final /t/; do not sound like “wast”.",
+      "method": "g2p_tokens"
+    },
+    "watched": {
+      "note": "Watst",
+      "target_text": "watched",
+      "ipa_goal": "/wɑtʃt/",
+      "instruction": "Keep /tʃ/ before final /t/; do not collapse to “watst”.",
+      "method": "g2p_tokens"
+    },
+    "will tell": {
+      "note": "Will tall",
+      "target_text": "will tell",
+      "ipa_goal": "/wɪl tɛl/",
+      "instruction": "“tell” must use /ɛ/, not “tall” /ɔ/.",
+      "method": "g2p_tokens"
+    },
+    "wrote": {
+      "note": "Route suena",
+      "target_text": "wrote",
+      "ipa_goal": "/roʊt/",
+      "instruction": "Use /roʊt/ with /oʊ/; distinguish from “route” pronunciations.",
+      "method": "g2p_tokens"
+    }
+  }
+}
