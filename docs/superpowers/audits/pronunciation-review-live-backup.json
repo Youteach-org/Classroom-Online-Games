@@ -42,6 +42,72 @@
       "status": "reviewed",
       "updatedAt": 1789566370271
     },
+    "are-building-1v4rtyb": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789569569441,
+      "history": {
+        "-P1ee88rS1GypcALMJqM": {
+          "action": "report-autosave-started",
+          "at": 1789569569542,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "are building",
+      "lastReviewedAt": 1789569577061,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/are-building-f638489dbe.wav",
+          "createdAt": 1789569569441,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Are suena raro",
+          "updatedAt": 1789569577061
+        }
+      },
+      "reviewedAt": 1789569577061,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/are-building-f638489dbe.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789569577805
+    },
+    "are-talking-76ko9n": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789569656992,
+      "history": {
+        "-P1eeTWph0eN1GZBsRJn": {
+          "action": "report-autosave-started",
+          "at": 1789569657092,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "are talking",
+      "lastReviewedAt": 1789569660599,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/are-talking-4518170e7a.wav",
+          "createdAt": 1789569656992,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Are suena raro",
+          "updatedAt": 1789569660599
+        }
+      },
+      "reviewedAt": 1789569660599,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/are-talking-4518170e7a.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789569660709
+    },
     "are-waiting-jc95ky": {
       "assetCreatedAt": 1789494062000,
       "firstReviewedAt": 1789538400000,
@@ -73,6 +139,39 @@
       "sourceType": "local-wav",
       "status": "needs-fix",
       "updatedAt": 1789566249620
+    },
+    "ask-7c6olu": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789569686713,
+      "history": {
+        "-P1ee_m4h29YUTUNK4j9": {
+          "action": "report-autosave-started",
+          "at": 1789569686804,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "ask",
+      "lastReviewedAt": 1789569689303,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/ask-1c8f09270f.wav",
+          "createdAt": 1789569686713,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Suena nask",
+          "updatedAt": 1789569689303
+        }
+      },
+      "reviewedAt": 1789569689303,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/ask-1c8f09270f.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789569689389
     },
     "asked-1ar2xb7": {
       "assetCreatedAt": 1789494062000,
@@ -234,6 +333,39 @@
       "status": "needs-fix",
       "updatedAt": 1789566261700
     },
+    "bend-13ivdxm": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789569747593,
+      "history": {
+        "-P1eeodLDgkNoOgDzPzF": {
+          "action": "report-autosave-started",
+          "at": 1789569747685,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "bend",
+      "lastReviewedAt": 1789569752866,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/bend-abf1da7e9f.wav",
+          "createdAt": 1789569747593,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Suena igual que bent",
+          "updatedAt": 1789569752866
+        }
+      },
+      "reviewedAt": 1789569752866,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/bend-abf1da7e9f.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789569752956
+    },
     "bitten-18ul3cv": {
       "assetCreatedAt": 1789494062000,
       "firstReviewedAt": 1789538400000,
@@ -265,6 +397,39 @@
       "sourceType": "local-wav",
       "status": "needs-fix",
       "updatedAt": 1789566263929
+    },
+    "blew-vb1f5z": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789569775219,
+      "history": {
+        "-P1eevO-1jxvFmG56sJH": {
+          "action": "report-autosave-started",
+          "at": 1789569775311,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "blew",
+      "lastReviewedAt": 1789569775219,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/blew-28ca160cbb.wav",
+          "createdAt": 1789569775219,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Sue",
+          "updatedAt": 1789569775219
+        }
+      },
+      "reviewedAt": 1789569775219,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/blew-28ca160cbb.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789569775389
     },
     "change-vsu94t": {
       "assetCreatedAt": 1789494062000,
