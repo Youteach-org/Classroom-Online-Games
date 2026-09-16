@@ -43,7 +43,8 @@
       "updatedAt": 1789566370271
     },
     "are-building-1v4rtyb": {
-      "assetCreatedAt": 1789494062000,
+      "assetCreatedAt": 1789576837223,
+      "cleanupRequested": false,
       "firstReviewedAt": 1789569569441,
       "history": {
         "-P1ee88rS1GypcALMJqM": {
@@ -52,10 +53,23 @@
           "by": "Armando Anota",
           "kind": "pronunciation",
           "reportId": "autosave-armando-anota-22dz74"
+        },
+        "-P1f4rVXLjZikdOtg8aU": {
+          "action": "asset-source-changed",
+          "at": 1789576837319,
+          "by": "system",
+          "from": "./audio/pronunciation/are-building-f638489dbe.wav",
+          "to": "./audio/pronunciation/are-building-3fcaae4c95.wav"
+        },
+        "-P1f4rWijSBRUbg9HGBf": {
+          "action": "reviewed-ok",
+          "at": 1789576837395,
+          "by": "Armando Anota"
         }
       },
       "key": "are building",
-      "lastReviewedAt": 1789569577061,
+      "lastReviewedAt": 1789576837223,
+      "removedAsDuplicate": false,
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/are-building-f638489dbe.wav",
@@ -68,15 +82,16 @@
           "updatedAt": 1789569577061
         }
       },
-      "reviewedAt": 1789569577061,
+      "reviewedAt": 1789576837223,
       "reviewedBy": "Armando Anota",
-      "source": "./audio/pronunciation/are-building-f638489dbe.wav",
+      "source": "./audio/pronunciation/are-building-3fcaae4c95.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789569577805
+      "status": "reviewed",
+      "updatedAt": 1789576837223
     },
     "are-talking-76ko9n": {
-      "assetCreatedAt": 1789494062000,
+      "assetCreatedAt": 1789576841148,
+      "cleanupRequested": false,
       "firstReviewedAt": 1789569656992,
       "history": {
         "-P1eeTWph0eN1GZBsRJn": {
@@ -85,10 +100,23 @@
           "by": "Armando Anota",
           "kind": "pronunciation",
           "reportId": "autosave-armando-anota-22dz74"
+        },
+        "-P1f4sSbTQJgWEYUDRxU": {
+          "action": "asset-source-changed",
+          "at": 1789576841228,
+          "by": "system",
+          "from": "./audio/pronunciation/are-talking-4518170e7a.wav",
+          "to": "./audio/pronunciation/are-talking-bc4e41b254.wav"
+        },
+        "-P1f4sTpZRJSeIj0UTgP": {
+          "action": "reviewed-ok",
+          "at": 1789576841306,
+          "by": "Armando Anota"
         }
       },
       "key": "are talking",
-      "lastReviewedAt": 1789569660599,
+      "lastReviewedAt": 1789576841148,
+      "removedAsDuplicate": false,
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/are-talking-4518170e7a.wav",
@@ -101,15 +129,16 @@
           "updatedAt": 1789569660599
         }
       },
-      "reviewedAt": 1789569660599,
+      "reviewedAt": 1789576841148,
       "reviewedBy": "Armando Anota",
-      "source": "./audio/pronunciation/are-talking-4518170e7a.wav",
+      "source": "./audio/pronunciation/are-talking-bc4e41b254.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789569660709
+      "status": "reviewed",
+      "updatedAt": 1789576841148
     },
     "are-waiting-jc95ky": {
-      "assetCreatedAt": 1789494062000,
+      "assetCreatedAt": 1789576844618,
+      "cleanupRequested": false,
       "firstReviewedAt": 1789538400000,
       "history": {
         "-P1eSU3VRIOaGnecP276": {
@@ -118,10 +147,23 @@
           "by": "system",
           "originalReference": 10,
           "reportId": "seed-20260916-010"
+        },
+        "-P1f4tJ4FTZVQcWESt42": {
+          "action": "asset-source-changed",
+          "at": 1789576844714,
+          "by": "system",
+          "from": "./audio/pronunciation/are-waiting-e2d43cd109.wav",
+          "to": "./audio/pronunciation/are-waiting-4ce402825a.wav"
+        },
+        "-P1f4tKLcHyrYTGiLcZ5": {
+          "action": "reviewed-ok",
+          "at": 1789576844795,
+          "by": "Armando Anota"
         }
       },
       "key": "are waiting",
-      "lastReviewedAt": 1789538400000,
+      "lastReviewedAt": 1789576844618,
+      "removedAsDuplicate": false,
       "reports": {
         "seed-20260916-010": {
           "createdAt": 1789538400000,
@@ -133,15 +175,15 @@
           "text": "Strange vibrato at the beginning; regenerate."
         }
       },
-      "reviewedAt": 1789538400000,
-      "reviewedBy": "Initial manual audit",
-      "source": "./audio/pronunciation/are-waiting-e2d43cd109.wav",
+      "reviewedAt": 1789576844618,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/are-waiting-4ce402825a.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789566249620
+      "status": "reviewed",
+      "updatedAt": 1789576844618
     },
     "ask-7c6olu": {
-      "assetCreatedAt": 1789494062000,
+      "assetCreatedAt": 1789576817202,
       "firstReviewedAt": 1789569686713,
       "history": {
         "-P1ee_m4h29YUTUNK4j9": {
@@ -150,31 +192,38 @@
           "by": "Armando Anota",
           "kind": "pronunciation",
           "reportId": "autosave-armando-anota-22dz74"
+        },
+        "-P1f4mbPgZs35kaYjz_g": {
+          "action": "asset-source-changed",
+          "at": 1789576817279,
+          "by": "system",
+          "from": "./audio/pronunciation/ask-1c8f09270f.wav",
+          "to": "./audio/pronunciation/ask-c4b619c653.wav"
         }
       },
       "key": "ask",
-      "lastReviewedAt": 1789569689303,
+      "lastReviewedAt": 1789576817106,
       "reports": {
         "autosave-armando-anota-22dz74": {
-          "assetSource": "./audio/pronunciation/ask-1c8f09270f.wav",
+          "assetSource": "./audio/pronunciation/ask-c4b619c653.wav",
           "createdAt": 1789569686713,
           "kind": "pronunciation",
           "previousStatus": "unreviewed",
           "reviewer": "Armando Anota",
           "status": "open",
-          "text": "Suena nask",
-          "updatedAt": 1789569689303
+          "text": "Suena nask aun",
+          "updatedAt": 1789576817106
         }
       },
-      "reviewedAt": 1789569689303,
+      "reviewedAt": 1789576817106,
       "reviewedBy": "Armando Anota",
-      "source": "./audio/pronunciation/ask-1c8f09270f.wav",
+      "source": "./audio/pronunciation/ask-c4b619c653.wav",
       "sourceType": "local-wav",
       "status": "needs-fix",
-      "updatedAt": 1789569689389
+      "updatedAt": 1789576817202
     },
     "asked-1ar2xb7": {
-      "assetCreatedAt": 1789494062000,
+      "assetCreatedAt": 1789576761881,
       "firstReviewedAt": 1789538400000,
       "history": {
         "-P1eSUjfYAmEt6I9FWgm": {
@@ -183,11 +232,35 @@
           "by": "system",
           "originalReference": 13,
           "reportId": "seed-20260916-013"
+        },
+        "-P1f4_3_iFS-hB2LGS3E": {
+          "action": "report-autosave-started",
+          "at": 1789576761802,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        },
+        "-P1f4_667VPXSrCGuj1O": {
+          "action": "asset-source-changed",
+          "at": 1789576761964,
+          "by": "system",
+          "from": "./audio/pronunciation/asked-c91c9287c0.wav",
+          "to": "./audio/pronunciation/asked-f3c293d86b.wav"
         }
       },
       "key": "asked",
-      "lastReviewedAt": 1789538400000,
+      "lastReviewedAt": 1789576778588,
       "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/asked-f3c293d86b.wav",
+          "createdAt": 1789576761703,
+          "kind": "pronunciation",
+          "previousStatus": "needs-fix",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Sigue sonando naskt",
+          "updatedAt": 1789576778588
+        },
         "seed-20260916-013": {
           "createdAt": 1789538400000,
           "kind": "pronunciation",
@@ -198,15 +271,16 @@
           "text": "Sounds like “nasked”."
         }
       },
-      "reviewedAt": 1789538400000,
-      "reviewedBy": "Initial manual audit",
-      "source": "./audio/pronunciation/asked-c91c9287c0.wav",
+      "reviewedAt": 1789576778588,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/asked-f3c293d86b.wav",
       "sourceType": "local-wav",
       "status": "needs-fix",
-      "updatedAt": 1789566252134
+      "updatedAt": 1789576778682
     },
     "at-11-tonight-1dtblsn": {
-      "assetCreatedAt": 1789494062000,
+      "assetCreatedAt": 1789576859599,
+      "cleanupRequested": false,
       "firstReviewedAt": 1789538400000,
       "history": {
         "-P1eSVK-edajMxnqVgXq": {
@@ -215,10 +289,23 @@
           "by": "system",
           "originalReference": 15,
           "reportId": "seed-20260916-015"
+        },
+        "-P1f4wyA_G3tR747KOvp": {
+          "action": "asset-source-changed",
+          "at": 1789576859696,
+          "by": "system",
+          "from": "./audio/pronunciation/at-11-tonight-7affdb84dc.wav",
+          "to": "./audio/pronunciation/at-11-tonight-d3c85b5d29.wav"
+        },
+        "-P1f4wzPLkP6TIm4M7XC": {
+          "action": "reviewed-ok",
+          "at": 1789576859775,
+          "by": "Armando Anota"
         }
       },
       "key": "at 11 tonight",
-      "lastReviewedAt": 1789538400000,
+      "lastReviewedAt": 1789576859599,
+      "removedAsDuplicate": false,
       "reports": {
         "seed-20260916-015": {
           "createdAt": 1789538400000,
@@ -230,12 +317,12 @@
           "text": "File/audio error; does not play correctly or appears corrupt."
         }
       },
-      "reviewedAt": 1789538400000,
-      "reviewedBy": "Initial manual audit",
-      "source": "./audio/pronunciation/at-11-tonight-7affdb84dc.wav",
+      "reviewedAt": 1789576859599,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/at-11-tonight-d3c85b5d29.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789566254925
+      "status": "reviewed",
+      "updatedAt": 1789576859599
     },
     "ate-7vhlw7": {
       "assetCreatedAt": 1789494062000,
