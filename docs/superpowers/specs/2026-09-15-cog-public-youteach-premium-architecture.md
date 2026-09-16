@@ -58,6 +58,14 @@ There is no visible intermediary page.
 
 `Public COG website -> game catalog -> choose game -> game in public mode`
 
+A public visitor may also open a **direct public game link** and enter immediately as a Guest, without creating an account.
+
+Examples:
+
+`classroomonlinegames.com/verb-runner`
+
+`classroomonlinegames.com/games/verb-runner?challenge=...`
+
 The same underlying game can expose different features according to the authenticated entitlement.
 
 ---
@@ -77,6 +85,15 @@ The same underlying game can expose different features according to the authenti
 ### Confirmed entitlement rule
 
 A student who arrives through a valid YouTeach-authenticated launch is treated as **Premium for learning features**, without buying a separate COG subscription and without creating a second account.
+
+### Confirmed link-access rule
+
+There are two different link classes:
+
+- **Public COG links** may be opened by anyone who has the link. The visitor enters as a Guest unless they authenticate as Premium.
+- **YouTeach private launch links** must not grant private/Premium access by URL possession alone. A copied or forwarded URL is not sufficient; the private mode requires a valid, short-lived, server-authorized YouTeach launch credential.
+- If a YouTeach private credential is missing, expired, already used, or invalid, the request must not fall through into a private YouTeach session.
+- Public direct links are intentionally shareable. Private YouTeach launch links are intentionally non-transferable.
 
 ---
 
@@ -336,3 +353,5 @@ The following still require explicit decisions before implementation planning is
 - Confirmed a blurred/locked Premium explanation teaser is acceptable.
 - Confirmed Premium content must be technically access-controlled, not merely hidden with CSS.
 - Confirmed this GitHub document is the canonical persistent planning record and must be updated as decisions are made.
+- Confirmed public COG guests can access a game directly if they have its public link, without registering.
+- Confirmed that possession of a YouTeach private game URL alone never grants YouTeach/Premium access; private access requires a valid authenticated launch credential.
