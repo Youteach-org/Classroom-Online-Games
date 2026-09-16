@@ -7,8 +7,23 @@
     return String(value??'').trim().toLowerCase().replace(/\s+/g,' ');
   }
 
-  function pronunciationAsset(value){
+  function pronunciationKey(value,context={}){
     const key=normalizePronunciationKey(value);
+    if(key!=='read')return key;
+
+    const base=normalizePronunciationKey(context?.base);
+    const blankIndex=Number(context?.blankIndex);
+    if(base==='read'&&Number.isInteger(blankIndex)){
+      return blankIndex===0?'read::base':'read::past';
+    }
+
+    const group=normalizePronunciationKey(context?.group);
+    if(group==='past-simple')return 'read::past';
+    return 'read::base';
+  }
+
+  function pronunciationAsset(value,context={}){
+    const key=pronunciationKey(value,context);
     if(!key)return null;
     const manifest=global.VerbRunnerPronunciationManifest||{};
     return manifest[key]||null;
@@ -52,8 +67,8 @@
     }
   }
 
-  function preloadPronunciation(value){
-    const src=pronunciationAsset(value);
+  function preloadPronunciation(value,context={}){
+    const src=pronunciationAsset(value,context);
     if(!src||prefetchedAssets.has(src))return Boolean(src);
     prefetchedAssets.add(src);
     if(typeof global.fetch==='function'){
@@ -68,9 +83,9 @@
     try{currentAudio.currentTime=0;}catch{}
   }
 
-  function playCorrectPronunciation(value,{enabled=true,volume=1,AudioCtor=global.Audio}={}){
+  function playCorrectPronunciation(value,{enabled=true,volume=1,AudioCtor=global.Audio,context={}}={}){
     if(!enabled)return false;
-    const src=pronunciationAsset(value);
+    const src=pronunciationAsset(value,context);
     if(!src)return false;
 
     const audio=ensurePlaybackAudio(AudioCtor);
@@ -90,6 +105,7 @@
 
   const api={
     normalizePronunciationKey,
+    pronunciationKey,
     pronunciationAsset,
     unlockPronunciation,
     preloadPronunciation,
