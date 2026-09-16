@@ -5,6 +5,7 @@ on:
     branches:
       - fix/verb-runner-free-mode-presence
     paths:
+      - 'Verb-Runner/index.html'
       - 'Verb-Runner/prototype.js'
       - 'Verb-Runner/session-sync.js'
       - 'Verb-Runner/teacher.js'
@@ -24,5 +25,7 @@ jobs:
           node --check Verb-Runner/prototype.js
           node --check Verb-Runner/session-sync.js
           node --check Verb-Runner/teacher.js
-      - name: Run free-mode regression test
-        run: node --test Verb-Runner/tests/free-mode-monitor.test.mjs
+      - name: Run full Verb Runner regression suite
+        run: |
+          node --test Verb-Runner/tests/*.test.mjs
+          node --test Verb-Runner/sentence-run.test.js
