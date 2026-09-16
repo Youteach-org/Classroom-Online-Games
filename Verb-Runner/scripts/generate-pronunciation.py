@@ -14,6 +14,11 @@ SPEED = 0.8
 # Never replace these with a fallback voice.
 APPROVED_AUDIO_OVERRIDES = {
     'live': 'https://cdn.creativeclaw.co/u/ad2cc6b8/audio/03b52154-8af6-4836-8808-c9c264a897d3.mp3',
+    'close': 'https://cdn.creativeclaw.co/u/ad2cc6b8/audio/72a43561-e236-473d-b367-f538ce12efea.mp3',
+    'use': 'https://cdn.creativeclaw.co/u/ad2cc6b8/audio/0cb14a71-948d-49b5-9347-e1e79146fa10.mp3',
+    'used': 'https://cdn.creativeclaw.co/u/ad2cc6b8/audio/3400a4d2-052e-4dd5-aa74-f4485772b0be.mp3',
+    'read::base': 'https://cdn.creativeclaw.co/u/ad2cc6b8/audio/a8108e85-ff24-49ad-9cc7-ba01705ac86b.mp3',
+    'read::past': 'https://cdn.creativeclaw.co/u/ad2cc6b8/audio/1642b4b1-27d3-4052-980b-271c803795d6.mp3',
 }
 SAMPLE_RATE = 24000
 LEAD_SILENCE_SECONDS = 0.04
@@ -25,6 +30,9 @@ VERB_PHONEME_OVERRIDES = {
     'live': 'lˈɪv',   # verb: reside / exist; never adjective /laɪv/
     'close': 'klˈOz', # verb /kloʊz/; not adjective /kloʊs/
     'use': 'jˈuz',    # verb /juːz/; not noun /juːs/
+    'used': 'jˈuzd',  # past/participle of use; not the reduced "used to" /juːst/
+    'read::base': 'ɹˈid', # base/present /riːd/
+    'read::past': 'ɹˈɛd', # simple past/past participle /rɛd/
 }
 
 
@@ -173,6 +181,7 @@ def write_manifest(root: Path, answers: set[str]) -> None:
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     answers = collect_answers(root)
+    answers = set(answers) | set(APPROVED_AUDIO_OVERRIDES)
     print(
         f'Verifying {len(answers)} pronunciation assets. '
         f'Approved voice: {APPROVED_VOICE_NAME} ({APPROVED_VOICE_ID}).'

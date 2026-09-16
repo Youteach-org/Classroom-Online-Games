@@ -17,6 +17,11 @@ Current protected verb homographs:
 - `live` (verb “reside/exist”): /lɪv/. Never adjective `/laɪv/`.
 - `close` (verb): /kloʊz/. Never adjective `/kloʊs/`.
 - `use` (verb): /juːz/. Never noun `/juːs/`.
+- `used` (simple past/past participle of `use`): /juːzd/. Do not substitute the reduced `used to` pronunciation /juːst/.
+- `read` is context-sensitive despite identical spelling:
+  - base/present verb: /riːd/
+  - simple past/past participle: /rɛd/
+  - the runtime must route bare `read` by grammatical context; spelling alone is not a valid pronunciation key.
 
 ## Generation rule
 
@@ -29,9 +34,16 @@ When new Verb Runner verb audio is added:
 5. Generate every new or regenerated pronunciation asset with **Nichalia** (`XfNU2rGpBa01ckF309OY`).
 6. If a Nichalia asset is missing, verification must fail rather than silently generating it with Bella/Kokoro.
 7. Bella/Kokoro may be used only for an explicitly requested emergency legacy rebuild; it is not the production voice policy.
+8. For heteronyms whose principal parts share the same spelling but not the same pronunciation (currently `read`), the pronunciation manifest must use distinct semantic keys such as `read::base` and `read::past`, and the game must pass the current challenge context to pronunciation lookup.
+9. The approved Nichalia assets for `live`, `close`, `use`, `used`, `read::base`, and `read::past` are pinned in `APPROVED_AUDIO_OVERRIDES`. Superseded local Bella/Kokoro files for protected forms must not remain as active production assets.
 
 ## Regression history
 
 The isolated answer `live` was generated as /laɪv/ instead of the intended verb /lɪv/. Root cause: the generator sent isolated orthography to TTS with no grammatical context and cached the result by spelling alone.
 
 A second project-continuity error occurred when the correction was regenerated with Bella/Kokoro even though the selected project voice was Nichalia. Root cause: the voice choice had not been persisted in GitHub. The locked-voice rule above exists specifically to prevent that recurrence.
+
+
+## 2026-09-15 expansion
+
+A repository-wide review of Verb Runner content identified the currently relevant ambiguity set as `live`, `close`, `use`, `used`, and `read`. Other common English heteronyms such as `lead`, `wind`, `bow`, `row`, `sow`, `record`, `present`, `produce`, and `refuse` are not currently active Verb Runner pronunciation answers and therefore are not pinned yet. If any is later added as a spoken answer, it must be reviewed under this policy before generation.

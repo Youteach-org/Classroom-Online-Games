@@ -1609,7 +1609,7 @@ function launchChallengeChain(initialDelay=.42){
     }
   }
 
-  window.VerbRunnerPronunciation?.preloadPronunciation(sequence[correctIndex].value);
+  window.VerbRunnerPronunciation?.preloadPronunciation(sequence[correctIndex].value,currentChallenge);
 
   lastCorrectAnswerIndex=correctIndex;
   recentCorrectPositions.push(correctIndex);
@@ -1981,7 +1981,8 @@ async function collectAnswer(answer){
     if(currentLevel!==1)playSfx('correct');
     window.VerbRunnerPronunciation?.playCorrectPronunciation(item.value,{
       enabled:sfxEnabled,
-      volume:sfxVolume
+      volume:sfxVolume,
+      context:currentChallenge
     });
     const startPoint=answerScreenPoint(answer);
     const selectedCopy={mesh:answer.mesh,item:answer.item};
