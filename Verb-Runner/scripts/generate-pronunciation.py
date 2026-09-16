@@ -235,15 +235,16 @@ def generate_audio(
         pieces = []
         if correction:
             override_phonemes = correction_phonemes(pipeline, correction)
+            correction_speed = float(correction.get('speed') or SPEED)
             print(
                 f"correction target: {answer!r} -> "
                 f"{correction.get('target_text')!r} {correction.get('ipa_goal', '')} "
-                f"phones={override_phonemes!r}"
+                f"phones={override_phonemes!r} speed={correction_speed}"
             )
             generated = pipeline.generate_from_tokens(
                 tokens=override_phonemes,
                 voice=VOICE,
-                speed=SPEED,
+                speed=correction_speed,
             )
         else:
             override_phonemes = VERB_PHONEME_OVERRIDES.get(answer)
