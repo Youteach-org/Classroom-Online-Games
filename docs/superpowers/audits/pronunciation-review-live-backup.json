@@ -523,10 +523,17 @@
           "by": "Pronunciation validation",
           "reason": "Correct: blew and blue are homophones in standard American English.",
           "revision": "2026-09-16-r4"
+        },
+        "validation-2026-09-16-r5-blew": {
+          "action": "question-validated-correct",
+          "at": 1789591836220,
+          "by": "Pronunciation validation",
+          "reason": "Correct: blew and blue are homophones in standard American English.",
+          "revision": "2026-09-16-r5"
         }
       },
       "key": "blew",
-      "lastReviewedAt": 1789591040820,
+      "lastReviewedAt": 1789591836220,
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/blew-28ca160cbb.wav",
@@ -541,15 +548,15 @@
           "updatedAt": 1789569782992
         }
       },
-      "reviewedAt": 1789591040820,
+      "reviewedAt": 1789591836220,
       "reviewedBy": "Pronunciation validation",
       "source": "./audio/pronunciation/blew-28ca160cbb.wav",
       "sourceType": "local-wav",
       "status": "reviewed",
-      "updatedAt": 1789591040820,
+      "updatedAt": 1789591836220,
       "validationDecision": "correct-existing",
       "validationReason": "Correct: blew and blue are homophones in standard American English.",
-      "validationRevision": "2026-09-16-r4"
+      "validationRevision": "2026-09-16-r5"
     },
     "build-1i9vvkz": {
       "assetCreatedAt": 1789494062000,

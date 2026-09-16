@@ -11,7 +11,7 @@
   "are waiting": "./audio/pronunciation/are-waiting-4ce402825a.wav",
   "are you looking": "./audio/pronunciation/are-you-looking-524eea1a10.wav",
   "ask": "./bella-samples/round2-audio/ask--a-105-text.wav",
-  "asked": "./audio/pronunciation/asked-f3c293d86b.wav",
+  "asked": "./audio/pronunciation/asked-5b2e57c737.wav",
   "at 10:30 tonight": "./audio/pronunciation/at-10-30-tonight-0040790b43.wav",
   "at 11 tonight": "./audio/pronunciation/at-11-tonight-d3c85b5d29.wav",
   "ate": "./bella-samples/audio/ate--bella-10-text.wav",
