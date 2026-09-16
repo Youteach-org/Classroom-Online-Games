@@ -935,4 +935,37 @@ Recommended model:
 5. A downloadable report contains a QR with an opaque receipt identifier or verification URL; it does not expose private student data in the QR payload.
 6. Scanning/opening the QR shows a read-only verification view appropriate to the viewer's permissions.
 
-The exact grading conversion rule is still to be confirmed.
+The student selects which completed attempt to submit. YouTeach then maps that submitted result to the points configured for the task. Automatic grading of every practice attempt is not part of the design.
+
+
+## Student-selected YouTeach submission — confirmed 2026-09-16
+
+For YouTeach-evaluable COG activities, gameplay is primarily **practice**.
+
+Confirmed behavior:
+
+- A student may repeat the assigned COG activity as many times as desired.
+- Individual practice attempts do **not** automatically become the official YouTeach submission.
+- Practice attempts may remain local/temporary according to the normal local-first game model.
+- When the student is satisfied with a result, they explicitly choose **Submit to YouTeach**.
+- Only that explicitly submitted attempt becomes the official verified evidence for the task.
+- The submitted payload is still compact: activity identity/version/configuration, score/performance summary, successes/errors, predefined compact error/concept codes, duration, and server-verifiable timing/session metadata.
+- YouTeach verifies the completion receipt and maps the submitted game result into the points configured for the task.
+- The purpose is verification of completion plus the student's selected performance result; YouTeach should not continuously auto-grade every practice attempt.
+- The QR receipt belongs to the explicitly submitted attempt, not to every practice run.
+
+This preserves the educational intent: students can practice repeatedly, improve, and submit the result they choose as their task evidence.
+
+The exact rule for whether a submitted result can later be replaced by a newer submission remains open.
+
+
+## Premium billing cadence — confirmed 2026-09-16
+
+Public COG Premium will use:
+
+- **monthly subscription**;
+- **annual subscription**.
+
+A lifetime one-time purchase is not part of the current design.
+
+YouTeach-linked students continue to receive the relevant Premium learning features through their YouTeach entitlement and do not need to purchase a separate public COG Premium subscription for assigned YouTeach activities.
