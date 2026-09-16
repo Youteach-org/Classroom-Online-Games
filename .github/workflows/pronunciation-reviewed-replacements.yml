@@ -14,6 +14,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: pronunciation-reviewed-replacements
+  cancel-in-progress: true
+
 jobs:
   generate:
     if: "!contains(github.event.head_commit.message, '[generated reviewed audio]')"
