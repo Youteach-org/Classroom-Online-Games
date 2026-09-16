@@ -11,6 +11,14 @@ SAMPLE_RATE = 24000
 LEAD_SILENCE_SECONDS = 0.04
 TAIL_SILENCE_SECONDS = 0.35
 
+# Isolated verb homographs must not rely on TTS lexical guessing.
+# Kokoro/Misaki phoneme notation is used here (American English).
+VERB_PHONEME_OVERRIDES = {
+    'live': 'lˈɪv',   # verb: reside / exist; never adjective /laɪv/
+    'close': 'klˈOz', # verb /kloʊz/; not adjective /kloʊs/
+    'use': 'jˈuz',    # verb /juːz/; not noun /juːs/
+}
+
 
 def normalize(value: str) -> str:
     return re.sub(r'\s+', ' ', str(value or '').strip().lower())
@@ -46,10 +54,16 @@ def spoken_text(answer: str) -> str:
     return value.rstrip('.!?') + '.'
 
 
+def pronunciation_signature(answer: str) -> str:
+    key = normalize(answer)
+    phonemes = VERB_PHONEME_OVERRIDES.get(key, '')
+    return f'{key}|{phonemes}'
+
+
 def asset_filename(answer: str) -> str:
     key = normalize(answer)
     slug = re.sub(r'[^a-z0-9]+', '-', key).strip('-')[:54] or 'answer'
-    digest = hashlib.sha1(key.encode('utf-8')).hexdigest()[:10]
+    digest = hashlib.sha1(pronunciation_signature(key).encode('utf-8')).hexdigest()[:10]
     return f'{slug}-{digest}.wav'
 
 
@@ -88,11 +102,21 @@ def generate_audio(root: Path, answers: set[str]) -> None:
             continue
 
         pieces = []
-        for _graphemes, _phonemes, audio in pipeline(
-            spoken_text(answer),
-            voice=VOICE,
-            speed=SPEED,
-        ):
+        override_phonemes = VERB_PHONEME_OVERRIDES.get(answer)
+        if override_phonemes:
+            generated = pipeline.generate_from_tokens(
+                tokens=override_phonemes,
+                voice=VOICE,
+                speed=SPEED,
+            )
+        else:
+            generated = pipeline(
+                spoken_text(answer),
+                voice=VOICE,
+                speed=SPEED,
+            )
+
+        for _graphemes, _phonemes, audio in generated:
             segment = _as_numpy(audio)
             if segment.size:
                 pieces.append(segment)
