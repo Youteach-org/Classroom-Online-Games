@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path';
 const here=dirname(fileURLToPath(import.meta.url));
 const root=join(here,'..');
 const generator=readFileSync(join(root,'scripts','generate-pronunciation.py'),'utf8');
+const index=readFileSync(join(root,'index.html'),'utf8');
 
 test('ambiguous isolated verb homographs use explicit verb phonemes',()=>{
   assert.match(generator,/VERB_PHONEME_OVERRIDES\s*=\s*\{[\s\S]*['"]live['"]\s*:\s*['"]lˈɪv['"]/);
@@ -24,3 +25,8 @@ test('pronunciation override changes the generated asset filename',()=>{
 test('non-ambiguous answers keep their existing asset hashes',()=>{
   assert.match(generator,/return f'\{key\}\|\{phonemes\}' if phonemes else key/);
 });
+
+test('Verb Runner cache-busts pronunciation manifest changes',()=>{
+  assert.match(index,/pronunciation-manifest\.js\?v=verb-homographs-20260915-1/);
+});
+
