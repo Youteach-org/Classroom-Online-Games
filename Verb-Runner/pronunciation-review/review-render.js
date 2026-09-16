@@ -6,7 +6,7 @@ export const statusLabel=status=>({
   'unreviewed':'UNREVIEWED',
   'needs-fix':'NEEDS FIX',
   'reviewed':'REVIEWED',
-  'duplicate':'DUPLICATE',
+  'duplicate':'DUPLICATED',
   'removed-duplicate':'REMOVED DUPLICATE'
 })[status]||String(status||'UNREVIEWED').toUpperCase();
 

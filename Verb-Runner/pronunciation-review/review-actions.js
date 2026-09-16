@@ -188,9 +188,10 @@ export async function deleteReport(entry,reportId,by){
 
 export async function markDuplicate(entry,record,canonical,by){
   const stamp=now();
+  const duplicateOf=canonical?.key||'';
   await touch(entry,record,{
     status:'duplicate',
-    duplicateOf:canonical.key,
+    duplicateOf,
     duplicateMarkedAt:stamp,
     duplicateMarkedBy:by,
     reviewedBy:by,
@@ -200,11 +201,10 @@ export async function markDuplicate(entry,record,canonical,by){
     removedAsDuplicate:false,
     cleanupRequested:false
   });
-  await history(entry,'marked-duplicate',by,{duplicateOf:canonical.key});
+  await history(entry,'marked-duplicate',by,{duplicateOf});
 }
 
 export async function removeDuplicate(entry,record,by){
-  if(!record.duplicateOf)throw new Error('Missing duplicate target');
   const stamp=now();
   await saveAudioPatch(entry.id,{
     status:'removed-duplicate',

@@ -83,9 +83,12 @@ export function bindReviewEvents({audioList,getEntryById,getEntryByKey,getRecord
       }else if(action==='mark-duplicate'){
         const by=reviewer(); if(!by)return;
         const target=String(card.querySelector('.duplicate-target').value||'').trim();
-        const canonical=getEntryByKey(target);
-        if(!canonical){alert('Choose an existing audio key to keep.');return;}
-        if(canonical.id===entry.id){alert('An audio cannot be a duplicate of itself.');return;}
+        let canonical=null;
+        if(target){
+          canonical=getEntryByKey(target);
+          if(!canonical){alert('That original key does not exist. Choose one from the list or leave it blank.');return;}
+          if(canonical.id===entry.id){alert('An audio cannot be a duplicate of itself.');return;}
+        }
         await markDuplicate(entry,record,canonical,by);
       }else if(action==='remove-duplicate'){
         const by=reviewer(); if(!by)return;
