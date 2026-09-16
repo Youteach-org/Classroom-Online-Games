@@ -1362,3 +1362,15 @@ For YouTeach assignments based on COG activities:
 - The receipt continues to prove that YouTeach/COG recorded a valid official submission under the authorized assignment context.
 - Previously superseded receipts remain invalid, consistent with the confirmed Undo Submission rules.
 - A receipt only stops being valid when it is explicitly superseded/invalidated by the submission lifecycle or removed under a future retention policy; ordinary assignment closure is not an invalidation event.
+
+
+## Bounded receipt retention — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- Final QR/receipt verification is **not retained indefinitely**.
+- The system must use a **bounded retention period** and automatically expire/purge receipt-verification records after that period.
+- This prevents viral/public growth from creating an unlimited historical verification archive and uncontrolled long-term storage.
+- Only the minimal verification/integrity data needed during the retention window is kept.
+- Previously superseded receipts remain invalid and subject to the same data-minimization rules.
+- The exact retention duration is still to be selected.
