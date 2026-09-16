@@ -81,6 +81,15 @@ The same underlying game can expose different features according to the authenti
 | YouTeach student | No | Full | Full | Yes, linked to YouTeach | No |
 | YouTeach teacher | No | Full | Full | Yes | Proposed full teacher tools |
 
+### Confirmed Premium sign-in baseline
+
+Public COG Premium accounts will support:
+
+- **Google sign-in**
+- **Email + password**
+
+Additional providers may be added if they serve the educational audience without unnecessary complexity.
+
 ### Confirmed entitlement rule
 
 A student who arrives through a valid YouTeach-authenticated launch is treated as **Premium for learning features**, without buying a separate COG subscription and without creating a second account.
@@ -331,7 +340,7 @@ The following still require explicit decisions before implementation planning is
 13. Data retention/privacy policy for public users and minors.
 14. Hard difficulty default speed exact value.
 15. Whether public Premium accounts can later link/import into a YouTeach identity.
-16. Public Premium sign-in methods.
+16. Additional optional Premium sign-in providers beyond the confirmed baseline.
 
 ---
 
@@ -355,3 +364,4 @@ The following still require explicit decisions before implementation planning is
 - Confirmed public COG guests can access a game directly if they have its public link, without registering.
 - Confirmed that possession of a YouTeach private game URL alone never grants YouTeach/Premium access; private access requires a valid authenticated launch credential.
 - Confirmed the public account model is intentionally simple: **Guest** or **Premium** only. There is no separate free registered account tier.
+- Confirmed the baseline Premium sign-in methods: **Google** and **email + password**.
