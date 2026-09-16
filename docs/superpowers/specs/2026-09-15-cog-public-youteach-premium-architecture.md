@@ -250,7 +250,7 @@ This separation applies to both public user types:
 
 Public COG must not depend on direct client access to YouTeach's private student/classroom database.
 
-A separate Firebase project/backend for public COG is the preferred target architecture.
+The public COG backend technology is **not yet decided**. Firebase remains the current backend technology in existing COG/YouTeach code, while Cloudflare Pages is the current deployment/hosting platform. The confirmed requirement is backend/data isolation from YouTeach, regardless of the final backend provider.
 
 ## 8. Security boundary
 
@@ -350,7 +350,7 @@ The following still require explicit decisions before implementation planning is
 6. Exact free-vs-Premium explanation cutoff.
 7. Standardized `GameResult` schema.
 8. Standardized explanation object/schema.
-9. Public COG backend choice and whether it gets its own Firebase project.
+9. Public COG backend technology/provider (Firebase, Cloudflare-native stack, Supabase, or another option), while preserving complete data isolation from YouTeach.
 10. YouTeach authentication migration path.
 11. Entitlement token format and backend validation mechanism.
 12. Teacher Premium feature set.
@@ -384,3 +384,4 @@ The following still require explicit decisions before implementation planning is
 - Confirmed the Premium launch sign-in methods: **Google**, **Microsoft**, **Apple**, and **email + password**.
 - Confirmed that multiple sign-in providers may be linked to the **same COG account** so subscription status, history, reports, and preferences remain unified.
 - Confirmed that **all public COG traffic, Guest and Premium, uses a backend/data project independent from YouTeach**. Guests use temporary/anonymous public-session data; Premium users add authenticated persistent account data on that same public COG backend.
+- Clarified that moving deployment/hosting to **Cloudflare Pages** did **not** constitute a decision to migrate the database/authentication backend away from Firebase. The backend provider for the new public COG remains an open architectural decision.
