@@ -395,7 +395,7 @@ The backend provider must be selected primarily by **quotas, capacity, total ope
 
 ### Current comparison — decision pending
 
-The public COG backend provider is still **not selected**.
+The initial persistent database provider for the zero-cost public COG phase is now **Turso Free**. This selection applies to persistent COG account/report/history data. Cloudflare remains the hosting/edge/live-session layer, and authentication remains a separate concern.
 
 Official pricing/limit points reviewed on 2026-09-16:
 
@@ -765,3 +765,31 @@ Official references:
 - https://firebase.google.com/docs/firestore/quotas
 - https://firebase.google.com/pricing
 - https://firebase.google.com/docs/auth/web/microsoft-oauth
+
+
+## Local-first persistence principle — confirmed 2026-09-16
+
+COG must be designed **local-first**. High game frequency must not imply high permanent cloud storage.
+
+Confirmed principles:
+
+- Game execution, animation state, timers, choices, temporary attempts, momentum/speed, round state, and most per-play telemetry stay on the user's device or temporary live-session infrastructure.
+- Guest users do not create permanent learning-history rows in Turso.
+- Public Premium users use Turso only for data that genuinely benefits from persistence across devices, subscription entitlement, or longitudinal learning reports.
+- YouTeach students do not put their private school identity/history into the public COG database; the shared game engine produces a standard result that can be persisted through YouTeach's private data path.
+- The earlier planning assumption of **4 games/month** was only a provider-comparison normalization and is **not** a product assumption. COG should support tens or hundreds of plays per user per month without storing every gameplay event remotely.
+
+### Initial persistent database selection
+
+For the zero-cost launch phase, **Turso Free** is selected as the persistent database for public COG.
+
+Reasons recorded during planning:
+
+- zero mandatory monthly cost;
+- 5 GB free storage;
+- large free read/write allowances;
+- SQL data model is suitable for accounts, reports, progress, entitlements, and longitudinal learning data;
+- it avoids using Firestore's smaller free quota as the primary persistent history store;
+- it avoids D1 Free's 500 MB-per-database partitioning constraint for the first phase.
+
+This choice can be revisited when COG has measured production telemetry and revenue.
