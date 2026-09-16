@@ -1156,3 +1156,13 @@ For YouTeach assignments based on COG activities:
   - **Accept but mark as late**
 - The selected treatment applies to submissions made under that reopened window.
 - If the teacher instead changes/extends the due date, the normal due-date logic may determine whether a later submission is on time under the new deadline.
+
+
+## Reopened assignment minimum retention — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- Reopening a closed/expired assignment preserves the assignment's existing overall minimum performance threshold.
+- The minimum does not reset or disappear merely because the assignment is reopened.
+- The teacher may manually change or remove the minimum at the moment of reopening if desired.
+- If the teacher makes no change, the original minimum continues to govern whether **Send to teacher** is enabled.
