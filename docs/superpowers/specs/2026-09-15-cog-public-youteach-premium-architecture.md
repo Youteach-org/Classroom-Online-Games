@@ -1166,3 +1166,22 @@ For YouTeach assignments based on COG activities:
 - The minimum does not reset or disappear merely because the assignment is reopened.
 - The teacher may manually change or remove the minimum at the moment of reopening if desired.
 - If the teacher makes no change, the original minimum continues to govern whether **Send to teacher** is enabled.
+
+
+## Teacher final-submission view — confirmed 2026-09-16
+
+For the current/final official COG submission in YouTeach, an authenticated authorized teacher sees:
+
+- submitted result percentage;
+- proportional points earned for the assignment;
+- cumulative attempt count for that assignment;
+- date/time when the selected gameplay result was completed;
+- date/time when the student used **Send to teacher**;
+- on-time or late status under the assignment/reopen rules;
+- assigned/used game mode or modality;
+- assigned/used difficulty;
+- access to the verifiable receipt / QR.
+
+Student identity is shown only to an authenticated authorized teacher, consistent with the QR privacy rules.
+
+The normal teacher-facing workflow shows only the current/final official submission, not prior replaced submissions or individual practice attempts.
