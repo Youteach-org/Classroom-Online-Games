@@ -46,6 +46,12 @@ def main() -> None:
         aliases[duplicate] = original
         processed.append((audio_id, duplicate, original))
 
+        record["cleanupRequested"] = False
+        record["cleanupApplied"] = True
+        record["cleanupAppliedAt"] = stamp
+        record["removedAsDuplicate"] = True
+        record["status"] = "removed-duplicate"
+
         firebase_patch[f"audios/{audio_id}/cleanupRequested"] = False
         firebase_patch[f"audios/{audio_id}/cleanupApplied"] = True
         firebase_patch[f"audios/{audio_id}/cleanupAppliedAt"] = stamp
@@ -54,6 +60,10 @@ def main() -> None:
 
     aliases_path.write_text(
         json.dumps(dict(sorted(aliases.items())), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    review_path.write_text(
+        json.dumps(review, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
     patch_path.write_text(
