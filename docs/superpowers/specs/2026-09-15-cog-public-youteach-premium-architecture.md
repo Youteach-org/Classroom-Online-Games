@@ -1386,3 +1386,13 @@ For YouTeach assignments based on COG activities:
 - A superseded receipt becomes invalid immediately, regardless of the remaining retention time.
 - After 6 months from that receipt's creation, its verification record expires and the technical verification data is deleted or reduced according to the system's data-minimization policy.
 
+
+
+## Six-month retention consequence — provisional 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- **For now**, when the 6-month retention window for the current/final receipt expires, the system will not keep the QR verification record, the COG-derived official percentage, or the proportional task points associated with that COG submission.
+- This is a **provisional retention decision**, intended to avoid creating an indefinitely growing historical archive while the product is still being designed and validated.
+- The policy may be revisited later if YouTeach adds a separate long-term gradebook/archive strategy with its own retention rules.
+- Until such a strategy is explicitly approved, COG assignment result records should not be treated as permanent academic-history storage.
