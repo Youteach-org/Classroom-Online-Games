@@ -408,28 +408,40 @@
           "by": "Armando Anota",
           "kind": "pronunciation",
           "reportId": "autosave-armando-anota-22dz74"
+        },
+        "validation-2026-09-16-r2-blew": {
+          "action": "question-validated-correct",
+          "at": 1789576139728,
+          "by": "Pronunciation validation",
+          "reason": "Correct: blew and blue are homophones in standard American English.",
+          "revision": "2026-09-16-r2"
         }
       },
       "key": "blew",
-      "lastReviewedAt": 1789569782992,
+      "lastReviewedAt": 1789576139728,
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/blew-28ca160cbb.wav",
           "createdAt": 1789569775219,
           "kind": "pronunciation",
           "previousStatus": "unreviewed",
+          "resolvedAt": 1789576139728,
+          "resolvedBy": "Pronunciation validation",
           "reviewer": "Armando Anota",
-          "status": "open",
+          "status": "resolved",
           "text": "Suena igual k blue?",
           "updatedAt": 1789569782992
         }
       },
-      "reviewedAt": 1789569782992,
-      "reviewedBy": "Armando Anota",
+      "reviewedAt": 1789576139728,
+      "reviewedBy": "Pronunciation validation",
       "source": "./audio/pronunciation/blew-28ca160cbb.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789569783088
+      "status": "reviewed",
+      "updatedAt": 1789576139728,
+      "validationDecision": "correct-existing",
+      "validationReason": "Correct: blew and blue are homophones in standard American English.",
+      "validationRevision": "2026-09-16-r2"
     },
     "build-1i9vvkz": {
       "assetCreatedAt": 1789494062000,
@@ -1384,6 +1396,68 @@
       "sourceType": "local-wav",
       "status": "needs-fix",
       "updatedAt": 1789570577058
+    },
+    "will-be-travelling-15fyuwq": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupApplied": true,
+      "cleanupAppliedAt": 1789576139777,
+      "cleanupRequested": false,
+      "duplicateMarkedAt": 1789574946514,
+      "duplicateMarkedBy": "Armando Anota",
+      "duplicateOf": "will be traveling",
+      "duplicateOfRef": 366,
+      "firstReviewedAt": 1789574946514,
+      "history": {
+        "-P1eydteGeI9UPKlV5YO": {
+          "action": "duplicate-cleanup-requested",
+          "at": 1789574946625,
+          "by": "Armando Anota",
+          "duplicateOf": "will be traveling",
+          "duplicateOfRef": 366
+        }
+      },
+      "key": "will be travelling",
+      "lastReviewedAt": 1789574946514,
+      "removedAsDuplicate": true,
+      "removedAt": 1789574946514,
+      "removedBy": "Armando Anota",
+      "reviewedAt": 1789574946514,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-be-travelling-f9a0c222bb.wav",
+      "sourceType": "local-wav",
+      "status": "removed-duplicate",
+      "updatedAt": 1789574946515
+    },
+    "will-have-been-travelling-1idewnr": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupApplied": true,
+      "cleanupAppliedAt": 1789576139777,
+      "cleanupRequested": false,
+      "duplicateMarkedAt": 1789574993228,
+      "duplicateMarkedBy": "Armando Anota",
+      "duplicateOf": "will have been traveling",
+      "duplicateOfRef": 391,
+      "firstReviewedAt": 1789574993228,
+      "history": {
+        "-P1eypIPYJL4EfZaZ5Qi": {
+          "action": "duplicate-cleanup-requested",
+          "at": 1789574993328,
+          "by": "Armando Anota",
+          "duplicateOf": "will have been traveling",
+          "duplicateOfRef": 391
+        }
+      },
+      "key": "will have been travelling",
+      "lastReviewedAt": 1789574993228,
+      "removedAsDuplicate": true,
+      "removedAt": 1789574993228,
+      "removedBy": "Armando Anota",
+      "reviewedAt": 1789574993228,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-been-travelling-9b8c5f4336.wav",
+      "sourceType": "local-wav",
+      "status": "removed-duplicate",
+      "updatedAt": 1789574993228
     },
     "will-tell-rkjlkc": {
       "assetCreatedAt": 1789494062000,
