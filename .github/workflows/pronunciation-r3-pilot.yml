@@ -1,0 +1,116 @@
+name: Generate R3 Bella clarity pilot
+
+on:
+  push:
+    branches:
+      - fix/pronunciation-r3-pilot
+    paths:
+      - "Verb-Runner/pronunciation-corrections.json"
+      - "Verb-Runner/scripts/generate-pronunciation.py"
+      - "Verb-Runner/tests/pronunciation-corrections.test.mjs"
+      - ".github/workflows/pronunciation-r3-pilot.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pronunciation-r3-pilot
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    if: "!contains(github.event.head_commit.message, '[generated r3 pilot]')"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Kokoro Bella generator
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y espeak-ng
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install "kokoro>=0.9.4" numpy soundfile
+
+      - name: Verify pilot specification
+        run: |
+          node --test Verb-Runner/tests/pronunciation-corrections.test.mjs
+          node --test Verb-Runner/tests/pronunciation-policy.test.mjs
+          node --test Verb-Runner/tests/pronunciation.test.mjs
+
+      - name: Generate R3 pilot
+        env:
+          ALLOW_KOKORO_BELLA_GENERATION: "1"
+        run: python Verb-Runner/scripts/generate-pronunciation.py
+
+      - name: Verify R3 pilot files and acoustic change
+        run: |
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          import numpy as np, soundfile as sf
+
+          root=Path('Verb-Runner')
+          base='{{ github.event.before }}'
+          if not base or set(base)=={'0'}:
+              base='main^'
+
+          spec=json.loads((root/'pronunciation-corrections.json').read_text())
+          text=(root/'pronunciation-manifest.js').read_text()
+          manifest=json.loads(text.split('=',1)[1].rsplit(';})',1)[0])
+          old_text=subprocess.check_output(['git','show',f'{base}:Verb-Runner/pronunciation-manifest.js'],text=True)
+          old_manifest=json.loads(old_text.split('=',1)[1].rsplit(';})',1)[0])
+
+          keys=['are waiting','ask','ate','bend','build','dug','start','washed','watched','wrote']
+          for key in keys:
+              new_src=manifest[key]
+              old_src=old_manifest[key]
+              assert new_src != old_src, (key, old_src, new_src)
+              new_path=root/new_src.removeprefix('./')
+              assert new_path.exists() and new_path.stat().st_size>1000, (key,new_path)
+
+              if old_src.startswith('./audio/pronunciation/'):
+                  tmp=Path('/tmp')/('old-'+Path(old_src).name)
+                  with tmp.open('wb') as out:
+                      subprocess.run(
+                          ['git','show',f'{base}:Verb-Runner/{old_src.removeprefix("./")}'],
+                          stdout=out,check=True
+                      )
+                  a,sra=sf.read(tmp,dtype='float32')
+                  b,srb=sf.read(new_path,dtype='float32')
+                  assert sra==srb==24000
+                  assert len(b)>2400
+                  # Corrective speed/trim must result in an acoustically distinct candidate.
+                  n=min(len(a),len(b))
+                  corr=float(np.corrcoef(a[:n],b[:n])[0,1]) if n and np.std(a[:n]) and np.std(b[:n]) else 0
+                  assert not (len(a)==len(b) and np.array_equal(a,b)), key
+                  print(key,'old_samples',len(a),'new_samples',len(b),'corr',round(corr,4))
+          print('R3 pilot verified:',len(keys),'distinct Bella candidates')
+          PY
+
+      - name: Run regression tests
+        run: |
+          node --test Verb-Runner/tests/pronunciation-corrections.test.mjs
+          node --test Verb-Runner/tests/pronunciation-policy.test.mjs
+          node --test Verb-Runner/tests/pronunciation.test.mjs
+          node --test Verb-Runner/tests/pronunciation-review.test.mjs
+
+      - name: Commit generated R3 pilot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Verb-Runner/audio/pronunciation Verb-Runner/pronunciation-manifest.js
+          if git diff --cached --quiet; then
+            echo "No generated pilot changes."
+            exit 0
+          fi
+          git commit -m "Verb Runner: generate R3 Bella clarity pilot [generated r3 pilot]"
+          git push origin HEAD:fix/pronunciation-r3-pilot
