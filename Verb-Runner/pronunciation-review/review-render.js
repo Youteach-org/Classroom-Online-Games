@@ -102,7 +102,11 @@ export function renderCard(entry,template,audioUrl){
   node.querySelector('audio').src=audioUrl(entry.src);
 
   const autosaved=core.reportEntries(entry.reports)
-    .find(report=>String(report.id||'').startsWith('autosave-')&&report.status==='open');
+    .find(report=>
+      String(report.id||'').startsWith('autosave-')&&
+      report.status==='open'&&
+      (!report.assetSource||report.assetSource===entry.src)
+    );
   if(autosaved){
     node.querySelector('.report-text').value=autosaved.text||'';
     node.querySelector('.report-kind').value=autosaved.kind||'pronunciation';
