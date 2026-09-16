@@ -1086,3 +1086,16 @@ When a teacher creates a YouTeach assignment that uses a COG activity:
 - The student may practice repeatedly under that assigned configuration and later choose which result to **Send to teacher**.
 - The final submitted result is converted proportionally into the task's configured point value.
 - The verified receipt/QR corresponds to that final submitted result and assigned configuration.
+
+
+## Minimum performance threshold for COG assignments — confirmed 2026-09-16
+
+When a teacher creates a YouTeach assignment based on a COG activity:
+
+- The teacher can configure a **minimum required performance percentage** for that assignment.
+- The student may practice as many times as needed.
+- A result below the configured minimum cannot be submitted as the official assignment result.
+- The student can continue practicing until obtaining a result that meets or exceeds the minimum.
+- Once the threshold is met, the student may choose **Send to teacher** for that attempt.
+- The final submitted percentage is still converted proportionally into the points assigned to the task.
+- The configured minimum belongs to the assignment, not globally to the game.
