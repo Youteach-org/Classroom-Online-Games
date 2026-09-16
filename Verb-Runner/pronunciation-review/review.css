@@ -28,13 +28,14 @@ main{max-width:1180px;margin:auto;padding:10px 12px 90px}
 .card-head{display:flex;gap:9px;align-items:flex-start}
 .number{flex:0 0 58px;text-align:center;background:#edf1f5;border-radius:8px;padding:5px;font-size:17px;font-weight:800}
 .identity{min-width:0;flex:1}
-.key-line{display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden}
-.audio-key{font-size:16px;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.key-line{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
+.audio-key{font-size:17px;flex:1 1 220px;min-width:0;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.2}
 .status-badge,.changed-badge{font-size:10px;font-weight:800;border-radius:999px;padding:3px 5px;background:#edf1f5;flex:0 0 auto}
 .status-badge{border:0;line-height:1.1}
 .changed-badge{background:#ffe4ad;color:#814c00}
-.metadata{font-size:10px;color:#566276;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.source{font-size:10px;color:#8a93a0;flex:0 1 180px;min-width:70px;overflow:hidden;text-overflow:ellipsis}
+.detail-row{display:flex;align-items:center;gap:7px;min-width:0;margin-top:3px;padding-left:67px;font-size:9px;line-height:1.2;color:#6f7885;white-space:nowrap;overflow:hidden}
+.metadata{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.source{min-width:55px;max-width:260px;overflow:hidden;text-overflow:ellipsis;color:#8a93a0}
 .listen-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;align-items:center;gap:4px;margin-top:6px;width:100%;min-width:0;overflow:hidden}
 .listen-row audio{display:block;width:100%;max-width:100%;min-width:0;height:30px}
 .listen-row button{padding:5px 6px;font-size:11px;white-space:nowrap;min-width:0}
@@ -67,8 +68,10 @@ main{max-width:1180px;margin:auto;padding:10px 12px 90px}
   .topbar{position:static}
   .reviewer-field input,.search{width:145px}
   .key-line{gap:4px}
-  .metadata{max-width:145px}
-  .source{flex-basis:100px;min-width:55px}
+  .audio-key{flex-basis:150px;font-size:16px}
+  .detail-row{padding-left:0;font-size:8.5px;gap:5px}
+  .metadata{flex:1 1 auto}
+  .source{max-width:115px}
   .listen-row{grid-template-columns:minmax(0,1fr) auto auto auto;gap:3px}
   .listen-row button{padding:4px 5px;font-size:10px}
   .duplicate-button{font-size:9px;padding-left:4px!important;padding-right:4px!important}
