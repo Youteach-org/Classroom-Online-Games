@@ -7,7 +7,7 @@ import { dirname, join } from 'node:path';
 const here=dirname(fileURLToPath(import.meta.url));
 const root=join(here,'..');
 const html=readFileSync(join(root,'index.html'),'utf8');
-const css=readFileSync(join(root,'styles.css'),'utf8';
+const css=readFileSync(join(root,'styles.css'),'utf8');
 
 test('game uses the approved COG PNG asset instead of the placeholder SVG',()=>{
   assert.match(html,/class="cog-mark"[\s\S]*?<img[^>]+class="cog-logo-image"[^>]+src="\.\/assets\/cog-logo\.png"/);
