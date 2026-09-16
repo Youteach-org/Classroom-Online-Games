@@ -5,8 +5,16 @@ import json
 import re
 from pathlib import Path
 
-VOICE = 'af_bella'
+APPROVED_VOICE_NAME = 'Nichalia'
+APPROVED_VOICE_ID = 'XfNU2rGpBa01ckF309OY'
+LEGACY_KOKORO_VOICE = 'af_bella'
 SPEED = 0.8
+
+# Approved Nichalia assets are generated outside GitHub Actions and pinned here.
+# Never replace these with a fallback voice.
+APPROVED_AUDIO_OVERRIDES = {
+    'live': 'https://cdn.creativeclaw.co/u/ad2cc6b8/audio/03b52154-8af6-4836-8808-c9c264a897d3.mp3',
+}
 SAMPLE_RATE = 24000
 LEAD_SILENCE_SECONDS = 0.04
 TAIL_SILENCE_SECONDS = 0.35
@@ -69,7 +77,10 @@ def asset_filename(answer: str) -> str:
 
 def build_manifest(answers: set[str]) -> dict[str, str]:
     return {
-        key: f'./audio/pronunciation/{asset_filename(key)}'
+        key: APPROVED_AUDIO_OVERRIDES.get(
+            key,
+            f'./audio/pronunciation/{asset_filename(key)}',
+        )
         for key in sorted(answers)
     }
 
@@ -82,37 +93,51 @@ def _as_numpy(audio):
 
 
 def generate_audio(root: Path, answers: set[str]) -> None:
-    import numpy as np
-    import soundfile as sf
-    from kokoro import KPipeline
+    import os
 
     out_dir = root / 'audio' / 'pronunciation'
     out_dir.mkdir(parents=True, exist_ok=True)
-    pipeline = KPipeline(lang_code='a')
     expected: set[str] = set()
-
-    lead = np.zeros(int(SAMPLE_RATE * LEAD_SILENCE_SECONDS), dtype=np.float32)
-    tail = np.zeros(int(SAMPLE_RATE * TAIL_SILENCE_SECONDS), dtype=np.float32)
+    legacy_pipeline = None
 
     for index, answer in enumerate(sorted(answers), 1):
+        if answer in APPROVED_AUDIO_OVERRIDES:
+            continue
+
         filename = asset_filename(answer)
         expected.add(filename)
         path = out_dir / filename
         if path.exists() and path.stat().st_size > 1000:
             continue
 
+        if os.getenv('ALLOW_LEGACY_KOKORO_REBUILD') != '1':
+            raise RuntimeError(
+                f"Missing approved Nichalia asset for: {answer!r}. "
+                f"Generate it with {APPROVED_VOICE_NAME} ({APPROVED_VOICE_ID}) "
+                "and add it to APPROVED_AUDIO_OVERRIDES."
+            )
+
+        # Emergency legacy rebuild only. Production/new assets must use Nichalia.
+        import numpy as np
+        import soundfile as sf
+        from kokoro import KPipeline
+        if legacy_pipeline is None:
+            legacy_pipeline = KPipeline(lang_code='a')
+        lead = np.zeros(int(SAMPLE_RATE * LEAD_SILENCE_SECONDS), dtype=np.float32)
+        tail = np.zeros(int(SAMPLE_RATE * TAIL_SILENCE_SECONDS), dtype=np.float32)
+
         pieces = []
         override_phonemes = VERB_PHONEME_OVERRIDES.get(answer)
         if override_phonemes:
-            generated = pipeline.generate_from_tokens(
+            generated = legacy_pipeline.generate_from_tokens(
                 tokens=override_phonemes,
-                voice=VOICE,
+                voice=LEGACY_KOKORO_VOICE,
                 speed=SPEED,
             )
         else:
-            generated = pipeline(
+            generated = legacy_pipeline(
                 spoken_text(answer),
-                voice=VOICE,
+                voice=LEGACY_KOKORO_VOICE,
                 speed=SPEED,
             )
 
@@ -148,7 +173,10 @@ def write_manifest(root: Path, answers: set[str]) -> None:
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     answers = collect_answers(root)
-    print(f'Generating {len(answers)} pronunciation clips with Kokoro {VOICE} at {SPEED}x')
+    print(
+        f'Verifying {len(answers)} pronunciation assets. '
+        f'Approved voice: {APPROVED_VOICE_NAME} ({APPROVED_VOICE_ID}).'
+    )
     generate_audio(root, answers)
     write_manifest(root, answers)
 
