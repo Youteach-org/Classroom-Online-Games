@@ -1,0 +1,92 @@
+name: Verify reusable pronunciation decision console
+
+on:
+  push:
+    branches:
+      - refactor/pronunciation-decision-console
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify one-page decision console
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root=Path('Verb-Runner/bella-samples')
+          html=(root/'index.html').read_text()
+          cfg=json.loads((root/'decision-batches.json').read_text())
+
+          assert cfg['currentBatch']=='round2'
+          assert set(cfg['batches'])=={'round1','round2'}
+          assert 'Pronunciation Decision Console' in html
+          assert 'data-filter="pending"' in html
+          assert 'data-filter="decided"' in html
+          assert 'selectedCandidate' in html
+          assert 'decision-batches.json' in html
+          assert not (root/'round2.html').exists()
+
+          script=html.split('<script type="module">',1)[1].split('</script>',1)[0]
+          Path('/tmp/decision-console.mjs').write_text(script)
+          PY
+          node --check /tmp/decision-console.mjs
+
+      - name: Verify migration preserves existing unified decisions
+        run: |
+          cat > /tmp/r1.json <<'JSON'
+          {
+            "items": {
+              "ate": {"decision":"ok","updatedAt":100},
+              "dug": {"decision":"no","preferred":"0.8","updatedAt":101},
+              "ask": {"decision":"no","preferred":"none","note":"Nask"}
+            }
+          }
+          JSON
+
+          cat > /tmp/r2.json <<'JSON'
+          {
+            "items": {
+              "ask": {"choice":"b","note":"B sounds best","updatedAt":200},
+              "bend": {"choice":"none","note":"Still wrong","updatedAt":201}
+            }
+          }
+          JSON
+
+          cat > /tmp/current.json <<'JSON'
+          {
+            "batches": {
+              "round2": {
+                "items": {
+                  "ask": {"selectedCandidate":"c-100-phoneme","note":"newer decision"}
+                }
+              }
+            }
+          }
+          JSON
+
+          python Verb-Runner/scripts/migrate-pronunciation-decision-console.py             /tmp/r1.json /tmp/r2.json /tmp/current.json
+
+          python - <<'PY'
+          import json
+          patch=json.load(open('/tmp/pronunciation-decision-console-migration-patch.json'))
+
+          assert patch['batches/round1/items/ate/selectedCandidate']=='bella-10-text'
+          assert patch['batches/round1/items/dug/selectedCandidate']=='bella-08-text'
+          assert patch['batches/round1/items/ask/selectedCandidate']=='none'
+          assert patch['batches/round2/items/bend/selectedCandidate']=='none'
+
+          # Existing unified choice/note must win over legacy data.
+          assert 'batches/round2/items/ask/selectedCandidate' not in patch
+          assert 'batches/round2/items/ask/note' not in patch
+          print('Migration preserves unified decisions and converts legacy schemas.')
+          PY
+
+      - name: Verify sync workflow tracks unified backup
+        run: |
+          grep -q "pronunciationDecisionConsole.json" .github/workflows/pronunciation-review-backup.yml
+          grep -q "pronunciation-decision-console-live-backup.json" .github/workflows/pronunciation-review-backup.yml
