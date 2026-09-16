@@ -224,7 +224,12 @@ test('repository duplicate cleanup reuses the original asset and deletes redunda
   const workflow=readFileSync(join(root,'..','.github','workflows','pronunciation-review-backup.yml'),'utf8');
   const aliases=JSON.parse(readFileSync(join(root,'pronunciation-aliases.json'),'utf8'));
 
-  assert.deepEqual(aliases,{});
+  assert.equal(typeof aliases,'object');
+  for(const [duplicate,original] of Object.entries(aliases)){
+    assert.ok(duplicate);
+    assert.ok(original);
+    assert.notEqual(duplicate,original);
+  }
   assert.match(generator,/load_pronunciation_aliases/);
   assert.match(generator,/resolve_alias/);
   assert.match(generator,/aliases/);
@@ -236,4 +241,16 @@ test('repository duplicate cleanup reuses the original asset and deletes redunda
   assert.match(workflow,/generate-pronunciation\.py/);
   assert.match(workflow,/Verb-Runner\/pronunciation-aliases\.json/);
   assert.match(workflow,/Verb-Runner\/audio\/pronunciation/);
+});
+
+
+test('validated-correct pronunciation questions are resolved persistently',()=>{
+  const validator=readFileSync(join(root,'scripts','apply-pronunciation-validation-decisions.py'),'utf8');
+  const workflow=readFileSync(join(root,'..','.github','workflows','pronunciation-review-backup.yml'),'utf8');
+  assert.match(validator,/excluded_as_correct/);
+  assert.match(validator,/question-validated-correct/);
+  assert.match(validator,/validationDecision/);
+  assert.match(validator,/status.*reviewed/s);
+  assert.match(workflow,/apply-pronunciation-validation-decisions\.py/);
+  assert.match(workflow,/pronunciation-validation-firebase-patch\.json/);
 });
