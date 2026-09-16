@@ -3,7 +3,7 @@ import {
   markDuplicate,removeDuplicate,restoreDuplicate
 } from './review-actions.js';
 
-export function bindReviewEvents({audioList,getEntryById,getEntryByKey,getRecordById,reviewer}){
+export function bindReviewEvents({audioList,getEntryById,getEntryByNumber,getRecordById,reviewer}){
   const autosaveTimers=new Map();
 
   function scheduleAutosave(card,entry){
@@ -58,6 +58,39 @@ export function bindReviewEvents({audioList,getEntryById,getEntryByKey,getRecord
     if(entry)scheduleAutosave(card,entry);
   });
 
+  function updateDuplicateMatch(card){
+    const input=card.querySelector('.duplicate-target-ref');
+    const match=card.querySelector('.duplicate-match');
+    const current=getEntryById(card?.dataset.audioId);
+    const value=String(input?.value||'').trim();
+    if(!value){
+      match.textContent='Enter the original audio number.';
+      match.dataset.state='empty';
+      return null;
+    }
+    const original=getEntryByNumber(value);
+    if(!original){
+      match.textContent='No audio exists with that number.';
+      match.dataset.state='error';
+      return null;
+    }
+    if(original.id===current?.id){
+      match.textContent='This cannot be the same audio.';
+      match.dataset.state='error';
+      return null;
+    }
+    match.textContent=`#${String(original.n).padStart(3,'0')} — ${original.key}`;
+    match.dataset.state='ok';
+    return original;
+  }
+
+  audioList.addEventListener('input',event=>{
+    const input=event.target.closest('.duplicate-target-ref');
+    if(!input)return;
+    const card=input.closest('.audio-card');
+    if(card)updateDuplicateMatch(card);
+  });
+
   audioList.addEventListener('click',async event=>{
     const button=event.target.closest('button[data-action]');
     if(!button)return;
@@ -77,17 +110,19 @@ export function bindReviewEvents({audioList,getEntryById,getEntryByKey,getRecord
       }else if(action==='toggle-duplicate'){
         const panel=card.querySelector('.duplicate-panel');
         panel.hidden=!panel.hidden;
-        if(!panel.hidden)panel.querySelector('input').focus();
+        if(!panel.hidden){
+          updateDuplicateMatch(card);
+          panel.querySelector('input').focus();
+        }
       }else if(action==='reviewed'){
         const by=reviewer(); if(by)await markReviewed(entry,record,by);
       }else if(action==='mark-duplicate'){
         const by=reviewer(); if(!by)return;
-        const target=String(card.querySelector('.duplicate-target').value||'').trim();
-        let canonical=null;
-        if(target){
-          canonical=getEntryByKey(target);
-          if(!canonical){alert('That original key does not exist. Choose one from the list or leave it blank.');return;}
-          if(canonical.id===entry.id){alert('An audio cannot be a duplicate of itself.');return;}
+        const canonical=updateDuplicateMatch(card);
+        if(!canonical){
+          alert('Enter the number of the original audio first.');
+          card.querySelector('.duplicate-target-ref').focus();
+          return;
         }
         await markDuplicate(entry,record,canonical,by);
       }else if(action==='remove-duplicate'){

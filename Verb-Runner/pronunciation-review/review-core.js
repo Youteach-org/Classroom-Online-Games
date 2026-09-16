@@ -109,6 +109,7 @@
           reports:record.reports||{},
           history:record.history||{},
           duplicateOf:record.duplicateOf||'',
+          duplicateOfRef:Number(record.duplicateOfRef)||null,
           removedAsDuplicate:Boolean(record.removedAsDuplicate),
           record
         };

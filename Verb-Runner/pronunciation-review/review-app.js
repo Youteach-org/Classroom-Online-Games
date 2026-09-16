@@ -12,7 +12,6 @@ const reviewerName=document.querySelector('#reviewerName');
 const searchInput=document.querySelector('#searchInput');
 const statusFilter=document.querySelector('#statusFilter');
 const audioList=document.querySelector('#audioList');
-const audioKeys=document.querySelector('#audioKeys');
 const template=document.querySelector('#audioCardTemplate');
 const syncState=document.querySelector('#syncState');
 const totalCount=document.querySelector('#totalCount');
@@ -28,7 +27,7 @@ let renderTimer=null;
 const gameRootUrl=()=>new URL('../',window.location.href);
 const audioUrl=src=>/^https?:\/\//i.test(src)?src:new URL(src,gameRootUrl()).href;
 const getEntryById=id=>catalog.find(item=>item.id===id)||null;
-const getEntryByKey=key=>catalog.find(item=>item.key===key)||null;
+const getEntryByNumber=value=>catalog.find(item=>item.n===Number(value))||null;
 const getRecordById=id=>records[id]||{};
 
 function reviewer(silent=false){
@@ -51,15 +50,6 @@ function matches(entry){
   if(!q)return true;
   const ref=String(entry.n),ref3=ref.padStart(3,'0');
   return `${ref} ${ref3} #${ref} #${ref3} ${entry.key} ${entry.src}`.toLowerCase().includes(q);
-}
-
-function refreshDatalist(){
-  audioKeys.innerHTML='';
-  for(const item of catalog){
-    const option=document.createElement('option');
-    option.value=item.key;
-    audioKeys.appendChild(option);
-  }
 }
 
 function hasPlayingAudio(){
@@ -121,11 +111,10 @@ function render(viewState=null){
   reviewedCount.textContent=`Reviewed ${catalog.filter(x=>x.status==='reviewed').length}`;
   problemCount.textContent=`Needs fix ${catalog.filter(x=>x.status==='needs-fix').length}`;
   duplicateCount.textContent=`Duplicates ${catalog.filter(x=>x.status==='duplicate'||x.status==='removed-duplicate').length}`;
-  refreshDatalist();
   restoreViewState(viewState);
 }
 
-bindReviewEvents({audioList,getEntryById,getEntryByKey,getRecordById,reviewer});
+bindReviewEvents({audioList,getEntryById,getEntryByNumber,getRecordById,reviewer});
 
 reviewerName.value=localStorage.getItem(REVIEWER_STORAGE)||'';
 reviewerName.addEventListener('change',()=>localStorage.setItem(REVIEWER_STORAGE,String(reviewerName.value||'').trim()));
