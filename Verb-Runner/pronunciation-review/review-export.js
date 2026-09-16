@@ -28,7 +28,7 @@ export function exportMarkdown(catalog){
     lines.push(`- Asset created: ${fmt(entry.assetCreatedAt)}`);
     lines.push(`- Reviewed by: ${entry.reviewedBy||'—'}`);
     lines.push(`- Last review: ${fmt(entry.reviewedAt)}`);
-    if(entry.duplicateOf)lines.push(`- Duplicate of: ${entry.duplicateOf}`);
+    if(entry.duplicateOf)lines.push(`- Duplicate of: #${String(entry.duplicateOfRef||'?').padStart(3,'0')} — ${entry.duplicateOf}`);
     for(const report of reports){
       lines.push(`- Report [${report.status||'open'}] ${report.reviewer||'Unknown'}: ${report.text||''}`);
     }
