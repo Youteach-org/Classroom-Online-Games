@@ -5,14 +5,13 @@ import json
 import re
 from pathlib import Path
 
-APPROVED_VOICE_NAME = 'Nichalia'
-APPROVED_VOICE_ID = 'XfNU2rGpBa01ckF309OY'
-LEGACY_KOKORO_VOICE = 'af_bella'
+VOICE = 'af_bella'
 SPEED = 0.8
 
-# Approved Nichalia assets are generated outside GitHub Actions and pinned here.
-# Never replace these with a fallback voice.
-APPROVED_AUDIO_OVERRIDES = {
+# Temporary external clips created during the Nichalia experiment. They remain
+# playable until each item is re-reviewed/replaced, but they are NOT the
+# production generation policy. New and corrected clips use Kokoro af_bella.
+TRANSITIONAL_EXTERNAL_AUDIO = {
     'live': 'https://cdn.creativeclaw.co/u/ad2cc6b8/audio/03b52154-8af6-4836-8808-c9c264a897d3.mp3',
     'close': 'https://cdn.creativeclaw.co/u/ad2cc6b8/audio/72a43561-e236-473d-b367-f538ce12efea.mp3',
     'use': 'https://cdn.creativeclaw.co/u/ad2cc6b8/audio/0cb14a71-948d-49b5-9347-e1e79146fa10.mp3',
@@ -20,6 +19,7 @@ APPROVED_AUDIO_OVERRIDES = {
     'read::base': 'https://cdn.creativeclaw.co/u/ad2cc6b8/audio/a8108e85-ff24-49ad-9cc7-ba01705ac86b.mp3',
     'read::past': 'https://cdn.creativeclaw.co/u/ad2cc6b8/audio/1642b4b1-27d3-4052-980b-271c803795d6.mp3',
 }
+CONTEXTUAL_KEYS = {'read::base', 'read::past'}
 SAMPLE_RATE = 24000
 LEAD_SILENCE_SECONDS = 0.04
 TAIL_SILENCE_SECONDS = 0.35
@@ -85,7 +85,7 @@ def asset_filename(answer: str) -> str:
 
 def build_manifest(answers: set[str]) -> dict[str, str]:
     return {
-        key: APPROVED_AUDIO_OVERRIDES.get(
+        key: TRANSITIONAL_EXTERNAL_AUDIO.get(
             key,
             f'./audio/pronunciation/{asset_filename(key)}',
         )
@@ -106,10 +106,10 @@ def generate_audio(root: Path, answers: set[str]) -> None:
     out_dir = root / 'audio' / 'pronunciation'
     out_dir.mkdir(parents=True, exist_ok=True)
     expected: set[str] = set()
-    legacy_pipeline = None
+    pipeline = None
 
     for index, answer in enumerate(sorted(answers), 1):
-        if answer in APPROVED_AUDIO_OVERRIDES:
+        if answer in TRANSITIONAL_EXTERNAL_AUDIO:
             continue
 
         filename = asset_filename(answer)
@@ -118,34 +118,33 @@ def generate_audio(root: Path, answers: set[str]) -> None:
         if path.exists() and path.stat().st_size > 1000:
             continue
 
-        if os.getenv('ALLOW_LEGACY_KOKORO_REBUILD') != '1':
+        if os.getenv('ALLOW_KOKORO_BELLA_GENERATION') != '1':
             raise RuntimeError(
-                f"Missing approved Nichalia asset for: {answer!r}. "
-                f"Generate it with {APPROVED_VOICE_NAME} ({APPROVED_VOICE_ID}) "
-                "and add it to APPROVED_AUDIO_OVERRIDES."
+                f"Missing Kokoro Bella pronunciation asset for: {answer!r}. "
+                "Run the pronunciation generation workflow with the locked af_bella profile."
             )
 
-        # Emergency legacy rebuild only. Production/new assets must use Nichalia.
+        # Generation profile is intentionally identical to the original bank.
         import numpy as np
         import soundfile as sf
         from kokoro import KPipeline
-        if legacy_pipeline is None:
-            legacy_pipeline = KPipeline(lang_code='a')
+        if pipeline is None:
+            pipeline = KPipeline(lang_code='a')
         lead = np.zeros(int(SAMPLE_RATE * LEAD_SILENCE_SECONDS), dtype=np.float32)
         tail = np.zeros(int(SAMPLE_RATE * TAIL_SILENCE_SECONDS), dtype=np.float32)
 
         pieces = []
         override_phonemes = VERB_PHONEME_OVERRIDES.get(answer)
         if override_phonemes:
-            generated = legacy_pipeline.generate_from_tokens(
+            generated = pipeline.generate_from_tokens(
                 tokens=override_phonemes,
-                voice=LEGACY_KOKORO_VOICE,
+                voice=VOICE,
                 speed=SPEED,
             )
         else:
-            generated = legacy_pipeline(
+            generated = pipeline(
                 spoken_text(answer),
-                voice=LEGACY_KOKORO_VOICE,
+                voice=VOICE,
                 speed=SPEED,
             )
 
@@ -181,10 +180,10 @@ def write_manifest(root: Path, answers: set[str]) -> None:
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     answers = collect_answers(root)
-    answers = set(answers) | set(APPROVED_AUDIO_OVERRIDES)
+    answers = set(answers) | CONTEXTUAL_KEYS
     print(
         f'Verifying {len(answers)} pronunciation assets. '
-        f'Approved voice: {APPROVED_VOICE_NAME} ({APPROVED_VOICE_ID}).'
+        f'Locked generation profile: Kokoro {VOICE} at {SPEED}x.'
     )
     generate_audio(root, answers)
     write_manifest(root, answers)
