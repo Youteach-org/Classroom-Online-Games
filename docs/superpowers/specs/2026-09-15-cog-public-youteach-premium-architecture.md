@@ -77,7 +77,6 @@ The same underlying game can expose different features according to the authenti
 | User type | Ads | Performance report | Grammar explanations | Saved history / progress | Teacher features |
 |---|---|---|---|---|---|
 | Public guest | Yes, discreet | Basic | Brief / limited | No | No |
-| Public free account | Yes | Basic | Brief / limited | Proposed | No |
 | COG Premium account | No | Full | Full | Yes | According to plan |
 | YouTeach student | No | Full | Full | Yes, linked to YouTeach | No |
 | YouTeach teacher | No | Full | Full | Yes | Proposed full teacher tools |
@@ -319,20 +318,20 @@ The following still require explicit decisions before implementation planning is
 
 1. Exact public COG domain.
 2. Public COG account authentication provider/method.
-3. Whether a free registered COG account stores history and for how long.
-4. Premium pricing model: monthly, annual, educator plan, school plan, etc.
-5. Payment provider.
-6. Ad provider and exact placements.
-7. Exact free-vs-Premium explanation cutoff.
-8. Standardized `GameResult` schema.
-9. Standardized explanation object/schema.
-10. Public COG backend choice and whether it gets its own Firebase project.
-11. YouTeach authentication migration path.
-12. Entitlement token format and backend validation mechanism.
-13. Teacher Premium feature set.
-14. Data retention/privacy policy for public users and minors.
-15. Hard difficulty default speed exact value.
-16. Whether public Premium accounts can later link/import into a YouTeach identity.
+3. Premium pricing model: monthly, annual, educator plan, school plan, etc.
+4. Payment provider.
+5. Ad provider and exact placements.
+6. Exact free-vs-Premium explanation cutoff.
+7. Standardized `GameResult` schema.
+8. Standardized explanation object/schema.
+9. Public COG backend choice and whether it gets its own Firebase project.
+10. YouTeach authentication migration path.
+11. Entitlement token format and backend validation mechanism.
+12. Teacher Premium feature set.
+13. Data retention/privacy policy for public users and minors.
+14. Hard difficulty default speed exact value.
+15. Whether public Premium accounts can later link/import into a YouTeach identity.
+16. Public Premium sign-in methods.
 
 ---
 
@@ -355,3 +354,4 @@ The following still require explicit decisions before implementation planning is
 - Confirmed this GitHub document is the canonical persistent planning record and must be updated as decisions are made.
 - Confirmed public COG guests can access a game directly if they have its public link, without registering.
 - Confirmed that possession of a YouTeach private game URL alone never grants YouTeach/Premium access; private access requires a valid authenticated launch credential.
+- Confirmed the public account model is intentionally simple: **Guest** or **Premium** only. There is no separate free registered account tier.
