@@ -10,13 +10,13 @@ The official pronunciation voice for **new or regenerated Verb Runner audio is N
 
 Do not substitute Bella, another female voice, a browser TTS voice, or any other engine/voice merely because it is available. Existing Bella/Kokoro files are legacy assets only; they are not the voice choice for new or regenerated pronunciation audio.
 
-For isolated verb homographs, the audio generator must not rely on TTS lexical guessing. Use explicit Kokoro/Misaki phoneme overrides in `Verb-Runner/scripts/generate-pronunciation.py`.
+For isolated verb homographs, generation must not rely on lexical guessing. With the approved Nichalia/ElevenLabs v3 path, generate an explicitly disambiguated pronunciation (for example `live` as /lɪv/) and pin the approved resulting asset. The Kokoro/Misaki phoneme table in `Verb-Runner/scripts/generate-pronunciation.py` is retained only for an explicitly enabled emergency legacy rebuild.
 
 Current protected verb homographs:
 
-- `live` (verb “reside/exist”): /lɪv/ → Kokoro `lˈɪv`. Never adjective `/laɪv/`.
-- `close` (verb): /kloʊz/ → Kokoro `klˈOz`. Never adjective `/kloʊs/`.
-- `use` (verb): /juːz/ → Kokoro `jˈuz`. Never noun `/juːs/`.
+- `live` (verb “reside/exist”): /lɪv/. Never adjective `/laɪv/`.
+- `close` (verb): /kloʊz/. Never adjective `/kloʊs/`.
+- `use` (verb): /juːz/. Never noun `/juːs/`.
 
 ## Generation rule
 
