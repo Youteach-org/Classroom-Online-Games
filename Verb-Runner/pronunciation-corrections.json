@@ -1,6 +1,6 @@
 {
-  "revision": "2026-09-16-r2",
-  "status": "VALIDATED_FOR_GENERATION",
+  "revision": "2026-09-16-r3",
+  "status": "VALIDATED_WITH_APPROVED_VOICE_EXCEPTIONS",
   "interpretation_rule": "Teacher notes describe the observed problem. They are not synthesis instructions. Question notes are validated before deciding whether replacement is needed.",
   "excluded_as_correct": {
     "blew": {
@@ -112,11 +112,16 @@
     },
     "build": {
       "observed_issue": "Suena igual que built",
-      "decision": "confirmed-error",
+      "decision": "approved-voice-exception",
       "target_text": "build",
       "ipa_goal": "/bɪld/",
       "correction_goal": "Preserve voiced final /d/ so it is distinct from built /bɪlt/.",
-      "method": "g2p_tokens"
+      "method": "external-approved-voice",
+      "engine": "AI Voice Generator",
+      "voice": "fancy",
+      "approved_source_url": "https://www.aidocmaker.com/g0/audio?name=d1cd1b4c12ad44bbbb243cbd3cd3c881",
+      "approved_by_teacher_at": "2026-09-16",
+      "exception_reason": "Kokoro af_bella variants remained unacceptable after focused review; teacher approved fancy voice specifically for this word."
     },
     "change": {
       "observed_issue": "Sounds approximately “kchain”; pronunciation is incorrect.",
@@ -334,11 +339,16 @@
     },
     "washed": {
       "observed_issue": "Wast",
-      "decision": "confirmed-error",
+      "decision": "approved-voice-exception",
       "target_text": "washed",
       "ipa_goal": "/wɑʃt/",
       "correction_goal": "Preserve /ʃ/ before final /t/.",
-      "method": "g2p_tokens"
+      "method": "external-approved-voice",
+      "engine": "AI Voice Generator",
+      "voice": "fancy",
+      "approved_source_url": "https://www.aidocmaker.com/g0/audio?name=b196bfada13f4374a2225a52556f784c",
+      "approved_by_teacher_at": "2026-09-16",
+      "exception_reason": "Kokoro af_bella variants remained unacceptable after focused review; teacher approved fancy voice specifically for this word."
     },
     "watched": {
       "observed_issue": "Watst",
