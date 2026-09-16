@@ -1318,3 +1318,14 @@ For YouTeach assignments based on COG activities:
 - This does **not** require exposing the full content/history of prior replaced submissions in the normal teacher workflow.
 - The current/final submission may include a clear resubmission indicator/status while the previously replaced result remains hidden from normal teacher view, consistent with the earlier decision that only the current/final official submission is displayed.
 - Minimal internal audit data may continue to preserve receipt invalidation and submission integrity.
+
+
+## Resubmission count visible to teacher — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- When the current official submission is a resubmission, the teacher sees the **resubmission number**, not only a generic "Resubmission" label.
+- Example display: **Resubmission 1**, **Resubmission 2**, etc.
+- The count refers to how many replacement official submissions have occurred after the original official submission.
+- The normal teacher view still shows only the current/final official submission; the count communicates prior replacement activity without exposing the full history of previous submissions.
+- This resubmission count is separate from the cumulative gameplay attempt count.
