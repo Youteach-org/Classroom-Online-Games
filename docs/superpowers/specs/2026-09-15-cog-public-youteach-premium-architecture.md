@@ -1110,3 +1110,13 @@ For YouTeach assignments based on COG activities:
 - The game result only determines whether the overall minimum has been reached and supplies the student's submitted performance percentage.
 - The existing YouTeach assignment criteria/rubric continue to determine how the assignment's available points are structured and allocated.
 - The minimum-performance gate must not duplicate or replace the assignment rubric.
+
+
+## Optional minimum performance threshold — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- The overall minimum performance threshold is **optional**.
+- If the teacher leaves the minimum field empty, the student may use **Send to teacher** with any completed result.
+- If the teacher enters a minimum percentage, only results that meet or exceed that percentage may be submitted.
+- The absence of a minimum does not change the assignment rubric or proportional point conversion.
