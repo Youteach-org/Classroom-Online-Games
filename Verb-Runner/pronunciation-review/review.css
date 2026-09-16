@@ -34,8 +34,9 @@ main{max-width:1180px;margin:auto;padding:10px 12px 90px}
 .changed-badge{background:#ffe4ad;color:#814c00}
 .source{font-size:11px;color:#6e7989;overflow-wrap:anywhere;margin-top:3px}
 .metadata{font-size:11px;color:#566276;margin-top:4px}
-.listen-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:8px}
-audio{width:min(570px,100%);height:32px}
+.listen-row{display:grid;grid-template-columns:minmax(120px,1fr) auto auto auto;align-items:center;gap:5px;margin-top:6px}
+.listen-row audio{width:100%;min-width:0;height:30px}
+.listen-row button{padding:6px 8px;font-size:12px;white-space:nowrap}
 .ok-button{border-color:#83c9a5}
 .report-button{border-color:#e0a0a0}
 .duplicate-button{border-color:#d8bb74}
@@ -57,5 +58,6 @@ summary{cursor:pointer;font-size:12px;font-weight:800;color:#52627b}
 @media(max-width:680px){
   .topbar{position:static}
   .reviewer-field input,.search{width:145px}
-  audio{width:100%}
+  .listen-row{grid-template-columns:minmax(92px,1fr) auto auto auto;gap:4px}
+  .listen-row button{padding:5px 6px;font-size:11px}
 }
