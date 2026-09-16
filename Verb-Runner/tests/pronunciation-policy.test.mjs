@@ -30,3 +30,11 @@ test('Verb Runner cache-busts pronunciation manifest changes',()=>{
   assert.match(index,/pronunciation-manifest\.js\?v=verb-homographs-20260915-1/);
 });
 
+test('Nichalia is the locked pronunciation voice for new or regenerated Verb Runner audio',()=>{
+  assert.match(generator,/APPROVED_VOICE_NAME\s*=\s*['"]Nichalia['"]/);
+  assert.match(generator,/APPROVED_VOICE_ID\s*=\s*['"]XfNU2rGpBa01ckF309OY['"]/);
+  assert.match(generator,/Missing approved Nichalia asset/);
+  assert.match(generator,/APPROVED_AUDIO_OVERRIDES/);
+  assert.match(generator,/['"]live['"]\s*:\s*['"]https:\/\/cdn\.creativeclaw\.co\//);
+});
+
