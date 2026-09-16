@@ -160,7 +160,7 @@ def source_for_key(key: str, aliases: dict[str, str], corrections: dict[str, dic
     canonical = resolve_alias(key, aliases)
     if canonical in corrections:
         correction = corrections[canonical]
-        approved_source = str(correction.get('approved_source_url') or '').strip()
+        approved_source = str(correction.get('approved_source') or correction.get('approved_source_url') or '').strip()
         if approved_source:
             return approved_source
         return f'./audio/pronunciation/{asset_filename(canonical, corrections)}'
@@ -205,7 +205,7 @@ def generate_audio(
 
     for index, answer in enumerate(canonical_answers, 1):
         correction = corrections.get(answer)
-        approved_source = str((correction or {}).get('approved_source_url') or '').strip()
+        approved_source = str((correction or {}).get('approved_source') or (correction or {}).get('approved_source_url') or '').strip()
         if approved_source:
             print(f"approved external voice exception: {answer!r} -> {approved_source}")
             continue
