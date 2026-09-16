@@ -1,0 +1,39 @@
+{
+  "voice": "af_bella",
+  "sample_rate": 24000,
+  "variants": {
+    "a-100-cue": {
+      "label": "A · Bella 1.00 · pronunciation cue",
+      "speed": 1.0,
+      "mode": "text"
+    },
+    "b-092-cue": {
+      "label": "B · Bella 0.92 · pronunciation cue",
+      "speed": 0.92,
+      "mode": "text"
+    },
+    "c-095-phoneme": {
+      "label": "C · Bella 0.95 · explicit phonemes",
+      "speed": 0.95,
+      "mode": "phoneme"
+    }
+  },
+  "items": {
+    "build": {
+      "label": "build",
+      "files": {
+        "a-100-cue": "./round3-audio/build--a-100-cue.wav",
+        "b-092-cue": "./round3-audio/build--b-092-cue.wav",
+        "c-095-phoneme": "./round3-audio/build--c-095-phoneme.wav"
+      }
+    },
+    "washed": {
+      "label": "washed",
+      "files": {
+        "a-100-cue": "./round3-audio/washed--a-100-cue.wav",
+        "b-092-cue": "./round3-audio/washed--b-092-cue.wav",
+        "c-095-phoneme": "./round3-audio/washed--c-095-phoneme.wav"
+      }
+    }
+  }
+}
