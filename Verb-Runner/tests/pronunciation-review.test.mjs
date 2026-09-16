@@ -96,3 +96,28 @@ test('review console does not rebuild audio controls while one is playing',()=>{
   assert.match(app,/if\(hasPlayingAudio\(\)\)/);
   assert.match(app,/watchRecords\([\s\S]*requestSafeRender/);
 });
+
+
+test('report editor is hidden until Report and autosaves without a save button',()=>{
+  const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
+  const css=readFileSync(join(reviewRoot,'review.css'),'utf8');
+  const events=readFileSync(join(reviewRoot,'review-events.js'),'utf8');
+  const actions=readFileSync(join(reviewRoot,'review-actions.js'),'utf8');
+
+  assert.match(html,/class="report-panel panel" hidden/);
+  assert.match(css,/\.panel\[hidden\]\s*\{\s*display:none/);
+  assert.doesNotMatch(html,/data-action="save-report"/);
+  assert.match(html,/class="autosave-status"/);
+  assert.match(events,/input/);
+  assert.match(events,/scheduleAutosave/);
+  assert.match(actions,/saveAutosaveReport/);
+  assert.match(actions,/clearAutosaveReport/);
+});
+
+test('review action labels are concise and descriptive',()=>{
+  const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
+  assert.match(html,/>OK<\/button>/);
+  assert.match(html,/>Duplicated<\/button>/);
+  assert.doesNotMatch(html,/>Reviewed OK<\/button>/);
+  assert.doesNotMatch(html,/>Duplicate<\/button>/);
+});
