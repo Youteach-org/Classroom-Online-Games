@@ -1451,3 +1451,14 @@ For YouTeach assignments based on COG activities:
 - These editable assignment-level fields are distinct from the previously confirmed immutable COG gameplay configuration: assigned game mode/modality, difficulty, and optional minimum-performance threshold remain fixed after publication.
 - The exact effect of changing points, instructions, or rubric on already-submitted work is **not yet decided** and must be defined separately.
 - **E — Delete before any submission:** the teacher may fully delete a published COG assignment if no student has yet created an official submission for it.
+
+
+## Effects of post-publication edits — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- **A — Point-value changes recalculate existing submissions:** if the teacher changes the assignment's point value after official COG submissions already exist, YouTeach recalculates the proportional task points from each submission's already validated 0–100 game result using the new point value.
+- **B — Rubric changes recalculate existing submissions:** if the teacher changes the assignment criteria/rubric after official submissions already exist, the affected existing submissions are recalculated under the updated rubric/criteria logic.
+- **C — Instruction changes are forward-looking:** changes to assignment instructions apply from that moment forward and do not retroactively alter already completed/submitted gameplay results.
+- **D — Due-date changes recalculate timeliness:** if the teacher changes the due date/time, the on-time/late status of existing submissions is recalculated against the updated due date.
+- **E — Existing submissions do not block deletion:** the presence of one or more official submissions does **not** by itself prevent the teacher from fully deleting the COG assignment. The exact deletion cascade for submissions, grades, receipts, and retained verification data is defined separately.
