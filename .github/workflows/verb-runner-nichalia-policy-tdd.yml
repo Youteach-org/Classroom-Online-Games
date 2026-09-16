@@ -1,0 +1,20 @@
+name: Verb Runner Nichalia Policy TDD
+
+on:
+  push:
+    branches:
+      - fix/verb-runner-female-pronunciation-policy
+    paths:
+      - "Verb-Runner/scripts/generate-pronunciation.py"
+      - "Verb-Runner/tests/pronunciation-policy.test.mjs"
+      - ".github/workflows/verb-runner-nichalia-policy-tdd.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node --test Verb-Runner/tests/pronunciation-policy.test.mjs
