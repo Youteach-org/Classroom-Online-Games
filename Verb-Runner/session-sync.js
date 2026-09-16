@@ -27,6 +27,23 @@ function normalizeLaunchToken(token){
   return String(token||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,128);
 }
 
+function assignmentContextFromLaunch(claimed={}){
+  const config=claimed?.cogActivity||{};
+  if(!claimed?.assignmentId||claimed?.purpose!=='assignment-practice')return null;
+  return {
+    assignmentId:String(claimed.assignmentId||'').slice(0,120),
+    taskCode:String(claimed.assignmentCode||'').slice(0,120),
+    purpose:'assignment-practice',
+    officialSubmissionAllowed:claimed.officialSubmissionAllowed===true,
+    gameId:String(config.gameId||claimed.game||'').slice(0,80),
+    modeId:String(config.modeId||'').slice(0,80),
+    difficultyId:String(config.difficultyId||'').slice(0,40),
+    minimumPercent:config.minimumPercent==null?null:Number(config.minimumPercent),
+    pointValue:Number(config.pointValue||0),
+    contractVersion:Number(config.contractVersion||1)
+  };
+}
+
 function identityMetadata(data={},existing={}){
   const studentKey=String(data.studentKey||existing.studentKey||'').slice(0,120);
   const nickname=String(data.nickname||existing.nickname||'').slice(0,60);
@@ -67,7 +84,8 @@ async function resolveYouTeachLaunchToken(rawToken){
     fullName,
     groupName:String(student.groupName||'GENERAL'),
     studentNumber:String(student.studentNumber||student.id||''),
-    identitySource:'youteach'
+    identitySource:'youteach',
+    assignmentContext:assignmentContextFromLaunch(claimed)
   };
 }
 
