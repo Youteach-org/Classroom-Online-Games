@@ -1,0 +1,103 @@
+{
+  "voice": "af_bella",
+  "sample_rate": 24000,
+  "variants": {
+    "bella-08-text": {
+      "label": "Bella 0.8 · normal text",
+      "speed": 0.8,
+      "mode": "text"
+    },
+    "bella-10-text": {
+      "label": "Bella 1.0 · normal text",
+      "speed": 1.0,
+      "mode": "text"
+    },
+    "bella-09-phoneme": {
+      "label": "Bella 0.9 · explicit phonemes",
+      "speed": 0.9,
+      "mode": "phoneme"
+    }
+  },
+  "items": {
+    "are-waiting": {
+      "label": "are waiting",
+      "files": {
+        "bella-08-text": "./audio/are-waiting--bella-08-text.wav",
+        "bella-10-text": "./audio/are-waiting--bella-10-text.wav",
+        "bella-09-phoneme": "./audio/are-waiting--bella-09-phoneme.wav"
+      }
+    },
+    "ask": {
+      "label": "ask",
+      "files": {
+        "bella-08-text": "./audio/ask--bella-08-text.wav",
+        "bella-10-text": "./audio/ask--bella-10-text.wav",
+        "bella-09-phoneme": "./audio/ask--bella-09-phoneme.wav"
+      }
+    },
+    "ate": {
+      "label": "ate",
+      "files": {
+        "bella-08-text": "./audio/ate--bella-08-text.wav",
+        "bella-10-text": "./audio/ate--bella-10-text.wav",
+        "bella-09-phoneme": "./audio/ate--bella-09-phoneme.wav"
+      }
+    },
+    "bend": {
+      "label": "bend",
+      "files": {
+        "bella-08-text": "./audio/bend--bella-08-text.wav",
+        "bella-10-text": "./audio/bend--bella-10-text.wav",
+        "bella-09-phoneme": "./audio/bend--bella-09-phoneme.wav"
+      }
+    },
+    "build": {
+      "label": "build",
+      "files": {
+        "bella-08-text": "./audio/build--bella-08-text.wav",
+        "bella-10-text": "./audio/build--bella-10-text.wav",
+        "bella-09-phoneme": "./audio/build--bella-09-phoneme.wav"
+      }
+    },
+    "dug": {
+      "label": "dug",
+      "files": {
+        "bella-08-text": "./audio/dug--bella-08-text.wav",
+        "bella-10-text": "./audio/dug--bella-10-text.wav",
+        "bella-09-phoneme": "./audio/dug--bella-09-phoneme.wav"
+      }
+    },
+    "start": {
+      "label": "start",
+      "files": {
+        "bella-08-text": "./audio/start--bella-08-text.wav",
+        "bella-10-text": "./audio/start--bella-10-text.wav",
+        "bella-09-phoneme": "./audio/start--bella-09-phoneme.wav"
+      }
+    },
+    "washed": {
+      "label": "washed",
+      "files": {
+        "bella-08-text": "./audio/washed--bella-08-text.wav",
+        "bella-10-text": "./audio/washed--bella-10-text.wav",
+        "bella-09-phoneme": "./audio/washed--bella-09-phoneme.wav"
+      }
+    },
+    "watched": {
+      "label": "watched",
+      "files": {
+        "bella-08-text": "./audio/watched--bella-08-text.wav",
+        "bella-10-text": "./audio/watched--bella-10-text.wav",
+        "bella-09-phoneme": "./audio/watched--bella-09-phoneme.wav"
+      }
+    },
+    "wrote": {
+      "label": "wrote",
+      "files": {
+        "bella-08-text": "./audio/wrote--bella-08-text.wav",
+        "bella-10-text": "./audio/wrote--bella-10-text.wav",
+        "bella-09-phoneme": "./audio/wrote--bella-09-phoneme.wav"
+      }
+    }
+  }
+}
