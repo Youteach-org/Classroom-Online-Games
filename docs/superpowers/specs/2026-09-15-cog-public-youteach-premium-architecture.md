@@ -1204,3 +1204,14 @@ For the YouTeach **Activity COG** assignment type:
   - assignment open/closed and reopening behavior.
 - Games that do not yet implement this contract remain playable in COG but do not appear as assignable YouTeach activities.
 - Compatibility is an explicit capability flag/certification, not inferred merely because the game exists in the COG catalog.
+
+
+## Game updates for existing assignments — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- An assignment is **not pinned to a frozen game version**.
+- Existing assignments use the current compatible version of the assigned COG game when the student opens it.
+- The assignment continues to preserve its own configured requirements, such as game identity, mode/modality, difficulty, optional minimum threshold, due/reopen rules, and point value.
+- Updating a COG game should therefore improve/fix the experience for already-created assignments instead of leaving those assignments on old copies.
+- The standardized YouTeach assignment contract must remain compatible across game updates so that existing assignments continue to launch, count attempts, submit results, and generate valid receipts.
