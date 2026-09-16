@@ -174,3 +174,19 @@ test('Firebase autosave rerender preserves review position and open panels',()=>
   assert.match(app,/const state=captureViewState\(\);[\s\S]*render\(state\)/);
   assert.match(app,/\.report-panel','\.duplicate-panel','\.review-history-panel'/);
 });
+
+
+test('an audio can be marked duplicated without choosing a canonical key first',()=>{
+  const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
+  const actions=readFileSync(join(reviewRoot,'review-actions.js'),'utf8');
+  const events=readFileSync(join(reviewRoot,'review-events.js'),'utf8');
+  const render=readFileSync(join(reviewRoot,'review-render.js'),'utf8');
+
+  assert.match(html,/Same as \/ original \(optional\)/);
+  assert.match(html,/>Mark duplicated<\/button>/);
+  assert.match(actions,/canonical\?\.key\|\|''/);
+  assert.doesNotMatch(actions,/if\(!record\.duplicateOf\)throw new Error/);
+  assert.match(events,/if\(target\)[\s\S]*getEntryByKey\(target\)/);
+  assert.match(events,/await markDuplicate\(entry,record,canonical,by\)/);
+  assert.match(render,/'duplicate':'DUPLICATED'/);
+});
