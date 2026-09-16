@@ -1,0 +1,28 @@
+name: Verify Bella sample review controls
+
+on:
+  push:
+    branches:
+      - feat/bella-sample-review-controls
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check sample review page
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          html=Path('Verb-Runner/bella-samples/index.html').read_text()
+          assert '1.0 OK' in html
+          assert '1.0 NO' in html
+          assert 'bellaSampleReview' in html
+          assert 'What sounds wrong?' in html
+          assert '0.9 explicit phonemes' in html
+          script=html.split('<script type="module">',1)[1].split('</script>',1)[0]
+          Path('/tmp/bella-review.mjs').write_text(script)
+          PY
+          node --check /tmp/bella-review.mjs
+          grep -q "bella-sample-review-live-backup.json" .github/workflows/pronunciation-review-backup.yml
