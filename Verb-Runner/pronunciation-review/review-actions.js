@@ -103,15 +103,15 @@ export async function saveProblem(entry,record,by,text,kind){
   return {duplicate:false,reportId};
 }
 
-function autosaveReportId(by){
-  return 'autosave-'+core.audioIdForKey(by||'reviewer');
+function autosaveReportId(by,src){
+  return 'autosave-'+core.audioIdForKey(by||'reviewer')+'-'+core.audioIdForKey(src||'source');
 }
 
 export async function saveAutosaveReport(entry,record,by,text,kind){
   const value=String(text||'').trim();
   if(!value)return clearAutosaveReport(entry,record,by);
 
-  const reportId=autosaveReportId(by);
+  const reportId=autosaveReportId(by,entry.src);
   const existing=await getReport(entry.id,reportId);
   const stamp=now();
 
@@ -152,7 +152,7 @@ export async function saveAutosaveReport(entry,record,by,text,kind){
 }
 
 export async function clearAutosaveReport(entry,record,by){
-  const reportId=autosaveReportId(by);
+  const reportId=autosaveReportId(by,entry.src);
   const existing=await getReport(entry.id,reportId);
   if(!existing||existing.status==='deleted')return {cleared:false};
 
