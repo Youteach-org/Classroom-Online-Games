@@ -5,24 +5,41 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Kokoro Bella Pronunciation Lab</title>
   <style>
+    *{box-sizing:border-box}
     body{font-family:Arial,sans-serif;background:#f5f7fa;color:#18202b;margin:0;padding:18px}
-    main{max-width:980px;margin:auto}
+    main{max-width:1180px;margin:auto}
     h1{margin:0 0 4px;font-size:26px}
-    .note{margin:0 0 16px;color:#536070}
+    .note{margin:0 0 10px;color:#536070}
     .badge{display:inline-block;padding:3px 7px;border-radius:999px;background:#e8edf4;font-size:12px;font-weight:700}
+    .summary{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+    .summary span{background:#fff;border:1px solid #dfe5ec;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:700}
     table{width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden}
     th,td{padding:10px;border-bottom:1px solid #e5e9ef;vertical-align:middle}
     th{text-align:left;background:#eef2f7;font-size:13px}
-    td:first-child{font-size:17px;font-weight:700;white-space:nowrap}
-    audio{width:100%;min-width:150px;height:32px}
+    td.word{font-size:17px;font-weight:700;white-space:nowrap}
+    audio{width:100%;min-width:145px;height:32px}
+    .review-cell{min-width:235px}
+    .review-buttons{display:flex;gap:6px;flex-wrap:wrap}
+    .review-buttons button{border:1px solid #cbd3de;background:#fff;border-radius:8px;padding:7px 10px;font-weight:800;cursor:pointer}
+    .review-buttons button[data-active="true"]{outline:2px solid #18202b;outline-offset:1px}
+    .ok-btn[data-active="true"]{background:#dff4e7}
+    .no-btn[data-active="true"]{background:#ffe1df}
+    .review-details{display:grid;gap:6px;margin-top:7px}
+    .review-details[hidden]{display:none}
+    .review-details label{font-size:11px;font-weight:700;color:#586575}
+    .review-details select,.review-details textarea{width:100%;margin-top:3px;border:1px solid #cbd3de;border-radius:7px;padding:7px;font:inherit;background:#fff}
+    .review-details textarea{min-height:56px;resize:vertical}
+    .save-state{font-size:10px;color:#6b7582;min-height:12px}
     @media(max-width:760px){
       body{padding:10px}
       table,thead,tbody,tr,th,td{display:block}
       thead{display:none}
-      tr{padding:10px;border-bottom:1px solid #dfe5ec}
+      tr{padding:12px;border-bottom:1px solid #dfe5ec}
       td{border:0;padding:5px 0}
+      td.word{font-size:19px;white-space:normal;padding-bottom:8px}
       td[data-label]::before{content:attr(data-label);display:block;font-size:11px;font-weight:700;color:#627083;margin-bottom:3px}
       audio{width:100%}
+      .review-cell{min-width:0;margin-top:6px;padding-top:8px;border-top:1px dashed #d5dce5}
     }
   </style>
 </head>
@@ -30,6 +47,12 @@
 <main>
   <h1>Kokoro Bella Pronunciation Lab</h1>
   <p class="note"><span class="badge">VOICE: af_bella</span> All three columns use the exact same Kokoro Bella voice. Only speed/input method changes.</p>
+  <p class="note"><strong>Review:</strong> mark whether Bella 1.0 is acceptable. If not, choose the better alternative (if any) and leave a note.</p>
+  <div class="summary">
+    <span id="reviewedCount">Reviewed: 0/10</span>
+    <span id="okCount">1.0 OK: 0</span>
+    <span id="noCount">1.0 NO: 0</span>
+  </div>
   <table>
     <thead>
       <tr>
@@ -37,25 +60,168 @@
         <th>Bella 0.8 · normal text</th>
         <th>Bella 1.0 · normal text</th>
         <th>Bella 0.9 · explicit phonemes</th>
+        <th>Your review</th>
       </tr>
     </thead>
     <tbody id="rows"></tbody>
   </table>
 </main>
-<script>
-fetch('./manifest.json').then(r=>r.json()).then(data=>{
-  const rows=document.querySelector('#rows');
-  for(const item of Object.values(data.items)){
+
+<script src="../../Support-Meter/config.js"></script>
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {getDatabase,ref,onValue,update} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+const cfg=window.SUPPORT_METER_CONFIG;
+if(!cfg?.firebase)throw new Error('Firebase configuration is unavailable.');
+
+const ROOT='classroomGames/verbRunnerV2/bellaSampleReview';
+const db=getDatabase(initializeApp(cfg.firebase));
+const reviewsRef=ref(db,`${ROOT}/items`);
+const rows=document.querySelector('#rows');
+const reviewedCount=document.querySelector('#reviewedCount');
+const okCount=document.querySelector('#okCount');
+const noCount=document.querySelector('#noCount');
+
+let manifest=null;
+let reviews={};
+let saveTimers=new Map();
+
+const escapeHtml=value=>String(value??'')
+  .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+  .replaceAll('"','&quot;').replaceAll("'","&#39;");
+
+function updateSummary(){
+  const values=Object.values(reviews||{});
+  const ok=values.filter(item=>item?.decision==='ok').length;
+  const no=values.filter(item=>item?.decision==='no').length;
+  reviewedCount.textContent=`Reviewed: ${ok+no}/${Object.keys(manifest?.items||{}).length}`;
+  okCount.textContent=`1.0 OK: ${ok}`;
+  noCount.textContent=`1.0 NO: ${no}`;
+}
+
+function applyReviewToRow(slug){
+  const row=rows.querySelector(`tr[data-slug="${CSS.escape(slug)}"]`);
+  if(!row)return;
+  const review=reviews[slug]||{};
+  const ok=row.querySelector('.ok-btn');
+  const no=row.querySelector('.no-btn');
+  const details=row.querySelector('.review-details');
+  const preferred=row.querySelector('.preferred');
+  const note=row.querySelector('.review-note');
+
+  ok.dataset.active=String(review.decision==='ok');
+  no.dataset.active=String(review.decision==='no');
+  details.hidden=review.decision!=='no';
+  preferred.value=review.preferred||'';
+  if(document.activeElement!==note)note.value=review.note||'';
+}
+
+function render(){
+  rows.replaceChildren();
+  for(const [slug,item] of Object.entries(manifest.items)){
     const tr=document.createElement('tr');
+    tr.dataset.slug=slug;
     tr.innerHTML=`
-      <td>${item.label}</td>
+      <td class="word">${escapeHtml(item.label)}</td>
       <td data-label="Bella 0.8 · normal text"><audio controls preload="none" src="${item.files['bella-08-text']}"></audio></td>
       <td data-label="Bella 1.0 · normal text"><audio controls preload="none" src="${item.files['bella-10-text']}"></audio></td>
       <td data-label="Bella 0.9 · explicit phonemes"><audio controls preload="none" src="${item.files['bella-09-phoneme']}"></audio></td>
+      <td class="review-cell" data-label="Your review">
+        <div class="review-buttons">
+          <button class="ok-btn" type="button" data-decision="ok">1.0 OK</button>
+          <button class="no-btn" type="button" data-decision="no">1.0 NO</button>
+        </div>
+        <div class="review-details" hidden>
+          <label>
+            If 1.0 is not good, which is better?
+            <select class="preferred">
+              <option value="">Choose…</option>
+              <option value="0.8">0.8 normal text</option>
+              <option value="0.9-phoneme">0.9 explicit phonemes</option>
+              <option value="none">None of them</option>
+            </select>
+          </label>
+          <label>
+            Note
+            <textarea class="review-note" placeholder="What sounds wrong?"></textarea>
+          </label>
+        </div>
+        <div class="save-state"></div>
+      </td>
     `;
     rows.appendChild(tr);
+    applyReviewToRow(slug);
+  }
+  updateSummary();
+}
+
+async function save(slug,patch){
+  const row=rows.querySelector(`tr[data-slug="${CSS.escape(slug)}"]`);
+  const state=row?.querySelector('.save-state');
+  if(state)state.textContent='Saving…';
+  try{
+    await update(ref(db,`${ROOT}/items/${slug}`),{
+      ...patch,
+      voice:'af_bella',
+      sampleSet:'bella-comparison-v1',
+      updatedAt:Date.now()
+    });
+    if(state)state.textContent='Saved';
+  }catch(error){
+    console.error(error);
+    if(state)state.textContent='Save failed';
+  }
+}
+
+function scheduleNoteSave(slug,row){
+  clearTimeout(saveTimers.get(slug));
+  const timer=setTimeout(()=>{
+    save(slug,{
+      note:row.querySelector('.review-note').value.trim(),
+      preferred:row.querySelector('.preferred').value
+    });
+  },450);
+  saveTimers.set(slug,timer);
+}
+
+rows.addEventListener('click',event=>{
+  const button=event.target.closest('[data-decision]');
+  if(!button)return;
+  const row=button.closest('tr[data-slug]');
+  const slug=row.dataset.slug;
+  const decision=button.dataset.decision;
+  reviews[slug]={...(reviews[slug]||{}),decision};
+  applyReviewToRow(slug);
+  updateSummary();
+  save(slug,{decision});
+});
+
+rows.addEventListener('change',event=>{
+  const row=event.target.closest('tr[data-slug]');
+  if(!row)return;
+  if(event.target.matches('.preferred')){
+    const slug=row.dataset.slug;
+    reviews[slug]={...(reviews[slug]||{}),preferred:event.target.value};
+    save(slug,{preferred:event.target.value});
   }
 });
+
+rows.addEventListener('input',event=>{
+  const note=event.target.closest('.review-note');
+  if(!note)return;
+  const row=note.closest('tr[data-slug]');
+  scheduleNoteSave(row.dataset.slug,row);
+});
+
+manifest=await fetch('./manifest.json').then(r=>r.json());
+render();
+
+onValue(reviewsRef,snapshot=>{
+  reviews=snapshot.exists()?snapshot.val()||{}:{};
+  for(const slug of Object.keys(manifest.items))applyReviewToRow(slug);
+  updateSummary();
+},error=>console.error('Review sync error',error));
 </script>
 </body>
 </html>
