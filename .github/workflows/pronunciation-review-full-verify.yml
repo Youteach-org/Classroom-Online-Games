@@ -1,0 +1,41 @@
+name: Pronunciation review full verification
+
+on:
+  push:
+    branches:
+      - feat/verb-runner-pronunciation-review
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check Verb-Runner/pronunciation.js
+          node --check Verb-Runner/prototype.js
+          node --check Verb-Runner/pronunciation-review/review-core.js
+          node --check Verb-Runner/pronunciation-review/firebase-store.js
+          node --check Verb-Runner/pronunciation-review/review-actions.js
+          node --check Verb-Runner/pronunciation-review/review-render.js
+          node --check Verb-Runner/pronunciation-review/review-events.js
+          node --check Verb-Runner/pronunciation-review/review-export.js
+          node --check Verb-Runner/pronunciation-review/review-app.js
+
+      - name: Verify pronunciation manifest without regeneration
+        run: |
+          python Verb-Runner/scripts/generate-pronunciation.py
+          git diff --exit-code -- Verb-Runner/pronunciation-manifest.js Verb-Runner/audio/pronunciation
+
+      - name: Run all Verb Runner tests
+        run: |
+          node --test Verb-Runner/tests/*.test.mjs
+          node --test Verb-Runner/sentence-run.test.js
+
+      - name: Verify backup path and review route
+        run: |
+          test -f .github/workflows/pronunciation-review-backup.yml
+          test -f docs/superpowers/audits/pronunciation-review-live-backup.json
+          grep -q '/Verb-Runner/pronunciation-review/' teacher/index.html
