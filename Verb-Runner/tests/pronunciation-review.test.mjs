@@ -125,8 +125,8 @@ test('review action labels are concise and descriptive',()=>{
 
 test('audio review controls stay on one compact row',()=>{
   const css=readFileSync(join(reviewRoot,'review.css'),'utf8');
-  assert.match(css,/\.listen-row\{display:grid;grid-template-columns:minmax\(120px,1fr\) auto auto auto/);
-  assert.match(css,/\.listen-row button\{padding:6px 8px;font-size:12px;white-space:nowrap\}/);
+  assert.match(css,/\.listen-row\{display:grid;grid-template-columns:minmax\(0,1fr\) auto auto auto/);
+  assert.match(css,/\.listen-row button\{padding:5px 6px;font-size:11px;white-space:nowrap;min-width:0\}/);
   assert.doesNotMatch(css,/\.listen-row\{[^}]*flex-wrap:wrap/);
 });
 
@@ -141,4 +141,25 @@ test('audio metadata stays inline with the name without crowding',()=>{
   assert.match(css,/\.metadata\{[^}]*text-overflow:ellipsis/);
   assert.match(css,/\.source\{[^}]*text-overflow:ellipsis/);
   assert.match(render,/sourceNode\.title=entry\.src/);
+});
+
+
+test('review status badge toggles one hidden reports and history panel',()=>{
+  const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
+  const events=readFileSync(join(reviewRoot,'review-events.js'),'utf8');
+  assert.match(html,/class="status-badge"[^>]*data-action="toggle-history"/);
+  assert.match(html,/class="review-history-panel panel" hidden/);
+  assert.match(html,/Previous reports/);
+  assert.match(html,/Review history/);
+  assert.match(events,/action==='toggle-history'/);
+  assert.doesNotMatch(html,/<details class="reports-section"/);
+  assert.doesNotMatch(html,/<details class="history-section"/);
+});
+
+test('mobile review row is constrained to the card width',()=>{
+  const css=readFileSync(join(reviewRoot,'review.css'),'utf8');
+  assert.match(css,/\.audio-card\{[^}]*min-width:0[^}]*overflow:hidden/);
+  assert.match(css,/\.listen-row\{[^}]*grid-template-columns:minmax\(0,1fr\)[^}]*width:100%[^}]*min-width:0/);
+  assert.match(css,/\.listen-row audio\{[^}]*max-width:100%[^}]*min-width:0/);
+  assert.match(css,/@media\(max-width:680px\)[\s\S]*\.listen-row\{grid-template-columns:minmax\(0,1fr\) auto auto auto/);
 });
