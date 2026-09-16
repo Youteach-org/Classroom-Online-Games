@@ -1,0 +1,74 @@
+name: Generate exact Kokoro Bella sample lab
+
+on:
+  push:
+    branches:
+      - feat/bella-pronunciation-sample-lab
+    paths:
+      - "Verb-Runner/scripts/generate-bella-sample-lab.py"
+      - "Verb-Runner/bella-samples/index.html"
+      - ".github/workflows/bella-sample-lab.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bella-sample-lab
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    if: "!contains(github.event.head_commit.message, '[generated bella samples]')"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Kokoro
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y espeak-ng
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install "kokoro>=0.9.4" numpy soundfile
+
+      - name: Generate exact af_bella samples
+        run: |
+          python Verb-Runner/scripts/generate-bella-sample-lab.py
+
+      - name: Verify sample set
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('Verb-Runner/bella-samples')
+          data=json.loads((root/'manifest.json').read_text())
+          assert data['voice']=='af_bella'
+          assert set(data['variants'])=={'bella-08-text','bella-10-text','bella-09-phoneme'}
+          assert len(data['items'])==10
+          for item in data['items'].values():
+              assert len(item['files'])==3
+              for src in item['files'].values():
+                  p=root/src.removeprefix('./')
+                  assert p.exists() and p.stat().st_size>1000, p
+          print('Verified 30 Kokoro af_bella sample WAVs.')
+          PY
+
+      - name: Commit generated samples
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Verb-Runner/bella-samples
+          if git diff --cached --quiet; then
+            echo "No generated sample changes."
+            exit 0
+          fi
+          git commit -m "Verb Runner: generate exact Kokoro Bella samples [generated bella samples]"
+          git push origin HEAD:feat/bella-pronunciation-sample-lab
