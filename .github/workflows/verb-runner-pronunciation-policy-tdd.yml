@@ -5,16 +5,22 @@ on:
     branches:
       - verb-pronunciation
     paths:
-      - "Verb-Runner/scripts/generate-pronunciation.py"
-      - "Verb-Runner/tests/pronunciation-policy.test.mjs"
+      - "Verb-Runner/**"
       - ".github/workflows/verb-runner-pronunciation-policy-tdd.yml"
 
 permissions:
   contents: read
 
 jobs:
-  policy:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: node --test Verb-Runner/tests/pronunciation-policy.test.mjs
+      - name: Check Verb Runner JavaScript
+        run: |
+          node --check Verb-Runner/prototype.js
+          node --check Verb-Runner/pronunciation.js
+      - name: Run full Verb Runner regression suite
+        run: |
+          node --test Verb-Runner/tests/*.test.mjs
+          node --test Verb-Runner/sentence-run.test.js
