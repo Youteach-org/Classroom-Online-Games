@@ -19,7 +19,7 @@ test('reviewed correction batch contains 42 validated replacements',()=>{
     assert.ok(spec.target_text?.trim(),key+' missing target text');
     assert.match(spec.ipa_goal||'',/^\/.+\/$/,key+' missing IPA goal');
     assert.ok(spec.correction_goal?.trim(),key+' missing correction goal');
-    assert.ok(['g2p_tokens','raw_phonemes'].includes(spec.method),key+' invalid method');
+    assert.ok(['g2p_tokens','raw_phonemes','external-approved-voice'].includes(spec.method),key+' invalid method');
   }
 });
 
@@ -61,11 +61,12 @@ test('ambiguous corrected verbs have explicit Kokoro phonemes',()=>{
   }
 });
 
-test('generator gives reviewed corrections local assets and unique correction signatures',()=>{
+test('generator gives reviewed corrections local assets or explicit approved external sources',()=>{
   assert.match(generator,/load_corrections/);
   assert.match(generator,/reviewed-correction/);
   assert.match(generator,/correction_phonemes/);
   assert.match(generator,/if canonical in corrections:/);
+  assert.match(generator,/approved_source_url/);
   assert.match(generator,/generate_from_tokens/);
 });
 
