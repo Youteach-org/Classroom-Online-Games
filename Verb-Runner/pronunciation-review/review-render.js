@@ -73,7 +73,10 @@ function renderHistory(entry,card){
     row.textContent=item.action||'event';
     const meta=document.createElement('div');
     meta.className='history-meta';
-    meta.textContent=`${item.by||'system'} · ${fmt(item.at)}${item.duplicateOf?` · original: ${item.duplicateOf}`:''}`;
+    const original=item.duplicateOf
+      ? ` · original #${String(item.duplicateOfRef||'?').padStart(3,'0')} — ${item.duplicateOf}`
+      : '';
+    meta.textContent=`${item.by||'system'} · ${fmt(item.at)}${original}`;
     row.appendChild(meta);
     list.appendChild(row);
   }
