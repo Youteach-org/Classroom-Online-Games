@@ -272,5 +272,5 @@ test('new audio source gets a fresh autosave report id and does not reuse the pr
   assert.match(actions,/function autosaveReportId\(by,src\)/);
   assert.match(actions,/autosaveReportId\(by,entry\.src\)/);
   assert.match(render,/report\.assetSource===entry\.src/);
-  assert.match(html,/pronunciation-manifest\.js\?v=review-console-20260916-2/);
+  assert.match(html,/pronunciation-manifest\.js\?v=review-console-20260916-3/);
 });
