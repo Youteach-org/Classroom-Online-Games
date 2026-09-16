@@ -1,6 +1,6 @@
 import {
   markReviewed,saveAutosaveReport,clearAutosaveReport,resolveReport,deleteReport,
-  markDuplicate,removeDuplicate,restoreDuplicate
+  markDuplicate
 } from './review-actions.js';
 
 export function bindReviewEvents({audioList,getEntryById,getEntryByNumber,getRecordById,reviewer}){
@@ -124,14 +124,9 @@ export function bindReviewEvents({audioList,getEntryById,getEntryByNumber,getRec
           card.querySelector('.duplicate-target-ref').focus();
           return;
         }
+        const ok=confirm(`Remove duplicate #${String(entry.n).padStart(3,'0')} and keep #${String(canonical.n).padStart(3,'0')} — ${canonical.key} as the original?`);
+        if(!ok)return;
         await markDuplicate(entry,record,canonical,by);
-      }else if(action==='remove-duplicate'){
-        const by=reviewer(); if(!by)return;
-        if(confirm('Queue this duplicate for deletion? The audit trail will be retained.')){
-          await removeDuplicate(entry,record,by);
-        }
-      }else if(action==='restore-duplicate'){
-        const by=reviewer(); if(by)await restoreDuplicate(entry,record,by);
       }else if(action==='resolve-report'){
         const by=reviewer(); if(by)await resolveReport(entry,button.dataset.reportId,by);
       }else if(action==='delete-report'){
