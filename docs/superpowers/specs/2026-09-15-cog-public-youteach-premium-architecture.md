@@ -637,3 +637,131 @@ Official references reviewed:
 - https://firebase.google.com/pricing
 - https://firebase.google.com/docs/auth/web/apple
 - https://developer.apple.com/help/account/membership/program-enrollment
+
+
+## Zero-cost capacity spike — D1 vs Turso vs Firestore
+
+**Status:** comparison completed; provider still pending explicit approval.  
+**Reviewed:** 2026-09-16.
+
+### Planning model
+
+For persistent Premium/account data only:
+
+- 4 game completions/player/month;
+- ~200 database rows/documents read per persistent player/month;
+- ~50 rows/documents written per persistent player/month;
+- ~40 KB new persistent history/player/month.
+
+Guest live gameplay is not included here; it should use temporary/live infrastructure rather than long-term history storage.
+
+### Free-tier headroom
+
+#### Cloudflare D1 Free
+
+Official free limits:
+
+- 5,000,000 rows read/day;
+- 100,000 rows written/day;
+- 5 GB total D1 storage/account;
+- maximum 500 MB per database on Free;
+- maximum 10 databases on Free;
+- no D1 egress charge.
+
+Under the planning model, if usage is evenly distributed:
+
+- read quota corresponds to roughly **750,000 persistent MAU**;
+- write quota corresponds to roughly **60,000 persistent MAU** and becomes the operation bottleneck;
+- 5 GB stores roughly **125,000 persistent user-months** at 40 KB/user/month;
+- because each Free database is capped at 500 MB, storage above roughly 12,500 user-months in one database requires sharding across the available databases.
+
+Important: D1 Free limits reset daily. A traffic spike can hit the daily write/read ceiling even if monthly averages look safe.
+
+#### Turso Free
+
+Official free limits:
+
+- 100 databases;
+- 5 GB storage;
+- 500,000,000 rows read/month;
+- 10,000,000 rows written/month;
+- 3 GB monthly sync allowance;
+- 1-day point-in-time restore.
+
+Under the planning model:
+
+- read quota corresponds to roughly **2.5 million persistent MAU**;
+- write quota corresponds to roughly **200,000 persistent MAU**;
+- 5 GB stores roughly **125,000 persistent user-months** at 40 KB/user/month.
+
+For this workload, storage is likely to become the Free-tier constraint before read/write operations.
+
+#### Firestore Free
+
+Official free limits:
+
+- 1 GiB stored data;
+- 50,000 document reads/day;
+- 20,000 document writes/day;
+- 20,000 deletes/day;
+- 10 GiB outbound/month;
+- one free Firestore database/project.
+
+Under the planning model, if usage is evenly distributed:
+
+- read quota corresponds to roughly **7,500 persistent MAU**;
+- write quota corresponds to roughly **12,000 persistent MAU**;
+- 1 GiB stores roughly **26,000 persistent user-months** at 40 KB/user/month;
+- reads become the operation bottleneck before writes.
+
+Firestore free quotas reset daily, so spikes also matter.
+
+### How long storage lasts at a steady Premium population
+
+At 40 KB/player/month of new persistent history:
+
+| Persistent Premium MAU | D1 Free 5 GB | Turso Free 5 GB | Firestore Free 1 GiB |
+|---:|---:|---:|---:|
+| 1,000 | ~125 months total-account capacity | ~125 months | ~26 months |
+| 5,000 | ~25 months | ~25 months | ~5 months |
+| 10,000 | ~12.5 months | ~12.5 months | ~2.6 months |
+
+D1 additionally requires splitting data before a single Free database exceeds 500 MB.
+
+### Free real-time infrastructure note
+
+Cloudflare Durable Objects are available on Workers Free with SQLite-backed storage.
+
+Current Free compute limits include:
+
+- 100,000 Durable Object requests/day;
+- 13,000 GB-s duration/day;
+- WebSocket incoming messages use a 20:1 billing/request accounting ratio;
+- outgoing WebSocket messages are not charged as requests;
+- WebSocket Hibernation can avoid idle-duration usage.
+
+Workers Free also has a 100,000 requests/day account-plan limit. Therefore the initial real-time design must batch/minimize server calls and use WebSocket hibernation.
+
+### Zero-cost authentication note
+
+Firebase's Spark plan is no-cost and lists non-phone Authentication services as available without requiring a payment method. For the initial phase COG can use Google, Microsoft, and email/password without enabling SMS/phone auth. Apple remains deferred because Apple Developer Program membership is paid.
+
+### Spike conclusion
+
+Under the strict **USD 0** launch constraint:
+
+1. **Turso provides the largest free persistent-database operating headroom** of the three and avoids D1's 500 MB-per-database Free limit.
+2. **D1 is attractive because it stays inside Cloudflare and has 5 GB free**, but its 100K writes/day and 500 MB/database limits introduce earlier operational/sharding concerns.
+3. **Firestore is the simplest pairing with Firebase Authentication**, but its free persistent database quota is materially smaller: 1 GiB and 50K reads/day.
+
+This conclusion concerns the initial no-cost phase only. It does not yet select the final provider.
+
+Official references:
+- https://developers.cloudflare.com/d1/platform/pricing/
+- https://developers.cloudflare.com/d1/platform/limits/
+- https://developers.cloudflare.com/workers/platform/limits/
+- https://developers.cloudflare.com/durable-objects/platform/pricing/
+- https://turso.tech/pricing
+- https://firebase.google.com/docs/firestore/quotas
+- https://firebase.google.com/pricing
+- https://firebase.google.com/docs/auth/web/microsoft-oauth
