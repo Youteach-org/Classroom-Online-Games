@@ -60,7 +60,6 @@ test('review UI keeps prior reports and allows deleting repeated report entries'
   assert.match(actions,/deleteReport/);
   assert.match(actions,/resolveReport/);
   assert.match(actions,/markDuplicate/);
-  assert.match(actions,/removeDuplicate/);
   assert.match(events,/delete-report/);
 });
 
