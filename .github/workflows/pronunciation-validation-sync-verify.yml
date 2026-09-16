@@ -1,0 +1,45 @@
+name: Pronunciation validation sync verification
+
+on:
+  push:
+    branches:
+      - fix/pronunciation-review-validation-sync
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify review tests
+        run: |
+          node --test Verb-Runner/tests/pronunciation-review.test.mjs
+          node --test Verb-Runner/tests/pronunciation-policy.test.mjs
+          node --test Verb-Runner/tests/pronunciation-corrections.test.mjs
+
+      - name: Simulate validated-correct review decision
+        run: |
+          cp docs/superpowers/audits/pronunciation-review-live-backup.json /tmp/review.json
+          python Verb-Runner/scripts/apply-pronunciation-validation-decisions.py /tmp/review.json
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/review.json'))
+          rows=[row for row in data.get('audios',{}).values() if row.get('key')=='blew']
+          assert len(rows)==1
+          row=rows[0]
+          assert row['status']=='reviewed'
+          assert row['validationDecision']=='correct-existing'
+          reports=list((row.get('reports') or {}).values())
+          assert reports and all(r.get('status')!='open' for r in reports)
+          history=list((row.get('history') or {}).values())
+          assert any(h.get('action')=='question-validated-correct' for h in history)
+          patch=json.load(open('/tmp/pronunciation-validation-firebase-patch.json'))
+          assert patch
+          print('blew validated as correct and resolved persistently')
+          PY
+
+      - name: Verify corrected pronunciation assets remain stable
+        run: |
+          python Verb-Runner/scripts/generate-pronunciation.py
+          git diff --exit-code -- Verb-Runner/pronunciation-manifest.js Verb-Runner/audio/pronunciation
