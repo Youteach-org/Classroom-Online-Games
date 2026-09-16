@@ -1,0 +1,16 @@
+name: Pronunciation review player stability
+
+on:
+  push:
+    branches:
+      - fix/pronunciation-review-stable-audio
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          node --check Verb-Runner/pronunciation-review/review-app.js
+          node --test Verb-Runner/tests/pronunciation-review.test.mjs
