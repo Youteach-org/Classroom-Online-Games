@@ -1416,3 +1416,14 @@ For COG learning/improvement reports:
 - Once that instance/session is gone, the system does not retain a permanent copy of the generated PDF/report artifact.
 - The underlying compact aggregates may still be retained only according to the separately confirmed Guest/Premium/YouTeach retention rules.
 - This improvement report remains separate from the YouTeach official submission receipt/QR.
+
+
+## Teacher grading and resubmission controls — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- **A — No manual grade override:** the teacher cannot manually replace the official COG-derived percentage/points with a different manual score for that COG submission.
+- **B — Resubmission replaces prior grade:** when the student uses **Undo Submission**, the previous official submission/associated submission file or record is removed from the active submission state and its COG-derived grade is cleared. The task temporarily has no active COG grade (effectively awaiting a new submission). When the student submits a new valid result, that new validated result becomes the official grade and replaces the previous one.
+- **C — No teacher-facing error-category summary:** the normal teacher view does not show compact error-category counts such as spelling/verb-form breakdowns for the COG submission. The teacher view stays focused on the confirmed final-submission fields.
+- **D — No immediate post-submit points display to student:** after **Send to teacher**, YouTeach does not automatically present the student with a new teacher-facing-style percentage/assignment-points summary as part of the submission confirmation. The student may already have seen the game result in the gameplay flow, but submission itself does not add an immediate YouTeach grade/points reveal.
+- **E — Teacher may disable Undo Submission per task:** while an assignment is still open, the teacher may configure that specific task so students cannot use **Undo Submission**. This is an assignment-level control and does not require closing the entire assignment.
