@@ -45,6 +45,7 @@ function reviewer(silent=false){
 
 function matches(entry){
   const filter=statusFilter.value;
+  if(filter==='all'&&entry.status==='removed-duplicate')return false;
   if(filter!=='all'&&entry.status!==filter)return false;
   const q=String(searchInput.value||'').trim().toLowerCase();
   if(!q)return true;

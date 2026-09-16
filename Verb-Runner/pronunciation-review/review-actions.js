@@ -191,42 +191,19 @@ export async function markDuplicate(entry,record,canonical,by){
   const duplicateOf=canonical.key;
   const duplicateOfRef=canonical.n;
   await touch(entry,record,{
-    status:'duplicate',
+    status:'removed-duplicate',
     duplicateOf,
     duplicateOfRef,
     duplicateMarkedAt:stamp,
     duplicateMarkedBy:by,
-    reviewedBy:by,
-    firstReviewedAt:record.firstReviewedAt||stamp,
-    reviewedAt:stamp,
-    lastReviewedAt:stamp,
-    removedAsDuplicate:false,
-    cleanupRequested:false
-  });
-  await history(entry,'marked-duplicate',by,{duplicateOf,duplicateOfRef});
-}
-
-export async function removeDuplicate(entry,record,by){
-  const stamp=now();
-  await saveAudioPatch(entry.id,{
-    status:'removed-duplicate',
     removedAsDuplicate:true,
     cleanupRequested:true,
     removedAt:stamp,
     removedBy:by,
-    lastReviewedAt:stamp,
-    reviewedBy:by
+    reviewedBy:by,
+    firstReviewedAt:record.firstReviewedAt||stamp,
+    reviewedAt:stamp,
+    lastReviewedAt:stamp
   });
-  await history(entry,'duplicate-removal-requested',by,{duplicateOf:record.duplicateOf,duplicateOfRef:record.duplicateOfRef||null});
-}
-
-export async function restoreDuplicate(entry,record,by){
-  await saveAudioPatch(entry.id,{
-    status:record.duplicateOf?'duplicate':'unreviewed',
-    removedAsDuplicate:false,
-    cleanupRequested:false,
-    restoredAt:now(),
-    restoredBy:by
-  });
-  await history(entry,'duplicate-restored',by,{duplicateOf:record.duplicateOf||'',duplicateOfRef:record.duplicateOfRef||null});
+  await history(entry,'duplicate-cleanup-requested',by,{duplicateOf,duplicateOfRef});
 }

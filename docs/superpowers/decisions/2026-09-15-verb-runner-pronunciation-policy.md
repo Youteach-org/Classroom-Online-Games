@@ -88,3 +88,18 @@ A GitHub Actions workflow backs the Firebase review data up to:
 The original isolated `live` clip was pronounced /laɪv/ instead of verb /lɪv/. The root cause was lexical guessing from isolated spelling.
 
 A later correction pass temporarily moved selected clips to Nichalia. On 2026-09-16 the user clarified that corrections must instead match the original Kokoro/Bella bank. This document records that correction to the project policy.
+
+
+## Duplicate asset consolidation
+
+When the reviewer marks one numbered pronunciation asset as duplicated and identifies the numbered original to keep:
+
+1. The duplicated review item is removed from the active review list immediately.
+2. Firebase records both the original reference number (`duplicateOfRef`) and original manifest key (`duplicateOf`), with `cleanupRequested=true`.
+3. The repository sync converts that relationship into `Verb-Runner/pronunciation-aliases.json`.
+4. The duplicate manifest key remains valid for game logic, but resolves to the original asset source.
+5. The redundant local WAV is physically deleted from `Verb-Runner/audio/pronunciation/`.
+6. Future pronunciation generation respects the alias and does not recreate the removed WAV.
+7. Scheduled review sync checks pending cleanup requests every five minutes and only clears `cleanupRequested` after repository synchronization succeeds.
+
+This preserves all logical answer keys while eliminating duplicate audio files.

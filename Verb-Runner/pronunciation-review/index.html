@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="google" content="notranslate">
   <title>Verb Runner Pronunciation Review</title>
-  <link rel="stylesheet" href="./review.css?v=6">
+  <link rel="stylesheet" href="./review.css?v=7">
 </head>
 <body>
   <header class="topbar">
@@ -41,7 +41,7 @@
 
   <main>
     <section class="info">
-      Reports save immediately to Firebase. GitHub receives an automatic backup snapshot every 6 hours.
+      Reports save immediately to Firebase. Duplicate cleanup is synchronized to GitHub automatically.
       Deleting a repeated report is soft-delete so its audit trail remains recoverable.
     </section>
 
@@ -92,9 +92,7 @@
           <span class="duplicate-match">Enter the original audio number.</span>
         </div>
         <div class="panel-actions">
-          <button type="button" data-action="mark-duplicate">Mark duplicated</button>
-          <button class="danger" type="button" data-action="remove-duplicate" hidden>Queue duplicate for deletion</button>
-          <button type="button" data-action="restore-duplicate" hidden>Restore</button>
+          <button type="button" data-action="mark-duplicate">Remove duplicate</button>
         </div>
       </section>
 
@@ -114,6 +112,6 @@
   <script src="../../Support-Meter/config.js"></script>
   <script src="../pronunciation-manifest.js?v=review-console-1"></script>
   <script src="./review-core.js?v=1"></script>
-  <script type="module" src="./review-app.js?v=5"></script>
+  <script type="module" src="./review-app.js?v=6"></script>
 </body>
 </html>

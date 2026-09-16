@@ -1,4 +1,4 @@
-name: Backup Pronunciation Review
+name: Sync Pronunciation Review
 
 on:
   push:
@@ -6,16 +6,22 @@ on:
       - main
     paths:
       - "Verb-Runner/pronunciation-review/**"
+      - "Verb-Runner/scripts/apply-pronunciation-duplicates.py"
+      - "Verb-Runner/scripts/generate-pronunciation.py"
+      - ".github/workflows/pronunciation-review-backup.yml"
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  backup:
+  sync:
     runs-on: ubuntu-latest
+    concurrency:
+      group: pronunciation-review-sync
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,25 +31,55 @@ jobs:
         run: |
           mkdir -p docs/superpowers/audits
           curl -fsS             "https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/verbRunnerV2/pronunciationReview.json"             -o /tmp/pronunciation-review.json
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          source=Path('/tmp/pronunciation-review.json')
-          target=Path('docs/superpowers/audits/pronunciation-review-live-backup.json')
-          data=json.loads(source.read_text(encoding='utf-8'))
-          if data is None:
-              data={}
-          target.write_text(json.dumps(data,ensure_ascii=False,indent=2,sort_keys=True)+'\n',encoding='utf-8')
-          PY
 
-      - name: Commit changed backup
+      - name: Convert duplicate cleanup requests into aliases
         run: |
-          if git diff --quiet -- docs/superpowers/audits/pronunciation-review-live-backup.json; then
-            echo "No pronunciation review backup changes."
+          python Verb-Runner/scripts/apply-pronunciation-duplicates.py /tmp/pronunciation-review.json
+
+      - name: Consolidate pronunciation assets
+        run: |
+          python Verb-Runner/scripts/generate-pronunciation.py
+
+      - name: Verify pronunciation integration
+        run: |
+          node --test Verb-Runner/tests/pronunciation.test.mjs
+          node --test Verb-Runner/tests/pronunciation-policy.test.mjs
+          node --test Verb-Runner/tests/pronunciation-review.test.mjs
+
+      - name: Finalize processed cleanup requests in Firebase
+        run: |
+          if [ "$(python -c 'import json; print(len(json.load(open("/tmp/pronunciation-cleanup-firebase-patch.json"))))')" = "0" ]; then
+            echo "No duplicate cleanup requests to finalize."
+          else
+            curl -fsS -X PATCH               -H "Content-Type: application/json"               --data-binary @/tmp/pronunciation-cleanup-firebase-patch.json               "https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/verbRunnerV2/pronunciationReview.json"
+          fi
+
+      - name: Update GitHub review backup
+        run: |
+          cp /tmp/pronunciation-review.json docs/superpowers/audits/pronunciation-review-live-backup.json
+
+      - name: Commit review backup and deduplicated assets
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain --             docs/superpowers/audits/pronunciation-review-live-backup.json             Verb-Runner/pronunciation-aliases.json             Verb-Runner/pronunciation-manifest.js             Verb-Runner/audio/pronunciation)" ]; then
+            echo "No pronunciation review sync changes."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/superpowers/audits/pronunciation-review-live-backup.json
-          git commit -m "chore: backup pronunciation review log [skip review backup]"
+          git add             docs/superpowers/audits/pronunciation-review-live-backup.json             Verb-Runner/pronunciation-aliases.json             Verb-Runner/pronunciation-manifest.js             Verb-Runner/audio/pronunciation
+          git commit -m "chore: sync pronunciation review and remove duplicates [skip review backup]"
+          git pull --rebase origin main
           git push origin HEAD:main
+
+      - name: Finalize processed cleanup requests in Firebase
+        run: |
+          if [ "$(python -c 'import json; print(len(json.load(open("/tmp/pronunciation-cleanup-firebase-patch.json"))))')" = "0" ]; then
+            echo "No duplicate cleanup requests to finalize."
+          else
+            curl -fsS -X PATCH \
+              -H "Content-Type: application/json" \
+              --data-binary @/tmp/pronunciation-cleanup-firebase-patch.json \
+              "https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/verbRunnerV2/pronunciationReview.json"
+          fi
+

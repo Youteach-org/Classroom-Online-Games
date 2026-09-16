@@ -27,12 +27,12 @@ TAIL_SILENCE_SECONDS = 0.35
 # Isolated verb homographs must not rely on TTS lexical guessing.
 # Kokoro/Misaki phoneme notation is used here (American English).
 VERB_PHONEME_OVERRIDES = {
-    'live': 'lˈɪv',   # verb: reside / exist; never adjective /laɪv/
-    'close': 'klˈOz', # verb /kloʊz/; not adjective /kloʊs/
-    'use': 'jˈuz',    # verb /juːz/; not noun /juːs/
-    'used': 'jˈuzd',  # past/participle of use; not the reduced "used to" /juːst/
-    'read::base': 'ɹˈid', # base/present /riːd/
-    'read::past': 'ɹˈɛd', # simple past/past participle /rɛd/
+    'live': 'lˈɪv',
+    'close': 'klˈOz',
+    'use': 'jˈuz',
+    'used': 'jˈuzd',
+    'read::base': 'ɹˈid',
+    'read::past': 'ɹˈɛd',
 }
 
 
@@ -83,14 +83,57 @@ def asset_filename(answer: str) -> str:
     return f'{slug}-{digest}.wav'
 
 
-def build_manifest(answers: set[str]) -> dict[str, str]:
-    return {
-        key: TRANSITIONAL_EXTERNAL_AUDIO.get(
-            key,
-            f'./audio/pronunciation/{asset_filename(key)}',
-        )
-        for key in sorted(answers)
+def load_pronunciation_aliases(root: Path) -> dict[str, str]:
+    path = root / 'pronunciation-aliases.json'
+    if not path.exists():
+        return {}
+    raw = json.loads(path.read_text(encoding='utf-8'))
+    if not isinstance(raw, dict):
+        raise RuntimeError('pronunciation-aliases.json must contain an object')
+    aliases = {
+        normalize(key): normalize(value)
+        for key, value in raw.items()
+        if normalize(key) and normalize(value)
     }
+    return aliases
+
+
+def resolve_alias(key: str, aliases: dict[str, str]) -> str:
+    current = normalize(key)
+    seen: set[str] = set()
+    while current in aliases:
+        if current in seen:
+            chain = ' -> '.join([*seen, current])
+            raise RuntimeError(f'Pronunciation alias cycle detected: {chain}')
+        seen.add(current)
+        target = normalize(aliases[current])
+        if not target or target == current:
+            raise RuntimeError(f'Invalid pronunciation alias: {current!r} -> {target!r}')
+        current = target
+    return current
+
+
+def validate_aliases(answers: set[str], aliases: dict[str, str]) -> None:
+    for duplicate, original in aliases.items():
+        if duplicate not in answers:
+            raise RuntimeError(f'Pronunciation alias key is not used by Verb Runner: {duplicate!r}')
+        resolved = resolve_alias(original, aliases)
+        if resolved not in answers:
+            raise RuntimeError(
+                f'Pronunciation alias target is not used by Verb Runner: {duplicate!r} -> {resolved!r}'
+            )
+
+
+def source_for_key(key: str, aliases: dict[str, str]) -> str:
+    canonical = resolve_alias(key, aliases)
+    return TRANSITIONAL_EXTERNAL_AUDIO.get(
+        canonical,
+        f'./audio/pronunciation/{asset_filename(canonical)}',
+    )
+
+
+def build_manifest(answers: set[str], aliases: dict[str, str]) -> dict[str, str]:
+    return {key: source_for_key(key, aliases) for key in sorted(answers)}
 
 
 def _as_numpy(audio):
@@ -100,7 +143,7 @@ def _as_numpy(audio):
     return np.asarray(audio, dtype=np.float32).reshape(-1)
 
 
-def generate_audio(root: Path, answers: set[str]) -> None:
+def generate_audio(root: Path, answers: set[str], aliases: dict[str, str]) -> None:
     import os
 
     out_dir = root / 'audio' / 'pronunciation'
@@ -108,7 +151,9 @@ def generate_audio(root: Path, answers: set[str]) -> None:
     expected: set[str] = set()
     pipeline = None
 
-    for index, answer in enumerate(sorted(answers), 1):
+    canonical_answers = sorted({resolve_alias(answer, aliases) for answer in answers})
+
+    for index, answer in enumerate(canonical_answers, 1):
         if answer in TRANSITIONAL_EXTERNAL_AUDIO:
             continue
 
@@ -124,7 +169,6 @@ def generate_audio(root: Path, answers: set[str]) -> None:
                 "Run the pronunciation generation workflow with the locked af_bella profile."
             )
 
-        # Generation profile is intentionally identical to the original bank.
         import numpy as np
         import soundfile as sf
         from kokoro import KPipeline
@@ -161,15 +205,16 @@ def generate_audio(root: Path, answers: set[str]) -> None:
             speech = speech * (0.96 / peak)
         clip = np.concatenate([lead, speech, tail])
         sf.write(path, clip, SAMPLE_RATE, subtype='PCM_16')
-        print(f'[{index}/{len(answers)}] {answer} -> {filename}')
+        print(f'[{index}/{len(canonical_answers)}] {answer} -> {filename}')
 
     for stale in out_dir.glob('*.wav'):
         if stale.name not in expected:
             stale.unlink()
+            print(f'removed stale pronunciation asset: {stale.name}')
 
 
-def write_manifest(root: Path, answers: set[str]) -> None:
-    manifest = build_manifest(answers)
+def write_manifest(root: Path, answers: set[str], aliases: dict[str, str]) -> None:
+    manifest = build_manifest(answers, aliases)
     payload = json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True)
     (root / 'pronunciation-manifest.js').write_text(
         '(function(global){global.VerbRunnerPronunciationManifest=' + payload + ";})(typeof window!=='undefined'?window:globalThis);\n",
@@ -181,12 +226,14 @@ def main() -> None:
     root = Path(__file__).resolve().parents[1]
     answers = collect_answers(root)
     answers = set(answers) | CONTEXTUAL_KEYS
+    aliases = load_pronunciation_aliases(root)
+    validate_aliases(answers, aliases)
     print(
-        f'Verifying {len(answers)} pronunciation assets. '
-        f'Locked generation profile: Kokoro {VOICE} at {SPEED}x.'
+        f'Verifying {len(answers)} pronunciation keys, '
+        f'{len(aliases)} aliases. Locked generation profile: Kokoro {VOICE} at {SPEED}x.'
     )
-    generate_audio(root, answers)
-    write_manifest(root, answers)
+    generate_audio(root, answers, aliases)
+    write_manifest(root, answers, aliases)
 
 
 if __name__ == '__main__':
