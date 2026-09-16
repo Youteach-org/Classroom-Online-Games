@@ -1,0 +1,62 @@
+import {
+  markReviewed,saveProblem,resolveReport,deleteReport,
+  markDuplicate,removeDuplicate,restoreDuplicate
+} from './review-actions.js';
+
+export function bindReviewEvents({audioList,getEntryById,getEntryByKey,getRecordById,reviewer}){
+  audioList.addEventListener('click',async event=>{
+    const button=event.target.closest('button[data-action]');
+    if(!button)return;
+    const card=button.closest('.audio-card');
+    const entry=getEntryById(card?.dataset.audioId);
+    if(!entry)return;
+    const record=getRecordById(entry.id);
+    try{
+      const action=button.dataset.action;
+      if(action==='toggle-report'){
+        const panel=card.querySelector('.report-panel');
+        panel.hidden=!panel.hidden;
+        if(!panel.hidden)panel.querySelector('textarea').focus();
+      }else if(action==='toggle-duplicate'){
+        const panel=card.querySelector('.duplicate-panel');
+        panel.hidden=!panel.hidden;
+        if(!panel.hidden)panel.querySelector('input').focus();
+      }else if(action==='reviewed'){
+        const by=reviewer(); if(by)await markReviewed(entry,record,by);
+      }else if(action==='save-report'){
+        const by=reviewer(); if(!by)return;
+        const textarea=card.querySelector('.report-text');
+        const text=String(textarea.value||'').trim();
+        const kind=card.querySelector('.report-kind').value;
+        if(!text){textarea.focus();return;}
+        const result=await saveProblem(entry,record,by,text,kind);
+        if(result.duplicate)alert('That report is already saved for this audio.');
+        else{textarea.value='';card.querySelector('.report-panel').hidden=true;}
+      }else if(action==='mark-duplicate'){
+        const by=reviewer(); if(!by)return;
+        const target=String(card.querySelector('.duplicate-target').value||'').trim();
+        const canonical=getEntryByKey(target);
+        if(!canonical){alert('Choose an existing audio key to keep.');return;}
+        if(canonical.id===entry.id){alert('An audio cannot be a duplicate of itself.');return;}
+        await markDuplicate(entry,record,canonical,by);
+      }else if(action==='remove-duplicate'){
+        const by=reviewer(); if(!by)return;
+        if(confirm('Queue this duplicate for deletion? The audit trail will be retained.')){
+          await removeDuplicate(entry,record,by);
+        }
+      }else if(action==='restore-duplicate'){
+        const by=reviewer(); if(by)await restoreDuplicate(entry,record,by);
+      }else if(action==='resolve-report'){
+        const by=reviewer(); if(by)await resolveReport(entry,button.dataset.reportId,by);
+      }else if(action==='delete-report'){
+        const by=reviewer(); if(!by)return;
+        if(confirm('Delete this repeated report from the active list? Its history will be retained.')){
+          await deleteReport(entry,button.dataset.reportId,by);
+        }
+      }
+    }catch(error){
+      console.error(error);
+      alert('Could not save this review change. Please try again.');
+    }
+  });
+}

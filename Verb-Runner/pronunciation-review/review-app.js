@@ -1,0 +1,104 @@
+import {watchRecords} from './firebase-store.js';
+import {seedKnownReports} from './review-actions.js';
+import {renderCard} from './review-render.js';
+import {bindReviewEvents} from './review-events.js';
+import {exportJson,exportMarkdown} from './review-export.js';
+
+const core=window.VerbRunnerPronunciationReviewCore;
+const manifest=window.VerbRunnerPronunciationManifest||{};
+const REVIEWER_STORAGE='verbRunnerPronunciationReviewer';
+
+const reviewerName=document.querySelector('#reviewerName');
+const searchInput=document.querySelector('#searchInput');
+const statusFilter=document.querySelector('#statusFilter');
+const audioList=document.querySelector('#audioList');
+const audioKeys=document.querySelector('#audioKeys');
+const template=document.querySelector('#audioCardTemplate');
+const syncState=document.querySelector('#syncState');
+const totalCount=document.querySelector('#totalCount');
+const reviewedCount=document.querySelector('#reviewedCount');
+const problemCount=document.querySelector('#problemCount');
+const duplicateCount=document.querySelector('#duplicateCount');
+
+let records={};
+let catalog=[];
+let seeded=false;
+
+const gameRootUrl=()=>new URL('../',window.location.href);
+const audioUrl=src=>/^https?:\/\//i.test(src)?src:new URL(src,gameRootUrl()).href;
+const getEntryById=id=>catalog.find(item=>item.id===id)||null;
+const getEntryByKey=key=>catalog.find(item=>item.key===key)||null;
+const getRecordById=id=>records[id]||{};
+
+function reviewer(){
+  const value=String(reviewerName.value||'').trim();
+  if(!value){
+    reviewerName.focus();
+    alert('Enter the reviewer name first.');
+    return null;
+  }
+  localStorage.setItem(REVIEWER_STORAGE,value);
+  return value;
+}
+
+function matches(entry){
+  const filter=statusFilter.value;
+  if(filter!=='all'&&entry.status!==filter)return false;
+  const q=String(searchInput.value||'').trim().toLowerCase();
+  if(!q)return true;
+  const ref=String(entry.n),ref3=ref.padStart(3,'0');
+  return `${ref} ${ref3} #${ref} #${ref3} ${entry.key} ${entry.src}`.toLowerCase().includes(q);
+}
+
+function refreshDatalist(){
+  audioKeys.innerHTML='';
+  for(const item of catalog){
+    const option=document.createElement('option');
+    option.value=item.key;
+    audioKeys.appendChild(option);
+  }
+}
+
+function render(){
+  catalog=core.mergeCatalog(manifest,records);
+  const visible=catalog.filter(matches);
+  audioList.replaceChildren(...visible.map(entry=>renderCard(entry,template,audioUrl)));
+  if(!visible.length){
+    const empty=document.createElement('div');
+    empty.className='empty';
+    empty.textContent='No matching audio.';
+    audioList.appendChild(empty);
+  }
+  totalCount.textContent=`Total ${catalog.length}`;
+  reviewedCount.textContent=`Reviewed ${catalog.filter(x=>x.status==='reviewed').length}`;
+  problemCount.textContent=`Needs fix ${catalog.filter(x=>x.status==='needs-fix').length}`;
+  duplicateCount.textContent=`Duplicates ${catalog.filter(x=>x.status==='duplicate'||x.status==='removed-duplicate').length}`;
+  refreshDatalist();
+}
+
+bindReviewEvents({audioList,getEntryById,getEntryByKey,getRecordById,reviewer});
+
+reviewerName.value=localStorage.getItem(REVIEWER_STORAGE)||'';
+reviewerName.addEventListener('change',()=>localStorage.setItem(REVIEWER_STORAGE,String(reviewerName.value||'').trim()));
+searchInput.addEventListener('input',render);
+statusFilter.addEventListener('change',render);
+document.querySelector('#exportJson').addEventListener('click',()=>exportJson(records));
+document.querySelector('#exportMarkdown').addEventListener('click',()=>exportMarkdown(catalog));
+
+syncState.textContent='Firebase: connecting…';
+watchRecords(next=>{
+  records=next;
+  syncState.textContent='Firebase: saved';
+  render();
+  if(!seeded){
+    seeded=true;
+    seedKnownReports(catalog,records).catch(error=>{
+      console.error(error);
+      syncState.textContent='Firebase: seed error';
+    });
+  }
+},error=>{
+  console.error(error);
+  syncState.textContent='Firebase: connection error';
+  render();
+});

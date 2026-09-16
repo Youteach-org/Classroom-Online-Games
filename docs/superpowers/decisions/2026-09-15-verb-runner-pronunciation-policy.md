@@ -1,65 +1,90 @@
-# Verb Runner pronunciation policy — 2026-09-15
+# Verb Runner pronunciation policy — updated 2026-09-16
 
 ## Decision
 
-Pronunciation audio for Verb Runner grammar answers must represent the **grammatical role used in the game**, not an unrelated noun/adjective reading of the same spelling.
+Pronunciation audio for Verb Runner must represent the grammatical role used in the game and must remain acoustically consistent with the original pronunciation bank.
 
-## Locked voice
+## Locked correction voice
 
-The official pronunciation voice for **new or regenerated Verb Runner audio is Nichalia**, the bright, friendly American female ElevenLabs voice with ID `XfNU2rGpBa01ckF309OY`.
+The production voice for **new or regenerated corrections is Kokoro Bella**, voice id/name `af_bella`.
 
-Do not substitute Bella, another female voice, a browser TTS voice, or any other engine/voice merely because it is available. Existing Bella/Kokoro files are legacy assets only; they are not the voice choice for new or regenerated pronunciation audio.
+This supersedes the temporary Nichalia decision made on 2026-09-15. The user clarified on 2026-09-16 that the intended reference voice was the original Kokoro/Bella bank and requested that corrections continue with the same configuration so corrected clips do not sound like a different speaker.
 
 ## Locked synthesis settings
 
-All newly generated or corrected Verb Runner pronunciation clips must use the same approved Nichalia synthesis profile so replacements do not vary in voice character or pacing:
+Every regenerated correction must keep the original bank settings:
 
-- Provider/model: ElevenLabs `speech/elevenlabs-v3`
-- Voice: Nichalia
-- Voice ID: `XfNU2rGpBa01ckF309OY`
-- Language: English (`en`)
-- Speed: `0.9`
-- Stability: `0.5`
-- Output: MP3
-- For ambiguous or mispronounced words, use an explicit pronunciation/phoneme prompt rather than relying on isolated orthography.
-- Do not change these parameters on individual corrections unless a future explicit user decision updates this policy.
+- Engine: Kokoro
+- Language pipeline: American English, `KPipeline(lang_code='a')`
+- Voice: `af_bella`
+- Speed: `0.8`
+- Sample rate: `24000 Hz`
+- Lead silence: `0.04 s`
+- Tail silence: `0.35 s`
+- WAV subtype: `PCM_16`
+- Peak protection: if speech peak is above `0.98`, normalize speech to `0.96` before adding silence.
 
-The legacy local WAV bank was generated with a different Kokoro/Bella pipeline and therefore cannot be used as the acoustic reference for regenerated clips. Consistency for all corrections means matching the locked Nichalia profile above.
+Do not change voice, speed, silence, sample rate, format, or normalization per correction unless the user explicitly changes this policy.
 
-For isolated verb homographs, generation must not rely on lexical guessing. With the approved Nichalia/ElevenLabs v3 path, generate an explicitly disambiguated pronunciation (for example `live` as /lɪv/) and pin the approved resulting asset. The Kokoro/Misaki phoneme table in `Verb-Runner/scripts/generate-pronunciation.py` is retained only for an explicitly enabled emergency legacy rebuild.
+## Pronunciation disambiguation
 
-Current protected verb homographs:
+Do not rely on spelling alone when a word can be pronounced in more than one way. Use an explicit phoneme override while keeping the same Bella voice/profile.
 
-- `live` (verb “reside/exist”): /lɪv/. Never adjective `/laɪv/`.
-- `close` (verb): /kloʊz/. Never adjective `/kloʊs/`.
-- `use` (verb): /juːz/. Never noun `/juːs/`.
-- `used` (simple past/past participle of `use`): /juːzd/. Do not substitute the reduced `used to` pronunciation /juːst/.
-- `read` is context-sensitive despite identical spelling:
-  - base/present verb: /riːd/
+Protected cases:
+
+- `live` verb: /lɪv/, never adjective /laɪv/.
+- `close` verb: /kloʊz/, never adjective /kloʊs/.
+- `use` verb: /juːz/, never noun /juːs/.
+- `used` as past/participle of `use`: /juːzd/, not the reduced `used to` /juːst/.
+- `read` is context-sensitive:
+  - base/present: /riːd/
   - simple past/past participle: /rɛd/
-  - the runtime must route bare `read` by grammatical context; spelling alone is not a valid pronunciation key.
+  - runtime lookup uses separate semantic keys `read::base` and `read::past`.
+
+## Transitional Nichalia clips
+
+A small set of clips was temporarily replaced with Nichalia during the 2026-09-15 experiment: `live`, `close`, `use`, `used`, `read::base`, and `read::past`.
+
+They remain playable only as transitional assets until the review/correction pass replaces them with Kokoro Bella. They are **not** the acoustic reference and must not be used as the model for later corrections.
 
 ## Generation rule
 
-When new Verb Runner verb audio is added:
+1. Review the intended grammatical role before regenerating.
+2. Use the locked Kokoro Bella profile above.
+3. Add a phoneme override for ambiguous/mispronounced items rather than changing the voice.
+4. Keep unrelated audio files unchanged.
+5. Preserve a previous-report/history record in the pronunciation review system.
+6. After replacement, mark the asset as requiring re-review.
+7. Do not silently remove duplicates from the game source. Mark a canonical original and queue the duplicate for cleanup first.
 
-1. Determine the part of speech and intended meaning from the game item before generation.
-2. If the spelling has multiple pronunciations by grammatical role or meaning, add an explicit phoneme override and a regression assertion before generating audio.
-3. Do not accept an isolated-word TTS pronunciation merely because the spelling is correct.
-4. The asset filename must include the pronunciation signature only when an override exists, so a phoneme correction forces regeneration while unchanged audio keeps its stable filename.
-5. Generate every new or regenerated pronunciation asset with **Nichalia** (`XfNU2rGpBa01ckF309OY`).
-6. If a Nichalia asset is missing, verification must fail rather than silently generating it with Bella/Kokoro.
-7. Bella/Kokoro may be used only for an explicitly requested emergency legacy rebuild; it is not the production voice policy.
-8. For heteronyms whose principal parts share the same spelling but not the same pronunciation (currently `read`), the pronunciation manifest must use distinct semantic keys such as `read::base` and `read::past`, and the game must pass the current challenge context to pronunciation lookup.
-9. The approved Nichalia assets for `live`, `close`, `use`, `used`, `read::base`, and `read::past` are pinned in `APPROVED_AUDIO_OVERRIDES`. Superseded local Bella/Kokoro files for protected forms must not remain as active production assets.
+## Persistent review system
+
+The canonical live review data is stored in Firebase at:
+
+`classroomGames/verbRunnerV2/pronunciationReview`
+
+The review console is:
+
+`/Verb-Runner/pronunciation-review/`
+
+Each reviewed asset tracks, where available:
+
+- manifest key and source;
+- asset creation date;
+- reviewer;
+- first/last review date;
+- review status;
+- previous reports;
+- review/action history;
+- duplicate-of relationship;
+- duplicate cleanup request.
+
+A GitHub Actions workflow backs the Firebase review data up to:
+
+`docs/superpowers/audits/pronunciation-review-live-backup.json`
 
 ## Regression history
 
-The isolated answer `live` was generated as /laɪv/ instead of the intended verb /lɪv/. Root cause: the generator sent isolated orthography to TTS with no grammatical context and cached the result by spelling alone.
+The original isolated `live` clip was pronounced /laɪv/ instead of verb /lɪv/. The root cause was lexical guessing from isolated spelling.
 
-A second project-continuity error occurred when the correction was regenerated with Bella/Kokoro even though the selected project voice was Nichalia. Root cause: the voice choice had not been persisted in GitHub. The locked-voice rule above exists specifically to prevent that recurrence.
-
-
-## 2026-09-15 expansion
-
-A repository-wide review of Verb Runner content identified the currently relevant ambiguity set as `live`, `close`, `use`, `used`, and `read`. Other common English heteronyms such as `lead`, `wind`, `bow`, `row`, `sow`, `record`, `present`, `produce`, and `refuse` are not currently active Verb Runner pronunciation answers and therefore are not pinned yet. If any is later added as a spoken answer, it must be reviewed under this policy before generation.
+A later correction pass temporarily moved selected clips to Nichalia. On 2026-09-16 the user clarified that corrections must instead match the original Kokoro/Bella bank. This document records that correction to the project policy.

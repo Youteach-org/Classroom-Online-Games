@@ -8,7 +8,7 @@ const here=dirname(fileURLToPath(import.meta.url));
 const root=join(here,'..');
 const generator=readFileSync(join(root,'scripts','generate-pronunciation.py'),'utf8');
 const index=readFileSync(join(root,'index.html'),'utf8');
-const manifest=readFileSync(join(root,'pronunciation-manifest.js'),'utf8');
+const policy=readFileSync(join(root,'..','docs','superpowers','decisions','2026-09-15-verb-runner-pronunciation-policy.md'),'utf8');
 
 test('ambiguous isolated verb homographs use explicit verb phonemes',()=>{
   assert.match(generator,/VERB_PHONEME_OVERRIDES\s*=\s*\{[\s\S]*['"]live['"]\s*:\s*['"]lˈɪv['"]/);
@@ -33,19 +33,28 @@ test('Verb Runner cache-busts pronunciation manifest changes',()=>{
   assert.match(index,/pronunciation-manifest\.js\?v=ambiguous-verbs-20260915-1/);
 });
 
-test('Nichalia is the locked pronunciation voice for all protected ambiguous forms',()=>{
-  assert.match(generator,/APPROVED_VOICE_NAME\s*=\s*['"]Nichalia['"]/);
-  assert.match(generator,/APPROVED_VOICE_ID\s*=\s*['"]XfNU2rGpBa01ckF309OY['"]/);
-  assert.match(generator,/Missing approved Nichalia asset/);
-  assert.match(generator,/APPROVED_AUDIO_OVERRIDES/);
-
-  for(const key of ['live','close','use','used','read::base','read::past']){
-    const escaped=key.replace(/[.*+?^$()|[\]{}\\]/g,'\\$&');
-    assert.match(generator,new RegExp("['\"]"+escaped+"['\"]\\s*:\\s*['\"]https:\\/\\/cdn\\.creativeclaw\\.co\\/"));
-    assert.match(manifest,new RegExp('"'+escaped+'"\\s*:\\s*"https:\\/\\/cdn\\.creativeclaw\\.co\\/'));
-  }
+test('Kokoro Bella is the locked generation profile for corrections',()=>{
+  assert.match(generator,/VOICE\s*=\s*['"]af_bella['"]/);
+  assert.match(generator,/SPEED\s*=\s*0\.8/);
+  assert.match(generator,/SAMPLE_RATE\s*=\s*24000/);
+  assert.match(generator,/LEAD_SILENCE_SECONDS\s*=\s*0\.04/);
+  assert.match(generator,/TAIL_SILENCE_SECONDS\s*=\s*0\.35/);
+  assert.match(generator,/KPipeline\(lang_code=['"]a['"]\)/);
+  assert.match(generator,/subtype=['"]PCM_16['"]/);
+  assert.match(generator,/ALLOW_KOKORO_BELLA_GENERATION/);
+  assert.match(generator,/Missing Kokoro Bella pronunciation asset/);
+  assert.match(policy,/Kokoro Bella/i);
+  assert.match(policy,/af_bella/);
+  assert.doesNotMatch(policy,/official pronunciation voice.*Nichalia/i);
 });
 
-test('manifest generation includes approved aliases that are not literal game answers',()=>{
-  assert.match(generator,/set\(answers\)\s*\|\s*set\(APPROVED_AUDIO_OVERRIDES\)/);
+test('Nichalia clips are explicitly transitional rather than the correction policy',()=>{
+  assert.match(generator,/TRANSITIONAL_EXTERNAL_AUDIO/);
+  assert.match(policy,/Transitional Nichalia clips/);
+  assert.match(policy,/not.*acoustic reference/i);
+});
+
+test('contextual pronunciation aliases stay in the generated manifest model',()=>{
+  assert.match(generator,/CONTEXTUAL_KEYS\s*=\s*\{['"]read::base['"],\s*['"]read::past['"]\}/);
+  assert.match(generator,/set\(answers\)\s*\|\s*CONTEXTUAL_KEYS/);
 });

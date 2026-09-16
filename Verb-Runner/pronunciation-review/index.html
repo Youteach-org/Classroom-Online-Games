@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="google" content="notranslate">
+  <title>Verb Runner Pronunciation Review</title>
+  <link rel="stylesheet" href="./review.css?v=1">
+</head>
+<body>
+  <header class="topbar">
+    <div class="title-row">
+      <h1>Verb Runner · Pronunciation Review</h1>
+      <a class="back" href="/teacher/">Teacher tools</a>
+    </div>
+    <div class="toolbar">
+      <label class="reviewer-field">
+        <span>Reviewed by</span>
+        <input id="reviewerName" maxlength="60" placeholder="Your name" autocomplete="name">
+      </label>
+      <input id="searchInput" class="search" placeholder="No. or word" autocomplete="off">
+      <select id="statusFilter" aria-label="Filter">
+        <option value="all">All</option>
+        <option value="unreviewed">Unreviewed</option>
+        <option value="needs-fix">Needs fix</option>
+        <option value="reviewed">Reviewed</option>
+        <option value="duplicate">Duplicates</option>
+        <option value="removed-duplicate">Removed duplicates</option>
+      </select>
+      <button id="exportJson" type="button">Export JSON</button>
+      <button id="exportMarkdown" type="button">Export log</button>
+    </div>
+    <div class="summary">
+      <span id="totalCount">Loading…</span>
+      <span id="reviewedCount"></span>
+      <span id="problemCount"></span>
+      <span id="duplicateCount"></span>
+      <span id="syncState">Firebase: connecting…</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="info">
+      Reports save immediately to Firebase. GitHub receives an automatic backup snapshot every 6 hours.
+      Deleting a repeated report is soft-delete so its audit trail remains recoverable.
+    </section>
+
+    <datalist id="audioKeys"></datalist>
+    <section id="audioList" class="audio-list" aria-live="polite"></section>
+  </main>
+
+  <template id="audioCardTemplate">
+    <article class="audio-card">
+      <div class="card-head">
+        <div class="number"></div>
+        <div class="identity">
+          <div class="key-line">
+            <strong class="audio-key"></strong>
+            <span class="status-badge"></span>
+            <span class="changed-badge" hidden>AUDIO CHANGED · REVIEW AGAIN</span>
+          </div>
+          <div class="source"></div>
+          <div class="metadata"></div>
+        </div>
+      </div>
+
+      <div class="listen-row">
+        <audio controls preload="none"></audio>
+        <button class="ok-button" type="button" data-action="reviewed">Reviewed OK</button>
+        <button class="report-button" type="button" data-action="toggle-report">Report</button>
+        <button class="duplicate-button" type="button" data-action="toggle-duplicate">Duplicate</button>
+      </div>
+
+      <section class="report-panel panel" hidden>
+        <textarea class="report-text" rows="3" placeholder="Describe exactly what is wrong with this audio"></textarea>
+        <div class="panel-actions">
+          <select class="report-kind">
+            <option value="pronunciation">Pronunciation</option>
+            <option value="file-error">File / playback error</option>
+            <option value="timing">Timing / cut / vibrato</option>
+            <option value="other">Other</option>
+          </select>
+          <button type="button" data-action="save-report">Save report</button>
+        </div>
+      </section>
+
+      <section class="duplicate-panel panel" hidden>
+        <label>
+          Keep this original audio/key:
+          <input class="duplicate-target" list="audioKeys" placeholder="Type the key to keep">
+        </label>
+        <div class="panel-actions">
+          <button type="button" data-action="mark-duplicate">Mark as duplicate</button>
+          <button class="danger" type="button" data-action="remove-duplicate" hidden>Queue duplicate for deletion</button>
+          <button type="button" data-action="restore-duplicate" hidden>Restore</button>
+        </div>
+      </section>
+
+      <details class="reports-section">
+        <summary>Previous reports <span class="report-count"></span></summary>
+        <div class="reports-list"></div>
+      </details>
+
+      <details class="history-section">
+        <summary>Review history <span class="history-count"></span></summary>
+        <div class="history-list"></div>
+      </details>
+    </article>
+  </template>
+
+  <script src="../../Support-Meter/config.js"></script>
+  <script src="../pronunciation-manifest.js?v=review-console-1"></script>
+  <script src="./review-core.js?v=1"></script>
+  <script type="module" src="./review-app.js?v=1"></script>
+</body>
+</html>

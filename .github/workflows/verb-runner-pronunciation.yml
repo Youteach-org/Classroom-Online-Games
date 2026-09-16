@@ -38,7 +38,17 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Verify approved pronunciation assets
+      - name: Install Kokoro dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y espeak-ng
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install "kokoro>=0.9.4" numpy soundfile
+
+      - name: Generate or verify Kokoro Bella pronunciation assets
+        env:
+          ALLOW_KOKORO_BELLA_GENERATION: "1"
         run: python Verb-Runner/scripts/generate-pronunciation.py
 
       - name: Verify pronunciation integration
@@ -58,5 +68,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add Verb-Runner/audio/pronunciation Verb-Runner/pronunciation-manifest.js
-          git commit -m "Verb Runner: update approved pronunciation assets [skip pronunciation]"
+          git commit -m "Verb Runner: generate Kokoro Bella pronunciation assets [skip pronunciation]"
           git push origin "HEAD:${GITHUB_REF_NAME}"

@@ -23,6 +23,13 @@ Reference numbers below are the alphabetical positions in this manifest snapshot
 
 ## Audit rule
 
-Do not silently regenerate reported items with a legacy voice. When replaced, use the locked Verb Runner production voice **Nichalia** (`XfNU2rGpBa01ckF309OY`) and update the pronunciation manifest/policy tests accordingly.
+Regenerate reported items with the locked original-bank profile: **Kokoro `af_bella`**, American English pipeline, speed `0.8`, 24000 Hz, 0.04 s lead silence, 0.35 s tail silence, PCM_16. Use explicit phoneme overrides for ambiguous/mispronounced words while preserving the same acoustic profile.
 
 When the numbered review HTML produces additional reports, append them here using the current manifest reference number plus the manifest key so later edits remain unambiguous.
+
+
+## Persistent review console
+
+The durable live review system is stored in Firebase at `classroomGames/verbRunnerV2/pronunciationReview` and exposed at `/Verb-Runner/pronunciation-review/`.
+
+The console stores reviewer, creation/review dates, current status, previous reports, action history, duplicate relationships, and duplicate-cleanup requests. A scheduled GitHub backup is written to `docs/superpowers/audits/pronunciation-review-live-backup.json`.
