@@ -48,14 +48,15 @@
     },
     "ask": {
       "observed_issue": "Suena nask",
-      "decision": "approved-review-candidate",
+      "decision": "confirmed-error",
       "target_text": "ask",
       "ipa_goal": "/æsk/",
       "correction_goal": "No consonant before /æ/.",
       "method": "approved-review-candidate",
       "approved_source": "./bella-samples/round2-audio/ask--a-105-text.wav",
       "approved_by_teacher_at": "2026-09-16",
-      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console."
+      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console.",
+      "approved_review_decision": "teacher-selected"
     },
     "asked": {
       "observed_issue": "Sounds like “nasked”.",
@@ -75,14 +76,15 @@
     },
     "ate": {
       "observed_issue": "Sounds like “great” rather than “ate”.",
-      "decision": "approved-review-candidate",
+      "decision": "confirmed-error",
       "target_text": "ate",
       "ipa_goal": "/eɪt/",
       "correction_goal": "One syllable, no initial consonant.",
       "method": "approved-review-candidate",
       "approved_source": "./bella-samples/audio/ate--bella-10-text.wav",
       "approved_by_teacher_at": "2026-09-16",
-      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console."
+      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console.",
+      "approved_review_decision": "teacher-selected"
     },
     "be": {
       "observed_issue": "Does not sound like the English verb /biː/.",
@@ -102,14 +104,15 @@
     },
     "bend": {
       "observed_issue": "Suena igual que bent",
-      "decision": "approved-review-candidate",
+      "decision": "confirmed-error",
       "target_text": "bend",
       "ipa_goal": "/bɛnd/",
       "correction_goal": "Preserve voiced final /d/ so it is distinct from bent /bɛnt/.",
       "method": "approved-review-candidate",
       "approved_source": "./bella-samples/round2-audio/bend--a-105-text.wav",
       "approved_by_teacher_at": "2026-09-16",
-      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console."
+      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console.",
+      "approved_review_decision": "teacher-selected"
     },
     "bitten": {
       "observed_issue": "Sounds approximately “betten”.",
@@ -176,14 +179,15 @@
     },
     "dug": {
       "observed_issue": "Suena a dog? Comparar",
-      "decision": "approved-review-candidate",
+      "decision": "question-resolved-needs-fix",
       "target_text": "dug",
       "ipa_goal": "/dʌɡ/",
       "correction_goal": "Dug must use /ʌ/ and remain distinct from dog /dɔɡ/.",
       "method": "approved-review-candidate",
       "approved_source": "./bella-samples/audio/dug--bella-08-text.wav",
       "approved_by_teacher_at": "2026-09-16",
-      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console."
+      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console.",
+      "approved_review_decision": "teacher-selected"
     },
     "eat": {
       "observed_issue": "Suena rit",
@@ -278,14 +282,15 @@
     },
     "start": {
       "observed_issue": "Estart dice",
-      "decision": "approved-review-candidate",
+      "decision": "confirmed-error",
       "target_text": "start",
       "ipa_goal": "/stɑrt/",
       "correction_goal": "No prosthetic vowel before /st/.",
       "method": "approved-review-candidate",
       "approved_source": "./bella-samples/audio/start--bella-10-text.wav",
       "approved_by_teacher_at": "2026-09-16",
-      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console."
+      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console.",
+      "approved_review_decision": "teacher-selected"
     },
     "started": {
       "observed_issue": "Estarted dice",
@@ -369,14 +374,15 @@
     },
     "watched": {
       "observed_issue": "Watst",
-      "decision": "approved-review-candidate",
+      "decision": "confirmed-error",
       "target_text": "watched",
       "ipa_goal": "/wɑtʃt/",
       "correction_goal": "Preserve /tʃ/ before final /t/.",
       "method": "approved-review-candidate",
       "approved_source": "./bella-samples/audio/watched--bella-08-text.wav",
       "approved_by_teacher_at": "2026-09-16",
-      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console."
+      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console.",
+      "approved_review_decision": "teacher-selected"
     },
     "will tell": {
       "observed_issue": "Will tall",
@@ -388,14 +394,15 @@
     },
     "wrote": {
       "observed_issue": "Route suena",
-      "decision": "approved-review-candidate",
+      "decision": "confirmed-error",
       "target_text": "wrote",
       "ipa_goal": "/roʊt/",
       "correction_goal": "Use /oʊ/ in wrote; keep distinct from route pronunciations.",
       "method": "approved-review-candidate",
       "approved_source": "./bella-samples/round2-audio/wrote--a-105-text.wav",
       "approved_by_teacher_at": "2026-09-16",
-      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console."
+      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console.",
+      "approved_review_decision": "teacher-selected"
     }
   }
 }
