@@ -998,3 +998,16 @@ For YouTeach-linked evaluable COG activities:
 - Undo Submission removes the current official submitted result but does **not** reset the number of attempts.
 - If a student completes 6 attempts, submits, undoes the submission, completes 3 more attempts, and submits again, the new verified receipt shows **9 attempts**.
 - The counter represents completed practice attempts associated with that assigned activity and student.
+
+
+## Proportional task-score mapping — confirmed 2026-09-16
+
+For an explicitly submitted YouTeach-linked COG result:
+
+- The student's chosen game result is expressed as a percentage/performance score from 0 to 100.
+- YouTeach converts that percentage directly and proportionally into the point value configured for the assignment.
+- Formula: **earned points = assignment points × submitted percentage / 100**.
+- Example: assignment worth 15 points, submitted result 92% -> **13.8 / 15**.
+- This mapping applies only to the attempt the student explicitly chooses to **Send to teacher**.
+- Practice attempts are not graded or transferred into task points.
+- Undo Submission removes the current official mapping; a later replacement submission creates a new mapping from the newly selected result.
