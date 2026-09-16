@@ -11,7 +11,7 @@ const reviewRoot=join(root,'pronunciation-review');
 const require=createRequire(import.meta.url);
 
 test('pronunciation review console ships as part of Verb Runner',()=>{
-  for(const name of ['index.html','review.css','review-core.js','review-app.js']){
+  for(const name of ['index.html','review.css','review-core.js','firebase-store.js','review-actions.js','review-render.js','review-events.js','review-export.js','review-app.js']){
     assert.equal(existsSync(join(reviewRoot,name)),true,name+' should exist');
   }
 });
@@ -38,26 +38,30 @@ test('legacy asset metadata uses the original Bella generation timestamp',()=>{
 });
 
 test('review UI persists audit metadata and duplicate workflow in Firebase',()=>{
-  const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
-  assert.match(app,/classroomGames\/verbRunnerV2\/pronunciationReview/);
-  assert.match(app,/reviewedBy/);
-  assert.match(app,/reviewedAt/);
-  assert.match(app,/assetCreatedAt/);
-  assert.match(app,/reports/);
-  assert.match(app,/history/);
-  assert.match(app,/duplicateOf/);
-  assert.match(app,/removedAsDuplicate/);
-  assert.match(app,/hasDuplicateReport/);
+  const store=readFileSync(join(reviewRoot,'firebase-store.js'),'utf8');
+  const actions=readFileSync(join(reviewRoot,'review-actions.js'),'utf8');
+  const combined=store+'\n'+actions;
+  assert.match(store,/classroomGames\/verbRunnerV2\/pronunciationReview/);
+  assert.match(combined,/reviewedBy/);
+  assert.match(combined,/reviewedAt/);
+  assert.match(combined,/assetCreatedAt/);
+  assert.match(combined,/reports/);
+  assert.match(combined,/history/);
+  assert.match(combined,/duplicateOf/);
+  assert.match(combined,/removedAsDuplicate/);
+  assert.match(actions,/hasDuplicateReport/);
 });
 
 test('review UI keeps prior reports and allows deleting repeated report entries',()=>{
   const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
-  const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
+  const actions=readFileSync(join(reviewRoot,'review-actions.js'),'utf8');
+  const events=readFileSync(join(reviewRoot,'review-events.js'),'utf8');
   assert.match(html,/Previous reports/i);
-  assert.match(app,/deleteReport/);
-  assert.match(app,/resolveReport/);
-  assert.match(app,/markDuplicate/);
-  assert.match(app,/removeDuplicate/);
+  assert.match(actions,/deleteReport/);
+  assert.match(actions,/resolveReport/);
+  assert.match(actions,/markDuplicate/);
+  assert.match(actions,/removeDuplicate/);
+  assert.match(events,/delete-report/);
 });
 
 test('teacher menu links to pronunciation review console',()=>{
