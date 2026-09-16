@@ -1282,3 +1282,15 @@ For YouTeach evaluable COG activities:
 - The trust mechanism must be server-verifiable. A client-created payload, local signature, hidden field, localStorage value, or browser-only secret is not sufficient evidence.
 - Where practical, the backend should calculate or independently verify the final 0–100 value from the compact aggregate inputs rather than accepting an arbitrary client-provided score.
 - This compact-summary design preserves the confirmed local-first architecture and avoids permanent storage of raw gameplay event streams.
+
+
+## Minimal retention of validated attempt evidence — confirmed 2026-09-16
+
+For YouTeach evaluable COG activities:
+
+- After a student creates an official submission, the system retains only the **minimum server-side evidence necessary** to support that current official submission and its verifiable receipt/QR.
+- Raw or otherwise unnecessary technical attempt data should not be kept merely because it was used during validation.
+- The retained evidence may include the current receipt identifier/status, assignment/student linkage on the private authorized path, game/configuration identifiers, relevant timestamps, cumulative attempt count, validated aggregate scoring inputs/result, and any minimal integrity metadata required to verify the receipt.
+- Temporary validation data and other technical details that are no longer needed for the active official submission, security, or integrity should be deleted or expired.
+- If the student uses **Undo Submission**, the previous receipt becomes invalid and only the minimal internal audit/security record required to preserve invalidation and integrity may remain, consistent with the previously confirmed QR and teacher-history rules.
+- This retention policy is intentionally data-minimizing and does not create a permanent raw gameplay archive.
