@@ -67,7 +67,10 @@ export function bindReviewEvents({audioList,getEntryById,getEntryByKey,getRecord
     const record=getRecordById(entry.id);
     try{
       const action=button.dataset.action;
-      if(action==='toggle-report'){
+      if(action==='toggle-history'){
+        const panel=card.querySelector('.review-history-panel');
+        panel.hidden=!panel.hidden;
+      }else if(action==='toggle-report'){
         const panel=card.querySelector('.report-panel');
         panel.hidden=!panel.hidden;
         if(!panel.hidden)panel.querySelector('textarea').focus();
