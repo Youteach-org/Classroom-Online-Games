@@ -1,5 +1,5 @@
 {
-  "revision": "2026-09-16-r4",
+  "revision": "2026-09-16-r5",
   "status": "VALIDATED_FOR_GENERATION",
   "interpretation_rule": "Teacher notes describe the observed problem. They are not synthesis instructions. Question notes are validated before deciding whether replacement is needed.",
   "excluded_as_correct": {
@@ -60,11 +60,13 @@
     },
     "asked": {
       "observed_issue": "Sounds like “nasked”.",
-      "decision": "confirmed-error",
+      "decision": "confirmed-error-second-pass",
       "target_text": "asked",
       "ipa_goal": "/æskt/",
-      "correction_goal": "No initial /n/; preserve final /skt/.",
-      "method": "g2p_tokens"
+      "correction_goal": "Second pass after teacher re-review: eliminate the recurring nasal onset and preserve /æskt/ cleanly.",
+      "method": "raw_phonemes",
+      "kokoro_phonemes": "ˈæskt",
+      "speed": 1.05
     },
     "at 11 tonight": {
       "observed_issue": "File/audio error; does not play correctly or appears corrupt.",
