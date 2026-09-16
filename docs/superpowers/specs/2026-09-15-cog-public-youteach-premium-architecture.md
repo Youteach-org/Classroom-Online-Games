@@ -1294,3 +1294,16 @@ For YouTeach evaluable COG activities:
 - Temporary validation data and other technical details that are no longer needed for the active official submission, security, or integrity should be deleted or expired.
 - If the student uses **Undo Submission**, the previous receipt becomes invalid and only the minimal internal audit/security record required to preserve invalidation and integrity may remain, consistent with the previously confirmed QR and teacher-history rules.
 - This retention policy is intentionally data-minimizing and does not create a permanent raw gameplay archive.
+
+
+## Undo Submission removes official grade — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- When a student uses **Undo Submission**, the current official COG submission is withdrawn.
+- The official percentage and proportional assignment points derived from that submission are also removed from the active grade state.
+- While no replacement official submission exists, the task has no active COG-derived score/points.
+- The student may continue practicing and later use **Send to teacher** again with another valid result.
+- When the replacement submission is accepted, its validated 0–100 result becomes the new official result and YouTeach recalculates the proportional task points from that result.
+- The cumulative attempt count does not reset when Undo Submission is used.
+- The prior receipt remains invalid, with only the minimal internal audit/integrity record previously confirmed.
