@@ -1339,3 +1339,15 @@ For YouTeach assignments based on COG activities:
 - Closing and later reopening an assignment starts a new submission/reopening cycle for purposes of the visible resubmission numbering.
 - A prior cycle's visible resubmission number must not simply continue increasing after the assignment is reopened.
 - This is separate from the cumulative gameplay attempt count, which remains cumulative for the assignment as previously confirmed.
+
+
+## Reopen-cycle submission numbering — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- When an assignment is reopened, the first official submission in that reopened cycle is displayed simply as **Submission / Entrega**, not as a resubmission.
+- Within that same reopened cycle, if the student uses **Undo Submission** and then submits another valid result, the replacement is displayed as **Resubmission 1 / Reentrega 1**.
+- Further replacements in that same cycle increment normally: **Reentrega 2**, **Reentrega 3**, and so on.
+- Closing the assignment ends the current visible resubmission-numbering cycle.
+- A later reopening starts a fresh cycle whose first official submission is again **Entrega**.
+- This visible resubmission numbering remains separate from the cumulative gameplay-attempt count, which continues across the whole assignment.
