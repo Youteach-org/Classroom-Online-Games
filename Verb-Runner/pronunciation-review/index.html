@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="google" content="notranslate">
   <title>Verb Runner Pronunciation Review</title>
-  <link rel="stylesheet" href="./review.css?v=5">
+  <link rel="stylesheet" href="./review.css?v=6">
 </head>
 <body>
   <header class="topbar">
@@ -45,7 +45,6 @@
       Deleting a repeated report is soft-delete so its audit trail remains recoverable.
     </section>
 
-    <datalist id="audioKeys"></datalist>
     <section id="audioList" class="audio-list" aria-live="polite"></section>
   </main>
 
@@ -85,10 +84,13 @@
       </section>
 
       <section class="duplicate-panel panel" hidden>
-        <label>
-          Same as / original (optional):
-          <input class="duplicate-target" list="audioKeys" placeholder="Optional: choose the key to keep">
-        </label>
+        <div class="duplicate-reference-row">
+          <label>
+            Original audio #
+            <input class="duplicate-target-ref" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 127">
+          </label>
+          <span class="duplicate-match">Enter the original audio number.</span>
+        </div>
         <div class="panel-actions">
           <button type="button" data-action="mark-duplicate">Mark duplicated</button>
           <button class="danger" type="button" data-action="remove-duplicate" hidden>Queue duplicate for deletion</button>
@@ -112,6 +114,6 @@
   <script src="../../Support-Meter/config.js"></script>
   <script src="../pronunciation-manifest.js?v=review-console-1"></script>
   <script src="./review-core.js?v=1"></script>
-  <script type="module" src="./review-app.js?v=4"></script>
+  <script type="module" src="./review-app.js?v=5"></script>
 </body>
 </html>
