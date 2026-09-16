@@ -59,3 +59,11 @@ test('contextual pronunciation aliases stay in the generated manifest model',()=
   assert.match(generator,/CONTEXTUAL_KEYS\s*=\s*\{['"]read::base['"],\s*['"]read::past['"]\}/);
   assert.match(generator,/set\(answers\)\s*\|\s*CONTEXTUAL_KEYS/);
 });
+
+test('teacher-approved voice exceptions bypass Bella regeneration only for explicit sources',()=>{
+  assert.match(generator,/approved_source_url/);
+  assert.match(generator,/approved external voice exception/);
+  assert.match(policy,/Approved voice exceptions/);
+  assert.match(policy,/`build`[\s\S]*`fancy`/);
+  assert.match(policy,/`washed`[\s\S]*`fancy`/);
+});
