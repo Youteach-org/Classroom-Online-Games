@@ -1024,3 +1024,24 @@ For YouTeach-linked evaluable COG activity receipts:
 - When the QR is opened, student identity is revealed only if the viewer is an **authenticated authorized teacher** for that assignment/student context.
 - Unauthenticated verification may show only non-identifying receipt facts such as validity status, activity name, task code, submitted percentage, points earned, attempt count, completion/submission timestamp, and on-time/late status, subject to final privacy review.
 - Authorization must be checked server-side; hiding identity only in the browser UI is insufficient.
+
+
+## Public QR verification visibility — confirmed 2026-09-16
+
+For YouTeach-linked evaluable COG activity receipts:
+
+- If the QR is opened by an unauthenticated viewer, the verification page reveals **only the receipt validity state**.
+- Allowed unauthenticated states are limited to messages such as:
+  - **Valid receipt**
+  - **Invalid / no longer valid receipt**
+- No unauthenticated viewer may see:
+  - student identity;
+  - activity/game name;
+  - Task Code;
+  - percentage/score;
+  - task points;
+  - attempt count;
+  - submission/completion dates or times;
+  - error/concept data;
+  - group/class information.
+- Full receipt details are available only after server-side verification that the viewer is an authenticated, authorized teacher for the relevant assignment/student context.
