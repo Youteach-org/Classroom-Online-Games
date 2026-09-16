@@ -1,0 +1,28 @@
+name: Verb Runner Free Mode Presence Regression
+
+on:
+  push:
+    branches:
+      - fix/verb-runner-free-mode-presence
+    paths:
+      - 'Verb-Runner/prototype.js'
+      - 'Verb-Runner/session-sync.js'
+      - 'Verb-Runner/teacher.js'
+      - 'Verb-Runner/tests/free-mode-monitor.test.mjs'
+      - '.github/workflows/verb-runner-free-mode-presence.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Verb Runner modules
+        run: |
+          node --check Verb-Runner/prototype.js
+          node --check Verb-Runner/session-sync.js
+          node --check Verb-Runner/teacher.js
+      - name: Run free-mode regression test
+        run: node --test Verb-Runner/tests/free-mode-monitor.test.mjs
