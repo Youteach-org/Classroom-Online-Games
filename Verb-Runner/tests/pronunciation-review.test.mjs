@@ -125,8 +125,8 @@ test('review action labels are concise and descriptive',()=>{
 
 test('audio review controls stay on one compact row',()=>{
   const css=readFileSync(join(reviewRoot,'review.css'),'utf8');
-  assert.match(css,/\.listen-row\{display:grid;grid-template-columns:minmax\(120px,1fr\) auto auto auto/);
-  assert.match(css,/\.listen-row button\{padding:6px 8px;font-size:12px;white-space:nowrap\}/);
+  assert.match(css,/\.listen-row\{display:grid;grid-template-columns:minmax\(0,1fr\) auto auto auto/);
+  assert.match(css,/\.listen-row button\{padding:5px 6px;font-size:11px;white-space:nowrap;min-width:0\}/);
   assert.doesNotMatch(css,/\.listen-row\{[^}]*flex-wrap:wrap/);
 });
 
