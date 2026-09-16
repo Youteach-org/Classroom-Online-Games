@@ -1,1 +1,366 @@
-{}
+{
+  "audios": {
+    "am-cooking-ktjg5f": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789566357174,
+      "history": {
+        "-P1eSt9tMY5MEEGQBwov": {
+          "action": "reviewed-ok",
+          "at": 1789566358342,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "am cooking",
+      "lastReviewedAt": 1789566357174,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789566357174,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/am-cooking-8f1d7a1994.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789566357174
+    },
+    "am-going-to-practice-1p1hapr": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789566370271,
+      "history": {
+        "-P1eSwJBKLVHV7khCGEm": {
+          "action": "reviewed-ok",
+          "at": 1789566371225,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "am going to practice",
+      "lastReviewedAt": 1789566370271,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789566370271,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/am-going-to-practice-e702d941d8.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789566370271
+    },
+    "are-waiting-jc95ky": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789538400000,
+      "history": {
+        "-P1eSU3VRIOaGnecP276": {
+          "action": "report-seeded",
+          "at": 1789566251433,
+          "by": "system",
+          "originalReference": 10,
+          "reportId": "seed-20260916-010"
+        }
+      },
+      "key": "are waiting",
+      "lastReviewedAt": 1789538400000,
+      "reports": {
+        "seed-20260916-010": {
+          "createdAt": 1789538400000,
+          "kind": "timing",
+          "originalReference": 10,
+          "reviewer": "Initial manual audit",
+          "source": "chat-audit",
+          "status": "open",
+          "text": "Strange vibrato at the beginning; regenerate."
+        }
+      },
+      "reviewedAt": 1789538400000,
+      "reviewedBy": "Initial manual audit",
+      "source": "./audio/pronunciation/are-waiting-e2d43cd109.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789566249620
+    },
+    "asked-1ar2xb7": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789538400000,
+      "history": {
+        "-P1eSUjfYAmEt6I9FWgm": {
+          "action": "report-seeded",
+          "at": 1789566254197,
+          "by": "system",
+          "originalReference": 13,
+          "reportId": "seed-20260916-013"
+        }
+      },
+      "key": "asked",
+      "lastReviewedAt": 1789538400000,
+      "reports": {
+        "seed-20260916-013": {
+          "createdAt": 1789538400000,
+          "kind": "pronunciation",
+          "originalReference": 13,
+          "reviewer": "Initial manual audit",
+          "source": "chat-audit",
+          "status": "open",
+          "text": "Sounds like “nasked”."
+        }
+      },
+      "reviewedAt": 1789538400000,
+      "reviewedBy": "Initial manual audit",
+      "source": "./audio/pronunciation/asked-c91c9287c0.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789566252134
+    },
+    "at-11-tonight-1dtblsn": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789538400000,
+      "history": {
+        "-P1eSVK-edajMxnqVgXq": {
+          "action": "report-seeded",
+          "at": 1789566256586,
+          "by": "system",
+          "originalReference": 15,
+          "reportId": "seed-20260916-015"
+        }
+      },
+      "key": "at 11 tonight",
+      "lastReviewedAt": 1789538400000,
+      "reports": {
+        "seed-20260916-015": {
+          "createdAt": 1789538400000,
+          "kind": "file-error",
+          "originalReference": 15,
+          "reviewer": "Initial manual audit",
+          "source": "chat-audit",
+          "status": "open",
+          "text": "File/audio error; does not play correctly or appears corrupt."
+        }
+      },
+      "reviewedAt": 1789538400000,
+      "reviewedBy": "Initial manual audit",
+      "source": "./audio/pronunciation/at-11-tonight-7affdb84dc.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789566254925
+    },
+    "ate-7vhlw7": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789538400000,
+      "history": {
+        "-P1eSVuYFLcLzpk24Nmw": {
+          "action": "report-seeded",
+          "at": 1789566258989,
+          "by": "system",
+          "originalReference": 16,
+          "reportId": "seed-20260916-016"
+        }
+      },
+      "key": "ate",
+      "lastReviewedAt": 1789538400000,
+      "reports": {
+        "seed-20260916-016": {
+          "createdAt": 1789538400000,
+          "kind": "pronunciation",
+          "originalReference": 16,
+          "reviewer": "Initial manual audit",
+          "source": "chat-audit",
+          "status": "open",
+          "text": "Sounds like “great” rather than “ate”."
+        }
+      },
+      "reviewedAt": 1789538400000,
+      "reviewedBy": "Initial manual audit",
+      "source": "./audio/pronunciation/ate-189b7ea01f.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789566257288
+    },
+    "be-fl2jk0": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789538400000,
+      "history": {
+        "-P1eSWPsY8pb4I7uUS0Z": {
+          "action": "report-seeded",
+          "at": 1789566261058,
+          "by": "system",
+          "originalReference": 17,
+          "reportId": "seed-20260916-017"
+        }
+      },
+      "key": "be",
+      "lastReviewedAt": 1789538400000,
+      "reports": {
+        "seed-20260916-017": {
+          "createdAt": 1789538400000,
+          "kind": "pronunciation",
+          "originalReference": 17,
+          "reviewer": "Initial manual audit",
+          "source": "chat-audit",
+          "status": "open",
+          "text": "Does not sound like the English verb /biː/."
+        }
+      },
+      "reviewedAt": 1789538400000,
+      "reviewedBy": "Initial manual audit",
+      "source": "./audio/pronunciation/be-986b1bc1eb.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789566259634
+    },
+    "became-17aqq32": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789538400000,
+      "history": {
+        "-P1eSWv5F9LiQbX3FxnO": {
+          "action": "report-seeded",
+          "at": 1789566263120,
+          "by": "system",
+          "originalReference": 20,
+          "reportId": "seed-20260916-020"
+        }
+      },
+      "key": "became",
+      "lastReviewedAt": 1789538400000,
+      "reports": {
+        "seed-20260916-020": {
+          "createdAt": 1789538400000,
+          "kind": "pronunciation",
+          "originalReference": 20,
+          "reviewer": "Initial manual audit",
+          "source": "chat-audit",
+          "status": "open",
+          "text": "Sounds approximately “bequeim”; pronunciation is distorted/incorrect."
+        }
+      },
+      "reviewedAt": 1789538400000,
+      "reviewedBy": "Initial manual audit",
+      "source": "./audio/pronunciation/became-51a675c807.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789566261700
+    },
+    "bitten-18ul3cv": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789538400000,
+      "history": {
+        "-P1eSXTUjNP_4TNPOGNT": {
+          "action": "report-seeded",
+          "at": 1789566265385,
+          "by": "system",
+          "originalReference": 33,
+          "reportId": "seed-20260916-033"
+        }
+      },
+      "key": "bitten",
+      "lastReviewedAt": 1789538400000,
+      "reports": {
+        "seed-20260916-033": {
+          "createdAt": 1789538400000,
+          "kind": "pronunciation",
+          "originalReference": 33,
+          "reviewer": "Initial manual audit",
+          "source": "chat-audit",
+          "status": "open",
+          "text": "Sounds approximately “betten”."
+        }
+      },
+      "reviewedAt": 1789538400000,
+      "reviewedBy": "Initial manual audit",
+      "source": "./audio/pronunciation/bitten-090ef54998.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789566263929
+    },
+    "change-vsu94t": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789538400000,
+      "history": {
+        "-P1eSYLis_PMjGTmXwl3": {
+          "action": "report-seeded",
+          "at": 1789566268984,
+          "by": "system",
+          "originalReference": 61,
+          "reportId": "seed-20260916-061"
+        }
+      },
+      "key": "change",
+      "lastReviewedAt": 1789538400000,
+      "reports": {
+        "seed-20260916-061": {
+          "createdAt": 1789538400000,
+          "kind": "pronunciation",
+          "originalReference": 61,
+          "reviewer": "Initial manual audit",
+          "source": "chat-audit",
+          "status": "open",
+          "text": "Sounds approximately “kchain”; pronunciation is incorrect."
+        }
+      },
+      "reviewedAt": 1789538400000,
+      "reviewedBy": "Initial manual audit",
+      "source": "./audio/pronunciation/change-7550b672e1.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789566266140
+    },
+    "changed-jgug0r": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789538400000,
+      "history": {
+        "-P1eSZzyfB8wk-kGCwHw": {
+          "action": "report-seeded",
+          "at": 1789566275719,
+          "by": "system",
+          "originalReference": 62,
+          "reportId": "seed-20260916-062"
+        }
+      },
+      "key": "changed",
+      "lastReviewedAt": 1789538400000,
+      "reports": {
+        "seed-20260916-062": {
+          "createdAt": 1789538400000,
+          "kind": "pronunciation",
+          "originalReference": 62,
+          "reviewer": "Initial manual audit",
+          "source": "chat-audit",
+          "status": "open",
+          "text": "Sounds approximately “kchaincht”; pronunciation is distorted/incorrect."
+        }
+      },
+      "reviewedAt": 1789538400000,
+      "reviewedBy": "Initial manual audit",
+      "source": "./audio/pronunciation/changed-37c6c57bed.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789566270500
+    },
+    "fought-4yjxhm": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789538400000,
+      "history": {
+        "-P1eSbCNPzf1GGP48jNj": {
+          "action": "report-seeded",
+          "at": 1789566284770,
+          "by": "system",
+          "originalReference": 127,
+          "reportId": "seed-20260916-127"
+        }
+      },
+      "key": "fought",
+      "lastReviewedAt": 1789538400000,
+      "reports": {
+        "seed-20260916-127": {
+          "createdAt": 1789538400000,
+          "kind": "pronunciation",
+          "originalReference": 127,
+          "reviewer": "Initial manual audit",
+          "source": "chat-audit",
+          "status": "open",
+          "text": "Sounds like “fault” / otherwise incorrect."
+        }
+      },
+      "reviewedAt": 1789538400000,
+      "reviewedBy": "Initial manual audit",
+      "source": "./audio/pronunciation/fought-1b04bf3ef0.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789566278318
+    }
+  }
+}
