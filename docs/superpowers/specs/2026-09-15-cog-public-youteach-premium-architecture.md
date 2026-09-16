@@ -1329,3 +1329,13 @@ For YouTeach assignments based on COG activities:
 - The count refers to how many replacement official submissions have occurred after the original official submission.
 - The normal teacher view still shows only the current/final official submission; the count communicates prior replacement activity without exposing the full history of previous submissions.
 - This resubmission count is separate from the cumulative gameplay attempt count.
+
+
+## Resubmission count does not persist across reopen cycles — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- The teacher-visible resubmission number is **not a lifetime cumulative counter for the entire assignment**.
+- Closing and later reopening an assignment starts a new submission/reopening cycle for purposes of the visible resubmission numbering.
+- A prior cycle's visible resubmission number must not simply continue increasing after the assignment is reopened.
+- This is separate from the cumulative gameplay attempt count, which remains cumulative for the assignment as previously confirmed.
