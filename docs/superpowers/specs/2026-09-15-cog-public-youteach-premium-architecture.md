@@ -807,3 +807,75 @@ For **public COG Premium users only**:
 - YouTeach student reports are governed by the private YouTeach data policy and are not subject to this public Premium retention limit.
 
 This policy is intended to keep persistent cloud storage small even for high-frequency players.
+
+
+## Diego project response convention — confirmed 2026-09-16
+
+For this planning/project context, assistant responses should be **numbered** so decisions and references can be discussed unambiguously across turns.
+
+
+## Simple game report model — confirmed 2026-09-16
+
+COG end-of-game reports are **simple gameplay summaries**, not exam-style answer audits.
+
+### What is not stored
+
+The persistent report must **not** store:
+
+- the exact question text for every item;
+- every answer the player selected;
+- the answer that "should have gone there";
+- a replay of every mistake;
+- personalized correction text per question;
+- detailed click/movement/event logs.
+
+COG is a game, not an examination system.
+
+### Predefined error taxonomy
+
+Games use small predefined error/concept codes instead of storing verbose mistake records.
+
+Example generic categories may include codes such as:
+
+- incorrect/missing target verb;
+- spelling error;
+- incorrect target phrase/expression.
+
+Each game can define its own compact fixed code dictionary. The persistent report stores only counts/flags against those codes where needed.
+
+### What a detailed report may store
+
+A detailed Premium report should remain compact and may contain:
+
+- game identifier and game version;
+- date/time;
+- difficulty/mode;
+- duration;
+- score or game performance metric;
+- completed challenges/items;
+- total successes/errors;
+- accuracy or equivalent gameplay metric when meaningful;
+- compact counts by predefined error/concept code;
+- streak/level/round summary where relevant;
+- other small game-specific aggregate metrics.
+
+### Personalized improvement guidance
+
+"Personalized report" does **not** mean permanently storing individualized answer-by-answer corrections.
+
+If a user explicitly requests **what they can improve**, COG generates that guidance **on demand** from:
+
+- the current/simple report aggregates;
+- recent report summaries;
+- predefined error/concept codes;
+- the shared explanation/recommendation library.
+
+The generated improvement guidance does not need to be stored as a permanent custom report unless a future requirement explicitly calls for it.
+
+### Retention
+
+For public COG Premium users, Turso stores at most the **5 most recent detailed reports per game**. Older data is represented only through compact historical aggregates/summaries.
+
+Guest users keep gameplay history locally and do not create persistent Turso reports.
+
+YouTeach student reporting remains on the private YouTeach data path and is not constrained by the public Premium retention rule.
