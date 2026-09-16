@@ -1498,3 +1498,16 @@ For YouTeach assignments based on COG activities that are restored from trash:
 - Previously removed grades, points, attempts, resubmissions, and QR/receipt records remain removed, consistent with the trash lifecycle decision.
 - **D — Expired restore returns closed:** if the assignment's saved due date/time has already passed when the assignment is restored, it is restored in a **closed** state.
 - **E — Task Codes are never reused:** once a Task Code has existed, permanent deletion does not release that code for future reuse. Old Task Codes remain reserved to avoid ambiguity, collisions, or accidental association with a different assignment.
+
+
+## Restored assignment draft and republish flow — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities restored from trash:
+
+- **A — Restore as draft:** the restored assignment returns as a **draft**, not as an active/published assignment.
+- **B — New Task Code on republish:** the restored draft does **not** receive its new Task Code merely by leaving the trash. A new Task Code is generated when the teacher republishes/reassigns the restored draft.
+- **C — Groups/students must be selected again:** the teacher explicitly chooses the groups/students again when republishing; prior assignment targets are not automatically restored.
+- **D — Editable before republish:** while the restored assignment remains a draft, the teacher may edit its due date, point value, instructions, and rubric/criteria before republishing.
+- **E — COG configuration may also be changed while restored draft is unpublished:** game, mode/modality, difficulty, and optional minimum-performance threshold are **not locked** while the restored assignment is still a draft. The teacher may change them before republishing.
+- Once the restored draft is republished, the normal published-task rules apply again: mode/modality, difficulty, and minimum become immutable for that newly published assignment instance.
+- Republishing the restored draft therefore creates a new active assignment lifecycle with a new Task Code, while reusing the recovered draft as a starting template.
