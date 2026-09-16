@@ -1,5 +1,5 @@
 {
-  "revision": "2026-09-16-r2",
+  "revision": "2026-09-16-r3-pilot",
   "status": "VALIDATED_FOR_GENERATION",
   "interpretation_rule": "Teacher notes describe the observed problem. They are not synthesis instructions. Question notes are validated before deciding whether replacement is needed.",
   "excluded_as_correct": {
@@ -44,7 +44,11 @@
       "target_text": "are waiting",
       "ipa_goal": "/ɑɹ ˈweɪtɪŋ/",
       "correction_goal": "Clean onset; remove vibrato/artifact.",
-      "method": "g2p_tokens"
+      "method": "g2p_tokens",
+      "speed": 0.72,
+      "trim_start_ms": 40,
+      "phoneme_suffix": ".",
+      "strategy": "bella-clarity-r3"
     },
     "ask": {
       "observed_issue": "Suena nask",
@@ -52,7 +56,11 @@
       "target_text": "ask",
       "ipa_goal": "/æsk/",
       "correction_goal": "No consonant before /æ/.",
-      "method": "g2p_tokens"
+      "method": "g2p_tokens",
+      "speed": 0.72,
+      "trim_start_ms": 55,
+      "phoneme_suffix": ".",
+      "strategy": "bella-clarity-r3"
     },
     "asked": {
       "observed_issue": "Sounds like “nasked”.",
@@ -76,7 +84,11 @@
       "target_text": "ate",
       "ipa_goal": "/eɪt/",
       "correction_goal": "One syllable, no initial consonant.",
-      "method": "g2p_tokens"
+      "method": "g2p_tokens",
+      "speed": 0.72,
+      "trim_start_ms": 55,
+      "phoneme_suffix": ".",
+      "strategy": "bella-clarity-r3"
     },
     "be": {
       "observed_issue": "Does not sound like the English verb /biː/.",
@@ -100,7 +112,11 @@
       "target_text": "bend",
       "ipa_goal": "/bɛnd/",
       "correction_goal": "Preserve voiced final /d/ so it is distinct from bent /bɛnt/.",
-      "method": "g2p_tokens"
+      "method": "g2p_tokens",
+      "speed": 0.7,
+      "trim_start_ms": 0,
+      "phoneme_suffix": ".",
+      "strategy": "bella-clarity-r3"
     },
     "bitten": {
       "observed_issue": "Sounds approximately “betten”.",
@@ -116,7 +132,11 @@
       "target_text": "build",
       "ipa_goal": "/bɪld/",
       "correction_goal": "Preserve voiced final /d/ so it is distinct from built /bɪlt/.",
-      "method": "g2p_tokens"
+      "method": "g2p_tokens",
+      "speed": 0.7,
+      "trim_start_ms": 0,
+      "phoneme_suffix": ".",
+      "strategy": "bella-clarity-r3"
     },
     "change": {
       "observed_issue": "Sounds approximately “kchain”; pronunciation is incorrect.",
@@ -165,7 +185,11 @@
       "target_text": "dug",
       "ipa_goal": "/dʌɡ/",
       "correction_goal": "Dug must use /ʌ/ and remain distinct from dog /dɔɡ/.",
-      "method": "g2p_tokens"
+      "method": "g2p_tokens",
+      "speed": 0.7,
+      "trim_start_ms": 0,
+      "phoneme_suffix": ".",
+      "strategy": "bella-clarity-r3"
     },
     "eat": {
       "observed_issue": "Suena rit",
@@ -264,7 +288,11 @@
       "target_text": "start",
       "ipa_goal": "/stɑrt/",
       "correction_goal": "No prosthetic vowel before /st/.",
-      "method": "g2p_tokens"
+      "method": "g2p_tokens",
+      "speed": 0.7,
+      "trim_start_ms": 65,
+      "phoneme_suffix": ".",
+      "strategy": "bella-clarity-r3"
     },
     "started": {
       "observed_issue": "Estarted dice",
@@ -338,7 +366,11 @@
       "target_text": "washed",
       "ipa_goal": "/wɑʃt/",
       "correction_goal": "Preserve /ʃ/ before final /t/.",
-      "method": "g2p_tokens"
+      "method": "g2p_tokens",
+      "speed": 0.7,
+      "trim_start_ms": 0,
+      "phoneme_suffix": ".",
+      "strategy": "bella-clarity-r3"
     },
     "watched": {
       "observed_issue": "Watst",
@@ -346,7 +378,11 @@
       "target_text": "watched",
       "ipa_goal": "/wɑtʃt/",
       "correction_goal": "Preserve /tʃ/ before final /t/.",
-      "method": "g2p_tokens"
+      "method": "g2p_tokens",
+      "speed": 0.7,
+      "trim_start_ms": 0,
+      "phoneme_suffix": ".",
+      "strategy": "bella-clarity-r3"
     },
     "will tell": {
       "observed_issue": "Will tall",
@@ -362,7 +398,12 @@
       "target_text": "wrote",
       "ipa_goal": "/roʊt/",
       "correction_goal": "Use /oʊ/ in wrote; keep distinct from route pronunciations.",
-      "method": "g2p_tokens"
+      "method": "g2p_tokens",
+      "speed": 0.7,
+      "trim_start_ms": 0,
+      "phoneme_suffix": ".",
+      "strategy": "bella-clarity-r3"
     }
-  }
+  },
+  "pilot_note": "R3 pilot uses slower Bella articulation and optional onset trimming for reported acoustic defects. Only selected pilot items receive the new acoustic strategy."
 }
