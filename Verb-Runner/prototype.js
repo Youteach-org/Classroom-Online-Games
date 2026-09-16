@@ -477,22 +477,19 @@ function monitorIdentityData(){
 function sessionUpdate(patch={}){
   if(!sessionApi||!sessionData)return Promise.resolve();
   if(sessionCode)return sessionApi.updateRunner(sessionCode,runnerSessionId,patch);
-  if(youTeachIdentity)return sessionApi.updateFreeRunner(runnerSessionId,patch);
-  return Promise.resolve();
+  return sessionApi.updateFreeRunner(runnerSessionId,patch);
 }
 function sessionConnect(data={}){
   if(!sessionApi||!sessionData)return Promise.resolve();
   const payload={...monitorIdentityData(),...data};
   if(sessionCode)return sessionApi.connectRunner(sessionCode,runnerSessionId,payload);
-  if(youTeachIdentity)return sessionApi.connectFreeRunner(runnerSessionId,payload);
-  return Promise.resolve();
+  return sessionApi.connectFreeRunner(runnerSessionId,payload);
 }
 function sessionFinish(data={}){
   if(!sessionApi||!sessionData)return Promise.resolve();
   const payload={...monitorIdentityData(),...data};
   if(sessionCode)return sessionApi.finishRunner(sessionCode,runnerSessionId,payload);
-  if(youTeachIdentity)return sessionApi.finishFreeRunner(runnerSessionId,payload);
-  return Promise.resolve();
+  return sessionApi.finishFreeRunner(runnerSessionId,payload);
 }
 
 const renderer=new THREE.WebGLRenderer({canvas,antialias:!IS_MOBILE,alpha:false,powerPreference:'high-performance'});
@@ -887,14 +884,9 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
       return data;
     }
 
-    if(youTeachIdentity){
-      sessionData={status:'free',identitySource:'youteach'};
-      await sessionApi.registerFreeRunnerPresence(runnerSessionId,presenceData);
-      modelStatus.textContent=(youTeachIdentity.nickname||'Student')+' · Free mode';
-      return sessionData;
-    }
-
-    sessionData={status:'local'};
+    sessionData={status:'free',identitySource:youTeachIdentity?'youteach':'local'};
+    await sessionApi.registerFreeRunnerPresence(runnerSessionId,presenceData);
+    modelStatus.textContent=(youTeachIdentity?.nickname||sessionStudentName||runnerSessionId)+' · Free mode';
     return sessionData;
   })
   .catch(err=>{
