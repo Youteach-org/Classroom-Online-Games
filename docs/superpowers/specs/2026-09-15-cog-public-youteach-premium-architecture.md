@@ -1396,3 +1396,12 @@ For YouTeach assignments based on COG activities:
 - This is a **provisional retention decision**, intended to avoid creating an indefinitely growing historical archive while the product is still being designed and validated.
 - The policy may be revisited later if YouTeach adds a separate long-term gradebook/archive strategy with its own retention rules.
 - Until such a strategy is explicitly approved, COG assignment result records should not be treated as permanent academic-history storage.
+
+
+## No teacher download for COG submission receipt — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- The teacher does **not** receive an additional downloadable final receipt/report for the official COG submission.
+- During the active 6-month retention window, the teacher may review the current official submission and its verification status inside YouTeach, but the system does not provide a separate downloadable archival copy for the teacher.
+- This keeps the assignment workflow lightweight and avoids encouraging creation of a parallel long-term document archive outside the bounded in-system retention policy.
