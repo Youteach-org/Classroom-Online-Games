@@ -1011,3 +1011,16 @@ For an explicitly submitted YouTeach-linked COG result:
 - This mapping applies only to the attempt the student explicitly chooses to **Send to teacher**.
 - Practice attempts are not graded or transferred into task points.
 - Undo Submission removes the current official mapping; a later replacement submission creates a new mapping from the newly selected result.
+
+
+## QR identity privacy — confirmed 2026-09-16
+
+For YouTeach-linked evaluable COG activity receipts:
+
+- The student's name must **not** be embedded in the QR payload.
+- The student's name must **not** be exposed on a publicly viewable verification page.
+- The downloadable/printable receipt should avoid exposing student identity to unauthenticated viewers.
+- The QR contains only an opaque receipt identifier or verification URL.
+- When the QR is opened, student identity is revealed only if the viewer is an **authenticated authorized teacher** for that assignment/student context.
+- Unauthenticated verification may show only non-identifying receipt facts such as validity status, activity name, task code, submitted percentage, points earned, attempt count, completion/submission timestamp, and on-time/late status, subject to final privacy review.
+- Authorization must be checked server-side; hiding identity only in the browser UI is insufficient.
