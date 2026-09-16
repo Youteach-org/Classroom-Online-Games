@@ -1060,3 +1060,15 @@ For YouTeach-linked evaluable COG activity receipts:
   - associated with its original submission metadata.
 - A later replacement submission generates a **new receipt and new QR**.
 - Only the current official submission may have an active valid receipt for that assignment/student pair.
+
+
+## Teacher-visible submission history — confirmed 2026-09-16
+
+For YouTeach-linked evaluable COG activities:
+
+- The teacher-facing assignment view shows **only the student's current/final official submitted result**.
+- Previous official submissions that were undone or replaced are **not shown as a visible submission history** in the normal teacher workflow.
+- Practice attempts are never shown individually to the teacher.
+- The cumulative attempt count may still appear on the current final receipt/report.
+- Superseded receipt records may remain only as minimal internal audit/security records needed to invalidate old QR receipts and preserve system integrity, but they are not exposed as normal teacher-facing history.
+- The currently valid final submission is the only result used for the assignment's proportional point conversion.
