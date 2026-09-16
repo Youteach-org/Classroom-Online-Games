@@ -59,9 +59,7 @@ jobs:
           import numpy as np, soundfile as sf
 
           root=Path('Verb-Runner')
-          base='{{ github.event.before }}'
-          if not base or set(base)=={'0'}:
-              base='main^'
+          base='HEAD^'
 
           spec=json.loads((root/'pronunciation-corrections.json').read_text())
           text=(root/'pronunciation-manifest.js').read_text()
