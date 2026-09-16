@@ -411,7 +411,7 @@
         }
       },
       "key": "blew",
-      "lastReviewedAt": 1789569775219,
+      "lastReviewedAt": 1789569782992,
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/blew-28ca160cbb.wav",
@@ -420,16 +420,49 @@
           "previousStatus": "unreviewed",
           "reviewer": "Armando Anota",
           "status": "open",
-          "text": "Sue",
-          "updatedAt": 1789569775219
+          "text": "Suena igual k blue?",
+          "updatedAt": 1789569782992
         }
       },
-      "reviewedAt": 1789569775219,
+      "reviewedAt": 1789569782992,
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/blew-28ca160cbb.wav",
       "sourceType": "local-wav",
       "status": "needs-fix",
-      "updatedAt": 1789569775389
+      "updatedAt": 1789569783088
+    },
+    "build-1i9vvkz": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789569810567,
+      "history": {
+        "-P1ef30KJyCCmS22q3nW": {
+          "action": "report-autosave-started",
+          "at": 1789569810660,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "build",
+      "lastReviewedAt": 1789569816936,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/build-80754af91b.wav",
+          "createdAt": 1789569810567,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Suena igual que built",
+          "updatedAt": 1789569816936
+        }
+      },
+      "reviewedAt": 1789569816936,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/build-80754af91b.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789569817027
     },
     "change-vsu94t": {
       "assetCreatedAt": 1789494062000,
@@ -495,6 +528,303 @@
       "status": "needs-fix",
       "updatedAt": 1789566270500
     },
+    "checks-1ckmkm4": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789569852910,
+      "history": {
+        "-P1efDLqTVVc6QCIFrs2": {
+          "action": "report-autosave-started",
+          "at": 1789569852997,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "checks",
+      "lastReviewedAt": 1789569872039,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/checks-7354fb826f.wav",
+          "createdAt": 1789569852910,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Suena n antes de la palabra",
+          "updatedAt": 1789569872039
+        }
+      },
+      "reviewedAt": 1789569872039,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/checks-7354fb826f.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789569872128
+    },
+    "close-b1hmw3": {
+      "assetCreatedAt": 1789536297000,
+      "firstReviewedAt": 1789569903801,
+      "history": {
+        "-P1efPmBF9Rnjlx4r6zz": {
+          "action": "report-autosave-started",
+          "at": 1789569903899,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "close",
+      "lastReviewedAt": 1789569919042,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "https://cdn.creativeclaw.co/u/ad2cc6b8/audio/72a43561-e236-473d-b367-f538ce12efea.mp3",
+          "createdAt": 1789569903801,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Tiene pronunciacion de verbo o sustantivo?",
+          "updatedAt": 1789569919042
+        }
+      },
+      "reviewedAt": 1789569919042,
+      "reviewedBy": "Armando Anota",
+      "source": "https://cdn.creativeclaw.co/u/ad2cc6b8/audio/72a43561-e236-473d-b367-f538ce12efea.mp3",
+      "sourceType": "external",
+      "status": "needs-fix",
+      "updatedAt": 1789569919119
+    },
+    "crept-1t4a6nf": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789569942192,
+      "history": {
+        "-P1efZ92XB1AtZSG2tnm": {
+          "action": "report-autosave-started",
+          "at": 1789569942290,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "crept",
+      "lastReviewedAt": 1789569952309,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/crept-d741f8224b.wav",
+          "createdAt": 1789569942192,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Suena nasal antes de palabra",
+          "updatedAt": 1789569952309
+        }
+      },
+      "reviewedAt": 1789569952309,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/crept-d741f8224b.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789569952596
+    },
+    "dug-1rvbj0v": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789569996307,
+      "history": {
+        "-P1eflMb_BqinjvtUnH6": {
+          "action": "report-autosave-started",
+          "at": 1789569996406,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "dug",
+      "lastReviewedAt": 1789570003177,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/dug-ff3bde7417.wav",
+          "createdAt": 1789569996307,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Suena a dog? Comparar",
+          "updatedAt": 1789570003177
+        }
+      },
+      "reviewedAt": 1789570003177,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/dug-ff3bde7417.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570003277
+    },
+    "eat-u32v51": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570012900,
+      "history": {
+        "-P1efpPu7xGk2R-WO4G1": {
+          "action": "report-autosave-started",
+          "at": 1789570013001,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "eat",
+      "lastReviewedAt": 1789570023192,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/eat-d89455758e.wav",
+          "createdAt": 1789570012900,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Suena rit",
+          "updatedAt": 1789570023192
+        }
+      },
+      "reviewedAt": 1789570023192,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/eat-d89455758e.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570023283
+    },
+    "eaten-1coazmy": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570030410,
+      "history": {
+        "-P1eftgm2hQKDQWS2tMR": {
+          "action": "report-autosave-started",
+          "at": 1789570030529,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "eaten",
+      "lastReviewedAt": 1789570033009,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/eaten-00ec69d4d5.wav",
+          "createdAt": 1789570030410,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Suena ritten",
+          "updatedAt": 1789570033009
+        }
+      },
+      "reviewedAt": 1789570033009,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/eaten-00ec69d4d5.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570033106
+    },
+    "fall-1wwprhc": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570048497,
+      "history": {
+        "-P1efy60jx62pLFh2ioh": {
+          "action": "report-autosave-started",
+          "at": 1789570048592,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "fall",
+      "lastReviewedAt": 1789570048497,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/fall-c52888225c.wav",
+          "createdAt": 1789570048497,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Suena foul",
+          "updatedAt": 1789570048497
+        }
+      },
+      "reviewedAt": 1789570048497,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/fall-c52888225c.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570048669
+    },
+    "follow-pd76uo": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570076321,
+      "history": {
+        "-P1eg3tlpLotlxS_RbEN": {
+          "action": "report-autosave-started",
+          "at": 1789570076416,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "follow",
+      "lastReviewedAt": 1789570078914,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/follow-f7ac253b1b.wav",
+          "createdAt": 1789570076321,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Suena fala",
+          "updatedAt": 1789570078914
+        }
+      },
+      "reviewedAt": 1789570078914,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/follow-f7ac253b1b.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570078991
+    },
+    "forbade-1t6br0y": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570089688,
+      "history": {
+        "-P1eg79hHHjIvpGlI9vE": {
+          "action": "report-autosave-started",
+          "at": 1789570089788,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "forbade",
+      "lastReviewedAt": 1789570094779,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/forbade-3529d0c1bf.wav",
+          "createdAt": 1789570089688,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Suena forbad",
+          "updatedAt": 1789570094779
+        }
+      },
+      "reviewedAt": 1789570094779,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/forbade-3529d0c1bf.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570094866
+    },
     "fought-4yjxhm": {
       "assetCreatedAt": 1789494062000,
       "firstReviewedAt": 1789538400000,
@@ -526,6 +856,600 @@
       "sourceType": "local-wav",
       "status": "needs-fix",
       "updatedAt": 1789566278318
+    },
+    "live-27aenj": {
+      "assetCreatedAt": 1789532886000,
+      "firstReviewedAt": 1789570311574,
+      "history": {
+        "-P1egyKhfdMiwAXYe4rq": {
+          "action": "report-autosave-started",
+          "at": 1789570311676,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "live",
+      "lastReviewedAt": 1789570321124,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "https://cdn.creativeclaw.co/u/ad2cc6b8/audio/03b52154-8af6-4836-8808-c9c264a897d3.mp3",
+          "createdAt": 1789570311574,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "No es el bot determinado",
+          "updatedAt": 1789570321124
+        }
+      },
+      "reviewedAt": 1789570321124,
+      "reviewedBy": "Armando Anota",
+      "source": "https://cdn.creativeclaw.co/u/ad2cc6b8/audio/03b52154-8af6-4836-8808-c9c264a897d3.mp3",
+      "sourceType": "external",
+      "status": "needs-fix",
+      "updatedAt": 1789570321213
+    },
+    "read-base-hgi17s": {
+      "assetCreatedAt": 1789536297000,
+      "firstReviewedAt": 1789570353948,
+      "history": {
+        "-P1eh7fhkzWaeI9G7epN": {
+          "action": "report-autosave-started",
+          "at": 1789570354044,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "read::base",
+      "lastReviewedAt": 1789570357030,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "https://cdn.creativeclaw.co/u/ad2cc6b8/audio/a8108e85-ff24-49ad-9cc7-ba01705ac86b.mp3",
+          "createdAt": 1789570353948,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Nk es el mismo bot",
+          "updatedAt": 1789570357030
+        }
+      },
+      "reviewedAt": 1789570357030,
+      "reviewedBy": "Armando Anota",
+      "source": "https://cdn.creativeclaw.co/u/ad2cc6b8/audio/a8108e85-ff24-49ad-9cc7-ba01705ac86b.mp3",
+      "sourceType": "external",
+      "status": "needs-fix",
+      "updatedAt": 1789570357121
+    },
+    "read-past-1r6lewd": {
+      "assetCreatedAt": 1789536297000,
+      "firstReviewedAt": 1789570363783,
+      "history": {
+        "-P1ehA4JxST4PVMU1II9": {
+          "action": "report-autosave-started",
+          "at": 1789570363875,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "read::past",
+      "lastReviewedAt": 1789570367748,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "https://cdn.creativeclaw.co/u/ad2cc6b8/audio/1642b4b1-27d3-4052-980b-271c803795d6.mp3",
+          "createdAt": 1789570363783,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "No es el mismo bot",
+          "updatedAt": 1789570367748
+        }
+      },
+      "reviewedAt": 1789570367748,
+      "reviewedBy": "Armando Anota",
+      "source": "https://cdn.creativeclaw.co/u/ad2cc6b8/audio/1642b4b1-27d3-4052-980b-271c803795d6.mp3",
+      "sourceType": "external",
+      "status": "needs-fix",
+      "updatedAt": 1789570367840
+    },
+    "saw-1nooui2": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570377023,
+      "history": {
+        "-P1ehDJCuzs2u6lID8ET": {
+          "action": "report-autosave-started",
+          "at": 1789570377116,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "saw",
+      "lastReviewedAt": 1789570380458,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/saw-29596a43a2.wav",
+          "createdAt": 1789570377023,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Suena mal",
+          "updatedAt": 1789570380458
+        }
+      },
+      "reviewedAt": 1789570380458,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/saw-29596a43a2.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570380550
+    },
+    "should-study-jnqwsb": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570398191,
+      "history": {
+        "-P1ehITxVkC4wezVHP7e": {
+          "action": "report-autosave-started",
+          "at": 1789570398284,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "should study",
+      "lastReviewedAt": 1789570406071,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/should-study-9ee7896108.wav",
+          "createdAt": 1789570398191,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Ashould study dice",
+          "updatedAt": 1789570406071
+        }
+      },
+      "reviewedAt": 1789570406071,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/should-study-9ee7896108.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570406168
+    },
+    "start-s2jf1b": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570439438,
+      "history": {
+        "-P1ehSYT3y77-3WNogCn": {
+          "action": "report-autosave-started",
+          "at": 1789570439533,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "start",
+      "lastReviewedAt": 1789570440707,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/start-2b020927d3.wav",
+          "createdAt": 1789570439438,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Estart dice",
+          "updatedAt": 1789570440707
+        }
+      },
+      "reviewedAt": 1789570440707,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/start-2b020927d3.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570440800
+    },
+    "started-zm1jmm": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570448288,
+      "history": {
+        "-P1ehUhhwt9vAkms_7H0": {
+          "action": "report-autosave-started",
+          "at": 1789570448380,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "started",
+      "lastReviewedAt": 1789570448288,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/started-da7153ee73.wav",
+          "createdAt": 1789570448288,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Estarted dice",
+          "updatedAt": 1789570448288
+        }
+      },
+      "reviewedAt": 1789570448288,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/started-da7153ee73.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570448455
+    },
+    "stop-1keyeat": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570460303,
+      "history": {
+        "-P1ehXe_60re3gUohfVY": {
+          "action": "report-autosave-started",
+          "at": 1789570460468,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "stop",
+      "lastReviewedAt": 1789570460303,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/stop-1b480158e1.wav",
+          "createdAt": 1789570460303,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Estop dice",
+          "updatedAt": 1789570460303
+        }
+      },
+      "reviewedAt": 1789570460303,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/stop-1b480158e1.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570460545
+    },
+    "stopped-urm4i6": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570466420,
+      "history": {
+        "-P1ehZ7obFc5VnZGC-9z": {
+          "action": "report-autosave-started",
+          "at": 1789570466499,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "stopped",
+      "lastReviewedAt": 1789570468170,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/stopped-5acf411124.wav",
+          "createdAt": 1789570466420,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Estopped dice",
+          "updatedAt": 1789570468170
+        }
+      },
+      "reviewedAt": 1789570468170,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/stopped-5acf411124.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570468266
+    },
+    "studied-1ab6ym7": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570473201,
+      "history": {
+        "-P1eh_mzwFznKyjDnxJ2": {
+          "action": "report-autosave-started",
+          "at": 1789570473294,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "studied",
+      "lastReviewedAt": 1789570474768,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/studied-0739a9e099.wav",
+          "createdAt": 1789570473201,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Estudid",
+          "updatedAt": 1789570474768
+        }
+      },
+      "reviewedAt": 1789570474768,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/studied-0739a9e099.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570474858
+    },
+    "studies-1dx1smu": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570480978,
+      "history": {
+        "-P1ehbgVYbm7voWOzlB2": {
+          "action": "report-autosave-started",
+          "at": 1789570481071,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "studies",
+      "lastReviewedAt": 1789570480978,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/studies-a513ed5bdc.wav",
+          "createdAt": 1789570480978,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Estudies",
+          "updatedAt": 1789570480978
+        }
+      },
+      "reviewedAt": 1789570480978,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/studies-a513ed5bdc.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570481146
+    },
+    "study-1u47ca6": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570486408,
+      "history": {
+        "-P1ehd0L9L5mKDL_vkB0": {
+          "action": "report-autosave-started",
+          "at": 1789570486501,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "study",
+      "lastReviewedAt": 1789570487396,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/study-885534c19d.wav",
+          "createdAt": 1789570486408,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Estudy",
+          "updatedAt": 1789570487396
+        }
+      },
+      "reviewedAt": 1789570487396,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/study-885534c19d.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570487489
+    },
+    "use-oapfjo": {
+      "assetCreatedAt": 1789536297000,
+      "firstReviewedAt": 1789570515529,
+      "history": {
+        "-P1ehk7frymbph5hf8SL": {
+          "action": "report-autosave-started",
+          "at": 1789570515642,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "use",
+      "lastReviewedAt": 1789570517471,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "https://cdn.creativeclaw.co/u/ad2cc6b8/audio/0cb14a71-948d-49b5-9347-e1e79146fa10.mp3",
+          "createdAt": 1789570515529,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Different bot",
+          "updatedAt": 1789570517471
+        }
+      },
+      "reviewedAt": 1789570517471,
+      "reviewedBy": "Armando Anota",
+      "source": "https://cdn.creativeclaw.co/u/ad2cc6b8/audio/0cb14a71-948d-49b5-9347-e1e79146fa10.mp3",
+      "sourceType": "external",
+      "status": "needs-fix",
+      "updatedAt": 1789570517571
+    },
+    "used-tji4kw": {
+      "assetCreatedAt": 1789536297000,
+      "firstReviewedAt": 1789570526092,
+      "history": {
+        "-P1ehmiEdNqPHQ6G9tk-": {
+          "action": "report-autosave-started",
+          "at": 1789570526238,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "used",
+      "lastReviewedAt": 1789570527808,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "https://cdn.creativeclaw.co/u/ad2cc6b8/audio/3400a4d2-052e-4dd5-aa74-f4485772b0be.mp3",
+          "createdAt": 1789570526092,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Different bot",
+          "updatedAt": 1789570527808
+        }
+      },
+      "reviewedAt": 1789570527808,
+      "reviewedBy": "Armando Anota",
+      "source": "https://cdn.creativeclaw.co/u/ad2cc6b8/audio/3400a4d2-052e-4dd5-aa74-f4485772b0be.mp3",
+      "sourceType": "external",
+      "status": "needs-fix",
+      "updatedAt": 1789570528490
+    },
+    "washed-1cm1tv3": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570562692,
+      "history": {
+        "-P1ehvdNtaZjj7sIMm0K": {
+          "action": "report-autosave-started",
+          "at": 1789570562791,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "washed",
+      "lastReviewedAt": 1789570562692,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/washed-a803b1a0b3.wav",
+          "createdAt": 1789570562692,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Wast",
+          "updatedAt": 1789570562692
+        }
+      },
+      "reviewedAt": 1789570562692,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/washed-a803b1a0b3.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570562867
+    },
+    "watched-1g525yh": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570576479,
+      "history": {
+        "-P1ehz-hdzAcurmipZ6E": {
+          "action": "report-autosave-started",
+          "at": 1789570576572,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "watched",
+      "lastReviewedAt": 1789570576968,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/watched-2e04e93cf9.wav",
+          "createdAt": 1789570576479,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Watst",
+          "updatedAt": 1789570576968
+        }
+      },
+      "reviewedAt": 1789570576968,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/watched-2e04e93cf9.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570577058
+    },
+    "will-tell-rkjlkc": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570811136,
+      "history": {
+        "-P1eisIGYv50u77g0cSa": {
+          "action": "report-autosave-started",
+          "at": 1789570811241,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "will tell",
+      "lastReviewedAt": 1789570813468,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/will-tell-acb3c1f1e7.wav",
+          "createdAt": 1789570811136,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Will tall",
+          "updatedAt": 1789570813468
+        }
+      },
+      "reviewedAt": 1789570813468,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-tell-acb3c1f1e7.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570813548
+    },
+    "wrote-1sntos6": {
+      "assetCreatedAt": 1789494062000,
+      "firstReviewedAt": 1789570833841,
+      "history": {
+        "-P1eixprhgHP3AUZ9xZM": {
+          "action": "report-autosave-started",
+          "at": 1789570833935,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74"
+        }
+      },
+      "key": "wrote",
+      "lastReviewedAt": 1789570836294,
+      "reports": {
+        "autosave-armando-anota-22dz74": {
+          "assetSource": "./audio/pronunciation/wrote-f2882460e5.wav",
+          "createdAt": 1789570833841,
+          "kind": "pronunciation",
+          "previousStatus": "unreviewed",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "Route suena",
+          "updatedAt": 1789570836294
+        }
+      },
+      "reviewedAt": 1789570836294,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/wrote-f2882460e5.wav",
+      "sourceType": "local-wav",
+      "status": "needs-fix",
+      "updatedAt": 1789570836617
     }
   }
 }
