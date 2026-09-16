@@ -94,7 +94,7 @@ export function renderCard(entry,template,audioUrl){
     `Created ${fmt(entry.assetCreatedAt)}`,
     `By ${entry.reviewedBy||'—'}`,
     `Reviewed ${fmt(entry.reviewedAt)}`,
-    entry.duplicateOf?`Duplicate of: ${entry.duplicateOf}`:''
+    entry.duplicateOf?`Duplicate of #${String(entry.duplicateOfRef||'?').padStart(3,'0')} — ${entry.duplicateOf}`:''
   ].filter(Boolean).join(' · ');
   node.querySelector('audio').src=audioUrl(entry.src);
 
@@ -106,7 +106,13 @@ export function renderCard(entry,template,audioUrl){
     node.querySelector('.autosave-status').textContent='Saved';
   }
 
-  node.querySelector('.duplicate-target').value=entry.duplicateOf||'';
+  const duplicateRefInput=node.querySelector('.duplicate-target-ref');
+  const duplicateMatch=node.querySelector('.duplicate-match');
+  if(entry.duplicateOfRef){
+    duplicateRefInput.value=entry.duplicateOfRef;
+    duplicateMatch.textContent=`#${String(entry.duplicateOfRef).padStart(3,'0')} — ${entry.duplicateOf||''}`;
+    duplicateMatch.dataset.state='ok';
+  }
   node.querySelector('[data-action="remove-duplicate"]').hidden=entry.status!=='duplicate';
   node.querySelector('[data-action="restore-duplicate"]').hidden=entry.status!=='removed-duplicate';
   renderReports(entry,node);
