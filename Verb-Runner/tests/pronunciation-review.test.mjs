@@ -199,3 +199,42 @@ test('duplicated audio records the original by numbered reference',()=>{
   assert.match(render,/Duplicate of #/);
   assert.match(exp,/Duplicate of: #/);
 });
+
+
+test('duplicated action removes the redundant asset from active review immediately',()=>{
+  const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
+  const actions=readFileSync(join(reviewRoot,'review-actions.js'),'utf8');
+  const events=readFileSync(join(reviewRoot,'review-events.js'),'utf8');
+  const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
+
+  assert.match(html,/>Remove duplicate<\/button>/);
+  assert.doesNotMatch(html,/Queue duplicate for deletion/);
+  assert.doesNotMatch(html,/data-action="remove-duplicate"/);
+  assert.match(actions,/status:'removed-duplicate'/);
+  assert.match(actions,/removedAsDuplicate:true/);
+  assert.match(actions,/cleanupRequested:true/);
+  assert.match(actions,/duplicate-cleanup-requested/);
+  assert.doesNotMatch(actions,/export async function removeDuplicate/);
+  assert.doesNotMatch(events,/action==='remove-duplicate'/);
+  assert.match(app,/filter==='all'&&entry\.status==='removed-duplicate'/);
+});
+
+test('repository duplicate cleanup reuses the original asset and deletes redundant WAVs',()=>{
+  const generator=readFileSync(join(root,'scripts','generate-pronunciation.py'),'utf8');
+  const cleanup=readFileSync(join(root,'scripts','apply-pronunciation-duplicates.py'),'utf8');
+  const workflow=readFileSync(join(root,'..','.github','workflows','pronunciation-review-backup.yml'),'utf8');
+  const aliases=JSON.parse(readFileSync(join(root,'pronunciation-aliases.json'),'utf8'));
+
+  assert.deepEqual(aliases,{});
+  assert.match(generator,/load_pronunciation_aliases/);
+  assert.match(generator,/resolve_alias/);
+  assert.match(generator,/aliases/);
+  assert.match(cleanup,/cleanupRequested/);
+  assert.match(cleanup,/duplicateOf/);
+  assert.match(cleanup,/pronunciation-aliases\.json/);
+  assert.match(workflow,/cron: "\*\/5 \* \* \* \*"/);
+  assert.match(workflow,/apply-pronunciation-duplicates\.py/);
+  assert.match(workflow,/generate-pronunciation\.py/);
+  assert.match(workflow,/Verb-Runner\/pronunciation-aliases\.json/);
+  assert.match(workflow,/Verb-Runner\/audio\/pronunciation/);
+});
