@@ -1261,3 +1261,24 @@ For YouTeach evaluable COG activities:
 - Only a server-validated result becomes eligible for **Send to teacher**, proportional point conversion, teacher-facing display, and verifiable receipt/QR generation.
 - Client-side manipulation of JavaScript, local storage, network payloads, visible score text, or browser developer tools must not be sufficient to create or alter an official result.
 - This requirement applies to the standardized result contract for every game certified as compatible with YouTeach assignments.
+
+
+## Compact verifiable attempt summary — confirmed 2026-09-16
+
+For YouTeach evaluable COG activities:
+
+- The system does **not** need to persist every click, movement, animation event, intermediate answer event, or raw gameplay telemetry in order to validate an official result.
+- When an attempt finishes, the authorized game/session path produces a **compact verifiable attempt summary**.
+- The summary should include only the data needed to validate the attempt and reconstruct its official result, such as:
+  - authorized session/attempt identifier;
+  - authenticated student/assignment linkage on the server side;
+  - assigned game and stable configuration identifiers;
+  - start and completion timestamps;
+  - completion state;
+  - aggregate successes/errors and other game-specific counters needed by that game's scoring formula;
+  - compact predefined error/concept codes when applicable;
+  - normalized 0–100 result or the validated inputs from which the server derives it.
+- The server validates that the summary is coherent with the authorized launch/session and the game's scoring rules before marking the result eligible for **Send to teacher**.
+- The trust mechanism must be server-verifiable. A client-created payload, local signature, hidden field, localStorage value, or browser-only secret is not sufficient evidence.
+- Where practical, the backend should calculate or independently verify the final 0–100 value from the compact aggregate inputs rather than accepting an arbitrary client-provided score.
+- This compact-summary design preserves the confirmed local-first architecture and avoids permanent storage of raw gameplay event streams.
