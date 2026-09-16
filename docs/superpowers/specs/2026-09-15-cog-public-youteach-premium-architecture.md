@@ -1215,3 +1215,15 @@ For YouTeach assignments based on COG activities:
 - The assignment continues to preserve its own configured requirements, such as game identity, mode/modality, difficulty, optional minimum threshold, due/reopen rules, and point value.
 - Updating a COG game should therefore improve/fix the experience for already-created assignments instead of leaving those assignments on old copies.
 - The standardized YouTeach assignment contract must remain compatible across game updates so that existing assignments continue to launch, count attempts, submit results, and generate valid receipts.
+
+
+## Backward-compatible assignment configuration — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- Game updates must preserve compatibility with configuration values already used by existing assignments.
+- If an assignment references a previously valid mode, modality, difficulty, or other assignment-level option, the updated game must continue to understand and honor that configuration.
+- Renaming or reorganizing options in the current UI must not silently invalidate existing assignments.
+- Internal stable identifiers should be used for assignable configuration values so display labels may evolve without breaking stored assignments.
+- If an option is retired for new assignments, existing assignments that already use it must remain functional until those assignments are no longer active/relevant.
+- Updates must not silently substitute a materially different configuration for an existing assignment.
