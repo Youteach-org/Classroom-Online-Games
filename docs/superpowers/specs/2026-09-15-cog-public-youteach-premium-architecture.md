@@ -1072,3 +1072,17 @@ For YouTeach-linked evaluable COG activities:
 - The cumulative attempt count may still appear on the current final receipt/report.
 - Superseded receipt records may remain only as minimal internal audit/security records needed to invalidate old QR receipts and preserve system integrity, but they are not exposed as normal teacher-facing history.
 - The currently valid final submission is the only result used for the assignment's proportional point conversion.
+
+
+## Creating YouTeach assignments from COG games — confirmed 2026-09-16
+
+When a teacher creates a YouTeach assignment that uses a COG activity:
+
+- The assignment creation flow includes an **Activity COG** option/type.
+- The teacher selects the specific COG game to assign.
+- The teacher configures the required game **mode/modality** and **difficulty** for that assignment.
+- Those settings become part of the assignment configuration and are included in the secure YouTeach-to-COG launch context.
+- A submitted result is considered valid for that assignment only if it comes from the assigned game under the required configuration.
+- The student may practice repeatedly under that assigned configuration and later choose which result to **Send to teacher**.
+- The final submitted result is converted proportionally into the task's configured point value.
+- The verified receipt/QR corresponds to that final submitted result and assigned configuration.
