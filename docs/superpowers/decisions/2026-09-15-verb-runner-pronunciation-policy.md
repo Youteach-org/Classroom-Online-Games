@@ -6,7 +6,7 @@ Pronunciation audio for Verb Runner must represent the grammatical role used in 
 
 ## Locked correction voice
 
-The production voice for **new or regenerated corrections is Kokoro Bella**, voice id/name `af_bella`.
+The default production voice for **new or regenerated corrections is Kokoro Bella**, voice id/name `af_bella`.
 
 This supersedes the temporary Nichalia decision made on 2026-09-15. The user clarified on 2026-09-16 that the intended reference voice was the original Kokoro/Bella bank and requested that corrections continue with the same configuration so corrected clips do not sound like a different speaker.
 
@@ -25,6 +25,18 @@ Every regenerated correction must keep the original bank settings:
 - Peak protection: if speech peak is above `0.98`, normalize speech to `0.96` before adding silence.
 
 Do not change voice, speed, silence, sample rate, format, or normalization per correction unless the user explicitly changes this policy.
+
+
+## Approved voice exceptions
+
+Two isolated words are explicit teacher-approved exceptions to the default Bella policy:
+
+- `build` → AI Voice Generator, voice style `fancy`
+- `washed` → AI Voice Generator, voice style `fancy`
+
+These exceptions were approved on 2026-09-16 after multiple focused Kokoro `af_bella` variants were reviewed and rejected. They apply **only** to these two words. The rest of the pronunciation bank continues to use the locked Bella profile unless the teacher explicitly approves another exception.
+
+The generator must preserve an `approved_source_url` for these items and must not overwrite them with Kokoro during future pronunciation-bank regeneration.
 
 ## Pronunciation disambiguation
 
