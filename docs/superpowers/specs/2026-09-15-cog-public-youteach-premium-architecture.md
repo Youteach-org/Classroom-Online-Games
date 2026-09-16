@@ -1427,3 +1427,14 @@ For YouTeach assignments based on COG activities:
 - **C — No teacher-facing error-category summary:** the normal teacher view does not show compact error-category counts such as spelling/verb-form breakdowns for the COG submission. The teacher view stays focused on the confirmed final-submission fields.
 - **D — No immediate post-submit points display to student:** after **Send to teacher**, YouTeach does not automatically present the student with a new teacher-facing-style percentage/assignment-points summary as part of the submission confirmation. The student may already have seen the game result in the gameplay flow, but submission itself does not add an immediate YouTeach grade/points reveal.
 - **E — Teacher may disable Undo Submission per task:** while an assignment is still open, the teacher may configure that specific task so students cannot use **Undo Submission**. This is an assignment-level control and does not require closing the entire assignment.
+
+
+## Published-task configuration immutability — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- **A — Published configuration is immutable:** once a COG assignment is published, the teacher cannot change its assigned game mode/modality, difficulty, or optional minimum-performance threshold.
+- Because those configuration values cannot change after publication, the previously discussed scenarios about invalidating old attempts after a mode/difficulty change or preserving/recalculating already-submitted work after such a change are **not applicable**.
+- Likewise, changing only the minimum after publication is not supported; the minimum is fixed as part of the published assignment configuration.
+- If the teacher needs different configuration values, that requires a new assignment rather than mutating the published one.
+- **E — Undo Submission toggle is reversible while open:** if the teacher disables **Undo Submission** for an open task, the teacher may re-enable it later while that task remains open.
