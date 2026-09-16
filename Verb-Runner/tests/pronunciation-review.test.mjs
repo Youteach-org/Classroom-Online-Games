@@ -176,17 +176,26 @@ test('Firebase autosave rerender preserves review position and open panels',()=>
 });
 
 
-test('an audio can be marked duplicated without choosing a canonical key first',()=>{
+test('duplicated audio records the original by numbered reference',()=>{
   const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
+  const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
   const actions=readFileSync(join(reviewRoot,'review-actions.js'),'utf8');
   const events=readFileSync(join(reviewRoot,'review-events.js'),'utf8');
   const render=readFileSync(join(reviewRoot,'review-render.js'),'utf8');
+  const coreFile=readFileSync(join(reviewRoot,'review-core.js'),'utf8');
+  const exp=readFileSync(join(reviewRoot,'review-export.js'),'utf8');
 
-  assert.match(html,/Same as \/ original \(optional\)/);
-  assert.match(html,/>Mark duplicated<\/button>/);
-  assert.match(actions,/canonical\?\.key\|\|''/);
-  assert.doesNotMatch(actions,/if\(!record\.duplicateOf\)throw new Error/);
-  assert.match(events,/if\(target\)[\s\S]*getEntryByKey\(target\)/);
-  assert.match(events,/await markDuplicate\(entry,record,canonical,by\)/);
-  assert.match(render,/'duplicate':'DUPLICATED'/);
+  assert.match(html,/Original audio #/);
+  assert.match(html,/class="duplicate-target-ref" type="number"/);
+  assert.match(html,/class="duplicate-match"/);
+  assert.doesNotMatch(html,/Same as \/ original/);
+  assert.match(app,/getEntryByNumber/);
+  assert.match(events,/updateDuplicateMatch/);
+  assert.match(events,/getEntryByNumber\(value\)/);
+  assert.match(events,/Enter the number of the original audio first/);
+  assert.match(actions,/duplicateOfRef=canonical\.n/);
+  assert.match(actions,/duplicateOfRef,/);
+  assert.match(coreFile,/duplicateOfRef:Number\(record\.duplicateOfRef\)\|\|null/);
+  assert.match(render,/Duplicate of #/);
+  assert.match(exp,/Duplicate of: #/);
 });
