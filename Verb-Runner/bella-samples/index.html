@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kokoro Bella Pronunciation Lab</title>
+  <style>
+    body{font-family:Arial,sans-serif;background:#f5f7fa;color:#18202b;margin:0;padding:18px}
+    main{max-width:980px;margin:auto}
+    h1{margin:0 0 4px;font-size:26px}
+    .note{margin:0 0 16px;color:#536070}
+    .badge{display:inline-block;padding:3px 7px;border-radius:999px;background:#e8edf4;font-size:12px;font-weight:700}
+    table{width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden}
+    th,td{padding:10px;border-bottom:1px solid #e5e9ef;vertical-align:middle}
+    th{text-align:left;background:#eef2f7;font-size:13px}
+    td:first-child{font-size:17px;font-weight:700;white-space:nowrap}
+    audio{width:100%;min-width:150px;height:32px}
+    @media(max-width:760px){
+      body{padding:10px}
+      table,thead,tbody,tr,th,td{display:block}
+      thead{display:none}
+      tr{padding:10px;border-bottom:1px solid #dfe5ec}
+      td{border:0;padding:5px 0}
+      td[data-label]::before{content:attr(data-label);display:block;font-size:11px;font-weight:700;color:#627083;margin-bottom:3px}
+      audio{width:100%}
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Kokoro Bella Pronunciation Lab</h1>
+  <p class="note"><span class="badge">VOICE: af_bella</span> All three columns use the exact same Kokoro Bella voice. Only speed/input method changes.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Word / phrase</th>
+        <th>Bella 0.8 · normal text</th>
+        <th>Bella 1.0 · normal text</th>
+        <th>Bella 0.9 · explicit phonemes</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+</main>
+<script>
+fetch('./manifest.json').then(r=>r.json()).then(data=>{
+  const rows=document.querySelector('#rows');
+  for(const item of Object.values(data.items)){
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${item.label}</td>
+      <td data-label="Bella 0.8 · normal text"><audio controls preload="none" src="${item.files['bella-08-text']}"></audio></td>
+      <td data-label="Bella 1.0 · normal text"><audio controls preload="none" src="${item.files['bella-10-text']}"></audio></td>
+      <td data-label="Bella 0.9 · explicit phonemes"><audio controls preload="none" src="${item.files['bella-09-phoneme']}"></audio></td>
+    `;
+    rows.appendChild(tr);
+  }
+});
+</script>
+</body>
+</html>
