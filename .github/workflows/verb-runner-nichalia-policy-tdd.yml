@@ -5,16 +5,27 @@ on:
     branches:
       - fix/verb-runner-female-pronunciation-policy
     paths:
-      - "Verb-Runner/scripts/generate-pronunciation.py"
-      - "Verb-Runner/tests/pronunciation-policy.test.mjs"
+      - "Verb-Runner/**"
+      - ".github/workflows/cloudflare-pages-main.yml"
+      - ".github/workflows/verb-runner-pronunciation.yml"
       - ".github/workflows/verb-runner-nichalia-policy-tdd.yml"
+      - "docs/superpowers/**"
 
 permissions:
   contents: read
 
 jobs:
-  policy:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: node --test Verb-Runner/tests/pronunciation-policy.test.mjs
+      - name: Verify approved pronunciation assets
+        run: python Verb-Runner/scripts/generate-pronunciation.py
+      - name: Check JavaScript modules
+        run: |
+          node --check Verb-Runner/pronunciation.js
+          node --check Verb-Runner/prototype.js
+      - name: Run full Verb Runner regression suite
+        run: |
+          node --test Verb-Runner/tests/*.test.mjs
+          node --test Verb-Runner/sentence-run.test.js
