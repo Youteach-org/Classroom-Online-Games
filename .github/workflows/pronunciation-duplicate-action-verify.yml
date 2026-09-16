@@ -1,0 +1,17 @@
+name: Pronunciation duplicate action verification
+
+on:
+  push:
+    branches:
+      - fix/pronunciation-review-duplicate-action
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          node --check Verb-Runner/pronunciation-review/review-actions.js
+          node --check Verb-Runner/pronunciation-review/review-events.js
+          node --test Verb-Runner/tests/pronunciation-review.test.mjs
