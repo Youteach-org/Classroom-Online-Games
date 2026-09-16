@@ -1351,3 +1351,14 @@ For YouTeach assignments based on COG activities:
 - Closing the assignment ends the current visible resubmission-numbering cycle.
 - A later reopening starts a fresh cycle whose first official submission is again **Entrega**.
 - This visible resubmission numbering remains separate from the cumulative gameplay-attempt count, which continues across the whole assignment.
+
+
+## Final receipt remains verifiable after assignment closure — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- The QR/receipt for the **current final official submission remains verifiable after the assignment is closed**.
+- Closing the assignment or passing the due date does not by itself invalidate the final official receipt.
+- The receipt continues to prove that YouTeach/COG recorded a valid official submission under the authorized assignment context.
+- Previously superseded receipts remain invalid, consistent with the confirmed Undo Submission rules.
+- A receipt only stops being valid when it is explicitly superseded/invalidated by the submission lifecycle or removed under a future retention policy; ordinary assignment closure is not an invalidation event.
