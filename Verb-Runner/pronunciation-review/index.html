@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="google" content="notranslate">
   <title>Verb Runner Pronunciation Review</title>
-  <link rel="stylesheet" href="./review.css?v=1">
+  <link rel="stylesheet" href="./review.css?v=2">
 </head>
 <body>
   <header class="topbar">
@@ -66,9 +66,9 @@
 
       <div class="listen-row">
         <audio controls preload="none"></audio>
-        <button class="ok-button" type="button" data-action="reviewed">Reviewed OK</button>
+        <button class="ok-button" type="button" data-action="reviewed">OK</button>
         <button class="report-button" type="button" data-action="toggle-report">Report</button>
-        <button class="duplicate-button" type="button" data-action="toggle-duplicate">Duplicate</button>
+        <button class="duplicate-button" type="button" data-action="toggle-duplicate">Duplicated</button>
       </div>
 
       <section class="report-panel panel" hidden>
@@ -80,7 +80,7 @@
             <option value="timing">Timing / cut / vibrato</option>
             <option value="other">Other</option>
           </select>
-          <button type="button" data-action="save-report">Save report</button>
+          <span class="autosave-status" aria-live="polite"></span>
         </div>
       </section>
 
@@ -111,6 +111,6 @@
   <script src="../../Support-Meter/config.js"></script>
   <script src="../pronunciation-manifest.js?v=review-console-1"></script>
   <script src="./review-core.js?v=1"></script>
-  <script type="module" src="./review-app.js?v=1"></script>
+  <script type="module" src="./review-app.js?v=2"></script>
 </body>
 </html>
