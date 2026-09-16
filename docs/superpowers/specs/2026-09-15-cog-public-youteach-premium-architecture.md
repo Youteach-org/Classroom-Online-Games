@@ -1185,3 +1185,22 @@ For the current/final official COG submission in YouTeach, an authenticated auth
 Student identity is shown only to an authenticated authorized teacher, consistent with the QR privacy rules.
 
 The normal teacher-facing workflow shows only the current/final official submission, not prior replaced submissions or individual practice attempts.
+
+
+## COG assignment compatibility certification — confirmed 2026-09-16
+
+For the YouTeach **Activity COG** assignment type:
+
+- The game selector shows only COG games that are explicitly marked as **compatible with YouTeach evaluable assignments**.
+- A compatible game must implement the standardized assignment contract required for:
+  - secure YouTeach-linked launch context;
+  - assigned mode/modality and difficulty;
+  - cumulative attempt counting;
+  - optional overall minimum-performance gate;
+  - explicit **Send to teacher** submission;
+  - standardized compact result payload;
+  - proportional score mapping;
+  - verifiable receipt/QR generation;
+  - assignment open/closed and reopening behavior.
+- Games that do not yet implement this contract remain playable in COG but do not appear as assignable YouTeach activities.
+- Compatibility is an explicit capability flag/certification, not inferred merely because the game exists in the COG catalog.
