@@ -83,12 +83,14 @@ The same underlying game can expose different features according to the authenti
 
 ### Confirmed Premium sign-in baseline
 
-Public COG Premium accounts will support:
+Public COG Premium accounts will support at launch:
 
 - **Google sign-in**
+- **Microsoft sign-in**
+- **Apple sign-in**
 - **Email + password**
 
-Additional providers may be added if they serve the educational audience without unnecessary complexity.
+These methods all resolve into a single COG account/identity. A user may later link more than one sign-in method to the same account rather than creating duplicate Premium profiles.
 
 ### Confirmed entitlement rule
 
@@ -340,7 +342,7 @@ The following still require explicit decisions before implementation planning is
 13. Data retention/privacy policy for public users and minors.
 14. Hard difficulty default speed exact value.
 15. Whether public Premium accounts can later link/import into a YouTeach identity.
-16. Additional optional Premium sign-in providers beyond the confirmed baseline.
+16. Future optional sign-in methods (for example passkeys) beyond the confirmed launch set.
 
 ---
 
@@ -364,4 +366,4 @@ The following still require explicit decisions before implementation planning is
 - Confirmed public COG guests can access a game directly if they have its public link, without registering.
 - Confirmed that possession of a YouTeach private game URL alone never grants YouTeach/Premium access; private access requires a valid authenticated launch credential.
 - Confirmed the public account model is intentionally simple: **Guest** or **Premium** only. There is no separate free registered account tier.
-- Confirmed the baseline Premium sign-in methods: **Google** and **email + password**.
+- Confirmed the Premium launch sign-in methods: **Google**, **Microsoft**, **Apple**, and **email + password**.
