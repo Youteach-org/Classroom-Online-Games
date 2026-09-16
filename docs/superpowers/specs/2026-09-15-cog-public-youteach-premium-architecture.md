@@ -1405,3 +1405,14 @@ For YouTeach assignments based on COG activities:
 - The teacher does **not** receive an additional downloadable final receipt/report for the official COG submission.
 - During the active 6-month retention window, the teacher may review the current official submission and its verification status inside YouTeach, but the system does not provide a separate downloadable archival copy for the teacher.
 - This keeps the assignment workflow lightweight and avoids encouraging creation of a parallel long-term document archive outside the bounded in-system retention policy.
+
+
+## Ephemeral downloadable improvement report — confirmed 2026-09-16
+
+For COG learning/improvement reports:
+
+- The student may download the one-page improvement report generated from the current gameplay/result context.
+- The report exists only for that generation instance and is **not stored as a permanent downloadable file** by COG/YouTeach.
+- Once that instance/session is gone, the system does not retain a permanent copy of the generated PDF/report artifact.
+- The underlying compact aggregates may still be retained only according to the separately confirmed Guest/Premium/YouTeach retention rules.
+- This improvement report remains separate from the YouTeach official submission receipt/QR.
