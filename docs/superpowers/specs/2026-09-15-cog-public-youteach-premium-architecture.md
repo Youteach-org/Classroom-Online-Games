@@ -1099,3 +1099,14 @@ When a teacher creates a YouTeach assignment based on a COG activity:
 - Once the threshold is met, the student may choose **Send to teacher** for that attempt.
 - The final submitted percentage is still converted proportionally into the points assigned to the task.
 - The configured minimum belongs to the assignment, not globally to the game.
+
+
+## Single overall minimum threshold — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- Each assignment may define **one overall minimum performance percentage** required before the student may use **Send to teacher**.
+- There are **no per-concept or per-criterion minimum thresholds** inside the game submission gate.
+- The game result only determines whether the overall minimum has been reached and supplies the student's submitted performance percentage.
+- The existing YouTeach assignment criteria/rubric continue to determine how the assignment's available points are structured and allocated.
+- The minimum-performance gate must not duplicate or replace the assignment rubric.
