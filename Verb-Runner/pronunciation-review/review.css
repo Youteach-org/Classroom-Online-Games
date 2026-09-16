@@ -47,7 +47,12 @@ main{max-width:1180px;margin:auto;padding:10px 12px 90px}
 .report-text{width:100%;resize:vertical;min-height:72px}
 .panel-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:6px}
 .autosave-status{font-size:11px;font-weight:700;color:#5e6b7d;min-width:54px}
-.duplicate-panel label{display:grid;gap:5px;font-size:12px;font-weight:700}
+.duplicate-reference-row{display:flex;align-items:end;gap:8px;flex-wrap:wrap}
+.duplicate-panel label{display:grid;gap:4px;font-size:11px;font-weight:700}
+.duplicate-target-ref{width:92px}
+.duplicate-match{font-size:11px;color:#5d6878;min-height:18px;padding-bottom:7px}
+.duplicate-match[data-state="ok"]{font-weight:800;color:#285c3f}
+.duplicate-match[data-state="error"]{font-weight:800;color:#a51f1f}
 .review-history-panel{margin-top:6px}
 .history-group+.history-group{margin-top:8px;padding-top:8px;border-top:1px solid #e0e5ed}
 .history-title{font-size:11px;font-weight:800;color:#52627b}
