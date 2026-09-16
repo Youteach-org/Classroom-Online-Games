@@ -1,6 +1,6 @@
 {
   "revision": "2026-09-16-r3",
-  "status": "VALIDATED_WITH_APPROVED_VOICE_EXCEPTIONS",
+  "status": "VALIDATED_FOR_GENERATION",
   "interpretation_rule": "Teacher notes describe the observed problem. They are not synthesis instructions. Question notes are validated before deciding whether replacement is needed.",
   "excluded_as_correct": {
     "blew": {
