@@ -1120,3 +1120,15 @@ For YouTeach assignments based on COG activities:
 - If the teacher leaves the minimum field empty, the student may use **Send to teacher** with any completed result.
 - If the teacher enters a minimum percentage, only results that meet or exceed that percentage may be submitted.
 - The absence of a minimum does not change the assignment rubric or proportional point conversion.
+
+
+## Practice after assignment deadline — confirmed 2026-09-16
+
+For YouTeach assignments based on COG activities:
+
+- After the assignment due date/time has passed, the student may still open the assigned COG game and continue practicing.
+- Once the assignment is closed/expired, **Send to teacher** is disabled.
+- Practice attempts completed after the deadline do not become official submissions while the task remains closed.
+- The teacher may restore submission ability by reopening the assignment or extending its due date.
+- The existing assignment open/closed state remains the authority for whether a result may be submitted.
+- This preserves COG's learning/practice function even after the graded submission window closes.
