@@ -121,3 +121,11 @@ test('review action labels are concise and descriptive',()=>{
   assert.doesNotMatch(html,/>Reviewed OK<\/button>/);
   assert.doesNotMatch(html,/>Duplicate<\/button>/);
 });
+
+
+test('audio review controls stay on one compact row',()=>{
+  const css=readFileSync(join(reviewRoot,'review.css'),'utf8');
+  assert.match(css,/\.listen-row\{display:grid;grid-template-columns:minmax\(120px,1fr\) auto auto auto/);
+  assert.match(css,/\.listen-row button\{padding:6px 8px;font-size:12px;white-space:nowrap\}/);
+  assert.doesNotMatch(css,/\.listen-row\{[^}]*flex-wrap:wrap/);
+});
