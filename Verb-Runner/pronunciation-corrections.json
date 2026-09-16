@@ -1,5 +1,5 @@
 {
-  "revision": "2026-09-16-r3",
+  "revision": "2026-09-16-r4",
   "status": "VALIDATED_FOR_GENERATION",
   "interpretation_rule": "Teacher notes describe the observed problem. They are not synthesis instructions. Question notes are validated before deciding whether replacement is needed.",
   "excluded_as_correct": {
@@ -48,11 +48,14 @@
     },
     "ask": {
       "observed_issue": "Suena nask",
-      "decision": "confirmed-error",
+      "decision": "approved-review-candidate",
       "target_text": "ask",
       "ipa_goal": "/æsk/",
       "correction_goal": "No consonant before /æ/.",
-      "method": "g2p_tokens"
+      "method": "approved-review-candidate",
+      "approved_source": "./bella-samples/round2-audio/ask--a-105-text.wav",
+      "approved_by_teacher_at": "2026-09-16",
+      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console."
     },
     "asked": {
       "observed_issue": "Sounds like “nasked”.",
@@ -72,11 +75,14 @@
     },
     "ate": {
       "observed_issue": "Sounds like “great” rather than “ate”.",
-      "decision": "confirmed-error",
+      "decision": "approved-review-candidate",
       "target_text": "ate",
       "ipa_goal": "/eɪt/",
       "correction_goal": "One syllable, no initial consonant.",
-      "method": "g2p_tokens"
+      "method": "approved-review-candidate",
+      "approved_source": "./bella-samples/audio/ate--bella-10-text.wav",
+      "approved_by_teacher_at": "2026-09-16",
+      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console."
     },
     "be": {
       "observed_issue": "Does not sound like the English verb /biː/.",
@@ -96,11 +102,14 @@
     },
     "bend": {
       "observed_issue": "Suena igual que bent",
-      "decision": "confirmed-error",
+      "decision": "approved-review-candidate",
       "target_text": "bend",
       "ipa_goal": "/bɛnd/",
       "correction_goal": "Preserve voiced final /d/ so it is distinct from bent /bɛnt/.",
-      "method": "g2p_tokens"
+      "method": "approved-review-candidate",
+      "approved_source": "./bella-samples/round2-audio/bend--a-105-text.wav",
+      "approved_by_teacher_at": "2026-09-16",
+      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console."
     },
     "bitten": {
       "observed_issue": "Sounds approximately “betten”.",
@@ -121,7 +130,8 @@
       "voice": "fancy",
       "approved_source_url": "https://www.aidocmaker.com/g0/audio?name=d1cd1b4c12ad44bbbb243cbd3cd3c881",
       "approved_by_teacher_at": "2026-09-16",
-      "exception_reason": "Kokoro af_bella variants remained unacceptable after focused review; teacher approved fancy voice specifically for this word."
+      "exception_reason": "Kokoro af_bella variants remained unacceptable after focused review; teacher approved fancy voice specifically for this word.",
+      "approved_source": "https://www.aidocmaker.com/g0/audio?name=d1cd1b4c12ad44bbbb243cbd3cd3c881"
     },
     "change": {
       "observed_issue": "Sounds approximately “kchain”; pronunciation is incorrect.",
@@ -166,11 +176,14 @@
     },
     "dug": {
       "observed_issue": "Suena a dog? Comparar",
-      "decision": "question-resolved-needs-fix",
+      "decision": "approved-review-candidate",
       "target_text": "dug",
       "ipa_goal": "/dʌɡ/",
       "correction_goal": "Dug must use /ʌ/ and remain distinct from dog /dɔɡ/.",
-      "method": "g2p_tokens"
+      "method": "approved-review-candidate",
+      "approved_source": "./bella-samples/audio/dug--bella-08-text.wav",
+      "approved_by_teacher_at": "2026-09-16",
+      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console."
     },
     "eat": {
       "observed_issue": "Suena rit",
@@ -265,11 +278,14 @@
     },
     "start": {
       "observed_issue": "Estart dice",
-      "decision": "confirmed-error",
+      "decision": "approved-review-candidate",
       "target_text": "start",
       "ipa_goal": "/stɑrt/",
       "correction_goal": "No prosthetic vowel before /st/.",
-      "method": "g2p_tokens"
+      "method": "approved-review-candidate",
+      "approved_source": "./bella-samples/audio/start--bella-10-text.wav",
+      "approved_by_teacher_at": "2026-09-16",
+      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console."
     },
     "started": {
       "observed_issue": "Estarted dice",
@@ -348,15 +364,19 @@
       "voice": "fancy",
       "approved_source_url": "https://www.aidocmaker.com/g0/audio?name=b196bfada13f4374a2225a52556f784c",
       "approved_by_teacher_at": "2026-09-16",
-      "exception_reason": "Kokoro af_bella variants remained unacceptable after focused review; teacher approved fancy voice specifically for this word."
+      "exception_reason": "Kokoro af_bella variants remained unacceptable after focused review; teacher approved fancy voice specifically for this word.",
+      "approved_source": "https://www.aidocmaker.com/g0/audio?name=b196bfada13f4374a2225a52556f784c"
     },
     "watched": {
       "observed_issue": "Watst",
-      "decision": "confirmed-error",
+      "decision": "approved-review-candidate",
       "target_text": "watched",
       "ipa_goal": "/wɑtʃt/",
       "correction_goal": "Preserve /tʃ/ before final /t/.",
-      "method": "g2p_tokens"
+      "method": "approved-review-candidate",
+      "approved_source": "./bella-samples/audio/watched--bella-08-text.wav",
+      "approved_by_teacher_at": "2026-09-16",
+      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console."
     },
     "will tell": {
       "observed_issue": "Will tall",
@@ -368,11 +388,14 @@
     },
     "wrote": {
       "observed_issue": "Route suena",
-      "decision": "confirmed-error",
+      "decision": "approved-review-candidate",
       "target_text": "wrote",
       "ipa_goal": "/roʊt/",
       "correction_goal": "Use /oʊ/ in wrote; keep distinct from route pronunciations.",
-      "method": "g2p_tokens"
+      "method": "approved-review-candidate",
+      "approved_source": "./bella-samples/round2-audio/wrote--a-105-text.wav",
+      "approved_by_teacher_at": "2026-09-16",
+      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console."
     }
   }
 }
