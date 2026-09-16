@@ -1,0 +1,17 @@
+name: Verb Runner ambiguous pronunciation TDD
+
+on:
+  push:
+    branches:
+      - fix/verb-runner-ambiguous-pronunciations
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run pronunciation tests
+        run: |
+          node --test Verb-Runner/tests/pronunciation.test.mjs
+          node --test Verb-Runner/tests/pronunciation-policy.test.mjs
