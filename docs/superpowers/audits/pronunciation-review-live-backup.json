@@ -183,7 +183,8 @@
       "updatedAt": 1789576844618
     },
     "ask-7c6olu": {
-      "assetCreatedAt": 1789576817202,
+      "assetCreatedAt": 1789656856132,
+      "cleanupRequested": false,
       "firstReviewedAt": 1789569686713,
       "history": {
         "-P1ee_m4h29YUTUNK4j9": {
@@ -199,10 +200,23 @@
           "by": "system",
           "from": "./audio/pronunciation/ask-1c8f09270f.wav",
           "to": "./audio/pronunciation/ask-c4b619c653.wav"
+        },
+        "-P1jr6J46moxBkKw9VpO": {
+          "action": "asset-source-changed",
+          "at": 1789656856196,
+          "by": "system",
+          "from": "./audio/pronunciation/ask-c4b619c653.wav",
+          "to": "./bella-samples/round2-audio/ask--a-105-text.wav"
+        },
+        "-P1jr6KrrECzxOg9v3dJ": {
+          "action": "reviewed-ok",
+          "at": 1789656856310,
+          "by": "Armando Anota"
         }
       },
       "key": "ask",
-      "lastReviewedAt": 1789576817106,
+      "lastReviewedAt": 1789656856132,
+      "removedAsDuplicate": false,
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/ask-c4b619c653.wav",
@@ -215,12 +229,12 @@
           "updatedAt": 1789576817106
         }
       },
-      "reviewedAt": 1789576817106,
+      "reviewedAt": 1789656856132,
       "reviewedBy": "Armando Anota",
-      "source": "./audio/pronunciation/ask-c4b619c653.wav",
+      "source": "./bella-samples/round2-audio/ask--a-105-text.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789576817202
+      "status": "reviewed",
+      "updatedAt": 1789656856132
     },
     "asked-1ar2xb7": {
       "assetCreatedAt": 1789576761881,
