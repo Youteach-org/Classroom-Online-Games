@@ -102,7 +102,7 @@
           sourceType:sourceType(src),
           assetCreatedAt:record.assetCreatedAt||inferredCreatedAt,
           sourceChanged,
-          status:normalizeStatus(record),
+          status:sourceChanged?'review-again':normalizeStatus(record),
           reviewedBy:record.reviewedBy||'',
           reviewedAt:record.reviewedAt||null,
           firstReviewedAt:record.firstReviewedAt||null,
