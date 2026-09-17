@@ -22,6 +22,7 @@ main{max-width:1180px;margin:auto;padding:10px 12px 90px}
 .audio-list{display:grid;gap:7px}
 .audio-card{background:#fff;border:1px solid #dce2ea;border-radius:10px;padding:9px 10px;min-width:0;overflow:hidden}
 .audio-card[data-status="needs-fix"]{border-left:5px solid #d64242}
+.audio-card[data-status="review-again"]{border-left:5px solid #d89a24}
 .audio-card[data-status="reviewed"]{border-left:5px solid #2d9b60}
 .audio-card[data-status="duplicate"]{border-left:5px solid #b47b15}
 .audio-card[data-status="removed-duplicate"]{opacity:.66;border-left:5px solid #777}
