@@ -5,6 +5,7 @@ export const fmt=value=>value?new Date(Number(value)).toLocaleString():'—';
 export const statusLabel=status=>({
   'unreviewed':'UNREVIEWED',
   'needs-fix':'NEEDS FIX',
+  'review-again':'REVIEW AGAIN',
   'reviewed':'REVIEWED',
   'duplicate':'DUPLICATED',
   'removed-duplicate':'REMOVED DUPLICATE'
