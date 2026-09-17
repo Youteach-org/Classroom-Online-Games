@@ -274,3 +274,16 @@ test('new audio source gets a fresh autosave report id and does not reuse the pr
   assert.match(render,/report\.assetSource===entry\.src/);
   assert.match(html,/pronunciation-manifest\.js\?v=review-console-20260916-3/);
 });
+
+test('changed pronunciation source is review-again instead of inheriting stale needs-fix status',()=>{
+  const core=require(join(reviewRoot,'review-core.js'));
+  const manifest={ask:'./audio/new-ask.wav'};
+  const id=core.audioIdForKey('ask');
+  const catalog=core.mergeCatalog(manifest,{
+    [id]:{source:'./audio/old-ask.wav',status:'needs-fix'}
+  });
+  assert.equal(catalog[0].sourceChanged,true);
+  assert.equal(catalog[0].status,'review-again');
+  const render=readFileSync(join(reviewRoot,'review-render.js'),'utf8');
+  assert.match(render,/'review-again':'REVIEW AGAIN'/);
+});
