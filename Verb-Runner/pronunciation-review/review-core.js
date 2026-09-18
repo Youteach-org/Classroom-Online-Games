@@ -83,6 +83,7 @@
   function normalizeStatus(record){
     if(record?.removedAsDuplicate)return 'removed-duplicate';
     if(record?.duplicateOf)return 'duplicate';
+    if(record?.status==='needs-fix')return 'reported';
     if(record?.status)return record.status;
     return 'unreviewed';
   }
