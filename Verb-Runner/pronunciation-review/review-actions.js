@@ -48,7 +48,7 @@ export async function seedKnownReports(catalog,records){
     const record=records[entry.id]||{};
     const created=Date.parse('2026-09-16T00:00:00-06:00');
     await touch(entry,record,{
-      status:'needs-fix',
+      status:'reported',
       reviewedBy:'Initial manual audit',
       firstReviewedAt:record.firstReviewedAt||created,
       reviewedAt:created,
@@ -93,7 +93,7 @@ export async function saveProblem(entry,record,by,text,kind){
     assetSource:entry.src
   });
   await touch(entry,record,{
-    status:'needs-fix',
+    status:'reported',
     reviewedBy:by,
     firstReviewedAt:record.firstReviewedAt||stamp,
     reviewedAt:stamp,
@@ -141,7 +141,7 @@ export async function saveAutosaveReport(entry,record,by,text,kind){
   }
 
   await touch(entry,record,{
-    status:'needs-fix',
+    status:'reported',
     reviewedBy:by,
     firstReviewedAt:record.firstReviewedAt||stamp,
     reviewedAt:stamp,
