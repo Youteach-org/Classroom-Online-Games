@@ -111,7 +111,7 @@ function render(viewState=null){
   }
   totalCount.textContent=`Total ${catalog.length}`;
   reviewedCount.textContent=`Reviewed ${catalog.filter(x=>x.status==='reviewed').length}`;
-  problemCount.textContent=`Needs fix ${catalog.filter(x=>x.status==='needs-fix').length}`;
+  problemCount.textContent=`Reported ${catalog.filter(x=>x.status==='reported').length}`;
   duplicateCount.textContent=`Duplicates ${catalog.filter(x=>x.status==='duplicate'||x.status==='removed-duplicate').length}`;
   restoreViewState(viewState);
 }
