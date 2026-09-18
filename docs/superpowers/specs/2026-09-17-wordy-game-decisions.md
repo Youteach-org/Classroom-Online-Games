@@ -48,5 +48,18 @@ Examples:
 ### Level creation direction
 **Decision:** Favor a hybrid approach: reusable generation rules and automated validation, with important levels still designed or curated by humans.
 
+### Productive randomness
+**Decision:** New words must not fall as unconstrained random text. The board generator should use controlled randomness so that future combinations remain reasonably possible.
+
+Not every tile must be immediately usable, and not every tile must eventually clear. Distractors and temporarily isolated words are allowed. However, the system should avoid boards that become linguistically sterile or depend on impossible luck.
+
+### Combination space
+**Decision:** The content system should be designed around reusable relationships between words/tokens rather than a finite list of pre-scripted board solutions. The same word may participate in many valid combinations across categories and contexts.
+
+The long-term goal is a very large, extensible combination space so that play does not reduce to memorizing a small fixed set of phrases.
+
+### Dead-board protection
+**Direction confirmed for design:** The engine should detect when no meaningful move is available and recover without treating that state as the player's fault. Candidate mechanisms include reshuffling, controlled spawning, or introducing compatible tiles. Exact behavior remains open.
+
 ### Working style
 **Decision:** Keep the design conversation exploratory and collaborative. Avoid repeatedly stopping for microdecisions. Consolidate mature decisions into project documentation instead.
