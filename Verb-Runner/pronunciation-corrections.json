@@ -1,5 +1,5 @@
 {
-  "revision": "2026-09-16-r5",
+  "revision": "2026-09-17-r6",
   "status": "VALIDATED_FOR_GENERATION",
   "interpretation_rule": "Teacher notes describe the observed problem. They are not synthesis instructions. Question notes are validated before deciding whether replacement is needed.",
   "excluded_as_correct": {
@@ -139,12 +139,14 @@
       "approved_source": "https://www.aidocmaker.com/g0/audio?name=d1cd1b4c12ad44bbbb243cbd3cd3c881"
     },
     "change": {
-      "observed_issue": "Sounds approximately “kchain”; pronunciation is incorrect.",
-      "decision": "confirmed-error",
+      "observed_issue": "Suena a chain",
+      "decision": "confirmed-error-third-pass",
       "target_text": "change",
       "ipa_goal": "/tʃeɪndʒ/",
-      "correction_goal": "Initial /tʃ/, final /ndʒ/.",
-      "method": "g2p_tokens"
+      "correction_goal": "Preserve final /ndʒ/; do not reduce to chain.",
+      "method": "raw_phonemes",
+      "kokoro_phonemes": "tʃˈeIndʒ",
+      "speed": 1
     },
     "changed": {
       "observed_issue": "Sounds approximately “kchaincht”; pronunciation is distorted/incorrect.",
@@ -192,20 +194,24 @@
       "approved_review_decision": "teacher-selected"
     },
     "eat": {
-      "observed_issue": "Suena rit",
-      "decision": "confirmed-error",
+      "observed_issue": "Suena a read",
+      "decision": "confirmed-error-second-pass",
       "target_text": "eat",
       "ipa_goal": "/iːt/",
-      "correction_goal": "No initial /r/.",
-      "method": "g2p_tokens"
+      "correction_goal": "No initial consonant; clean /iːt/.",
+      "method": "raw_phonemes",
+      "kokoro_phonemes": "ˈit",
+      "speed": 1
     },
     "eaten": {
-      "observed_issue": "Suena ritten",
-      "decision": "confirmed-error",
+      "observed_issue": "Suena a neaten",
+      "decision": "confirmed-error-second-pass",
       "target_text": "eaten",
       "ipa_goal": "/ˈiːtən/",
-      "correction_goal": "No initial /r/.",
-      "method": "g2p_tokens"
+      "correction_goal": "No initial /n/; clean two-syllable eaten.",
+      "method": "raw_phonemes",
+      "kokoro_phonemes": "ˈitən",
+      "speed": 1
     },
     "fall": {
       "observed_issue": "Suena foul",
@@ -216,20 +222,24 @@
       "method": "g2p_tokens"
     },
     "follow": {
-      "observed_issue": "Suena fala",
-      "decision": "confirmed-error",
+      "observed_issue": "Suena a fall",
+      "decision": "confirmed-error-second-pass",
       "target_text": "follow",
       "ipa_goal": "/ˈfɑloʊ/",
-      "correction_goal": "Two syllables; second syllable ends /oʊ/.",
-      "method": "g2p_tokens"
+      "correction_goal": "Keep the second syllable /oʊ/ audible.",
+      "method": "raw_phonemes",
+      "kokoro_phonemes": "fˈɑlO",
+      "speed": 1
     },
     "forbade": {
-      "observed_issue": "Suena forbad",
-      "decision": "confirmed-error",
+      "observed_issue": "Dice 'for bad'",
+      "decision": "confirmed-error-second-pass",
       "target_text": "forbade",
       "ipa_goal": "/fərˈbeɪd/",
-      "correction_goal": "Second-syllable stress and /eɪ/ vowel.",
-      "method": "g2p_tokens"
+      "correction_goal": "Second-syllable stress with /eɪd/, not 'bad'.",
+      "method": "raw_phonemes",
+      "kokoro_phonemes": "fɚbˈeId",
+      "speed": 1
     },
     "fought": {
       "observed_issue": "Sounds like “fault” / otherwise incorrect.",
@@ -303,20 +313,24 @@
       "method": "g2p_tokens"
     },
     "stop": {
-      "observed_issue": "Estop dice",
-      "decision": "confirmed-error",
+      "observed_issue": "Suena vocal antes de /s/; parece 'estop'",
+      "decision": "confirmed-error-second-pass",
       "target_text": "stop",
       "ipa_goal": "/stɑp/",
       "correction_goal": "No prosthetic vowel before /st/.",
-      "method": "g2p_tokens"
+      "method": "raw_phonemes",
+      "kokoro_phonemes": "stˈɑp",
+      "speed": 1
     },
     "stopped": {
-      "observed_issue": "Estopped dice",
-      "decision": "confirmed-error",
+      "observed_issue": "Suena vocal antes de /s/; parece 'estopped'",
+      "decision": "confirmed-error-second-pass",
       "target_text": "stopped",
       "ipa_goal": "/stɑpt/",
-      "correction_goal": "No prosthetic vowel before /st/; final /t/.",
-      "method": "g2p_tokens"
+      "correction_goal": "No prosthetic vowel before /st/; preserve final /pt/.",
+      "method": "raw_phonemes",
+      "kokoro_phonemes": "stˈɑpt",
+      "speed": 1
     },
     "studied": {
       "observed_issue": "Estudid",
@@ -361,30 +375,32 @@
       "kokoro_phonemes": "jˈuzd"
     },
     "washed": {
-      "observed_issue": "Wast",
-      "decision": "approved-voice-exception",
+      "observed_issue": "No suena nada en la versión fancy enlazada",
+      "decision": "approved-voice-exception-localized",
       "target_text": "washed",
       "ipa_goal": "/wɑʃt/",
       "correction_goal": "Preserve /ʃ/ before final /t/.",
       "method": "external-approved-voice",
       "engine": "AI Voice Generator",
       "voice": "fancy",
-      "approved_source_url": "https://www.aidocmaker.com/g0/audio?name=b196bfada13f4374a2225a52556f784c",
+      "approved_source_url": "https://www.aidocmaker.com/g0/audio?name=77953d2a949645c1bb0a8f4c7498b4cd",
       "approved_by_teacher_at": "2026-09-16",
-      "exception_reason": "Kokoro af_bella variants remained unacceptable after focused review; teacher approved fancy voice specifically for this word.",
-      "approved_source": "https://www.aidocmaker.com/g0/audio?name=b196bfada13f4374a2225a52556f784c"
+      "exception_reason": "Teacher approved fancy for washed; remote playback later failed, so the approved voice is cached locally for reliable playback.",
+      "approved_source": "./audio/pronunciation/external/washed-fancy-approved.mp3"
     },
     "watched": {
-      "observed_issue": "Watst",
-      "decision": "confirmed-error",
+      "observed_issue": "Suena 'watst'",
+      "decision": "confirmed-error-second-pass",
       "target_text": "watched",
       "ipa_goal": "/wɑtʃt/",
       "correction_goal": "Preserve /tʃ/ before final /t/.",
-      "method": "approved-review-candidate",
+      "method": "raw_phonemes",
       "approved_source": "./bella-samples/audio/watched--bella-08-text.wav",
       "approved_by_teacher_at": "2026-09-16",
       "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console.",
-      "approved_review_decision": "teacher-selected"
+      "approved_review_decision": "teacher-selected",
+      "kokoro_phonemes": "wˈɑtʃt",
+      "speed": 1
     },
     "will tell": {
       "observed_issue": "Will tall",
