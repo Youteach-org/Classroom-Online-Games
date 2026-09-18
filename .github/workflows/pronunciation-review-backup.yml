@@ -12,6 +12,7 @@ on:
       - "Verb-Runner/scripts/migrate-pronunciation-decision-console.py"
       - "Verb-Runner/scripts/generate-pronunciation.py"
       - "Verb-Runner/scripts/cache-approved-external-pronunciation.py"
+      - "Verb-Runner/scripts/finalize-pronunciation-repair-cycle.py"
       - "Verb-Runner/pronunciation-corrections.json"
       - "Verb-Runner/tests/pronunciation-review.test.mjs"
       - ".github/workflows/pronunciation-review-backup.yml"
@@ -105,6 +106,9 @@ jobs:
             ALLOW_KOKORO_BELLA_GENERATION=1 python Verb-Runner/scripts/generate-pronunciation.py
           fi
 
+      - name: Finalize repaired reports as Review Again
+        run: python Verb-Runner/scripts/finalize-pronunciation-repair-cycle.py /tmp/pronunciation-review.json
+
       - name: Verify pronunciation integration
         run: |
           node --test Verb-Runner/tests/pronunciation.test.mjs
@@ -152,6 +156,13 @@ jobs:
             curl -fsS -X PATCH \
               -H "Content-Type: application/json" \
               --data-binary @/tmp/pronunciation-cleanup-firebase-patch.json \
+              "https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/verbRunnerV2/pronunciationReview.json"
+          fi
+
+          if [ "$(python -c 'import json; print(len(json.load(open("/tmp/pronunciation-repair-firebase-patch.json"))))')" != "0" ]; then
+            curl -fsS -X PATCH \
+              -H "Content-Type: application/json" \
+              --data-binary @/tmp/pronunciation-repair-firebase-patch.json \
               "https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/verbRunnerV2/pronunciationReview.json"
           fi
 
