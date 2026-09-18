@@ -91,3 +91,12 @@ test('asked uses a second-pass explicit phoneme correction after teacher re-revi
   assert.match(corrections.items.asked.decision,/second-pass/);
   assert.match(generator,/correction_speed = float\(correction\.get\('speed'\) or SPEED\)/);
 });
+
+test('second-pass reports use explicit phonemes and washed is cached locally',()=>{
+  for(const key of ['change','eat','eaten','follow','forbade','stop','stopped','watched']){
+    assert.equal(corrections.items[key].method,'raw_phonemes',key);
+    assert.ok(corrections.items[key].kokoro_phonemes,key);
+  }
+  assert.equal(corrections.items.washed.voice,'fancy');
+  assert.match(corrections.items.washed.approved_source,/^\.\/audio\/pronunciation\/external\//);
+});
