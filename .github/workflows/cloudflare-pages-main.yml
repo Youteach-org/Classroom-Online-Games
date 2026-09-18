@@ -33,6 +33,9 @@ jobs:
           node --check Verb-Runner/coastal-world.mjs
           node --check Verb-Runner/prototype.js
 
+      - name: Cache approved external pronunciation assets
+        run: python Verb-Runner/scripts/cache-approved-external-pronunciation.py
+
       - name: Verify approved Verb Runner pronunciation assets
         run: python Verb-Runner/scripts/generate-pronunciation.py
 
