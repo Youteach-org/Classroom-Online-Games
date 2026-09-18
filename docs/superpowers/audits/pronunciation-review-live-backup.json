@@ -399,7 +399,8 @@
       "updatedAt": 1789688718686
     },
     "be-fl2jk0": {
-      "assetCreatedAt": 1789494062000,
+      "assetCreatedAt": 1789691077813,
+      "cleanupRequested": false,
       "firstReviewedAt": 1789538400000,
       "history": {
         "-P1eSWPsY8pb4I7uUS0Z": {
@@ -408,10 +409,23 @@
           "by": "system",
           "originalReference": 17,
           "reportId": "seed-20260916-017"
+        },
+        "-P1lteC3hGocn6fZhphf": {
+          "action": "asset-source-changed",
+          "at": 1789691077916,
+          "by": "system",
+          "from": "./audio/pronunciation/be-986b1bc1eb.wav",
+          "to": "./audio/pronunciation/be-1634f8fe21.wav"
+        },
+        "-P1lteDN7f3M8cyls1lJ": {
+          "action": "reviewed-ok",
+          "at": 1789691078000,
+          "by": "Armando Anota"
         }
       },
       "key": "be",
-      "lastReviewedAt": 1789538400000,
+      "lastReviewedAt": 1789691077813,
+      "removedAsDuplicate": false,
       "reports": {
         "seed-20260916-017": {
           "createdAt": 1789538400000,
@@ -423,15 +437,16 @@
           "text": "Does not sound like the English verb /biː/."
         }
       },
-      "reviewedAt": 1789538400000,
-      "reviewedBy": "Initial manual audit",
-      "source": "./audio/pronunciation/be-986b1bc1eb.wav",
+      "reviewedAt": 1789691077813,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/be-1634f8fe21.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789566259634
+      "status": "reviewed",
+      "updatedAt": 1789691077813
     },
     "became-17aqq32": {
-      "assetCreatedAt": 1789494062000,
+      "assetCreatedAt": 1789691081103,
+      "cleanupRequested": false,
       "firstReviewedAt": 1789538400000,
       "history": {
         "-P1eSWv5F9LiQbX3FxnO": {
@@ -440,10 +455,23 @@
           "by": "system",
           "originalReference": 20,
           "reportId": "seed-20260916-020"
+        },
+        "-P1ltf-UbMsiMavx7Fh6": {
+          "action": "asset-source-changed",
+          "at": 1789691081207,
+          "by": "system",
+          "from": "./audio/pronunciation/became-51a675c807.wav",
+          "to": "./audio/pronunciation/became-177ebc314f.wav"
+        },
+        "-P1ltf0l-PDLDnvttCRI": {
+          "action": "reviewed-ok",
+          "at": 1789691081289,
+          "by": "Armando Anota"
         }
       },
       "key": "became",
-      "lastReviewedAt": 1789538400000,
+      "lastReviewedAt": 1789691081103,
+      "removedAsDuplicate": false,
       "reports": {
         "seed-20260916-020": {
           "createdAt": 1789538400000,
@@ -455,12 +483,12 @@
           "text": "Sounds approximately “bequeim”; pronunciation is distorted/incorrect."
         }
       },
-      "reviewedAt": 1789538400000,
-      "reviewedBy": "Initial manual audit",
-      "source": "./audio/pronunciation/became-51a675c807.wav",
+      "reviewedAt": 1789691081103,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/became-177ebc314f.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789566261700
+      "status": "reviewed",
+      "updatedAt": 1789691081103
     },
     "bend-13ivdxm": {
       "assetCreatedAt": 1789688730203,
@@ -510,7 +538,8 @@
       "updatedAt": 1789688730203
     },
     "bitten-18ul3cv": {
-      "assetCreatedAt": 1789494062000,
+      "assetCreatedAt": 1789691085911,
+      "cleanupRequested": false,
       "firstReviewedAt": 1789538400000,
       "history": {
         "-P1eSXTUjNP_4TNPOGNT": {
@@ -519,10 +548,23 @@
           "by": "system",
           "originalReference": 33,
           "reportId": "seed-20260916-033"
+        },
+        "-P1ltgA_NqC-OeY3hlL2": {
+          "action": "asset-source-changed",
+          "at": 1789691086013,
+          "by": "system",
+          "from": "./audio/pronunciation/bitten-090ef54998.wav",
+          "to": "./audio/pronunciation/bitten-67001bc996.wav"
+        },
+        "-P1ltgBtxKkiBs3AEAOm": {
+          "action": "reviewed-ok",
+          "at": 1789691086097,
+          "by": "Armando Anota"
         }
       },
       "key": "bitten",
-      "lastReviewedAt": 1789538400000,
+      "lastReviewedAt": 1789691085911,
+      "removedAsDuplicate": false,
       "reports": {
         "seed-20260916-033": {
           "createdAt": 1789538400000,
@@ -534,12 +576,12 @@
           "text": "Sounds approximately “betten”."
         }
       },
-      "reviewedAt": 1789538400000,
-      "reviewedBy": "Initial manual audit",
-      "source": "./audio/pronunciation/bitten-090ef54998.wav",
+      "reviewedAt": 1789691085911,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/bitten-67001bc996.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789566263929
+      "status": "reviewed",
+      "updatedAt": 1789691085911
     },
     "blew-vb1f5z": {
       "assetCreatedAt": 1789494062000,
@@ -586,10 +628,17 @@
           "by": "Pronunciation validation",
           "reason": "Correct: blew and blue are homophones in standard American English.",
           "revision": "2026-09-16-r5"
+        },
+        "validation-2026-09-17-r6-blew": {
+          "action": "question-validated-correct",
+          "at": 1789691399659,
+          "by": "Pronunciation validation",
+          "reason": "Correct: blew and blue are homophones in standard American English.",
+          "revision": "2026-09-17-r6"
         }
       },
       "key": "blew",
-      "lastReviewedAt": 1789591836220,
+      "lastReviewedAt": 1789691399659,
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/blew-28ca160cbb.wav",
@@ -604,18 +653,18 @@
           "updatedAt": 1789569782992
         }
       },
-      "reviewedAt": 1789591836220,
+      "reviewedAt": 1789691399659,
       "reviewedBy": "Pronunciation validation",
       "source": "./audio/pronunciation/blew-28ca160cbb.wav",
       "sourceType": "local-wav",
       "status": "reviewed",
-      "updatedAt": 1789591836220,
+      "updatedAt": 1789691399659,
       "validationDecision": "correct-existing",
       "validationReason": "Correct: blew and blue are homophones in standard American English.",
-      "validationRevision": "2026-09-16-r5"
+      "validationRevision": "2026-09-17-r6"
     },
     "build-1i9vvkz": {
-      "assetCreatedAt": 1789494062000,
+      "assetCreatedAt": 1789691106395,
       "firstReviewedAt": 1789569810567,
       "history": {
         "-P1ef30KJyCCmS22q3nW": {
@@ -624,10 +673,24 @@
           "by": "Armando Anota",
           "kind": "pronunciation",
           "reportId": "autosave-armando-anota-22dz74"
+        },
+        "-P1ltl7jIdDopqrdZHFe": {
+          "action": "report-autosave-started",
+          "at": 1789691106311,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74-https-www-aidocmaker-com-g0-audio-name-d1c-jw30b9"
+        },
+        "-P1ltlALUWuB1B1BrqSN": {
+          "action": "asset-source-changed",
+          "at": 1789691106478,
+          "by": "system",
+          "from": "./audio/pronunciation/build-80754af91b.wav",
+          "to": "https://www.aidocmaker.com/g0/audio?name=d1cd1b4c12ad44bbbb243cbd3cd3c881"
         }
       },
       "key": "build",
-      "lastReviewedAt": 1789569816936,
+      "lastReviewedAt": 1789691109710,
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/build-80754af91b.wav",
@@ -638,14 +701,24 @@
           "status": "open",
           "text": "Suena igual que built",
           "updatedAt": 1789569816936
+        },
+        "autosave-armando-anota-22dz74-https-www-aidocmaker-com-g0-audio-name-d1c-jw30b9": {
+          "assetSource": "https://www.aidocmaker.com/g0/audio?name=d1cd1b4c12ad44bbbb243cbd3cd3c881",
+          "createdAt": 1789691106215,
+          "kind": "pronunciation",
+          "previousStatus": "needs-fix",
+          "reviewer": "Armando Anota",
+          "status": "open",
+          "text": "No suena nada",
+          "updatedAt": 1789691109710
         }
       },
-      "reviewedAt": 1789569816936,
+      "reviewedAt": 1789691109710,
       "reviewedBy": "Armando Anota",
-      "source": "./audio/pronunciation/build-80754af91b.wav",
-      "sourceType": "local-wav",
+      "source": "https://www.aidocmaker.com/g0/audio?name=d1cd1b4c12ad44bbbb243cbd3cd3c881",
+      "sourceType": "other",
       "status": "needs-fix",
-      "updatedAt": 1789569817027
+      "updatedAt": 1789691109795
     },
     "change-vsu94t": {
       "assetCreatedAt": 1789688752471,
@@ -674,7 +747,7 @@
         }
       },
       "key": "change",
-      "lastReviewedAt": 1789688752312,
+      "lastReviewedAt": 1789691135918,
       "reports": {
         "autosave-armando-anota-22dz74-audio-pronunciation-change-dc6010c72a-wav-1fpbdvv": {
           "assetSource": "./audio/pronunciation/change-dc6010c72a.wav",
@@ -683,8 +756,8 @@
           "previousStatus": "needs-fix",
           "reviewer": "Armando Anota",
           "status": "open",
-          "text": "Suena a chain",
-          "updatedAt": 1789688752312
+          "text": "Suena a k chain",
+          "updatedAt": 1789691135918
         },
         "seed-20260916-061": {
           "createdAt": 1789538400000,
@@ -696,12 +769,12 @@
           "text": "Sounds approximately “kchain”; pronunciation is incorrect."
         }
       },
-      "reviewedAt": 1789688752312,
+      "reviewedAt": 1789691135918,
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/change-dc6010c72a.wav",
       "sourceType": "local-wav",
       "status": "needs-fix",
-      "updatedAt": 1789688752471
+      "updatedAt": 1789691136003
     },
     "changed-jgug0r": {
       "assetCreatedAt": 1789688758264,
@@ -2051,7 +2124,7 @@
       "updatedAt": 1789688981880
     },
     "will-be-travelling-15fyuwq": {
-      "assetCreatedAt": 1789494062000,
+      "assetCreatedAt": 1789691094160,
       "cleanupApplied": true,
       "cleanupAppliedAt": 1789576139777,
       "cleanupRequested": false,
@@ -2067,22 +2140,34 @@
           "by": "Armando Anota",
           "duplicateOf": "will be traveling",
           "duplicateOfRef": 366
+        },
+        "-P1ltiBWlYMMa2DhI-KM": {
+          "action": "asset-source-changed",
+          "at": 1789691094265,
+          "by": "system",
+          "from": "./audio/pronunciation/will-be-travelling-f9a0c222bb.wav",
+          "to": "./audio/pronunciation/will-be-traveling-50955a73aa.wav"
+        },
+        "-P1ltiCoDusimxYmiCsS": {
+          "action": "reviewed-ok",
+          "at": 1789691094348,
+          "by": "Armando Anota"
         }
       },
       "key": "will be travelling",
-      "lastReviewedAt": 1789574946514,
-      "removedAsDuplicate": true,
+      "lastReviewedAt": 1789691094160,
+      "removedAsDuplicate": false,
       "removedAt": 1789574946514,
       "removedBy": "Armando Anota",
-      "reviewedAt": 1789574946514,
+      "reviewedAt": 1789691094160,
       "reviewedBy": "Armando Anota",
-      "source": "./audio/pronunciation/will-be-travelling-f9a0c222bb.wav",
+      "source": "./audio/pronunciation/will-be-traveling-50955a73aa.wav",
       "sourceType": "local-wav",
-      "status": "removed-duplicate",
-      "updatedAt": 1789574946515
+      "status": "reviewed",
+      "updatedAt": 1789691094160
     },
     "will-have-been-travelling-1idewnr": {
-      "assetCreatedAt": 1789494062000,
+      "assetCreatedAt": 1789691100170,
       "cleanupApplied": true,
       "cleanupAppliedAt": 1789576139777,
       "cleanupRequested": false,
@@ -2098,19 +2183,31 @@
           "by": "Armando Anota",
           "duplicateOf": "will have been traveling",
           "duplicateOfRef": 391
+        },
+        "-P1ltjeAM9gy5SF1vJqy": {
+          "action": "asset-source-changed",
+          "at": 1789691100259,
+          "by": "system",
+          "from": "./audio/pronunciation/will-have-been-travelling-9b8c5f4336.wav",
+          "to": "./audio/pronunciation/will-have-been-traveling-76d5c02b3b.wav"
+        },
+        "-P1ltjfTImDW9MooPTJz": {
+          "action": "reviewed-ok",
+          "at": 1789691100342,
+          "by": "Armando Anota"
         }
       },
       "key": "will have been travelling",
-      "lastReviewedAt": 1789574993228,
-      "removedAsDuplicate": true,
+      "lastReviewedAt": 1789691100170,
+      "removedAsDuplicate": false,
       "removedAt": 1789574993228,
       "removedBy": "Armando Anota",
-      "reviewedAt": 1789574993228,
+      "reviewedAt": 1789691100170,
       "reviewedBy": "Armando Anota",
-      "source": "./audio/pronunciation/will-have-been-travelling-9b8c5f4336.wav",
+      "source": "./audio/pronunciation/will-have-been-traveling-76d5c02b3b.wav",
       "sourceType": "local-wav",
-      "status": "removed-duplicate",
-      "updatedAt": 1789574993228
+      "status": "reviewed",
+      "updatedAt": 1789691100170
     },
     "will-tell-rkjlkc": {
       "assetCreatedAt": 1789688990334,
