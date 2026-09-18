@@ -744,18 +744,29 @@
           "by": "system",
           "from": "./audio/pronunciation/change-7550b672e1.wav",
           "to": "./audio/pronunciation/change-dc6010c72a.wav"
+        },
+        "repair-1789695225110-change": {
+          "action": "repair-applied-review-again",
+          "at": 1789695225110,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/change-dc6010c72a.wav",
+          "to": "./audio/pronunciation/change-bd120a6a04.wav"
         }
       },
       "key": "change",
       "lastReviewedAt": 1789691135918,
+      "repairAppliedAt": 1789695225110,
+      "repairSource": "./audio/pronunciation/change-bd120a6a04.wav",
       "reports": {
         "autosave-armando-anota-22dz74-audio-pronunciation-change-dc6010c72a-wav-1fpbdvv": {
           "assetSource": "./audio/pronunciation/change-dc6010c72a.wav",
           "createdAt": 1789688752312,
           "kind": "pronunciation",
           "previousStatus": "needs-fix",
+          "resolvedAt": 1789695225110,
+          "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
-          "status": "open",
+          "status": "resolved",
           "text": "Suena a k chain",
           "updatedAt": 1789691135918
         },
@@ -763,9 +774,11 @@
           "createdAt": 1789538400000,
           "kind": "pronunciation",
           "originalReference": 61,
+          "resolvedAt": 1789695225110,
+          "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Initial manual audit",
           "source": "chat-audit",
-          "status": "open",
+          "status": "resolved",
           "text": "Sounds approximately “kchain”; pronunciation is incorrect."
         }
       },
@@ -773,8 +786,8 @@
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/change-dc6010c72a.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789691136003
+      "status": "review-again",
+      "updatedAt": 1789695225110
     },
     "changed-jgug0r": {
       "assetCreatedAt": 1789688758264,
@@ -1034,10 +1047,19 @@
           "by": "system",
           "from": "./audio/pronunciation/eat-d89455758e.wav",
           "to": "./audio/pronunciation/eat-976ffd3d58.wav"
+        },
+        "repair-1789695225110-eat": {
+          "action": "repair-applied-review-again",
+          "at": 1789695225110,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/eat-976ffd3d58.wav",
+          "to": "./audio/pronunciation/eat-629b4e1677.wav"
         }
       },
       "key": "eat",
       "lastReviewedAt": 1789688783481,
+      "repairAppliedAt": 1789695225110,
+      "repairSource": "./audio/pronunciation/eat-629b4e1677.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/eat-d89455758e.wav",
@@ -1054,8 +1076,10 @@
           "createdAt": 1789688781905,
           "kind": "pronunciation",
           "previousStatus": "needs-fix",
+          "resolvedAt": 1789695225110,
+          "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
-          "status": "open",
+          "status": "resolved",
           "text": "Suena a read",
           "updatedAt": 1789688783481
         }
@@ -1064,8 +1088,8 @@
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/eat-976ffd3d58.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789688783590
+      "status": "review-again",
+      "updatedAt": 1789695225110
     },
     "eaten-1coazmy": {
       "assetCreatedAt": 1789688802939,
@@ -1091,10 +1115,19 @@
           "by": "system",
           "from": "./audio/pronunciation/eaten-00ec69d4d5.wav",
           "to": "./audio/pronunciation/eaten-cbbbb2083b.wav"
+        },
+        "repair-1789695225110-eaten": {
+          "action": "repair-applied-review-again",
+          "at": 1789695225110,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/eaten-cbbbb2083b.wav",
+          "to": "./audio/pronunciation/eaten-d1ae7ebd12.wav"
         }
       },
       "key": "eaten",
       "lastReviewedAt": 1789688809952,
+      "repairAppliedAt": 1789695225110,
+      "repairSource": "./audio/pronunciation/eaten-d1ae7ebd12.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/eaten-00ec69d4d5.wav",
@@ -1111,8 +1144,10 @@
           "createdAt": 1789688802759,
           "kind": "pronunciation",
           "previousStatus": "needs-fix",
+          "resolvedAt": 1789695225110,
+          "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
-          "status": "open",
+          "status": "resolved",
           "text": "Suena a neaten",
           "updatedAt": 1789688809952
         }
@@ -1121,8 +1156,8 @@
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/eaten-cbbbb2083b.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789688810031
+      "status": "review-again",
+      "updatedAt": 1789695225110
     },
     "fall-1wwprhc": {
       "assetCreatedAt": 1789688814610,
@@ -1195,10 +1230,19 @@
           "by": "system",
           "from": "./audio/pronunciation/follow-f7ac253b1b.wav",
           "to": "./audio/pronunciation/follow-8e900ba8ec.wav"
+        },
+        "repair-1789695225110-follow": {
+          "action": "repair-applied-review-again",
+          "at": 1789695225110,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/follow-8e900ba8ec.wav",
+          "to": "./audio/pronunciation/follow-480c42c110.wav"
         }
       },
       "key": "follow",
       "lastReviewedAt": 1789688823937,
+      "repairAppliedAt": 1789695225110,
+      "repairSource": "./audio/pronunciation/follow-480c42c110.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/follow-f7ac253b1b.wav",
@@ -1215,8 +1259,10 @@
           "createdAt": 1789688823937,
           "kind": "pronunciation",
           "previousStatus": "needs-fix",
+          "resolvedAt": 1789695225110,
+          "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
-          "status": "open",
+          "status": "resolved",
           "text": "Suena a fall",
           "updatedAt": 1789688823937
         }
@@ -1225,8 +1271,8 @@
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/follow-8e900ba8ec.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789688824124
+      "status": "review-again",
+      "updatedAt": 1789695225110
     },
     "forbade-1t6br0y": {
       "assetCreatedAt": 1789688834078,
@@ -1252,10 +1298,19 @@
           "by": "system",
           "from": "./audio/pronunciation/forbade-3529d0c1bf.wav",
           "to": "./audio/pronunciation/forbade-83d0f539d0.wav"
+        },
+        "repair-1789695225110-forbade": {
+          "action": "repair-applied-review-again",
+          "at": 1789695225110,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/forbade-83d0f539d0.wav",
+          "to": "./audio/pronunciation/forbade-92e23a6543.wav"
         }
       },
       "key": "forbade",
       "lastReviewedAt": 1789688838659,
+      "repairAppliedAt": 1789695225110,
+      "repairSource": "./audio/pronunciation/forbade-92e23a6543.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/forbade-3529d0c1bf.wav",
@@ -1272,8 +1327,10 @@
           "createdAt": 1789688833907,
           "kind": "pronunciation",
           "previousStatus": "needs-fix",
+          "resolvedAt": 1789695225110,
+          "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
-          "status": "open",
+          "status": "resolved",
           "text": "For bad dice",
           "updatedAt": 1789688838659
         }
@@ -1282,8 +1339,8 @@
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/forbade-83d0f539d0.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789688838758
+      "status": "review-again",
+      "updatedAt": 1789695225110
     },
     "fought-4yjxhm": {
       "assetCreatedAt": 1789688845305,
@@ -1684,10 +1741,19 @@
           "by": "system",
           "from": "./audio/pronunciation/stop-1b480158e1.wav",
           "to": "./audio/pronunciation/stop-edeb5fd227.wav"
+        },
+        "repair-1789695225110-stop": {
+          "action": "repair-applied-review-again",
+          "at": 1789695225110,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/stop-edeb5fd227.wav",
+          "to": "./audio/pronunciation/stop-75704d5ded.wav"
         }
       },
       "key": "stop",
       "lastReviewedAt": 1789688896022,
+      "repairAppliedAt": 1789695225110,
+      "repairSource": "./audio/pronunciation/stop-75704d5ded.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/stop-1b480158e1.wav",
@@ -1704,8 +1770,10 @@
           "createdAt": 1789688882416,
           "kind": "pronunciation",
           "previousStatus": "needs-fix",
+          "resolvedAt": 1789695225110,
+          "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
-          "status": "open",
+          "status": "resolved",
           "text": "Suena vocal antes de ese, parece estop",
           "updatedAt": 1789688896022
         }
@@ -1714,8 +1782,8 @@
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/stop-edeb5fd227.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789688896122
+      "status": "review-again",
+      "updatedAt": 1789695225110
     },
     "stopped-urm4i6": {
       "assetCreatedAt": 1789688907021,
@@ -1741,10 +1809,19 @@
           "by": "system",
           "from": "./audio/pronunciation/stopped-5acf411124.wav",
           "to": "./audio/pronunciation/stopped-cd6daffa76.wav"
+        },
+        "repair-1789695225110-stopped": {
+          "action": "repair-applied-review-again",
+          "at": 1789695225110,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/stopped-cd6daffa76.wav",
+          "to": "./audio/pronunciation/stopped-1e1ea5787d.wav"
         }
       },
       "key": "stopped",
       "lastReviewedAt": 1789688910524,
+      "repairAppliedAt": 1789695225110,
+      "repairSource": "./audio/pronunciation/stopped-1e1ea5787d.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/stopped-5acf411124.wav",
@@ -1761,8 +1838,10 @@
           "createdAt": 1789688906849,
           "kind": "pronunciation",
           "previousStatus": "needs-fix",
+          "resolvedAt": 1789695225110,
+          "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
-          "status": "open",
+          "status": "resolved",
           "text": "Suena vocal antes de ese suena estopped",
           "updatedAt": 1789688910524
         }
@@ -1771,8 +1850,8 @@
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/stopped-cd6daffa76.wav",
       "sourceType": "local-wav",
-      "status": "needs-fix",
-      "updatedAt": 1789688910621
+      "status": "review-again",
+      "updatedAt": 1789695225110
     },
     "studied-1ab6ym7": {
       "assetCreatedAt": 1789688918191,
@@ -2033,10 +2112,19 @@
           "by": "system",
           "from": "./audio/pronunciation/washed-a803b1a0b3.wav",
           "to": "https://www.aidocmaker.com/g0/audio?name=b196bfada13f4374a2225a52556f784c"
+        },
+        "repair-1789695225110-washed": {
+          "action": "repair-applied-review-again",
+          "at": 1789695225110,
+          "by": "Pronunciation repair sync",
+          "from": "https://www.aidocmaker.com/g0/audio?name=b196bfada13f4374a2225a52556f784c",
+          "to": "./audio/pronunciation/external/washed-fancy-approved.mp3"
         }
       },
       "key": "washed",
       "lastReviewedAt": 1789688970942,
+      "repairAppliedAt": 1789695225110,
+      "repairSource": "./audio/pronunciation/external/washed-fancy-approved.mp3",
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/washed-a803b1a0b3.wav",
@@ -2053,8 +2141,10 @@
           "createdAt": 1789688964737,
           "kind": "pronunciation",
           "previousStatus": "needs-fix",
+          "resolvedAt": 1789695225110,
+          "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
-          "status": "open",
+          "status": "resolved",
           "text": "No suena nada",
           "updatedAt": 1789688970942
         }
@@ -2063,8 +2153,8 @@
       "reviewedBy": "Armando Anota",
       "source": "https://www.aidocmaker.com/g0/audio?name=b196bfada13f4374a2225a52556f784c",
       "sourceType": "other",
-      "status": "needs-fix",
-      "updatedAt": 1789688971035
+      "status": "review-again",
+      "updatedAt": 1789695225110
     },
     "watched-1g525yh": {
       "assetCreatedAt": 1789688951191,
