@@ -287,3 +287,16 @@ test('changed pronunciation source is review-again instead of inheriting stale n
   const render=readFileSync(join(reviewRoot,'review-render.js'),'utf8');
   assert.match(render,/'review-again':'REVIEW AGAIN'/);
 });
+
+test('reported state drives the repair-review loop',()=>{
+  const core=require(join(reviewRoot,'review-core.js'));
+  const actions=readFileSync(join(reviewRoot,'review-actions.js'),'utf8');
+  const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
+  const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
+  assert.match(actions,/status:'reported'/);
+  assert.match(html,/<option value="reported">Reported<\/option>/);
+  assert.match(app,/Reported \$\{catalog\.filter\(x=>x\.status==='reported'\)\.length\}/);
+  assert.equal(core.normalizeStatus({status:'needs-fix'}),'reported');
+  const id=core.audioIdForKey('stop');
+  assert.equal(core.mergeCatalog({stop:'new.wav'},{[id]:{source:'old.wav',status:'reported'}})[0].status,'review-again');
+});
