@@ -758,11 +758,18 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/change-dc6010c72a.wav",
           "to": "./audio/pronunciation/change-bd120a6a04.wav"
+        },
+        "repair-1789731990637-change": {
+          "action": "repair-applied-review-again",
+          "at": 1789731990637,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/change-dc6010c72a.wav",
+          "to": "./audio/pronunciation/change-bd120a6a04.wav"
         }
       },
       "key": "change",
       "lastReviewedAt": 1789691135918,
-      "repairAppliedAt": 1789713356843,
+      "repairAppliedAt": 1789731990637,
       "repairSource": "./audio/pronunciation/change-bd120a6a04.wav",
       "reports": {
         "autosave-armando-anota-22dz74-audio-pronunciation-change-dc6010c72a-wav-1fpbdvv": {
@@ -794,7 +801,7 @@
       "source": "./audio/pronunciation/change-dc6010c72a.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789713356843
+      "updatedAt": 1789731990637
     },
     "changed-jgug0r": {
       "assetCreatedAt": 1789688758264,
@@ -1068,11 +1075,18 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/eat-976ffd3d58.wav",
           "to": "./audio/pronunciation/eat-629b4e1677.wav"
+        },
+        "repair-1789731990637-eat": {
+          "action": "repair-applied-review-again",
+          "at": 1789731990637,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/eat-976ffd3d58.wav",
+          "to": "./audio/pronunciation/eat-629b4e1677.wav"
         }
       },
       "key": "eat",
       "lastReviewedAt": 1789688783481,
-      "repairAppliedAt": 1789713356843,
+      "repairAppliedAt": 1789731990637,
       "repairSource": "./audio/pronunciation/eat-629b4e1677.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
@@ -1103,7 +1117,7 @@
       "source": "./audio/pronunciation/eat-976ffd3d58.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789713356843
+      "updatedAt": 1789731990637
     },
     "eaten-1coazmy": {
       "assetCreatedAt": 1789688802939,
@@ -1143,11 +1157,18 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/eaten-cbbbb2083b.wav",
           "to": "./audio/pronunciation/eaten-d1ae7ebd12.wav"
+        },
+        "repair-1789731990637-eaten": {
+          "action": "repair-applied-review-again",
+          "at": 1789731990637,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/eaten-cbbbb2083b.wav",
+          "to": "./audio/pronunciation/eaten-d1ae7ebd12.wav"
         }
       },
       "key": "eaten",
       "lastReviewedAt": 1789688809952,
-      "repairAppliedAt": 1789713356843,
+      "repairAppliedAt": 1789731990637,
       "repairSource": "./audio/pronunciation/eaten-d1ae7ebd12.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
@@ -1178,7 +1199,7 @@
       "source": "./audio/pronunciation/eaten-cbbbb2083b.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789713356843
+      "updatedAt": 1789731990637
     },
     "fall-1wwprhc": {
       "assetCreatedAt": 1789688814610,
@@ -1265,11 +1286,18 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/follow-8e900ba8ec.wav",
           "to": "./audio/pronunciation/follow-480c42c110.wav"
+        },
+        "repair-1789731990637-follow": {
+          "action": "repair-applied-review-again",
+          "at": 1789731990637,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/follow-8e900ba8ec.wav",
+          "to": "./audio/pronunciation/follow-480c42c110.wav"
         }
       },
       "key": "follow",
       "lastReviewedAt": 1789688823937,
-      "repairAppliedAt": 1789713356843,
+      "repairAppliedAt": 1789731990637,
       "repairSource": "./audio/pronunciation/follow-480c42c110.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
@@ -1300,7 +1328,7 @@
       "source": "./audio/pronunciation/follow-8e900ba8ec.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789713356843
+      "updatedAt": 1789731990637
     },
     "forbade-1t6br0y": {
       "assetCreatedAt": 1789688834078,
@@ -1340,11 +1368,18 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/forbade-83d0f539d0.wav",
           "to": "./audio/pronunciation/forbade-92e23a6543.wav"
+        },
+        "repair-1789731990637-forbade": {
+          "action": "repair-applied-review-again",
+          "at": 1789731990637,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/forbade-83d0f539d0.wav",
+          "to": "./audio/pronunciation/forbade-92e23a6543.wav"
         }
       },
       "key": "forbade",
       "lastReviewedAt": 1789688838659,
-      "repairAppliedAt": 1789713356843,
+      "repairAppliedAt": 1789731990637,
       "repairSource": "./audio/pronunciation/forbade-92e23a6543.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
@@ -1375,7 +1410,7 @@
       "source": "./audio/pronunciation/forbade-83d0f539d0.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789713356843
+      "updatedAt": 1789731990637
     },
     "fought-4yjxhm": {
       "assetCreatedAt": 1789688845305,
@@ -1790,11 +1825,18 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/stop-edeb5fd227.wav",
           "to": "./audio/pronunciation/stop-75704d5ded.wav"
+        },
+        "repair-1789731990637-stop": {
+          "action": "repair-applied-review-again",
+          "at": 1789731990637,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/stop-edeb5fd227.wav",
+          "to": "./audio/pronunciation/stop-75704d5ded.wav"
         }
       },
       "key": "stop",
       "lastReviewedAt": 1789688896022,
-      "repairAppliedAt": 1789713356843,
+      "repairAppliedAt": 1789731990637,
       "repairSource": "./audio/pronunciation/stop-75704d5ded.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
@@ -1825,7 +1867,7 @@
       "source": "./audio/pronunciation/stop-edeb5fd227.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789713356843
+      "updatedAt": 1789731990637
     },
     "stopped-urm4i6": {
       "assetCreatedAt": 1789688907021,
@@ -1865,11 +1907,18 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/stopped-cd6daffa76.wav",
           "to": "./audio/pronunciation/stopped-1e1ea5787d.wav"
+        },
+        "repair-1789731990637-stopped": {
+          "action": "repair-applied-review-again",
+          "at": 1789731990637,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/stopped-cd6daffa76.wav",
+          "to": "./audio/pronunciation/stopped-1e1ea5787d.wav"
         }
       },
       "key": "stopped",
       "lastReviewedAt": 1789688910524,
-      "repairAppliedAt": 1789713356843,
+      "repairAppliedAt": 1789731990637,
       "repairSource": "./audio/pronunciation/stopped-1e1ea5787d.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
@@ -1900,7 +1949,7 @@
       "source": "./audio/pronunciation/stopped-cd6daffa76.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789713356843
+      "updatedAt": 1789731990637
     },
     "studied-1ab6ym7": {
       "assetCreatedAt": 1789688918191,
@@ -2175,11 +2224,18 @@
           "by": "Pronunciation repair sync",
           "from": "https://www.aidocmaker.com/g0/audio?name=b196bfada13f4374a2225a52556f784c",
           "to": "./audio/pronunciation/external/washed-fancy-approved.mp3"
+        },
+        "repair-1789731990637-washed": {
+          "action": "repair-applied-review-again",
+          "at": 1789731990637,
+          "by": "Pronunciation repair sync",
+          "from": "https://www.aidocmaker.com/g0/audio?name=b196bfada13f4374a2225a52556f784c",
+          "to": "./audio/pronunciation/external/washed-fancy-approved.mp3"
         }
       },
       "key": "washed",
       "lastReviewedAt": 1789688970942,
-      "repairAppliedAt": 1789713356843,
+      "repairAppliedAt": 1789731990637,
       "repairSource": "./audio/pronunciation/external/washed-fancy-approved.mp3",
       "reports": {
         "autosave-armando-anota-22dz74": {
@@ -2210,7 +2266,7 @@
       "source": "https://www.aidocmaker.com/g0/audio?name=b196bfada13f4374a2225a52556f784c",
       "sourceType": "other",
       "status": "review-again",
-      "updatedAt": 1789713356843
+      "updatedAt": 1789731990637
     },
     "watched-1g525yh": {
       "assetCreatedAt": 1789688951191,
