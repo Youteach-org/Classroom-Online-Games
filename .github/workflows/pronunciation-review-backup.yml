@@ -11,6 +11,7 @@ on:
       - "Verb-Runner/scripts/apply-pronunciation-validation-decisions.py"
       - "Verb-Runner/scripts/migrate-pronunciation-decision-console.py"
       - "Verb-Runner/scripts/generate-pronunciation.py"
+      - "Verb-Runner/scripts/cache-approved-external-pronunciation.py"
       - "Verb-Runner/pronunciation-corrections.json"
       - "Verb-Runner/tests/pronunciation-review.test.mjs"
       - ".github/workflows/pronunciation-review-backup.yml"
@@ -88,6 +89,9 @@ jobs:
       - name: Convert duplicate cleanup requests into aliases
         run: |
           python Verb-Runner/scripts/apply-pronunciation-duplicates.py /tmp/pronunciation-review.json
+
+      - name: Cache approved external pronunciation assets
+        run: python Verb-Runner/scripts/cache-approved-external-pronunciation.py
 
       - name: Consolidate pronunciation assets
         shell: bash
