@@ -59,7 +59,18 @@ Not every tile must be immediately usable, and not every tile must eventually cl
 The long-term goal is a very large, extensible combination space so that play does not reduce to memorizing a small fixed set of phrases.
 
 ### Dead-board protection
-**Direction confirmed for design:** The engine should detect when no meaningful move is available and recover without treating that state as the player's fault. Candidate mechanisms include reshuffling, controlled spawning, or introducing compatible tiles. Exact behavior remains open.
+**Decision:** After every resolved move/cascade, the engine checks whether at least one meaningful player move remains.
+
+If no meaningful combination can still be created:
+1. The state is treated as a dead board, not as a player error.
+2. The current word tiles are cleared or swept away with a visible board-reset animation.
+3. A fresh set of tiles drops in.
+4. The replacement board is validated before play resumes so that it contains multiple plausible linguistic moves rather than merely one accidental rescue move.
+5. The automatic reset does not consume one of the player's moves.
+
+This is the preferred recovery behavior rather than requiring the player to use a booster or manually request a shuffle.
+
+Exact animation, treatment of future blockers, and minimum number of validated moves remain implementation details.
 
 ### Working style
 **Decision:** Keep the design conversation exploratory and collaborative. Avoid repeatedly stopping for microdecisions. Consolidate mature decisions into project documentation instead.
