@@ -21,6 +21,42 @@ Examples:
 
 A word can participate in many relations. This multiplicity is what makes the board combinatorial rather than a collection of pre-written quiz answers.
 
+## Mathematical combinations are not gameplay combinations
+
+For 2,000 distinct words there are 1,999,000 unordered two-word pairs mathematically, but almost all of those pairs are irrelevant to the game.
+
+The relationship bank must contain only combinations that pass two independent filters:
+
+1. **Linguistic validity** — the combination represents a real, teachable relationship in English.
+2. **Gameplay value** — recognizing or constructing that relationship is satisfying, non-trivial and worth rewarding in the board mechanic.
+
+Mere grammatical compatibility is not enough.
+
+Example: the article `A` can precede hundreds of countable nouns, but `A + TABLE`, `A + DOG`, and `A + BOOK` are generally too trivial to deserve a match by themselves. The same token `A` becomes meaningful when it participates in a larger chunk such as:
+- `TAKE + A + BREAK`
+- `MAKE + A + DECISION`
+- `AS + A + MATTER + OF + FACT`
+
+Therefore function words such as A, THE, OF, TO, IN, etc. should normally act as **supporting tiles inside richer relationships**, not as independent high-value pair matches.
+
+## Relationship quality score
+
+Every candidate relationship should eventually carry metadata that allows the game to decide whether it is worth including.
+
+Candidate dimensions:
+- Frequency in real English
+- Usefulness for communication
+- CEFR / learner level
+- Semantic or grammatical distinctiveness
+- Ambiguity
+- Recognition difficulty
+- Length
+- Board-play potential
+- Whether it creates interesting overlap with other relationships
+- Whether it is too obvious to be rewarding
+
+The engine should favor relationships that are both useful English and good puzzle material.
+
 ## Vocabulary-source direction
 
 Do not invent the core lexicon manually.
@@ -71,6 +107,8 @@ Words should receive an internal connectivity score.
 Highly connected words (e.g. TAKE, MAKE, GET, GO, HAVE) can appear more often because they open many possible paths.
 
 Low-connectivity words can still appear, but the generator should pair them with compatible support tiles or reserve them for targeted levels.
+
+Connectivity alone does not imply a good match: very common function words may connect to hundreds of words but should be weighted by gameplay value, not raw degree.
 
 ## Generation rule
 
