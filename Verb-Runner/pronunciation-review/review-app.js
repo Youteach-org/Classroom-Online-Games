@@ -1,4 +1,4 @@
-import {watchRecords,requestRepairBatch} from './firebase-store.js';
+import {watchRecords} from './firebase-store.js';
 import {seedKnownReports} from './review-actions.js';
 import {renderCard} from './review-render.js';
 import {bindReviewEvents} from './review-events.js';
@@ -123,25 +123,47 @@ reviewerName.value=localStorage.getItem(REVIEWER_STORAGE)||'';
 reviewerName.addEventListener('change',()=>localStorage.setItem(REVIEWER_STORAGE,String(reviewerName.value||'').trim()));
 searchInput.addEventListener('input',render);
 statusFilter.addEventListener('change',render);
-repairReported.addEventListener('click',async()=>{
-  const by=reviewer(); if(!by)return;
+function currentReportsFor(entry){
+  const open=core.reportEntries(entry.reports).filter(report=>report.status==='open');
+  const exact=open.filter(report=>report.assetSource===entry.src);
+  return exact.length?exact:open.filter(report=>!report.assetSource);
+}
+
+function buildRepairPrompt(entries){
+  const lines=[
+    'Repara los audios REPORTADOS de Verb Runner en el repositorio youteachtk/Classroom-Online-Games usando mi conexión de GitHub.',
+    'Trabaja únicamente con este lote. Lee el reporte de cada audio y corrígelo con criterio; no hagas una regeneración genérica ni cambies audios que no aparecen aquí.',
+    'Conserva el historial de reportes. Después de reemplazar cada audio por una nueva versión, déjalo en REVIEW AGAIN. No lo marques OK ni REVIEWED: esa aprobación la haré yo.',
+    'Respeta las voces ya aprobadas para excepciones específicas. Verifica las pruebas y el despliegue de Cloudflare Pages al terminar.',
+    '',
+    'LOTE REPORTADO:'
+  ];
+  entries.forEach((entry,index)=>{
+    const reports=currentReportsFor(entry);
+    lines.push(
+      '',
+      `${index+1}. ${entry.key.toUpperCase()}`,
+      `Current source: ${entry.src}`,
+      ...(reports.length
+        ? reports.map(report=>`Report: ${String(report.text||'').trim()||'(sin texto)'}`)
+        : ['Report: (sin reporte textual disponible; inspecciona el historial de Firebase antes de corregir)'])
+    );
+  });
+  return lines.join('\n');
+}
+
+repairReported.addEventListener('click',()=>{
   const reported=catalog.filter(entry=>entry.status==='reported');
   if(!reported.length){
     alert('There are no reported audios to repair.');
     return;
   }
-  repairReported.disabled=true;
-  const original=repairReported.textContent;
-  repairReported.textContent=`Queueing ${reported.length}…`;
-  try{
-    const result=await requestRepairBatch(reported,by);
-    repairReported.textContent=`Queued ${result.count}`;
-    setTimeout(()=>{ repairReported.textContent=original; repairReported.disabled=false; },1800);
-  }catch(error){
-    console.error(error);
-    repairReported.textContent=original;
-    repairReported.disabled=false;
-    alert('Could not queue the reported audios for repair.');
+  const prompt=buildRepairPrompt(reported);
+  const url='https://chatgpt.com/?q='+encodeURIComponent(prompt);
+  const opened=window.open(url,'_blank','noopener');
+  if(!opened){
+    navigator.clipboard?.writeText(prompt).catch(()=>{});
+    alert('ChatGPT could not be opened automatically. The repair instruction was copied to the clipboard.');
   }
 });
 
