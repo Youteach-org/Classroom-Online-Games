@@ -56,25 +56,24 @@ This mechanic is intended to:
 - Distinguish the game from a conventional automatic match-3 system.
 
 ### End-of-round learning review
-**Decision:** At the end of every round, the player gets a review screen listing relevant combinations from that round.
+**Decision:** The end-of-round review must stay compact and mobile-first. It is not a long report.
 
-The review should distinguish at least:
-- combinations the player successfully formed/resolved;
-- valid combinations that were available or became possible but were missed;
-- optionally, notable incomplete structures that were close enough to be pedagogically useful.
+The screen is divided into two main vertical zones:
 
-Each listed relationship should be inspectable. The player can open an explanation showing:
-- what the relationship means;
-- what linguistic category it belongs to;
-- why the game accepted it as valid;
-- why it earned the points it earned;
-- examples or a concise grammar/usage explanation when appropriate.
+**Upper half — New learning**
+- Show only a small number of words, expressions, or relationships that were genuinely new or newly discovered during the round.
+- These items can be tapped to open the deeper explanation: meaning, category, why the game accepted the combination, and concise grammar/usage notes.
+- The goal is to capture surprising or useful discoveries without interrupting play.
 
-The purpose is to turn accidental discovery during random play into explicit learning after the action, without interrupting the flow of the round.
+**Lower half — Missed high-value opportunities**
+- Show only a small number of combinations that were actually available during the round and would have produced notably more points.
+- Do not list every missed possibility.
+- Prioritize the most valuable or pedagogically useful missed combinations.
+- These missed combinations become candidates to reappear in future rounds.
 
-Missed combinations should be eligible to reappear in future rounds so the player gets another opportunity to recognize and build them.
+The review should fit naturally on a phone screen with minimal scrolling. Detailed explanations are secondary drill-down views, not part of the main results screen.
 
-Successfully formed combinations should remain available in a player-accessible history/reference area for later consultation.
+Successfully formed combinations may remain available in a player-accessible history/reference area for later consultation.
 
 ### Shared-tile crossword intersections
 **Decision:** A single tile may belong simultaneously to two or more valid combinations, similar to a crossword intersection.
