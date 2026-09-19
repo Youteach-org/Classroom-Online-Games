@@ -1,0 +1,30 @@
+name: Verify YouTeach COG assignment launch
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'Verb-Runner/**'
+      - '.github/workflows/cog-assignment-pr.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Verb Runner JavaScript
+        run: |
+          node --check Verb-Runner/session-sync.js
+          node --check Verb-Runner/prototype.js
+
+      - name: Run Verb Runner regression tests
+        run: |
+          node --test Verb-Runner/tests/*.test.mjs
+          node --test Verb-Runner/sentence-run.test.js
