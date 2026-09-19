@@ -312,3 +312,16 @@ test('Repair reported queues only reported audios',()=>{
   assert.match(store,/repairRequestedAt/);
   assert.match(store,/repairRequests/);
 });
+
+test('queued reported repair is consumed by the pronunciation sync',()=>{
+  const workflow=readFileSync(join(root,'..','.github','workflows','pronunciation-review-backup.yml'),'utf8');
+  const prepare=readFileSync(join(root,'scripts','prepare-reported-pronunciation-repairs.py'),'utf8');
+  const finalize=readFileSync(join(root,'scripts','finalize-pronunciation-repair-cycle.py'),'utf8');
+  assert.match(workflow,/Prepare requested reported repairs/);
+  assert.match(workflow,/prepare-reported-pronunciation-repairs\.py/);
+  assert.match(workflow,/Verb-Runner\/pronunciation-corrections\.json/);
+  assert.match(prepare,/repairRequestedAt/);
+  assert.match(prepare,/automatic_repair_attempt/);
+  assert.match(finalize,/repairHandledAt/);
+  assert.match(finalize,/repairQueueStatus.*review-again/s);
+});
