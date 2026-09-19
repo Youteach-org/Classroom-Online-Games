@@ -36,6 +36,25 @@ Examples:
 ### Expressions
 **Decision:** Long expressions may use one word per tile. `AS A MATTER OF FACT` can therefore occupy five separate tiles.
 
+### Player-controlled resolution
+**Design direction:** A valid combination does not have to disappear automatically the instant it is formed.
+
+The player should be able to decide when a currently valid word/phrase relationship is "cashed in" and removed from the board. This allows the player to preserve a shorter valid combination while waiting for additional tiles that may extend it into a longer or more valuable structure.
+
+Example:
+- A player forms `LOOK | FORWARD | TO`.
+- The game recognizes it as valid and makes it available to resolve.
+- The player may trigger it immediately, or keep it on the board while attempting to extend it into a larger valid expression such as `LOOK | FORWARD | TO | SEEING | YOU`.
+
+The exact control is not finalized, but a dedicated resolve/pop button is the leading interaction concept.
+
+This mechanic is intended to:
+- Give the player agency over timing.
+- Create risk/reward decisions.
+- Make longer expressions possible.
+- Prevent every valid relationship from becoming an automatic cascade.
+- Distinguish the game from a conventional automatic match-3 system.
+
 ### Tile sizing
 **Decision:** All board tiles remain the same physical size. Word length must not change grid geometry.
 
