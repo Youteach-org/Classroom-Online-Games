@@ -67,7 +67,25 @@ async function resolveYouTeachLaunchToken(rawToken){
     fullName,
     groupName:String(student.groupName||'GENERAL'),
     studentNumber:String(student.studentNumber||student.id||''),
-    identitySource:'youteach'
+    identitySource:'youteach',
+    launchContext:{
+      purpose:String(claimed.purpose||''),
+      officialSubmissionAllowed:claimed.officialSubmissionAllowed===true,
+      assignmentId:String(claimed.assignmentId||''),
+      assignmentCode:String(claimed.assignmentCode||''),
+      cogActivity:claimed.cogActivity&&typeof claimed.cogActivity==='object'
+        ?{
+            gameId:String(claimed.cogActivity.gameId||''),
+            modeId:String(claimed.cogActivity.modeId||''),
+            difficultyId:String(claimed.cogActivity.difficultyId||''),
+            minimumPercent:claimed.cogActivity.minimumPercent==null
+              ?null
+              :Number(claimed.cogActivity.minimumPercent),
+            pointValue:Number(claimed.cogActivity.pointValue||0),
+            contractVersion:Number(claimed.cogActivity.contractVersion||1)
+          }
+        :null
+    }
   };
 }
 
