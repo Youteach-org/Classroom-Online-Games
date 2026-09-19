@@ -301,27 +301,23 @@ test('reported state drives the repair-review loop',()=>{
   assert.equal(core.mergeCatalog({stop:'new.wav'},{[id]:{source:'old.wav',status:'reported'}})[0].status,'review-again');
 });
 
-test('Repair reported queues only reported audios',()=>{
+test('Repair reported hands current reported audios to ChatGPT instead of auto-repairing',()=>{
   const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
   const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
   const store=readFileSync(join(reviewRoot,'firebase-store.js'),'utf8');
+  const workflow=readFileSync(join(root,'..','.github','workflows','pronunciation-review-backup.yml'),'utf8');
+
   assert.match(html,/id="repairReported"[^>]*>Repair reported<\/button>/);
   assert.match(app,/catalog\.filter\(entry=>entry\.status==='reported'\)/);
-  assert.match(app,/requestRepairBatch\(reported,by\)/);
-  assert.match(store,/export async function requestRepairBatch/);
-  assert.match(store,/repairRequestedAt/);
-  assert.match(store,/repairRequests/);
-});
-
-test('queued reported repair is consumed by the pronunciation sync',()=>{
-  const workflow=readFileSync(join(root,'..','.github','workflows','pronunciation-review-backup.yml'),'utf8');
-  const prepare=readFileSync(join(root,'scripts','prepare-reported-pronunciation-repairs.py'),'utf8');
-  const finalize=readFileSync(join(root,'scripts','finalize-pronunciation-repair-cycle.py'),'utf8');
-  assert.match(workflow,/Prepare requested reported repairs/);
-  assert.match(workflow,/prepare-reported-pronunciation-repairs\.py/);
-  assert.match(workflow,/Verb-Runner\/pronunciation-corrections\.json/);
-  assert.match(prepare,/repairRequestedAt/);
-  assert.match(prepare,/automatic_repair_attempt/);
-  assert.match(finalize,/repairHandledAt/);
-  assert.match(finalize,/repairQueueStatus.*review-again/s);
+  assert.match(app,/report\.assetSource===entry\.src/);
+  assert.match(app,/youteachtk\/Classroom-Online-Games/);
+  assert.match(app,/Verb Runner/);
+  assert.match(app,/chatgpt\.com\/\?q=/);
+  assert.match(app,/encodeURIComponent\(prompt\)/);
+  assert.match(app,/window\.open/);
+  assert.doesNotMatch(app,/requestRepairBatch/);
+  assert.doesNotMatch(store,/requestRepairBatch/);
+  assert.doesNotMatch(store,/repairRequestedAt/);
+  assert.doesNotMatch(workflow,/Prepare requested reported repairs/);
+  assert.doesNotMatch(workflow,/prepare-reported-pronunciation-repairs\.py/);
 });
