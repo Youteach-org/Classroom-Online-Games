@@ -421,6 +421,8 @@ let sessionData=null;
 let sessionRunFinished=false;
 let sessionLoadPromise=Promise.resolve(null);
 let youTeachIdentity=null;
+let assignmentLaunchContext=null;
+let assignmentOfficialSubmissionAllowed=false;
 
 function localRunnerId(){
   try{
@@ -737,7 +739,7 @@ function setLevelUI(){
 
   if(resultKicker)resultKicker.textContent=raceLabel()+' COMPLETE';
   if(nextLevelButton){
-    nextLevelButton.hidden=currentLevel>=5;
+    nextLevelButton.hidden=Boolean(assignmentLaunchContext)||currentLevel>=5;
     nextLevelButton.textContent=currentLevel===1
       ?'TRY NEXT RACE · SENTENCE RUNNER'
       :currentLevel===2
@@ -804,7 +806,10 @@ function applyDifficultyDefaults(preset){
 
 function selectRace(level){
   if(gameStarted)return;
-  currentLevel=Math.max(1,Math.min(5,Number(level)||1));
+  const requestedLevel=Math.max(1,Math.min(5,Number(level)||1));
+  currentLevel=assignmentLaunchContext
+    ?assignmentModeLevel(assignmentLaunchContext?.cogActivity?.modeId)
+    :requestedLevel;
   totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
 
   if(sessionCode&&sessionData){
@@ -826,6 +831,51 @@ function selectRace(level){
     ?raceLabel()+' selected · choose runner and difficulty'
     :raceLabel()+' selected · loading runner…';
   updateStartButtonState();
+}
+
+function assignmentModeLevel(modeId){
+  const levels={
+    verb:1,
+    sentence:2,
+    'time-clues':3,
+    'perfect-race':4,
+    'final-race':5
+  };
+  return levels[String(modeId||'')]||1;
+}
+
+function applyAssignmentLaunchConfig(context){
+  const config=context?.cogActivity||null;
+  if(!config)return;
+
+  assignmentLaunchContext=context;
+  assignmentOfficialSubmissionAllowed=context.officialSubmissionAllowed===true;
+
+  currentLevel=assignmentModeLevel(config.modeId);
+  totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
+
+  const preset=difficultyPresets[config.difficultyId]||difficultyPresets.medium;
+  difficulty=preset;
+  gameSettings={
+    ...gameSettings,
+    initialSpeed:12,
+    maxSpeed:31,
+    speedScale:preset.speed,
+    answerSpacing:preset.answerSpacing
+  };
+  applyDifficultyDefaults(preset);
+
+  document.querySelectorAll('[data-race]').forEach(btn=>{
+    btn.classList.toggle('active',Number(btn.dataset.level)===currentLevel);
+    btn.disabled=true;
+  });
+  document.querySelectorAll('[data-difficulty]').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.difficulty===preset.name);
+    btn.disabled=true;
+  });
+
+  if(nextLevelButton)nextLevelButton.hidden=true;
+  modelStatus.textContent='Assigned YouTeach activity · '+raceLabel()+' · '+preset.name.toUpperCase();
 }
 
 function applySessionSettings(settings={}){
@@ -859,7 +909,12 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
       const resolved=await sessionApi.resolveYouTeachLaunchToken(launchToken);
       if(!resolved)throw new Error('Invalid or expired YouTeach credential');
       youTeachIdentity=resolved;
+      assignmentLaunchContext=resolved.launchContext||null;
+      assignmentOfficialSubmissionAllowed=assignmentLaunchContext?.officialSubmissionAllowed===true;
       storeYouTeachIdentity(resolved);
+      if(assignmentLaunchContext?.cogActivity){
+        applyAssignmentLaunchConfig(assignmentLaunchContext);
+      }
       runnerSessionId='YT-'+String(resolved.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
       cleanLaunchTokenFromUrl();
     }
@@ -2559,7 +2614,7 @@ document.querySelectorAll('[data-pause-runner]').forEach((btn,index)=>{
 
 document.querySelectorAll('[data-difficulty]').forEach(btn=>{
   btn.addEventListener('click',()=>{
-    if(sessionCode&&sessionData)return;
+    if((sessionCode&&sessionData)||assignmentLaunchContext)return;
     const preset=difficultyPresets[btn.dataset.difficulty]||difficultyPresets.medium;
     applyDifficultyDefaults(preset);
     document.querySelectorAll('[data-difficulty]').forEach(b=>b.classList.toggle('active',b===btn));
@@ -2691,7 +2746,7 @@ runAgainButton.addEventListener('click',()=>{
 });
 
 nextLevelButton?.addEventListener('click',async()=>{
-  if(currentLevel>=5)return;
+  if(assignmentLaunchContext||currentLevel>=5)return;
   sessionRunFinished=false;
   currentLevel+=1;
   totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
