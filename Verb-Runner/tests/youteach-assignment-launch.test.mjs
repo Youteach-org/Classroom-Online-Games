@@ -32,6 +32,13 @@ test('assignment launch locks race and difficulty for the launched task',()=>{
   assert.match(prototype,/\(sessionCode&&sessionData\)\|\|assignmentLaunchContext/);
 });
 
+test('assigned launch refresh cannot silently fall back to free mode',()=>{
+  assert.match(prototype,/ytAssignment/);
+  assert.match(prototype,/assignmentLaunchMarker&&!launchToken/);
+  assert.match(prototype,/launchCredentialFailed/);
+  assert.match(prototype,/REOPEN FROM YOUTEACH/);
+});
+
 test('assignment context is not persisted as remembered YouTeach identity',()=>{
   assert.match(prototype,/const persistentIdentity=\{/);
   assert.doesNotMatch(prototype,/persistentIdentity=.*launchContext/);
