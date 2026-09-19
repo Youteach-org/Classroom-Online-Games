@@ -67,15 +67,62 @@ async function resolveYouTeachLaunchToken(rawToken){
     fullName,
     groupName:String(student.groupName||'GENERAL'),
     studentNumber:String(student.studentNumber||student.id||''),
+    identitySource:'youteach'
+  };
+}
+
+function normalizeAssignmentIssuer(rawIssuer){
+  try{
+    const url=new URL(String(rawIssuer||''));
+    const host=url.hostname.toLowerCase();
+    if(
+      url.protocol==='https:'&&
+      (host==='youteach.pages.dev'||host.endsWith('.youteach.pages.dev'))
+    ){
+      return url.origin;
+    }
+  }catch{}
+  return '';
+}
+
+async function resolveYouTeachAssignmentLaunchToken(rawToken,rawIssuer){
+  const token=String(rawToken||'').trim();
+  const issuer=normalizeAssignmentIssuer(rawIssuer);
+  if(token.length<40||!issuer)return null;
+
+  const response=await fetch(`${issuer}/api/cog-launch-resolve`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({token})
+  });
+  if(!response.ok)return null;
+
+  const payload=await response.json().catch(()=>null);
+  const identity=payload?.identity;
+  const context=payload?.launchContext;
+  if(
+    payload?.ok!==true||
+    !identity?.studentKey||
+    context?.purpose!=='assignment-practice'||
+    context?.officialSubmissionAllowed!==false||
+    context?.cogActivity?.gameId!=='verb-runner'
+  ){
+    return null;
+  }
+
+  return {
+    studentKey:String(identity.studentKey),
+    nickname:String(identity.nickname||'Student'),
+    fullName:String(identity.fullName||''),
+    groupName:String(identity.groupName||'GENERAL'),
+    studentNumber:String(identity.studentNumber||''),
     identitySource:'youteach',
     launchContext:{
-      purpose:String(claimed.purpose||''),
-      officialSubmissionAllowed:claimed.officialSubmissionAllowed===true,
-      assignmentId:String(claimed.assignmentId||''),
-      assignmentCode:String(claimed.assignmentCode||''),
-      cogActivity:claimed.cogActivity&&typeof claimed.cogActivity==='object'
-        ?{...claimed.cogActivity}
-        :null
+      purpose:'assignment-practice',
+      officialSubmissionAllowed:false,
+      assignmentId:String(context.assignmentId||''),
+      assignmentCode:String(context.assignmentCode||''),
+      cogActivity:{...context.cogActivity}
     }
   };
 }
@@ -355,7 +402,7 @@ async function finishRunner(code,runnerId,result={}){
 }
 
 export {
-  normalizeCode,makeRunnerId,resolveYouTeachLaunchToken,createSession,loadSession,subscribeSession,subscribeSessions,closeSession,
+  normalizeCode,makeRunnerId,resolveYouTeachLaunchToken,resolveYouTeachAssignmentLaunchToken,createSession,loadSession,subscribeSession,subscribeSessions,closeSession,
   registerFreeRunnerPresence,subscribeFreeRunners,connectFreeRunner,updateFreeRunner,finishFreeRunner,
   registerRunnerPresence,connectRunner,updateRunner,finishRunner
 };
