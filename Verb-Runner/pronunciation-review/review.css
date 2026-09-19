@@ -15,6 +15,8 @@ input,select,textarea{border:1px solid #bdc7d4;border-radius:8px;background:#fff
 button{border:1px solid #aeb9c7;border-radius:8px;background:#fff;padding:8px 10px;font-weight:700;color:#1e3150}
 button:hover{background:#f1f5fb}
 button.danger{border-color:#d99;color:#a21b1b;background:#fff5f5}
+.repair-reported-button{border-color:#d64242;background:#fff3f3;color:#9f2020}
+.repair-reported-button:disabled{opacity:.6;cursor:default}
 .summary{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;font-size:12px}
 .summary span{background:#eef2f7;border-radius:999px;padding:4px 7px}
 main{max-width:1180px;margin:auto;padding:10px 12px 90px}
