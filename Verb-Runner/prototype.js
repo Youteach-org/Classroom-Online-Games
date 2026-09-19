@@ -421,6 +421,7 @@ let sessionData=null;
 let sessionRunFinished=false;
 let sessionLoadPromise=Promise.resolve(null);
 let youTeachIdentity=null;
+let assignmentLaunchContext=null;
 
 function localRunnerId(){
   try{
@@ -445,7 +446,16 @@ function readStoredYouTeachIdentity(){
 
 function storeYouTeachIdentity(identity){
   try{
-    if(identity?.studentKey)localStorage.setItem(YOUTEACH_IDENTITY_KEY,JSON.stringify(identity));
+    if(!identity?.studentKey)return;
+    const persistentIdentity={
+      studentKey:String(identity.studentKey||''),
+      nickname:String(identity.nickname||''),
+      fullName:String(identity.fullName||''),
+      groupName:String(identity.groupName||''),
+      studentNumber:String(identity.studentNumber||''),
+      identitySource:'youteach'
+    };
+    localStorage.setItem(YOUTEACH_IDENTITY_KEY,JSON.stringify(persistentIdentity));
   }catch{}
 }
 
@@ -472,6 +482,38 @@ function monitorIdentityData(){
     studentNumber:youTeachIdentity?.studentNumber||'',
     identitySource:youTeachIdentity?'youteach':'local'
   };
+}
+
+function assignmentLevelFromMode(modeId){
+  const levels={'verb':1,'sentence':2,'time-clues':3,'perfect-race':4,'final-race':5};
+  return levels[String(modeId||'')]||0;
+}
+
+function applyAssignmentLaunchContext(context){
+  const config=context?.cogActivity;
+  const level=assignmentLevelFromMode(config?.modeId);
+  const preset=difficultyPresets[String(config?.difficultyId||'')];
+  if(context?.purpose!=='assignment-practice'||!level||!preset)return false;
+
+  assignmentLaunchContext={
+    purpose:'assignment-practice',
+    officialSubmissionAllowed:false,
+    assignmentId:String(context.assignmentId||''),
+    assignmentCode:String(context.assignmentCode||''),
+    cogActivity:{...config}
+  };
+  currentLevel=level;
+  totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
+  applyDifficultyDefaults(preset);
+  document.querySelectorAll('[data-race]').forEach(btn=>{
+    btn.disabled=true;
+    btn.classList.toggle('active',Number(btn.dataset.level)===currentLevel);
+  });
+  document.querySelectorAll('[data-difficulty]').forEach(btn=>{
+    btn.disabled=true;
+    btn.classList.toggle('active',btn.dataset.difficulty===preset.name);
+  });
+  return true;
 }
 
 function sessionUpdate(patch={}){
@@ -737,7 +779,7 @@ function setLevelUI(){
 
   if(resultKicker)resultKicker.textContent=raceLabel()+' COMPLETE';
   if(nextLevelButton){
-    nextLevelButton.hidden=currentLevel>=5;
+    nextLevelButton.hidden=Boolean(assignmentLaunchContext)||currentLevel>=5;
     nextLevelButton.textContent=currentLevel===1
       ?'TRY NEXT RACE · SENTENCE RUNNER'
       :currentLevel===2
@@ -804,6 +846,9 @@ function applyDifficultyDefaults(preset){
 
 function selectRace(level){
   if(gameStarted)return;
+  if(assignmentLaunchContext){
+    level=assignmentLevelFromMode(assignmentLaunchContext.cogActivity?.modeId)||level;
+  }
   currentLevel=Math.max(1,Math.min(5,Number(level)||1));
   totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
 
@@ -858,8 +903,16 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
     if(launchToken){
       const resolved=await sessionApi.resolveYouTeachLaunchToken(launchToken);
       if(!resolved)throw new Error('Invalid or expired YouTeach credential');
-      youTeachIdentity=resolved;
-      storeYouTeachIdentity(resolved);
+      youTeachIdentity={
+        studentKey:resolved.studentKey,
+        nickname:resolved.nickname,
+        fullName:resolved.fullName,
+        groupName:resolved.groupName,
+        studentNumber:resolved.studentNumber,
+        identitySource:'youteach'
+      };
+      storeYouTeachIdentity(youTeachIdentity);
+      if(resolved.launchContext)applyAssignmentLaunchContext(resolved.launchContext);
       runnerSessionId='YT-'+String(resolved.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
       cleanLaunchTokenFromUrl();
     }
@@ -886,7 +939,9 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
 
     sessionData={status:'free',identitySource:youTeachIdentity?'youteach':'local'};
     await sessionApi.registerFreeRunnerPresence(runnerSessionId,presenceData);
-    modelStatus.textContent=(youTeachIdentity?.nickname||sessionStudentName||runnerSessionId)+' · Free mode';
+    modelStatus.textContent=assignmentLaunchContext
+      ?(youTeachIdentity?.nickname||runnerSessionId)+' · Assigned '+raceLabel()+' · '+difficulty.name
+      :(youTeachIdentity?.nickname||sessionStudentName||runnerSessionId)+' · Free mode';
     return sessionData;
   })
   .catch(err=>{
@@ -2559,7 +2614,7 @@ document.querySelectorAll('[data-pause-runner]').forEach((btn,index)=>{
 
 document.querySelectorAll('[data-difficulty]').forEach(btn=>{
   btn.addEventListener('click',()=>{
-    if(sessionCode&&sessionData)return;
+    if((sessionCode&&sessionData)||assignmentLaunchContext)return;
     const preset=difficultyPresets[btn.dataset.difficulty]||difficultyPresets.medium;
     applyDifficultyDefaults(preset);
     document.querySelectorAll('[data-difficulty]').forEach(b=>b.classList.toggle('active',b===btn));
