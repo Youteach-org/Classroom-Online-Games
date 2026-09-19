@@ -9,11 +9,19 @@ const root=join(here,'..');
 const sync=readFileSync(join(root,'session-sync.js'),'utf8');
 const prototype=readFileSync(join(root,'prototype.js'),'utf8');
 
-test('YouTeach launch token exposes assignment context without making it official',()=>{
-  assert.match(sync,/launchContext:\{/);
-  assert.match(sync,/purpose:String\(claimed\.purpose/);
-  assert.match(sync,/officialSubmissionAllowed:claimed\.officialSubmissionAllowed===true/);
-  assert.match(sync,/cogActivity:claimed\.cogActivity/);
+test('normal YouTeach launch remains on the existing one-time Firebase credential path',()=>{
+  assert.match(sync,/async function resolveYouTeachLaunchToken\(rawToken\)/);
+  assert.match(sync,/runTransaction\(tokenRef/);
+  assert.match(prototype,/resolveYouTeachLaunchToken\(launchToken\)/);
+});
+
+test('assignment launch resolves through the allowlisted YouTeach server instead of public Firebase',()=>{
+  assert.match(sync,/async function resolveYouTeachAssignmentLaunchToken\(rawToken,rawIssuer\)/);
+  assert.match(sync,/host==='youteach\.pages\.dev'/);
+  assert.match(sync,/host\.endsWith\('\.youteach\.pages\.dev'\)/);
+  assert.match(sync,/\/api\/cog-launch-resolve/);
+  assert.match(sync,/context\?\.purpose!=='assignment-practice'/);
+  assert.match(sync,/context\?\.officialSubmissionAllowed!==false/);
 });
 
 test('Verb Runner maps YouTeach modes to fixed race levels',()=>{
@@ -32,9 +40,17 @@ test('assignment launch locks race and difficulty for the launched task',()=>{
   assert.match(prototype,/\(sessionCode&&sessionData\)\|\|assignmentLaunchContext/);
 });
 
+test('assignment launch uses its own credential and leaves normal launch compatible',()=>{
+  assert.match(prototype,/sessionParams\.get\('assignmentLaunch'\)/);
+  assert.match(prototype,/sessionParams\.get\('issuer'\)/);
+  assert.match(prototype,/resolveYouTeachAssignmentLaunchToken/);
+  assert.match(prototype,/else if\(launchToken\)/);
+  assert.match(prototype,/resolveYouTeachLaunchToken\(launchToken\)/);
+});
+
 test('assigned launch refresh cannot silently fall back to free mode',()=>{
   assert.match(prototype,/ytAssignment/);
-  assert.match(prototype,/assignmentLaunchMarker&&!launchToken/);
+  assert.match(prototype,/assignmentLaunchMarker&&!assignmentLaunchToken/);
   assert.match(prototype,/launchCredentialFailed/);
   assert.match(prototype,/REOPEN FROM YOUTEACH/);
 });
@@ -42,5 +58,5 @@ test('assigned launch refresh cannot silently fall back to free mode',()=>{
 test('assignment context is not persisted as remembered YouTeach identity',()=>{
   assert.match(prototype,/const persistentIdentity=\{/);
   assert.doesNotMatch(prototype,/persistentIdentity=.*launchContext/);
-  assert.match(prototype,/assignedPractice=Boolean\(resolved\.launchContext&&applyAssignmentLaunchContext\(resolved\.launchContext\)\)/);
+  assert.match(prototype,/resolved\.launchContext&&applyAssignmentLaunchContext/);
 });
