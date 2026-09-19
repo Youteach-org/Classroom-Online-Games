@@ -40,3 +40,28 @@ export async function addHistory(audioId,event){
   await set(item,event);
   return item.key;
 }
+
+
+export async function requestRepairBatch(entries,by){
+  const stamp=Date.now();
+  const requestId=`repair-${stamp}`;
+  const patch={};
+  const items=[];
+  for(const entry of entries||[]){
+    if(!entry?.id||entry.status!=='reported')continue;
+    patch[`audios/${entry.id}/repairRequestedAt`]=stamp;
+    patch[`audios/${entry.id}/repairRequestedBy`]=by;
+    patch[`audios/${entry.id}/repairRequestId`]=requestId;
+    items.push({audioId:entry.id,key:entry.key,source:entry.src});
+  }
+  if(!items.length)return {requestId:null,count:0};
+  patch[`repairRequests/${requestId}`]={
+    requestedAt:stamp,
+    requestedBy:by,
+    status:'queued',
+    count:items.length,
+    items
+  };
+  await update(at(''),patch);
+  return {requestId,count:items.length};
+}
