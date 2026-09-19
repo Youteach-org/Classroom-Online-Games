@@ -1,4 +1,4 @@
-import {watchRecords} from './firebase-store.js';
+import {watchRecords,requestRepairBatch} from './firebase-store.js';
 import {seedKnownReports} from './review-actions.js';
 import {renderCard} from './review-render.js';
 import {bindReviewEvents} from './review-events.js';
@@ -18,6 +18,7 @@ const totalCount=document.querySelector('#totalCount');
 const reviewedCount=document.querySelector('#reviewedCount');
 const problemCount=document.querySelector('#problemCount');
 const duplicateCount=document.querySelector('#duplicateCount');
+const repairReported=document.querySelector('#repairReported');
 
 let records={};
 let catalog=[];
@@ -122,6 +123,28 @@ reviewerName.value=localStorage.getItem(REVIEWER_STORAGE)||'';
 reviewerName.addEventListener('change',()=>localStorage.setItem(REVIEWER_STORAGE,String(reviewerName.value||'').trim()));
 searchInput.addEventListener('input',render);
 statusFilter.addEventListener('change',render);
+repairReported.addEventListener('click',async()=>{
+  const by=reviewer(); if(!by)return;
+  const reported=catalog.filter(entry=>entry.status==='reported');
+  if(!reported.length){
+    alert('There are no reported audios to repair.');
+    return;
+  }
+  repairReported.disabled=true;
+  const original=repairReported.textContent;
+  repairReported.textContent=`Queueing ${reported.length}…`;
+  try{
+    const result=await requestRepairBatch(reported,by);
+    repairReported.textContent=`Queued ${result.count}`;
+    setTimeout(()=>{ repairReported.textContent=original; repairReported.disabled=false; },1800);
+  }catch(error){
+    console.error(error);
+    repairReported.textContent=original;
+    repairReported.disabled=false;
+    alert('Could not queue the reported audios for repair.');
+  }
+});
+
 document.querySelector('#exportJson').addEventListener('click',()=>exportJson(records));
 document.querySelector('#exportMarkdown').addEventListener('click',()=>exportMarkdown(catalog));
 
