@@ -67,7 +67,16 @@ async function resolveYouTeachLaunchToken(rawToken){
     fullName,
     groupName:String(student.groupName||'GENERAL'),
     studentNumber:String(student.studentNumber||student.id||''),
-    identitySource:'youteach'
+    identitySource:'youteach',
+    launchContext:{
+      purpose:String(claimed.purpose||''),
+      officialSubmissionAllowed:claimed.officialSubmissionAllowed===true,
+      assignmentId:String(claimed.assignmentId||''),
+      assignmentCode:String(claimed.assignmentCode||''),
+      cogActivity:claimed.cogActivity&&typeof claimed.cogActivity==='object'
+        ?{...claimed.cogActivity}
+        :null
+    }
   };
 }
 
