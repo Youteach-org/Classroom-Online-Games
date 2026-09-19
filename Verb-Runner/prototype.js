@@ -409,7 +409,9 @@ let gameSettings={
 const sessionParams=new URLSearchParams(location.search);
 const sessionCode=(sessionParams.get('session')||'').toUpperCase();
 const launchToken=String(sessionParams.get('launch')||'').trim();
-const assignmentLaunchMarker=sessionParams.get('ytAssignment')==='1';
+const assignmentLaunchToken=String(sessionParams.get('assignmentLaunch')||'').trim();
+const assignmentIssuer=String(sessionParams.get('issuer')||'').trim();
+const assignmentLaunchMarker=sessionParams.get('ytAssignment')==='1'||Boolean(assignmentLaunchToken);
 const sessionStudentName=String(
   sessionParams.get('studentName')||
   sessionParams.get('nickname')||
@@ -423,7 +425,7 @@ let sessionRunFinished=false;
 let sessionLoadPromise=Promise.resolve(null);
 let youTeachIdentity=null;
 let assignmentLaunchContext=null;
-let launchCredentialFailed=assignmentLaunchMarker&&!launchToken;
+let launchCredentialFailed=assignmentLaunchMarker&&!assignmentLaunchToken;
 
 function localRunnerId(){
   try{
@@ -462,9 +464,11 @@ function storeYouTeachIdentity(identity){
 }
 
 function cleanLaunchTokenFromUrl(assignmentPractice=false){
-  if(!launchToken)return;
+  if(!launchToken&&!assignmentLaunchToken)return;
   const clean=new URL(location.href);
   clean.searchParams.delete('launch');
+  clean.searchParams.delete('assignmentLaunch');
+  clean.searchParams.delete('issuer');
   if(assignmentPractice)clean.searchParams.set('ytAssignment','1');
   else clean.searchParams.delete('ytAssignment');
   history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
@@ -904,11 +908,32 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
   .then(async api=>{
     sessionApi=api;
 
-    if(assignmentLaunchMarker&&!launchToken){
+    if(assignmentLaunchMarker&&!assignmentLaunchToken){
       throw new Error('Reopen this assigned activity from YouTeach');
     }
 
-    if(launchToken){
+    if(assignmentLaunchToken){
+      const resolved=await sessionApi.resolveYouTeachAssignmentLaunchToken(
+        assignmentLaunchToken,
+        assignmentIssuer
+      );
+      if(!resolved)throw new Error('Invalid or expired YouTeach assignment credential');
+      youTeachIdentity={
+        studentKey:resolved.studentKey,
+        nickname:resolved.nickname,
+        fullName:resolved.fullName,
+        groupName:resolved.groupName,
+        studentNumber:resolved.studentNumber,
+        identitySource:'youteach'
+      };
+      storeYouTeachIdentity(youTeachIdentity);
+      const assignedPractice=Boolean(
+        resolved.launchContext&&applyAssignmentLaunchContext(resolved.launchContext)
+      );
+      if(!assignedPractice)throw new Error('Invalid YouTeach assignment configuration');
+      runnerSessionId='YT-'+String(resolved.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
+      cleanLaunchTokenFromUrl(true);
+    }else if(launchToken){
       const resolved=await sessionApi.resolveYouTeachLaunchToken(launchToken);
       if(!resolved)throw new Error('Invalid or expired YouTeach credential');
       youTeachIdentity={
@@ -920,9 +945,8 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
         identitySource:'youteach'
       };
       storeYouTeachIdentity(youTeachIdentity);
-      const assignedPractice=Boolean(resolved.launchContext&&applyAssignmentLaunchContext(resolved.launchContext));
       runnerSessionId='YT-'+String(resolved.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
-      cleanLaunchTokenFromUrl(assignedPractice);
+      cleanLaunchTokenFromUrl(false);
     }
 
     const presenceData={
@@ -956,7 +980,7 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
     console.error('Verb Runner monitor presence failed',err);
     sessionApi=null;
     sessionData=null;
-    if(launchToken||assignmentLaunchMarker){
+    if(assignmentLaunchToken||launchToken||assignmentLaunchMarker){
       launchCredentialFailed=true;
       modelStatus.textContent='YouTeach credential expired · reopen this activity from YouTeach';
       startButton.disabled=true;
