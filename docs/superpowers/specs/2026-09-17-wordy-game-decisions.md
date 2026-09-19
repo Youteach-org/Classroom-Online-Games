@@ -113,6 +113,27 @@ The precise board geometry will depend on the final matching rules, but the prin
 ### Level creation direction
 **Decision:** Favor a hybrid approach: reusable generation rules and automated validation, with important levels still designed or curated by humans.
 
+### Player content preferences
+**Decision:** Players should be able to influence which linguistic relationship types appear more or less often in their games.
+
+The preference system should use weighting rather than forcing the entire board into a single category. For example, a player who wants more practice with phrasal verbs can increase their frequency while still seeing collocations, irregular verbs, fixed expressions, and other enabled categories.
+
+Initial preference concept:
+- **More / Focus** — strongly increase the probability that this relationship type appears.
+- **Normal** — use the game's default distribution.
+- **Less** — reduce its frequency without removing it completely.
+- A complete **Off** option may be considered later, but should not be the default because removing categories entirely can reduce variety and make the relationship graph less connected.
+
+Manual preferences should coexist with adaptive learning. The game may also modestly increase exposure to categories or combinations the player repeatedly misses, but the player's explicit preference remains the stronger signal.
+
+Examples:
+- Phrasal verbs: More
+- Collocations: Normal
+- Irregular verbs: Less
+- Fixed expressions: Normal
+
+This setting affects content weighting and generation, not scoring rules or the validity of combinations.
+
 ### Productive randomness
 **Decision:** New words must not fall as unconstrained random text. The board generator should use controlled randomness so that future combinations remain reasonably possible.
 
