@@ -42,5 +42,5 @@ test('assigned launch refresh cannot silently fall back to free mode',()=>{
 test('assignment context is not persisted as remembered YouTeach identity',()=>{
   assert.match(prototype,/const persistentIdentity=\{/);
   assert.doesNotMatch(prototype,/persistentIdentity=.*launchContext/);
-  assert.match(prototype,/if\(resolved\.launchContext\)applyAssignmentLaunchContext/);
+  assert.match(prototype,/assignedPractice=Boolean\(resolved\.launchContext&&applyAssignmentLaunchContext\(resolved\.launchContext\)\)/);
 });
