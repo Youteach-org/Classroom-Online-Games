@@ -55,3 +55,15 @@ jobs:
             --project-name=classroom-online-games \
             --branch="${{ github.head_ref }}" \
             --commit-hash="${{ github.event.pull_request.head.sha }}"
+
+      - name: Smoke test COG preview
+        if: github.event_name == 'pull_request'
+        run: |
+          PREVIEW='https://feature-youteach-cog-assignm.classroom-online-games.pages.dev'
+          curl -fsS --retry 5 --retry-delay 2 "$PREVIEW/Verb-Runner/" -o /tmp/verb-runner.html
+          grep -q 'prototype.js' /tmp/verb-runner.html
+          curl -fsS --retry 5 --retry-delay 2 "$PREVIEW/Verb-Runner/session-sync.js" -o /tmp/session-sync.js
+          grep -q 'resolveYouTeachAssignmentLaunchToken' /tmp/session-sync.js
+          curl -fsS --retry 5 --retry-delay 2 "$PREVIEW/Verb-Runner/prototype.js" -o /tmp/prototype.js
+          grep -q 'assignmentLaunch' /tmp/prototype.js
+          grep -q 'REOPEN FROM YOUTEACH' /tmp/prototype.js
