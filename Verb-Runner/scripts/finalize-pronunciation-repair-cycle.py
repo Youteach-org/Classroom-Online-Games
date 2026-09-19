@@ -38,11 +38,15 @@ def main() -> None:
         base = f"audios/{audio_id}"
         record["status"] = "review-again"
         record["repairAppliedAt"] = stamp
+        record["repairHandledAt"] = int(record.get("repairRequestedAt") or stamp)
         record["repairSource"] = current
+        record["repairQueueStatus"] = "review-again"
         record["updatedAt"] = stamp
         patch[f"{base}/status"] = "review-again"
         patch[f"{base}/repairAppliedAt"] = stamp
+        patch[f"{base}/repairHandledAt"] = int(record.get("repairRequestedAt") or stamp)
         patch[f"{base}/repairSource"] = current
+        patch[f"{base}/repairQueueStatus"] = "review-again"
         patch[f"{base}/updatedAt"] = stamp
 
         for report_id, report in (record.get("reports") or {}).items():
