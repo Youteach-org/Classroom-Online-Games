@@ -409,6 +409,7 @@ let gameSettings={
 const sessionParams=new URLSearchParams(location.search);
 const sessionCode=(sessionParams.get('session')||'').toUpperCase();
 const launchToken=String(sessionParams.get('launch')||'').trim();
+const assignmentLaunchMarker=sessionParams.get('ytAssignment')==='1';
 const sessionStudentName=String(
   sessionParams.get('studentName')||
   sessionParams.get('nickname')||
@@ -422,6 +423,7 @@ let sessionRunFinished=false;
 let sessionLoadPromise=Promise.resolve(null);
 let youTeachIdentity=null;
 let assignmentLaunchContext=null;
+let launchCredentialFailed=assignmentLaunchMarker&&!launchToken;
 
 function localRunnerId(){
   try{
@@ -459,10 +461,12 @@ function storeYouTeachIdentity(identity){
   }catch{}
 }
 
-function cleanLaunchTokenFromUrl(){
+function cleanLaunchTokenFromUrl(assignmentPractice=false){
   if(!launchToken)return;
   const clean=new URL(location.href);
   clean.searchParams.delete('launch');
+  if(assignmentPractice)clean.searchParams.set('ytAssignment','1');
+  else clean.searchParams.delete('ytAssignment');
   history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
 }
 
@@ -900,6 +904,10 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
   .then(async api=>{
     sessionApi=api;
 
+    if(assignmentLaunchMarker&&!launchToken){
+      throw new Error('Reopen this assigned activity from YouTeach');
+    }
+
     if(launchToken){
       const resolved=await sessionApi.resolveYouTeachLaunchToken(launchToken);
       if(!resolved)throw new Error('Invalid or expired YouTeach credential');
@@ -912,9 +920,9 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
         identitySource:'youteach'
       };
       storeYouTeachIdentity(youTeachIdentity);
-      if(resolved.launchContext)applyAssignmentLaunchContext(resolved.launchContext);
+      const assignedPractice=Boolean(resolved.launchContext&&applyAssignmentLaunchContext(resolved.launchContext));
       runnerSessionId='YT-'+String(resolved.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
-      cleanLaunchTokenFromUrl();
+      cleanLaunchTokenFromUrl(assignedPractice);
     }
 
     const presenceData={
@@ -948,9 +956,14 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
     console.error('Verb Runner monitor presence failed',err);
     sessionApi=null;
     sessionData=null;
-    modelStatus.textContent=launchToken
-      ?'YouTeach credential expired · reopen Verb Runner from YouTeach'
-      :(sessionCode?'Session unavailable · local mode':modelStatus.textContent);
+    if(launchToken||assignmentLaunchMarker){
+      launchCredentialFailed=true;
+      modelStatus.textContent='YouTeach credential expired · reopen this activity from YouTeach';
+      startButton.disabled=true;
+      if(startButtonLabel)startButtonLabel.textContent='REOPEN FROM YOUTEACH';
+    }else if(sessionCode){
+      modelStatus.textContent='Session unavailable · local mode';
+    }
     return null;
   });
 
@@ -2627,6 +2640,10 @@ startButton.addEventListener('click',async()=>{
   ensureAudio();
   window.VerbRunnerPronunciation?.unlockPronunciation();
   await sessionLoadPromise;
+  if(launchCredentialFailed){
+    modelStatus.textContent='Reopen this assigned activity from YouTeach';
+    return;
+  }
   sessionRunFinished=false;
   resetRun();
   picker.classList.add('hidden');
