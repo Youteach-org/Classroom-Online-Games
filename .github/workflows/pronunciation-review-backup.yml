@@ -13,6 +13,7 @@ on:
       - "Verb-Runner/scripts/generate-pronunciation.py"
       - "Verb-Runner/scripts/cache-approved-external-pronunciation.py"
       - "Verb-Runner/scripts/finalize-pronunciation-repair-cycle.py"
+      - "Verb-Runner/scripts/prepare-reported-pronunciation-repairs.py"
       - "Verb-Runner/pronunciation-corrections.json"
       - "Verb-Runner/tests/pronunciation-review.test.mjs"
       - ".github/workflows/pronunciation-review-backup.yml"
@@ -91,6 +92,9 @@ jobs:
         run: |
           python Verb-Runner/scripts/apply-pronunciation-duplicates.py /tmp/pronunciation-review.json
 
+      - name: Prepare requested reported repairs
+        run: python Verb-Runner/scripts/prepare-reported-pronunciation-repairs.py /tmp/pronunciation-review.json
+
       - name: Cache approved external pronunciation assets
         run: python Verb-Runner/scripts/cache-approved-external-pronunciation.py
 
@@ -133,6 +137,7 @@ jobs:
             docs/superpowers/audits/pronunciation-decision-console-live-backup.json
             Verb-Runner/pronunciation-aliases.json
             Verb-Runner/pronunciation-manifest.js
+            Verb-Runner/pronunciation-corrections.json
             Verb-Runner/audio/pronunciation
             Verb-Runner/bella-samples/round3-manifest.json
             Verb-Runner/bella-samples/round3-audio
