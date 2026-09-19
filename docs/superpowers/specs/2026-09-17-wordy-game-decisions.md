@@ -33,6 +33,28 @@ Examples:
 - `MAKE | A | DECISION`
 - `AS | A | MATTER | OF | FACT`
 
+### Board geometry
+**Decision:** Valid linguistic combinations use straight contiguous lines only: horizontal or vertical.
+
+- No diagonal matches in the base rules.
+- No bent paths or free-form word tracing.
+- Word order must be correct along the line.
+- Crossed structures are allowed when two valid combinations share a tile, creating crossword-like geometry.
+- Gravity acts vertically after tiles are removed.
+
+This geometry is intentionally simple so phrases remain immediately readable on a phone and so gravity can create secondary combinations after a player-triggered pop.
+
+### Gravity-created cascades
+**Decision:** Resolving one combination can cause remaining tiles to fall and create a new valid linguistic combination. That new relationship counts as a combo/cascade.
+
+Example:
+- `LOOK | AFTER` is resolved.
+- Its removal creates vertical space.
+- `TAKE` falls into alignment with `A | BREAK`.
+- `TAKE | A | BREAK` becomes a cascade combo.
+
+**Design direction:** Player-assembled valid combinations may wait for the player's decision to cash them in, but combinations created directly by gravity after a pop should behave as automatic cascade rewards. This preserves player agency during deliberate construction while retaining the satisfying chain-reaction behavior of a casual match game.
+
 ### Expressions
 **Decision:** Long expressions may use one word per tile. `AS A MATTER OF FACT` can therefore occupy five separate tiles.
 
