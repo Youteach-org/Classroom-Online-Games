@@ -300,3 +300,15 @@ test('reported state drives the repair-review loop',()=>{
   const id=core.audioIdForKey('stop');
   assert.equal(core.mergeCatalog({stop:'new.wav'},{[id]:{source:'old.wav',status:'reported'}})[0].status,'review-again');
 });
+
+test('Repair reported queues only reported audios',()=>{
+  const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
+  const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
+  const store=readFileSync(join(reviewRoot,'firebase-store.js'),'utf8');
+  assert.match(html,/id="repairReported"[^>]*>Repair reported<\/button>/);
+  assert.match(app,/catalog\.filter\(entry=>entry\.status==='reported'\)/);
+  assert.match(app,/requestRepairBatch\(reported,by\)/);
+  assert.match(store,/export async function requestRepairBatch/);
+  assert.match(store,/repairRequestedAt/);
+  assert.match(store,/repairRequests/);
+});
