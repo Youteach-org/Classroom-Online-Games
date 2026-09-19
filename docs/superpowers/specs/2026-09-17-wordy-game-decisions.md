@@ -55,6 +55,46 @@ This mechanic is intended to:
 - Prevent every valid relationship from becoming an automatic cascade.
 - Distinguish the game from a conventional automatic match-3 system.
 
+### End-of-round learning review
+**Decision:** At the end of every round, the player gets a review screen listing relevant combinations from that round.
+
+The review should distinguish at least:
+- combinations the player successfully formed/resolved;
+- valid combinations that were available or became possible but were missed;
+- optionally, notable incomplete structures that were close enough to be pedagogically useful.
+
+Each listed relationship should be inspectable. The player can open an explanation showing:
+- what the relationship means;
+- what linguistic category it belongs to;
+- why the game accepted it as valid;
+- why it earned the points it earned;
+- examples or a concise grammar/usage explanation when appropriate.
+
+The purpose is to turn accidental discovery during random play into explicit learning after the action, without interrupting the flow of the round.
+
+Missed combinations should be eligible to reappear in future rounds so the player gets another opportunity to recognize and build them.
+
+Successfully formed combinations should remain available in a player-accessible history/reference area for later consultation.
+
+### Shared-tile crossword intersections
+**Decision:** A single tile may belong simultaneously to two or more valid combinations, similar to a crossword intersection.
+
+If the player resolves both valid combinations together, the shared tile participates in both and both structures are removed in the same resolution event.
+
+This should be treated as a higher-value play than resolving either relationship alone.
+
+Example concept:
+
+```
+      TAKE
+       |
+MAKE - A - DECISION
+       |
+     BREAK
+```
+
+The precise board geometry will depend on the final matching rules, but the principle is confirmed: valid linguistic structures may intersect through a shared word and resolve together.
+
 ### Tile sizing
 **Decision:** All board tiles remain the same physical size. Word length must not change grid geometry.
 
@@ -90,6 +130,9 @@ If no meaningful combination can still be created:
 This is the preferred recovery behavior rather than requiring the player to use a booster or manually request a shuffle.
 
 Exact animation, treatment of future blockers, and minimum number of validated moves remain implementation details.
+
+### Response style for design discussions
+**Decision:** Number substantive response points so the user can refer back to them efficiently in later messages.
 
 ### Working style
 **Decision:** Keep the design conversation exploratory and collaborative. Avoid repeatedly stopping for microdecisions. Consolidate mature decisions into project documentation instead.
