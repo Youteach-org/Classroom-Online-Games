@@ -71,6 +71,13 @@ The screen is divided into two main vertical zones:
 - Prioritize the most valuable or pedagogically useful missed combinations.
 - These missed combinations become candidates to reappear in future rounds.
 
+**Extended-tutorial replay (early levels only)**
+- In the opening portion of the game, a missed high-value opportunity may include a small replay card showing the board state from the moment when the opportunity existed.
+- Do not store a literal bitmap screenshot as the canonical record. Store a lightweight logical snapshot: tile identities, positions, the relevant relationship, and the move(s) that would have completed it.
+- Re-render that snapshot as a miniature board in the results screen, highlighting the relevant tiles and showing the move or alignment that would have produced the combination.
+- Keep this teaching aid limited to early/tutorial levels so experienced players are not repeatedly shown solutions.
+- The purpose is to teach the player how to visually recognize possible relationships on the board, then gradually remove the assistance as that skill develops.
+
 The review should fit naturally on a phone screen with minimal scrolling. Detailed explanations are secondary drill-down views, not part of the main results screen.
 
 Successfully formed combinations may remain available in a player-accessible history/reference area for later consultation.
