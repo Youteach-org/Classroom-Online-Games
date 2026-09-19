@@ -421,6 +421,8 @@ let sessionData=null;
 let sessionRunFinished=false;
 let sessionLoadPromise=Promise.resolve(null);
 let youTeachIdentity=null;
+let youTeachAssignmentContext=null;
+let assignmentContextLocked=false;
 
 function localRunnerId(){
   try{
@@ -445,7 +447,16 @@ function readStoredYouTeachIdentity(){
 
 function storeYouTeachIdentity(identity){
   try{
-    if(identity?.studentKey)localStorage.setItem(YOUTEACH_IDENTITY_KEY,JSON.stringify(identity));
+    if(!identity?.studentKey)return;
+    const stored={
+      studentKey:identity.studentKey,
+      nickname:identity.nickname||'',
+      fullName:identity.fullName||'',
+      groupName:identity.groupName||'',
+      studentNumber:identity.studentNumber||'',
+      identitySource:'youteach'
+    };
+    localStorage.setItem(YOUTEACH_IDENTITY_KEY,JSON.stringify(stored));
   }catch{}
 }
 
@@ -472,6 +483,46 @@ function monitorIdentityData(){
     studentNumber:youTeachIdentity?.studentNumber||'',
     identitySource:youTeachIdentity?'youteach':'local'
   };
+}
+
+function assignmentLevelForMode(modeId){
+  const levels={
+    verb:1,
+    sentence:2,
+    'time-clues':3,
+    'perfect-race':4,
+    'final-race':5
+  };
+  return levels[String(modeId||'')]||0;
+}
+
+function applyYouTeachAssignmentContext(context={}){
+  if(context?.purpose!=='assignment-practice')return false;
+  if(context?.gameId&&context.gameId!=='verb-runner')return false;
+
+  const level=assignmentLevelForMode(context.modeId);
+  const preset=difficultyPresets[String(context.difficultyId||'')];
+  if(!level||!preset)return false;
+
+  youTeachAssignmentContext={...context};
+  assignmentContextLocked=true;
+  currentLevel=level;
+  totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
+  applyDifficultyDefaults(preset);
+
+  document.querySelectorAll('[data-race]').forEach(btn=>{
+    const selected=Number(btn.dataset.level)===currentLevel;
+    btn.classList.toggle('active',selected);
+    btn.disabled=true;
+    btn.setAttribute('aria-pressed',selected?'true':'false');
+  });
+  document.querySelectorAll('[data-difficulty]').forEach(btn=>{
+    const selected=btn.dataset.difficulty===preset.name;
+    btn.classList.toggle('active',selected);
+    btn.disabled=true;
+  });
+  if(nextLevelButton)nextLevelButton.hidden=true;
+  return true;
 }
 
 function sessionUpdate(patch={}){
@@ -737,7 +788,7 @@ function setLevelUI(){
 
   if(resultKicker)resultKicker.textContent=raceLabel()+' COMPLETE';
   if(nextLevelButton){
-    nextLevelButton.hidden=currentLevel>=5;
+    nextLevelButton.hidden=assignmentContextLocked||currentLevel>=5;
     nextLevelButton.textContent=currentLevel===1
       ?'TRY NEXT RACE · SENTENCE RUNNER'
       :currentLevel===2
@@ -803,7 +854,7 @@ function applyDifficultyDefaults(preset){
 }
 
 function selectRace(level){
-  if(gameStarted)return;
+  if(gameStarted||assignmentContextLocked)return;
   currentLevel=Math.max(1,Math.min(5,Number(level)||1));
   totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
 
@@ -861,6 +912,9 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
       youTeachIdentity=resolved;
       storeYouTeachIdentity(resolved);
       runnerSessionId='YT-'+String(resolved.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
+      if(resolved.assignmentContext){
+        applyYouTeachAssignmentContext(resolved.assignmentContext);
+      }
       cleanLaunchTokenFromUrl();
     }
 
@@ -884,9 +938,20 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
       return data;
     }
 
-    sessionData={status:'free',identitySource:youTeachIdentity?'youteach':'local'};
-    await sessionApi.registerFreeRunnerPresence(runnerSessionId,presenceData);
-    modelStatus.textContent=(youTeachIdentity?.nickname||sessionStudentName||runnerSessionId)+' · Free mode';
+    sessionData={
+      status:youTeachAssignmentContext?'assignment-practice':'free',
+      identitySource:youTeachIdentity?'youteach':'local',
+      assignmentContext:youTeachAssignmentContext||null
+    };
+    await sessionApi.registerFreeRunnerPresence(runnerSessionId,{
+      ...presenceData,
+      assignmentId:youTeachAssignmentContext?.assignmentId||'',
+      taskCode:youTeachAssignmentContext?.taskCode||'',
+      launchPurpose:youTeachAssignmentContext?.purpose||''
+    });
+    modelStatus.textContent=youTeachAssignmentContext
+      ?(youTeachIdentity?.nickname||'Student')+' · '+(youTeachAssignmentContext.taskCode||'COG assignment')+' · practice'
+      :(youTeachIdentity?.nickname||sessionStudentName||runnerSessionId)+' · Free mode';
     return sessionData;
   })
   .catch(err=>{
@@ -2541,7 +2606,10 @@ function loadRunnerModel(attempt=0){
 loadRunnerModel();
 
 document.querySelectorAll('[data-race]').forEach(btn=>{
-  btn.addEventListener('click',()=>selectRace(btn.dataset.level));
+  btn.addEventListener('click',()=>{
+    if(assignmentContextLocked)return;
+    selectRace(btn.dataset.level);
+  });
 });
 
 document.querySelectorAll('.robot-option').forEach((btn,index)=>{
@@ -2559,6 +2627,7 @@ document.querySelectorAll('[data-pause-runner]').forEach((btn,index)=>{
 
 document.querySelectorAll('[data-difficulty]').forEach(btn=>{
   btn.addEventListener('click',()=>{
+    if(assignmentContextLocked)return;
     if(sessionCode&&sessionData)return;
     const preset=difficultyPresets[btn.dataset.difficulty]||difficultyPresets.medium;
     applyDifficultyDefaults(preset);
