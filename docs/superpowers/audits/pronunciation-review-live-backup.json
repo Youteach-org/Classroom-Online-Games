@@ -56,6 +56,9 @@
       },
       "key": "am going to study",
       "lastReviewedAt": 1789859348033,
+      "repairRequestId": "repair-1789859881757",
+      "repairRequestedAt": 1789859881757,
+      "repairRequestedBy": "Armando Anota",
       "reports": {
         "autosave-armando-anota-22dz74-audio-pronunciation-am-going-to-study-6abd-1ty4bjp": {
           "assetSource": "./audio/pronunciation/am-going-to-study-6abd97dde8.wav",
@@ -89,6 +92,9 @@
       },
       "key": "am staying",
       "lastReviewedAt": 1789859365922,
+      "repairRequestId": "repair-1789859881757",
+      "repairRequestedAt": 1789859881757,
+      "repairRequestedBy": "Armando Anota",
       "reports": {
         "autosave-armando-anota-22dz74-audio-pronunciation-am-staying-10418ccd7f--voeber": {
           "assetSource": "./audio/pronunciation/am-staying-10418ccd7f.wav",
@@ -1387,6 +1393,9 @@
       },
       "key": "build",
       "lastReviewedAt": 1789691109710,
+      "repairRequestId": "repair-1789859881757",
+      "repairRequestedAt": 1789859881757,
+      "repairRequestedBy": "Armando Anota",
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/build-80754af91b.wav",
@@ -1825,12 +1834,19 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/change-dc6010c72a.wav",
           "to": "./audio/pronunciation/change-bd120a6a04.wav"
+        },
+        "repair-1789860417872-change": {
+          "action": "repair-applied-review-again",
+          "at": 1789860417872,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/change-dc6010c72a.wav",
+          "to": "./audio/pronunciation/change-bd120a6a04.wav"
         }
       },
       "key": "change",
       "lastReviewedAt": 1789691135918,
-      "repairAppliedAt": 1789859786268,
-      "repairHandledAt": 1789859786268,
+      "repairAppliedAt": 1789860417872,
+      "repairHandledAt": 1789860417872,
       "repairQueueStatus": "review-again",
       "repairSource": "./audio/pronunciation/change-bd120a6a04.wav",
       "reports": {
@@ -1863,7 +1879,7 @@
       "source": "./audio/pronunciation/change-dc6010c72a.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789859786268
+      "updatedAt": 1789860417872
     },
     "changed-jgug0r": {
       "assetCreatedAt": 1789688758264,
@@ -2571,12 +2587,19 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/eat-976ffd3d58.wav",
           "to": "./audio/pronunciation/eat-629b4e1677.wav"
+        },
+        "repair-1789860417872-eat": {
+          "action": "repair-applied-review-again",
+          "at": 1789860417872,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/eat-976ffd3d58.wav",
+          "to": "./audio/pronunciation/eat-629b4e1677.wav"
         }
       },
       "key": "eat",
       "lastReviewedAt": 1789688783481,
-      "repairAppliedAt": 1789859786268,
-      "repairHandledAt": 1789859786268,
+      "repairAppliedAt": 1789860417872,
+      "repairHandledAt": 1789860417872,
       "repairQueueStatus": "review-again",
       "repairSource": "./audio/pronunciation/eat-629b4e1677.wav",
       "reports": {
@@ -2608,7 +2631,7 @@
       "source": "./audio/pronunciation/eat-976ffd3d58.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789859786268
+      "updatedAt": 1789860417872
     },
     "eaten-1coazmy": {
       "assetCreatedAt": 1789688802939,
@@ -2746,12 +2769,19 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/eaten-cbbbb2083b.wav",
           "to": "./audio/pronunciation/eaten-d1ae7ebd12.wav"
+        },
+        "repair-1789860417872-eaten": {
+          "action": "repair-applied-review-again",
+          "at": 1789860417872,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/eaten-cbbbb2083b.wav",
+          "to": "./audio/pronunciation/eaten-d1ae7ebd12.wav"
         }
       },
       "key": "eaten",
       "lastReviewedAt": 1789688809952,
-      "repairAppliedAt": 1789859786268,
-      "repairHandledAt": 1789859786268,
+      "repairAppliedAt": 1789860417872,
+      "repairHandledAt": 1789860417872,
       "repairQueueStatus": "review-again",
       "repairSource": "./audio/pronunciation/eaten-d1ae7ebd12.wav",
       "reports": {
@@ -2783,7 +2813,7 @@
       "source": "./audio/pronunciation/eaten-cbbbb2083b.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789859786268
+      "updatedAt": 1789860417872
     },
     "fall-1wwprhc": {
       "assetCreatedAt": 1789688814610,
@@ -2968,12 +2998,19 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/follow-8e900ba8ec.wav",
           "to": "./audio/pronunciation/follow-480c42c110.wav"
+        },
+        "repair-1789860417872-follow": {
+          "action": "repair-applied-review-again",
+          "at": 1789860417872,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/follow-8e900ba8ec.wav",
+          "to": "./audio/pronunciation/follow-480c42c110.wav"
         }
       },
       "key": "follow",
       "lastReviewedAt": 1789688823937,
-      "repairAppliedAt": 1789859786268,
-      "repairHandledAt": 1789859786268,
+      "repairAppliedAt": 1789860417872,
+      "repairHandledAt": 1789860417872,
       "repairQueueStatus": "review-again",
       "repairSource": "./audio/pronunciation/follow-480c42c110.wav",
       "reports": {
@@ -3005,7 +3042,7 @@
       "source": "./audio/pronunciation/follow-8e900ba8ec.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789859786268
+      "updatedAt": 1789860417872
     },
     "forbade-1t6br0y": {
       "assetCreatedAt": 1789688834078,
@@ -3143,12 +3180,19 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/forbade-83d0f539d0.wav",
           "to": "./audio/pronunciation/forbade-92e23a6543.wav"
+        },
+        "repair-1789860417872-forbade": {
+          "action": "repair-applied-review-again",
+          "at": 1789860417872,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/forbade-83d0f539d0.wav",
+          "to": "./audio/pronunciation/forbade-92e23a6543.wav"
         }
       },
       "key": "forbade",
       "lastReviewedAt": 1789688838659,
-      "repairAppliedAt": 1789859786268,
-      "repairHandledAt": 1789859786268,
+      "repairAppliedAt": 1789860417872,
+      "repairHandledAt": 1789860417872,
       "repairQueueStatus": "review-again",
       "repairSource": "./audio/pronunciation/forbade-92e23a6543.wav",
       "reports": {
@@ -3180,7 +3224,7 @@
       "source": "./audio/pronunciation/forbade-83d0f539d0.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789859786268
+      "updatedAt": 1789860417872
     },
     "fought-4yjxhm": {
       "assetCreatedAt": 1789688845305,
@@ -3693,12 +3737,19 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/stop-edeb5fd227.wav",
           "to": "./audio/pronunciation/stop-75704d5ded.wav"
+        },
+        "repair-1789860417872-stop": {
+          "action": "repair-applied-review-again",
+          "at": 1789860417872,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/stop-edeb5fd227.wav",
+          "to": "./audio/pronunciation/stop-75704d5ded.wav"
         }
       },
       "key": "stop",
       "lastReviewedAt": 1789688896022,
-      "repairAppliedAt": 1789859786268,
-      "repairHandledAt": 1789859786268,
+      "repairAppliedAt": 1789860417872,
+      "repairHandledAt": 1789860417872,
       "repairQueueStatus": "review-again",
       "repairSource": "./audio/pronunciation/stop-75704d5ded.wav",
       "reports": {
@@ -3730,7 +3781,7 @@
       "source": "./audio/pronunciation/stop-edeb5fd227.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789859786268
+      "updatedAt": 1789860417872
     },
     "stopped-urm4i6": {
       "assetCreatedAt": 1789688907021,
@@ -3868,12 +3919,19 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/stopped-cd6daffa76.wav",
           "to": "./audio/pronunciation/stopped-1e1ea5787d.wav"
+        },
+        "repair-1789860417872-stopped": {
+          "action": "repair-applied-review-again",
+          "at": 1789860417872,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/stopped-cd6daffa76.wav",
+          "to": "./audio/pronunciation/stopped-1e1ea5787d.wav"
         }
       },
       "key": "stopped",
       "lastReviewedAt": 1789688910524,
-      "repairAppliedAt": 1789859786268,
-      "repairHandledAt": 1789859786268,
+      "repairAppliedAt": 1789860417872,
+      "repairHandledAt": 1789860417872,
       "repairQueueStatus": "review-again",
       "repairSource": "./audio/pronunciation/stopped-1e1ea5787d.wav",
       "reports": {
@@ -3905,7 +3963,7 @@
       "source": "./audio/pronunciation/stopped-cd6daffa76.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789859786268
+      "updatedAt": 1789860417872
     },
     "studied-1ab6ym7": {
       "assetCreatedAt": 1789688918191,
@@ -4278,12 +4336,19 @@
           "by": "Pronunciation repair sync",
           "from": "https://www.aidocmaker.com/g0/audio?name=b196bfada13f4374a2225a52556f784c",
           "to": "./audio/pronunciation/external/washed-fancy-approved.mp3"
+        },
+        "repair-1789860417872-washed": {
+          "action": "repair-applied-review-again",
+          "at": 1789860417872,
+          "by": "Pronunciation repair sync",
+          "from": "https://www.aidocmaker.com/g0/audio?name=b196bfada13f4374a2225a52556f784c",
+          "to": "./audio/pronunciation/external/washed-fancy-approved.mp3"
         }
       },
       "key": "washed",
       "lastReviewedAt": 1789688970942,
-      "repairAppliedAt": 1789859786268,
-      "repairHandledAt": 1789859786268,
+      "repairAppliedAt": 1789860417872,
+      "repairHandledAt": 1789860417872,
       "repairQueueStatus": "review-again",
       "repairSource": "./audio/pronunciation/external/washed-fancy-approved.mp3",
       "reports": {
@@ -4315,7 +4380,7 @@
       "source": "https://www.aidocmaker.com/g0/audio?name=b196bfada13f4374a2225a52556f784c",
       "sourceType": "other",
       "status": "review-again",
-      "updatedAt": 1789859786268
+      "updatedAt": 1789860417872
     },
     "watched-1g525yh": {
       "assetCreatedAt": 1789688951191,
@@ -4345,6 +4410,9 @@
       },
       "key": "watched",
       "lastReviewedAt": 1789688981801,
+      "repairRequestId": "repair-1789859881757",
+      "repairRequestedAt": 1789859881757,
+      "repairRequestedBy": "Armando Anota",
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/watched-2e04e93cf9.wav",
@@ -4553,6 +4621,36 @@
       "sourceType": "local-wav",
       "status": "reviewed",
       "updatedAt": 1789688995198
+    }
+  },
+  "repairRequests": {
+    "repair-1789859881757": {
+      "count": 4,
+      "items": [
+        {
+          "audioId": "am-going-to-study-kbdu9b",
+          "key": "am going to study",
+          "source": "./audio/pronunciation/am-going-to-study-6abd97dde8.wav"
+        },
+        {
+          "audioId": "am-staying-cdny98",
+          "key": "am staying",
+          "source": "./audio/pronunciation/am-staying-10418ccd7f.wav"
+        },
+        {
+          "audioId": "build-1i9vvkz",
+          "key": "build",
+          "source": "https://www.aidocmaker.com/g0/audio?name=d1cd1b4c12ad44bbbb243cbd3cd3c881"
+        },
+        {
+          "audioId": "watched-1g525yh",
+          "key": "watched",
+          "source": "./bella-samples/audio/watched--bella-08-text.wav"
+        }
+      ],
+      "requestedAt": 1789859881757,
+      "requestedBy": "Armando Anota",
+      "status": "queued"
     }
   }
 }
