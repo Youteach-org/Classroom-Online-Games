@@ -69,6 +69,19 @@ export async function seedKnownReports(catalog,records){
 
 export async function markReviewed(entry,record,by){
   const stamp=now();
+  if(record?.removedAsDuplicate||record?.duplicateOf){
+    await touch(entry,record,{
+      status:'removed-duplicate',
+      removedAsDuplicate:true,
+      cleanupRequested:false,
+      reviewedBy:record.reviewedBy||by,
+      firstReviewedAt:record.firstReviewedAt||stamp,
+      reviewedAt:record.reviewedAt||stamp,
+      lastReviewedAt:record.lastReviewedAt||stamp
+    });
+    await history(entry,'duplicate-ok-ignored',by,{duplicateOf:record.duplicateOf||''});
+    return {ignoredDuplicate:true};
+  }
   await touch(entry,record,{
     status:'reviewed',
     reviewedBy:by,
@@ -79,6 +92,7 @@ export async function markReviewed(entry,record,by){
     cleanupRequested:false
   });
   await history(entry,'reviewed-ok',by);
+  return {ignoredDuplicate:false};
 }
 
 export async function saveProblem(entry,record,by,text,kind){
