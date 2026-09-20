@@ -258,6 +258,21 @@ Conceptually, a level profile combines:
 `linguistic difficulty + puzzle difficulty + move pressure + opportunity density + assistance level`.
 
 
+### Progression and retention
+**Decision:** Use a broad level map with light meta-progression rather than a heavy economy.
+
+- Levels award 1–3 stars based on performance; completing the main objective with the minimum threshold unlocks the next level.
+- Players may replay any completed level to improve score or stars.
+- The map is grouped into visual zones/chapters, but these are not textbook-style grammar units.
+- Early progression acts as an extended tutorial, introducing the core mechanics gradually before fully mixed boards become normal.
+- Periodic challenge levels reuse known mechanics in more demanding combinations rather than constantly inventing new rules.
+- Progression difficulty follows waves, with recovery levels after harder peaks.
+- The player's discovery history is collected in a Wordbook/reference area, giving long-term progression beyond level numbers.
+- Category-weight preferences such as More / Normal / Less unlock after the player already understands the core game, rather than appearing at first launch.
+- Avoid heavy V1 meta-systems such as energy, lives, currencies, loot boxes, season passes, or multiple reward economies.
+- The core retention loop should remain: move -> prepare -> global pop -> cascade -> discover language -> improve score/mastery.
+
+
 ### Player content preferences
 **Decision:** Players should be able to influence which linguistic relationship types appear more or less often in their games.
 
