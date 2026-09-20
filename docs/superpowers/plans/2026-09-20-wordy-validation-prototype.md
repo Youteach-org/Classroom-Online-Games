@@ -742,6 +742,46 @@ Controlled generation algorithm:
 
 - [ ] **Step 1: Write generator tests, including Review Focus #4**
 
+Define all generator-test fixtures at file scope:
+
+```js
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { RELATIONSHIPS } from '../data/relationships.mjs';
+import { createBoard } from '../engine/board.mjs';
+import { createRelationshipBank } from '../engine/relationship-bank.mjs';
+import {
+  enumerateSwaps,
+  findImmediateScoringMoves,
+  hasViablePlay,
+  createControlledBoard,
+  recoverDeadBoard
+} from '../engine/generator.mjs';
+import { seeded } from './helpers.mjs';
+
+const fullBank=createRelationshipBank(RELATIONSHIPS);
+const fallbackBoard=createBoard([
+  ['LOOK','WENT','AFTER','MONEY','BEGUN'],
+  ['COFFEE','NOTES','PROMISE','SCHOOL','FUN'],
+  ['MAKE','GONE','SENSE','RAIN','FOOD'],
+  ['WROTE','SEEN','COLD','TIME','TRUTH'],
+  ['DRANK','TAKE','A','BREAK','HABIT'],
+  ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
+  ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+]);
+const deadBoard=createBoard([
+  ['ZZ1','ZZ2','ZZ3','ZZ4','ZZ5'],
+  ['ZZ6','ZZ7','ZZ8','ZZ9','ZZ10'],
+  ['ZZ11','ZZ12','ZZ13','ZZ14','ZZ15'],
+  ['ZZ16','ZZ17','ZZ18','ZZ19','ZZ20'],
+  ['ZZ21','ZZ22','ZZ23','ZZ24','ZZ25'],
+  ['ZZ26','ZZ27','ZZ28','ZZ29','ZZ30'],
+  ['ZZ31','ZZ32','ZZ33','ZZ34','ZZ35']
+]);
+```
+
+Then add:
+
 ```js
 test('enumerateSwaps returns each orthogonal edge once',()=>{
   const board=createBoard([
@@ -764,15 +804,6 @@ test('a board with no immediate score but a match reachable in two setup swaps i
 });
 
 test('controlled board satisfies the minimum immediate scoring-move requirement',()=>{
-  const fallbackBoard=createBoard([
-    ['LOOK','WENT','AFTER','MONEY','BEGUN'],
-    ['COFFEE','NOTES','PROMISE','SCHOOL','FUN'],
-    ['MAKE','GONE','SENSE','RAIN','FOOD'],
-    ['WROTE','SEEN','COLD','TIME','TRUTH'],
-    ['DRANK','TAKE','A','BREAK','HABIT'],
-    ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
-    ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
-  ]);
   const board=createControlledBoard({
     bank:fullBank,rows:7,cols:5,rng:seeded(7),minScoringMoves:2,fallbackBoard
   });
@@ -868,6 +899,23 @@ Design the authored boards so tests prove:
 - G passes `hasViablePlay` and `findImmediateScoringMoves>=2`.
 
 - [ ] **Step 1: Write level-shape and mechanic tests**
+
+Set up the level test file explicitly:
+
+```js
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { RELATIONSHIPS } from '../data/relationships.mjs';
+import { LEVELS, getLevel } from '../data/levels.mjs';
+import { createBoard, swapTiles } from '../engine/board.mjs';
+import { createRelationshipBank } from '../engine/relationship-bank.mjs';
+import { findMatches, findCrossings } from '../engine/matcher.mjs';
+import { resolvePlayerActivation } from '../engine/resolution.mjs';
+
+const bank=createRelationshipBank(RELATIONSHIPS);
+```
+
+Then add:
 
 ```js
 test('all validation levels are 7x5 and move-limited',()=>{
@@ -1232,7 +1280,7 @@ git commit -m "feat(wordy): add learning review and prototype telemetry"
 - Produces:
   - `directionFromSwipe(dx,dy,{threshold=24,dominance=1.15}={}): 'up'|'down'|'left'|'right'|null`
   - `neighborForDirection(cell,direction): Cell`
-  - `bindBoardInput(boardElement,{onSwap,onSelect}): cleanupFunction`
+  - `bindBoardInput(boardElement,{onSwap}): cleanupFunction`
 
 Support two phone-friendly interactions:
 1. swipe a tile toward one orthogonal neighbor;
@@ -1269,7 +1317,7 @@ Expected: FAIL.
 
 - [ ] **Step 3: Implement pointer/tap interpretation**
 
-Do not mutate game state in `input.mjs`; emit requested cell pairs to the controller. The controller owns validation and move consumption.
+Do not mutate game state in `input.mjs`. Keep tap-selection state inside the input binder and emit only complete requested cell pairs through `onSwap(from,to)`. The controller owns board validation and move consumption.
 
 - [ ] **Step 4: Run input tests**
 
@@ -1562,8 +1610,7 @@ const controller=createGameController({
 });
 
 const cleanupInput=bindBoardInput(document.querySelector('#wordyBoard'),{
-  onSwap:(from,to)=>controller.swap(from,to),
-  onSelect:cell=>controller.select(cell)
+  onSwap:(from,to)=>controller.swap(from,to)
 });
 
 controller.subscribe(state=>renderGame(document,state));
