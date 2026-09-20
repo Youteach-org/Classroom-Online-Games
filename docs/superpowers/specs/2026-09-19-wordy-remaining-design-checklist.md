@@ -1,5 +1,11 @@
 # Wordy Game — Remaining Design Checklist
 
+> **Status update — 2026-09-20:** This document is historical design context. Its open questions/checklists have been superseded by:
+> - `docs/superpowers/specs/2026-09-20-wordy-game-architecture-design.md`
+> - `docs/superpowers/specs/2026-09-20-wordy-game-prototype-design.md`
+>
+> Use the 2026-09-20 documents as the current source of truth.
+
 **Branch:** `feature/wordy-game`  
 **Status:** Architectural brainstorming
 
