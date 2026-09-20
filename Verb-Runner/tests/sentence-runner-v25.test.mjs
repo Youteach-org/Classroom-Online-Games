@@ -78,6 +78,12 @@ test('Level 2 uses large HUD choices and a dedicated world instead of in-world s
   assert.match(game,/currentLevel===2[\s\S]*?spawnSentenceLaneBeacon/);
 });
 
+test('Sentence Runner replaces the near Level 1 corridor instead of layering over it',()=>{
+  const game=readFileSync(join(root,'prototype.js'),'utf8');
+  assert.match(game,/if\(currentLevel!==2\)[\s\S]*?world\.visible=true[\s\S]*?sentenceRunnerWorld\.setVisible\(false\)/);
+  assert.match(game,/currentLevel===2[\s\S]*?world\.visible=false[\s\S]*?sentenceRunnerWorld\.setVisible\(true\)/);
+});
+
 test('Level 1 remains on the original coastal world path',()=>{
   const game=readFileSync(join(root,'prototype.js'),'utf8');
   assert.match(game,/if\(currentLevel!==2\)[\s\S]*?sentenceRunnerWorld\.setVisible\(false\)/);
