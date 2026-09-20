@@ -1,0 +1,47 @@
+name: Deploy Verb Runner 2.5 Development Preview
+
+on:
+  push:
+    branches:
+      - development/verb-runner-2-5
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify Verb Runner JavaScript
+        run: |
+          node --check Verb-Runner/coastal-scene-config.mjs
+          node --check Verb-Runner/coastal-world.mjs
+          node --check Verb-Runner/prototype.js
+
+      - name: Run Verb Runner regression tests
+        run: |
+          node --test Verb-Runner/tests/*.test.mjs
+          node --test Verb-Runner/sentence-run.test.js
+
+      - name: Prepare development preview
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          cp index.html dist/
+          cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Engineering teacher dist/
+
+      - name: Deploy development preview to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID_RAW: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          CLEAN_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID_RAW" | tr -d '[:space:]')"
+          export CLOUDFLARE_ACCOUNT_ID="$CLEAN_ACCOUNT_ID"
+          npx wrangler@4 pages deploy dist \
+            --project-name=classroom-online-games \
+            --branch=verb-runner-2-5-dev \
+            --commit-hash=${{ github.sha }}
