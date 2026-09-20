@@ -237,19 +237,20 @@
       "previous_speed": 1
     },
     "forbade": {
-      "correction_goal": "Preserve second-syllable stress and lengthen the /eɪ/ realization enough to remain clearly distinct from “bad”.",
-      "decision": "confirmed-error-third-pass",
+      "correction_goal": "Render FORBADE as one continuous lexical word with a reduced first syllable /fər/ and clear second-syllable /beɪd/; avoid a perceptible 'for + bade' split.",
+      "decision": "confirmed-error-fourth-pass",
       "ipa_goal": "/fərˈbeɪd/",
-      "kokoro_phonemes": "fɚbˈeId",
-      "method": "raw_phonemes",
-      "observed_issue": "Dice for bad",
-      "speed": 0.82,
+      "method": "g2p_tokens",
+      "observed_issue": "For beid dice",
+      "speed": 0.95,
       "target_text": "forbade",
-      "latest_report_text": "Dice for bad",
-      "automatic_repair_attempt": 3,
-      "repair_request_id": "reported-batch-20260919-2108",
-      "repair_requested_at": 1789873680000,
-      "previous_speed": 1
+      "latest_report_text": "For beid dice",
+      "automatic_repair_attempt": 4,
+      "repair_request_id": "reported-batch-20260919-2218-forbade",
+      "repair_requested_at": 1789877880000,
+      "previous_kokoro_phonemes": "fɚbˈeId",
+      "previous_method": "raw_phonemes",
+      "previous_speed": 0.82
     },
     "fought": {
       "correction_goal": "No /l/ before final /t/.",
@@ -474,6 +475,6 @@
     "tail_silence_seconds": 0.35,
     "voice": "af_bella"
   },
-  "revision": "2026-09-19-r8-reported-batch-2108",
+  "revision": "2026-09-19-r11-forbade-repair-2218",
   "status": "VALIDATED_FOR_GENERATION"
 }
