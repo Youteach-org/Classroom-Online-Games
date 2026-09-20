@@ -5,7 +5,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import {
   resolveStudentLaunch,
-  saveStudentContext
+  saveStudentContext,
+  heartbeatStudent
 } from '../shared/youteach-live-bridge.mjs';
 
 const ROBOT_URLS=[
@@ -428,6 +429,42 @@ let sessionRunFinished=false;
 let sessionLoadPromise=Promise.resolve(null);
 let youTeachIdentity=null;
 let youTeachLiveStudentContext=null;
+let youTeachStudentHeartbeatTimer=null;
+let youTeachStudentHeartbeatBusy=false;
+
+async function sendYouTeachStudentHeartbeat(){
+  if(youTeachStudentHeartbeatBusy||!youTeachLiveStudentContext)return;
+  youTeachStudentHeartbeatBusy=true;
+  try{
+    await heartbeatStudent({studentContext:youTeachLiveStudentContext});
+  }catch(error){
+    console.error('YouTeach student heartbeat failed',error);
+    if(Number(error?.status)===410){
+      if(youTeachStudentHeartbeatTimer){
+        clearInterval(youTeachStudentHeartbeatTimer);
+        youTeachStudentHeartbeatTimer=null;
+      }
+      sessionData=null;
+      modelStatus.textContent='This classroom activity expired after 60 minutes with no participants.';
+      if(startButton){
+        startButton.disabled=true;
+        startButton.classList.remove('loading');
+      }
+      if(startButtonLabel)startButtonLabel.textContent='ACTIVITY EXPIRED';
+    }
+  }finally{
+    youTeachStudentHeartbeatBusy=false;
+  }
+}
+
+function startYouTeachStudentHeartbeat(){
+  if(!youTeachLiveStudentContext)return;
+  if(youTeachStudentHeartbeatTimer)clearInterval(youTeachStudentHeartbeatTimer);
+  sendYouTeachStudentHeartbeat().catch(()=>{});
+  youTeachStudentHeartbeatTimer=setInterval(()=>{
+    sendYouTeachStudentHeartbeat().catch(()=>{});
+  },25000);
+}
 
 function localRunnerId(){
   try{
@@ -911,7 +948,8 @@ sessionLoadPromise=import('./session-sync.js?v=live-cog-student-20260920')
         if(
           integration.source!=='youteach-buzzer'||
           String(integration.groupName||'')!==String(liveContext.groupName||'')||
-          String(integration.youTeachSessionId||'')!==String(liveContext.youTeachSessionId||'')
+          String(integration.youTeachSessionId||'')!==String(liveContext.youTeachSessionId||'')||
+          String(integration.assignmentId||'')!==String(liveContext.assignmentId||'')
         ){
           throw new Error('This Verb Runner session does not match your YouTeach class activity');
         }
@@ -920,6 +958,7 @@ sessionLoadPromise=import('./session-sync.js?v=live-cog-student-20260920')
       sessionData=data;
       applySessionSettings(data.settings||{});
       await sessionApi.registerRunnerPresence(sessionCode,runnerSessionId,presenceData);
+      if(youTeachLiveStudentContext)startYouTeachStudentHeartbeat();
       modelStatus.textContent='Session '+sessionCode+' ready · '+(youTeachIdentity?.nickname||'connected');
       return data;
     }
