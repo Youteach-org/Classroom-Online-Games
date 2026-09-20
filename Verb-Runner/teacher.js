@@ -1,4 +1,9 @@
-import {createSession,subscribeSessions,subscribeFreeRunners,closeSession} from './session-sync.js?v=youteach-credentials-20260915-1';
+import {createSession,subscribeSessions,subscribeFreeRunners,closeSession} from './session-sync.js?v=live-cog-session-20260920';
+import {
+  loadTeacherContext,
+  registerLiveGameSession,
+  endLiveGameSession
+} from '../shared/youteach-live-bridge.mjs';
 
 const $=id=>document.getElementById(id);
 const esc=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
@@ -9,6 +14,10 @@ let freeRunners={};
 let active='all';
 let focusId=null;
 let hideOffline=false;
+
+function currentYouTeachContext(){
+  return loadTeacherContext();
+}
 
 function difficulty(){
   return document.querySelector('input[name="difficulty"]:checked')?.value||'medium';
@@ -265,15 +274,34 @@ $('sessionList').addEventListener('click',event=>{
 $('createSession').addEventListener('click',async()=>{
   $('teacherNotice').textContent='';
   $('createSession').disabled=true;
+  let code='';
   try{
-    const code=await createSession(readSettings());
+    const teacherContext=currentYouTeachContext();
+    code=await createSession(readSettings(),teacherContext);
+
+    if(teacherContext){
+      try{
+        await registerLiveGameSession({
+          teacherContext,
+          gameId:'verb-runner',
+          gameName:'Verb Runner',
+          cogSessionId:code
+        });
+      }catch(error){
+        await closeSession(code).catch(()=>{});
+        throw error;
+      }
+    }
+
     active=code;
     focusId=null;
     openSettings(false);
-    $('teacherNotice').textContent='Session '+code+' created.';
+    $('teacherNotice').textContent=teacherContext
+      ?'Session '+code+' created for YouTeach group '+teacherContext.liveContext.groupName+'.'
+      :'Session '+code+' created in standalone mode.';
   }catch(err){
     console.error(err);
-    $('teacherNotice').textContent='Could not create the session. Firebase rejected or could not reach the request.';
+    $('teacherNotice').textContent=err?.message||'Could not create the session.';
   }finally{
     $('createSession').disabled=false;
   }
@@ -282,14 +310,30 @@ $('createSession').addEventListener('click',async()=>{
 $('closeSession').addEventListener('click',async()=>{
   if(active==='all'||active==='free'||!sessions[active])return;
   const code=active;
+  const session=sessions[code]||{};
+  const isYouTeachLive=session?.integration?.source==='youteach-buzzer';
+
+  if(isYouTeachLive){
+    const confirmed=confirm('End this activity for the group? Students will no longer be able to enter.');
+    if(!confirmed)return;
+  }
+
   try{
+    if(isYouTeachLive){
+      const teacherContext=currentYouTeachContext();
+      if(!teacherContext){
+        throw new Error('Reopen Classroom Online Games from YouTeach Buzzer before ending this group activity.');
+      }
+      await endLiveGameSession({teacherContext,cogSessionId:code});
+    }
+
     await closeSession(code);
     active='all';
     focusId=null;
     $('teacherNotice').textContent='Session '+code+' ended.';
   }catch(err){
     console.error(err);
-    $('teacherNotice').textContent='Could not end the selected session.';
+    $('teacherNotice').textContent=err?.message||'Could not end the selected session.';
   }
 });
 
