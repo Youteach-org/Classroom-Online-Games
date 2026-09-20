@@ -1674,7 +1674,7 @@ function launchChallengeChain(initialDelay=.42){
   })||'cards';
 
   if(presentation==='grammar-gate'){
-    const gateSequence=window.VerbRunnerRunDirector?.buildGrammarGateSequence(sequence,Math.random)||[];
+    const gateSequence=window.VerbRunnerRunDirector.buildGrammarGateSequence(sequence,Math.random);
     if(gateSequence.length===3){
       sequence=gateSequence;
       correctIndex=sequence.findIndex(item=>item.correct);
