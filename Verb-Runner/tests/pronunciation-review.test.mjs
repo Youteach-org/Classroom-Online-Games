@@ -307,12 +307,12 @@ test('validated-correct pronunciation questions are resolved persistently',()=>{
 });
 
 
-test('Review Again filter shows only audios whose source changed after review',()=>{
+test('Review Again filter follows the normalized record status after source sync',()=>{
   const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
   const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
   assert.match(html,/<option value="review-again">Review Again<\/option>/);
-  assert.match(app,/filter==='review-again'&&!entry\.sourceChanged/);
-  assert.match(app,/filter!=='all'&&filter!=='review-again'&&entry\.status!==filter/);
+  assert.match(app,/filter!=='all'&&entry\.status!==filter/);
+  assert.doesNotMatch(app,/filter==='review-again'&&!entry\.sourceChanged/);
 });
 
 test('new audio source gets a fresh autosave report id and does not reuse the prior report',()=>{

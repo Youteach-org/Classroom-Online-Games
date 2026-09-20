@@ -48,8 +48,7 @@ function reviewer(silent=false){
 function matches(entry){
   const filter=statusFilter.value;
   if(filter==='all'&&entry.status==='removed-duplicate')return false;
-  if(filter==='review-again'&&!entry.sourceChanged)return false;
-  if(filter!=='all'&&filter!=='review-again'&&entry.status!==filter)return false;
+  if(filter!=='all'&&entry.status!==filter)return false;
   return core.matchesSearch(entry,searchInput.value);
 }
 

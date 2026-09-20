@@ -81,7 +81,8 @@ test('correction goals preserve the observed teacher problems without copying th
   assert.match(corrections.items.build.latest_report_text,/No suena nada/i);
   assert.match(corrections.items.build.correction_goal,/distinct from built/i);
   assert.equal(corrections.items.build.voice,'fancy');
-  assert.match(corrections.items.build.previous_approved_source_url,/d1cd1b4c12ad44bbbb243cbd3cd3c881/);
+  assert.match(corrections.items.build.approved_source_url,/storage\.googleapis\.com\/.*\.mp3/);
+  assert.match(corrections.items.build.previous_approved_source_url,/f9342d092faa4ce5ad46c32504d68c02/);
 
   assert.match(corrections.items.wrote.observed_issue,/Route/i);
   assert.match(corrections.items.wrote.correction_goal,/route pronunciations/i);
@@ -102,4 +103,12 @@ test('second-pass reports use explicit phonemes and washed is cached locally',()
   }
   assert.equal(corrections.items.washed.voice,'fancy');
   assert.match(corrections.items.washed.approved_source,/^\.\/audio\/pronunciation\/external\//);
+});
+
+test('external pronunciation cache validates binary audio instead of file size alone',()=>{
+  const cache=readFileSync(join(root,'scripts','cache-approved-external-pronunciation.py'),'utf8');
+  assert.match(cache,/def is_probably_audio\(data: bytes\)/);
+  assert.match(cache,/<!doctype html/);
+  assert.match(cache,/ID3/);
+  assert.match(cache,/Downloaded external pronunciation asset is not recognized audio/);
 });

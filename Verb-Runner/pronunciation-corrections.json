@@ -114,21 +114,22 @@
     "build": {
       "approved_by_teacher_at": "2026-09-16",
       "approved_source": "./audio/pronunciation/external/build-fancy-approved-r2.mp3",
-      "approved_source_url": "https://www.aidocmaker.com/g0/audio?name=f9342d092faa4ce5ad46c32504d68c02",
+      "approved_source_url": "https://storage.googleapis.com/adm--audio-playback--7d--public/mcp-preview/adbc3fac-fbb1-4f0e-bb81-e5fe851dfaa6.mp3",
       "correction_goal": "Preserve voiced final /d/ so it is distinct from built /bɪlt/.",
       "decision": "approved-voice-exception-localized-repair",
       "engine": "AI Voice Generator",
-      "exception_reason": "Kokoro af_bella variants remained unacceptable after focused review; teacher approved fancy voice specifically for this word. The previously approved remote clip later stopped playing, so this repair keeps the approved fancy voice and caches the replacement locally for reliable playback.",
+      "exception_reason": "Kokoro af_bella variants remained unacceptable after focused review; teacher approved fancy voice specifically for this word. The prior local cache was actually HTML saved with an .mp3 extension, so this repair keeps the approved fancy voice, uses a direct playable MP3 source, and forces binary validation before caching.",
       "ipa_goal": "/bɪld/",
       "method": "external-approved-voice",
-      "observed_issue": "No suena nada",
+      "observed_issue": "No audio",
       "target_text": "build",
       "voice": "fancy",
-      "previous_approved_source_url": "https://www.aidocmaker.com/g0/audio?name=d1cd1b4c12ad44bbbb243cbd3cd3c881",
-      "latest_report_text": "No suena nada",
-      "automatic_repair_attempt": 1,
+      "previous_approved_source_url": "https://www.aidocmaker.com/g0/audio?name=f9342d092faa4ce5ad46c32504d68c02",
+      "latest_report_text": "No audio",
+      "automatic_repair_attempt": 2,
       "repair_request_id": "repair-1789859881757",
-      "repair_requested_at": 1789859881757
+      "repair_requested_at": 1789859881757,
+      "external_context_id": "4d8902bd8873452288d3548cf2ef6ad7"
     },
     "change": {
       "correction_goal": "Preserve final /ndʒ/; do not reduce to chain.",
@@ -454,6 +455,6 @@
     "tail_silence_seconds": 0.35,
     "voice": "af_bella"
   },
-  "revision": "2026-09-19-r7-repair-batch-1789859881757",
+  "revision": "2026-09-19-r8-build-binary-repair",
   "status": "VALIDATED_FOR_GENERATION"
 }
