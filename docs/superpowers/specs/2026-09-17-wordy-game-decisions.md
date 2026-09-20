@@ -80,40 +80,41 @@ This keeps movement local and strategic while preserving the familiar casual-puz
 - The game does not revert a swap simply because no valid relationship was formed.
 - This allows players to reposition words over several moves in order to build longer expressions, crossings, or future cascade opportunities.
 
-### Armed combinations and player-triggered popping
+### Armed combinations and global player-triggered popping
 **Decision:** When a valid linguistic combination is formed, it does not disappear automatically.
 
-- The combination is visually marked as **ready to pop**.
-- It remains in place and continues occupying its cells.
-- The player decides when to pop it.
-- The player may leave it intact for several moves in order to extend it, build crossings, or set up a better gravity outcome.
-- The player may also move one of its tiles away before popping; in that case the combination simply stops being valid and loses its ready state.
-- Popping the combination removes its tiles, triggers gravity, and may create new valid combinations.
-- There is no single mandatory timing window for cashing in a valid combination.
+- Every currently valid combination is visually marked as **ready to pop**.
+- Ready combinations remain in place and continue occupying their cells.
+- The player may keep moving tiles, extend relationships, build crossings, or deliberately break a ready combination before cashing in.
+- A single global **pop/resolve button** applies to the whole board, not to an individual phrase.
+- When the player presses that button, **all combinations that are ready at that exact moment resolve together in one batch**.
+- Shared tiles that belong to multiple valid combinations are removed once physically but score as participants in every valid relationship they complete.
+- After the batch resolves, gravity acts and new tiles may enter.
+- Valid relationships created by that gravity/refill phase trigger the automatic combo/cascade sequence.
+- The automatic cascade continues through subsequent gravity-created relationships until no new cascade relationship remains; control then returns to the player.
+- There is no mandatory timing window for pressing the global pop button.
 
-This makes timing itself part of the strategy: the player chooses whether to take the current value now or preserve the structure for a stronger future board state.
+This preserves deliberate strategy before activation while avoiding the tediousness of manually resolving phrase after phrase. The player chooses **when to trigger the board**, not which ready phrase to resolve first.
 
 ### Expressions
 **Decision:** Long expressions may use one word per tile. `AS A MATTER OF FACT` can therefore occupy five separate tiles.
 
 ### Player-controlled resolution
-**Design direction:** A valid combination does not have to disappear automatically the instant it is formed.
-
-The player should be able to decide when a currently valid word/phrase relationship is "cashed in" and removed from the board. This allows the player to preserve a shorter valid combination while waiting for additional tiles that may extend it into a longer or more valuable structure.
+**Decision:** The player controls the **timing of board resolution**, not individual phrase-by-phrase resolution.
 
 Example:
-- A player forms `LOOK | FORWARD | TO`.
-- The game recognizes it as valid and makes it available to resolve.
-- The player may trigger it immediately, or keep it on the board while attempting to extend it into a larger valid expression such as `LOOK | FORWARD | TO | SEEING | YOU`.
-
-The exact control is not finalized, but a dedicated resolve/pop button is the leading interaction concept.
+- The board contains several relationships already marked ready.
+- The player may keep arranging the board to create additional ready relationships or extend existing ones.
+- When the player chooses to press the global pop button, every ready relationship resolves simultaneously.
+- The resulting gravity can create automatic combo chains.
 
 This mechanic is intended to:
 - Give the player agency over timing.
 - Create risk/reward decisions.
-- Make longer expressions possible.
-- Prevent every valid relationship from becoming an automatic cascade.
-- Distinguish the game from a conventional automatic match-3 system.
+- Reward building several relationships before cashing in.
+- Make longer expressions and crossings possible.
+- Avoid repetitive phrase-by-phrase tapping.
+- Preserve fast chain-reaction gameplay after activation.
 
 ### End-of-round learning review
 **Decision:** The end-of-round review must stay compact and mobile-first. It is not a long report.
