@@ -31,6 +31,56 @@ test('review core creates safe stable audio ids and detects repeated reports',()
   },'sounds wrong'),false);
 });
 
+test('pronunciation search is punctuation-tolerant and includes report/history sources',()=>{
+  const core=require(join(reviewRoot,'review-core.js'));
+  const entry={
+    n:17,
+    key:"don't stop",
+    src:'./audio/current.wav',
+    duplicateOf:'',
+    record:{
+      key:"don't stop",
+      source:'./audio/old-version.wav',
+      repairSource:'./audio/repaired-version.wav'
+    },
+    reports:{
+      r1:{
+        text:'Suena extraño al final',
+        assetSource:'./audio/old-version.wav',
+        kind:'pronunciation',
+        status:'open',
+        createdAt:1
+      }
+    },
+    history:{
+      h1:{
+        action:'asset-source-changed',
+        from:'legacy-watch.wav',
+        to:'./audio/current.wav',
+        at:2
+      }
+    }
+  };
+  assert.equal(core.matchesSearch(entry,'dont stop'),true);
+  assert.equal(core.matchesSearch(entry,'extraño'),true);
+  assert.equal(core.matchesSearch(entry,'legacy watch'),true);
+  assert.equal(core.matchesSearch(entry,'repaired version'),true);
+  assert.equal(core.matchesSearch(entry,'017'),true);
+  assert.equal(core.matchesSearch(entry,'missing phrase'),false);
+});
+
+test('search field has a one-tap clear control',()=>{
+  const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
+  const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
+  const css=readFileSync(join(reviewRoot,'review.css'),'utf8');
+  assert.match(html,/id="clearSearch"[^>]*>×<\/button>/);
+  assert.match(html,/class="search-field"/);
+  assert.match(app,/core\.matchesSearch\(entry,searchInput\.value\)/);
+  assert.match(app,/clearSearch\.addEventListener\('click',clearSearchValue\)/);
+  assert.match(app,/event\.key==='Escape'/);
+  assert.match(css,/\.clear-search\{/);
+});
+
 test('legacy asset metadata uses the original Bella generation timestamp',()=>{
   const core=require(join(reviewRoot,'review-core.js'));
   const stamp=core.inferAssetCreatedAt('ate','./audio/pronunciation/ate-189b7ea01f.wav');
