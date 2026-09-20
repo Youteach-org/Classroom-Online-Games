@@ -1,3 +1,25 @@
+## Visual direction
+
+### Visual reset — 2026-09-20
+The current “robot on a flat three-lane road” visual language is rejected for the next iteration.
+
+New art direction:
+- no robot as the default player character;
+- no flat road as the primary traversal surface;
+- human stylized parkour runner as the baseline avatar direction;
+- third-person camera follows a handcrafted route through the environment rather than a fixed three-lane corridor;
+- traversal surfaces include stairs, alleys, market awnings, balconies, rooftops, scaffolds, piers, waterfront platforms and courtyards;
+- route height and camera angle must change visibly during a run;
+- the coastal/Mediterranean identity may remain, but the world must feel explorable and inhabited rather than like scenery beside a racetrack;
+- academic choices should be integrated into world geometry or readable HUD decisions, not attached as tiny text cards to road lanes.
+
+Visual concept target:
+1. Market / street level — people-scale alleys, stairs and awnings.
+2. Rooftop / vertical section — roof gaps, balconies, scaffolds and building-to-building movement.
+3. Seafront / pier — descent to promenade, docks and platforms over water.
+
+Important: do not continue adding gameplay systems until the visual identity above is accepted.
+
 # Verb Runner 2.5 — Learning-First Dynamic Runner
 
 Status: **Phase 1 development prototype implemented and browser-verified. Development only. Production main remains stable.**
