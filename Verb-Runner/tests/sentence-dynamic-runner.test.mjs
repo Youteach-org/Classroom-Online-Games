@@ -30,3 +30,9 @@ test('Sentence Runner can present three physical grammar gates and collect them 
   assert.match(game,/heightMode==='gate'\?true/);
   assert.match(game,/VerbRunnerRunDirector\.buildGrammarGateSequence/);
 });
+
+test('Sentence Runner gives roll a real obstacle to solve',()=>{
+  assert.match(game,/function createSlideBarrier\(\)/);
+  assert.match(game,/currentLevel===2&&roll<\.16/);
+  assert.match(game,/o\.type==='slide'\?rollTime>0/);
+});
