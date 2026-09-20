@@ -1,196 +1,374 @@
-# Verb Runner 2.5 — Gameplay Direction
+# Verb Runner 2.5 — Learning-First Dynamic Runner
 
-Status: design direction approved for exploration; **no gameplay code changed yet**.
+Status: design direction corrected after review. **No gameplay code changed yet.**
+
+## Non-negotiable principle
+
+Verb Runner is an educational game first.
+
+Entertainment exists to:
+- sustain attention;
+- reduce monotony;
+- make repetition feel varied;
+- create meaningful pressure and movement around the learning task.
+
+Entertainment must **never delay the learning task** or create long stretches in which the student is only running.
+
+The student should begin practicing within the first few seconds and continue making frequent language decisions throughout the race.
 
 ## Design goal
 
-Keep Level 1 as the clear introductory race, but make Levels 2–5 feel progressively more like a true infinite runner instead of repeating the same “read → choose lane → collect answer” loop.
+Keep Level 1 as the clear introductory principal-parts race, because its current structure works as an introduction.
 
-The target feeling is not simply “more obstacles.” The race should change what the player is doing every 15–25 seconds while the English objective remains integrated into the action.
+From Level 2 onward, preserve a **high density of English practice** while varying how the student responds physically.
 
-## Core principles
+The problem to solve is not “there is too much learning.” The problem is:
 
-1. **Level 1 stays familiar.** It remains the tutorial/introductory principal-parts race.
-2. **Gameplay states change during one run.** Normal running, obstacle patterns, routes, grammar gates, chase sequences, slide sections, speed/reward sections.
-3. **Grammar belongs to the world.** Answers should sometimes be gates, routes, objects, targets, or route choices instead of always floating cards.
-4. **Designed patterns beat pure randomness.** Obstacle sequences must be authored and fair.
-5. **Pressure must breathe.** Alternate challenge, reward, rest, surprise, and challenge again.
-6. **No unfair overlap.** Grammar choices and obstacle patterns must never create impossible lanes.
-7. **Current systems stay intact unless explicitly revised.** Coastal world, characters, YouTeach/Teacher Monitor sync, pronunciation review, mobile controls, difficulty system and session behavior are preserved.
-8. **Use existing native animations first.** The current Quaternius runners already provide Run, Jump, Roll, RecieveHit and Idle. Roll should become a real gameplay action before adding unnecessary animation work.
+> the same learning interaction is repeated with nearly the same physical action.
 
-## Reference design lessons
+Current repeated loop:
 
-The direction borrows design principles—not copied assets or layouts—from successful infinite runners:
+> read → choose lane → collect answer → repeat
 
-- route/vertical variety;
-- temporary changes of locomotion or rules;
-- authored obstacle patterns;
-- chase/special sequences;
-- reward/rest segments between intense sections;
-- optional higher-risk routes;
-- spectacle without interrupting control.
+Target loop:
 
-## Sample 2–3 minute run
+> read/notice language → make a language decision through movement → receive immediate feedback → encounter the next language problem in a different physical form.
 
-### 01 — Warm-up Run · 0:00–0:20
+The academic task remains continuous. The runner mechanics change around it.
 
-Normal coastal road. Simple lane changes and one or two readable jump obstacles. No grammar question immediately.
+## Learning-density rule
 
-Purpose: establish control rhythm and give the player a short physical warm-up.
+Target behavior for Levels 2–5:
 
-### 02 — Rooftop Route · 0:20–0:42
+- first language prompt appears within roughly **3–6 seconds** of starting;
+- a meaningful language decision occurs approximately every **6–10 seconds**, depending on reading complexity and difficulty;
+- pure traversal/reward intervals should normally last only **2–5 seconds**;
+- no 20–40 second “gameplay-only” sections;
+- no one-minute delay before serious practice;
+- special events must themselves contain language practice whenever possible.
 
-A visible ramp opens an optional upper route over awnings/low roofs while the normal road remains available.
+The exact timing should remain adaptive to reading load and difficulty; these values are design targets, not rigid timers.
 
-Upper route:
-- slightly harder;
-- extra grammar tokens / reward;
-- different view of the coastal town.
+## What changes: response mode, not learning frequency
 
-Lower route:
-- safer;
-- normal road obstacles.
+A run should keep presenting English continuously, but the player should not always answer by touching one of three floating cards.
 
-Purpose: create choice without pausing the runner.
+Possible learning interactions:
 
-### 03 — Traffic Rush · 0:42–1:03
+### 1. Grammar Gate
 
-A short authored sequence of cars, boxes and barricades. The pattern is deterministic enough to be learnable/fair but can be selected from a library.
-
-Example:
-- car left;
-- box center;
-- open right;
-- second wave reverses the safe route;
-- one jump requirement.
-
-Purpose: short pure-runner intensity before another academic decision.
-
-### 04 — Grammar Gate · 1:03–1:25
-
-Instead of three floating cards, the road itself becomes the answer.
-
-Example prompt:
-
+Prompt:
 > Yesterday I ___ home early.
 
-Three physical gates/routes:
+Three routes:
 - GO
 - WENT
 - GONE
 
-The player commits to a route by running through the chosen gate.
+The student answers by choosing the route.
 
-Purpose: preserve the academic choice while making it feel like traversal.
+### 2. Jump the wrong form
 
-### 05 — Slide + Chase · 1:25–1:50
+Two or three low obstacles carry verb forms.
 
-A rival appears farther ahead. Low market awnings/barriers require Roll/Slide.
+Instruction:
+> COLLECT THE PAST PARTICIPLE
 
-Correct grammar choices reduce distance to the rival; wrong answers or obstacle hits increase the gap.
+The player jumps over wrong forms and stays aligned with the correct one.
 
-Purpose:
-- activate the currently unused Roll gameplay;
-- create a temporary goal other than “finish 20 questions.”
+### 3. Slide under the correct phrase
 
-### 06 — Seafront Boost · 1:50–2:15+
+Low overhead signs contain short alternatives.
 
-Short reward section:
-- speed pads;
-- collectible tokens;
-- reduced academic load for several seconds;
-- stronger camera/speed sensation;
-- coastal promenade emphasis.
+Prompt:
+> She has ___ here since 2022.
 
-After the boost, the director chooses another sequence from compatible blocks rather than restarting the exact same loop.
+The correct lane requires a slide under:
+- lived
+- living
+- live
 
-## Gameplay block library
+The grammar decision and the movement decision are the same event.
 
-Initial block types:
+### 4. Collect sequence
 
-- NORMAL_RUN
-- JUMP_PATTERN
-- SLIDE_PATTERN
-- TRAFFIC_RUSH
-- ROUTE_SPLIT
-- ROOFTOP_ROUTE
-- GRAMMAR_GATE
-- COLLECT_SEQUENCE
-- CHASE_EVENT
-- SPEED_ZONE
-- REWARD_ZONE
-- SHORTCUT
-- FINAL_SPRINT
+The player must collect a short sequence in order.
 
-Each level should use only a subset appropriate to its grammar goal.
+Example:
+> TAKE → TOOK → TAKEN
+
+The tokens are distributed over a short obstacle pattern.
+
+This practices recognition/order without stopping the run.
+
+### 5. Route by time clue
+
+Prompt:
+> I have known her ___ five years.
+
+Two or three street branches:
+- FOR
+- SINCE
+- AGO
+
+The environment becomes the answer interface.
+
+### 6. Chase with learning
+
+A rival is visible ahead, but the chase is not an entertainment-only segment.
+
+Every correct answer:
+- closes the distance;
+- increases momentum;
+- may briefly increase speed.
+
+Every wrong answer:
+- loses distance;
+- lowers momentum.
+
+The chase adds stakes to the same practice.
+
+### 7. Rooftop learning route
+
+The upper route does not merely contain coins.
+
+It may contain:
+- a faster sequence of principal parts;
+- a bonus sentence;
+- a correction challenge;
+- a harder distractor set.
+
+The lower route contains the normal version of the same learning goal.
+
+Thus route choice changes **difficulty/reward**, not whether learning happens.
+
+### 8. Speed challenge with language
+
+A short speed zone still contains language decisions, but uses shorter material:
+- one-word forms;
+- time clues;
+- auxiliaries;
+- short collocations.
+
+Long sentences should not be presented at maximum speed.
+
+## Correct rhythm for a sample run
+
+This replaces the previous design that delayed practice.
+
+### 0:00–0:05 — Immediate prompt
+
+Sentence appears while the player begins running.
+
+> Yesterday she ___ the report.
+
+The road is simple enough to read safely.
+
+### 0:05–0:10 — Grammar Gate
+
+FINISHED / FINISH / HAS FINISHED
+
+The player chooses a gate.
+
+Immediate audiovisual feedback follows the choice.
+
+### 0:10–0:14 — Micro-transition
+
+A few seconds of running/jumping while the correct form remains visible or is pronounced.
+
+This is processing/feedback time, not a long break.
+
+### 0:14–0:22 — Second learning event
+
+A new sentence appears.
+
+This time the answer is not a gate: the options are integrated into an obstacle pattern.
+
+### 0:22–0:28 — Collect sequence
+
+The player collects a short grammar sequence or avoids distractors.
+
+### 0:28–0:36 — Third prompt + route split
+
+Another language decision, now tied to two possible routes.
+
+### 0:36–0:42 — Feedback + movement
+
+Short physical variation: jump/slide/turn while the previous answer is reinforced.
+
+### 0:42–0:50 — Fourth learning event
+
+A short time-clue or verb-form decision during a faster section.
+
+### 0:50–1:00 — Chase challenge
+
+A rival appears, but the chase contains one or two rapid language decisions.
+
+Correct answers close the gap.
+
+### 1:00 onward
+
+Continue alternating **response formats**, not alternating “learning mode” and “game mode.”
+
+The student should still be practicing throughout the run.
+
+## Pedagogical structure
+
+### Retrieval remains central
+
+The player must retrieve/recognize the correct language form repeatedly.
+
+### Immediate feedback remains central
+
+Correct/incorrect feedback should stay immediate and readable.
+
+For important targets, the correct form can:
+- move into the sentence;
+- remain visible briefly;
+- play pronunciation;
+- reappear later if missed.
+
+### Errors should recycle
+
+Incorrect items should return later in the run or near the end, as the current system already does in several modes.
+
+### Difficulty changes distractors and cognitive load
+
+Difficulty should affect:
+- closeness of distractors;
+- number of distractors;
+- reading complexity;
+- speed;
+- obstacle complexity.
+
+It should not simply reduce the amount of practice.
+
+### Movement must not obscure reading
+
+When the prompt is linguistically complex:
+- simplify the immediate obstacle field;
+- give sufficient visual lead time;
+- avoid simultaneous high-speed precision movement.
+
+When the prompt is short:
+- movement can be more demanding.
+
+## Entertainment layer
+
+The entertaining part should come from **how the learning is delivered**:
+
+- different routes;
+- ramps;
+- jump/slide requirements;
+- chase pressure;
+- changing scenery;
+- speed changes;
+- authored obstacle patterns;
+- optional harder paths;
+- streak effects;
+- short reward bursts;
+- rivals;
+- visible progress.
+
+These features wrap around the learning. They do not replace it.
 
 ## Level progression
 
 ### Level 1 — Verb Runner / Verb Hunt
-Keep current structure largely unchanged. Introduce movement and principal parts.
+
+Keep largely as it is.
+
+Purpose:
+- introduce controls;
+- practice principal parts;
+- teach the basic collect/avoid language mechanic.
 
 ### Level 2 — Sentence Runner
-First real dynamic runner:
-- Roll/slide enabled;
-- authored obstacle patterns;
-- grammar gates;
-- route splits;
-- short reward zones.
+
+First dynamic learning runner.
+
+Still sentence practice throughout, but rotate:
+- Grammar Gate;
+- integrated obstacle answers;
+- route split;
+- slide answer;
+- collect sequence.
 
 ### Level 3 — Time Clues
-Add chase behavior and route-based clue choices.
+
+Every special mechanic continues to ask for time relationships.
+
+Examples:
+- choose FOR / SINCE / AGO as routes;
+- collect compatible time expressions;
+- avoid incompatible clues;
+- chase events driven by correct time-clue choices.
 
 ### Level 4 — Perfect Running
-Combine vertical/horizontal movement, low barriers and Simple vs Continuous decisions.
+
+Mechanics vary, but all decisions remain focused on Perfect Simple vs Perfect Continuous and their clues.
 
 ### Level 5 — Final Race
-Mixed gameplay director:
-- all compatible block types;
-- stronger speed curve;
-- surprise events;
-- final sprint;
-- no predictable fixed rhythm.
 
-## Technical direction
+Mixed academic content with the widest response variety:
+- principal parts;
+- tense/context;
+- time clues;
+- perfect aspect;
+- mixed combinations.
 
-Do not continue expanding the already-large `prototype.js` indefinitely.
+The “final race” should feel more dynamic, but it must also have the **highest meaningful practice density**, not the lowest.
 
-Preferred modules:
+## Run Director responsibility
 
-- `run-director.js` — selects the next compatible gameplay block.
-- `segment-library.js` — definitions and timing for run segments.
-- `obstacle-patterns.js` — fair authored obstacle patterns.
-- `grammar-events.js` — gates, route answers, collectible sequences.
-- `special-events.js` — chase, speed zone, reward section, shortcut.
-- `powerups.js` — only after the new core loop proves fun.
+The Run Director should **not** decide when learning stops and gameplay begins.
 
-`prototype.js` should remain orchestration/integration rather than contain every rule.
+It should decide:
+- which response format presents the next academic item;
+- which obstacle pattern is compatible with that item;
+- how much movement pressure is safe for the reading load;
+- which route/interaction has not been used recently;
+- whether the next item should be a recycled error or a new item.
+
+Conceptually:
+
+> NEXT LEARNING ITEM → choose safe presentation format → play → immediate feedback → next learning item
+
+Not:
+
+> game section → game section → game section → eventually show a question
 
 ## First implementation milestone
 
-**Verb Runner 2.5 prototype = Level 2 only.**
+**Prototype only Level 2 first.**
 
-Implement and test:
+Implement:
 
-1. real Roll/Slide control on keyboard and mobile;
-2. 6–10 authored obstacle patterns;
-3. Grammar Gate;
-4. one Route Split / Rooftop-style alternate route;
-5. one Chase Event;
-6. one short Speed/Reward Zone;
-7. a simple Run Director that alternates these blocks safely;
-8. tests for impossible overlaps, repeat prevention and state transitions.
+1. real Roll/Slide on keyboard and mobile;
+2. Grammar Gate;
+3. Slide Answer;
+4. Collect Sequence;
+5. Route Split;
+6. 6–10 authored obstacle patterns that can safely carry academic choices;
+7. Run Director that changes presentation format while maintaining continuous practice;
+8. error recycling;
+9. tests for:
+   - no impossible correct-answer path;
+   - no excessive gap between learning events;
+   - no repeated presentation format too many times consecutively;
+   - reading-heavy prompts getting lower movement pressure.
 
-Do **not** port the system to Levels 3–5 until Level 2 is demonstrably more fun than the current loop.
+Do not port to Levels 3–5 until the Level 2 prototype proves both:
+- academically dense enough;
+- less monotonous than the current version.
 
-## Safety / compatibility constraints
+## Compatibility constraints
 
 - Do not alter pronunciation review/report state.
 - Do not break YouTeach identity or Teacher Monitor.
-- Preserve auto-pause behavior.
+- Preserve auto-pause.
 - Preserve mobile playability.
-- Preserve current coastal-world visual identity.
-- Keep answer readability high.
+- Preserve the current coastal visual identity.
+- Preserve answer readability.
 - Never create unavoidable obstacle + correct-answer conflicts.
-
+- Do not let spectacle obscure the instructional objective.
