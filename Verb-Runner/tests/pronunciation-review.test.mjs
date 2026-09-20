@@ -79,6 +79,8 @@ test('search field has a one-tap clear control',()=>{
   assert.match(app,/clearSearch\.addEventListener\('click',clearSearchValue\)/);
   assert.match(app,/event\.key==='Escape'/);
   assert.match(css,/\.clear-search\{/);
+  assert.match(html,/review-app\.js\?v=14/);
+  assert.match(html,/pronunciation-manifest\.js\?v=review-console-20260919-4/);
 });
 
 test('legacy asset metadata uses the original Bella generation timestamp',()=>{
@@ -322,7 +324,7 @@ test('new audio source gets a fresh autosave report id and does not reuse the pr
   assert.match(actions,/function autosaveReportId\(by,src\)/);
   assert.match(actions,/autosaveReportId\(by,entry\.src\)/);
   assert.match(render,/report\.assetSource===entry\.src/);
-  assert.match(html,/pronunciation-manifest\.js\?v=review-console-20260916-3/);
+  assert.match(html,/pronunciation-manifest\.js\?v=review-console-20260919-4/);
 });
 
 test('changed pronunciation source is review-again instead of inheriting stale needs-fix status',()=>{
