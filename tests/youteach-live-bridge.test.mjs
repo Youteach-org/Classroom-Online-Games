@@ -40,7 +40,13 @@ test("teacher launch resolves verified group context and bridge credential", asy
       return new Response(JSON.stringify({
         ok: true,
         teacher: { username: "teacher", role: "teacher", displayName: "Teacher" },
-        liveContext: { youTeachSessionId: "yt-1", groupName: "533-2" },
+        liveContext: {
+          youTeachSessionId: "yt-1",
+          groupName: "533-2",
+          assignmentId: "assignment-1",
+          assignmentCode: "COG-VERB-533-200926",
+          assignmentTitle: "Verb Runner practice"
+        },
         bridgeToken: "signed-bridge-token-value-long-enough",
         bridgeExpiresAt: Date.now() + 60_000
       }), { status: 200, headers: { "Content-Type": "application/json" } });
@@ -51,6 +57,8 @@ test("teacher launch resolves verified group context and bridge credential", asy
   assert.equal(calls[0].url, "https://youteach.pages.dev/api/cog-live-teacher-resolve");
   assert.equal(result.liveContext.groupName, "533-2");
   assert.equal(result.liveContext.youTeachSessionId, "yt-1");
+  assert.equal(result.liveContext.assignmentId, "assignment-1");
+  assert.equal(result.liveContext.assignmentTitle, "Verb Runner practice");
   assert.equal(result.issuer, "https://youteach.pages.dev");
 });
 
@@ -58,7 +66,13 @@ test("teacher context can be retained for navigation within COG", () => {
   const storage = memoryStorage();
   const context = {
     teacher: { username: "teacher", role: "teacher", displayName: "Teacher" },
-    liveContext: { youTeachSessionId: "yt-1", groupName: "533-2" },
+    liveContext: {
+      youTeachSessionId: "yt-1",
+      groupName: "533-2",
+      assignmentId: "assignment-1",
+      assignmentCode: "COG-VERB-533-200926",
+      assignmentTitle: "Verb Runner practice"
+    },
     bridgeToken: "bridge-token",
     bridgeExpiresAt: Date.now() + 60_000,
     issuer: "https://youteach.pages.dev"
