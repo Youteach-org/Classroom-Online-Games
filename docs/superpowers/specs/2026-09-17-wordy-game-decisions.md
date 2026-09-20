@@ -55,6 +55,23 @@ Example:
 
 **Design direction:** Player-assembled valid combinations may wait for the player's decision to cash them in, but combinations created directly by gravity after a pop should behave as automatic cascade rewards. This preserves player agency during deliberate construction while retaining the satisfying chain-reaction behavior of a casual match game.
 
+### Tile movement
+**Decision:** A player move swaps one tile with exactly one orthogonally adjacent tile.
+
+Allowed directions:
+- up;
+- down;
+- left;
+- right.
+
+Not allowed:
+- diagonal swaps;
+- jumping over tiles;
+- dragging a tile across multiple cells in one move;
+- free repositioning.
+
+This keeps movement local and strategic while preserving the familiar casual-puzzle feel.
+
 ### Expressions
 **Decision:** Long expressions may use one word per tile. `AS A MATTER OF FACT` can therefore occupy five separate tiles.
 
