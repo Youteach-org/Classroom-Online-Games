@@ -17,3 +17,17 @@ Before declaring a project task complete:
 ## Purpose
 
 This policy exists so a later ChatGPT instance can continue the project without depending on hidden memory or reconstructing prior decisions from scattered conversation history.
+
+
+## Required live integration specification
+
+Before changing YouTeach ↔ Classroom Online Games live-session behavior, read:
+
+- `docs/superpowers/specs/2026-09-20-live-cog-session-bridge.md`
+
+It defines the teacher-controlled Buzzer → COG → Student Buzzer live-game lifecycle, group scoping, verified identity handoff, result return, and session expiration behavior.
+
+
+## Interaction convention
+
+- Number every assistant response to this user. Keep the response number visible at the beginning of each reply when working on this project.
