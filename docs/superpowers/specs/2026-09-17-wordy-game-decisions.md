@@ -315,6 +315,30 @@ Suggested internal relationship states:
 - The Wordbook may surface simplified player-facing labels such as Discovered, Practicing, and Mastered while keeping the richer internal model hidden.
 
 
+### Prototype validation scope
+**Decision:** Before scaling the full product, build a mobile-first playable validation prototype focused on the real core loop.
+
+The prototype must include:
+- adjacent orthogonal swaps;
+- deliberate setup moves that may score nothing immediately;
+- valid-relationship detection;
+- ready-to-pop marking;
+- one global pop action that resolves all ready relationships;
+- gravity and refill;
+- automatic cascade/combo resolution;
+- simultaneous ready relationships;
+- crossword intersections;
+- provisional scoring;
+- a small curated relationship bank of roughly 60–100 relationships across the four V1 families;
+- a mix of deliberately authored test boards and controlled-random boards;
+- a small set of levels that exercise movement, batching, cascades, longer expressions, intersections, and mixed play;
+- a compact end-of-round learning review, including early tutorial replay of selected missed opportunities.
+
+The prototype intentionally excludes the full level map, complete star progression, developed Wordbook, adaptive player model, category preference UI, boosters/obstacles, heavy meta-progression, and large-scale content ingestion.
+
+Validation focuses on whether players understand and enjoy the loop: move -> prepare -> global pop -> cascade -> discover language -> improve score. In particular, the prototype should reveal whether players voluntarily delay popping in order to prepare stronger batches or cascades.
+
+
 ### Player content preferences
 **Decision:** Players should be able to influence which linguistic relationship types appear more or less often in their games.
 
