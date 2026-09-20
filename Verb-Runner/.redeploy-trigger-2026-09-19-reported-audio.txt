@@ -4,3 +4,6 @@ Audio changes are limited to: am going to study, am staying, build, watched.
 Redeploy generated pronunciation repair batch reported-batch-20260919-2108.
 Audio changes are limited to: change, follow, forbade.
 Generated asset commit: 2a524d64aa91f2b75beef41e70bc64dcc4d8018e.
+Redeploy FORBADE-only pronunciation repair reported-batch-20260919-2218-forbade.
+Audio changes are limited to: forbade.
+Generated asset commit: 9db7731e6526bc936d529eab7b839dc8e03c89d9.
