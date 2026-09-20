@@ -1,6 +1,15 @@
 # Verb Runner 2.5 — Learning-First Dynamic Runner
 
-Status: design direction corrected after review. **No gameplay code changed yet.**
+Status: **Phase 1 prototype implemented for Sentence Runner (Level 2).**
+
+Implemented in the first prototype:
+- Grammar Gate alternating with the existing answer-card format;
+- real Roll/Slide input on keyboard and mobile;
+- low slide barriers in Sentence Runner so Roll has a gameplay purpose;
+- learning-first run director isolated in `run-director.js`;
+- Level 1, pronunciation review, YouTeach identity, and Teacher Monitor left unchanged.
+
+Next planned formats remain Slide Answer, Collect Sequence, Route Split, and later Chase, but only after validating this first prototype in actual play.
 
 ## Non-negotiable principle
 
