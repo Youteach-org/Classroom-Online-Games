@@ -1,0 +1,40 @@
+name: Verify live COG integration branch
+
+on:
+  push:
+    branches:
+      - feature/live-cog-session-bridge-20260920
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check JavaScript modules
+        run: |
+          node --check Verb-Runner/prototype.js
+          if [ -d shared ]; then find shared -name '*.mjs' -print0 | xargs -0 -r -n1 node --check; fi
+
+      - name: Run shared live bridge tests
+        run: |
+          if compgen -G "tests/*.test.mjs" > /dev/null; then node --test tests/*.test.mjs; fi
+
+      - name: Run existing game tests
+        run: |
+          node --test Verb-Runner/tests/*.test.mjs
+          node --test Verb-Runner/sentence-run.test.js
+          node --test 100-Students-Said/*.test.js
+          if compgen -G "Support-Meter/*.test.js" > /dev/null; then node --test Support-Meter/*.test.js; fi
+
+      - name: Prepare static site
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          cp index.html dist/
+          cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Engineering teacher dist/
+          if [ -d shared ]; then cp -R shared dist/; fi
