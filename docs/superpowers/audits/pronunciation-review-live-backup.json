@@ -1251,10 +1251,17 @@
           "by": "Pronunciation validation",
           "reason": "Correct: blew and blue are homophones in standard American English.",
           "revision": "2026-09-19-r7-repair-batch-1789859881757"
+        },
+        "validation-2026-09-19-r9-external-audio-binary-repair-blew": {
+          "action": "question-validated-correct",
+          "at": 1789870754773,
+          "by": "Pronunciation validation",
+          "reason": "Correct: blew and blue are homophones in standard American English.",
+          "revision": "2026-09-19-r9-external-audio-binary-repair"
         }
       },
       "key": "blew",
-      "lastReviewedAt": 1789863761611,
+      "lastReviewedAt": 1789870754773,
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/blew-28ca160cbb.wav",
@@ -1269,15 +1276,15 @@
           "updatedAt": 1789569782992
         }
       },
-      "reviewedAt": 1789863761611,
+      "reviewedAt": 1789870754773,
       "reviewedBy": "Pronunciation validation",
       "source": "./audio/pronunciation/blew-28ca160cbb.wav",
       "sourceType": "local-wav",
       "status": "reviewed",
-      "updatedAt": 1789863761611,
+      "updatedAt": 1789870754773,
       "validationDecision": "correct-existing",
       "validationReason": "Correct: blew and blue are homophones in standard American English.",
-      "validationRevision": "2026-09-19-r7-repair-batch-1789859881757"
+      "validationRevision": "2026-09-19-r9-external-audio-binary-repair"
     },
     "blow-va3okh": {
       "assetCreatedAt": 1789494062000,
@@ -1546,7 +1553,7 @@
         }
       },
       "key": "build",
-      "lastReviewedAt": 1789864416754,
+      "lastReviewedAt": 1789870479326,
       "repairAppliedAt": 1789864711280,
       "repairHandledAt": 1789859881757,
       "repairQueueStatus": "review-again",
@@ -1575,9 +1582,9 @@
           "resolvedAt": 1789864711280,
           "resolvedBy": "Pronunciation repair batch 2026-09-19",
           "reviewer": "Armando Anota",
-          "status": "resolved",
-          "text": "No audio",
-          "updatedAt": 1789864416754
+          "status": "open",
+          "text": "Sin audio",
+          "updatedAt": 1789870479326
         },
         "autosave-armando-anota-22dz74-https-www-aidocmaker-com-g0-audio-name-d1c-jw30b9": {
           "assetSource": "https://www.aidocmaker.com/g0/audio?name=d1cd1b4c12ad44bbbb243cbd3cd3c881",
@@ -1592,12 +1599,12 @@
           "updatedAt": 1789691109710
         }
       },
-      "reviewedAt": 1789864416754,
+      "reviewedAt": 1789870479326,
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/external/build-fancy-approved-r2.mp3",
       "sourceType": "other",
-      "status": "review-again",
-      "updatedAt": 1789864711280
+      "status": "reported",
+      "updatedAt": 1789870479407
     },
     "built-1du28hf": {
       "assetCreatedAt": 1789494062000,
@@ -10993,6 +11000,27 @@
       "sourceType": "local-wav",
       "status": "reviewed",
       "updatedAt": 1789691100170
+    },
+    "will-have-built-2pk0gh": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789870489628,
+      "history": {
+        "-P1wa2uQe1Y-jHiDAvgO": {
+          "action": "reviewed-ok",
+          "at": 1789870489709,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have built",
+      "lastReviewedAt": 1789870489628,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789870489628,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-built-bc14d73bd3.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789870489628
     },
     "will-tell-rkjlkc": {
       "assetCreatedAt": 1789688990334,
