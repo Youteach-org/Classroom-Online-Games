@@ -1,5 +1,11 @@
 # Wordy Game — Vocabulary & Relationship Engine
 
+> **Status update — 2026-09-20:** This document is historical design context. Its open questions/checklists have been superseded by:
+> - `docs/superpowers/specs/2026-09-20-wordy-game-architecture-design.md`
+> - `docs/superpowers/specs/2026-09-20-wordy-game-prototype-design.md`
+>
+> Use the 2026-09-20 documents as the current source of truth.
+
 **Status:** Design proposal under active discussion  
 **Branch:** `feature/wordy-game`  
 **Date:** 2026-09-17
