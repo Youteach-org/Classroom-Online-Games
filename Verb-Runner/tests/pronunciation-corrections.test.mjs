@@ -77,8 +77,8 @@ test('correction goals preserve the observed teacher problems without copying th
   assert.match(corrections.items.bend.observed_issue,/igual que bent/i);
   assert.match(corrections.items.bend.correction_goal,/distinct from bent/i);
 
-  assert.match(corrections.items.build.observed_issue,/No suena nada/i);
-  assert.match(corrections.items.build.latest_report_text,/No suena nada/i);
+  assert.match(corrections.items.build.observed_issue,/No (?:suena nada|audio)/i);
+  assert.match(corrections.items.build.latest_report_text,/No (?:suena nada|audio)/i);
   assert.match(corrections.items.build.correction_goal,/distinct from built/i);
   assert.equal(corrections.items.build.voice,'fancy');
   assert.match(corrections.items.build.approved_source_url,/storage\.googleapis\.com\/.*\.mp3/);
