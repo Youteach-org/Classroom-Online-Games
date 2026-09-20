@@ -71,6 +71,8 @@ const sentenceCueLabel=document.querySelector('#sentenceCueLabel');
 const taskInstruction=document.querySelector('#taskInstruction');
 const resultKicker=document.querySelector('#resultKicker');
 const nextLevelButton=document.querySelector('#nextLevelButton');
+const sendYouTeachResultButton=document.querySelector('#sendYouTeachResultButton');
+const sendYouTeachResultStatus=document.querySelector('#sendYouTeachResultStatus');
 const pauseRaceTitle=document.querySelector('#pauseRaceTitle');
 const speedControl=document.querySelector('#speedControl');
 const speedValue=document.querySelector('#speedValue');
@@ -427,6 +429,11 @@ let youTeachIdentity=null;
 let youTeachAssignmentContext=null;
 let assignmentContextLocked=false;
 let launchCredentialFailed=assignmentLaunchMarker&&!assignmentLaunchToken;
+let youTeachSubmissionToken='';
+let youTeachSubmissionIssuer='';
+let officialAttemptStartedAt=0;
+let lastOfficialAttempt=null;
+let officialResultSubmitted=false;
 
 function localRunnerId(){
   try{
@@ -959,6 +966,8 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
         resolved.launchContext&&applyYouTeachAssignmentContext(resolved.launchContext)
       );
       if(!assignedPractice)throw new Error('Invalid YouTeach assignment configuration');
+      youTeachSubmissionToken=String(resolved.submissionToken||'');
+      youTeachSubmissionIssuer=String(resolved.issuer||assignmentIssuer||'');
       runnerSessionId='YT-'+String(resolved.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
       cleanLaunchTokenFromUrl(true);
     }else if(launchToken){
@@ -2405,7 +2414,53 @@ function finishRun(){
   resultObstacles.textContent=String(summary.obstacleHits);
   resultMomentum.textContent=summary.momentum+'%';
   if(resultKicker)resultKicker.textContent=raceLabel()+' COMPLETE';
-  if(nextLevelButton)nextLevelButton.hidden=currentLevel>=5;
+  if(nextLevelButton)nextLevelButton.hidden=assignmentContextLocked||currentLevel>=5;
+
+  const completedAt=Date.now();
+  const minimum=youTeachAssignmentContext?.minimumPercent==null
+    ?null
+    :Number(youTeachAssignmentContext.minimumPercent);
+  const meetsMinimum=minimum==null||summary.accuracy >= minimum;
+  const officialAllowed=Boolean(
+    youTeachAssignmentContext?.officialSubmissionAllowed===true&&
+    youTeachSubmissionToken&&
+    youTeachSubmissionIssuer
+  );
+  lastOfficialAttempt=officialAllowed?{
+    attemptId:'VR-'+completedAt.toString(36)+'-'+Math.random().toString(36).slice(2,8),
+    sessionId:String(runnerSessionId||''),
+    assignmentId:String(youTeachAssignmentContext.assignmentId||''),
+    gameId:String(youTeachAssignmentContext.gameId||'verb-runner'),
+    modeId:String(youTeachAssignmentContext.modeId||''),
+    difficultyId:String(youTeachAssignmentContext.difficultyId||''),
+    startedAt:officialAttemptStartedAt||Math.max(1,completedAt-summary.timeMs),
+    completedAt,
+    completed:true,
+    successes:runState.correct,
+    errors:runState.grammarErrors,
+    obstacleHits:summary.obstacleHits,
+    bestStreak:summary.bestStreak,
+    timeMs:summary.timeMs,
+    errorCodes:{grammar:runState.grammarErrors}
+  }:null;
+
+  if(sendYouTeachResultButton){
+    sendYouTeachResultButton.hidden=!officialAllowed;
+    sendYouTeachResultButton.disabled=!officialAllowed||!meetsMinimum||officialResultSubmitted;
+    sendYouTeachResultButton.textContent=officialResultSubmitted?'SENT TO TEACHER':'SEND TO TEACHER';
+  }
+  if(sendYouTeachResultStatus){
+    sendYouTeachResultStatus.hidden=!officialAllowed;
+    sendYouTeachResultStatus.className='game-notice';
+    sendYouTeachResultStatus.textContent=!officialAllowed
+      ?''
+      :(officialResultSubmitted
+        ?'This result has already been sent to YouTeach.'
+        :(meetsMinimum
+          ?'Result ready to send to your teacher.'
+          :`Minimum ${minimum}% required · your result is ${summary.accuracy}%.`));
+  }
+
   resultOverlay.hidden=false;
 
   try{
@@ -2701,6 +2756,12 @@ startButton.addEventListener('click',async()=>{
   window.VerbRunnerPronunciation?.unlockPronunciation();
   await sessionLoadPromise;
   sessionRunFinished=false;
+  officialAttemptStartedAt=Date.now();
+  lastOfficialAttempt=null;
+  if(sendYouTeachResultStatus){
+    sendYouTeachResultStatus.hidden=true;
+    sendYouTeachResultStatus.textContent='';
+  }
   resetRun();
   picker.classList.add('hidden');
   resultOverlay.hidden=true;
@@ -2811,6 +2872,47 @@ musicToggle?.addEventListener('click',()=>{
   playSfx('click');
 });
 setPlayerSpeedPercent(100);
+
+sendYouTeachResultButton?.addEventListener('click',async()=>{
+  if(
+    officialResultSubmitted||
+    !lastOfficialAttempt||
+    !youTeachSubmissionToken||
+    !youTeachSubmissionIssuer||
+    !sessionApi?.submitYouTeachAssignmentResult
+  )return;
+
+  sendYouTeachResultButton.disabled=true;
+  sendYouTeachResultButton.textContent='SENDING…';
+  if(sendYouTeachResultStatus){
+    sendYouTeachResultStatus.hidden=false;
+    sendYouTeachResultStatus.textContent='Sending result securely to YouTeach…';
+  }
+
+  try{
+    const result=await sessionApi.submitYouTeachAssignmentResult(
+      youTeachSubmissionToken,
+      youTeachSubmissionIssuer,
+      lastOfficialAttempt
+    );
+    officialResultSubmitted=true;
+    sendYouTeachResultButton.textContent='SENT TO TEACHER';
+    if(sendYouTeachResultStatus){
+      sendYouTeachResultStatus.textContent=
+        `Submitted · ${result.officialScorePercent}% · ${result.earnedPoints} / ${result.pointValue} pts`;
+      sendYouTeachResultStatus.className='game-notice show correct';
+    }
+  }catch(error){
+    console.error('Official YouTeach result submission failed',error);
+    sendYouTeachResultButton.disabled=false;
+    sendYouTeachResultButton.textContent='SEND TO TEACHER';
+    if(sendYouTeachResultStatus){
+      sendYouTeachResultStatus.textContent=error?.message||'Could not send this result to YouTeach.';
+      sendYouTeachResultStatus.className='game-notice show';
+    }
+  }
+});
+
 runAgainButton.addEventListener('click',()=>{
   playSfx('click');
   resultOverlay.hidden=true;
