@@ -27,6 +27,23 @@ function normalizeLaunchToken(token){
   return String(token||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,128);
 }
 
+function assignmentContextFromLaunch(claimed={}){
+  const config=claimed?.cogActivity||{};
+  if(!claimed?.assignmentId||claimed?.purpose!=='assignment-practice')return null;
+  return {
+    assignmentId:String(claimed.assignmentId||'').slice(0,120),
+    taskCode:String(claimed.assignmentCode||'').slice(0,120),
+    purpose:'assignment-practice',
+    officialSubmissionAllowed:claimed.officialSubmissionAllowed===true,
+    gameId:String(config.gameId||claimed.game||'').slice(0,80),
+    modeId:String(config.modeId||'').slice(0,80),
+    difficultyId:String(config.difficultyId||'').slice(0,40),
+    minimumPercent:config.minimumPercent==null?null:Number(config.minimumPercent),
+    pointValue:Number(config.pointValue||0),
+    contractVersion:Number(config.contractVersion||1)
+  };
+}
+
 function identityMetadata(data={},existing={}){
   const studentKey=String(data.studentKey||existing.studentKey||'').slice(0,120);
   const nickname=String(data.nickname||existing.nickname||'').slice(0,60);
@@ -67,8 +84,89 @@ async function resolveYouTeachLaunchToken(rawToken){
     fullName,
     groupName:String(student.groupName||'GENERAL'),
     studentNumber:String(student.studentNumber||student.id||''),
-    identitySource:'youteach'
+    identitySource:'youteach',
+    assignmentContext:assignmentContextFromLaunch(claimed)
   };
+}
+
+function normalizeAssignmentIssuer(rawIssuer){
+  try{
+    const url=new URL(String(rawIssuer||''));
+    const host=url.hostname.toLowerCase();
+    if(
+      url.protocol==='https:'&&
+      (host==='youteach.pages.dev'||host.endsWith('.youteach.pages.dev'))
+    ){
+      return url.origin;
+    }
+  }catch{}
+  return '';
+}
+
+async function resolveYouTeachAssignmentLaunchToken(rawToken,rawIssuer){
+  const token=String(rawToken||'').trim();
+  const issuer=normalizeAssignmentIssuer(rawIssuer);
+  if(token.length<40||!issuer)return null;
+
+  const response=await fetch(`${issuer}/api/cog-launch-resolve`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({token})
+  });
+  if(!response.ok)return null;
+
+  const payload=await response.json().catch(()=>null);
+  const identity=payload?.identity;
+  const context=payload?.launchContext;
+  if(
+    payload?.ok!==true||
+    !identity?.studentKey||
+    context?.purpose!=='assignment-practice'||
+    typeof context?.officialSubmissionAllowed!=='boolean'||
+    context?.cogActivity?.gameId!=='verb-runner'
+  ){
+    return null;
+  }
+
+  return {
+    studentKey:String(identity.studentKey),
+    nickname:String(identity.nickname||'Student'),
+    fullName:String(identity.fullName||''),
+    groupName:String(identity.groupName||'GENERAL'),
+    studentNumber:String(identity.studentNumber||''),
+    identitySource:'youteach',
+    launchContext:{
+      purpose:'assignment-practice',
+      officialSubmissionAllowed:context.officialSubmissionAllowed===true,
+      assignmentId:String(context.assignmentId||''),
+      assignmentCode:String(context.assignmentCode||''),
+      cogActivity:{...context.cogActivity}
+    },
+    submissionToken:context.officialSubmissionAllowed===true?String(payload?.submissionToken||''):'',
+    submissionTokenExpiresAt:Number(payload?.submissionTokenExpiresAt||0),
+    issuer
+  };
+}
+
+async function submitYouTeachAssignmentResult(rawToken,rawIssuer,attempt){
+  const submissionToken=String(rawToken||'').trim();
+  const issuer=normalizeAssignmentIssuer(rawIssuer);
+  if(submissionToken.length<40||!issuer){
+    throw new Error('Official result submission is not available for this run.');
+  }
+  const response=await fetch(`${issuer}/api/cog-result-submit`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({submissionToken,attempt})
+  });
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok||payload?.ok!==true){
+    const error=new Error(payload?.error||'Could not send this result to YouTeach.');
+    error.status=response.status;
+    error.payload=payload;
+    throw error;
+  }
+  return payload;
 }
 
 function makeCode(){
@@ -158,6 +256,9 @@ async function registerFreeRunnerPresence(runnerId,data={}){
     difficulty:data.difficulty||existing?.difficulty||'medium',
     level:Number(data.level??existing?.level??1),
     mode:data.mode||existing?.mode||'race',
+    assignmentId:String(data.assignmentId||existing?.assignmentId||'').slice(0,120),
+    taskCode:String(data.taskCode||existing?.taskCode||'').slice(0,120),
+    launchPurpose:String(data.launchPurpose||existing?.launchPurpose||'').slice(0,80),
     total:Number(data.total??existing?.total??20),
     challenge:Number(existing?.challenge)||1,
     challengeLabel:existing?.challengeLabel||'Free mode · choosing race and runner',
@@ -206,6 +307,9 @@ async function connectFreeRunner(runnerId,data={}){
     difficulty:data.difficulty||'medium',
     level:Number(data.level)||1,
     mode:data.mode||'race',
+    assignmentId:String(data.assignmentId||'').slice(0,120),
+    taskCode:String(data.taskCode||'').slice(0,120),
+    launchPurpose:String(data.launchPurpose||'').slice(0,80),
     challenge:1,
     challengeLabel:'Preparing challenge',
     lastAction:'Started Verb Runner · free mode',
@@ -346,7 +450,7 @@ async function finishRunner(code,runnerId,result={}){
 }
 
 export {
-  normalizeCode,makeRunnerId,resolveYouTeachLaunchToken,createSession,loadSession,subscribeSession,subscribeSessions,closeSession,
+  normalizeCode,makeRunnerId,resolveYouTeachLaunchToken,resolveYouTeachAssignmentLaunchToken,submitYouTeachAssignmentResult,createSession,loadSession,subscribeSession,subscribeSessions,closeSession,
   registerFreeRunnerPresence,subscribeFreeRunners,connectFreeRunner,updateFreeRunner,finishFreeRunner,
   registerRunnerPresence,connectRunner,updateRunner,finishRunner
 };
