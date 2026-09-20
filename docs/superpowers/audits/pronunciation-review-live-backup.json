@@ -4118,6 +4118,7 @@
     },
     "forbade-1t6br0y": {
       "assetCreatedAt": 1789877916815,
+      "cleanupRequested": false,
       "firstReviewedAt": 1789570089688,
       "history": {
         "-P1eg79hHHjIvpGlI9vE": {
@@ -4168,6 +4169,11 @@
           "by": "system",
           "from": "./audio/pronunciation/forbade-92e23a6543.wav",
           "to": "./audio/pronunciation/forbade-0ed101854f.wav"
+        },
+        "-P1x4KIIoD82C_GJwTW6": {
+          "action": "reviewed-ok",
+          "at": 1789878687368,
+          "by": "Armando Anota"
         },
         "repair-1789695225110-forbade": {
           "action": "repair-applied-review-again",
@@ -4327,7 +4333,8 @@
         }
       },
       "key": "forbade",
-      "lastReviewedAt": 1789877924925,
+      "lastReviewedAt": 1789878687285,
+      "removedAsDuplicate": false,
       "repairAppliedAt": 1789878220424,
       "repairHandledAt": 1789878220424,
       "repairQueueStatus": "review-again",
@@ -4382,12 +4389,12 @@
           "updatedAt": 1789874629539
         }
       },
-      "reviewedAt": 1789877924925,
+      "reviewedAt": 1789878687285,
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/forbade-0ed101854f.wav",
       "sourceType": "local-wav",
-      "status": "review-again",
-      "updatedAt": 1789878220424
+      "status": "reviewed",
+      "updatedAt": 1789878687285
     },
     "forbid-2jp0uj": {
       "assetCreatedAt": 1789494062000,
@@ -10605,14 +10612,14 @@
       },
       "key": "will be travelling",
       "lastReviewedAt": 1789691094160,
-      "removedAsDuplicate": false,
+      "removedAsDuplicate": true,
       "removedAt": 1789574946514,
       "removedBy": "Armando Anota",
       "reviewedAt": 1789691094160,
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/will-be-traveling-50955a73aa.wav",
       "sourceType": "local-wav",
-      "status": "reviewed",
+      "status": "removed-duplicate",
       "updatedAt": 1789691094160
     },
     "will-be-using-1wbe02e": {
@@ -11157,14 +11164,14 @@
       },
       "key": "will have been travelling",
       "lastReviewedAt": 1789691100170,
-      "removedAsDuplicate": false,
+      "removedAsDuplicate": true,
       "removedAt": 1789574993228,
       "removedBy": "Armando Anota",
       "reviewedAt": 1789691100170,
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/will-have-been-traveling-76d5c02b3b.wav",
       "sourceType": "local-wav",
-      "status": "reviewed",
+      "status": "removed-duplicate",
       "updatedAt": 1789691100170
     },
     "will-have-been-using-1oxxakt": {
