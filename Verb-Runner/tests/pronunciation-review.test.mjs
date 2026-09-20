@@ -79,7 +79,7 @@ test('search field has a one-tap clear control',()=>{
   assert.match(app,/clearSearch\.addEventListener\('click',clearSearchValue\)/);
   assert.match(app,/event\.key==='Escape'/);
   assert.match(css,/\.clear-search\{/);
-  assert.match(html,/review-app\.js\?v=14/);
+  assert.match(html,/review-app\.js\?v=15/);
   assert.match(html,/pronunciation-manifest\.js\?v=review-console-20260919-4/);
 });
 
@@ -268,7 +268,9 @@ test('duplicated action removes the redundant asset from active review immediate
   assert.match(actions,/duplicate-cleanup-requested/);
   assert.doesNotMatch(actions,/export async function removeDuplicate/);
   assert.doesNotMatch(events,/action==='remove-duplicate'/);
-  assert.match(app,/filter==='all'&&entry\.status==='removed-duplicate'/);
+  assert.match(app,/filter==='all'&&\(entry\.status==='removed-duplicate'\|\|entry\.duplicateOf\)/);
+  assert.match(actions,/record\?\.removedAsDuplicate\|\|record\?\.duplicateOf/);
+  assert.match(actions,/duplicate-ok-ignored/);
 });
 
 test('repository duplicate cleanup reuses the original asset and deletes redundant WAVs',()=>{
@@ -289,6 +291,9 @@ test('repository duplicate cleanup reuses the original asset and deletes redunda
   assert.match(cleanup,/cleanupRequested/);
   assert.match(cleanup,/duplicateOf/);
   assert.match(cleanup,/pronunciation-aliases\.json/);
+  assert.match(cleanup,/removedAssetSource/);
+  assert.match(cleanup,/healed duplicate review state/);
+  assert.match(generator,/stale\.unlink\(\)/);
   assert.match(workflow,/cron: "\*\/5 \* \* \* \*"/);
   assert.match(workflow,/apply-pronunciation-duplicates\.py/);
   assert.match(workflow,/generate-pronunciation\.py/);
