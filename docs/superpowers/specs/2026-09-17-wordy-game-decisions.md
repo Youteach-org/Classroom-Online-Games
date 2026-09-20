@@ -389,3 +389,15 @@ Exact animation, treatment of future blockers, and minimum number of validated m
 
 ### Working style
 **Decision:** Keep the design conversation exploratory and collaborative. Avoid repeatedly stopping for microdecisions. Consolidate mature decisions into project documentation instead.
+
+
+### Execution and conversation handoff policy
+**Decision:** Wordy implementation work is executed inline/native rather than with per-task subagents.
+
+- Use Superpowers `executing-plans` for implementation.
+- Do not choose subagent-driven execution for routine Wordy work.
+- GitHub is the durable continuity source across chats.
+- Maintain `docs/superpowers/handoffs/WORDY-CURRENT.md` as the current handoff record.
+- Before a conversation approaches its practical context/length limit, update the handoff with completed work, commits, test evidence, current task/step, rulings, unresolved issues, and the exact next action.
+- At that point, provide the user a ready-to-paste prompt that instructs the next instance to read the handoff, plan, specs, and git history and continue without repeating finished tasks.
+- Any later ChatGPT or Codex-capable instance should be able to resume solely from GitHub plus that continuation prompt.
