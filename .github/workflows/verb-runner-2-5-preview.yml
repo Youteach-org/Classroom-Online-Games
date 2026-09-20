@@ -43,10 +43,14 @@ jobs:
         run: |
           CLEAN_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID_RAW" | tr -d '[:space:]')"
           export CLOUDFLARE_ACCOUNT_ID="$CLEAN_ACCOUNT_ID"
-          npx wrangler@4 pages deploy dist \
+          DEPLOY_OUTPUT="$(npx wrangler@4 pages deploy dist \
             --project-name=classroom-online-games \
             --branch=verb-runner-2-5-dev \
-            --commit-hash=${{ github.sha }}
+            --commit-hash=${{ github.sha }})"
+          printf '%s\n' "$DEPLOY_OUTPUT"
+          DEPLOY_URL="$(printf '%s\n' "$DEPLOY_OUTPUT" | grep -oE 'https://[0-9a-f]+\.classroom-online-games\.pages\.dev' | head -1)"
+          test -n "$DEPLOY_URL"
+          printf 'SENTENCE_PREVIEW_URL=%s\n' "$DEPLOY_URL" >> "$GITHUB_ENV"
 
 
       - name: Browser smoke test Sentence Runner 2.5
@@ -65,7 +69,9 @@ jobs:
             });
             const page=await browser.newPage({viewport:{width:1536,height:864}});
             page.on('pageerror',err=>errors.push(String(err)));
-            await page.goto('https://verb-runner-2-5-dev.classroom-online-games.pages.dev/Verb-Runner/',{
+            const previewUrl=process.env.SENTENCE_PREVIEW_URL;
+            if(!previewUrl)throw new Error('Missing SENTENCE_PREVIEW_URL');
+            await page.goto(previewUrl+'/Verb-Runner/',{
               waitUntil:'domcontentloaded',
               timeout:30000
             });
@@ -100,7 +106,7 @@ jobs:
           })().catch(err=>{console.error(err);process.exit(1);});
           NODE
           npm install --no-save --no-package-lock playwright
-          BROWSER="$BROWSER" node sentence-runner-smoke.cjs
+          SENTENCE_PREVIEW_URL="$SENTENCE_PREVIEW_URL" BROWSER="$BROWSER" node sentence-runner-smoke.cjs
 
       - name: Upload Sentence Runner preview screenshot
         uses: actions/upload-artifact@v4
