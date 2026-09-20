@@ -80,6 +80,19 @@ This keeps movement local and strategic while preserving the familiar casual-puz
 - The game does not revert a swap simply because no valid relationship was formed.
 - This allows players to reposition words over several moves in order to build longer expressions, crossings, or future cascade opportunities.
 
+### Armed combinations and player-triggered popping
+**Decision:** When a valid linguistic combination is formed, it does not disappear automatically.
+
+- The combination is visually marked as **ready to pop**.
+- It remains in place and continues occupying its cells.
+- The player decides when to pop it.
+- The player may leave it intact for several moves in order to extend it, build crossings, or set up a better gravity outcome.
+- The player may also move one of its tiles away before popping; in that case the combination simply stops being valid and loses its ready state.
+- Popping the combination removes its tiles, triggers gravity, and may create new valid combinations.
+- There is no single mandatory timing window for cashing in a valid combination.
+
+This makes timing itself part of the strategy: the player chooses whether to take the current value now or preserve the structure for a stronger future board state.
+
 ### Expressions
 **Decision:** Long expressions may use one word per tile. `AS A MATTER OF FACT` can therefore occupy five separate tiles.
 
