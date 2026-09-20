@@ -116,7 +116,7 @@
   "fly": "./audio/pronunciation/fly-41a682cadf.wav",
   "follow": "./audio/pronunciation/follow-81add13f5f.wav",
   "for ten years": "./audio/pronunciation/for-ten-years-b0d1423108.wav",
-  "forbade": "./audio/pronunciation/forbade-0ed101854f.wav",
+  "forbade": "./audio/pronunciation/forbade-0d258b6185.wav",
   "forbid": "./audio/pronunciation/forbid-062b0bd80d.wav",
   "forbidden": "./audio/pronunciation/forbidden-5854a82bc4.wav",
   "forgave": "./audio/pronunciation/forgave-b74d135f5c.wav",

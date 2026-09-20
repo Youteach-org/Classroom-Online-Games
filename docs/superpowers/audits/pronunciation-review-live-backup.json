@@ -1252,6 +1252,13 @@
           "reason": "Correct: blew and blue are homophones in standard American English.",
           "revision": "2026-09-19-r10-build-cache-bust"
         },
+        "validation-2026-09-19-r11-forbade-repair-2218-blew": {
+          "action": "question-validated-correct",
+          "at": 1789878065720,
+          "by": "Pronunciation validation",
+          "reason": "Correct: blew and blue are homophones in standard American English.",
+          "revision": "2026-09-19-r11-forbade-repair-2218"
+        },
         "validation-2026-09-19-r7-repair-batch-1789859881757-blew": {
           "action": "question-validated-correct",
           "at": 1789863761611,
@@ -1275,7 +1282,7 @@
         }
       },
       "key": "blew",
-      "lastReviewedAt": 1789873846857,
+      "lastReviewedAt": 1789878065720,
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/blew-28ca160cbb.wav",
@@ -1290,15 +1297,15 @@
           "updatedAt": 1789569782992
         }
       },
-      "reviewedAt": 1789873846857,
+      "reviewedAt": 1789878065720,
       "reviewedBy": "Pronunciation validation",
       "source": "./audio/pronunciation/blew-28ca160cbb.wav",
       "sourceType": "local-wav",
       "status": "reviewed",
-      "updatedAt": 1789873846857,
+      "updatedAt": 1789878065720,
       "validationDecision": "correct-existing",
       "validationReason": "Correct: blew and blue are homophones in standard American English.",
-      "validationRevision": "2026-09-19-r8-reported-batch-2108"
+      "validationRevision": "2026-09-19-r11-forbade-repair-2218"
     },
     "blow-va3okh": {
       "assetCreatedAt": 1789494062000,
@@ -1915,7 +1922,8 @@
       "updatedAt": 1789859533566
     },
     "change-vsu94t": {
-      "assetCreatedAt": 1789864303893,
+      "assetCreatedAt": 1789877911077,
+      "cleanupRequested": false,
       "firstReviewedAt": 1789538400000,
       "history": {
         "-P1eSYLis_PMjGTmXwl3": {
@@ -1952,6 +1960,18 @@
           "by": "system",
           "from": "./audio/pronunciation/change-dc6010c72a.wav",
           "to": "./audio/pronunciation/change-bd120a6a04.wav"
+        },
+        "-P1x1Mn3OYYNo9POLKkl": {
+          "action": "asset-source-changed",
+          "at": 1789877911158,
+          "by": "system",
+          "from": "./audio/pronunciation/change-bd120a6a04.wav",
+          "to": "./audio/pronunciation/change-d812353b05.wav"
+        },
+        "-P1x1MoIyTbZ7DiSER2N": {
+          "action": "reviewed-ok",
+          "at": 1789877911237,
+          "by": "Armando Anota"
         },
         "repair-1789695225110-change": {
           "action": "repair-applied-review-again",
@@ -2104,7 +2124,8 @@
         }
       },
       "key": "change",
-      "lastReviewedAt": 1789873638820,
+      "lastReviewedAt": 1789877911077,
+      "removedAsDuplicate": false,
       "repairAppliedAt": 1789873999936,
       "repairHandledAt": 1789873999936,
       "repairQueueStatus": "review-again",
@@ -2118,9 +2139,9 @@
           "resolvedAt": 1789873999936,
           "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
-          "status": "resolved",
-          "text": "Tiene una k al principio!",
-          "updatedAt": 1789873638820
+          "status": "open",
+          "text": "Dice kuchain no change",
+          "updatedAt": 1789874607544
         },
         "autosave-armando-anota-22dz74-audio-pronunciation-change-dc6010c72a-wav-1fpbdvv": {
           "assetSource": "./audio/pronunciation/change-dc6010c72a.wav",
@@ -2146,12 +2167,12 @@
           "text": "Sounds approximately “kchain”; pronunciation is incorrect."
         }
       },
-      "reviewedAt": 1789873638820,
+      "reviewedAt": 1789877911077,
       "reviewedBy": "Armando Anota",
-      "source": "./audio/pronunciation/change-bd120a6a04.wav",
+      "source": "./audio/pronunciation/change-d812353b05.wav",
       "sourceType": "local-wav",
-      "status": "review-again",
-      "updatedAt": 1789873999936
+      "status": "reviewed",
+      "updatedAt": 1789877911077
     },
     "changed-jgug0r": {
       "assetCreatedAt": 1789688758264,
@@ -3821,7 +3842,8 @@
       "updatedAt": 1789863787116
     },
     "follow-pd76uo": {
-      "assetCreatedAt": 1789864323377,
+      "assetCreatedAt": 1789877898472,
+      "cleanupRequested": false,
       "firstReviewedAt": 1789570076321,
       "history": {
         "-P1eg3tlpLotlxS_RbEN": {
@@ -3858,6 +3880,18 @@
           "by": "system",
           "from": "./audio/pronunciation/follow-8e900ba8ec.wav",
           "to": "./audio/pronunciation/follow-480c42c110.wav"
+        },
+        "-P1x1Ji7FW0x6fIlOl2l": {
+          "action": "asset-source-changed",
+          "at": 1789877898554,
+          "by": "system",
+          "from": "./audio/pronunciation/follow-480c42c110.wav",
+          "to": "./audio/pronunciation/follow-81add13f5f.wav"
+        },
+        "-P1x1JjMqdiznJOyDtVN": {
+          "action": "reviewed-ok",
+          "at": 1789877898633,
+          "by": "Armando Anota"
         },
         "repair-1789695225110-follow": {
           "action": "repair-applied-review-again",
@@ -4010,7 +4044,8 @@
         }
       },
       "key": "follow",
-      "lastReviewedAt": 1789873651672,
+      "lastReviewedAt": 1789877898472,
+      "removedAsDuplicate": false,
       "repairAppliedAt": 1789873999936,
       "repairHandledAt": 1789873999936,
       "repairQueueStatus": "review-again",
@@ -4036,9 +4071,9 @@
           "resolvedAt": 1789873999936,
           "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
-          "status": "resolved",
+          "status": "open",
           "text": "Dice falla",
-          "updatedAt": 1789873651672
+          "updatedAt": 1789874621635
         },
         "autosave-armando-anota-22dz74-audio-pronunciation-follow-8e900ba8ec-wav-o3rkxw": {
           "assetSource": "./audio/pronunciation/follow-8e900ba8ec.wav",
@@ -4053,12 +4088,12 @@
           "updatedAt": 1789688823937
         }
       },
-      "reviewedAt": 1789873651672,
+      "reviewedAt": 1789877898472,
       "reviewedBy": "Armando Anota",
-      "source": "./audio/pronunciation/follow-480c42c110.wav",
+      "source": "./audio/pronunciation/follow-81add13f5f.wav",
       "sourceType": "local-wav",
-      "status": "review-again",
-      "updatedAt": 1789873999936
+      "status": "reviewed",
+      "updatedAt": 1789877898472
     },
     "for-ten-years-z5azid": {
       "assetCreatedAt": 1789494062000,
@@ -4082,7 +4117,7 @@
       "updatedAt": 1789863786459
     },
     "forbade-1t6br0y": {
-      "assetCreatedAt": 1789864334948,
+      "assetCreatedAt": 1789877916815,
       "firstReviewedAt": 1789570089688,
       "history": {
         "-P1eg79hHHjIvpGlI9vE": {
@@ -4119,6 +4154,20 @@
           "by": "system",
           "from": "./audio/pronunciation/forbade-83d0f539d0.wav",
           "to": "./audio/pronunciation/forbade-92e23a6543.wav"
+        },
+        "-P1x1O95OMlQXtXAf_x3": {
+          "action": "report-autosave-started",
+          "at": 1789877916728,
+          "by": "Armando Anota",
+          "kind": "pronunciation",
+          "reportId": "autosave-armando-anota-22dz74-audio-pronunciation-forbade-0ed101854f-wav-ylvba9"
+        },
+        "-P1x1OBiQNqkpCq6QPw1": {
+          "action": "asset-source-changed",
+          "at": 1789877916896,
+          "by": "system",
+          "from": "./audio/pronunciation/forbade-92e23a6543.wav",
+          "to": "./audio/pronunciation/forbade-0ed101854f.wav"
         },
         "repair-1789695225110-forbade": {
           "action": "repair-applied-review-again",
@@ -4268,14 +4317,21 @@
           "by": "Pronunciation repair sync",
           "from": "./audio/pronunciation/forbade-92e23a6543.wav",
           "to": "./audio/pronunciation/forbade-0ed101854f.wav"
+        },
+        "repair-1789878220424-forbade": {
+          "action": "repair-applied-review-again",
+          "at": 1789878220424,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/forbade-0ed101854f.wav",
+          "to": "./audio/pronunciation/forbade-0d258b6185.wav"
         }
       },
       "key": "forbade",
-      "lastReviewedAt": 1789873661267,
-      "repairAppliedAt": 1789873999936,
-      "repairHandledAt": 1789873999936,
+      "lastReviewedAt": 1789877924925,
+      "repairAppliedAt": 1789878220424,
+      "repairHandledAt": 1789878220424,
       "repairQueueStatus": "review-again",
-      "repairSource": "./audio/pronunciation/forbade-0ed101854f.wav",
+      "repairSource": "./audio/pronunciation/forbade-0d258b6185.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/forbade-3529d0c1bf.wav",
@@ -4288,6 +4344,18 @@
           "status": "resolved",
           "text": "Suena forbad",
           "updatedAt": 1789570094779
+        },
+        "autosave-armando-anota-22dz74-audio-pronunciation-forbade-0ed101854f-wav-ylvba9": {
+          "assetSource": "./audio/pronunciation/forbade-0ed101854f.wav",
+          "createdAt": 1789877916617,
+          "kind": "pronunciation",
+          "previousStatus": "reported",
+          "resolvedAt": 1789878220424,
+          "resolvedBy": "Pronunciation repair sync",
+          "reviewer": "Armando Anota",
+          "status": "resolved",
+          "text": "For beid dice",
+          "updatedAt": 1789877924925
         },
         "autosave-armando-anota-22dz74-audio-pronunciation-forbade-83d0f539d0-wav-137w98f": {
           "assetSource": "./audio/pronunciation/forbade-83d0f539d0.wav",
@@ -4309,17 +4377,17 @@
           "resolvedAt": 1789873999936,
           "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
-          "status": "resolved",
-          "text": "Dice for bad",
-          "updatedAt": 1789873661267
+          "status": "open",
+          "text": "Dice forbad",
+          "updatedAt": 1789874629539
         }
       },
-      "reviewedAt": 1789873661267,
+      "reviewedAt": 1789877924925,
       "reviewedBy": "Armando Anota",
-      "source": "./audio/pronunciation/forbade-92e23a6543.wav",
+      "source": "./audio/pronunciation/forbade-0ed101854f.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789873999936
+      "updatedAt": 1789878220424
     },
     "forbid-2jp0uj": {
       "assetCreatedAt": 1789494062000,
@@ -11014,6 +11082,48 @@
       "status": "reviewed",
       "updatedAt": 1789869016280
     },
+    "will-have-been-training-14sosv1": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877593771,
+      "history": {
+        "-P1x09KZPZhunpW28tRn": {
+          "action": "reviewed-ok",
+          "at": 1789877593877,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have been training",
+      "lastReviewedAt": 1789877593771,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877593771,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-been-training-446f0bc6e6.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877593771
+    },
+    "will-have-been-traveling-xiwuft": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877597734,
+      "history": {
+        "-P1x0AIM8LTz53tTh7YN": {
+          "action": "reviewed-ok",
+          "at": 1789877597833,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have been traveling",
+      "lastReviewedAt": 1789877597734,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877597734,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-been-traveling-76d5c02b3b.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877597734
+    },
     "will-have-been-travelling-1idewnr": {
       "assetCreatedAt": 1789691100170,
       "cleanupApplied": true,
@@ -11057,6 +11167,90 @@
       "status": "reviewed",
       "updatedAt": 1789691100170
     },
+    "will-have-been-using-1oxxakt": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877602497,
+      "history": {
+        "-P1x0BSmVjLGCihGBxzZ": {
+          "action": "reviewed-ok",
+          "at": 1789877602596,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have been using",
+      "lastReviewedAt": 1789877602497,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877602497,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-been-using-f4cb893e42.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877602497
+    },
+    "will-have-been-waiting-1102iry": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877605647,
+      "history": {
+        "-P1x0CDhU8kFr21j32_5": {
+          "action": "reviewed-ok",
+          "at": 1789877605727,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have been waiting",
+      "lastReviewedAt": 1789877605647,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877605647,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-been-waiting-e127b0d64e.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877605648
+    },
+    "will-have-been-working-8xzhhm": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877609868,
+      "history": {
+        "-P1x0DFdcpOb7IY-EPNr": {
+          "action": "reviewed-ok",
+          "at": 1789877609947,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have been working",
+      "lastReviewedAt": 1789877609868,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877609868,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-been-working-7a1e4b839b.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877609868
+    },
+    "will-have-bought-1tkynvk": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877614742,
+      "history": {
+        "-P1x0ERr-cRiFAPHfwTD": {
+          "action": "reviewed-ok",
+          "at": 1789877614825,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have bought",
+      "lastReviewedAt": 1789877614742,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877614742,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-bought-5c1af9e376.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877614742
+    },
     "will-have-built-2pk0gh": {
       "assetCreatedAt": 1789494062000,
       "cleanupRequested": false,
@@ -11077,6 +11271,531 @@
       "sourceType": "local-wav",
       "status": "reviewed",
       "updatedAt": 1789870489628
+    },
+    "will-have-completed-rpt1is": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877620967,
+      "history": {
+        "-P1x0FyKJI0WR_W02HoG": {
+          "action": "reviewed-ok",
+          "at": 1789877621063,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have completed",
+      "lastReviewedAt": 1789877620967,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877620967,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-completed-31465a5854.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877620967
+    },
+    "will-have-finished-1sceeud": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877624706,
+      "history": {
+        "-P1x0GslVexzPOvfpqqH": {
+          "action": "reviewed-ok",
+          "at": 1789877624803,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have finished",
+      "lastReviewedAt": 1789877624706,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877624706,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-finished-f850d655bf.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877624706
+    },
+    "will-have-fixed-nsqsg7": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877628089,
+      "history": {
+        "-P1x0HhdcEYPHh0Z28j9": {
+          "action": "reviewed-ok",
+          "at": 1789877628186,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have fixed",
+      "lastReviewedAt": 1789877628089,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877628089,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-fixed-6c4d4f50c1.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877628089
+    },
+    "will-have-graduated-1m2uoi": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877632106,
+      "history": {
+        "-P1x0Ig7ZbxkI4xPeg23": {
+          "action": "reviewed-ok",
+          "at": 1789877632186,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have graduated",
+      "lastReviewedAt": 1789877632106,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877632106,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-graduated-dafd349193.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877632106
+    },
+    "will-have-launched-1qdxh11": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877635413,
+      "history": {
+        "-P1x0JV49pGF5QOGmbdF": {
+          "action": "reviewed-ok",
+          "at": 1789877635511,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have launched",
+      "lastReviewedAt": 1789877635413,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877635413,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-launched-b9f78c1d75.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877635413
+    },
+    "will-have-left-16osb82": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877639241,
+      "history": {
+        "-P1x0KQqGO7DLdSi8fUB": {
+          "action": "reviewed-ok",
+          "at": 1789877639336,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have left",
+      "lastReviewedAt": 1789877639241,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877639241,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-left-e56d2564cf.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877639241
+    },
+    "will-have-opened-1q4kldi": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877644072,
+      "history": {
+        "-P1x0LbOIv1wiALRkLZy": {
+          "action": "reviewed-ok",
+          "at": 1789877644171,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have opened",
+      "lastReviewedAt": 1789877644072,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877644072,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-opened-7a0203b309.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877644072
+    },
+    "will-have-painted-8t2izs": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877647422,
+      "history": {
+        "-P1x0MQPSlo0AnUJ0Wxh": {
+          "action": "reviewed-ok",
+          "at": 1789877647500,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have painted",
+      "lastReviewedAt": 1789877647422,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877647422,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-painted-defa0d9add.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877647422
+    },
+    "will-have-prepared-vm60jy": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877650725,
+      "history": {
+        "-P1x0NEKMV5KUYVUp4LJ": {
+          "action": "reviewed-ok",
+          "at": 1789877650823,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have prepared",
+      "lastReviewedAt": 1789877650725,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877650725,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-prepared-ab30a0f0e2.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877650725
+    },
+    "will-have-processed-17jw669": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877653917,
+      "history": {
+        "-P1x0O-w5j0gSr_es8AI": {
+          "action": "reviewed-ok",
+          "at": 1789877653998,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have processed",
+      "lastReviewedAt": 1789877653917,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877653917,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-processed-fb163f2144.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877653917
+    },
+    "will-have-read-14w9zcv": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877657776,
+      "history": {
+        "-P1x0OxVfIx2E-_KADyB": {
+          "action": "reviewed-ok",
+          "at": 1789877657874,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have read",
+      "lastReviewedAt": 1789877657776,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877657776,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-read-2fe8b31e10.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877657776
+    },
+    "will-have-received-kc7ptg": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877661564,
+      "history": {
+        "-P1x0PsPULMcY-Un30tV": {
+          "action": "reviewed-ok",
+          "at": 1789877661644,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have received",
+      "lastReviewedAt": 1789877661564,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877661564,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-received-bfb80b6c1f.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877661564
+    },
+    "will-have-reviewed-1w0gdpu": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877668937,
+      "history": {
+        "-P1x0RfqN70ZKlVWYxSK": {
+          "action": "reviewed-ok",
+          "at": 1789877669032,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have reviewed",
+      "lastReviewedAt": 1789877668937,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877668937,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-reviewed-d4f620b2a0.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877668937
+    },
+    "will-have-revised-lf0tx9": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877671823,
+      "history": {
+        "-P1x0SNhx4OwKDL6-HHU": {
+          "action": "reviewed-ok",
+          "at": 1789877671903,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have revised",
+      "lastReviewedAt": 1789877671823,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877671823,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-revised-2d5a9dae9e.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877671823
+    },
+    "will-have-run-11bvoto": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877675162,
+      "history": {
+        "-P1x0TC5gVmst0fcrKxs": {
+          "action": "reviewed-ok",
+          "at": 1789877675255,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have run",
+      "lastReviewedAt": 1789877675162,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877675162,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-run-8c664982ed.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877675162
+    },
+    "will-have-saved-1mdh5d2": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877678791,
+      "history": {
+        "-P1x0U4_UIHDAS8W05R8": {
+          "action": "reviewed-ok",
+          "at": 1789877678871,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have saved",
+      "lastReviewedAt": 1789877678791,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877678791,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-saved-7534363dd0.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877678791
+    },
+    "will-have-solved-kdvkee": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877682082,
+      "history": {
+        "-P1x0Uszk9OS15_fWJOJ": {
+          "action": "reviewed-ok",
+          "at": 1789877682161,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have solved",
+      "lastReviewedAt": 1789877682082,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877682082,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-solved-6888a0cc2d.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877682082
+    },
+    "will-have-submitted-137rxg": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877685435,
+      "history": {
+        "-P1x0VhjQtJVHKzE_gMz": {
+          "action": "reviewed-ok",
+          "at": 1789877685537,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have submitted",
+      "lastReviewedAt": 1789877685435,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877685435,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-submitted-c53561e230.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877685435
+    },
+    "will-have-taken-1x1arg2": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877835841,
+      "history": {
+        "-P1x14QWB2DC-TElVA_0": {
+          "action": "reviewed-ok",
+          "at": 1789877835923,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have taken",
+      "lastReviewedAt": 1789877835841,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877835841,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-taken-ab5a349471.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877835841
+    },
+    "will-have-visited-19fix5z": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877840423,
+      "history": {
+        "-P1x15YJCDQJ77jPgHzt": {
+          "action": "reviewed-ok",
+          "at": 1789877840518,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have visited",
+      "lastReviewedAt": 1789877840423,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877840423,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-visited-74449b4535.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877840423
+    },
+    "will-have-written-1mtdeau": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877843799,
+      "history": {
+        "-P1x16MoKJaAJdXfEVHr": {
+          "action": "reviewed-ok",
+          "at": 1789877843878,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will have written",
+      "lastReviewedAt": 1789877843799,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877843799,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-have-written-bfd211a19e.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877843799
+    },
+    "will-help-g9jt1g": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877847235,
+      "history": {
+        "-P1x17CWBVS__g-CH6eu": {
+          "action": "reviewed-ok",
+          "at": 1789877847315,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will help",
+      "lastReviewedAt": 1789877847235,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877847235,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-help-5cc3a5466d.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877847235
+    },
+    "will-remember-158p60o": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877850604,
+      "history": {
+        "-P1x181NyTCUnYY6NbwE": {
+          "action": "reviewed-ok",
+          "at": 1789877850698,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will remember",
+      "lastReviewedAt": 1789877850604,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877850604,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-remember-0d5df7e045.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877850604
+    },
+    "will-send-10dpc2p": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877853787,
+      "history": {
+        "-P1x18nuuKqr6XeO9xtn": {
+          "action": "reviewed-ok",
+          "at": 1789877853868,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will send",
+      "lastReviewedAt": 1789877853787,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877853787,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-send-a0b312feff.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877853787
+    },
+    "will-stay-1jxcnue": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877856973,
+      "history": {
+        "-P1x19_uzwlsVA4RGA9b": {
+          "action": "reviewed-ok",
+          "at": 1789877857068,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will stay",
+      "lastReviewedAt": 1789877856973,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877856973,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-stay-e718810ccf.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877856973
     },
     "will-tell-rkjlkc": {
       "assetCreatedAt": 1789688990334,
@@ -11125,6 +11844,132 @@
       "status": "reviewed",
       "updatedAt": 1789688990334
     },
+    "will-win-1d83h5r": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877860289,
+      "history": {
+        "-P1x1AOVzRiFYr_i2Ud2": {
+          "action": "reviewed-ok",
+          "at": 1789877860370,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "will win",
+      "lastReviewedAt": 1789877860289,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877860289,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/will-win-f7a7c0b46e.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877860289
+    },
+    "won-c6lr8v": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877864012,
+      "history": {
+        "-P1x1BIgeEeDVbkAexU-": {
+          "action": "reviewed-ok",
+          "at": 1789877864094,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "won",
+      "lastReviewedAt": 1789877864012,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877864012,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/won-a32b8cd11b.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877864012
+    },
+    "work-pexppc": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877866875,
+      "history": {
+        "-P1x1C-OXN6Szxz4VaGK": {
+          "action": "reviewed-ok",
+          "at": 1789877866955,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "work",
+      "lastReviewedAt": 1789877866875,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877866875,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/work-e274eeff76.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877866875
+    },
+    "worked-19g7lnl": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877870113,
+      "history": {
+        "-P1x1CnCgBPWTvQKYzkn": {
+          "action": "reviewed-ok",
+          "at": 1789877870207,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "worked",
+      "lastReviewedAt": 1789877870113,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877870113,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/worked-89bc0d6882.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877870113
+    },
+    "works-j0ygh5": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877872417,
+      "history": {
+        "-P1x1DMIAZu2B8YPFD6y": {
+          "action": "reviewed-ok",
+          "at": 1789877872517,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "works",
+      "lastReviewedAt": 1789877872417,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877872417,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/works-295b6b7ea3.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877872417
+    },
+    "write-1grd3rw": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877875547,
+      "history": {
+        "-P1x1E6r9B7ALlbyWYnV": {
+          "action": "reviewed-ok",
+          "at": 1789877875624,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "write",
+      "lastReviewedAt": 1789877875547,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877875547,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/write-e1d0c6c1c2.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877875547
+    },
     "wrote-1sntos6": {
       "assetCreatedAt": 1789688995198,
       "cleanupRequested": false,
@@ -11171,6 +12016,27 @@
       "sourceType": "local-wav",
       "status": "reviewed",
       "updatedAt": 1789688995198
+    },
+    "yet-nr96l1": {
+      "assetCreatedAt": 1789494062000,
+      "cleanupRequested": false,
+      "firstReviewedAt": 1789877878581,
+      "history": {
+        "-P1x1ErJMGIihEbno3Nj": {
+          "action": "reviewed-ok",
+          "at": 1789877878661,
+          "by": "Armando Anota"
+        }
+      },
+      "key": "yet",
+      "lastReviewedAt": 1789877878581,
+      "removedAsDuplicate": false,
+      "reviewedAt": 1789877878581,
+      "reviewedBy": "Armando Anota",
+      "source": "./audio/pronunciation/yet-1002ea7f7e.wav",
+      "sourceType": "local-wav",
+      "status": "reviewed",
+      "updatedAt": 1789877878581
     }
   },
   "repairRequests": {
