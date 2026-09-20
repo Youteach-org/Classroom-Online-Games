@@ -198,7 +198,6 @@ function playSfx(name){
   if(name==='click')synthTone(520,.055,v*.45,'square');
   else if(name==='select'){synthTone(660,.045,v*.30,'sine');synthTone(880,.055,v*.26,'sine',.035);}
   else if(name==='jump'){synthTone(360,.08,v*.6,'sine');synthTone(620,.10,v*.55,'sine',.055);}
-  else if(name==='roll'){synthTone(260,.07,v*.42,'triangle');synthTone(180,.13,v*.30,'sine',.035);}
   else if(name==='correct'){
     synthTone(659,.07,v*.50,'triangle');
     synthTone(784,.08,v*.56,'triangle',.055);
@@ -1540,77 +1539,6 @@ function spawnAnswer(item,forcedLane=null,forceSpawn=false,lockLane=false){
   return true;
 }
 
-
-function spawnGrammarGate(item,laneIndex){
-  if(!gameStarted||gamePaused||victoryMode||!Number.isInteger(laneIndex))return false;
-
-  const spawnZ=ANSWER_SPAWN_Z;
-  clearAnswerLaneAtSpawn(laneIndex,spawnZ);
-
-  const group=new THREE.Group();
-  const frameMat=new THREE.MeshToonMaterial({color:0x173b55});
-  const accentMat=new THREE.MeshBasicMaterial({color:0x45ddff,toneMapped:false});
-  const postGeo=new THREE.BoxGeometry(.16,3.05,.18);
-
-  for(const x of [-1.18,1.18]){
-    const post=new THREE.Mesh(postGeo,frameMat);
-    post.position.set(x,1.52,0);
-    post.castShadow=!IS_MOBILE;
-    group.add(post);
-
-    const stripe=new THREE.Mesh(new THREE.BoxGeometry(.23,.16,.22),accentMat);
-    stripe.position.set(x,2.86,-.02);
-    group.add(stripe);
-  }
-
-  const beam=new THREE.Mesh(new THREE.BoxGeometry(2.52,.18,.20),frameMat);
-  beam.position.set(0,3.00,0);
-  beam.castShadow=!IS_MOBILE;
-  group.add(beam);
-
-  const glow=new THREE.Mesh(
-    new THREE.PlaneGeometry(2.36,.94),
-    new THREE.MeshBasicMaterial({
-      color:0x45ddff,
-      transparent:true,
-      opacity:.24,
-      side:THREE.DoubleSide,
-      depthWrite:false,
-      fog:false,
-      toneMapped:false
-    })
-  );
-  glow.position.set(0,2.34,.04);
-  group.add(glow);
-
-  const panel=new THREE.Mesh(
-    new THREE.PlaneGeometry(2.18,.80),
-    new THREE.MeshBasicMaterial({
-      map:makeAnswerTexture(item.value),
-      transparent:true,
-      side:THREE.DoubleSide,
-      fog:false,
-      toneMapped:false,
-      depthWrite:false
-    })
-  );
-  panel.position.set(0,2.34,.055);
-  group.add(panel);
-
-  group.position.set(lanes[laneIndex],0,spawnZ);
-  scene.add(group);
-  if(item.correct)lastCorrectLane=laneIndex;
-  answers.push({
-    mesh:group,
-    laneIndex,
-    item,
-    resolved:false,
-    heightMode:'gate',
-    presentation:'grammar-gate'
-  });
-  return true;
-}
-
 function clearAnswers(){
   for(const answer of answers){
     scene.remove(answer.mesh);
@@ -1631,7 +1559,7 @@ function launchChallengeChain(initialDelay=.42){
   if(!currentChallenge)return;
 
   initialDelay=sentenceInitialDelay(initialDelay);
-  let sequence=currentLevel===5
+  const sequence=currentLevel===5
     ?window.VerbRunnerFinalRaceBank.buildAnswerSequence(currentChallenge)
     :currentLevel===4
       ?window.VerbRunnerPerfectRaceBank.buildAnswerSequence(currentChallenge,{
@@ -1667,22 +1595,6 @@ function launchChallengeChain(initialDelay=.42){
     },350);
     return;
   }
-
-  let presentation=window.VerbRunnerRunDirector?.presentationFor({
-    level:currentLevel,
-    challengeIndex
-  })||'cards';
-
-  if(presentation==='grammar-gate'){
-    const gateSequence=window.VerbRunnerRunDirector.buildGrammarGateSequence(sequence,Math.random);
-    if(gateSequence.length===3){
-      sequence=gateSequence;
-      correctIndex=sequence.findIndex(item=>item.correct);
-    }else{
-      presentation='cards';
-    }
-  }
-
   const lastIndex=sequence.length-1;
   const recentLastCount=recentCorrectPositions.filter(i=>i===lastIndex).length;
 
@@ -1726,19 +1638,10 @@ function launchChallengeChain(initialDelay=.42){
     item,
     forcedLane:choiceLanes?.[index]??null,
     lockLane:lockOnePerLane,
-    presentation,
-    at:presentation==='grammar-gate'
-      ?initialDelay
-      :initialDelay+index*gameSettings.answerSpacing,
+    at:initialDelay+index*gameSettings.answerSpacing,
     blockedFor:0
   }));
   answerSpawnClock=0;
-
-  if(currentLevel===2&&taskInstruction){
-    taskInstruction.textContent=presentation==='grammar-gate'
-      ?'Choose the gate that completes the sentence'
-      :'Choose the option that completes the sentence';
-  }
 
   if(gameSettings.preview){
     showNotice('LOOK FOR: '+String(currentChallenge.correctAnswer).toUpperCase(),'info');
@@ -1751,11 +1654,7 @@ function updateAnswerSpawns(dt){
   while(pendingAnswers.length&&answerSpawnClock>=pendingAnswers[0].at){
     const next=pendingAnswers[0];
 
-    const spawned=next.presentation==='grammar-gate'
-      ?spawnGrammarGate(next.item,next.forcedLane)
-      :spawnAnswer(next.item,next.forcedLane,false,next.lockLane);
-
-    if(spawned){
+    if(spawnAnswer(next.item,next.forcedLane,false,next.lockLane)){
       pendingAnswers.shift();
       continue;
     }
@@ -1765,12 +1664,7 @@ function updateAnswerSpawns(dt){
     // Answers are more important than scenery. If the spawn corridor has
     // remained blocked for a short moment, force a safe recovery spawn so
     // the player can never run forever waiting for the next choice.
-    const recovered=next.blockedFor>=1.25
-      ?(next.presentation==='grammar-gate'
-        ?spawnGrammarGate(next.item,next.forcedLane)
-        :spawnAnswer(next.item,next.forcedLane,true,next.lockLane))
-      :false;
-    if(recovered){
+    if(next.blockedFor>=1.25&&spawnAnswer(next.item,next.forcedLane,true,next.lockLane)){
       pendingAnswers.shift();
       continue;
     }
@@ -2110,24 +2004,14 @@ async function collectAnswer(answer){
     answerResolutionActive=false;
   }else{
     recordMistake({type:'wrong',chosen:item.value});
-    const gateChoice=answer.presentation==='grammar-gate';
     const startPoint=answerScreenPoint(answer);
     const selectedCopy={mesh:answer.mesh,item:answer.item};
-    if(gateChoice)clearAnswers();
-    else disposeAnswer(answer);
+    disposeAnswer(answer);
     await animateAnswerToBlank(selectedCopy,false,startPoint);
     applyRunEvent('grammar-error');
     playSfx('wrong');
     showNotice(String(item.value).toUpperCase()+' — WRONG · −'+gameSettings.penalty+' ADVANCE','wrong');
     answerResolutionActive=false;
-    if(gateChoice){
-      setTimeout(()=>{
-        if(gameStarted&&!gamePaused&&!victoryMode&&!answerResolutionActive){
-          renderChallenge();
-          launchChallengeChain(.45);
-        }
-      },360);
-    }
   }
 }
 
@@ -2504,8 +2388,6 @@ function resetRun(){
   speed=Math.max(6,gameSettings.initialSpeed*gameSettings.speedScale*playerSpeedMultiplier);
   nextSpawn=26;
   hitCooldown=0;
-  jumpTime=0;
-  rollTime=0;
   victoryMode=false;
   gamePaused=false;
   mistakeLog=[];
@@ -2622,22 +2504,16 @@ function loadRunnerModel(attempt=0){
       mixer=new THREE.AnimationMixer(model);
       const runClip=chooseClip(gltf.animations,['running','run'])||gltf.animations[0];
       const jumpClip=chooseClip(gltf.animations,['jump']);
-      const rollClip=chooseClip(gltf.animations,['roll']);
       const idleClip=chooseClip(gltf.animations,['idle','standing']);
 
       actions.run=mixer.clipAction(runClip);
       if(jumpClip)actions.jump=mixer.clipAction(jumpClip);
-      if(rollClip)actions.roll=mixer.clipAction(rollClip);
       if(idleClip)actions.idle=mixer.clipAction(idleClip);
 
       actions.run.timeScale=1.2;
       if(actions.jump){
         actions.jump.setLoop(THREE.LoopOnce,1);
         actions.jump.clampWhenFinished=false;
-      }
-      if(actions.roll){
-        actions.roll.setLoop(THREE.LoopOnce,1);
-        actions.roll.clampWhenFinished=false;
       }
 
       applyRobotPalette(selectedVariant);
@@ -2877,8 +2753,6 @@ let lane=1;
 let targetX=lanes[lane];
 let jumpTime=0;
 const jumpDuration=.78;
-let rollTime=0;
-const rollDuration=.72;
 let distance=0;
 let speed=12;
 let nextSpawn=26;
@@ -2891,17 +2765,10 @@ function moveLane(dir){
 }
 
 function jump(){
-  if(!gameStarted||gamePaused||victoryMode||jumpTime>0||rollTime>0)return;
+  if(!gameStarted||gamePaused||victoryMode||jumpTime>0)return;
   jumpTime=.001;
   playSfx('jump');
   if(actions.jump)play('jump',.08);
-}
-
-function roll(){
-  if(currentLevel!==2||!gameStarted||gamePaused||victoryMode||jumpTime>0||rollTime>0)return;
-  rollTime=.001;
-  playSfx('roll');
-  if(actions.roll)play('roll',.08);
 }
 
 window.addEventListener('keydown',e=>{
@@ -2913,7 +2780,6 @@ window.addEventListener('keydown',e=>{
   if(['ArrowLeft','KeyA'].includes(e.code))moveLane(-1);
   if(['ArrowRight','KeyD'].includes(e.code))moveLane(1);
   if(['ArrowUp','Space','KeyW'].includes(e.code))jump();
-  if(['ArrowDown','KeyS'].includes(e.code))roll();
 });
 window.addEventListener('resize',()=>requestAnimationFrame(fitPrincipalPartText));
 
@@ -2938,11 +2804,6 @@ canvas.addEventListener('pointerup',e=>{
 
   if(dy<=-36&&Math.abs(dy)>Math.abs(dx)*1.05){
     jump();
-    return;
-  }
-
-  if(dy>=36&&Math.abs(dy)>Math.abs(dx)*1.05){
-    roll();
     return;
   }
 
@@ -3276,53 +3137,15 @@ function createPedestrian(index=0){
   return g;
 }
 
-
-function createSlideBarrier(){
-  const g=new THREE.Group();
-  const frameMat=new THREE.MeshToonMaterial({color:0x30363b});
-  const warningMat=new THREE.MeshToonMaterial({color:0xf17828});
-  const lightMat=new THREE.MeshBasicMaterial({color:0xffe16a,toneMapped:false});
-
-  for(const x of [-1.02,1.02]){
-    const post=new THREE.Mesh(new THREE.BoxGeometry(.12,1.36,.16),frameMat);
-    post.position.set(x,.68,0);
-    post.castShadow=!IS_MOBILE;
-    g.add(post);
-
-    const foot=new THREE.Mesh(new THREE.BoxGeometry(.46,.10,.52),obstacleMaterials.black);
-    foot.position.set(x,.06,0);
-    g.add(foot);
-  }
-
-  const beam=new THREE.Mesh(new THREE.BoxGeometry(2.28,.42,.24),warningMat);
-  beam.position.set(0,1.42,0);
-  beam.castShadow=!IS_MOBILE;
-  g.add(beam);
-
-  for(const x of [-.72,0,.72]){
-    const reflector=new THREE.Mesh(new THREE.BoxGeometry(.20,.12,.03),lightMat);
-    reflector.position.set(x,1.42,-.14);
-    g.add(reflector);
-  }
-
-  return g;
-}
-
 function spawnObstacle(){
   const roll=Math.random();
   let type;
   let kind;
 
-  if(currentLevel===2&&roll<.16){
-    type='slide';
-    kind='slide';
-  }else{
-    const normalized=currentLevel===2?(roll-.16)/.84:roll;
-    if(normalized<.24){type='car';kind='car';}
-    else if(normalized<.47){type='jump';kind='sign';}
-    else if(normalized<.68){type='jump';kind='boxes';}
-    else {type='dodge';kind='pedestrian';}
-  }
+  if(roll<.24){type='car';kind='car';}
+  else if(roll<.47){type='jump';kind='sign';}
+  else if(roll<.68){type='jump';kind='boxes';}
+  else {type='dodge';kind='pedestrian';}
 
   if(kind==='pedestrian'){
     const answerCorridorBusy=
@@ -3341,7 +3164,6 @@ function spawnObstacle(){
   if(kind==='car')mesh=createRoadCar(Math.floor(Math.random()*6));
   else if(kind==='sign')mesh=createRoadSign();
   else if(kind==='boxes')mesh=createDeliveryBoxes();
-  else if(kind==='slide')mesh=createSlideBarrier();
   else{
     mesh=createPedestrian(Math.floor(Math.random()*pedestrianLooks.length));
     if(!mesh){
@@ -3434,7 +3256,6 @@ function updateRunner(dt){
   runnerRoot.rotation.z=THREE.MathUtils.damp(runnerRoot.rotation.z,lean,8,dt);
 
   let y=0;
-  let rollBlend=0;
 
   if(jumpTime>0){
     jumpTime+=dt;
@@ -3447,27 +3268,7 @@ function updateRunner(dt){
     }
   }
 
-  if(rollTime>0){
-    rollTime+=dt;
-    const t=Math.min(1,rollTime/rollDuration);
-    rollBlend=Math.sin(Math.PI*t);
-    if(t>=1){
-      rollTime=0;
-      rollBlend=0;
-      if(gameStarted)play('run',.08);
-    }
-  }
 
-  // The current deployed runner can lack a native Roll clip. Keep the control
-  // functional by falling back to a brief crouched slide pose when necessary.
-  if(model&&baseScale&&!actions.roll){
-    model.scale.set(
-      baseScale.x,
-      baseScale.y*(1-.42*rollBlend),
-      baseScale.z*(1+.06*rollBlend)
-    );
-    model.rotation.x=-.18*rollBlend;
-  }
 
   runnerRoot.position.y=y;
   shadow.scale.setScalar(THREE.MathUtils.lerp(1,.62,Math.min(1,y/2.45)));
@@ -3500,9 +3301,9 @@ function updateWorld(dt){
     a.mesh.position.z+=travel;
     const closeToRunner=Math.abs(a.mesh.position.z-runnerRoot.position.z)<1.25;
     const sameLane=a.laneIndex===lane&&Math.abs(a.mesh.position.x-runnerRoot.position.x)<1.3;
-    const verticalHit=a.heightMode==='gate'?true:(a.heightMode==='low'
+    const verticalHit=a.heightMode==='low'
       ? runnerRoot.position.y<.82
-      : runnerRoot.position.y>1.18);
+      : runnerRoot.position.y>1.18;
 
     if(!a.resolved&&closeToRunner&&sameLane&&verticalHit){
       collectAnswer(a);
@@ -3556,10 +3357,8 @@ function updateWorld(dt){
       const sameLane=o.laneIndex===lane&&Math.abs(o.mesh.position.x-runnerRoot.position.x)<1.25;
       if(sameLane){
         const safe=o.type==='jump'
-          ?runnerRoot.position.y>.92
-          :o.type==='car'
-            ?runnerRoot.position.y>1.28
-            :o.type==='slide'?rollTime>0:false;
+          ? runnerRoot.position.y>.92
+          : (o.type==='car'?runnerRoot.position.y>1.28:false);
         if(!safe)hit();
       }
     }
