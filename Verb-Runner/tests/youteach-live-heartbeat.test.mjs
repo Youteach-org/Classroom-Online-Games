@@ -19,7 +19,7 @@ test("Verb Runner teacher heartbeats only a matching YouTeach live session", () 
 
 test("Verb Runner native session stores the COG assignment identity for re-entry", () => {
   assert.match(sync, /assignmentId:/);
-  assert.match(sync, /liveTeacherContext\?\.liveContext\?\.assignmentId/);
+  assert.match(sync, /assignmentId:String\(liveContext\.assignmentId\|\|''\)/);
 });
 
 test("Verb Runner student sends live heartbeats and verifies assignment binding", () => {
