@@ -1,7 +1,7 @@
 import {watchRecords} from './firebase-store.js';
 import {seedKnownReports} from './review-actions.js';
 import {renderCard} from './review-render.js';
-import {bindReviewEvents} from './review-events.js';
+import {bindReviewEvents} from './review-events.js?v=15';
 import {exportJson,exportMarkdown} from './review-export.js';
 
 const core=window.VerbRunnerPronunciationReviewCore;
@@ -47,7 +47,7 @@ function reviewer(silent=false){
 
 function matches(entry){
   const filter=statusFilter.value;
-  if(filter==='all'&&entry.status==='removed-duplicate')return false;
+  if(filter==='all'&&(entry.status==='removed-duplicate'||entry.duplicateOf))return false;
   if(filter!=='all'&&entry.status!==filter)return false;
   return core.matchesSearch(entry,searchInput.value);
 }
