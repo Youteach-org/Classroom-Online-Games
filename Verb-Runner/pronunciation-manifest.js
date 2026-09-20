@@ -45,7 +45,7 @@
   "broke": "./audio/pronunciation/broke-a53204832e.wav",
   "broken": "./audio/pronunciation/broken-0b8a1caec2.wav",
   "brought": "./audio/pronunciation/brought-781ca1fc19.wav",
-  "build": "./audio/pronunciation/external/build-fancy-approved-r2.mp3",
+  "build": "./audio/pronunciation/external/build-fancy-approved-r3.mp3",
   "built": "./audio/pronunciation/built-353c847ec3.wav",
   "burst": "./audio/pronunciation/burst-ad1157c58d.wav",
   "buy": "./audio/pronunciation/buy-a066f07017.wav",
