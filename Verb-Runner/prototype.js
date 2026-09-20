@@ -3,6 +3,10 @@ import { COASTAL_SCENE } from './coastal-scene-config.mjs?v=coastal-production-2
 import { buildCoastalWorld } from './coastal-world.mjs?v=coastal-production-20260915-1';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
+import {
+  resolveStudentLaunch,
+  saveStudentContext
+} from '../shared/youteach-live-bridge.mjs';
 
 const ROBOT_URLS=[
   'https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb',
@@ -407,8 +411,10 @@ let gameSettings={
 };
 
 const sessionParams=new URLSearchParams(location.search);
-const sessionCode=(sessionParams.get('session')||'').toUpperCase();
+let sessionCode=(sessionParams.get('session')||'').toUpperCase();
 const launchToken=String(sessionParams.get('launch')||'').trim();
+const liveStudentToken=String(sessionParams.get('ytLiveStudent')||'').trim();
+const liveStudentIssuer=String(sessionParams.get('issuer')||'').trim();
 const sessionStudentName=String(
   sessionParams.get('studentName')||
   sessionParams.get('nickname')||
@@ -421,6 +427,7 @@ let sessionData=null;
 let sessionRunFinished=false;
 let sessionLoadPromise=Promise.resolve(null);
 let youTeachIdentity=null;
+let youTeachLiveStudentContext=null;
 
 function localRunnerId(){
   try{
@@ -449,10 +456,11 @@ function storeYouTeachIdentity(identity){
   }catch{}
 }
 
-function cleanLaunchTokenFromUrl(){
-  if(!launchToken)return;
+function cleanLaunchCredentialsFromUrl(){
   const clean=new URL(location.href);
   clean.searchParams.delete('launch');
+  clean.searchParams.delete('ytLiveStudent');
+  clean.searchParams.delete('issuer');
   history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
 }
 
@@ -851,17 +859,36 @@ function applySessionSettings(settings={}){
   progressValue.textContent='0 / '+totalChallenges;
 }
 
-sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
+sessionLoadPromise=import('./session-sync.js?v=live-cog-student-20260920')
   .then(async api=>{
     sessionApi=api;
 
-    if(launchToken){
+    if(liveStudentToken){
+      const resolved=await resolveStudentLaunch({
+        token:liveStudentToken,
+        issuer:liveStudentIssuer
+      });
+      if(!resolved||resolved.liveContext?.gameId!=='verb-runner'){
+        throw new Error('Invalid or expired YouTeach live activity credential');
+      }
+
+      youTeachLiveStudentContext=resolved;
+      saveStudentContext(resolved);
+      youTeachIdentity={
+        ...resolved.identity,
+        identitySource:'youteach'
+      };
+      storeYouTeachIdentity(youTeachIdentity);
+      runnerSessionId='YT-'+String(resolved.identity.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
+      sessionCode=String(resolved.liveContext.cogSessionId||'').toUpperCase();
+      cleanLaunchCredentialsFromUrl();
+    }else if(launchToken){
       const resolved=await sessionApi.resolveYouTeachLaunchToken(launchToken);
       if(!resolved)throw new Error('Invalid or expired YouTeach credential');
       youTeachIdentity=resolved;
       storeYouTeachIdentity(resolved);
       runnerSessionId='YT-'+String(resolved.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
-      cleanLaunchTokenFromUrl();
+      cleanLaunchCredentialsFromUrl();
     }
 
     const presenceData={
@@ -877,6 +904,19 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
       modelStatus.textContent='Loading classroom session '+sessionCode+'…';
       const data=await sessionApi.loadSession(sessionCode);
       if(!data||data.status!=='active')throw new Error('Session not active');
+
+      if(youTeachLiveStudentContext){
+        const integration=data.integration||{};
+        const liveContext=youTeachLiveStudentContext.liveContext||{};
+        if(
+          integration.source!=='youteach-buzzer'||
+          String(integration.groupName||'')!==String(liveContext.groupName||'')||
+          String(integration.youTeachSessionId||'')!==String(liveContext.youTeachSessionId||'')
+        ){
+          throw new Error('This Verb Runner session does not match your YouTeach class activity');
+        }
+      }
+
       sessionData=data;
       applySessionSettings(data.settings||{});
       await sessionApi.registerRunnerPresence(sessionCode,runnerSessionId,presenceData);
@@ -893,8 +933,8 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
     console.error('Verb Runner monitor presence failed',err);
     sessionApi=null;
     sessionData=null;
-    modelStatus.textContent=launchToken
-      ?'YouTeach credential expired · reopen Verb Runner from YouTeach'
+    modelStatus.textContent=(liveStudentToken||launchToken)
+      ?'YouTeach credential expired · reopen Verb Runner from Student Buzzer'
       :(sessionCode?'Session unavailable · local mode':modelStatus.textContent);
     return null;
   });
