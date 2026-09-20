@@ -204,6 +204,27 @@ The precise board geometry will depend on the final matching rules, but the prin
 - The generator should be able to combine an active linguistic pool, board size, move budget, objective set, and difficulty profile to produce candidate levels for validation.
 
 
+### V1 linguistic relationship families
+**Decision:** The first playable version focuses on four relationship families:
+
+- **Phrasal verbs** — e.g. `LOOK | AFTER`, `GIVE | UP`, `TURN | ON`.
+- **Collocations** — e.g. `MAKE | A | DECISION`, `TAKE | A | BREAK`, `HEAVY | RAIN`.
+- **Fixed expressions** — e.g. `BY | THE | WAY`, `IN | FRONT | OF`, `AS | A | MATTER | OF | FACT`.
+- **Irregular verb sets** — e.g. `GO | WENT | GONE`, `SEE | SAW | SEEN`, `WRITE | WROTE | WRITTEN`.
+
+These categories may coexist on the same board unless a level objective deliberately emphasizes one family.
+
+Deferred beyond V1:
+- synonyms;
+- antonyms;
+- broad semantic groups;
+- derivational word families;
+- open-ended grammar patterns;
+- idioms beyond clearly fixed expressions.
+
+The reason for limiting V1 is rule clarity: accepted relationships should feel predictable and defensible rather than arbitrary.
+
+
 ### Player content preferences
 **Decision:** Players should be able to influence which linguistic relationship types appear more or less often in their games.
 
