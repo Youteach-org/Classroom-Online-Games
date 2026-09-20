@@ -48,6 +48,7 @@ function validTeacherContext(context) {
     context.teacher?.username &&
     context.liveContext?.youTeachSessionId &&
     context.liveContext?.groupName &&
+    context.liveContext?.assignmentId &&
     context.bridgeToken
   );
 }
@@ -85,7 +86,10 @@ export async function resolveTeacherLaunch({
     },
     liveContext: {
       youTeachSessionId: String(payload?.liveContext?.youTeachSessionId || ""),
-      groupName: String(payload?.liveContext?.groupName || "")
+      groupName: String(payload?.liveContext?.groupName || ""),
+      assignmentId: String(payload?.liveContext?.assignmentId || ""),
+      assignmentCode: String(payload?.liveContext?.assignmentCode || ""),
+      assignmentTitle: String(payload?.liveContext?.assignmentTitle || "")
     },
     bridgeToken: String(payload?.bridgeToken || ""),
     bridgeExpiresAt: Number(payload?.bridgeExpiresAt || 0),
