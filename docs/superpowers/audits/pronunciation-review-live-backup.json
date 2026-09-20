@@ -1245,6 +1245,13 @@
           "reason": "Correct: blew and blue are homophones in standard American English.",
           "revision": "2026-09-17-r6"
         },
+        "validation-2026-09-19-r10-build-cache-bust-blew": {
+          "action": "question-validated-correct",
+          "at": 1789870923780,
+          "by": "Pronunciation validation",
+          "reason": "Correct: blew and blue are homophones in standard American English.",
+          "revision": "2026-09-19-r10-build-cache-bust"
+        },
         "validation-2026-09-19-r7-repair-batch-1789859881757-blew": {
           "action": "question-validated-correct",
           "at": 1789863761611,
@@ -1261,7 +1268,7 @@
         }
       },
       "key": "blew",
-      "lastReviewedAt": 1789870754773,
+      "lastReviewedAt": 1789870923780,
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/blew-28ca160cbb.wav",
@@ -1276,15 +1283,15 @@
           "updatedAt": 1789569782992
         }
       },
-      "reviewedAt": 1789870754773,
+      "reviewedAt": 1789870923780,
       "reviewedBy": "Pronunciation validation",
       "source": "./audio/pronunciation/blew-28ca160cbb.wav",
       "sourceType": "local-wav",
       "status": "reviewed",
-      "updatedAt": 1789870754773,
+      "updatedAt": 1789870923780,
       "validationDecision": "correct-existing",
       "validationReason": "Correct: blew and blue are homophones in standard American English.",
-      "validationRevision": "2026-09-19-r9-external-audio-binary-repair"
+      "validationRevision": "2026-09-19-r10-build-cache-bust"
     },
     "blow-va3okh": {
       "assetCreatedAt": 1789494062000,
@@ -1550,17 +1557,24 @@
           "rationale": "Replaced local clip while preserving the teacher-approved fancy voice exception.",
           "report": "No audio",
           "to": "./audio/pronunciation/external/build-fancy-approved-r2.mp3"
+        },
+        "repair-1789870924148-build": {
+          "action": "repair-applied-review-again",
+          "at": 1789870924148,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/external/build-fancy-approved-r2.mp3",
+          "to": "./audio/pronunciation/external/build-fancy-approved-r3.mp3"
         }
       },
       "key": "build",
       "lastReviewedAt": 1789870479326,
-      "repairAppliedAt": 1789864711280,
+      "repairAppliedAt": 1789870924148,
       "repairHandledAt": 1789859881757,
       "repairQueueStatus": "review-again",
       "repairRequestId": "repair-1789859881757",
       "repairRequestedAt": 1789859881757,
       "repairRequestedBy": "Armando Anota",
-      "repairSource": "./audio/pronunciation/external/build-fancy-approved-r2.mp3",
+      "repairSource": "./audio/pronunciation/external/build-fancy-approved-r3.mp3",
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/build-80754af91b.wav",
@@ -1579,10 +1593,10 @@
           "createdAt": 1789864416754,
           "kind": "pronunciation",
           "previousStatus": "review-again",
-          "resolvedAt": 1789864711280,
-          "resolvedBy": "Pronunciation repair batch 2026-09-19",
+          "resolvedAt": 1789870924148,
+          "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
-          "status": "open",
+          "status": "resolved",
           "text": "Sin audio",
           "updatedAt": 1789870479326
         },
@@ -1603,8 +1617,8 @@
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/external/build-fancy-approved-r2.mp3",
       "sourceType": "other",
-      "status": "reported",
-      "updatedAt": 1789870479407
+      "status": "review-again",
+      "updatedAt": 1789870924148
     },
     "built-1du28hf": {
       "assetCreatedAt": 1789494062000,
