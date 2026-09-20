@@ -85,11 +85,38 @@ jobs:
             page.on('pageerror',err=>errors.push(String(err)));
             const previewUrl=process.env.SENTENCE_PREVIEW_URL;
             if(!previewUrl)throw new Error('Missing SENTENCE_PREVIEW_URL');
-            await page.goto(previewUrl+'/Verb-Runner/',{
+            const response=await page.goto(previewUrl+'/Verb-Runner/',{
               waitUntil:'domcontentloaded',
               timeout:30000
             });
-            await page.waitForSelector('[data-level="2"]',{state:'attached',timeout:15000});
+            await page.waitForTimeout(1200);
+            const receivedHtml=await page.content();
+            const preDiag=await page.evaluate(()=>({
+              url:location.href,
+              title:document.title,
+              readyState:document.readyState,
+              bodyText:(document.body?.innerText||'').slice(0,1200),
+              bodyHtml:(document.body?.innerHTML||'').slice(0,1600),
+              translationBlocked:document.documentElement.classList.contains('translation-blocked')
+            }));
+            console.log('RESPONSE_DIAG '+JSON.stringify({
+              status:response?.status()??null,
+              responseUrl:response?.url()??null,
+              finalUrl:preDiag.url,
+              title:preDiag.title,
+              readyState:preDiag.readyState,
+              htmlLength:receivedHtml.length,
+              hasLevel2:receivedHtml.includes('data-level="2"'),
+              hasSentenceChoices:receivedHtml.includes('id="sentenceChoices"'),
+              translationBlocked:preDiag.translationBlocked,
+              bodyText:preDiag.bodyText,
+              bodyHtml:preDiag.bodyHtml
+            }));
+            await page.screenshot({path:'sentence-runner-v25-debug.png'});
+            const level2Attached=await page.locator('[data-level="2"]').count();
+            if(level2Attached<1){
+              throw new Error('Chromium response does not contain Level 2 after navigation');
+            }
             const initialDiag=await page.evaluate(()=>{
               const el=document.querySelector('[data-level="2"]');
               const picker=document.querySelector('#picker');
