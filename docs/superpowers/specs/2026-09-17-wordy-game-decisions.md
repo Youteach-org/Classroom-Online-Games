@@ -72,6 +72,14 @@ Not allowed:
 
 This keeps movement local and strategic while preserving the familiar casual-puzzle feel.
 
+### Non-scoring setup moves
+**Decision:** Any legal adjacent orthogonal swap is allowed even when it does not immediately create a valid linguistic combination.
+
+- Setup moves are part of normal strategy.
+- Each adjacent swap consumes one move.
+- The game does not revert a swap simply because no valid relationship was formed.
+- This allows players to reposition words over several moves in order to build longer expressions, crossings, or future cascade opportunities.
+
 ### Expressions
 **Decision:** Long expressions may use one word per tile. `AS A MATTER OF FACT` can therefore occupy five separate tiles.
 
