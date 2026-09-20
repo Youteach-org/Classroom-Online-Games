@@ -225,6 +225,23 @@ Deferred beyond V1:
 The reason for limiting V1 is rule clarity: accepted relationships should feel predictable and defensible rather than arbitrary.
 
 
+### Vocabulary sources and validation pipeline
+**Decision:** Use open lexical resources as inputs, but make the project's own validated relationship bank the runtime authority.
+
+- Use the New General Service List (NGSL) as a primary high-frequency vocabulary/frequency source.
+- NGSL-Spoken may be used as an additional signal for conversational weighting.
+- Use Open English WordNet as an open lexical support source where useful.
+- Commercial learner dictionaries and CEFR-oriented resources may be consulted as reference material but should not be copied wholesale into the product without explicit compatible licensing.
+- Definitions, pedagogical explanations, and examples shown by the game should be authored for the project rather than copied from dictionary text.
+- Irregular verb sets can be maintained as a small curated in-project dataset.
+- AI may assist offline with candidate generation and enrichment, but it is never the live authority deciding whether a board relationship is valid.
+- Every playable relationship must exist in the validated Wordy relationship bank before runtime.
+- Relationship records should retain provenance/review metadata so proposed, checked, and production-approved content can be distinguished.
+
+Conceptual pipeline:
+`open frequency vocabulary -> candidate relationships -> linguistic validation -> gameplay-quality filtering -> Wordy relationship bank`.
+
+
 ### Player content preferences
 **Decision:** Players should be able to influence which linguistic relationship types appear more or less often in their games.
 
