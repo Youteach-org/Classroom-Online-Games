@@ -28,8 +28,8 @@ jobs:
         run: |
           node --test Verb-Runner/tests/*.test.mjs
           node --test Verb-Runner/sentence-run.test.js
-          node --test 100-Students-Said/*.test.js
-          if compgen -G "Support-Meter/*.test.js" > /dev/null; then node --test Support-Meter/*.test.js; fi
+          (cd 100-Students-Said && node --test *.test.js)
+          if compgen -G "Support-Meter/*.test.js" > /dev/null; then (cd Support-Meter && node --test *.test.js); fi
 
       - name: Prepare static site
         run: |
