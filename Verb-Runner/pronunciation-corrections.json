@@ -113,17 +113,22 @@
     },
     "build": {
       "approved_by_teacher_at": "2026-09-16",
-      "approved_source": "https://www.aidocmaker.com/g0/audio?name=d1cd1b4c12ad44bbbb243cbd3cd3c881",
-      "approved_source_url": "https://www.aidocmaker.com/g0/audio?name=d1cd1b4c12ad44bbbb243cbd3cd3c881",
+      "approved_source": "./audio/pronunciation/external/build-fancy-approved-r2.mp3",
+      "approved_source_url": "https://www.aidocmaker.com/g0/audio?name=f9342d092faa4ce5ad46c32504d68c02",
       "correction_goal": "Preserve voiced final /d/ so it is distinct from built /bɪlt/.",
-      "decision": "approved-voice-exception",
+      "decision": "approved-voice-exception-localized-repair",
       "engine": "AI Voice Generator",
-      "exception_reason": "Kokoro af_bella variants remained unacceptable after focused review; teacher approved fancy voice specifically for this word.",
+      "exception_reason": "Kokoro af_bella variants remained unacceptable after focused review; teacher approved fancy voice specifically for this word. The previously approved remote clip later stopped playing, so this repair keeps the approved fancy voice and caches the replacement locally for reliable playback.",
       "ipa_goal": "/bɪld/",
       "method": "external-approved-voice",
-      "observed_issue": "Suena igual que built",
+      "observed_issue": "No suena nada",
       "target_text": "build",
-      "voice": "fancy"
+      "voice": "fancy",
+      "previous_approved_source_url": "https://www.aidocmaker.com/g0/audio?name=d1cd1b4c12ad44bbbb243cbd3cd3c881",
+      "latest_report_text": "No suena nada",
+      "automatic_repair_attempt": 1,
+      "repair_request_id": "repair-1789859881757",
+      "repair_requested_at": 1789859881757
     },
     "change": {
       "correction_goal": "Preserve final /ndʒ/; do not reduce to chain.",
@@ -376,22 +381,20 @@
       "voice": "fancy"
     },
     "watched": {
-      "approved_by_teacher_at": "2026-09-16",
-      "approved_review_decision": "teacher-selected",
-      "approved_source": "./bella-samples/audio/watched--bella-08-text.wav",
-      "automatic_repair_attempt": 1,
-      "correction_goal": "Preserve /tʃ/ before final /t/.",
+      "automatic_repair_attempt": 2,
+      "correction_goal": "Preserve the /tʃ/ affricate before final /t/ so “watched” is clearly /wɑtʃt/, not approximately “watst”.",
       "decision": "confirmed-error-second-pass",
-      "exception_reason": "Teacher selected this exact candidate in the pronunciation decision console.",
+      "exception_reason": "The previously teacher-selected Bella text candidate was later reported incorrect; retain that selection in report history, but replace the active source with a targeted Bella phoneme repair.",
       "ipa_goal": "/wɑtʃt/",
       "kokoro_phonemes": "wˈɑtʃt",
       "latest_report_text": "Suena watst",
       "method": "raw_phonemes",
-      "observed_issue": "Suena 'watst'",
+      "observed_issue": "Suena watst",
       "repair_request_id": "repair-1789859881757",
       "repair_requested_at": 1789859881757,
-      "speed": 1.0,
-      "target_text": "watched"
+      "speed": 1,
+      "target_text": "watched",
+      "previous_approved_source": "./bella-samples/audio/watched--bella-08-text.wav"
     },
     "will tell": {
       "correction_goal": "Tell uses /ɛ/, not tall’s vowel.",
@@ -412,6 +415,32 @@
       "method": "approved-review-candidate",
       "observed_issue": "Route suena",
       "target_text": "wrote"
+    },
+    "am going to study": {
+      "correction_goal": "Pronounce auxiliary “am” clearly as /æm/; do not realize it as “I'm” /aɪm/. Preserve natural American-English phrasing for the rest of the phrase.",
+      "decision": "confirmed-error-repair-request",
+      "ipa_goal": "/æm ˈɡoʊɪŋ tə ˈstʌdi/",
+      "method": "g2p_tokens",
+      "observed_issue": "Dice i'm no am",
+      "latest_report_text": "Dice i'm no am",
+      "target_text": "am going to study",
+      "speed": 0.8,
+      "automatic_repair_attempt": 1,
+      "repair_request_id": "repair-1789859881757",
+      "repair_requested_at": 1789859881757
+    },
+    "am staying": {
+      "correction_goal": "Pronounce auxiliary “am” clearly as /æm/; do not realize it as “I'm” /aɪm/. Preserve natural American-English pronunciation of “staying”.",
+      "decision": "confirmed-error-repair-request",
+      "ipa_goal": "/æm ˈsteɪɪŋ/",
+      "method": "g2p_tokens",
+      "observed_issue": "Dice i'm no am",
+      "latest_report_text": "Dice i'm no am",
+      "target_text": "am staying",
+      "speed": 0.8,
+      "automatic_repair_attempt": 1,
+      "repair_request_id": "repair-1789859881757",
+      "repair_requested_at": 1789859881757
     }
   },
   "profile": {
@@ -425,6 +454,6 @@
     "tail_silence_seconds": 0.35,
     "voice": "af_bella"
   },
-  "revision": "2026-09-17-r6-auto",
+  "revision": "2026-09-19-r7-repair-batch-1789859881757",
   "status": "VALIDATED_FOR_GENERATION"
 }
