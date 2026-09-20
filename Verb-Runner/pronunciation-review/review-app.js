@@ -10,6 +10,7 @@ const REVIEWER_STORAGE='verbRunnerPronunciationReviewer';
 
 const reviewerName=document.querySelector('#reviewerName');
 const searchInput=document.querySelector('#searchInput');
+const clearSearch=document.querySelector('#clearSearch');
 const statusFilter=document.querySelector('#statusFilter');
 const audioList=document.querySelector('#audioList');
 const template=document.querySelector('#audioCardTemplate');
@@ -49,10 +50,7 @@ function matches(entry){
   if(filter==='all'&&entry.status==='removed-duplicate')return false;
   if(filter==='review-again'&&!entry.sourceChanged)return false;
   if(filter!=='all'&&filter!=='review-again'&&entry.status!==filter)return false;
-  const q=String(searchInput.value||'').trim().toLowerCase();
-  if(!q)return true;
-  const ref=String(entry.n),ref3=ref.padStart(3,'0');
-  return `${ref} ${ref3} #${ref} #${ref3} ${entry.key} ${entry.src}`.toLowerCase().includes(q);
+  return core.matchesSearch(entry,searchInput.value);
 }
 
 function hasPlayingAudio(){
@@ -121,7 +119,32 @@ bindReviewEvents({audioList,getEntryById,getEntryByNumber,getRecordById,reviewer
 
 reviewerName.value=localStorage.getItem(REVIEWER_STORAGE)||'';
 reviewerName.addEventListener('change',()=>localStorage.setItem(REVIEWER_STORAGE,String(reviewerName.value||'').trim()));
-searchInput.addEventListener('input',render);
+function syncSearchClear(){
+  const hasSearch=Boolean(String(searchInput.value||'').trim());
+  clearSearch.hidden=!hasSearch;
+  clearSearch.disabled=!hasSearch;
+}
+
+function clearSearchValue(){
+  if(!searchInput.value)return;
+  searchInput.value='';
+  syncSearchClear();
+  searchInput.focus();
+  render();
+}
+
+searchInput.addEventListener('input',()=>{
+  syncSearchClear();
+  render();
+});
+searchInput.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&searchInput.value){
+    event.preventDefault();
+    clearSearchValue();
+  }
+});
+clearSearch.addEventListener('click',clearSearchValue);
+syncSearchClear();
 statusFilter.addEventListener('change',render);
 function currentReportsFor(entry){
   const open=core.reportEntries(entry.reports).filter(report=>report.status==='open');
