@@ -116,6 +116,24 @@ This mechanic is intended to:
 - Avoid repetitive phrase-by-phrase tapping.
 - Preserve fast chain-reaction gameplay after activation.
 
+
+### Scoring model
+**Decision:** Scoring should reward linguistic value and strategic play, not raw tile count alone.
+
+- Every validated relationship has a stable base value.
+- Longer relationships receive an additional length bonus.
+- Resolving several ready relationships in one global pop earns a batch/setup bonus.
+- Crossword intersections earn a cross bonus.
+- First-time discoveries may earn a modest discovery bonus.
+- Gravity-created chains use an increasing cascade multiplier.
+- If a shorter relationship is fully contained inside a longer resolved relationship on the same line, score the longer one rather than double-counting both.
+- Non-scoring setup swaps do not lose points; they already consume moves.
+- Waiting by itself does not earn points. Waiting is rewarded only when it enables more relationships, longer structures, crossings, or stronger cascades.
+- Base values remain the same for all players; adaptive learning affects appearance frequency, not base points.
+
+Exact point values and multiplier sizes will be tuned during prototype testing.
+
+
 ### End-of-round learning review
 **Decision:** The end-of-round review must stay compact and mobile-first. It is not a long report.
 
