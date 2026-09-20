@@ -1,79 +1,69 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import {
+  consumeTeacherLaunch,
+  loadTeacherContext
+} from "../shared/youteach-live-bridge.mjs";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCpKL-4eHrqFiUntViiUB2BPs60XumC1K4",
-  authDomain: "youteach-d9a79.firebaseapp.com",
-  databaseURL: "https://youteach-d9a79-default-rtdb.firebaseio.com",
-  projectId: "youteach-d9a79",
-  storageBucket: "youteach-d9a79.firebasestorage.app",
-  messagingSenderId: "302548732789",
-  appId: "1:302548732789:web:b230b7f74366488d45a13c"
-};
-
-const db = getDatabase(initializeApp(firebaseConfig));
-const hundredCard = document.getElementById("hundredStudentsSaidCard");
 const gateMessage = document.getElementById("gameGateMessage");
+const cards = [...document.querySelectorAll(".card")];
 
-function getTeamLabels(session) {
-  const labelsFromAssignments = Object.values(session?.assignments || {}).filter(Boolean);
-  const labels = Array.from(new Set(labelsFromAssignments));
-  if (labels.length) {
-    return labels.sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true }));
-  }
-  return Object.keys(session?.activityScores || {}).sort((a, b) =>
-    String(a).localeCompare(String(b), undefined, { numeric: true })
-  );
+function showMessage(message, tone = "info") {
+  if (!gateMessage) return;
+  gateMessage.textContent = message;
+  gateMessage.dataset.tone = tone;
 }
 
-function showMessage(message) {
-  if (gateMessage) gateMessage.textContent = message;
-}
+function setContextAttributes(context) {
+  const groupName = String(context?.liveContext?.groupName || "");
+  const sessionId = String(context?.liveContext?.youTeachSessionId || "");
+  document.documentElement.dataset.youteachLive = context ? "true" : "false";
+  document.documentElement.dataset.youteachGroup = groupName;
+  document.documentElement.dataset.youteachSession = sessionId;
 
-if (hundredCard) {
-  hundredCard.addEventListener("click", async (event) => {
-    event.preventDefault();
-    const destination = hundredCard.getAttribute("href");
-
-    hundredCard.style.pointerEvents = "none";
-    hundredCard.style.opacity = "0.72";
-    showMessage("Checking YouTeach teams...");
-
-    try {
-      const sessionSnap = await get(ref(db, "session/current"));
-      const session = sessionSnap.val() || null;
-      const teamLabels = getTeamLabels(session);
-
-      if (!session?.active || teamLabels.length === 0) {
-        showMessage("100 Students Said is locked. Create teams in YouTeach Buzzer first.");
-        return;
-      }
-
-      const now = Date.now();
-      await update(ref(db), {
-        "session/current/connectedGame": {
-          id: "100-students-said",
-          status: "ready",
-          openedAt: now,
-          groupName: session.groupName || "",
-          teamLabels
-        },
-        "classroomGames/hundredStudentsSaid/current/integration": {
-          source: "youteach-buzzer",
-          active: true,
-          groupName: session.groupName || "",
-          teamLabels,
-          updatedAt: now
-        }
-      });
-
-      window.location.href = destination;
-    } catch (error) {
-      console.error(error);
-      showMessage("Could not verify the YouTeach teams. Try again.");
-    } finally {
-      hundredCard.style.pointerEvents = "";
-      hundredCard.style.opacity = "";
+  cards.forEach((card) => {
+    if (context) {
+      card.dataset.youteachLive = "true";
+      card.dataset.youteachGroup = groupName;
+    } else {
+      delete card.dataset.youteachLive;
+      delete card.dataset.youteachGroup;
     }
   });
 }
+
+async function initializeTeacherContext() {
+  const params = new URLSearchParams(location.search);
+  const hasLaunch = Boolean(params.get("ytLiveTeacher") && params.get("issuer"));
+
+  try {
+    const context = hasLaunch
+      ? await consumeTeacherLaunch({ search: location.search })
+      : loadTeacherContext();
+
+    if (hasLaunch) {
+      history.replaceState(null, "", location.pathname + location.hash);
+    }
+
+    if (context) {
+      setContextAttributes(context);
+      showMessage(
+        `YouTeach connected · Group ${context.liveContext.groupName} · Select a game, then start its session to make it available to students.`
+      );
+      return;
+    }
+
+    setContextAttributes(null);
+    showMessage(
+      "Standalone teacher mode. Open Classroom Online Games from YouTeach Buzzer to create a group-linked live activity.",
+      "standalone"
+    );
+  } catch (error) {
+    console.error("Could not resolve YouTeach teacher context", error);
+    setContextAttributes(null);
+    showMessage(
+      error?.message || "Could not verify the YouTeach teacher session. Reopen Classroom Online Games from Buzzer.",
+      "error"
+    );
+  }
+}
+
+initializeTeacherContext();
