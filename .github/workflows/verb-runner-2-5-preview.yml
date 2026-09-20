@@ -20,6 +20,8 @@ jobs:
         run: |
           node --check Verb-Runner/coastal-scene-config.mjs
           node --check Verb-Runner/coastal-world.mjs
+          node --check Verb-Runner/sentence-runner-world.mjs
+          node --check Verb-Runner/sentence-runner-layout.js
           node --check Verb-Runner/prototype.js
 
       - name: Run Verb Runner regression tests
@@ -45,3 +47,64 @@ jobs:
             --project-name=classroom-online-games \
             --branch=verb-runner-2-5-dev \
             --commit-hash=${{ github.sha }}
+
+
+      - name: Browser smoke test Sentence Runner 2.5
+        timeout-minutes: 3
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$BROWSER"
+          cat > sentence-runner-smoke.cjs <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const errors=[];
+            const browser=await chromium.launch({
+              headless:true,
+              executablePath:process.env.BROWSER,
+              args:['--no-sandbox','--disable-gpu']
+            });
+            const page=await browser.newPage({viewport:{width:1536,height:864}});
+            page.on('pageerror',err=>errors.push(String(err)));
+            await page.goto('https://verb-runner-2-5-dev.classroom-online-games.pages.dev/Verb-Runner/',{
+              waitUntil:'domcontentloaded',
+              timeout:30000
+            });
+            await page.waitForSelector('[data-level="2"]',{timeout:15000});
+            await page.click('[data-level="2"]');
+            await page.waitForFunction(()=>{
+              const button=document.querySelector('#startButton');
+              return button && !button.disabled;
+            },{timeout:30000});
+            await page.click('#startButton');
+            await page.waitForFunction(()=>{
+              const choices=document.querySelector('#sentenceChoices');
+              return choices && !choices.hidden &&
+                [...choices.querySelectorAll('.sentence-choice b')].every(el=>el.textContent.trim() && el.textContent.trim()!=='—');
+            },{timeout:20000});
+            const state=await page.evaluate(()=>({
+              title:document.querySelector('#levelTitle')?.textContent,
+              sentence:document.querySelector('#sentenceText')?.textContent,
+              choices:[...document.querySelectorAll('.sentence-choice b')].map(el=>el.textContent),
+              choiceRects:[...document.querySelectorAll('.sentence-choice')].map(el=>{
+                const r=el.getBoundingClientRect();
+                return {width:r.width,height:r.height};
+              })
+            }));
+            if(!/MARKET STREETS/.test(state.title||''))throw new Error('Level 2 did not enter Market Streets zone');
+            if(state.choices.length!==3)throw new Error('Expected exactly three readable choices');
+            if(state.choiceRects.some(r=>r.width<220||r.height<65))throw new Error('Sentence choices are too small');
+            if(errors.length)throw new Error('Browser page errors: '+errors.join(' | '));
+            console.log(JSON.stringify(state));
+            await page.screenshot({path:'sentence-runner-v25-market.png'});
+            await browser.close();
+          })().catch(err=>{console.error(err);process.exit(1);});
+          NODE
+          npm install --no-save --no-package-lock playwright
+          BROWSER="$BROWSER" node sentence-runner-smoke.cjs
+
+      - name: Upload Sentence Runner preview screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentence-runner-v25-market
+          path: sentence-runner-v25-market.png
+          retention-days: 7
