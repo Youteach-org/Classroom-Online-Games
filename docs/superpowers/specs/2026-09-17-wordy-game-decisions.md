@@ -273,6 +273,27 @@ Conceptually, a level profile combines:
 - The core retention loop should remain: move -> prepare -> global pop -> cascade -> discover language -> improve score/mastery.
 
 
+### V1 boosters and obstacles
+**Decision:** Keep V1 boosters and obstacles minimal, readable, and compatible with the linguistic board.
+
+Obstacles:
+- **Anchored Word** — a word tile cannot move but may still participate in valid relationships.
+- **Blocked Cell** — a board cell cannot receive tiles until its condition is cleared.
+- **Frozen Word** — a word remains usable in relationships but must participate in a resolved pop to be freed.
+
+Boosters:
+- **Remove Tile** — removes one chosen tile and immediately applies gravity.
+- **Hint / Nudge** — highlights a promising tile or local opportunity without completing the move.
+
+Deferred beyond V1:
+- unrestricted wildcards;
+- long-distance swaps;
+- heavy special-piece systems;
+- complicated booster economies.
+
+Dead boards continue to use automatic board recovery and do not require a shuffle booster.
+
+
 ### Player content preferences
 **Decision:** Players should be able to influence which linguistic relationship types appear more or less often in their games.
 
