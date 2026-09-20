@@ -294,6 +294,27 @@ Deferred beyond V1:
 Dead boards continue to use automatic board recovery and do not require a shuffle booster.
 
 
+### Player learning model
+**Decision:** Track learning primarily at the relationship level rather than at the isolated-word level.
+
+Suggested internal relationship states:
+`unseen -> seen -> missed / formed -> reinforced -> mastered`.
+
+- **Unseen** — no meaningful exposure yet.
+- **Seen** — the relationship has appeared or been revealed, but the player has not demonstrated deliberate recognition.
+- **Missed** — a verified, reasonable opportunity to form the relationship existed and was not used.
+- **Formed** — the player deliberately constructed the relationship.
+- **Reinforced** — the player has formed it correctly again across later play.
+- **Mastered** — repeated evidence suggests reliable recognition; exposure priority may decrease but never needs to reach zero.
+- Relationships formed only by gravity/cascade count as weaker learning evidence than relationships deliberately constructed by the player.
+- Mastery confidence may decay if later evidence shows repeated misses; history is retained rather than resetting to unseen.
+- Store supporting statistics such as times seen, verified opportunities, misses, deliberate formations, cascade formations, last exposure, and last successful construction.
+- Adaptive selection may increase re-exposure to missed or newly seen relationships, but should avoid immediate forced repetition.
+- Neighboring relationships in the lexical graph may receive modest exposure boosts as related knowledge grows.
+- Explicit player category preferences remain stronger than adaptive weighting.
+- The Wordbook may surface simplified player-facing labels such as Discovered, Practicing, and Mastered while keeping the richer internal model hidden.
+
+
 ### Player content preferences
 **Decision:** Players should be able to influence which linguistic relationship types appear more or less often in their games.
 
