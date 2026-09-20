@@ -192,6 +192,18 @@ The precise board geometry will depend on the final matching rules, but the prin
 ### Level creation direction
 **Decision:** Favor a hybrid approach: reusable generation rules and automated validation, with important levels still designed or curated by humans.
 
+### Level goals and round structure
+**Decision:** Use a hybrid level-goal system with move limits as the main round constraint.
+
+- Most standard levels combine a target score with a limited number of moves.
+- Special levels may require linguistic or structural goals such as forming a number of phrasal verbs, discovering new relationships, building a long expression, creating crossword intersections, resolving several ready relationships in one batch, or reaching a cascade threshold.
+- Mixed levels may combine two or more goals.
+- Explicit linguistic goals should not appear in every level; many rounds should still feel like ordinary casual-puzzle challenges where learning happens through play.
+- Early levels introduce mechanics gradually: basic relationship formation, global pop, cascades, longer expressions, then intersections and more advanced objectives.
+- Timed play is not part of the base progression. It may be explored later as an optional special mode.
+- The generator should be able to combine an active linguistic pool, board size, move budget, objective set, and difficulty profile to produce candidate levels for validation.
+
+
 ### Player content preferences
 **Decision:** Players should be able to influence which linguistic relationship types appear more or less often in their games.
 
