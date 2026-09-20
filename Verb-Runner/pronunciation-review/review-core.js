@@ -67,6 +67,55 @@
       .sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
   }
 
+  function normalizeSearchText(value){
+    return normalizeText(value)
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase()
+      .replace(/[’'`]/g,'')
+      .replace(/[^a-z0-9]+/g,' ')
+      .trim()
+      .replace(/\s+/g,' ');
+  }
+
+  function searchableValues(entry){
+    const record=entry?.record||{};
+    const reports=reportEntries(entry?.reports).flatMap(report=>[
+      report.text,
+      report.assetSource,
+      report.kind,
+      report.status
+    ]);
+    const history=Object.values(entry?.history||{}).flatMap(row=>
+      Object.values(row||{}).filter(value=>
+        typeof value==='string'||typeof value==='number'
+      )
+    );
+    const ref=String(entry?.n??'');
+    const ref3=ref?ref.padStart(3,'0'):'';
+    return [
+      ref,
+      ref3,
+      ref?('#'+ref):'',
+      ref3?('#'+ref3):'',
+      entry?.key,
+      entry?.src,
+      entry?.duplicateOf,
+      record.key,
+      record.source,
+      record.repairSource,
+      ...reports,
+      ...history
+    ].filter(value=>value!==undefined&&value!==null&&String(value).trim()!=='');
+  }
+
+  function matchesSearch(entry,query){
+    const needle=normalizeSearchText(query);
+    if(!needle)return true;
+    const haystack=normalizeSearchText(searchableValues(entry).join(' '));
+    return needle.split(' ').every(token=>haystack.includes(token));
+  }
+
   function hasDuplicateReport(reports,text){
     const fingerprint=reportFingerprint(text);
     if(!fingerprint)return false;
@@ -122,6 +171,8 @@
     KNOWN_SOURCE_CREATED_AT,
     normalizeText,
     normalizeKey,
+    normalizeSearchText,
+    matchesSearch,
     audioIdForKey,
     sourceType,
     inferAssetCreatedAt,
