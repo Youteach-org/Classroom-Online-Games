@@ -133,14 +133,19 @@
       "previous_approved_source": "./audio/pronunciation/external/build-fancy-approved-r2.mp3"
     },
     "change": {
-      "correction_goal": "Preserve final /ndʒ/; do not reduce to chain.",
-      "decision": "confirmed-error-third-pass",
+      "correction_goal": "Keep a clean /tʃ/ onset with no extra /k/ burst, while preserving the final /ndʒ/.",
+      "decision": "confirmed-error-fourth-pass",
       "ipa_goal": "/tʃeɪndʒ/",
       "kokoro_phonemes": "tʃˈeIndʒ",
       "method": "raw_phonemes",
-      "observed_issue": "Suena a chain",
-      "speed": 1,
-      "target_text": "change"
+      "observed_issue": "Tiene una k al principio!",
+      "speed": 0.82,
+      "target_text": "change",
+      "latest_report_text": "Tiene una k al principio!",
+      "automatic_repair_attempt": 4,
+      "repair_request_id": "reported-batch-20260919-2108",
+      "repair_requested_at": 1789873680000,
+      "previous_speed": 1
     },
     "changed": {
       "correction_goal": "Initial /tʃ/; retain voiced past-tense ending.",
@@ -216,24 +221,35 @@
       "target_text": "fall"
     },
     "follow": {
-      "correction_goal": "Keep the second syllable /oʊ/ audible.",
-      "decision": "confirmed-error-second-pass",
+      "correction_goal": "Keep both syllables distinct and make the final /oʊ/ clearly audible so it cannot collapse toward “falla/fall”.",
+      "decision": "confirmed-error-third-pass",
       "ipa_goal": "/ˈfɑloʊ/",
-      "kokoro_phonemes": "fˈɑlO",
+      "kokoro_phonemes": "fˈɑlˌO",
       "method": "raw_phonemes",
-      "observed_issue": "Suena a fall",
-      "speed": 1,
-      "target_text": "follow"
+      "observed_issue": "Dice falla",
+      "speed": 0.9,
+      "target_text": "follow",
+      "latest_report_text": "Dice falla",
+      "automatic_repair_attempt": 3,
+      "repair_request_id": "reported-batch-20260919-2108",
+      "repair_requested_at": 1789873680000,
+      "previous_kokoro_phonemes": "fˈɑlO",
+      "previous_speed": 1
     },
     "forbade": {
-      "correction_goal": "Second-syllable stress with /eɪd/, not 'bad'.",
-      "decision": "confirmed-error-second-pass",
+      "correction_goal": "Preserve second-syllable stress and lengthen the /eɪ/ realization enough to remain clearly distinct from “bad”.",
+      "decision": "confirmed-error-third-pass",
       "ipa_goal": "/fərˈbeɪd/",
       "kokoro_phonemes": "fɚbˈeId",
       "method": "raw_phonemes",
-      "observed_issue": "Dice 'for bad'",
-      "speed": 1,
-      "target_text": "forbade"
+      "observed_issue": "Dice for bad",
+      "speed": 0.82,
+      "target_text": "forbade",
+      "latest_report_text": "Dice for bad",
+      "automatic_repair_attempt": 3,
+      "repair_request_id": "reported-batch-20260919-2108",
+      "repair_requested_at": 1789873680000,
+      "previous_speed": 1
     },
     "fought": {
       "correction_goal": "No /l/ before final /t/.",
@@ -458,6 +474,6 @@
     "tail_silence_seconds": 0.35,
     "voice": "af_bella"
   },
-  "revision": "2026-09-19-r10-build-cache-bust",
+  "revision": "2026-09-19-r8-reported-batch-2108",
   "status": "VALIDATED_FOR_GENERATION"
 }
