@@ -89,7 +89,37 @@ jobs:
               waitUntil:'domcontentloaded',
               timeout:30000
             });
-            await page.waitForSelector('[data-level="2"]',{timeout:15000});
+            await page.waitForSelector('[data-level="2"]',{state:'attached',timeout:15000});
+            const initialDiag=await page.evaluate(()=>{
+              const el=document.querySelector('[data-level="2"]');
+              const picker=document.querySelector('#picker');
+              const rect=el?.getBoundingClientRect();
+              const pickerRect=picker?.getBoundingClientRect();
+              const style=el?getComputedStyle(el):null;
+              const pickerStyle=picker?getComputedStyle(picker):null;
+              return {
+                url:location.href,
+                readyState:document.readyState,
+                level2Exists:Boolean(el),
+                level2Rect:rect?{x:rect.x,y:rect.y,width:rect.width,height:rect.height}:null,
+                level2Display:style?.display||null,
+                level2Visibility:style?.visibility||null,
+                level2Opacity:style?.opacity||null,
+                pickerClass:picker?.className||null,
+                pickerHidden:picker?.hidden??null,
+                pickerRect:pickerRect?{x:pickerRect.x,y:pickerRect.y,width:pickerRect.width,height:pickerRect.height}:null,
+                pickerDisplay:pickerStyle?.display||null,
+                pickerVisibility:pickerStyle?.visibility||null,
+                pickerOpacity:pickerStyle?.opacity||null,
+                translationBlocked:document.documentElement.classList.contains('translation-blocked'),
+                bodyText:(document.body?.innerText||'').slice(0,900)
+              };
+            });
+            console.log('INITIAL_DIAG '+JSON.stringify(initialDiag));
+            await page.screenshot({path:'sentence-runner-v25-debug.png'});
+            if(!initialDiag.level2Rect || initialDiag.level2Rect.width<1 || initialDiag.level2Rect.height<1){
+              throw new Error('Level 2 exists but is not visible: '+JSON.stringify(initialDiag));
+            }
             await page.click('[data-level="2"]');
             await page.waitForFunction(()=>{
               const button=document.querySelector('#startButton');
@@ -122,9 +152,13 @@ jobs:
           npm install --no-save --no-package-lock playwright
           SENTENCE_PREVIEW_URL="$SENTENCE_PREVIEW_URL" BROWSER="$BROWSER" node sentence-runner-smoke.cjs
 
-      - name: Upload Sentence Runner preview screenshot
+      - name: Upload Sentence Runner preview screenshots
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sentence-runner-v25-market
-          path: sentence-runner-v25-market.png
+          name: sentence-runner-v25-screenshots
+          path: |
+            sentence-runner-v25-debug.png
+            sentence-runner-v25-market.png
+          if-no-files-found: ignore
           retention-days: 7
