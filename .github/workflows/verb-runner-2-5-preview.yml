@@ -53,6 +53,20 @@ jobs:
           printf 'SENTENCE_PREVIEW_URL=%s\n' "$DEPLOY_URL" >> "$GITHUB_ENV"
 
 
+      - name: Wait for exact preview route
+        timeout-minutes: 2
+        run: |
+          READY=0
+          for ATTEMPT in $(seq 1 24); do
+            if curl -fsSL "$SENTENCE_PREVIEW_URL/Verb-Runner/" | grep -q 'data-level="2"'; then
+              READY=1
+              break
+            fi
+            sleep 3
+          done
+          test "$READY" = "1"
+          curl -fsSL "$SENTENCE_PREVIEW_URL/Verb-Runner/" | grep -q 'id="sentenceChoices"'
+
       - name: Browser smoke test Sentence Runner 2.5
         timeout-minutes: 3
         run: |
