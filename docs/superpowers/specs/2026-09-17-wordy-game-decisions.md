@@ -242,6 +242,22 @@ Conceptual pipeline:
 `open frequency vocabulary -> candidate relationships -> linguistic validation -> gameplay-quality filtering -> Wordy relationship bank`.
 
 
+### Difficulty model
+**Decision:** Level difficulty is multi-dimensional rather than a simple vocabulary rank.
+
+- Separate **linguistic difficulty** from **puzzle difficulty**.
+- Linguistic difficulty considers relationship familiarity, lexical frequency, length, category, and ambiguity.
+- Puzzle difficulty considers required swaps, spatial separation, blockers/competing paths, move pressure, cascade dependence, and number of viable solutions.
+- Track **opportunity density**: boards with many accessible relationships are easier than boards with only a few.
+- Track **assistance level** independently so early/tutorial levels can be easier without changing the underlying language.
+- Adaptive learning may increase re-exposure to a relationship the player misses, but that reappearance does not have to occur in a harder board.
+- Difficulty should follow a wave rather than rise monotonically: challenging levels can be followed by recovery levels.
+- Generated difficulty is provisional. Real player data should later recalibrate levels based on completion rate, moves used, misses, abandonment, and other telemetry.
+
+Conceptually, a level profile combines:
+`linguistic difficulty + puzzle difficulty + move pressure + opportunity density + assistance level`.
+
+
 ### Player content preferences
 **Decision:** Players should be able to influence which linguistic relationship types appear more or less often in their games.
 
