@@ -1,0 +1,32 @@
+name: Verify secure COG integration
+
+on:
+  push:
+    branches:
+      - feature/cog-youteach-secure-integration-20260919
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify Verb Runner JavaScript
+        run: |
+          node --check Verb-Runner/coastal-scene-config.mjs
+          node --check Verb-Runner/coastal-world.mjs
+          node --check Verb-Runner/prototype.js
+          node --check Verb-Runner/session-sync.js
+
+      - name: Run Verb Runner regression tests
+        run: |
+          node --test Verb-Runner/tests/*.test.mjs
+          node --test Verb-Runner/sentence-run.test.js
+
+      - name: Run shared COG contract tests
+        run: node --test tests/*.test.mjs
