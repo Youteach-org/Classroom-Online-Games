@@ -370,16 +370,18 @@
     "washed": {
       "approved_by_teacher_at": "2026-09-16",
       "approved_source": "./audio/pronunciation/external/washed-fancy-approved.mp3",
-      "approved_source_url": "https://www.aidocmaker.com/g0/audio?name=77953d2a949645c1bb0a8f4c7498b4cd",
+      "approved_source_url": "https://storage.googleapis.com/adm--audio-playback--7d--public/mcp-preview/1044f4d4-08e2-409d-9b09-f64cf62380ce.mp3",
       "correction_goal": "Preserve /ʃ/ before final /t/.",
       "decision": "approved-voice-exception-localized",
       "engine": "AI Voice Generator",
-      "exception_reason": "Teacher approved fancy for washed; remote playback later failed, so the approved voice is cached locally for reliable playback.",
+      "exception_reason": "Teacher approved fancy for washed. The prior cached file was HTML saved with an .mp3 extension, so this keeps the approved fancy voice while switching the cache source to a direct playable MP3.",
       "ipa_goal": "/wɑʃt/",
       "method": "external-approved-voice",
       "observed_issue": "No suena nada en la versión fancy enlazada",
       "target_text": "washed",
-      "voice": "fancy"
+      "voice": "fancy",
+      "previous_approved_source_url": "https://www.aidocmaker.com/g0/audio?name=77953d2a949645c1bb0a8f4c7498b4cd",
+      "external_context_id": "73075b82423d445db2fd555c1f693117"
     },
     "watched": {
       "automatic_repair_attempt": 2,
@@ -455,6 +457,6 @@
     "tail_silence_seconds": 0.35,
     "voice": "af_bella"
   },
-  "revision": "2026-09-19-r8-build-binary-repair",
+  "revision": "2026-09-19-r9-external-audio-binary-repair",
   "status": "VALIDATED_FOR_GENERATION"
 }
