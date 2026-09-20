@@ -409,6 +409,9 @@ let gameSettings={
 const sessionParams=new URLSearchParams(location.search);
 const sessionCode=(sessionParams.get('session')||'').toUpperCase();
 const launchToken=String(sessionParams.get('launch')||'').trim();
+const assignmentLaunchToken=String(sessionParams.get('assignmentLaunch')||'').trim();
+const assignmentIssuer=String(sessionParams.get('issuer')||'').trim();
+const assignmentLaunchMarker=sessionParams.get('ytAssignment')==='1'||Boolean(assignmentLaunchToken);
 const sessionStudentName=String(
   sessionParams.get('studentName')||
   sessionParams.get('nickname')||
@@ -423,6 +426,7 @@ let sessionLoadPromise=Promise.resolve(null);
 let youTeachIdentity=null;
 let youTeachAssignmentContext=null;
 let assignmentContextLocked=false;
+let launchCredentialFailed=assignmentLaunchMarker&&!assignmentLaunchToken;
 
 function localRunnerId(){
   try{
@@ -460,10 +464,14 @@ function storeYouTeachIdentity(identity){
   }catch{}
 }
 
-function cleanLaunchTokenFromUrl(){
-  if(!launchToken)return;
+function cleanLaunchTokenFromUrl(assignmentPractice=false){
+  if(!launchToken&&!assignmentLaunchToken)return;
   const clean=new URL(location.href);
   clean.searchParams.delete('launch');
+  clean.searchParams.delete('assignmentLaunch');
+  clean.searchParams.delete('issuer');
+  if(assignmentPractice)clean.searchParams.set('ytAssignment','1');
+  else clean.searchParams.delete('ytAssignment');
   history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
 }
 
@@ -487,8 +495,8 @@ function monitorIdentityData(){
 
 function assignmentLevelForMode(modeId){
   const levels={
-    verb:1,
-    sentence:2,
+    'verb':1,
+    'sentence':2,
     'time-clues':3,
     'perfect-race':4,
     'final-race':5
@@ -498,13 +506,27 @@ function assignmentLevelForMode(modeId){
 
 function applyYouTeachAssignmentContext(context={}){
   if(context?.purpose!=='assignment-practice')return false;
-  if(context?.gameId&&context.gameId!=='verb-runner')return false;
+  const config=context?.cogActivity&&typeof context.cogActivity==='object'
+    ?context.cogActivity
+    :context;
+  if(config?.gameId&&config.gameId!=='verb-runner')return false;
 
-  const level=assignmentLevelForMode(context.modeId);
-  const preset=difficultyPresets[String(context.difficultyId||'')];
+  const level=assignmentLevelForMode(config.modeId);
+  const preset=difficultyPresets[String(config.difficultyId||'')];
   if(!level||!preset)return false;
 
-  youTeachAssignmentContext={...context};
+  youTeachAssignmentContext={
+    assignmentId:String(context.assignmentId||''),
+    taskCode:String(context.taskCode||context.assignmentCode||''),
+    purpose:'assignment-practice',
+    officialSubmissionAllowed:context.officialSubmissionAllowed===true,
+    gameId:String(config.gameId||'verb-runner'),
+    modeId:String(config.modeId||''),
+    difficultyId:String(config.difficultyId||''),
+    minimumPercent:config.minimumPercent==null?null:Number(config.minimumPercent),
+    pointValue:Number(config.pointValue||0),
+    contractVersion:Number(config.contractVersion||1)
+  };
   assignmentContextLocked=true;
   currentLevel=level;
   totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
@@ -651,6 +673,14 @@ const lastBlankByVerb=new Map();
 
 function updateStartButtonState(){
   if(!startButton)return;
+  if(launchCredentialFailed){
+    startButton.disabled=true;
+    startButton.classList.remove('loading');
+    startButton.classList.add('load-error');
+    startButton.setAttribute('aria-busy','false');
+    if(startButtonLabel)startButtonLabel.textContent='REOPEN FROM YOUTEACH';
+    return;
+  }
   if(runnerLoadFailed){
     startButton.disabled=true;
     startButton.classList.remove('loading');
@@ -906,7 +936,32 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
   .then(async api=>{
     sessionApi=api;
 
-    if(launchToken){
+    if(assignmentLaunchMarker&&!assignmentLaunchToken){
+      throw new Error('Reopen this assigned activity from YouTeach');
+    }
+
+    if(assignmentLaunchToken){
+      const resolved=await sessionApi.resolveYouTeachAssignmentLaunchToken(
+        assignmentLaunchToken,
+        assignmentIssuer
+      );
+      if(!resolved)throw new Error('Invalid or expired YouTeach assignment credential');
+      youTeachIdentity={
+        studentKey:resolved.studentKey,
+        nickname:resolved.nickname,
+        fullName:resolved.fullName,
+        groupName:resolved.groupName,
+        studentNumber:resolved.studentNumber,
+        identitySource:'youteach'
+      };
+      storeYouTeachIdentity(youTeachIdentity);
+      const assignedPractice=Boolean(
+        resolved.launchContext&&applyYouTeachAssignmentContext(resolved.launchContext)
+      );
+      if(!assignedPractice)throw new Error('Invalid YouTeach assignment configuration');
+      runnerSessionId='YT-'+String(resolved.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
+      cleanLaunchTokenFromUrl(true);
+    }else if(launchToken){
       const resolved=await sessionApi.resolveYouTeachLaunchToken(launchToken);
       if(!resolved)throw new Error('Invalid or expired YouTeach credential');
       youTeachIdentity=resolved;
@@ -915,7 +970,7 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
       if(resolved.assignmentContext){
         applyYouTeachAssignmentContext(resolved.assignmentContext);
       }
-      cleanLaunchTokenFromUrl();
+      cleanLaunchTokenFromUrl(false);
     }
 
     const presenceData={
@@ -958,9 +1013,13 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
     console.error('Verb Runner monitor presence failed',err);
     sessionApi=null;
     sessionData=null;
-    modelStatus.textContent=launchToken
-      ?'YouTeach credential expired · reopen Verb Runner from YouTeach'
-      :(sessionCode?'Session unavailable · local mode':modelStatus.textContent);
+    if(assignmentLaunchToken||launchToken||assignmentLaunchMarker){
+      launchCredentialFailed=true;
+      modelStatus.textContent='YouTeach credential expired · reopen this activity from YouTeach';
+      updateStartButtonState();
+    }else if(sessionCode){
+      modelStatus.textContent='Session unavailable · local mode';
+    }
     return null;
   });
 
