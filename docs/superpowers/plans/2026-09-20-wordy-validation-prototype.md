@@ -11,6 +11,19 @@
 **Spec:** `docs/superpowers/specs/2026-09-20-wordy-game-prototype-design.md`  
 **Parent architecture:** `docs/superpowers/specs/2026-09-20-wordy-game-architecture-design.md`
 
+## Execution Policy
+
+**Chosen method:** Inline / Native execution with `superpowers:executing-plans`.
+
+- Do not use subagent-driven development for this plan.
+- Do not depend on Codex/subagent budget for routine task execution.
+- Execute tasks directly in the active ChatGPT instance, task by task, following TDD and the plan's commit boundaries.
+- Keep durable progress in GitHub, not only in chat context.
+- Maintain the living handoff file at `docs/superpowers/handoffs/WORDY-CURRENT.md`.
+- Before the active chat approaches its context/length limit, update that handoff with: completed tasks and commits, current task/step, tests and their latest results, rulings/deviations, files changed, unresolved issues, exact next action, and the continuation prompt.
+- After writing the handoff, give the user a ready-to-paste continuation prompt for a new ChatGPT/Codex-capable instance.
+- A new instance must resume from the GitHub handoff and git history rather than redoing completed work.
+
 ## Global Constraints
 
 - Phone-first interface with large readable equal-sized tiles.
