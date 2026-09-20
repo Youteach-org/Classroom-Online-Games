@@ -1,0 +1,243 @@
+name: Repair Verb Runner reported audio batch 2026-09-19
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/repair-verb-runner-reported-batch-20260919.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Kokoro Bella dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y espeak-ng
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install "kokoro>=0.9.4" "numpy>=1.26" "soundfile>=0.12"
+
+      - name: Repair only the five Bella clips in this batch
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import numpy as np
+          import soundfile as sf
+          from kokoro import KPipeline
+
+          root = Path("Verb-Runner/audio/pronunciation")
+          pipeline = KPipeline(lang_code="a")
+          sr = 24000
+          lead = np.zeros(int(sr * 0.04), dtype=np.float32)
+          tail = np.zeros(int(sr * 0.35), dtype=np.float32)
+
+          specs = {
+              "am-going-to-study-5a392ee888.wav": {
+                  "mode": "phonemes",
+                  "value": "ˈæm ɡˈOɪŋ tə stˈʌdi",
+                  "speed": 0.78,
+                  "goal": "/æm ˈɡoʊɪŋ tə ˈstʌdi/ — force am, never I'm",
+              },
+              "am-staying-a553b58724.wav": {
+                  "mode": "phonemes",
+                  "value": "ˈæm stˈeIɪŋ",
+                  "speed": 0.80,
+                  "goal": "/æm ˈsteɪɪŋ/ — force am, never I'm",
+              },
+              "change-bd120a6a04.wav": {
+                  "mode": "text",
+                  "value": "Change.",
+                  "speed": 0.82,
+                  "goal": "/tʃeɪndʒ/ — use natural Bella lexical rendering after raw-phoneme attempts sounded wrong",
+              },
+              "follow-480c42c110.wav": {
+                  "mode": "text",
+                  "value": "Follow.",
+                  "speed": 0.82,
+                  "goal": "/ˈfɑloʊ/ — preserve the second syllable, not 'fall/falla'",
+              },
+              "forbade-92e23a6543.wav": {
+                  "mode": "text",
+                  "value": "Forbade.",
+                  "speed": 0.78,
+                  "goal": "/fərˈbeɪd/ — natural two-syllable word with second-syllable stress",
+              },
+          }
+
+          def as_np(audio):
+              if hasattr(audio, "detach"):
+                  audio = audio.detach().cpu().numpy()
+              return np.asarray(audio, dtype=np.float32).reshape(-1)
+
+          for filename, spec in specs.items():
+              pieces = []
+              if spec["mode"] == "phonemes":
+                  generated = pipeline.generate_from_tokens(
+                      tokens=spec["value"], voice="af_bella", speed=spec["speed"]
+                  )
+              else:
+                  generated = pipeline(
+                      spec["value"], voice="af_bella", speed=spec["speed"]
+                  )
+              for _g, _p, audio in generated:
+                  segment = as_np(audio)
+                  if segment.size:
+                      pieces.append(segment)
+              if not pieces:
+                  raise RuntimeError(f"Kokoro returned no audio for {filename}")
+              speech = np.concatenate(pieces)
+              peak = float(np.max(np.abs(speech))) if speech.size else 0.0
+              if peak > 0.98:
+                  speech *= 0.96 / peak
+              clip = np.concatenate([lead, speech, tail])
+              out = root / filename
+              sf.write(out, clip, sr, subtype="PCM_16")
+              if out.stat().st_size <= 1000:
+                  raise RuntimeError(f"Generated clip too small: {out}")
+              print(f"repaired {out}: {spec['goal']}")
+          PY
+
+      - name: Replace BUILD using the approved fancy voice exception
+        run: |
+          set -euo pipefail
+          target="Verb-Runner/audio/pronunciation/external/build-fancy-approved-r2.mp3"
+          mkdir -p "$(dirname "$target")"
+          curl -fL --retry 3 --retry-delay 2             "https://www.aidocmaker.com/g0/audio?name=03a5237622844bdc8a482284d52a9cbf"             -o "$target"
+          test "$(wc -c < "$target")" -gt 1000
+          file "$target"
+
+      - name: Verify only expected audio paths changed
+        run: |
+          set -euo pipefail
+          allowed='^(Verb-Runner/audio/pronunciation/(am-going-to-study-5a392ee888\.wav|am-staying-a553b58724\.wav|change-bd120a6a04\.wav|follow-480c42c110\.wav|forbade-92e23a6543\.wav|external/build-fancy-approved-r2\.mp3))$'
+          changed="$(git status --porcelain | sed -E 's/^.. //' || true)"
+          printf '%s\n' "$changed"
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            echo "$f" | grep -Eq "$allowed" || {
+              echo "::error::Unexpected changed file: $f"
+              exit 1
+            }
+          done <<< "$changed"
+
+      - name: Run pronunciation regression tests
+        run: |
+          node --test Verb-Runner/tests/pronunciation.test.mjs
+          node --test Verb-Runner/tests/pronunciation-policy.test.mjs
+          node --test Verb-Runner/tests/pronunciation-review.test.mjs
+
+      - name: Commit repaired audio files
+        id: commit
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add             Verb-Runner/audio/pronunciation/am-going-to-study-5a392ee888.wav             Verb-Runner/audio/pronunciation/am-staying-a553b58724.wav             Verb-Runner/audio/pronunciation/change-bd120a6a04.wav             Verb-Runner/audio/pronunciation/follow-480c42c110.wav             Verb-Runner/audio/pronunciation/forbade-92e23a6543.wav             Verb-Runner/audio/pronunciation/external/build-fancy-approved-r2.mp3
+          git commit -m "Verb Runner: repair reported pronunciation batch 2026-09-19"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Mark exactly this batch REVIEW AGAIN and preserve report history
+        env:
+          FIREBASE_URL: https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/verbRunnerV2/pronunciationReview.json
+        run: |
+          set -euo pipefail
+          curl -fsS "$FIREBASE_URL" -o /tmp/review.json
+          python - <<'PY'
+          import json, re, time
+          from pathlib import Path
+
+          review = json.loads(Path("/tmp/review.json").read_text())
+          audios = review.get("audios") or {}
+          targets = {
+              "am going to study": ("./audio/pronunciation/am-going-to-study-5a392ee888.wav", "Sigue diciendo i'm", "Forced auxiliary am as /æm/ with Bella phonemes."),
+              "am staying": ("./audio/pronunciation/am-staying-a553b58724.wav", "Sigue diciendo I'm", "Forced auxiliary am as /æm/ with Bella phonemes."),
+              "build": ("./audio/pronunciation/external/build-fancy-approved-r2.mp3", "No audio", "Replaced local clip while preserving the teacher-approved fancy voice exception."),
+              "change": ("./audio/pronunciation/change-bd120a6a04.wav", "Dice chainge", "Switched this retry from the failed raw-phoneme rendering to natural Bella lexical rendering."),
+              "follow": ("./audio/pronunciation/follow-480c42c110.wav", "Falla dice", "Switched this retry to natural Bella lexical rendering to restore the second syllable."),
+              "forbade": ("./audio/pronunciation/forbade-92e23a6543.wav", "Forbaid dice", "Switched this retry to natural Bella lexical rendering with second-syllable stress."),
+          }
+          found = {}
+          for audio_id, record in audios.items():
+              if isinstance(record, dict) and record.get("key") in targets:
+                  found[record["key"]] = (audio_id, record)
+          missing = sorted(set(targets) - set(found))
+          if missing:
+              raise SystemExit("Missing Firebase audio records: " + ", ".join(missing))
+
+          stamp = int(time.time() * 1000)
+          patch = {}
+          for key, (new_source, report_text, rationale) in targets.items():
+              audio_id, record = found[key]
+              old_source = str(record.get("source") or "")
+              base = f"audios/{audio_id}"
+              patch[f"{base}/source"] = new_source
+              patch[f"{base}/status"] = "review-again"
+              patch[f"{base}/repairAppliedAt"] = stamp
+              patch[f"{base}/repairHandledAt"] = int(record.get("repairRequestedAt") or stamp)
+              patch[f"{base}/repairSource"] = new_source
+              patch[f"{base}/repairQueueStatus"] = "review-again"
+              patch[f"{base}/updatedAt"] = stamp
+
+              for report_id, report in (record.get("reports") or {}).items():
+                  if not isinstance(report, dict) or report.get("status") != "open":
+                      continue
+                  patch[f"{base}/reports/{report_id}/status"] = "resolved"
+                  patch[f"{base}/reports/{report_id}/resolvedAt"] = stamp
+                  patch[f"{base}/reports/{report_id}/resolvedBy"] = "Pronunciation repair batch 2026-09-19"
+
+              slug = re.sub(r"[^a-z0-9]+", "-", key.lower()).strip("-")
+              history_id = f"repair-{stamp}-{slug}"
+              event = {
+                  "action": "repair-applied-review-again",
+                  "at": stamp,
+                  "by": "Pronunciation repair batch 2026-09-19",
+                  "from": old_source,
+                  "to": new_source,
+                  "report": report_text,
+                  "rationale": rationale,
+              }
+              patch[f"{base}/history/{history_id}"] = event
+              print(f"{key}: {old_source} -> {new_source} -> REVIEW AGAIN")
+
+          Path("/tmp/firebase-patch.json").write_text(
+              json.dumps(patch, ensure_ascii=False, separators=(",", ":"))
+          )
+          PY
+          curl -fsS -X PATCH             -H "Content-Type: application/json"             --data-binary @/tmp/firebase-patch.json             "$FIREBASE_URL" > /tmp/firebase-patch-result.json
+          test "$(cat /tmp/firebase-patch-result.json)" = "null"
+
+      - name: Verify REVIEW AGAIN for exactly the six repaired records
+        env:
+          FIREBASE_URL: https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/verbRunnerV2/pronunciationReview.json
+        run: |
+          set -euo pipefail
+          curl -fsS "$FIREBASE_URL" -o /tmp/review-after.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path("/tmp/review-after.json").read_text())
+          targets={"am going to study","am staying","build","change","follow","forbade"}
+          seen={}
+          for aid,r in (data.get("audios") or {}).items():
+              if isinstance(r,dict) and r.get("key") in targets:
+                  seen[r["key"]]=(r.get("status"),r.get("source"))
+          if set(seen) != targets:
+              raise SystemExit(f"Missing targets after patch: {targets-set(seen)}")
+          bad={k:v for k,v in seen.items() if v[0]!="review-again"}
+          if bad:
+              raise SystemExit(f"Not REVIEW AGAIN: {bad}")
+          print(json.dumps(seen,indent=2))
+          PY
