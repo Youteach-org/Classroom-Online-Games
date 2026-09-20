@@ -21,7 +21,7 @@ test('assignment launch resolves through the allowlisted YouTeach server instead
   assert.match(sync,/host\.endsWith\('\.youteach\.pages\.dev'\)/);
   assert.match(sync,/\/api\/cog-launch-resolve/);
   assert.match(sync,/context\?\.purpose!=='assignment-practice'/);
-  assert.match(sync,/context\?\.officialSubmissionAllowed!==false/);
+  assert.match(sync,/typeof context\?\.officialSubmissionAllowed!=='boolean'/);
 });
 
 test('Verb Runner maps YouTeach modes to fixed race levels',()=>{
