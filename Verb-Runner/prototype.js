@@ -3276,15 +3276,53 @@ function createPedestrian(index=0){
   return g;
 }
 
+
+function createSlideBarrier(){
+  const g=new THREE.Group();
+  const frameMat=new THREE.MeshToonMaterial({color:0x30363b});
+  const warningMat=new THREE.MeshToonMaterial({color:0xf17828});
+  const lightMat=new THREE.MeshBasicMaterial({color:0xffe16a,toneMapped:false});
+
+  for(const x of [-1.02,1.02]){
+    const post=new THREE.Mesh(new THREE.BoxGeometry(.12,1.36,.16),frameMat);
+    post.position.set(x,.68,0);
+    post.castShadow=!IS_MOBILE;
+    g.add(post);
+
+    const foot=new THREE.Mesh(new THREE.BoxGeometry(.46,.10,.52),obstacleMaterials.black);
+    foot.position.set(x,.06,0);
+    g.add(foot);
+  }
+
+  const beam=new THREE.Mesh(new THREE.BoxGeometry(2.28,.42,.24),warningMat);
+  beam.position.set(0,1.42,0);
+  beam.castShadow=!IS_MOBILE;
+  g.add(beam);
+
+  for(const x of [-.72,0,.72]){
+    const reflector=new THREE.Mesh(new THREE.BoxGeometry(.20,.12,.03),lightMat);
+    reflector.position.set(x,1.42,-.14);
+    g.add(reflector);
+  }
+
+  return g;
+}
+
 function spawnObstacle(){
   const roll=Math.random();
   let type;
   let kind;
 
-  if(roll<.24){type='car';kind='car';}
-  else if(roll<.47){type='jump';kind='sign';}
-  else if(roll<.68){type='jump';kind='boxes';}
-  else {type='dodge';kind='pedestrian';}
+  if(currentLevel===2&&roll<.16){
+    type='slide';
+    kind='slide';
+  }else{
+    const normalized=currentLevel===2?(roll-.16)/.84:roll;
+    if(normalized<.24){type='car';kind='car';}
+    else if(normalized<.47){type='jump';kind='sign';}
+    else if(normalized<.68){type='jump';kind='boxes';}
+    else {type='dodge';kind='pedestrian';}
+  }
 
   if(kind==='pedestrian'){
     const answerCorridorBusy=
@@ -3303,6 +3341,7 @@ function spawnObstacle(){
   if(kind==='car')mesh=createRoadCar(Math.floor(Math.random()*6));
   else if(kind==='sign')mesh=createRoadSign();
   else if(kind==='boxes')mesh=createDeliveryBoxes();
+  else if(kind==='slide')mesh=createSlideBarrier();
   else{
     mesh=createPedestrian(Math.floor(Math.random()*pedestrianLooks.length));
     if(!mesh){
@@ -3395,6 +3434,7 @@ function updateRunner(dt){
   runnerRoot.rotation.z=THREE.MathUtils.damp(runnerRoot.rotation.z,lean,8,dt);
 
   let y=0;
+  let rollBlend=0;
 
   if(jumpTime>0){
     jumpTime+=dt;
@@ -3409,10 +3449,24 @@ function updateRunner(dt){
 
   if(rollTime>0){
     rollTime+=dt;
-    if(rollTime>=rollDuration){
+    const t=Math.min(1,rollTime/rollDuration);
+    rollBlend=Math.sin(Math.PI*t);
+    if(t>=1){
       rollTime=0;
+      rollBlend=0;
       if(gameStarted)play('run',.08);
     }
+  }
+
+  // The current deployed runner can lack a native Roll clip. Keep the control
+  // functional by falling back to a brief crouched slide pose when necessary.
+  if(model&&baseScale&&!actions.roll){
+    model.scale.set(
+      baseScale.x,
+      baseScale.y*(1-.42*rollBlend),
+      baseScale.z*(1+.06*rollBlend)
+    );
+    model.rotation.x=-.18*rollBlend;
   }
 
   runnerRoot.position.y=y;
@@ -3502,8 +3556,10 @@ function updateWorld(dt){
       const sameLane=o.laneIndex===lane&&Math.abs(o.mesh.position.x-runnerRoot.position.x)<1.25;
       if(sameLane){
         const safe=o.type==='jump'
-          ? runnerRoot.position.y>.92
-          : (o.type==='car'?runnerRoot.position.y>1.28:false);
+          ?runnerRoot.position.y>.92
+          :o.type==='car'
+            ?runnerRoot.position.y>1.28
+            :o.type==='slide'?rollTime>0:false;
         if(!safe)hit();
       }
     }
