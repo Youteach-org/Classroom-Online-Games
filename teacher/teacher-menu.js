@@ -46,7 +46,7 @@ async function initializeTeacherContext() {
     if (context) {
       setContextAttributes(context);
       showMessage(
-        `YouTeach connected · Group ${context.liveContext.groupName} · Select a game, then start its session to make it available to students.`
+        `YouTeach connected · Group ${context.liveContext.groupName} · ${context.liveContext.assignmentTitle || context.liveContext.assignmentCode || "COG activity"} · Select a game, then start its session to make it available to students.`
       );
       return;
     }
