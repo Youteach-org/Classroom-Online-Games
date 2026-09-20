@@ -245,7 +245,6 @@ Capture enough local/test telemetry to analyze the loop:
 - cascade-created relationships;
 - dead-board resets;
 - missed high-value opportunities;
-- hint usage if hints are included in a test build;
 - completion/failure;
 - restart/abandonment.
 
