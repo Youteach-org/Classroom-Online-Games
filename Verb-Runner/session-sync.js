@@ -102,6 +102,7 @@ async function createSession(settings,liveTeacherContext=null){
       live:true,
       groupName:String(liveContext.groupName),
       youTeachSessionId:String(liveContext.youTeachSessionId),
+      assignmentId:String(liveContext.assignmentId||''),
       teacherUsername:String(teacher?.username||'')
     }
     :null;
