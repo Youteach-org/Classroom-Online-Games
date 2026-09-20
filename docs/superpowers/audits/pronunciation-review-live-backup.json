@@ -1259,6 +1259,13 @@
           "reason": "Correct: blew and blue are homophones in standard American English.",
           "revision": "2026-09-19-r7-repair-batch-1789859881757"
         },
+        "validation-2026-09-19-r8-reported-batch-2108-blew": {
+          "action": "question-validated-correct",
+          "at": 1789873846857,
+          "by": "Pronunciation validation",
+          "reason": "Correct: blew and blue are homophones in standard American English.",
+          "revision": "2026-09-19-r8-reported-batch-2108"
+        },
         "validation-2026-09-19-r9-external-audio-binary-repair-blew": {
           "action": "question-validated-correct",
           "at": 1789870754773,
@@ -1268,7 +1275,7 @@
         }
       },
       "key": "blew",
-      "lastReviewedAt": 1789870923780,
+      "lastReviewedAt": 1789873846857,
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/blew-28ca160cbb.wav",
@@ -1283,15 +1290,15 @@
           "updatedAt": 1789569782992
         }
       },
-      "reviewedAt": 1789870923780,
+      "reviewedAt": 1789873846857,
       "reviewedBy": "Pronunciation validation",
       "source": "./audio/pronunciation/blew-28ca160cbb.wav",
       "sourceType": "local-wav",
       "status": "reviewed",
-      "updatedAt": 1789870923780,
+      "updatedAt": 1789873846857,
       "validationDecision": "correct-existing",
       "validationReason": "Correct: blew and blue are homophones in standard American English.",
-      "validationRevision": "2026-09-19-r10-build-cache-bust"
+      "validationRevision": "2026-09-19-r8-reported-batch-2108"
     },
     "blow-va3okh": {
       "assetCreatedAt": 1789494062000,
@@ -1504,7 +1511,8 @@
       "updatedAt": 1789859483704
     },
     "build-1i9vvkz": {
-      "assetCreatedAt": 1789864416914,
+      "assetCreatedAt": 1789873624110,
+      "cleanupRequested": false,
       "firstReviewedAt": 1789569810567,
       "history": {
         "-P1ef30KJyCCmS22q3nW": {
@@ -1542,6 +1550,18 @@
           "from": "https://www.aidocmaker.com/g0/audio?name=d1cd1b4c12ad44bbbb243cbd3cd3c881",
           "to": "./audio/pronunciation/external/build-fancy-approved-r2.mp3"
         },
+        "-P1wm0AqqFvbqwLlP8Bt": {
+          "action": "asset-source-changed",
+          "at": 1789873624216,
+          "by": "system",
+          "from": "./audio/pronunciation/external/build-fancy-approved-r2.mp3",
+          "to": "./audio/pronunciation/external/build-fancy-approved-r3.mp3"
+        },
+        "-P1wm0C3R1lQl5zEsef6": {
+          "action": "reviewed-ok",
+          "at": 1789873624295,
+          "by": "Armando Anota"
+        },
         "repair-1789863960786-build": {
           "action": "repair-applied-review-again",
           "at": 1789863960786,
@@ -1567,7 +1587,8 @@
         }
       },
       "key": "build",
-      "lastReviewedAt": 1789870479326,
+      "lastReviewedAt": 1789873624110,
+      "removedAsDuplicate": false,
       "repairAppliedAt": 1789870924148,
       "repairHandledAt": 1789859881757,
       "repairQueueStatus": "review-again",
@@ -1613,12 +1634,12 @@
           "updatedAt": 1789691109710
         }
       },
-      "reviewedAt": 1789870479326,
+      "reviewedAt": 1789873624110,
       "reviewedBy": "Armando Anota",
-      "source": "./audio/pronunciation/external/build-fancy-approved-r2.mp3",
+      "source": "./audio/pronunciation/external/build-fancy-approved-r3.mp3",
       "sourceType": "other",
-      "status": "review-again",
-      "updatedAt": 1789870924148
+      "status": "reviewed",
+      "updatedAt": 1789873624110
     },
     "built-1du28hf": {
       "assetCreatedAt": 1789494062000,
@@ -2073,26 +2094,33 @@
           "rationale": "Switched this retry from the failed raw-phoneme rendering to natural Bella lexical rendering.",
           "report": "Dice chainge",
           "to": "./audio/pronunciation/change-bd120a6a04.wav"
+        },
+        "repair-1789873999936-change": {
+          "action": "repair-applied-review-again",
+          "at": 1789873999936,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/change-bd120a6a04.wav",
+          "to": "./audio/pronunciation/change-d812353b05.wav"
         }
       },
       "key": "change",
-      "lastReviewedAt": 1789864306618,
-      "repairAppliedAt": 1789864711280,
-      "repairHandledAt": 1789864711280,
+      "lastReviewedAt": 1789873638820,
+      "repairAppliedAt": 1789873999936,
+      "repairHandledAt": 1789873999936,
       "repairQueueStatus": "review-again",
-      "repairSource": "./audio/pronunciation/change-bd120a6a04.wav",
+      "repairSource": "./audio/pronunciation/change-d812353b05.wav",
       "reports": {
         "autosave-armando-anota-22dz74-audio-pronunciation-change-bd120a6a04-wav-3nj2x": {
           "assetSource": "./audio/pronunciation/change-bd120a6a04.wav",
           "createdAt": 1789864303732,
           "kind": "pronunciation",
           "previousStatus": "review-again",
-          "resolvedAt": 1789864711280,
-          "resolvedBy": "Pronunciation repair batch 2026-09-19",
+          "resolvedAt": 1789873999936,
+          "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
           "status": "resolved",
-          "text": "Dice chainge",
-          "updatedAt": 1789864306618
+          "text": "Tiene una k al principio!",
+          "updatedAt": 1789873638820
         },
         "autosave-armando-anota-22dz74-audio-pronunciation-change-dc6010c72a-wav-1fpbdvv": {
           "assetSource": "./audio/pronunciation/change-dc6010c72a.wav",
@@ -2118,12 +2146,12 @@
           "text": "Sounds approximately “kchain”; pronunciation is incorrect."
         }
       },
-      "reviewedAt": 1789864306618,
+      "reviewedAt": 1789873638820,
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/change-bd120a6a04.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789864711280
+      "updatedAt": 1789873999936
     },
     "changed-jgug0r": {
       "assetCreatedAt": 1789688758264,
@@ -3972,14 +4000,21 @@
           "rationale": "Switched this retry to natural Bella lexical rendering to restore the second syllable.",
           "report": "Falla dice",
           "to": "./audio/pronunciation/follow-480c42c110.wav"
+        },
+        "repair-1789873999936-follow": {
+          "action": "repair-applied-review-again",
+          "at": 1789873999936,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/follow-480c42c110.wav",
+          "to": "./audio/pronunciation/follow-81add13f5f.wav"
         }
       },
       "key": "follow",
-      "lastReviewedAt": 1789864327349,
-      "repairAppliedAt": 1789864711280,
-      "repairHandledAt": 1789864711280,
+      "lastReviewedAt": 1789873651672,
+      "repairAppliedAt": 1789873999936,
+      "repairHandledAt": 1789873999936,
       "repairQueueStatus": "review-again",
-      "repairSource": "./audio/pronunciation/follow-480c42c110.wav",
+      "repairSource": "./audio/pronunciation/follow-81add13f5f.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/follow-f7ac253b1b.wav",
@@ -3998,12 +4033,12 @@
           "createdAt": 1789864323213,
           "kind": "pronunciation",
           "previousStatus": "review-again",
-          "resolvedAt": 1789864711280,
-          "resolvedBy": "Pronunciation repair batch 2026-09-19",
+          "resolvedAt": 1789873999936,
+          "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
           "status": "resolved",
-          "text": "Falla dice",
-          "updatedAt": 1789864327349
+          "text": "Dice falla",
+          "updatedAt": 1789873651672
         },
         "autosave-armando-anota-22dz74-audio-pronunciation-follow-8e900ba8ec-wav-o3rkxw": {
           "assetSource": "./audio/pronunciation/follow-8e900ba8ec.wav",
@@ -4018,12 +4053,12 @@
           "updatedAt": 1789688823937
         }
       },
-      "reviewedAt": 1789864327349,
+      "reviewedAt": 1789873651672,
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/follow-480c42c110.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789864711280
+      "updatedAt": 1789873999936
     },
     "for-ten-years-z5azid": {
       "assetCreatedAt": 1789494062000,
@@ -4226,14 +4261,21 @@
           "rationale": "Switched this retry to natural Bella lexical rendering with second-syllable stress.",
           "report": "Forbaid dice",
           "to": "./audio/pronunciation/forbade-92e23a6543.wav"
+        },
+        "repair-1789873999936-forbade": {
+          "action": "repair-applied-review-again",
+          "at": 1789873999936,
+          "by": "Pronunciation repair sync",
+          "from": "./audio/pronunciation/forbade-92e23a6543.wav",
+          "to": "./audio/pronunciation/forbade-0ed101854f.wav"
         }
       },
       "key": "forbade",
-      "lastReviewedAt": 1789864337945,
-      "repairAppliedAt": 1789864711280,
-      "repairHandledAt": 1789864711280,
+      "lastReviewedAt": 1789873661267,
+      "repairAppliedAt": 1789873999936,
+      "repairHandledAt": 1789873999936,
       "repairQueueStatus": "review-again",
-      "repairSource": "./audio/pronunciation/forbade-92e23a6543.wav",
+      "repairSource": "./audio/pronunciation/forbade-0ed101854f.wav",
       "reports": {
         "autosave-armando-anota-22dz74": {
           "assetSource": "./audio/pronunciation/forbade-3529d0c1bf.wav",
@@ -4264,20 +4306,20 @@
           "createdAt": 1789864334790,
           "kind": "pronunciation",
           "previousStatus": "review-again",
-          "resolvedAt": 1789864711280,
-          "resolvedBy": "Pronunciation repair batch 2026-09-19",
+          "resolvedAt": 1789873999936,
+          "resolvedBy": "Pronunciation repair sync",
           "reviewer": "Armando Anota",
           "status": "resolved",
-          "text": "Forbaid dice",
-          "updatedAt": 1789864337945
+          "text": "Dice for bad",
+          "updatedAt": 1789873661267
         }
       },
-      "reviewedAt": 1789864337945,
+      "reviewedAt": 1789873661267,
       "reviewedBy": "Armando Anota",
       "source": "./audio/pronunciation/forbade-92e23a6543.wav",
       "sourceType": "local-wav",
       "status": "review-again",
-      "updatedAt": 1789864711280
+      "updatedAt": 1789873999936
     },
     "forbid-2jp0uj": {
       "assetCreatedAt": 1789494062000,
