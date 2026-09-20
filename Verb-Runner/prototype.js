@@ -2929,6 +2929,7 @@ function clearObstacleField(){
 
 function setSentenceRunnerZone(force=false){
   if(currentLevel!==2){
+    world.visible=true;
     sentenceRunnerWorld.setVisible(false);
     activeLanes=[...lanes];
     routeBaseY=0;
@@ -2950,6 +2951,7 @@ function setSentenceRunnerZone(force=false){
   activeLanes=[...next.lanes];
   targetX=activeLanes[lane];
 
+  world.visible=false;
   sentenceRunnerWorld.setVisible(true);
   sentenceRunnerWorld.setZone(next.id);
   sentenceRunnerWorld.setElevation(routeBaseY);
