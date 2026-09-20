@@ -122,7 +122,7 @@ async function resolveYouTeachAssignmentLaunchToken(rawToken,rawIssuer){
     payload?.ok!==true||
     !identity?.studentKey||
     context?.purpose!=='assignment-practice'||
-    context?.officialSubmissionAllowed!==false||
+    typeof context?.officialSubmissionAllowed!=='boolean'||
     context?.cogActivity?.gameId!=='verb-runner'
   ){
     return null;
@@ -137,12 +137,36 @@ async function resolveYouTeachAssignmentLaunchToken(rawToken,rawIssuer){
     identitySource:'youteach',
     launchContext:{
       purpose:'assignment-practice',
-      officialSubmissionAllowed:false,
+      officialSubmissionAllowed:context.officialSubmissionAllowed===true,
       assignmentId:String(context.assignmentId||''),
       assignmentCode:String(context.assignmentCode||''),
       cogActivity:{...context.cogActivity}
-    }
+    },
+    submissionToken:context.officialSubmissionAllowed===true?String(payload?.submissionToken||''):'',
+    submissionTokenExpiresAt:Number(payload?.submissionTokenExpiresAt||0),
+    issuer
   };
+}
+
+async function submitYouTeachAssignmentResult(rawToken,rawIssuer,attempt){
+  const submissionToken=String(rawToken||'').trim();
+  const issuer=normalizeAssignmentIssuer(rawIssuer);
+  if(submissionToken.length<40||!issuer){
+    throw new Error('Official result submission is not available for this run.');
+  }
+  const response=await fetch(`${issuer}/api/cog-result-submit`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({submissionToken,attempt})
+  });
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok||payload?.ok!==true){
+    const error=new Error(payload?.error||'Could not send this result to YouTeach.');
+    error.status=response.status;
+    error.payload=payload;
+    throw error;
+  }
+  return payload;
 }
 
 function makeCode(){
@@ -426,7 +450,7 @@ async function finishRunner(code,runnerId,result={}){
 }
 
 export {
-  normalizeCode,makeRunnerId,resolveYouTeachLaunchToken,resolveYouTeachAssignmentLaunchToken,createSession,loadSession,subscribeSession,subscribeSessions,closeSession,
+  normalizeCode,makeRunnerId,resolveYouTeachLaunchToken,resolveYouTeachAssignmentLaunchToken,submitYouTeachAssignmentResult,createSession,loadSession,subscribeSession,subscribeSessions,closeSession,
   registerFreeRunnerPresence,subscribeFreeRunners,connectFreeRunner,updateFreeRunner,finishFreeRunner,
   registerRunnerPresence,connectRunner,updateRunner,finishRunner
 };
