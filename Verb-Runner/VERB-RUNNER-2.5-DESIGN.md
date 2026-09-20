@@ -1,6 +1,25 @@
 # Verb Runner 2.5 — Learning-First Dynamic Runner
 
-Status: design direction corrected after playtest feedback. **Development only. Production main remains stable.**
+Status: **Phase 1 development prototype implemented and browser-verified. Development only. Production main remains stable.**
+
+Current Phase 1 implementation:
+- dedicated Sentence Runner world module, separate from the Level 1 near corridor;
+- three route zones: Market Streets, Rooftop Run, Seafront Promenade;
+- rooftop route elevation at 4.2 world units;
+- zone-specific lane widths and camera framing;
+- large three-choice HUD for sentence/verb-phrase answers;
+- in-world lane beacons carry position only, never long sentence text;
+- reading lead time grows with answer length;
+- Level 1 near-world group is hidden only while Level 2 is active and restored for every other race;
+- full Verb Runner regression suite passes;
+- Cloudflare development preview browser smoke test passes at 1536×864 with three visible answer choices measured around 352–364 px wide and 110–114 px high.
+
+Still intentionally pending:
+- physical route split / shortcut consequence after an answer;
+- richer authored obstacle patterns per zone;
+- chase/rival system;
+- visual polish beyond the first zone prototype;
+- validation of the later Rooftop and Promenade sections through longer automated play.
 
 Rejected prototype lessons:
 - small Grammar Gates are not readable enough for sentence/tense answers;
