@@ -1,7 +1,7 @@
 import {
   markReviewed,saveAutosaveReport,clearAutosaveReport,resolveReport,deleteReport,
   markDuplicate
-} from './review-actions.js';
+} from './review-actions.js?v=15';
 
 export function bindReviewEvents({audioList,getEntryById,getEntryByNumber,getRecordById,reviewer}){
   const autosaveTimers=new Map();
