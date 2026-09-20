@@ -36,7 +36,8 @@ Create the following focused units:
 
 - `Wordy/index.html` — accessible static entry point and DOM skeleton.
 - `Wordy/styles.css` — phone-first layout, tile states, pop/cascade/result animation styling.
-- `Wordy/app.mjs` — single game controller/state machine; no matching/scoring logic embedded here.
+- `Wordy/app.mjs` — browser bootstrap/wiring only; no matching/scoring logic embedded here.
+- `Wordy/engine/controller.mjs` — game state machine coordinating pure engine modules without DOM dependencies.
 - `Wordy/data/relationships.mjs` — curated V1 relationship records.
 - `Wordy/data/levels.mjs` — validation level definitions and authored board fixtures.
 - `Wordy/engine/relationship-bank.mjs` — validate/index relationship data.
@@ -49,6 +50,7 @@ Create the following focused units:
 - `Wordy/engine/telemetry.mjs` — small event store with optional browser storage persistence.
 - `Wordy/ui/input.mjs` — pure swipe/selection interpretation plus DOM input binding.
 - `Wordy/ui/render.mjs` — render board/HUD/ready states/results from controller state.
+- `Wordy/tests/helpers.mjs` — deterministic RNG, compact relation/match builders, and fake browser storage used by tests.
 - `Wordy/tests/*.test.mjs` — Node regression suite.
 - Modify `index.html` only at the final integration task to expose the prototype card on the COG landing page.
 
@@ -67,6 +69,7 @@ Create the following focused units:
 **Files:**
 - Create: `Wordy/data/relationships.mjs`
 - Create: `Wordy/engine/relationship-bank.mjs`
+- Create: `Wordy/tests/helpers.mjs`
 - Create: `Wordy/tests/relationship-bank.test.mjs`
 
 **Interfaces:**
@@ -159,7 +162,36 @@ node --test Wordy/tests/relationship-bank.test.mjs
 
 Expected: FAIL because `relationships.mjs` / `relationship-bank.mjs` do not exist.
 
-- [ ] **Step 3: Implement the relationship records and bank index**
+- [ ] **Step 3: Add deterministic shared test helpers**
+
+```js
+export function seeded(seed=1){
+  let value=seed>>>0;
+  return ()=>{
+    value=(value*1664525+1013904223)>>>0;
+    return value/4294967296;
+  };
+}
+
+export function createFakeStorage(){
+  const values=new Map();
+  return {
+    getItem:key=>values.has(key)?values.get(key):null,
+    setItem:(key,value)=>values.set(key,String(value)),
+    removeItem:key=>values.delete(key)
+  };
+}
+
+export function relation(id,tokens,category='collocation',baseScore=120,difficulty=1){
+  return {id,category,tokens,baseScore,difficulty,meaning:id,explanation:id};
+}
+
+export function match(relationshipId,cells,orientation='horizontal',tokens=[]){
+  return {relationshipId,cells,orientation,tokens};
+}
+```
+
+- [ ] **Step 4: Implement the relationship records and bank index**
 
 Core index shape:
 
@@ -183,7 +215,7 @@ export function createRelationshipBank(entries){
 }
 ```
 
-- [ ] **Step 4: Run the bank tests**
+- [ ] **Step 5: Run the bank tests**
 
 Run:
 ```bash
@@ -192,10 +224,10 @@ node --test Wordy/tests/relationship-bank.test.mjs
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add Wordy/data/relationships.mjs Wordy/engine/relationship-bank.mjs Wordy/tests/relationship-bank.test.mjs
+git add Wordy/data/relationships.mjs Wordy/engine/relationship-bank.mjs Wordy/tests/helpers.mjs Wordy/tests/relationship-bank.test.mjs
 git commit -m "feat(wordy): add curated relationship bank"
 ```
 
@@ -436,6 +468,34 @@ Cascade multiplier is `1 + cascadeDepth * 0.5`, where player-triggered batch dep
 
 - [ ] **Step 1: Write scoring tests**
 
+At the top of `scoring.test.mjs`, define every fixture used by the tests:
+
+```js
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createRelationshipBank } from '../engine/relationship-bank.mjs';
+import { scoreResolution } from '../engine/scoring.mjs';
+import { relation, match } from './helpers.mjs';
+
+const bank=createRelationshipBank([
+  relation('m1',['LOOK','AFTER'],'phrasal-verb',120,1),
+  relation('m2',['MAKE','SENSE'],'collocation',130,1),
+  relation('h',['MAKE','A','DECISION'],'collocation',180,2),
+  relation('v',['TAKE','A','BREAK'],'collocation',180,2)
+]);
+
+const m1=match('m1',[{row:0,col:0},{row:0,col:1}],'horizontal',['LOOK','AFTER']);
+const m2=match('m2',[{row:2,col:0},{row:2,col:1}],'horizontal',['MAKE','SENSE']);
+const horizontal=match('h',[
+  {row:1,col:0},{row:1,col:1},{row:1,col:2}
+],'horizontal',['MAKE','A','DECISION']);
+const vertical=match('v',[
+  {row:0,col:1},{row:1,col:1},{row:2,col:1}
+],'vertical',['TAKE','A','BREAK']);
+```
+
+Then add:
+
 ```js
 test('batch bonus rewards resolving several ready relationships together',()=>{
   const one=scoreResolution({matches:[m1],bank,discoveredIds:new Set(),cascadeDepth:0});
@@ -517,8 +577,50 @@ Each generation records `matches`, `removedTileIds`, `score`, and `cascadeDepth`
 
 - [ ] **Step 1: Write global-pop, crossing-removal, and runaway tests**
 
+Define the complete fixtures in `resolution.test.mjs`:
+
+```js
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createBoard } from '../engine/board.mjs';
+import { createRelationshipBank } from '../engine/relationship-bank.mjs';
+import { resolvePlayerActivation } from '../engine/resolution.mjs';
+import { relation } from './helpers.mjs';
+
+const bank=createRelationshipBank([
+  relation('look-after',['LOOK','AFTER'],'phrasal-verb',120,1),
+  relation('take-a-break',['TAKE','A','BREAK'],'collocation',180,2),
+  relation('make-a-decision',['MAKE','A','DECISION'],'collocation',180,2)
+]);
+
+let refillId=0;
+const fillerRefill=()=>({id:'refill-'+(++refillId),word:'ZZZ'});
+
+const crossBoard=createBoard([
+  ['ZZZ','TAKE','ZZZ'],
+  ['MAKE','A','DECISION'],
+  ['ZZZ','BREAK','ZZZ']
+]);
+
+const cascadeBoard=createBoard([
+  ['WENT','TAKE','GONE'],
+  ['LOOK','AFTER','ZZZ'],
+  ['BROKE','A','CHOSEN'],
+  ['WROTE','BREAK','SEEN']
+]);
+```
+
+The cascade fixture begins with `LOOK AFTER`. Removing `AFTER` makes `TAKE` fall into the vertical sequence `TAKE / A / BREAK`.
+
+Then add:
+
 ```js
 test('global activation resolves every currently ready relationship in generation zero',()=>{
+  const result=resolvePlayerActivation({
+    board:crossBoard,bank,discoveredIds:new Set(),refillTile:fillerRefill
+  });
+  assert.equal(result.generations[0].matches.length,2);
+});
   const result=resolvePlayerActivation({board,bank,discoveredIds:new Set(),refillTile});
   assert.equal(result.generations[0].matches.length,2);
 });
@@ -532,19 +634,24 @@ test('a tile shared by two crossing relationships is physically removed once but
 });
 
 test('gravity-created relationship becomes automatic cascade generation one',()=>{
-  const result=resolvePlayerActivation({board:cascadeBoard,bank,discoveredIds:new Set(),refillTile});
+  const result=resolvePlayerActivation({board:cascadeBoard,bank,discoveredIds:new Set(),refillTile:fillerRefill});
   assert.ok(result.generations.length>=2);
   assert.equal(result.generations[1].cascadeDepth,1);
   assert.ok(result.generations[1].matches.some(m=>m.relationshipId==='take-a-break'));
 });
 
 test('pathological refill cannot create an infinite cascade',()=>{
+  const loopBank=createRelationshipBank([
+    relation('up-up',['UP','UP'],'fixed-expression',100,1)
+  ]);
+  const loopBoard=createBoard([['UP','UP']]);
+  let id=0;
   assert.throws(
     ()=>resolvePlayerActivation({
       board:loopBoard,
-      bank,
+      bank:loopBank,
       discoveredIds:new Set(),
-      refillTile:()=>({id:crypto.randomUUID(),word:'UP'}),
+      refillTile:()=>({id:'loop-'+(++id),word:'UP'}),
       maxCascadeDepth:3
     }),
     /cascade limit/i
@@ -631,7 +738,7 @@ Controlled generation algorithm:
 4. shuffle with injected `rng`;
 5. build the 7×5 board;
 6. accept only boards with at least `minScoringMoves` immediate scoring swaps;
-7. after 250 rejected attempts, return a known productive fallback fixture from Task 7.
+7. after 250 rejected attempts, return the caller-supplied `fallbackBoard`; generator code must not import level data.
 
 - [ ] **Step 1: Write generator tests, including Review Focus #4**
 
@@ -650,19 +757,30 @@ test('a board with no immediate score but a match reachable in two setup swaps i
   ]);
   const board=createBoard([
     ['LOOK','X','Y'],
-    ['Z','AFTER','Q']
+    ['Z','Q','AFTER']
   ]);
   assert.equal(findImmediateScoringMoves(board,bank).length,0);
   assert.equal(hasViablePlay(board,bank,{maxDepth:2}),true);
 });
 
 test('controlled board satisfies the minimum immediate scoring-move requirement',()=>{
-  const board=createControlledBoard({bank:fullBank,rows:7,cols:5,rng:seeded(7),minScoringMoves:2});
+  const fallbackBoard=createBoard([
+    ['LOOK','WENT','AFTER','MONEY','BEGUN'],
+    ['COFFEE','NOTES','PROMISE','SCHOOL','FUN'],
+    ['MAKE','GONE','SENSE','RAIN','FOOD'],
+    ['WROTE','SEEN','COLD','TIME','TRUTH'],
+    ['DRANK','TAKE','A','BREAK','HABIT'],
+    ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
+    ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+  ]);
+  const board=createControlledBoard({
+    bank:fullBank,rows:7,cols:5,rng:seeded(7),minScoringMoves:2,fallbackBoard
+  });
   assert.ok(findImmediateScoringMoves(board,fullBank).length>=2);
 });
 
 test('dead board recovery costs no game move and marks reset true',()=>{
-  const result=recoverDeadBoard({board:deadBoard,bank:fullBank,rng:seeded(4)});
+  const result=recoverDeadBoard({board:deadBoard,bank:fullBank,rng:seeded(4),fallbackBoard});
   assert.equal(result.reset,true);
   assert.equal(result.board.length,7);
   assert.equal(result.board[0].length,5);
@@ -764,19 +882,26 @@ test('all validation levels are 7x5 and move-limited',()=>{
 test('level D fixture produces the intended cascade under its documented activation',()=>{
   const level=getLevel('D');
   const board=createBoard(level.boardRows);
-  const prepared=applyFixtureMoves(board,level.fixtureMoves);
+  const prepared=level.fixtureMoves.reduce(
+    (current,[from,to])=>swapTiles(current,from,to),
+    board
+  );
+  let refillIndex=0;
   const result=resolvePlayerActivation({
     board:prepared,
     bank,
     discoveredIds:new Set(),
-    refillTile:fixtureRefill(level)
+    refillTile:()=>({
+      id:'fixture-'+(++refillIndex),
+      word:level.fixtureRefillWords[(refillIndex-1)%level.fixtureRefillWords.length]
+    })
   });
   assert.ok(result.generations.length>=2);
 });
 
 test('level F fixture can produce a crossing before activation',()=>{
   const level=getLevel('F');
-  const prepared=applyFixtureMoves(createBoard(level.boardRows),level.fixtureMoves);
+  const prepared=level.fixtureMoves.reduce((current,[from,to])=>swapTiles(current,from,to),createBoard(level.boardRows));
   assert.ok(findCrossings(findMatches(prepared,bank)).length>=1);
 });
 ```
@@ -792,7 +917,129 @@ Expected: FAIL.
 
 - [ ] **Step 3: Implement all seven concrete level definitions**
 
-Include exact `fixtureMoves` and, for Level D, exact deterministic `fixtureRefillWords` used only by the validation test. Production play still uses the controlled refill generator.
+Use these exact authored boards and fixture moves as the initial validation fixtures:
+
+```js
+export const LEVELS=[
+  {
+    id:'A',title:'First Move',moves:10,
+    goal:{type:'score',target:250},
+    instruction:'Swap neighboring words to build a valid English relationship.',
+    boardRows:[
+      ['LOOK','WENT','AFTER','MONEY','BEGUN'],
+      ['COFFEE','NOTES','PROMISE','SCHOOL','FUN'],
+      ['BROKE','CHOSEN','RAIN','FOOD','HABIT'],
+      ['WROTE','SEEN','COLD','TIME','TRUTH'],
+      ['DRANK','GONE','EXERCISE','BREAKFAST','DIFFERENCE'],
+      ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
+      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+    ],
+    fixtureMoves:[[{row:0,col:1},{row:0,col:2}]]
+  },
+  {
+    id:'B',title:'Ready, Set, Pop',moves:12,
+    goal:{type:'score',target:500},
+    instruction:'Build a relationship, leave it ready, then use POP.',
+    boardRows:[
+      ['MAKE','WENT','SENSE','MONEY','BEGUN'],
+      ['COFFEE','NOTES','PROMISE','SCHOOL','FUN'],
+      ['BROKE','CHOSEN','RAIN','FOOD','HABIT'],
+      ['WROTE','SEEN','COLD','TIME','TRUTH'],
+      ['DRANK','GONE','EXERCISE','BREAKFAST','DIFFERENCE'],
+      ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
+      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+    ],
+    fixtureMoves:[[{row:0,col:1},{row:0,col:2}]]
+  },
+  {
+    id:'C',title:'Build the Batch',moves:16,
+    goal:{type:'batch',target:2},
+    instruction:'Keep one relationship ready while you prepare another.',
+    boardRows:[
+      ['LOOK','WENT','AFTER','MONEY','BEGUN'],
+      ['COFFEE','NOTES','PROMISE','SCHOOL','FUN'],
+      ['MAKE','GONE','SENSE','RAIN','FOOD'],
+      ['WROTE','SEEN','COLD','TIME','TRUTH'],
+      ['DRANK','EXERCISE','BREAKFAST','DIFFERENCE','HABIT'],
+      ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
+      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+    ],
+    fixtureMoves:[
+      [{row:0,col:1},{row:0,col:2}],
+      [{row:2,col:1},{row:2,col:2}]
+    ]
+  },
+  {
+    id:'D',title:'Let It Fall',moves:16,
+    goal:{type:'cascade',target:1},
+    instruction:'Use POP so falling words create another relationship.',
+    boardRows:[
+      ['WENT','TAKE','GONE','COFFEE','NOTES'],
+      ['LOOK','AFTER','PROMISE','SCHOOL','FUN'],
+      ['BROKE','A','CHOSEN','RAIN','FOOD'],
+      ['WROTE','BREAK','SEEN','COLD','TIME'],
+      ['DRANK','MONEY','EXERCISE','HABIT','TRUTH'],
+      ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
+      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+    ],
+    fixtureMoves:[],
+    fixtureRefillWords:['ZZZ','YYY']
+  },
+  {
+    id:'E',title:'Long Thought',moves:18,
+    goal:{type:'long-relation',target:5},
+    instruction:'Build a five-word expression.',
+    boardRows:[
+      ['AS','MATTER','A','OF','FACT'],
+      ['COFFEE','NOTES','PROMISE','SCHOOL','FUN'],
+      ['BROKE','CHOSEN','RAIN','FOOD','HABIT'],
+      ['WROTE','SEEN','COLD','TIME','TRUTH'],
+      ['DRANK','GONE','EXERCISE','BREAKFAST','DIFFERENCE'],
+      ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
+      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+    ],
+    fixtureMoves:[[{row:0,col:1},{row:0,col:2}]]
+  },
+  {
+    id:'F',title:'Crossroads',moves:18,
+    goal:{type:'cross',target:1},
+    instruction:'Keep the horizontal phrase ready and build a phrase through it.',
+    boardRows:[
+      ['WENT','COFFEE','GONE','NOTES','BEGUN'],
+      ['BROKE','PROMISE','CHOSEN','SCHOOL','FUN'],
+      ['RAIN','TAKE','FOOD','HABIT','TRUTH'],
+      ['COLD','MAKE','A','DECISION','TIME'],
+      ['SEEN','WORK','BREAK','IDEA','HOMEWORK'],
+      ['DRANK','KNOWN','EXERCISE','BREAKFAST','DIFFERENCE'],
+      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+    ],
+    fixtureMoves:[[{row:2,col:1},{row:2,col:2}]]
+  },
+  {
+    id:'G',title:'Mixed Play',moves:20,
+    goal:{type:'score',target:1800},
+    instruction:'Use everything you have learned to build stronger activations.',
+    boardRows:[
+      ['LOOK','WENT','AFTER','MONEY','BEGUN'],
+      ['COFFEE','TAKE','NOTES','SCHOOL','FUN'],
+      ['MAKE','GONE','SENSE','RAIN','FOOD'],
+      ['WROTE','A','COLD','TIME','TRUTH'],
+      ['DRANK','BREAK','EXERCISE','HABIT','DIFFERENCE'],
+      ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
+      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+    ],
+    generated:true,
+    fixtureMoves:[
+      [{row:0,col:1},{row:0,col:2}],
+      [{row:2,col:1},{row:2,col:2}]
+    ]
+  }
+];
+
+export const FALLBACK_BOARD_ROWS=LEVELS.find(level=>level.id==='G').boardRows;
+```
+
+The implementation may adjust only filler words when a test proves an accidental relationship exists at level start. The intended relationship, fixture move, board size, and lesson purpose must remain unchanged. Production play uses controlled refill; `fixtureRefillWords` exists only for deterministic tests.
 
 - [ ] **Step 4: Implement objective evaluation**
 
@@ -856,6 +1103,47 @@ Discovery persistence key: `wordy.prototype.discovered.v1`.
 Telemetry persistence key: `wordy.prototype.telemetry.v1`.
 
 - [ ] **Step 1: Write review and telemetry tests**
+
+Define the fixtures in the test file so every reference is local and deterministic:
+
+```js
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createBoard } from '../engine/board.mjs';
+import { createRelationshipBank } from '../engine/relationship-bank.mjs';
+import { captureMissedOpportunity, buildRoundReview } from '../engine/review.mjs';
+import { createTelemetryStore } from '../engine/telemetry.mjs';
+import { createFakeStorage, relation } from './helpers.mjs';
+
+const bank=createRelationshipBank([
+  relation('look-after',['LOOK','AFTER'],'phrasal-verb',120,1),
+  relation('make-sense',['MAKE','SENSE'],'collocation',130,1),
+  relation('take-a-break',['TAKE','A','BREAK'],'collocation',180,2),
+  relation('by-the-way',['BY','THE','WAY'],'fixed-expression',170,2)
+]);
+const board=createBoard([
+  ['LOOK','X','AFTER'],
+  ['MAKE','X','SENSE'],
+  ['TAKE','A','BREAK']
+]);
+const bestMove={
+  swap:{from:{row:0,col:1},to:{row:0,col:2}},
+  matches:[{relationshipId:'look-after'}],
+  projectedScore:170
+};
+const lowMove={
+  swap:{from:{row:1,col:1},to:{row:1,col:2}},
+  matches:[{relationshipId:'make-sense'}],
+  projectedScore:140
+};
+const otherSwap={from:{row:0,col:0},to:{row:1,col:0}};
+const m1={relationshipId:'look-after',projectedScore:100};
+const m2={relationshipId:'take-a-break',projectedScore:220};
+const m3={relationshipId:'make-sense',projectedScore:140};
+const m4={relationshipId:'by-the-way',projectedScore:180};
+```
+
+Then add:
 
 ```js
 test('chosen best scoring swap is not recorded as missed',()=>{
@@ -1110,6 +1398,7 @@ git commit -m "feat(wordy): add phone-first prototype UI"
 ### Task 11: Controller, full playable loop, and COG route
 
 **Files:**
+- Create: `Wordy/engine/controller.mjs`
 - Create: `Wordy/app.mjs`
 - Create: `Wordy/tests/controller.test.mjs`
 - Modify: `Wordy/index.html` to load `./app.mjs` as a module.
@@ -1165,19 +1454,71 @@ If `CascadeLimitError` occurs:
 
 - [ ] **Step 1: Write controller-state tests around move charging and ready persistence**
 
-Factor controller logic into exported `createGameController(deps)` so Node tests can drive it without a DOM.
+Factor controller logic into `Wordy/engine/controller.mjs` and export `createGameController(deps)` so Node tests can drive it without a DOM.
+
+At the top of `controller.test.mjs`, build one complete test controller:
+
+```js
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createGameController } from '../engine/controller.mjs';
+import { createRelationshipBank } from '../engine/relationship-bank.mjs';
+import { relation, seeded } from './helpers.mjs';
+
+const bank=createRelationshipBank([
+  relation('look-after',['LOOK','AFTER'],'phrasal-verb',120,1),
+  relation('make-sense',['MAKE','SENSE'],'collocation',130,1)
+]);
+
+function makeGame({ready=false}={}){
+  const level={
+    id:'T',title:'Test',moves:10,goal:{type:'score',target:9999},
+    instruction:'Test',
+    boardRows:ready
+      ?[
+        ['LOOK','AFTER','X','Y','Z'],
+        ['A','B','C','D','E'],
+        ['F','G','H','I','J'],
+        ['K','L','M','N','O'],
+        ['P','Q','R','S','T'],
+        ['U','V','W','AA','BB'],
+        ['CC','DD','EE','FF','GG']
+      ]
+      :[
+        ['LOOK','X','AFTER','Y','Z'],
+        ['A','B','C','D','E'],
+        ['F','G','H','I','J'],
+        ['K','L','M','N','O'],
+        ['P','Q','R','S','T'],
+        ['U','V','W','AA','BB'],
+        ['CC','DD','EE','FF','GG']
+      ]
+  };
+  return createGameController({
+    bank,
+    levels:[level],
+    initialLevelId:'T',
+    rng:seeded(3),
+    storage:null,
+    refillWord:()=> 'ZZZ'
+  });
+}
+```
+
+Then add:
 
 ```js
 test('legal non-scoring setup swap consumes one move and stays in place',()=>{
-  const game=createTestGame();
+  const game=makeGame();
+  const initial=game.state().board[0][0].word;
   const before=game.state().movesLeft;
   game.swap({row:0,col:0},{row:0,col:1});
   assert.equal(game.state().movesLeft,before-1);
-  assert.notEqual(game.state().board[0][0].word,game.initialBoard[0][0].word);
+  assert.notEqual(game.state().board[0][0].word,initial);
 });
 
 test('invalid edge or diagonal swap consumes no move',()=>{
-  const game=createTestGame();
+  const game=makeGame();
   const before=game.state().movesLeft;
   assert.equal(game.swap({row:0,col:0},{row:-1,col:0}),false);
   assert.equal(game.swap({row:0,col:0},{row:1,col:1}),false);
@@ -1185,14 +1526,14 @@ test('invalid edge or diagonal swap consumes no move',()=>{
 });
 
 test('ready relationship persists until broken or global pop is pressed',()=>{
-  const game=createReadyTestGame();
+  const game=makeGame({ready:true});
   assert.equal(game.state().readyMatches.length,1);
-  game.swap(unrelatedA,unrelatedB);
+  game.swap({row:6,col:3},{row:6,col:4});
   assert.equal(game.state().readyMatches.length,1);
 });
 
 test('global pop does not consume an additional move',()=>{
-  const game=createReadyTestGame();
+  const game=makeGame({ready:true});
   const before=game.state().movesLeft;
   game.pop();
   assert.equal(game.state().movesLeft,before);
@@ -1297,7 +1638,7 @@ Verify on a narrow/mobile viewport:
 - [ ] **Step 8: Commit**
 
 ```bash
-git add Wordy index.html
+git add Wordy/engine/controller.mjs Wordy/app.mjs Wordy/index.html Wordy/tests/controller.test.mjs index.html
 git commit -m "feat(wordy): complete playable validation prototype"
 ```
 
