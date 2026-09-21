@@ -39,28 +39,45 @@ export function renderGame(root,state){
   setText(root,'#eventLabel',state.eventLabel??'');
 
   if(boardNode){
-    const children=[];
-    state.board.forEach((row,rowIndex)=>row.forEach((tile,colIndex)=>{
-      const button=create(root,'button');
-      button.className='wordy-tile';
-      button.classList?.add?.('wordy-tile');
-      button.setAttribute?.('type','button');
-      button.setAttribute?.('role','gridcell');
-      button.dataset.row=String(rowIndex);
-      button.dataset.col=String(colIndex);
-      button.dataset.tileId=tile?.id??'';
-      const word=tile?.word??'';
-      button.textContent=word;
-      if(word.length>=8)button.classList?.add?.('is-long');
-      if(word.length>=11)button.classList?.add?.('is-very-long');
-      button.disabled=state.phase!=='playing'||!tile;
-      const cellMatches=usage.get(`${rowIndex}:${colIndex}`)??[];
-      if(cellMatches.length>0)button.classList?.add?.('is-ready');
-      const orientations=new Set(cellMatches.map(match=>match.orientation));
-      if(orientations.has('horizontal')&&orientations.has('vertical'))button.classList?.add?.('is-cross');
-      children.push(button);
-    }));
-    boardNode.replaceChildren?.(...children);
+    const rows=[];
+    state.board.forEach((row,rowIndex)=>{
+      const rowNode=create(root,'div');
+      rowNode.className='wordy-row';
+      rowNode.classList?.add?.('wordy-row');
+      rowNode.setAttribute?.('role','row');
+      const tiles=[];
+
+      row.forEach((tile,colIndex)=>{
+        const button=create(root,'button');
+        button.className='wordy-tile';
+        button.classList?.add?.('wordy-tile');
+        button.setAttribute?.('type','button');
+        button.setAttribute?.('role','gridcell');
+        button.dataset.row=String(rowIndex);
+        button.dataset.col=String(colIndex);
+        button.dataset.tileId=tile?.id??'';
+
+        const word=tile?.word??'';
+        button.textContent=word;
+        const length=word.length;
+        if(length<=2)button.classList?.add?.('size-xs');
+        else if(length<=5)button.classList?.add?.('size-sm');
+        else if(length<=7)button.classList?.add?.('size-md');
+        else if(length<=10)button.classList?.add?.('size-lg');
+        else button.classList?.add?.('size-xl');
+
+        button.disabled=state.phase!=='playing'||!tile;
+        const cellMatches=usage.get(`${rowIndex}:${colIndex}`)??[];
+        if(cellMatches.length>0)button.classList?.add?.('is-ready');
+        const orientations=new Set(cellMatches.map(match=>match.orientation));
+        if(orientations.has('horizontal')&&orientations.has('vertical'))button.classList?.add?.('is-cross');
+        tiles.push(button);
+      });
+
+      rowNode.append?.(...tiles);
+      rows.push(rowNode);
+    });
+    boardNode.replaceChildren?.(...rows);
   }
 
   if(readyCount)readyCount.textContent=matches.length===1?'1 ready':`${matches.length} ready`;
