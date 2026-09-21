@@ -37,7 +37,8 @@ test("Support Meter detects a YouTeach live student launch before manual join fl
   assert.match(gameJs, /ytLiveStudent/);
   assert.match(gameJs, /resolveSupportMeterStudentLaunch/);
   assert.match(gameJs, /youTeachLiveStudentContext/);
-  assert.match(gameJs, /identity\.nickname|identity\?\.nickname/);
+  assert.match(gameJs, /canonical\.nickname/);
+  assert.match(gameJs, /canonical\.fullName/);
   assert.match(gameJs, /cogSessionId/);
 });
 
