@@ -1,8 +1,8 @@
 # Talk Talk — Speaking and Pronunciation System Design
 
 Date: 2026-09-20  
-Status: Design approved in conversation; written spec pending user review  
-Repository: `youteachtk/Classroom-Online-Games`  
+Status: Written spec approved by user on 2026-09-20  
+Repository: `youteachtk/Classroom-Online-Games`\nCanonical YouTeach repository: `Youteach-org/YouTeach`  
 Working product name: **Talk Talk** (name may change later without changing internal architecture)
 
 ## 1. Purpose
