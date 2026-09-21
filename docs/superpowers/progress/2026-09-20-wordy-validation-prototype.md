@@ -57,4 +57,9 @@ Task 7: complete.
 - Verified fixtures: A creates LOOK AFTER, C creates 2 simultaneous relationships, D cascades LOOK AFTER -> TAKE A BREAK, E creates AS A MATTER OF FACT, F creates a crossword, G has at least 2 immediate scoring moves.
 - Commits: 052d5e4 (level tests), 5cec71c (level fixtures/objectives).
 
-Task 8: in progress.
+Task 8: complete.
+- RED: `node --test Wordy/tests/review-telemetry.test.mjs` failed with ERR_MODULE_NOT_FOUND for `Wordy/engine/review.mjs`, as expected.
+- GREEN/regression: review/telemetry tests 6/6; full local Wordy suite 45 tests, 45 pass, 0 fail.
+- Commits: e3f0e1d, 8f12604, f72c716.
+
+Task 9: in progress.
