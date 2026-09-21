@@ -19,6 +19,9 @@ jobs:
         run: |
           node --check Verb-Runner/prototype.js
           node --check 100-Students-Said/monitor.js
+          node --check OSASCOMP/student.js
+          node --check OSASCOMP/teacher/monitor.js
+          node --check OSASCOMP/live-session.js
           if [ -d shared ]; then find shared -name '*.mjs' -print0 | xargs -0 -r -n1 node --check; fi
 
       - name: Run shared live bridge tests
@@ -37,6 +40,10 @@ jobs:
       - name: Run Support Meter tests
         run: |
           (cd Support-Meter && node --test tests/*.test.js live-session.test.mjs)
+
+      - name: Run OSASCOMP tests
+        run: |
+          node --test OSASCOMP/live-session.test.mjs
 
       - name: Prepare static site
         run: |
