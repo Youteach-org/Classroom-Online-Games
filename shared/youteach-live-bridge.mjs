@@ -53,6 +53,23 @@ function validTeacherContext(context) {
   );
 }
 
+export function normalizeYouTeachTeamContext(raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+
+  const teamKey = String(raw.teamKey || "").trim();
+  const teamLabel = String(raw.teamLabel || "").trim();
+  const teamRevision = String(raw.teamRevision || "").trim();
+  const memberKeys = Array.isArray(raw.memberKeys)
+    ? raw.memberKeys.map(value => String(value || "").trim()).filter(Boolean)
+    : [];
+  const memberNames = Array.isArray(raw.memberNames)
+    ? raw.memberNames.map(value => String(value || "").trim()).filter(Boolean)
+    : [];
+
+  if (!teamKey || !teamLabel || !teamRevision || !memberKeys.length) return null;
+  return { teamKey, teamLabel, memberKeys, memberNames, teamRevision };
+}
+
 function validStudentContext(context) {
   return Boolean(
     context &&
@@ -91,6 +108,7 @@ export async function resolveTeacherLaunch({
       assignmentCode: String(payload?.liveContext?.assignmentCode || ""),
       assignmentTitle: String(payload?.liveContext?.assignmentTitle || "")
     },
+    teamContext: normalizeYouTeachTeamContext(payload?.teamContext),
     bridgeToken: String(payload?.bridgeToken || ""),
     bridgeExpiresAt: Number(payload?.bridgeExpiresAt || 0),
     issuer: cleanIssuer
