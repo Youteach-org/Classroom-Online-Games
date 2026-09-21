@@ -13,3 +13,10 @@ test('COG landing page exposes the Wordy prototype route',()=>{
   assert.match(rootHtml,/href="\/Wordy\/"/);
   assert.match(rootHtml,/Wordy Prototype/);
 });
+
+
+test('browser app records abandonment on pagehide',()=>{
+  const app=readFileSync(new URL('../app.mjs',import.meta.url),'utf8');
+  assert.match(app,/addEventListener\('pagehide'/);
+  assert.match(app,/controller\.abandon\(\)/);
+});
