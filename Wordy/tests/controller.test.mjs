@@ -192,3 +192,14 @@ test('creating a crossword emits cross-created telemetry',()=>{
   assert.equal(cross.payload.crossCount,1);
   assert.deepEqual(new Set(cross.payload.relationshipIds),new Set(['make-a-decision','take-a-break']));
 });
+
+
+test('pop exposes resolution events for UI playback',()=>{
+  const {game}=makeGame({ready:true,target:9999});
+  assert.deepEqual(game.state().resolutionEvents,[]);
+  game.pop();
+  const events=game.state().resolutionEvents;
+  assert.equal(events.length,1);
+  assert.equal(events[0].label,'LOOK AFTER');
+  assert.deepEqual(events[0].relationshipIds,['look-after']);
+});
