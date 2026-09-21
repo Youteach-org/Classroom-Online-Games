@@ -94,3 +94,14 @@ Final review: self-review (no subagent tool).
 - Deferred minors: none.
 - Branch state at final verification: `feature/wordy-game` HEAD e82ba15, diverged from `main` (106 commits ahead, 68 behind; merge-base dad2b8c).
 - No merge, PR, or production deployment performed.
+
+
+Integration preparation / main reconciliation: complete.
+- User selected reconciliation before integration.
+- Current main at reconciliation: `930d06fa5233fa3b6eb1c155020fe12b69f95f02`.
+- Pre-merge comparison showed main's 68 incoming commits affected Verb Runner / unrelated docs only; no `Wordy/`, root `index.html`, or Wordy Cloudflare workflow overlap.
+- Sync PR #45 merged `main` into `feature/wordy-game`.
+- Merge commit: `9c7800adbad71c921084bd8d4d3183683950418e`.
+- Post-merge divergence: 109 ahead / 0 behind main before reconciliation documentation commits.
+- Post-merge verification: `node --test Wordy/tests/*.test.mjs` -> 81 pass, 0 fail; `node --check Wordy/app.mjs` -> exit 0.
+- No merge of Wordy into `main` and no production deployment performed.
