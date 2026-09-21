@@ -25,11 +25,17 @@ jobs:
         run: |
           if compgen -G "tests/*.test.mjs" > /dev/null; then node --test tests/*.test.mjs; fi
 
-      - name: Run existing game tests
+      - name: Run Verb Runner tests
         run: |
           node --test Verb-Runner/tests/*.test.mjs
           node --test Verb-Runner/sentence-run.test.js
+
+      - name: Run 100 Students Said tests
+        run: |
           (cd 100-Students-Said && node --test *.test.js *.test.mjs)
+
+      - name: Run Support Meter tests
+        run: |
           (cd Support-Meter && node --test tests/*.test.js live-session.test.mjs)
 
       - name: Prepare static site
