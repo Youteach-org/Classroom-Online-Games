@@ -1,5 +1,5 @@
 import { createBoard, areAdjacent, swapTiles } from './board.mjs';
-import { findMatches } from './matcher.mjs';
+import { findMatches, findCrossings } from './matcher.mjs';
 import { resolvePlayerActivation, CascadeLimitError } from './resolution.mjs';
 import {
   findImmediateScoringMoves,
@@ -136,7 +136,11 @@ export function createGameController({
   }
 
   function logReady(){
-    telemetry.record('ready-change',{count:state.readyMatches.length});
+    telemetry.record('ready-change',{
+      count:state.readyMatches.length,
+      relationshipIds:[...new Set(state.readyMatches.map(match=>match.relationshipId))],
+      crossCount:findCrossings(state.readyMatches).length
+    });
   }
 
   function loadLevel(index,{preserveDiscoveries=true}={}){
@@ -229,6 +233,8 @@ export function createGameController({
     if(state.phase!=='playing')return false;
     if(!inside(state.board,from)||!inside(state.board,to)||!areAdjacent(from,to))return false;
 
+    const previousReadyIds=new Set(state.readyMatches.map(match=>match.relationshipId));
+    const previousCrossCount=findCrossings(state.readyMatches).length;
     const scoringMoves=findImmediateScoringMoves(state.board,bank);
     const missed=captureMissedOpportunity({
       board:state.board,
@@ -236,15 +242,42 @@ export function createGameController({
       chosenSwap:{from,to},
       bank
     });
-    if(missed)state.missedOpportunities.push(missed);
+    if(missed){
+      state.missedOpportunities.push(missed);
+      telemetry.record('missed-opportunity',{
+        relationshipId:missed.relationshipId,
+        projectedScore:missed.projectedScore,
+        suggestedSwap:missed.suggestedSwap
+      });
+    }
 
     state.board=swapTiles(state.board,from,to);
     state.movesLeft=Math.max(0,state.movesLeft-1);
     refreshReady();
+    const nextReadyIds=new Set(state.readyMatches.map(match=>match.relationshipId));
+    const createdRelationshipIds=[...nextReadyIds].filter(id=>!previousReadyIds.has(id));
+    const brokenRelationshipIds=[...previousReadyIds].filter(id=>!nextReadyIds.has(id));
+    const nextCrossCount=findCrossings(state.readyMatches).length;
     state.eventLabel=state.readyMatches.length
       ?(state.readyMatches.length>1?`READY ×${state.readyMatches.length}`:'READY')
       :'';
-    telemetry.record('swap',{from:{...from},to:{...to},movesLeft:state.movesLeft});
+    telemetry.record('swap',{
+      from:{...from},to:{...to},movesLeft:state.movesLeft,
+      createdRelationshipIds,
+      immediatelyCreatedRelationship:createdRelationshipIds.length>0
+    });
+    if(createdRelationshipIds.length){
+      telemetry.record('relationship-formed',{relationshipIds:createdRelationshipIds});
+    }
+    if(brokenRelationshipIds.length){
+      telemetry.record('relationship-broken',{relationshipIds:brokenRelationshipIds});
+    }
+    if(nextCrossCount>previousCrossCount){
+      telemetry.record('cross-created',{
+        crossCount:nextCrossCount,
+        relationshipIds:[...nextReadyIds]
+      });
+    }
     logReady();
 
     if(state.movesLeft<=0&&state.readyMatches.length===0)finishRound(false);
@@ -322,8 +355,20 @@ export function createGameController({
   }
 
   function replay(){
+    telemetry.record('level-replay',{levelId:state.levelId,score:state.score});
     loadLevel(levelIndex);
     emit();
+    return true;
+  }
+
+  function abandon(){
+    if(state.phase==='result')return false;
+    telemetry.record('level-abandon',{
+      levelId:state.levelId,
+      score:state.score,
+      movesLeft:state.movesLeft,
+      phase:state.phase
+    });
     return true;
   }
 
@@ -349,6 +394,7 @@ export function createGameController({
     pop,
     replay,
     next,
+    abandon,
     subscribe,
     telemetryEvents:()=>telemetry.events()
   };
