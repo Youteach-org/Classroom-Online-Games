@@ -207,3 +207,14 @@ Key commits:
 
 ### Workflow preference
 The user does **not** want to download or work on Wordy locally. Continue editing `feature/wordy-game` through GitHub. Local/sandbox rendering may be used internally for verification, but do not ask the user to download ZIPs or run a local server as the normal workflow.
+
+
+## Online preview branch
+
+- Permanent development-preview branch: `wordy-preview`.
+- It should mirror the current HEAD of `feature/wordy-game`.
+- Public browser preview URL:
+  `https://raw.githack.com/Youteach-org/Classroom-Online-Games/wordy-preview/Wordy/index.html`
+- After every Wordy implementation commit/batch, update the `wordy-preview` ref to the latest `feature/wordy-game` HEAD.
+- This preview does not use Cloudflare, GitHub Actions, Codespaces, or `main`.
+- raw.githack development URLs follow branch updates and refresh after a short cache interval.
