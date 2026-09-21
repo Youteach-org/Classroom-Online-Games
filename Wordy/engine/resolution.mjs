@@ -1,0 +1,71 @@
+import { removeCells, collapseColumns } from './board.mjs';
+import { findMatches } from './matcher.mjs';
+import { scoreResolution } from './scoring.mjs';
+
+export class CascadeLimitError extends Error{
+  constructor(message='cascade limit exceeded'){
+    super(message);
+    this.name='CascadeLimitError';
+  }
+}
+
+export function resolvePlayerActivation({
+  board,
+  bank,
+  discoveredIds=new Set(),
+  refillTile,
+  maxCascadeDepth=12
+}){
+  if(typeof refillTile!=='function')throw new Error('refillTile must be a function');
+  const known=discoveredIds instanceof Set?new Set(discoveredIds):new Set(discoveredIds??[]);
+  const originalKnown=new Set(known);
+  let current=board;
+  let matches=findMatches(current,bank);
+  if(matches.length===0)throw new Error('no ready relationships');
+
+  const generations=[];
+  for(let depth=0;matches.length>0;depth++){
+    if(depth>maxCascadeDepth)throw new CascadeLimitError();
+
+    const score=scoreResolution({
+      matches,
+      bank,
+      discoveredIds:known,
+      cascadeDepth:depth
+    });
+
+    const removedTileIds=[];
+    const seenIds=new Set();
+    const cells=[];
+    for(const match of matches){
+      for(const cell of match.cells){
+        const tile=current[cell.row]?.[cell.col];
+        if(tile&&!seenIds.has(tile.id)){
+          seenIds.add(tile.id);
+          removedTileIds.push(tile.id);
+        }
+        cells.push(cell);
+      }
+    }
+
+    current=removeCells(current,cells);
+    current=collapseColumns(current,refillTile);
+
+    generations.push({
+      matches,
+      removedTileIds,
+      score,
+      cascadeDepth:depth
+    });
+
+    for(const match of matches)known.add(match.relationshipId);
+    matches=findMatches(current,bank);
+  }
+
+  return {
+    board:current,
+    generations,
+    newlyDiscoveredIds:[...known].filter(id=>!originalKnown.has(id)),
+    totalScore:generations.reduce((total,generation)=>total+generation.score.total,0)
+  };
+}
