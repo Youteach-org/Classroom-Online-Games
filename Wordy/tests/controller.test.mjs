@@ -31,15 +31,15 @@ function makeGame(options={}){
   return {game,storage};
 }
 
-test('legal non-scoring setup swap consumes one move and stays in place',()=>{
+test('adjacent non-scoring swap is rejected, costs no move, and stays in place',()=>{
   const {game}=makeGame();
   const before=game.state();
   const from={row:6,col:3},to={row:6,col:4};
-  assert.equal(game.swap(from,to),true);
+  assert.equal(game.swap(from,to),false);
   const after=game.state();
-  assert.equal(after.movesLeft,before.movesLeft-1);
-  assert.equal(after.board[6][3].word,'GG');
-  assert.equal(after.board[6][4].word,'FF');
+  assert.equal(after.movesLeft,before.movesLeft);
+  assert.equal(after.board[6][3].word,'FF');
+  assert.equal(after.board[6][4].word,'GG');
 });
 
 test('invalid edge or diagonal swap consumes no move',()=>{
@@ -50,10 +50,10 @@ test('invalid edge or diagonal swap consumes no move',()=>{
   assert.equal(game.state().movesLeft,before);
 });
 
-test('ready relationship persists through unrelated setup moves',()=>{
+test('ready relationship persists when an unrelated non-scoring swap is rejected',()=>{
   const {game}=makeGame({ready:true});
   assert.equal(game.state().readyMatches.length,1);
-  game.swap({row:6,col:3},{row:6,col:4});
+  assert.equal(game.swap({row:6,col:3},{row:6,col:4}),false);
   assert.equal(game.state().readyMatches.length,1);
 });
 
@@ -133,7 +133,7 @@ test('dead-board recovery can borrow a productive authored fallback when the cur
 });
 
 
-test('telemetry identifies formed and broken relationships, not only ready counts',()=>{
+test('telemetry records formed relationships and rejected swaps do not break ready relationships',()=>{
   const {game}=makeGame({moves:3,target:9999});
   game.swap({row:0,col:1},{row:0,col:2});
   let events=game.telemetryEvents();
@@ -144,10 +144,10 @@ test('telemetry identifies formed and broken relationships, not only ready count
   assert.deepEqual(ready.payload.relationshipIds,['look-after']);
   assert.deepEqual(swap.payload.createdRelationshipIds,['look-after']);
 
-  game.swap({row:0,col:1},{row:0,col:2});
+  assert.equal(game.swap({row:0,col:1},{row:0,col:2}),false);
   events=game.telemetryEvents();
-  const broken=events.find(event=>event.type==='relationship-broken');
-  assert.deepEqual(broken.payload.relationshipIds,['look-after']);
+  assert.equal(events.some(event=>event.type==='relationship-broken'),false);
+  assert.equal(game.state().readyMatches.length,1);
 });
 
 test('replay and abandonment are explicit telemetry events',()=>{
@@ -159,12 +159,11 @@ test('replay and abandonment are explicit telemetry events',()=>{
   assert.ok(types.includes('level-replay'));
 });
 
-test('missed high-value opportunities are telemetry events',()=>{
+test('rejected non-scoring swaps do not create missed-opportunity telemetry',()=>{
   const {game}=makeGame({moves:3,target:9999});
-  game.swap({row:6,col:3},{row:6,col:4});
+  assert.equal(game.swap({row:6,col:3},{row:6,col:4}),false);
   const missed=game.telemetryEvents().find(event=>event.type==='missed-opportunity');
-  assert.equal(missed.payload.relationshipId,'look-after');
-  assert.ok(missed.payload.projectedScore>0);
+  assert.equal(missed,undefined);
 });
 
 test('creating a crossword emits cross-created telemetry',()=>{
