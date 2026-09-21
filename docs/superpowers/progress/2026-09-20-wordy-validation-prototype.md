@@ -40,4 +40,9 @@ Task 4: complete.
 - GREEN/regression: `node --test Wordy/tests/*.test.mjs` -> 19 tests, 19 pass, 0 fail.
 - Commits: 1942c7a (scoring tests), aef058c (scoring engine).
 
-Task 5: in progress.
+Task 5: complete.
+- RED: `node --test Wordy/tests/resolution.test.mjs` failed with ERR_MODULE_NOT_FOUND for `Wordy/engine/resolution.mjs`, as expected.
+- GREEN/regression: `node --test Wordy/tests/*.test.mjs` -> 25 tests, 25 pass, 0 fail.
+- Commits: 1c78abc (resolution tests), e9bc2f3 (global pop/cascade engine).
+
+Task 6: in progress.
