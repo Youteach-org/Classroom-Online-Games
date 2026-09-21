@@ -24,5 +24,10 @@ Task 1: complete.
 - Commits: 5c40345 (test), 793cd1f (helpers), 2f94b55 (bank index), 265ca2f (curated data).
 - Published files fetched from GitHub after write and matched the locally verified source.
 
-Task 2: in progress.
-Ruling: Add direct tests for `collapseColumns` and `boardKey` because they are public Task 2 outputs but the original plan examples did not exercise them. Cost if wrong: slightly more test maintenance; behavior remains within the approved spec.
+Task 2: complete.
+Ruling: Added direct tests for `collapseColumns` and `boardKey` because they are public Task 2 outputs but the original plan examples did not exercise them. Cost if wrong: slightly more test maintenance; behavior remains within the approved spec.
+- RED: `node --test Wordy/tests/board.test.mjs` failed with ERR_MODULE_NOT_FOUND for `Wordy/engine/board.mjs`, as expected.
+- GREEN/regression: `node --test Wordy/tests/board.test.mjs Wordy/tests/relationship-bank.test.mjs` -> 9 tests, 9 pass, 0 fail.
+- Commits: 9558da8 (board tests), 5df2944 (immutable board model).
+
+Task 3: in progress.
