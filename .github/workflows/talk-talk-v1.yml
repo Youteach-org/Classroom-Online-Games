@@ -24,3 +24,20 @@ jobs:
         run: node --test Support-Meter/*.test.js Support-Meter/*.test.mjs
       - name: Run 100 Students Said tests
         run: cd 100-Students-Said && node --test *.test.js
+
+  deploy-preview:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare COG preview site
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          cp index.html dist/
+          cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Talk-Talk Engineering teacher shared dist/
+      - name: Deploy isolated Talk Talk preview
+        run: npx wrangler@4 pages deploy dist --project-name=classroom-online-games --branch=talk-talk-v1-20260921 --commit-hash=${{ github.sha }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
