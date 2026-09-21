@@ -17,7 +17,7 @@ The final product name is not fixed. Current working candidates include Wordy Po
 
 The intended loop is:
 
-`move -> prepare -> mark ready relationships -> global pop -> gravity -> cascade -> discover language -> improve score/mastery`
+`inspect -> productive adjacent swap -> mark ready relationships -> global pop -> gravity -> cascade -> discover language -> improve score/mastery`
 
 The player:
 1. swaps adjacent tiles to rearrange words;
@@ -35,12 +35,13 @@ The strategic decision is therefore not “which phrase should I pop?” but “
 
 ### 3.1 Grid
 
-The board is a regular grid of equal-sized cells.
+The rules engine uses a regular logical matrix, but the rendered word blocks have variable visual width.
 
-- Tile dimensions never change because of word length.
-- Typography adapts to available tile space.
-- Long expressions use one word per tile.
-- Minimum readable text size must be protected by content filtering and responsive typography.
+- Logical row/column coordinates remain stable for adjacency, matching, gravity, and crossings.
+- Short tokens occupy compact blocks.
+- Longer words receive progressively more horizontal space.
+- Long expressions still use one word/token per tile.
+- Readability takes priority over forcing every word into an equal-width square.
 
 ### 3.2 Valid spatial relationships
 
@@ -78,9 +79,9 @@ Not allowed:
 - multi-cell drags;
 - free repositioning.
 
-Any legal adjacent swap is allowed even when it creates no immediate scoring relationship. Such setup moves are a normal part of strategy and consume one move.
+A player may attempt only an orthogonally adjacent swap. The exchange is accepted only when that single swap creates at least one new validated linguistic relationship.
 
-The game does not automatically undo a non-scoring swap.
+A non-scoring adjacent swap is rejected/reverted immediately and consumes no move. The player cannot walk a word across the board through repeated setup swaps.
 
 ## 4. Relationship recognition and ready state
 
@@ -92,7 +93,7 @@ Ready relationships:
 - may remain ready across several later moves;
 - may be extended into longer relationships;
 - may become part of a crossword-style intersection;
-- may be deliberately broken by moving one of their tiles.
+- remain intact unless a later accepted productive swap legitimately changes one of their tiles.
 
 Breaking a ready relationship before resolution removes its ready state without an additional penalty beyond the move already spent.
 
