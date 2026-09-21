@@ -4,7 +4,8 @@ const ALLOWED_COMMANDS = new Set([
   "analyze-phonemes",
   "analyze-prosody",
   "speaker-embedding",
-  "speaker-diarization"
+  "speaker-diarization",
+  "cleanup-speaker-session"
 ]);
 
 export function normalizeAudioWorkerMessage(raw) {
@@ -25,7 +26,8 @@ if (typeof self !== "undefined" && typeof self.postMessage === "function") {
     self.postMessage({
       ok: true,
       type: request.type,
-      status: "accepted"
+      status: "accepted",
+      localOnly: request.type.startsWith("speaker-") || request.type === "cleanup-speaker-session"
     });
   });
 }

@@ -79,6 +79,7 @@ export function buildTeamRuntimeState(confirmations) {
     hostStudentKey,
     status: hostStudentKey ? "ready" : "waiting",
     captureMode: hostStudentKey ? "host-recorder" : null,
+    speakerAttributionStatus: "model-gated",
     turnEvents: {}
   };
 }
