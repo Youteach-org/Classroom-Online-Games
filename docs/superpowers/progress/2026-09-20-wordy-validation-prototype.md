@@ -67,4 +67,10 @@ Task 9: complete.
 - GREEN/regression: input tests 6/6; full local Wordy suite 51 tests, 51 pass, 0 fail.
 - Commits: b1f7a4d (input tests), 26bed42 (input module).
 
-Task 10: in progress.
+Task 10: complete.
+- RED: initial UI contract failed with ERR_MODULE_NOT_FOUND for `Wordy/ui/render.mjs`.
+- Regression RED found before publish: realistic DOM `textContent` semantics proved review-card child markup was being erased; test failed 0 !== 2.
+- GREEN: removed the destructive container `textContent` assignment; UI tests 4/4 and full local Wordy suite 55 tests, 55 pass, 0 fail.
+- Commits: 936da1a, 9249cef, 08bc1d1, 8ebaa1e.
+
+Task 11: in progress.
