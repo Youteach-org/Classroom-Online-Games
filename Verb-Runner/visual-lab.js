@@ -2,14 +2,14 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-const HUMAN_URL='https://cdn.jsdelivr.net/gh/psqd12137-sudo/dream-channel@3d1f3c91810ac6b73146971d7d6297b12c8f3244/godot/assets/quaternius/animated_characters/Casual_Female.gltf';
+const HUMAN_URL='https://raw.githubusercontent.com/dpwhittaker/avatar-city/c21f285f84a35be7f7f1f8e9827e9e897ea55de1/public/characters/Casual3_Female.gltf';
 
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x8fd8f4);
 scene.fog=new THREE.FogExp2(0xbfe7ef,.0095);
 
-const camera=new THREE.PerspectiveCamera(64,innerWidth/innerHeight,.1,260);
-camera.position.set(.1,3.25,7.8);
+const camera=new THREE.PerspectiveCamera(67,innerWidth/innerHeight,.1,260);
+camera.position.set(.05,3.02,7.15);
 
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));
@@ -104,8 +104,8 @@ const city=new THREE.Group();
 scene.add(city);
 
 // Short pedestrian market start. The route rises almost immediately.
-roundedBox(8.6,.25,14.5,M.paving,0,-.12,1.1,city,.12,4);
-for(let z=7;z>-5.4;z-=1.55){
+roundedBox(8.4,.25,10.8,M.paving,0,-.12,2.4,city,.12,4);
+for(let z=7;z>-2.6;z-=1.45){
   box(8.15,.018,.04,basic(0xb99d79,.42),0,.025,z,city,false);
 }
 
@@ -175,12 +175,21 @@ function fruitStall(x,z,accent,index){
 }
 fruitStall(-4.0,4.2,M.red,0);
 fruitStall( 4.05,2.1,M.yellow,1);
-fruitStall(-4.05,-2.5,M.teal,2);
+fruitStall(-4.05,-1.8,M.teal,2);
+fruitStall( 4.0,-4.6,M.red,3);
+
+// Oversized urban props frame the climb like a premium mobile runner.
+roundedBox(.55,1.9,.42,M.yellow,-3.55,1.05,-.55,city,.14,4);
+roundedBox(.55,1.65,.42,M.blue,3.5,.93,-1.25,city,.14,4);
+for(const [x,z] of [[-3.35,-3.4],[3.28,-4.8]]){
+  roundedBox(.52,.52,.52,M.wood,x,.26,z,city,.12,4);
+  roundedBox(.68,.22,.68,M.red,x,.63,z,city,.1,3);
+}
 
 // First climb begins directly ahead of the runner.
 const stairs=new THREE.Group();
 city.add(stairs);
-stairs.position.set(-.65,0,-5.1);
+stairs.position.set(-.55,0,-2.8);
 for(let i=0;i<10;i++){
   roundedBox(4.75,.28,1.05,M.pavingDark,0,.14+i*.28,-i*.73,stairs,.08,3);
 }
@@ -195,7 +204,7 @@ for(const side of [-1,1]){
 // Bright awning acts as first elevated platform.
 const awningRoute=new THREE.Group();
 city.add(awningRoute);
-awningRoute.position.set(-.65,2.95,-13.1);
+awningRoute.position.set(-.55,2.95,-10.8);
 const awning=roundedBox(4.35,.22,5.2,M.red,0,0,0,awningRoute,.14,4);
 awning.rotation.x=.02;
 for(const xx of [-1.8,1.8]){
@@ -205,7 +214,7 @@ for(const xx of [-1.8,1.8]){
 // Rooftops appear immediately after the awning.
 for(let i=0;i<5;i++){
   const x=(i%2===0?-1.0:1.05);
-  const z=-20.0-i*7.3;
+  const z=-17.6-i*7.15;
   roundedBox(7.1,.42,5.6,i%2?M.terracotta:M.terracotta2,x,4.15,z,city,.12,4);
   roundedBox(7.35,.52,.24,M.white,x,4.42,z-2.68,city,.08,3);
   if(i<4){
@@ -216,7 +225,7 @@ for(let i=0;i<5;i++){
 // More readable elevated shortcut / scaffold.
 const scaffold=new THREE.Group();
 city.add(scaffold);
-scaffold.position.set(5.15,3.15,-13.0);
+scaffold.position.set(5.0,3.15,-10.9);
 for(let i=0;i<5;i++){
   const z=-i*3.8;
   roundedBox(2.25,.18,3.25,M.wood,0,i*.72,z,scaffold,.07,3);
@@ -355,7 +364,7 @@ new GLTFLoader().load(
   HUMAN_URL,
   gltf=>{
     const human=gltf.scene;
-    fitToHeight(human,2.72);
+    fitToHeight(human,2.88);
     human.rotation.y=Math.PI;
     styleHuman(human);
     runnerRoot.add(human);
@@ -400,9 +409,9 @@ function animate(){
   runnerRoot.rotation.z=Math.sin(t*4.6)*.012;
 
   camera.position.x=THREE.MathUtils.lerp(camera.position.x,.08+Math.sin(t*.8)*.045,.055);
-  camera.position.y=THREE.MathUtils.lerp(camera.position.y,3.18,.055);
-  camera.position.z=THREE.MathUtils.lerp(camera.position.z,7.75,.055);
-  camera.lookAt(0,1.65,-7.4);
+  camera.position.y=THREE.MathUtils.lerp(camera.position.y,3.0,.06);
+  camera.position.z=THREE.MathUtils.lerp(camera.position.z,7.12,.06);
+  camera.lookAt(-.1,1.72,-5.9);
 
   renderer.render(scene,camera);
 }
