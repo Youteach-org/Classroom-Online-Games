@@ -20,3 +20,11 @@ test('browser app records abandonment on pagehide',()=>{
   assert.match(app,/addEventListener\('pagehide'/);
   assert.match(app,/controller\.abandon\(\)/);
 });
+
+
+test('browser app plays resolution timeline before revealing final result',()=>{
+  const app=readFileSync(new URL('../app.mjs',import.meta.url),'utf8');
+  assert.match(app,/playResolutionTimeline/);
+  assert.match(app,/timelinePlaying/);
+  assert.match(app,/await\s+playResolutionTimeline/);
+});
