@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { resolveStudentLaunch } from "../shared/youteach-live-bridge.mjs";
+import { resolveStudentLaunch } from "../../shared/youteach-live-bridge.mjs";
 import {
   createTalkTalkLiveContext,
   normalizeTalkTalkTeamContext
