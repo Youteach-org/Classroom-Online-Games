@@ -16,15 +16,29 @@
       <button id="joinClassAction" class="primary" type="button" hidden>Join Class</button>
     </header>
 
-    <section id="homeView" class="panel">
+    <section id="homeView" class="panel hero-panel">
       <p class="eyebrow">Speaking & pronunciation</p>
       <h2>Ready to speak?</h2>
-      <p>Talk Talk will guide pronunciation practice into real conversation.</p>
+      <p>Practice a sound, use it in a real message, then carry it into conversation.</p>
       <button id="continueAction" class="primary" type="button">Continue</button>
     </section>
 
     <section id="lessonView" class="panel" hidden></section>
+
+    <section id="speechDock" class="speech-dock" hidden>
+      <p id="recordingState" aria-live="polite">Ready</p>
+      <button id="recordButton" class="mic-button" type="button" aria-label="Record">
+        <span aria-hidden="true">●</span>
+      </button>
+      <p class="microcopy">Tap to check the microphone. Audio stays on this device.</p>
+    </section>
+
     <section id="resultsView" class="panel" hidden></section>
+
+    <section id="replayPanel" class="panel" hidden>
+      <p class="eyebrow">Conversation Replay</p>
+      <div id="replayList"></div>
+    </section>
   </main>
   <script type="module" src="./app.mjs"></script>
 </body>

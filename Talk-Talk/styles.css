@@ -9,3 +9,12 @@ h1,h2,p{margin-top:0}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font
 .primary,.danger{border:0;border-radius:999px;padding:12px 18px;font-weight:800;cursor:pointer}
 .primary{background:#1f6f5f;color:#fff}.danger{background:#7e2f2f;color:#fff}.danger:disabled{opacity:.45;cursor:not-allowed}
 .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+
+.hero-panel{display:grid;gap:10px}
+.secondary{border:1px solid #b7aa9a;background:#fff;color:#24303e;border-radius:999px;padding:11px 18px;font-weight:800;cursor:pointer}
+.lesson-prompt{font-size:1.08rem;line-height:1.55;max-width:58ch}
+.speech-dock{margin:18px auto;display:grid;justify-items:center;gap:10px;text-align:center}
+.mic-button{width:88px;height:88px;border:0;border-radius:50%;background:#1f6f5f;color:#fff;font-size:2rem;box-shadow:0 12px 28px rgba(31,111,95,.25);cursor:pointer}
+.mic-button[data-active="true"]{transform:scale(1.04);outline:5px solid rgba(31,111,95,.18)}
+.microcopy{font-size:.88rem;color:#6d5b4b;max-width:34ch}
+.replay-turn{border-top:1px solid #eee4d7;padding:12px 0}.replay-turn:first-child{border-top:0}
