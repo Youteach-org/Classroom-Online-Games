@@ -47,15 +47,17 @@ test("group timeline maps interaction to the requested learner only", () => {
     { turnId:"a1", studentKey:"a", startedAt:0, endedAt:1000, transcript:"What happened?", interactionMoves:["follow-up"], relevant:true },
     { turnId:"b1", studentKey:"b", startedAt:1100, endedAt:6000, transcript:"A long story.", respondsToTurnId:"a1", relevant:true },
     { turnId:"b2", studentKey:"b", startedAt:6100, endedAt:9000, transcript:"What about you?", interactionMoves:["follow-up"], relevant:true },
-    { turnId:"a2", studentKey:"a", startedAt:9100, endedAt:10000, transcript:"I was at home.", respondsToTurnId:"b2", relevant:true }
+    { turnId:"a2", studentKey:"a", startedAt:9100, endedAt:10000, transcript:"Do you mean at home all evening?", respondsToTurnId:"b2", interactionMoves:["clarification"], relevant:true }
   ];
 
   const a=analyzeInteraction(timeline,"a",task);
   const b=analyzeInteraction(timeline,"b",task);
-  assert.notDeepEqual(
-    { respondedTurns:a.respondedTurns, relevantFollowUps:a.relevantFollowUps },
-    { respondedTurns:b.respondedTurns, relevantFollowUps:b.relevantFollowUps }
-  );
+  assert.equal(a.respondedTurns,1);
+  assert.equal(b.respondedTurns,1);
+  assert.equal(a.relevantFollowUps,1);
+  assert.equal(b.relevantFollowUps,1);
+  assert.equal(a.clarificationMoves,1);
+  assert.equal(b.clarificationMoves,0);
 });
 
 test("results model exposes interaction summary without partner data leakage", () => {
