@@ -57,14 +57,31 @@ jobs:
         run: |
           set -eu
           BASE="https://talk-talk-v1-20260921.classroom-online-games.pages.dev"
-          curl -fsS --retry 8 --retry-delay 3 "$BASE/Talk-Talk/" -o /tmp/student.html
-          curl -fsS --retry 8 --retry-delay 3 "$BASE/Talk-Talk/teacher.html" -o /tmp/teacher.html
-          curl -fsS --retry 8 --retry-delay 3 "$BASE/Talk-Talk/creator.html" -o /tmp/creator.html
-          curl -fsS --retry 8 --retry-delay 3 "$BASE/Talk-Talk/app.mjs" -o /tmp/app.mjs
-          grep -Fq '<title>Talk Talk</title>' /tmp/student.html
-          grep -Fq 'Teacher Monitor' /tmp/teacher.html
-          grep -Fq 'Test as Student' /tmp/creator.html
-          grep -Fq 'talkTalk.previewDraft' /tmp/app.mjs
+
+          fetch_until_marker() {
+            url="$1"
+            marker="$2"
+            out="$3"
+            attempt=1
+            while [ "$attempt" -le 12 ]; do
+              status="$(curl -L -sS -o "$out" -w '%{http_code}' "$url" || true)"
+              if [ "$status" = "200" ] && grep -Fq "$marker" "$out"; then
+                echo "verified $url marker=$marker"
+                return 0
+              fi
+              echo "waiting for preview: $url status=$status attempt=$attempt"
+              attempt=$((attempt + 1))
+              sleep 5
+            done
+            echo "::error::Preview did not serve expected marker: $url :: $marker"
+            head -c 500 "$out" || true
+            exit 1
+          }
+
+          fetch_until_marker "$BASE/Talk-Talk/" '<title>Talk Talk</title>' /tmp/student.html
+          fetch_until_marker "$BASE/Talk-Talk/teacher.html" 'Teacher Monitor' /tmp/teacher.html
+          fetch_until_marker "$BASE/Talk-Talk/creator.html" 'Test as Student' /tmp/creator.html
+          fetch_until_marker "$BASE/Talk-Talk/app.mjs" 'talkTalk.previewDraft' /tmp/app.mjs
       - name: Browser-load Talk Talk shells
         run: |
           set -eu
