@@ -47,4 +47,4 @@ jobs:
         run: npx wrangler@4 pages deploy dist --project-name=classroom-online-games --branch="${GITHUB_REF_NAME}"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_ACCOUNT_ID: 043e7755b65ac4fc8b8572963a544340
