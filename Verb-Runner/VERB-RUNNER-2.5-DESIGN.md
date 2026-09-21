@@ -19,6 +19,9 @@ Visual concept target:
 3. Seafront / pier — descent to promenade, docks and platforms over water.
 
 Important: do not continue adding gameplay systems until the visual identity above is accepted.
+### 3D Visual Lab delivery
+A standalone `visual-lab.html` + `visual-lab.js` spike now exists on the development branch. It uses real-time Three.js/WebGL with the CC0 Quaternius human model and is intentionally isolated from production gameplay. Its only purpose is visual approval of the human-runner, vertical-city direction before gameplay implementation resumes.
+
 
 # Verb Runner 2.5 — Learning-First Dynamic Runner
 
