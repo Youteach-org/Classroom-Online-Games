@@ -54,8 +54,15 @@ Valid relationships must be:
 - horizontal or vertical;
 - in the relationship’s required order.
 
-### 3.3 Setup moves
-A legal swap remains valid even if it creates no relationship. It consumes one move and stays in place.
+### 3.3 Productive swap rule
+A swap remains on the board only when that single orthogonally adjacent exchange creates at least one new validated relationship.
+
+If the swap creates nothing new:
+- it is rejected/reverted;
+- no move is consumed;
+- the board remains unchanged.
+
+This prevents the player from transporting a word across the board through repeated non-scoring swaps.
 
 ### 3.4 Ready state
 Any current validated relationship becomes ready.
@@ -125,8 +132,8 @@ The prototype needs two sources of boards.
 
 ### 6.1 Authored validation boards
 Use deliberately designed board states to test:
-- first swap;
-- non-scoring setup moves;
+- first productive adjacent swap;
+- rejected non-scoring swap behavior;
 - two or more ready relationships at once;
 - a planned gravity-created cascade;
 - a crossword intersection;
@@ -153,7 +160,7 @@ Use a small sequence of validation levels rather than a full map.
 Recommended progression:
 
 ### Level A — Basic movement
-Purpose: learn adjacent swaps and relationship recognition.
+Purpose: learn that only adjacent swaps which immediately create a relationship are accepted.
 
 ### Level B — Global pop
 Purpose: form a relationship, observe ready state, trigger resolution.
