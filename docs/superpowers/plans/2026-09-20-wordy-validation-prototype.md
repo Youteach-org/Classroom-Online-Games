@@ -26,10 +26,10 @@
 
 ## Global Constraints
 
-- Phone-first interface with large readable equal-sized tiles.
+- Phone-first interface with readable variable-width word blocks: short words are compact and long words receive more horizontal space.
 - Prototype grid: **5 columns × 7 rows**. This is prototype-only; production dimensions remain deferred.
 - Player movement is exactly one orthogonally adjacent swap: up, down, left, or right.
-- Non-scoring setup swaps are legal, remain on the board, and consume one move.
+- An adjacent swap is accepted only when it creates at least one new valid relationship; otherwise it reverts and consumes no move.
 - Valid relationships are contiguous straight horizontal or vertical sequences in the relationship's required order.
 - A valid relationship remains on the board as ready until broken or the player triggers the global pop.
 - The global pop resolves every currently ready relationship together and does **not** consume a move.
@@ -740,7 +740,7 @@ git commit -m "feat(wordy): add global pop and cascade resolution"
 - Produces:
   - `enumerateSwaps(board): Swap[]`
   - `findImmediateScoringMoves(board,bank): ScoringMove[]`
-  - `hasViablePlay(board,bank,{maxDepth=2}={}): boolean`
+  - `hasViablePlay(board,bank): boolean`
   - `createControlledBoard({bank,rows=7,cols=5,rng,minScoringMoves=2}): Board`
   - `recoverDeadBoard({board,bank,rng}): {board,reset:boolean}`
 
@@ -804,7 +804,7 @@ test('enumerateSwaps returns each orthogonal edge once',()=>{
   assert.equal(enumerateSwaps(board).length,4);
 });
 
-test('a board with no immediate score but a match reachable in two setup swaps is not dead',()=>{
+test('a board with no immediate valid swap is dead even if two useless swaps could eventually form a match',()=>{
   const bank=createRelationshipBank([
     {id:'look-after',category:'phrasal-verb',tokens:['LOOK','AFTER'],baseScore:100,difficulty:1}
   ]);
@@ -813,7 +813,7 @@ test('a board with no immediate score but a match reachable in two setup swaps i
     ['Z','Q','AFTER']
   ]);
   assert.equal(findImmediateScoringMoves(board,bank).length,0);
-  assert.equal(hasViablePlay(board,bank,{maxDepth:2}),true);
+  assert.equal(hasViablePlay(board,bank),false);
 });
 
 test('controlled board satisfies the minimum immediate scoring-move requirement',()=>{
