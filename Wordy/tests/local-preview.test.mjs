@@ -32,3 +32,17 @@ test('local preview server remains loopback-only and never binds publicly',()=>{
   assert.match(preview,/server\.listen\(port,['"]127\.0\.0\.1['"]/);
   assert.doesNotMatch(preview,/0\.0\.0\.0/);
 });
+
+
+test('Codespaces preview can bind externally while local default stays loopback-only',()=>{
+  assert.match(preview,/WORDY_PREVIEW_HOST/);
+  assert.match(preview,/\|\|'127\.0\.0\.1'/);
+});
+
+test('Codespaces devcontainer auto-starts and previews Wordy on port 4173',()=>{
+  const config=JSON.parse(readFileSync(new URL('../../.devcontainer/devcontainer.json',import.meta.url),'utf8'));
+  assert.deepEqual(config.forwardPorts,[4173]);
+  assert.equal(config.portsAttributes['4173'].onAutoForward,'openPreview');
+  assert.match(String(config.postAttachCommand),/WORDY_PREVIEW_HOST=0\.0\.0\.0/);
+  assert.match(String(config.postAttachCommand),/Wordy\/preview-local\.mjs/);
+});
