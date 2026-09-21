@@ -73,5 +73,24 @@ Task 10: complete.
 - GREEN: removed the destructive container `textContent` assignment; UI tests 4/4 and full local Wordy suite 55 tests, 55 pass, 0 fail.
 - Commits: 936da1a, 9249cef, 08bc1d1, 8ebaa1e.
 
-Task 11: in progress.
-Ruling: On `CascadeLimitError`, generate a fresh controlled board directly with the current level fallback instead of calling `recoverDeadBoard` on the pre-pop board. The pre-pop board still contains a ready relationship, so dead-board detection would correctly consider it live and refuse to reset. Cost if wrong: the emergency recovery path differs internally from the plan wording, but preserves the spec requirement to recover safely without hanging or charging a move.
+Task 11: complete.
+Ruling: On `CascadeLimitError`, generate a fresh controlled board directly with a productive authored fallback instead of calling `recoverDeadBoard` on the pre-pop board. The pre-pop board still contains a ready relationship, so dead-board detection would correctly consider it live and refuse to reset. Cost if wrong: the emergency recovery path differs internally from the plan wording, but preserves the spec requirement to recover safely without hanging or charging a move.
+- Controller, browser wiring, COG root route, replay/next, telemetry, logical missed-opportunity replay, mobile typography, and dead-board fallback recovery were implemented and regression-tested.
+- Cascade feedback RED: timeline tests were written before `resolution-events.mjs` / `ui/timeline.mjs`; they failed because the modules did not yet exist.
+- Cascade feedback GREEN: `Wordy/tests/timeline.test.mjs` -> 3/3 pass after commits 7df0844 (resolution events) and 140ba34 (timeline player). Integration test commits 01feec9 and ce62261 preceded production wiring b74ded6 (controller) and a02c0f8 (browser app).
+Ruling: Cascade feedback remains a UI timeline layered over the single synchronous deterministic resolution engine rather than re-running game logic or simulating a second board state machine. Cost if wrong: an actual player may need intermediate board-motion animation beyond the textual generation timeline; that is a prototype playtest question, not a second rules engine.
+- Deployment RED: `node --test Wordy/tests/entrypoint.test.mjs` -> 4 pass / 1 fail because both Cloudflare production copy commands omitted `Wordy`.
+- Deployment GREEN: commit acf4ee9 adds `Wordy` to both Cloudflare copy commands; the same entrypoint test -> 5/5 pass.
+- Final fresh verification reconstructed current GitHub branch files into the sandbox and ran `node --test Wordy/tests/*.test.mjs` -> 81 tests, 81 pass, 0 fail.
+- Syntax verification: `node --check Wordy/app.mjs` -> exit 0.
+- Review-focus verification: targeted nested/crossing/shared-tile/cascade-limit/depth-2 viability/touch/timeline/deploy tests -> 17 pass, 0 fail.
+- Prototype-exclusion scan found no Teacher Monitor, Firebase/session/login, currency, loot-box, booster, obstacle, adaptive-mastery, or full-map implementation in production `Wordy/` files.
+Ruling: A temporary branch-only GitHub Actions workflow was removed in commit e82ba15 because jobs failed before runner assignment (`runner_id: 0`, no steps), producing false-red branch status. Cost if wrong: this branch has no automatic Wordy CI until runner availability is restored; durable local verification and tests remain in-repo.
+- Cloudflare deployment workflow was updated on the feature branch only. No production deployment was triggered.
+
+Final review: self-review (no subagent tool).
+- Critical findings: none after fixes.
+- Important findings: none after fixes.
+- Deferred minors: none.
+- Branch state at final verification: `feature/wordy-game` HEAD e82ba15, diverged from `main` (106 commits ahead, 68 behind; merge-base dad2b8c).
+- No merge, PR, or production deployment performed.
