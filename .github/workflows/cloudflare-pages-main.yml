@@ -49,7 +49,7 @@ jobs:
           rm -rf dist
           mkdir -p dist
           cp index.html dist/
-          cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Engineering teacher shared dist/
+          cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Talk-Talk Engineering teacher shared dist/
 
       - name: Ensure Cloudflare Pages project exists
         env:
@@ -61,7 +61,7 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          BUILD_COMMAND='rm -rf dist && mkdir -p dist && cp index.html dist/ && cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Engineering teacher shared dist/'
+          BUILD_COMMAND='rm -rf dist && mkdir -p dist && cp index.html dist/ && cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Talk-Talk Engineering teacher shared dist/'
           jq -n --arg cmd "$BUILD_COMMAND" '{
             production_branch:"main",
             build_config:{
