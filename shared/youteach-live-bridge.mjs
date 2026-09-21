@@ -233,6 +233,7 @@ export async function resolveStudentLaunch({
       gameId: String(payload?.liveContext?.gameId || ""),
       gameName: String(payload?.liveContext?.gameName || ""),
       cogSessionId: String(payload?.liveContext?.cogSessionId || ""),
+      assignmentId: String(payload?.liveContext?.assignmentId || ""),
       launchMode: "live-buzzer"
     },
     bridgeToken: String(payload?.bridgeToken || ""),
