@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 
 const port=Number(process.env.WORDY_PREVIEW_PORT||4173);
+const host=process.env.WORDY_PREVIEW_HOST||'127.0.0.1';
 const repoRoot=resolve(fileURLToPath(new URL('..',import.meta.url)));
 const mime={
   '.html':'text/html; charset=utf-8',
@@ -51,8 +52,9 @@ const server=createServer(async(req,res)=>{
   }
 });
 
-server.listen(port,'127.0.0.1',()=>{
-  const url=`http://127.0.0.1:${port}/Wordy/`;
+server.listen(port,host,()=>{
+  const displayHost=host==='0.0.0.0'?'localhost':host;
+  const url=`http://${displayHost}:${port}/Wordy/`;
   console.log('\nWordy local preview');
   console.log(url);
   console.log('Press Ctrl+C to stop.\n');
