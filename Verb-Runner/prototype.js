@@ -6,7 +6,8 @@ import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import {
   resolveStudentLaunch,
   saveStudentContext,
-  heartbeatStudent
+  heartbeatStudent,
+  submitLiveResult
 } from '../shared/youteach-live-bridge.mjs';
 
 const ROBOT_URLS=[
@@ -429,6 +430,7 @@ let sessionRunFinished=false;
 let sessionLoadPromise=Promise.resolve(null);
 let youTeachIdentity=null;
 let youTeachLiveStudentContext=null;
+let youTeachAttemptId='';
 let youTeachStudentHeartbeatTimer=null;
 let youTeachStudentHeartbeatBusy=false;
 
@@ -979,6 +981,58 @@ sessionLoadPromise=import('./session-sync.js?v=live-cog-student-20260920')
   });
 
 
+
+function newYouTeachAttemptId(){
+  const randomPart=globalThis.crypto?.randomUUID
+    ?globalThis.crypto.randomUUID().replace(/-/g,'').slice(0,20)
+    :Math.random().toString(36).slice(2,14);
+  return 'a'+Date.now().toString(36)+'_'+randomPart;
+}
+
+function buildYouTeachResultId(attemptId){
+  const sessionPart=String(sessionCode||'live').replace(/[^A-Za-z0-9_-]/g,'').slice(0,24)||'live';
+  return ('vr_'+sessionPart+'_'+String(attemptId||'attempt')).slice(0,160);
+}
+
+async function submitYouTeachLiveResult(summary){
+  if(!youTeachLiveStudentContext||!summary)return null;
+
+  const attemptId=youTeachAttemptId||newYouTeachAttemptId();
+  const result={
+    schemaVersion:1,
+    resultId:buildYouTeachResultId(attemptId),
+    attemptId,
+    resultType:'individual',
+    completedAt:Date.now(),
+    percentage:summary.accuracy,
+    points:null,
+    metrics:{
+      correct:Number(runState?.correct||0),
+      grammarErrors:Number(runState?.grammarErrors||0),
+      obstacleHits:Number(summary.obstacleHits||0),
+      bestStreak:Number(summary.bestStreak||0),
+      timeMs:Number(summary.timeMs||0),
+      momentum:Number(summary.momentum||0),
+      level:Number(currentLevel||0),
+      mode:raceMode(),
+      difficulty:String(difficulty?.name||'')
+    }
+  };
+
+  let lastError=null;
+  for(let attempt=1;attempt<=3;attempt++){
+    try{
+      return await submitLiveResult({studentContext:youTeachLiveStudentContext,result});
+    }catch(error){
+      lastError=error;
+      if([401,403,409,410].includes(Number(error?.status)))break;
+      if(attempt<3)await waitMs(attempt*1000);
+    }
+  }
+
+  console.error('Could not return Verb Runner result to YouTeach',lastError);
+  return null;
+}
 
 function formatTime(ms){
   const total=Math.max(0,Math.round(ms));
@@ -2374,6 +2428,12 @@ function finishRun(){
     }));
   }catch{}
 
+  if(youTeachLiveStudentContext){
+    submitYouTeachLiveResult(summary).catch(error=>{
+      console.error('Verb Runner live result submission failed',error);
+    });
+  }
+
   if(sessionData){
     sessionFinish({
       level:currentLevel,
@@ -2459,6 +2519,7 @@ function beginVictorySprint(){
 }
 
 function resetRun(){
+  youTeachAttemptId=newYouTeachAttemptId();
   totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
   runState=window.VerbRunnerGameCore.createRunState(totalChallenges);
   challengeIndex=0;
