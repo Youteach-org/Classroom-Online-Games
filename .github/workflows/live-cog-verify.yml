@@ -30,7 +30,7 @@ jobs:
           node --test Verb-Runner/tests/*.test.mjs
           node --test Verb-Runner/sentence-run.test.js
           (cd 100-Students-Said && node --test *.test.js *.test.mjs)
-          if compgen -G "Support-Meter/*.test.js" > /dev/null || compgen -G "Support-Meter/*.test.mjs" > /dev/null; then (cd Support-Meter && node --test *.test.js *.test.mjs); fi
+          (cd Support-Meter && node --test tests/*.test.js live-session.test.mjs)
 
       - name: Prepare static site
         run: |
