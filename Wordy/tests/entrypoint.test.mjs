@@ -9,9 +9,9 @@ test('Wordy entry point loads the controller module',()=>{
   assert.match(wordyHtml,/type="module"\s+src="\.\/app\.mjs"/);
 });
 
-test('COG landing page does not expose the branch-only Wordy prototype',()=>{
-  assert.doesNotMatch(rootHtml,/href="\/Wordy\/"/);
-  assert.doesNotMatch(rootHtml,/Wordy Prototype/);
+test('COG branch landing page exposes Wordy as a normal Classroom Online Game',()=>{
+  assert.match(rootHtml,/href="\.\/Wordy\/"/);
+  assert.match(rootHtml,/Wordy/);
 });
 
 test('browser app records abandonment on pagehide',()=>{
