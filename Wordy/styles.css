@@ -69,6 +69,8 @@ button{font:inherit}
   transition:transform .14s ease,box-shadow .14s ease,outline-color .14s ease;
 }
 .wordy-tile:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.24)}
+.wordy-tile.is-long{font-size:clamp(8px,2.55vw,13px);letter-spacing:-.045em}
+.wordy-tile.is-very-long{font-size:clamp(7px,2.15vw,11px);letter-spacing:-.055em}
 .wordy-tile.is-ready{
   outline:3px solid #ffd55c;
   outline-offset:-3px;
@@ -127,7 +129,8 @@ button{font:inherit}
 .review-card strong{display:block;font-size:16px}
 .review-card span{display:block;margin-top:2px;font-size:13px;opacity:.78}
 .replay-board{
-  margin-top:12px;
+  width:min(62vw,240px);
+  margin:12px auto 0;
   display:grid;
   grid-template-columns:repeat(5,minmax(0,1fr));
   gap:3px;
@@ -140,7 +143,7 @@ button{font:inherit}
   padding:2px;
   border-radius:7px;
   background:#e1e2eb;
-  font-size:clamp(8px,2.4vw,11px);
+  font-size:clamp(6px,1.7vw,8px);
   font-weight:800;
   overflow:hidden;
 }
