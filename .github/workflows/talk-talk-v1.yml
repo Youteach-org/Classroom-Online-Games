@@ -48,3 +48,29 @@ jobs:
         run: npx wrangler@4 pages deploy dist --project-name=classroom-online-games --branch=talk-talk-v1-20260921 --commit-hash=${{ github.sha }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+  verify-preview:
+    needs: deploy-preview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe Talk Talk preview over HTTP
+        run: |
+          set -eu
+          BASE="https://talk-talk-v1-20260921.classroom-online-games.pages.dev"
+          curl -fsS --retry 8 --retry-delay 3 "$BASE/Talk-Talk/" -o /tmp/student.html
+          curl -fsS --retry 8 --retry-delay 3 "$BASE/Talk-Talk/teacher.html" -o /tmp/teacher.html
+          curl -fsS --retry 8 --retry-delay 3 "$BASE/Talk-Talk/creator.html" -o /tmp/creator.html
+          curl -fsS --retry 8 --retry-delay 3 "$BASE/Talk-Talk/app.mjs" -o /tmp/app.mjs
+          grep -Fq '<title>Talk Talk</title>' /tmp/student.html
+          grep -Fq 'Teacher Monitor' /tmp/teacher.html
+          grep -Fq 'Test as Student' /tmp/creator.html
+          grep -Fq 'talkTalk.previewDraft' /tmp/app.mjs
+      - name: Browser-load Talk Talk shells
+        run: |
+          set -eu
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          test -n "$CHROME" || (echo "::error::No Chrome browser on runner" && exit 1)
+          "$CHROME" --headless --no-sandbox --disable-gpu --virtual-time-budget=2500 --dump-dom             https://talk-talk-v1-20260921.classroom-online-games.pages.dev/Talk-Talk/ > /tmp/student-dom.html
+          "$CHROME" --headless --no-sandbox --disable-gpu --virtual-time-budget=2500 --dump-dom             https://talk-talk-v1-20260921.classroom-online-games.pages.dev/Talk-Talk/teacher.html > /tmp/teacher-dom.html
+          grep -Fq 'Ready to speak?' /tmp/student-dom.html
+          grep -Fq 'Teacher Monitor' /tmp/teacher-dom.html
