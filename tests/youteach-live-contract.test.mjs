@@ -5,7 +5,7 @@ import { readFile } from "node:fs/promises";
 import { normalizeYouTeachIssuer } from "../shared/youteach-live-bridge.mjs";
 
 const CONTRACT = Object.freeze({
-  schemaVersion: 2,
+  schemaVersion: 1,
   teacherTokenPurpose: "cog-live-teacher",
   studentTokenPurpose: "cog-live-student",
   launchMode: "live-buzzer",
