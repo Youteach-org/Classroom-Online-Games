@@ -8,6 +8,7 @@ import {
 } from './generator.mjs';
 import { captureMissedOpportunity, buildRoundReview } from './review.mjs';
 import { createTelemetryStore } from './telemetry.mjs';
+import { buildResolutionEvents } from './resolution-events.mjs';
 
 const DISCOVERED_KEY='wordy.prototype.discovered.v1';
 
@@ -162,6 +163,7 @@ export function createGameController({
       crossCount:0,
       phase:'playing',
       missedOpportunities:[],
+      resolutionEvents:[],
       eventLabel:'',
       success:null,
       review:null
@@ -233,6 +235,7 @@ export function createGameController({
     if(state.phase!=='playing')return false;
     if(!inside(state.board,from)||!inside(state.board,to)||!areAdjacent(from,to))return false;
 
+    state.resolutionEvents=[];
     const previousReadyIds=new Set(state.readyMatches.map(match=>match.relationshipId));
     const previousCrossCount=findCrossings(state.readyMatches).length;
     const scoringMoves=findImmediateScoringMoves(state.board,bank);
@@ -327,6 +330,7 @@ export function createGameController({
       });
       state.board=result.board;
       applyResolutionStats(result);
+      state.resolutionEvents=buildResolutionEvents(result);
       state.eventLabel=result.generations.length>1
         ?`COMBO ×${result.generations.length}`
         :(result.generations[0]?.score?.crossCount>0?'CROSS!':(result.newlyDiscoveredIds.length?'NEW!':''));
@@ -338,6 +342,7 @@ export function createGameController({
         throw error;
       }
       telemetry.record('cascade-limit',{levelId:state.levelId});
+      state.resolutionEvents=[];
       safeCascadeRecovery();
       state.eventLabel='BOARD RESET';
     }
