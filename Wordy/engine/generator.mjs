@@ -1,4 +1,4 @@
-import { createBoard, swapTiles, boardKey } from './board.mjs';
+import { createBoard, swapTiles } from './board.mjs';
 import { findMatches, cellKey } from './matcher.mjs';
 import { scoreResolution } from './scoring.mjs';
 
@@ -57,31 +57,9 @@ export function findImmediateScoringMoves(board,bank){
     a.swap.to.row-b.swap.to.row||a.swap.to.col-b.swap.to.col);
 }
 
-export function hasViablePlay(board,bank,{maxDepth=2}={}){
+export function hasViablePlay(board,bank){
   if(findMatches(board,bank).length>0)return true;
-  const limit=Math.max(0,Number(maxDepth)||0);
-  if(limit===0)return false;
-
-  const visited=new Set([boardKey(board)]);
-  let frontier=[board];
-
-  for(let depth=1;depth<=limit;depth++){
-    const nextFrontier=[];
-    for(const state of frontier){
-      for(const swap of enumerateSwaps(state)){
-        const next=swapTiles(state,swap.from,swap.to);
-        const key=boardKey(next);
-        if(visited.has(key))continue;
-        visited.add(key);
-        if(findMatches(next,bank).length>0)return true;
-        if(depth<limit)nextFrontier.push(next);
-      }
-    }
-    frontier=nextFrontier;
-    if(frontier.length===0)break;
-  }
-
-  return false;
+  return findImmediateScoringMoves(board,bank).length>0;
 }
 
 function connectedRelationshipSubset(bank,rng,targetSize){
@@ -146,7 +124,7 @@ export function createControlledBoard({
 }
 
 export function recoverDeadBoard({board,bank,rng=Math.random,fallbackBoard=null}){
-  if(hasViablePlay(board,bank,{maxDepth:2}))return {board,reset:false};
+  if(hasViablePlay(board,bank))return {board,reset:false};
   const replacement=createControlledBoard({
     bank,
     rows:board.length,
