@@ -1,3 +1,5 @@
+import { analyzeInteraction } from "./interaction-engine.mjs";
+
 const DIMENSIONS = [
   "pronunciation",
   "fluency",
@@ -112,13 +114,21 @@ export function evaluateAttempt({
   prosody = null,
   languageEvidence = null,
   interactionEvidence = null,
-  taskCompletionEvidence = null
+  taskCompletionEvidence = null,
+  timeline = null,
+  studentKey = ""
 } = {}) {
+  const derivedInteraction = interactionEvidence || (
+    Array.isArray(timeline) && studentKey
+      ? analyzeInteraction(timeline, studentKey, task)
+      : null
+  );
+
   const dimensions = {
     pronunciation: dimension(phonemes),
     fluency: dimension(prosody, "fluencyScore"),
     grammarVocabulary: dimension(languageEvidence),
-    interaction: dimension(interactionEvidence),
+    interaction: dimension(derivedInteraction),
     taskCompletion: dimension(taskCompletionEvidence)
   };
 
@@ -142,6 +152,15 @@ export function evaluateAttempt({
     transcript: transcript ? {
       text: String(transcript.text || "").trim(),
       confidence: confidence(transcript.confidence)
+    } : null,
+    interactionSummary: derivedInteraction ? {
+      studentKey: String(derivedInteraction.studentKey || studentKey || ""),
+      respondedTurns: Number(derivedInteraction.respondedTurns || 0),
+      relevantFollowUps: Number(derivedInteraction.relevantFollowUps || 0),
+      clarificationMoves: Number(derivedInteraction.clarificationMoves || 0),
+      repairMoves: Number(derivedInteraction.repairMoves || 0),
+      initiatedTurns: Number(derivedInteraction.initiatedTurns || 0),
+      sustainedExchange: derivedInteraction.sustainedExchange === true
     } : null
   };
 }

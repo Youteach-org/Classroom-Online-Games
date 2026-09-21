@@ -20,6 +20,15 @@ export function buildResultsModel(evaluation = {}, turns = []) {
     strength: evaluation.strength || null,
     primaryFocus: evaluation.primaryFocus || null,
     technicalRetry: evaluation.technicalRetry === true,
+    interactionSummary: evaluation.interactionSummary ? {
+      studentKey: String(evaluation.interactionSummary.studentKey || ""),
+      respondedTurns: Number(evaluation.interactionSummary.respondedTurns || 0),
+      relevantFollowUps: Number(evaluation.interactionSummary.relevantFollowUps || 0),
+      clarificationMoves: Number(evaluation.interactionSummary.clarificationMoves || 0),
+      repairMoves: Number(evaluation.interactionSummary.repairMoves || 0),
+      initiatedTurns: Number(evaluation.interactionSummary.initiatedTurns || 0),
+      sustainedExchange: evaluation.interactionSummary.sustainedExchange === true
+    } : null,
     dimensions: Object.fromEntries(
       Object.entries(evaluation.dimensions || {}).map(([key, value]) => [key, cleanDimension(value)])
     ),
@@ -53,4 +62,16 @@ export function renderResultsView(container, model) {
     : "<strong>Your Focus:</strong> No recurring priority yet.";
 
   container.append(strength, focus);
+
+  if (model.interactionSummary) {
+    const interaction=document.createElement("p");
+    const summary=model.interactionSummary;
+    const moves=
+      summary.respondedTurns +
+      summary.relevantFollowUps +
+      summary.clarificationMoves +
+      summary.repairMoves;
+    interaction.innerHTML=`<strong>Interaction:</strong> ${moves} meaningful move${moves===1?"":"s"}`;
+    container.append(interaction);
+  }
 }
