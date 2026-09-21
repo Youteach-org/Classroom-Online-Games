@@ -14,5 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Run shared COG tests
+        run: node --test tests/*.test.mjs
       - name: Run Talk Talk tests
-        run: node --test tests/*.test.mjs Talk-Talk/tests/*.test.mjs
+        run: node --test Talk-Talk/tests/*.test.mjs
+      - name: Run Verb Runner tests
+        run: node --test Verb-Runner/tests/*.test.mjs
+      - name: Run Support Meter tests
+        run: node --test Support-Meter/*.test.js Support-Meter/*.test.mjs
+      - name: Run 100 Students Said tests
+        run: node --test 100-Students-Said/*.test.js
