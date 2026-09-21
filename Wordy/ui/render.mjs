@@ -49,7 +49,10 @@ export function renderGame(root,state){
       button.dataset.row=String(rowIndex);
       button.dataset.col=String(colIndex);
       button.dataset.tileId=tile?.id??'';
-      button.textContent=tile?.word??'';
+      const word=tile?.word??'';
+      button.textContent=word;
+      if(word.length>=8)button.classList?.add?.('is-long');
+      if(word.length>=11)button.classList?.add?.('is-very-long');
       button.disabled=state.phase!=='playing'||!tile;
       const cellMatches=usage.get(`${rowIndex}:${colIndex}`)??[];
       if(cellMatches.length>0)button.classList?.add?.('is-ready');
