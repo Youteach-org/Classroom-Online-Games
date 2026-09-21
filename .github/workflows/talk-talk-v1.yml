@@ -15,4 +15,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Talk Talk tests
-        run: node --test Talk-Talk/tests/*.test.mjs
+        run: node --test tests/*.test.mjs Talk-Talk/tests/*.test.mjs
