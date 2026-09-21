@@ -22,6 +22,7 @@ jobs:
           node --check Verb-Runner/coastal-world.mjs
           node --check Verb-Runner/sentence-runner-world.mjs
           node --check Verb-Runner/sentence-runner-layout.js
+          node --check Verb-Runner/visual-lab.js
           node --check Verb-Runner/prototype.js
 
       - name: Run Verb Runner regression tests
@@ -178,6 +179,53 @@ jobs:
           NODE
           npm install --no-save --no-package-lock playwright
           SENTENCE_PREVIEW_URL="$SENTENCE_PREVIEW_URL" BROWSER="$BROWSER" node sentence-runner-smoke.cjs
+
+      - name: Browser capture 3D Visual Lab
+        timeout-minutes: 3
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$BROWSER"
+          cat > visual-lab-smoke.cjs <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({
+              headless:true,
+              executablePath:process.env.BROWSER,
+              args:['--no-sandbox','--disable-gpu']
+            });
+            const page=await browser.newPage({viewport:{width:1600,height:900}});
+            const errors=[];
+            page.on('pageerror',err=>errors.push(String(err)));
+            const base=process.env.SENTENCE_PREVIEW_URL;
+            const response=await page.goto(base+'/Verb-Runner/visual-lab.html',{
+              waitUntil:'domcontentloaded',
+              timeout:30000
+            });
+            if(!response||response.status()!==200)throw new Error('Visual Lab HTTP '+(response?.status()??'none'));
+            await page.waitForFunction(()=>document.body.dataset.visualReady==='true',{timeout:30000});
+            await page.waitForTimeout(1800);
+            if(errors.length)throw new Error('Visual Lab page errors: '+errors.join(' | '));
+            const state=await page.evaluate(()=>({
+              ready:document.body.dataset.visualReady,
+              title:document.title,
+              canvas:[document.querySelector('canvas')?.width,document.querySelector('canvas')?.height],
+              prompt:document.querySelector('.prompt strong')?.textContent
+            }));
+            console.log('VISUAL_LAB '+JSON.stringify(state));
+            await page.screenshot({path:'sentence-runner-3d-visual-lab.png'});
+            await browser.close();
+          })().catch(err=>{console.error(err);process.exit(1);});
+          NODE
+          SENTENCE_PREVIEW_URL="$SENTENCE_PREVIEW_URL" BROWSER="$BROWSER" node visual-lab-smoke.cjs
+
+      - name: Upload Sentence Runner 3D Visual Lab
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentence-runner-3d-visual-lab
+          path: sentence-runner-3d-visual-lab.png
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload Sentence Runner preview screenshots
         if: always()
