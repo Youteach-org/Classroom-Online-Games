@@ -16,6 +16,23 @@
       <button id="endActivityBtn" class="danger" type="button" disabled>End Activity</button>
     </header>
 
+    <section class="panel teacher-toolbar" aria-label="Activity controls">
+      <label>
+        Mode
+        <select id="activityMode">
+          <option value="practice">Practice</option>
+          <option value="assessment">Assessment</option>
+        </select>
+      </label>
+      <label>
+        Twist
+        <select id="twistSelect">
+          <option value="remember-detail">Remember a detail</option>
+        </select>
+      </label>
+      <button id="sendTwistBtn" class="secondary" type="button" disabled>Send Twist</button>
+    </section>
+
     <section id="sessionState" class="panel" aria-live="polite">No active Talk Talk session.</section>
     <section id="teamGrid" class="team-grid" aria-label="Teams"></section>
     <section id="teamDetail" class="panel" hidden></section>
