@@ -11,7 +11,7 @@ const requestedLevel=searchParams.get('level')?.trim().toUpperCase();
 const requestedLevelId=LEVELS.some(level=>level.id===requestedLevel)
   ?requestedLevel
   :LEVELS[0].id;
-const isLocalPreview=['localhost','127.0.0.1','::1'].includes(window.location.hostname);
+const isLocalPreview=['localhost','127.0.0.1','::1'].includes(window.location.hostname)||window.location.hostname.endsWith('.app.github.dev');
 
 const bank=createRelationshipBank(RELATIONSHIPS);
 const controller=createGameController({
