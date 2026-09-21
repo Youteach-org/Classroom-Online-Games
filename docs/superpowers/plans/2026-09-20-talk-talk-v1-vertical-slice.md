@@ -25,7 +25,7 @@
 - Talk Talk working branding must remain replaceable in identifiers and stored schemas.
 - V1 content scope is the A2–B1 unit **Tell Me What Happened**.
 - Implementation starts from the current Live COG integration branches, not from an older `main` snapshot:
-  - COG: `youteachtk/Classroom-Online-Games@feature/live-cog-session-current-20260920` (planning checkpoint `9dbf1e3709bc4ac668054f510972f8bb37c62050`)
+  - COG: `Youteach-org/Classroom-Online-Games@feature/live-cog-session-current-20260920` (planning checkpoint `9dbf1e3709bc4ac668054f510972f8bb37c62050`)
   - YouTeach: `Youteach-org/YouTeach@feature/live-cog-session-current-20260920` (planning checkpoint `133e720923a90e233a0002795789c9650e75c299`)
 - Before implementation begins, refresh both branch HEADs and reconcile any new live-bridge changes instead of resetting them to these planning checkpoints.
 - Existing Live COG authentication, result validation, presence, expiry, and idempotency are reused, not reimplemented.
@@ -353,9 +353,7 @@ node --test Talk-Talk/tests/model-manifest.test.mjs
 - [ ] **Step 3: Populate an ordered V1 evaluation set**
 
 The evaluation document must measure these local candidates before one is marked `approved: true`:
-- STT: Whisper tiny English compatible with browser WebGPU/WASM runtime.
-- Phoneme CTC: `facebook/wav2vec2-lv-60-espeak-cv-ft` or a smaller browser-compatible equivalent with a redistribution-compatible model card/license.
-- Speaker runtime: sherpa-onnx WASM/Apache-2.0 plus an English-capable speaker-embedding model whose model license is separately documented.
+- STT candidate: `onnx-community/whisper-tiny.en` through `@huggingface/transformers`; browser/local only.\n- Phoneme candidate: `onnx-community/wav2vec2-ljspeech-gruut-ONNX` using the quantized `onnx/model_q4f16.onnx` asset; Apache-2.0 model card; browser/local only.\n- Speaker candidate: sherpa-onnx WASM with `wespeaker_en_voxceleb_resnet34.onnx`; sherpa-onnx and WeSpeaker are Apache-2.0, but the exact redistributed model asset must also pass the manifest license/source check before approval.
 - Local LLM: optional only; no candidate is required for core acceptance.
 
 Acceptance thresholds for required models:
@@ -525,10 +523,7 @@ Allowed persistent fields are skill aggregates and current focus only.
 
 - [ ] **Step 5: Commit separately**
 
-COG:
-```bash
-git commit -am "feat: add Talk Talk learning memory and personal practice"
-```
+COG:\n```bash\ngit add Talk-Talk/core/student-memory.mjs Talk-Talk/core/personal-practice.mjs Talk-Talk/tests/student-memory.test.mjs\ngit commit -m "feat: add Talk Talk learning memory and personal practice"\n```
 
 YouTeach:
 ```bash
