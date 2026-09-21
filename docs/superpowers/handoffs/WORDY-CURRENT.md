@@ -14,6 +14,7 @@
 - Validation prototype implementation plan: **all 11 tasks complete**.
 - Implementation location: `feature/wordy-game` only.
 - Product merge/deployment: **not performed**.
+- Final integration PR: **#46 `feature/wordy-game` → `main` is open**. Do not create a duplicate PR.
 - Wordy route in branch: `/Wordy/`.
 - Cloudflare production workflow on this branch now copies `Wordy/`, but it has not been run because the branch has not been merged to `main`.
 - Branch reconciliation: **complete**. PR #45 merged current `main` into `feature/wordy-game` with merge commit `9c7800adbad71c921084bd8d4d3183683950418e`. After reconciliation the branch was 109 commits ahead and **0 behind** `main`.
@@ -97,7 +98,7 @@ These are intentional prototype boundaries, not unfinished Task 1–11 work:
 
 Do **not** repeat implementation Tasks 1–11.
 
-The branch is reconciled with current `main`. The next product step is human review/playtesting or an explicit integration action. Do not merge `feature/wordy-game` into `main` or deploy unless the user explicitly asks.
+The branch is reconciled with current `main` and final PR #46 is open. The next product step is PR review and, only with explicit user instruction, merge/deploy. Do not create another integration PR.
 
 ## Continuation prompt
 
@@ -111,3 +112,12 @@ The branch is reconciled with current `main`. The next product step is human rev
 - Post-merge divergence check: 109 ahead / 0 behind `main`.
 - Post-merge verification: 81/81 Wordy tests pass; `node --check Wordy/app.mjs` exit 0.
 - No production deployment occurred.
+
+
+## Final integration PR
+
+- PR #46: `feature/wordy-game` -> `main`.
+- URL: https://github.com/youteachtk/Classroom-Online-Games/pull/46
+- State at creation: open, not merged.
+- GitHub REST initially reported `mergeable_state: unknown`; this is calculation pending, not evidence of a conflict.
+- No production deployment has occurred.
