@@ -109,7 +109,13 @@ export function createGameController({
   }
 
   function fallbackBoard(){
-    return createBoard(currentLevel.boardRows);
+    const current=createBoard(currentLevel.boardRows);
+    if(findImmediateScoringMoves(current,bank).length>=2)return current;
+    for(const level of levels){
+      const candidate=createBoard(level.boardRows);
+      if(findImmediateScoringMoves(candidate,bank).length>=2)return candidate;
+    }
+    return current;
   }
 
   function initialBoard(level){
