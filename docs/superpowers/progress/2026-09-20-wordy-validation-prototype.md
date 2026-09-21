@@ -51,4 +51,10 @@ Ruling: Immediate scoring moves count only relationships newly created by the sw
 - GREEN/regression: `node --test Wordy/tests/*.test.mjs` -> 31 tests, 31 pass, 0 fail.
 - Commits: cb37c32 (generator tests), 7f2b011 (generator/dead-board engine).
 
-Task 7: in progress.
+Task 7: complete.
+- RED: `node --test Wordy/tests/levels.test.mjs` failed with ERR_MODULE_NOT_FOUND for `Wordy/data/levels.mjs`, as expected.
+- GREEN/regression: `node --test Wordy/tests/*.test.mjs` -> 39 tests, 39 pass, 0 fail.
+- Verified fixtures: A creates LOOK AFTER, C creates 2 simultaneous relationships, D cascades LOOK AFTER -> TAKE A BREAK, E creates AS A MATTER OF FACT, F creates a crossword, G has at least 2 immediate scoring moves.
+- Commits: 052d5e4 (level tests), 5cec71c (level fixtures/objectives).
+
+Task 8: in progress.
