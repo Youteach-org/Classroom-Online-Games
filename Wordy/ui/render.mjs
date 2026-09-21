@@ -130,6 +130,8 @@ export function renderResult(root,review={newLearning:[],missed:[]}){
     missedList.replaceChildren?.(...cards);
   }
 
+  renderMissedReplay(root,(review.missed??[])[0]??null);
+
   if(overlay){
     overlay.hidden=false;
     overlay.setAttribute?.('aria-hidden','false');
