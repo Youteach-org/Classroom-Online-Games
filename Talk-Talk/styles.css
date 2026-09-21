@@ -18,3 +18,5 @@ h1,h2,p{margin-top:0}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font
 .mic-button[data-active="true"]{transform:scale(1.04);outline:5px solid rgba(31,111,95,.18)}
 .microcopy{font-size:.88rem;color:#6d5b4b;max-width:34ch}
 .replay-turn{border-top:1px solid #eee4d7;padding:12px 0}.replay-turn:first-child{border-top:0}
+
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
