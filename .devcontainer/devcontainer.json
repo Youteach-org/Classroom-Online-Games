@@ -1,0 +1,12 @@
+{
+  "name": "Wordy Preview",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "forwardPorts": [4173],
+  "portsAttributes": {
+    "4173": {
+      "label": "Wordy Preview",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "postAttachCommand": "nohup env WORDY_PREVIEW_HOST=0.0.0.0 node Wordy/preview-local.mjs > /tmp/wordy-preview.log 2>&1 &"
+}
