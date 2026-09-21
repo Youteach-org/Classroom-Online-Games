@@ -69,6 +69,14 @@ export async function downloadSessionData(sessionId){
   return {runs,responses};
 }
 
+export async function closeAssignedSession(sessionId){
+  const session=value(await get(at(`sessions/${sessionId}`)));if(!session)return false;
+  const changes={[`sessions/${sessionId}/status`]:'closed',[`sessions/${sessionId}/closedAt`]:Date.now(),[`sessions/${sessionId}/lastActivity`]:Date.now()};
+  if(session.joinToken)changes[`sessionTokens/${session.joinToken}`]=null;
+  await update(at(''),changes);
+  return true;
+}
+
 export async function deleteAssignedSession(sessionId){
   const session=value(await get(at(`sessions/${sessionId}`)));if(!session)return false;
   const {runs}=await downloadSessionData(sessionId),changes={[`sessions/${sessionId}`]:null,[`sessionTokens/${session.joinToken}`]:null};
