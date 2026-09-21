@@ -30,4 +30,9 @@ Ruling: Added direct tests for `collapseColumns` and `boardKey` because they are
 - GREEN/regression: `node --test Wordy/tests/board.test.mjs Wordy/tests/relationship-bank.test.mjs` -> 9 tests, 9 pass, 0 fail.
 - Commits: 9558da8 (board tests), 5df2944 (immutable board model).
 
-Task 3: in progress.
+Task 3: complete.
+- RED: `node --test Wordy/tests/matcher.test.mjs` failed with ERR_MODULE_NOT_FOUND for `Wordy/engine/matcher.mjs`, as expected.
+- GREEN/regression: relationship-bank + board + matcher suites -> 14 tests, 14 pass, 0 fail.
+- Commits: 8825b1c (matcher tests), ef39d00 (matcher/crossing engine).
+
+Task 4: in progress.
