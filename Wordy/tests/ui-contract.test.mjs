@@ -48,7 +48,7 @@ class FakeElement{
 class FakeDocument{
   constructor(){
     this.nodes=new Map();
-    for(const id of ['wordyBoard','popButton','movesValue','scoreValue','objectiveText','resultOverlay','readyCount','levelLabel','eventLabel','newLearningList','missedList']){
+    for(const id of ['wordyBoard','popButton','movesValue','scoreValue','objectiveText','resultOverlay','readyCount','levelLabel','eventLabel','newLearningList','missedList','replayBoard']){
       this.nodes.set('#'+id,new FakeElement(id==='popButton'?'button':'div'));
     }
   }
