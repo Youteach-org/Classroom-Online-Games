@@ -23,4 +23,4 @@ jobs:
       - name: Run Support Meter tests
         run: node --test Support-Meter/*.test.js Support-Meter/*.test.mjs
       - name: Run 100 Students Said tests
-        run: node --test 100-Students-Said/*.test.js
+        run: cd 100-Students-Said && node --test *.test.js
