@@ -1,4 +1,4 @@
-import { createBoard, areAdjacent, swapTiles } from './board.mjs';
+import { createBoard, areAdjacent } from './board.mjs';
 import { findMatches, findCrossings } from './matcher.mjs';
 import { resolvePlayerActivation, CascadeLimitError } from './resolution.mjs';
 import {
@@ -53,6 +53,16 @@ function objectiveComplete(level,state){
 function inside(board,cell){
   return Number.isInteger(cell?.row)&&Number.isInteger(cell?.col)&&
     cell.row>=0&&cell.row<board.length&&cell.col>=0&&cell.col<board[0].length;
+}
+
+function sameCell(a,b){
+  return a?.row===b?.row&&a?.col===b?.col;
+}
+
+function sameSwap(a,b){
+  if(!a||!b)return false;
+  return (sameCell(a.from,b.from)&&sameCell(a.to,b.to))||
+    (sameCell(a.from,b.to)&&sameCell(a.to,b.from));
 }
 
 function boardWords(board){
@@ -239,6 +249,9 @@ export function createGameController({
     const previousReadyIds=new Set(state.readyMatches.map(match=>match.relationshipId));
     const previousCrossCount=findCrossings(state.readyMatches).length;
     const scoringMoves=findImmediateScoringMoves(state.board,bank);
+    const chosenMove=scoringMoves.find(move=>sameSwap(move.swap,{from,to}));
+    if(!chosenMove)return false;
+
     const missed=captureMissedOpportunity({
       board:state.board,
       scoringMoves,
@@ -254,7 +267,7 @@ export function createGameController({
       });
     }
 
-    state.board=swapTiles(state.board,from,to);
+    state.board=chosenMove.board;
     state.movesLeft=Math.max(0,state.movesLeft-1);
     refreshReady();
     const nextReadyIds=new Set(state.readyMatches.map(match=>match.relationshipId));
