@@ -24,7 +24,14 @@ const continueAction = document.getElementById("continueAction");
 const recordButton = document.getElementById("recordButton");
 const recordingState = document.getElementById("recordingState");
 
-const activity = normalizeActivity(TELL_ME_WHAT_HAPPENED);
+let activitySource=TELL_ME_WHAT_HAPPENED;
+if (new URLSearchParams(location.search).get("draft") === "preview") {
+  try {
+    const saved=JSON.parse(sessionStorage.getItem("talkTalk.previewDraft") || "null");
+    if (saved) activitySource=saved;
+  } catch {}
+}
+const activity = normalizeActivity(activitySource);
 let flow = null;
 let capture = null;
 let micOpen = false;
