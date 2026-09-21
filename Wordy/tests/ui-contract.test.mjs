@@ -120,3 +120,26 @@ test('renderResult re-renders the logical board snapshot for the top missed oppo
   assert.equal(replay.children[1].classList.contains('is-suggested'),true);
   assert.equal(replay.children[2].classList.contains('is-suggested'),true);
 });
+
+
+test('renderGame gives long words a smaller responsive typography class',()=>{
+  const root=new FakeDocument();
+  renderGame(root,{
+    levelId:'T',levelTitle:'Test',movesLeft:5,score:0,instruction:'Test',phase:'playing',eventLabel:'',
+    board:[[{id:'long',word:'HOMEWORK'},{id:'very',word:'RESPONSIBILITY'}]],
+    readyMatches:[]
+  });
+  const tiles=root.querySelector('#wordyBoard').children;
+  assert.equal(tiles[0].classList.contains('is-long'),true);
+  assert.equal(tiles[1].classList.contains('is-very-long'),true);
+  assert.match(css,/\.wordy-tile\.is-long/);
+  assert.match(css,/\.wordy-tile\.is-very-long/);
+});
+
+test('tutorial replay stays miniature on a phone screen',()=>{
+  assert.match(css,/\.replay-board\{[\s\S]*?width:min\(62vw,240px\)/);
+});
+
+test('miniature replay keeps long filler words readable',()=>{
+  assert.match(css,/\.replay-tile\{[\s\S]*?font-size:clamp\(6px,1\.7vw,8px\)/);
+});
