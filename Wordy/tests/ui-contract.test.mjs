@@ -7,7 +7,7 @@ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../styles.css',import.meta.url),'utf8');
 
 test('prototype exposes required HUD, board, global pop, and result hooks',()=>{
-  for(const id of ['wordyBoard','popButton','movesValue','scoreValue','objectiveText','resultOverlay','newLearningList','missedList']){
+  for(const id of ['wordyBoard','popButton','movesValue','scoreValue','objectiveText','resultOverlay','newLearningList','missedList','replayBoard']){
     assert.match(html,new RegExp('id="'+id+'"'));
   }
 });
@@ -92,4 +92,31 @@ test('renderResult shows concise new-learning and missed-opportunity cards',()=>
   assert.equal(root.querySelector('#missedList').children[0].children.length,2);
   assert.match(root.querySelector('#missedList').children[0].children[0].textContent,/TAKE A BREAK/);
   assert.equal(root.querySelector('#resultOverlay').hidden,false);
+});
+
+
+test('renderResult re-renders the logical board snapshot for the top missed opportunity',()=>{
+  const root=new FakeDocument();
+  renderResult(root,{
+    newLearning:[],
+    missed:[{
+      relationshipId:'look-after',
+      projectedScore:170,
+      boardRows:[
+        ['LOOK','X','AFTER','Y','Z'],
+        ['A','B','C','D','E'],
+        ['F','G','H','I','J'],
+        ['K','L','M','N','O'],
+        ['P','Q','R','S','T'],
+        ['U','V','W','AA','BB'],
+        ['CC','DD','EE','FF','GG']
+      ],
+      suggestedSwap:{from:{row:0,col:1},to:{row:0,col:2}},
+      relationship:{tokens:['LOOK','AFTER'],meaning:'take care of'}
+    }]
+  });
+  const replay=root.querySelector('#replayBoard');
+  assert.equal(replay.children.length,35);
+  assert.equal(replay.children[1].classList.contains('is-suggested'),true);
+  assert.equal(replay.children[2].classList.contains('is-suggested'),true);
 });
