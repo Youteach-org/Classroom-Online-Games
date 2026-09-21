@@ -59,7 +59,7 @@ function mountLocalDevbar(){
   restart.addEventListener('click',()=>controller.replay());
 
   bar.append(badge,select,restart);
-  document.body.append(bar);
+  document.querySelector('#wordyApp')?.prepend(bar);
 }
 
 mountLocalDevbar();
