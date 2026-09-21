@@ -110,3 +110,24 @@ test('telemetry records the prototype loop events',()=>{
   assert.ok(types.includes('pop'));
   assert.ok(types.includes('level-end'));
 });
+
+
+test('dead-board recovery can borrow a productive authored fallback when the current level fallback is too sparse',()=>{
+  const storage=createFakeStorage();
+  const current=makeLevel({id:'A',ready:true,target:9999});
+  const rescue={
+    id:'B',title:'Rescue',moves:10,goal:{type:'score',target:9999},instruction:'Rescue',
+    boardRows:[
+      ['LOOK','X','AFTER','Y','Z'],
+      ['MAKE','Q','SENSE','R','S'],
+      ['A','B','C','D','E'],['F','G','H','I','J'],['K','L','M','N','O'],
+      ['P','T','U','V','W'],['AA','BB','CC','DD','EE']
+    ],fixtureMoves:[]
+  };
+  const game=createGameController({
+    bank,levels:[current,rescue],initialLevelId:'A',rng:()=>0,storage,refillWord:()=> 'ZZZ'
+  });
+  assert.doesNotThrow(()=>game.pop());
+  assert.equal(game.state().phase,'playing');
+  assert.ok(game.state().movesLeft>0);
+});
