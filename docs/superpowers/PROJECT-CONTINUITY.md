@@ -31,3 +31,35 @@ It defines the teacher-controlled Buzzer → COG → Student Buzzer live-game li
 ## Interaction convention
 
 - Number every assistant response to this user. Keep the response number visible at the beginning of each reply when working on this project.
+
+
+## Talk Talk V1 checkpoint — 2026-09-21
+
+Implementation branch: `feature/talk-talk-v1-20260921`.
+
+Current verified COG source checkpoint: `5d5dd5fe224f543ef04e61d990aa9e16e8574cf1`.
+Current verified YouTeach source checkpoint: `dd0650d97df69741e59c538421bff62e22075016` plus Talk Talk result sanitizer commit `6cb0b738a6371f4e927dde42a6136aa26b6d6def`.
+
+Implemented vertical slice:
+- `Tell Me What Happened` A2–B1 flow;
+- local-first microphone/capability gate and evidence-first evaluation;
+- learner memory with Observed → Recurring → Mastered and Past-ed Clinic;
+- Talk Engine Lite fallback with optional local AI adapter;
+- canonical YouTeach pair/group context and host selection;
+- in-person/remote group timelines and fair individual interaction evidence;
+- Practice vs Assessment policy and team-first Teacher Monitor;
+- strict individual Talk Talk result summaries returned to YouTeach;
+- minimal Creator Mode with local Test as Student preview;
+- production Cloudflare packaging updated to include `Talk-Talk/`.
+
+Verification completed:
+- YouTeach full verification workflow passed, including function syntax, Live COG/Talk Talk tests, and `build-pages.sh`.
+- COG full regression matrix passed: shared COG, Talk Talk, Verb Runner, Support Meter, and 100 Students Said.
+- Cloudflare packaging regression test passed after adding `Talk-Talk` to both production copy commands.
+
+V1 is NOT yet declared complete. Remaining gate:
+1. deploy a feature preview for the exact Talk Talk branch commits;
+2. run the real browser smoke flow against that preview, including network/storage checks for raw audio and idempotent retry/disconnect behavior;
+3. verify the exact preview deployments are green.
+
+Do not merge or publish production until those gates are satisfied.
