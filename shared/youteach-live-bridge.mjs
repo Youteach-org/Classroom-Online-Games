@@ -108,7 +108,6 @@ export async function resolveTeacherLaunch({
       assignmentCode: String(payload?.liveContext?.assignmentCode || ""),
       assignmentTitle: String(payload?.liveContext?.assignmentTitle || "")
     },
-    teamContext: normalizeYouTeachTeamContext(payload?.teamContext),
     bridgeToken: String(payload?.bridgeToken || ""),
     bridgeExpiresAt: Number(payload?.bridgeExpiresAt || 0),
     issuer: cleanIssuer
@@ -254,6 +253,7 @@ export async function resolveStudentLaunch({
       assignmentId: String(payload?.liveContext?.assignmentId || ""),
       launchMode: "live-buzzer"
     },
+    teamContext: normalizeYouTeachTeamContext(payload?.teamContext),
     bridgeToken: String(payload?.bridgeToken || ""),
     bridgeExpiresAt: Number(payload?.bridgeExpiresAt || 0),
     issuer: cleanIssuer
