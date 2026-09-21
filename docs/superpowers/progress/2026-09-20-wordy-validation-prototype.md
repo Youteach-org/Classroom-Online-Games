@@ -74,3 +74,4 @@ Task 10: complete.
 - Commits: 936da1a, 9249cef, 08bc1d1, 8ebaa1e.
 
 Task 11: in progress.
+Ruling: On `CascadeLimitError`, generate a fresh controlled board directly with the current level fallback instead of calling `recoverDeadBoard` on the pre-pop board. The pre-pop board still contains a ready relationship, so dead-board detection would correctly consider it live and refuse to reset. Cost if wrong: the emergency recovery path differs internally from the plan wording, but preserves the spec requirement to recover safely without hanging or charging a move.
