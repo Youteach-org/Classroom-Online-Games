@@ -121,3 +121,39 @@ The branch is reconciled with current `main` and final PR #46 is open. The next 
 - State at creation: open, not merged.
 - GitHub REST initially reported `mergeable_state: unknown`; this is calculation pending, not evidence of a conflict.
 - No production deployment has occurred.
+
+
+## Branch-only local development mode — 2026-09-21
+
+User decision: continue Wordy development without publishing it online.
+
+Current workflow:
+- Work only in `feature/wordy-game`.
+- `main` must not contain or expose the Wordy prototype.
+- The COG landing page in the Wordy branch also does not expose a Wordy card.
+- The Cloudflare production build in the Wordy branch explicitly excludes `Wordy`; future merges cannot publish it accidentally without an intentional production-enablement change.
+- No GitHub Actions or Cloudflare deployment is required for Wordy development.
+- Local preview launcher: `Wordy/preview-local.bat`.
+- Local server: `node Wordy/preview-local.mjs --open`.
+- Preview URL: `http://127.0.0.1:4173/Wordy/`.
+- Direct level URLs: `?level=A` through `?level=G`.
+- On `localhost` / `127.0.0.1`, a DEV bar appears inside the game with level A–G selection and Restart.
+- DEV controls are not mounted on non-local hosts.
+
+Verification for this change:
+- Local-development controls RED: 3/4 tests initially failed because query-level selection, localhost guard and DEV controls did not exist.
+- GREEN: `Wordy/tests/local-preview.test.mjs` 4/4.
+- Branch-only safety RED: entrypoint tests failed because the COG card and Cloudflare copy commands still exposed Wordy.
+- GREEN: entrypoint + local-preview + UI contract targeted suite -> 17/17 pass.
+- `node --check Wordy/app.mjs` -> exit 0.
+
+Key commits:
+- `5d8bfc9` local-preview tests.
+- `8e55a15`, `ac93cab` initial localhost controls/styles.
+- `54553e9` branch-only safety tests.
+- `ed17871` removes Wordy card from branch root landing page.
+- `2f0759a` excludes Wordy from branch Cloudflare build.
+- `f7a5769`, `b6d87e3` keep DEV controls in normal page flow.
+- `c75cc8b` documents local level controls.
+
+Do not re-enable Wordy in `main`, the COG production landing page, or Cloudflare until the user explicitly requests production publication.
