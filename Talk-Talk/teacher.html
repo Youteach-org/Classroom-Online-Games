@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Talk Talk Teacher Monitor</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Talk Talk</p>
+        <h1>Teacher Monitor</h1>
+      </div>
+      <button id="endActivityBtn" class="danger" type="button" disabled>End Activity</button>
+    </header>
+
+    <section id="sessionState" class="panel" aria-live="polite">No active Talk Talk session.</section>
+    <section id="teamGrid" class="team-grid" aria-label="Teams"></section>
+    <section id="teamDetail" class="panel" hidden></section>
+  </main>
+  <script type="module" src="./teacher-app.mjs"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Talk Talk</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app-shell" aria-label="Talk Talk">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Classroom Online Games</p>
+        <h1>Talk Talk</h1>
+      </div>
+      <button id="joinClassAction" class="primary" type="button" hidden>Join Class</button>
+    </header>
+
+    <section id="homeView" class="panel">
+      <p class="eyebrow">Speaking & pronunciation</p>
+      <h2>Ready to speak?</h2>
+      <p>Talk Talk will guide pronunciation practice into real conversation.</p>
+      <button id="continueAction" class="primary" type="button">Continue</button>
+    </section>
+
+    <section id="lessonView" class="panel" hidden></section>
+    <section id="resultsView" class="panel" hidden></section>
+  </main>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
