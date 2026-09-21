@@ -10,11 +10,10 @@ permissions:
   contents: read
 
 jobs:
-  verify:
+  syntax:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Check JavaScript modules
         run: |
           node --check Verb-Runner/prototype.js
@@ -22,29 +21,63 @@ jobs:
           node --check OSASCOMP/student.js
           node --check OSASCOMP/teacher/monitor.js
           node --check OSASCOMP/live-session.js
+          node --check Support-Meter/game.js
+          node --check Support-Meter/teacher.js
+          node --check Support-Meter/live-session.js
           if [ -d shared ]; then find shared -name '*.mjs' -print0 | xargs -0 -r -n1 node --check; fi
 
+  shared-bridge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Run shared live bridge tests
         run: |
           if compgen -G "tests/*.test.mjs" > /dev/null; then node --test tests/*.test.mjs; fi
 
+  verb-runner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Run Verb Runner tests
         run: |
           node --test Verb-Runner/tests/*.test.mjs
           node --test Verb-Runner/sentence-run.test.js
 
+  hundred-students-said:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Run 100 Students Said tests
         run: |
           (cd 100-Students-Said && node --test *.test.js *.test.mjs)
 
+  support-meter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Run Support Meter tests
         run: |
           (cd Support-Meter && node --test tests/*.test.js live-session.test.mjs)
 
+  osascomp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Run OSASCOMP tests
         run: |
           node --test OSASCOMP/live-session.test.mjs
 
+  build:
+    needs:
+      - syntax
+      - shared-bridge
+      - verb-runner
+      - hundred-students-said
+      - support-meter
+      - osascomp
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Prepare static site
         run: |
           rm -rf dist
