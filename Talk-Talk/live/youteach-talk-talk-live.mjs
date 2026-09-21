@@ -1,3 +1,4 @@
+import { syncSessionClock } from "../group/remote-timeline.mjs";
 import { normalizeYouTeachTeamContext } from "../../shared/youteach-live-bridge.mjs";
 
 export function normalizeTalkTalkTeamContext(raw) {
@@ -38,5 +39,25 @@ export function createTalkTalkLiveContext(studentContext) {
     }),
     bridgeToken: String(studentContext.bridgeToken || ""),
     issuer: String(studentContext.issuer || "")
+  });
+}
+
+export function createRemoteClockContext({
+  serverNow,
+  clientNow = Date.now()
+} = {}) {
+  return Object.freeze({
+    serverNow: Number(serverNow),
+    clientNow: Number(clientNow),
+    offsetMs: syncSessionClock(serverNow, clientNow)
+  });
+}
+
+export function createRemoteTalkTalkContext(studentContext, clockContext) {
+  const live = createTalkTalkLiveContext(studentContext);
+  return Object.freeze({
+    ...live,
+    captureMode: "per-device",
+    clockOffsetMs: Number(clockContext?.offsetMs || 0)
   });
 }

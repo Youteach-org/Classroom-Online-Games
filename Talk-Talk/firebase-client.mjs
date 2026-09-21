@@ -15,8 +15,8 @@ function teamPath(cogSessionId, teamKey) {
 async function requestJson(fetchImpl, databaseUrl, path, method = "GET", body) {
   const response = await fetchImpl(`${databaseUrl}/${path}.json`, {
     method,
-    headers: method === "GET" ? undefined : { "Content-Type":"application/json" },
-    body: method === "GET" ? undefined : JSON.stringify(body)
+    headers: method === "GET" || method === "DELETE" ? undefined : { "Content-Type":"application/json" },
+    body: method === "GET" || method === "DELETE" ? undefined : JSON.stringify(body)
   });
   if (!response.ok) throw new Error(`Talk Talk Firebase ${method} failed: ${response.status}`);
   return response.json().catch(() => null);
@@ -63,6 +63,22 @@ export function createTalkTalkFirebaseClient({
         "PATCH",
         patch || {}
       );
+    },
+
+    async getServerTime(cogSessionId) {
+      const probeId = `probe-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+      const path = `${DEFAULT_ROOT}/sessions/${segment(cogSessionId)}/timeProbes/${probeId}`;
+      const value = await requestJson(
+        fetchImpl,
+        databaseUrl,
+        path,
+        "PUT",
+        { ".sv":"timestamp" }
+      );
+      await requestJson(fetchImpl, databaseUrl, path, "DELETE");
+      const serverNow = Number(value);
+      if (!Number.isFinite(serverNow)) throw new Error("Talk Talk server time probe failed.");
+      return serverNow;
     },
 
     async publishTurnEvent(cogSessionId, teamKey, event) {

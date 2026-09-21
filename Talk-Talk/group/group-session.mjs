@@ -83,3 +83,8 @@ export function buildTeamRuntimeState(confirmations) {
     turnEvents: {}
   };
 }
+
+export function captureModeForEnvironment({ coLocated = true, hostStudentKey = "" } = {}) {
+  if (!coLocated) return "per-device";
+  return String(hostStudentKey || "").trim() ? "host-recorder" : "waiting-for-host";
+}
