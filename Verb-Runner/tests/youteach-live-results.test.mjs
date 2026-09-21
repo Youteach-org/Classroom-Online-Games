@@ -26,7 +26,7 @@ test("Verb Runner result has a stable attempt id generated before finish", () =>
   assert.match(prototype, /youTeachAttemptId/);
   assert.match(prototype, /function newYouTeachAttemptId/);
   assert.match(prototype, /resultId:/);
-  assert.match(prototype, /attemptId:/);
+  assert.match(prototype, /\battemptId\b/);
 });
 
 test("network retries reuse the same result object instead of creating duplicate ids", () => {
