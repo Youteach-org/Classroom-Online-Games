@@ -72,13 +72,15 @@ Not allowed:
 
 This keeps movement local and strategic while preserving the familiar casual-puzzle feel.
 
-### Non-scoring setup moves
-**Decision:** Any legal adjacent orthogonal swap is allowed even when it does not immediately create a valid linguistic combination.
+### Productive adjacent swaps
+**Decision (revised 2026-09-21):** A player may attempt a swap only between two orthogonally adjacent tiles, but the swap is kept only if that single exchange creates at least one new validated linguistic relationship.
 
-- Setup moves are part of normal strategy.
-- Each adjacent swap consumes one move.
-- The game does not revert a swap simply because no valid relationship was formed.
-- This allows players to reposition words over several moves in order to build longer expressions, crossings, or future cascade opportunities.
+- A non-scoring adjacent swap is rejected/reverted immediately.
+- Rejected swaps do not consume a move.
+- Words cannot be walked across the board through a chain of useless setup swaps.
+- A successful swap consumes one move and the newly formed relationship becomes ready to pop.
+- Existing ready relationships may remain while the player looks for another productive adjacent swap.
+- A swap that merely preserves an already-ready relationship elsewhere is not considered productive.
 
 ### Armed combinations and global player-triggered popping
 **Decision:** When a valid linguistic combination is formed, it does not disappear automatically.
@@ -127,7 +129,7 @@ This mechanic is intended to:
 - First-time discoveries may earn a modest discovery bonus.
 - Gravity-created chains use an increasing cascade multiplier.
 - If a shorter relationship is fully contained inside a longer resolved relationship on the same line, score the longer one rather than double-counting both.
-- Non-scoring setup swaps do not lose points; they already consume moves.
+- Rejected non-scoring swaps do not change the board, score, or move count.
 - Waiting by itself does not earn points. Waiting is rewarded only when it enables more relationships, longer structures, crossings, or stronger cascades.
 - Base values remain the same for all players; adaptive learning affects appearance frequency, not base points.
 
@@ -181,10 +183,15 @@ MAKE - A - DECISION
 The precise board geometry will depend on the final matching rules, but the principle is confirmed: valid linguistic structures may intersect through a shared word and resolve together.
 
 ### Tile sizing
-**Decision:** All board tiles remain the same physical size. Word length must not change grid geometry.
+**Decision (revised 2026-09-21):** Word blocks use variable visual width according to word length.
+
+- Short tokens such as `A`, `OF`, and `TO` occupy noticeably less horizontal space.
+- Medium words use a normal block width.
+- Long words such as `ATTENTION`, `DIFFERENCE`, and `HOMEWORK` receive wider blocks so the word remains readable.
+- Rows keep the logical tile order used by the rules engine; visual width does not create free-form dragging or change tile identity.
 
 ### Typography
-**Decision:** Text adapts to the tile rather than changing the tile to fit the text.
+**Decision:** Prefer readable text at a normal game size; give long words more physical width instead of shrinking them until they are hard to read.
 
 ### Scale
 **Decision:** The design should be capable of supporting many levels and should not require every level to be created manually.
@@ -320,7 +327,7 @@ Suggested internal relationship states:
 
 The prototype must include:
 - adjacent orthogonal swaps;
-- deliberate setup moves that may score nothing immediately;
+- productive adjacent swaps only; rejected non-scoring swaps revert immediately;
 - valid-relationship detection;
 - ready-to-pop marking;
 - one global pop action that resolves all ready relationships;
