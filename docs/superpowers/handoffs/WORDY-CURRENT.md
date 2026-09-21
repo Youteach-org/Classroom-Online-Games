@@ -157,3 +157,53 @@ Key commits:
 - `c75cc8b` documents local level controls.
 
 Do not re-enable Wordy in `main`, the COG production landing page, or Cloudflare until the user explicitly requests production publication.
+
+
+## Core correction — productive swaps and variable-width word blocks (2026-09-21)
+
+User rejected two earlier prototype assumptions after hands-on review.
+
+### Movement rule — authoritative
+- A player may attempt a swap only between two orthogonally adjacent tiles.
+- The swap is **accepted only if that single exchange creates at least one new validated linguistic relationship**.
+- If it creates no new relationship, the swap is rejected/reverted immediately.
+- Rejected swaps consume **no move** and do not create missed-opportunity telemetry.
+- A player must not be able to walk/transport a word across the board through repeated useless swaps.
+- A swap that only preserves an already-ready relationship elsewhere is not productive.
+- A successful swap consumes one move and any newly created relationship becomes ready to pop.
+- Existing ready relationships stay ready when unrelated rejected swaps are attempted.
+- Global POP, crossword intersections, shared-tile scoring, gravity, and cascades remain.
+
+### Dead-board rule — authoritative
+- A live board must have at least one relationship already ready **or one productive relationship-forming adjacent swap available immediately**.
+- Do not search through two or more useless setup swaps when deciding whether a board is viable.
+- If no immediate productive swap exists and no relationship is already ready, the board is dead and should reset using the normal recovery behavior.
+
+### Visual geometry — authoritative
+- The rules engine retains logical row/column coordinates for adjacency, matching, gravity, and crossings.
+- The rendered board must **not** force five equal-width square tiles per row.
+- Each rendered logical row is a flex/block row.
+- Very short words such as `A`, `OF`, `TO` receive compact blocks.
+- Medium words receive normal width.
+- Long words such as `HOMEWORK`, `ATTENTION`, and `DIFFERENCE` receive progressively wider blocks.
+- Readability takes priority over shrinking long words into equal squares.
+- Current width classes: `size-xs`, `size-sm`, `size-md`, `size-lg`, `size-xl`.
+
+### Verification performed for this correction
+- TDD RED reproduced the original bug: an adjacent useless swap was accepted and retained; a two-useless-swap path was considered viable; equal-square UI assertions represented the wrong design.
+- Targeted GREEN verification: 8/8 tests pass for rejected useless swaps, accepted productive swaps, existing ready POP, crossing-producing swaps, immediate-only viability, dead-board detection, row-block rendering, and variable-width CSS.
+- Published GitHub blobs were then inspected: controller contains `chosenMove` lookup + `if(!chosenMove)return false`; generator uses immediate scoring moves only; renderer creates `wordy-row` wrappers and word-length size classes; main-board CSS is flex-based with proportional widths.
+- Automated Chromium screenshot generation is currently blocked by sandbox browser policy, so do not claim a browser screenshot was visually verified from the sandbox.
+
+Key commits:
+- `82c115e` controller regression tests.
+- `bdfcfb0` immediate-only generator tests.
+- `6068fad` variable-width UI contract tests.
+- `1f5a161` reject nonproductive swaps.
+- `1709ef8` immediate-only board viability.
+- `e37451d` render variable-width word blocks.
+- `a24b24d` size word blocks by word length.
+- `70fcf19`, `c49a8b9`, `5f7b25b`, `f4c5d49` update decisions/spec/architecture/plan.
+
+### Workflow preference
+The user does **not** want to download or work on Wordy locally. Continue editing `feature/wordy-game` through GitHub. Local/sandbox rendering may be used internally for verification, but do not ask the user to download ZIPs or run a local server as the normal workflow.
