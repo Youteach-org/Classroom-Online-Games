@@ -40,7 +40,7 @@ test('enumerateSwaps returns each orthogonal edge once',()=>{
   assert.equal(enumerateSwaps(board).length,4);
 });
 
-test('a board with no immediate score but a match reachable in two setup swaps is not dead',()=>{
+test('a board with no immediate valid swap is dead even if two useless swaps could eventually form a match',()=>{
   const bank=createRelationshipBank([
     {id:'look-after',category:'phrasal-verb',tokens:['LOOK','AFTER'],baseScore:100,difficulty:1}
   ]);
@@ -49,7 +49,7 @@ test('a board with no immediate score but a match reachable in two setup swaps i
     ['Z','Q','AFTER']
   ]);
   assert.equal(findImmediateScoringMoves(board,bank).length,0);
-  assert.equal(hasViablePlay(board,bank,{maxDepth:2}),true);
+  assert.equal(hasViablePlay(board,bank),false);
 });
 
 test('a swap that only preserves an already-ready relationship is not an immediate scoring move',()=>{
@@ -81,7 +81,7 @@ test('dead board recovery returns a productive replacement and marks reset true'
   assert.equal(result.reset,true);
   assert.equal(result.board.length,7);
   assert.equal(result.board[0].length,5);
-  assert.equal(hasViablePlay(result.board,fullBank,{maxDepth:2}),true);
+  assert.equal(hasViablePlay(result.board,fullBank),true);
 });
 
 test('live board recovery leaves the current board unchanged',()=>{
