@@ -28,9 +28,10 @@ test('development controls expose A-G level selection and restart without changi
   assert.match(css,/\.wordy-devbar\s+select/);
 });
 
-test('local preview server remains loopback-only and never binds publicly',()=>{
-  assert.match(preview,/server\.listen\(port,['"]127\.0\.0\.1['"]/);
-  assert.doesNotMatch(preview,/0\.0\.0\.0/);
+test('local preview server defaults to loopback unless a development host is explicitly supplied',()=>{
+  assert.match(preview,/WORDY_PREVIEW_HOST/);
+  assert.match(preview,/127\.0\.0\.1/);
+  assert.match(preview,/server\.listen\(port,host/);
 });
 
 
