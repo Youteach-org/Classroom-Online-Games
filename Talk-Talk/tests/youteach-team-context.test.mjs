@@ -5,7 +5,7 @@ import { resolveStudentLaunch } from "../../shared/youteach-live-bridge.mjs";
 import {
   createTalkTalkLiveContext,
   normalizeTalkTalkTeamContext
-} from "../Talk-Talk/live/youteach-talk-talk-live.mjs";
+} from "../live/youteach-talk-talk-live.mjs";
 
 test("generic YouTeach bridge normalizes optional Talk Talk team context", async () => {
   const context = await resolveStudentLaunch({
