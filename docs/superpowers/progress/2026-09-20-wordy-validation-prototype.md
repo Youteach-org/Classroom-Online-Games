@@ -35,4 +35,9 @@ Task 3: complete.
 - GREEN/regression: relationship-bank + board + matcher suites -> 14 tests, 14 pass, 0 fail.
 - Commits: 8825b1c (matcher tests), ef39d00 (matcher/crossing engine).
 
-Task 4: in progress.
+Task 4: complete.
+- RED: `node --test Wordy/tests/scoring.test.mjs` failed with ERR_MODULE_NOT_FOUND for `Wordy/engine/scoring.mjs`, as expected.
+- GREEN/regression: `node --test Wordy/tests/*.test.mjs` -> 19 tests, 19 pass, 0 fail.
+- Commits: 1942c7a (scoring tests), aef058c (scoring engine).
+
+Task 5: in progress.
