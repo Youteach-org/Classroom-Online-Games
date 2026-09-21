@@ -133,6 +133,7 @@ jobs:
             docs/superpowers/audits/pronunciation-decision-console-live-backup.json
             Verb-Runner/pronunciation-aliases.json
             Verb-Runner/pronunciation-manifest.js
+            Verb-Runner/pronunciation-corrections.json
             Verb-Runner/audio/pronunciation
             Verb-Runner/bella-samples/round3-manifest.json
             Verb-Runner/bella-samples/round3-audio

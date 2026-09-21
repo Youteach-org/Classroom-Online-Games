@@ -1,7 +1,7 @@
 import {watchRecords} from './firebase-store.js';
 import {seedKnownReports} from './review-actions.js';
 import {renderCard} from './review-render.js';
-import {bindReviewEvents} from './review-events.js';
+import {bindReviewEvents} from './review-events.js?v=15';
 import {exportJson,exportMarkdown} from './review-export.js';
 
 const core=window.VerbRunnerPronunciationReviewCore;
@@ -10,6 +10,7 @@ const REVIEWER_STORAGE='verbRunnerPronunciationReviewer';
 
 const reviewerName=document.querySelector('#reviewerName');
 const searchInput=document.querySelector('#searchInput');
+const clearSearch=document.querySelector('#clearSearch');
 const statusFilter=document.querySelector('#statusFilter');
 const audioList=document.querySelector('#audioList');
 const template=document.querySelector('#audioCardTemplate');
@@ -18,6 +19,7 @@ const totalCount=document.querySelector('#totalCount');
 const reviewedCount=document.querySelector('#reviewedCount');
 const problemCount=document.querySelector('#problemCount');
 const duplicateCount=document.querySelector('#duplicateCount');
+const repairReported=document.querySelector('#repairReported');
 
 let records={};
 let catalog=[];
@@ -45,13 +47,9 @@ function reviewer(silent=false){
 
 function matches(entry){
   const filter=statusFilter.value;
-  if(filter==='all'&&entry.status==='removed-duplicate')return false;
-  if(filter==='review-again'&&!entry.sourceChanged)return false;
-  if(filter!=='all'&&filter!=='review-again'&&entry.status!==filter)return false;
-  const q=String(searchInput.value||'').trim().toLowerCase();
-  if(!q)return true;
-  const ref=String(entry.n),ref3=ref.padStart(3,'0');
-  return `${ref} ${ref3} #${ref} #${ref3} ${entry.key} ${entry.src}`.toLowerCase().includes(q);
+  if(filter==='all'&&(entry.status==='removed-duplicate'||entry.duplicateOf))return false;
+  if(filter!=='all'&&entry.status!==filter)return false;
+  return core.matchesSearch(entry,searchInput.value);
 }
 
 function hasPlayingAudio(){
@@ -120,8 +118,77 @@ bindReviewEvents({audioList,getEntryById,getEntryByNumber,getRecordById,reviewer
 
 reviewerName.value=localStorage.getItem(REVIEWER_STORAGE)||'';
 reviewerName.addEventListener('change',()=>localStorage.setItem(REVIEWER_STORAGE,String(reviewerName.value||'').trim()));
-searchInput.addEventListener('input',render);
+function syncSearchClear(){
+  const hasSearch=Boolean(String(searchInput.value||'').trim());
+  clearSearch.hidden=!hasSearch;
+  clearSearch.disabled=!hasSearch;
+}
+
+function clearSearchValue(){
+  if(!searchInput.value)return;
+  searchInput.value='';
+  syncSearchClear();
+  searchInput.focus();
+  render();
+}
+
+searchInput.addEventListener('input',()=>{
+  syncSearchClear();
+  render();
+});
+searchInput.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&searchInput.value){
+    event.preventDefault();
+    clearSearchValue();
+  }
+});
+clearSearch.addEventListener('click',clearSearchValue);
+syncSearchClear();
 statusFilter.addEventListener('change',render);
+function currentReportsFor(entry){
+  const open=core.reportEntries(entry.reports).filter(report=>report.status==='open');
+  const exact=open.filter(report=>report.assetSource===entry.src);
+  return exact.length?exact:open.filter(report=>!report.assetSource);
+}
+
+function buildRepairPrompt(entries){
+  const lines=[
+    'Repara los audios REPORTADOS de Verb Runner en el repositorio youteachtk/Classroom-Online-Games usando mi conexión de GitHub.',
+    'Trabaja únicamente con este lote. Lee el reporte de cada audio y corrígelo con criterio; no hagas una regeneración genérica ni cambies audios que no aparecen aquí.',
+    'Conserva el historial de reportes. Después de reemplazar cada audio por una nueva versión, déjalo en REVIEW AGAIN. No lo marques OK ni REVIEWED: esa aprobación la haré yo.',
+    'Respeta las voces ya aprobadas para excepciones específicas. Verifica las pruebas y el despliegue de Cloudflare Pages al terminar.',
+    '',
+    'LOTE REPORTADO:'
+  ];
+  entries.forEach((entry,index)=>{
+    const reports=currentReportsFor(entry);
+    lines.push(
+      '',
+      `${index+1}. ${entry.key.toUpperCase()}`,
+      `Current source: ${entry.src}`,
+      ...(reports.length
+        ? reports.map(report=>`Report: ${String(report.text||'').trim()||'(sin texto)'}`)
+        : ['Report: (sin reporte textual disponible; inspecciona el historial de Firebase antes de corregir)'])
+    );
+  });
+  return lines.join('\n');
+}
+
+repairReported.addEventListener('click',()=>{
+  const reported=catalog.filter(entry=>entry.status==='reported');
+  if(!reported.length){
+    alert('There are no reported audios to repair.');
+    return;
+  }
+  const prompt=buildRepairPrompt(reported);
+  const url='https://chatgpt.com/?q='+encodeURIComponent(prompt);
+  const opened=window.open(url,'_blank','noopener');
+  if(!opened){
+    navigator.clipboard?.writeText(prompt).catch(()=>{});
+    alert('ChatGPT could not be opened automatically. The repair instruction was copied to the clipboard.');
+  }
+});
+
 document.querySelector('#exportJson').addEventListener('click',()=>exportJson(records));
 document.querySelector('#exportMarkdown').addEventListener('click',()=>exportMarkdown(catalog));
 

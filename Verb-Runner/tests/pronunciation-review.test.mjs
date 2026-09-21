@@ -31,6 +31,58 @@ test('review core creates safe stable audio ids and detects repeated reports',()
   },'sounds wrong'),false);
 });
 
+test('pronunciation search is punctuation-tolerant and includes report/history sources',()=>{
+  const core=require(join(reviewRoot,'review-core.js'));
+  const entry={
+    n:17,
+    key:"don't stop",
+    src:'./audio/current.wav',
+    duplicateOf:'',
+    record:{
+      key:"don't stop",
+      source:'./audio/old-version.wav',
+      repairSource:'./audio/repaired-version.wav'
+    },
+    reports:{
+      r1:{
+        text:'Suena extraño al final',
+        assetSource:'./audio/old-version.wav',
+        kind:'pronunciation',
+        status:'open',
+        createdAt:1
+      }
+    },
+    history:{
+      h1:{
+        action:'asset-source-changed',
+        from:'legacy-watch.wav',
+        to:'./audio/current.wav',
+        at:2
+      }
+    }
+  };
+  assert.equal(core.matchesSearch(entry,'dont stop'),true);
+  assert.equal(core.matchesSearch(entry,'extraño'),true);
+  assert.equal(core.matchesSearch(entry,'legacy watch'),true);
+  assert.equal(core.matchesSearch(entry,'repaired version'),true);
+  assert.equal(core.matchesSearch(entry,'017'),true);
+  assert.equal(core.matchesSearch(entry,'missing phrase'),false);
+});
+
+test('search field has a one-tap clear control',()=>{
+  const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
+  const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
+  const css=readFileSync(join(reviewRoot,'review.css'),'utf8');
+  assert.match(html,/id="clearSearch"[^>]*>×<\/button>/);
+  assert.match(html,/class="search-field"/);
+  assert.match(app,/core\.matchesSearch\(entry,searchInput\.value\)/);
+  assert.match(app,/clearSearch\.addEventListener\('click',clearSearchValue\)/);
+  assert.match(app,/event\.key==='Escape'/);
+  assert.match(css,/\.clear-search\{/);
+  assert.match(html,/review-app\.js\?v=15/);
+  assert.match(html,/pronunciation-manifest\.js\?v=review-console-20260919-4/);
+});
+
 test('legacy asset metadata uses the original Bella generation timestamp',()=>{
   const core=require(join(reviewRoot,'review-core.js'));
   const stamp=core.inferAssetCreatedAt('ate','./audio/pronunciation/ate-189b7ea01f.wav');
@@ -216,7 +268,9 @@ test('duplicated action removes the redundant asset from active review immediate
   assert.match(actions,/duplicate-cleanup-requested/);
   assert.doesNotMatch(actions,/export async function removeDuplicate/);
   assert.doesNotMatch(events,/action==='remove-duplicate'/);
-  assert.match(app,/filter==='all'&&entry\.status==='removed-duplicate'/);
+  assert.match(app,/filter==='all'&&\(entry\.status==='removed-duplicate'\|\|entry\.duplicateOf\)/);
+  assert.match(actions,/record\?\.removedAsDuplicate\|\|record\?\.duplicateOf/);
+  assert.match(actions,/duplicate-ok-ignored/);
 });
 
 test('repository duplicate cleanup reuses the original asset and deletes redundant WAVs',()=>{
@@ -237,6 +291,9 @@ test('repository duplicate cleanup reuses the original asset and deletes redunda
   assert.match(cleanup,/cleanupRequested/);
   assert.match(cleanup,/duplicateOf/);
   assert.match(cleanup,/pronunciation-aliases\.json/);
+  assert.match(cleanup,/removedAssetSource/);
+  assert.match(cleanup,/healed duplicate review state/);
+  assert.match(generator,/stale\.unlink\(\)/);
   assert.match(workflow,/cron: "\*\/5 \* \* \* \*"/);
   assert.match(workflow,/apply-pronunciation-duplicates\.py/);
   assert.match(workflow,/generate-pronunciation\.py/);
@@ -257,12 +314,12 @@ test('validated-correct pronunciation questions are resolved persistently',()=>{
 });
 
 
-test('Review Again filter shows only audios whose source changed after review',()=>{
+test('Review Again filter follows the normalized record status after source sync',()=>{
   const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
   const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
   assert.match(html,/<option value="review-again">Review Again<\/option>/);
-  assert.match(app,/filter==='review-again'&&!entry\.sourceChanged/);
-  assert.match(app,/filter!=='all'&&filter!=='review-again'&&entry\.status!==filter/);
+  assert.match(app,/filter!=='all'&&entry\.status!==filter/);
+  assert.doesNotMatch(app,/filter==='review-again'&&!entry\.sourceChanged/);
 });
 
 test('new audio source gets a fresh autosave report id and does not reuse the prior report',()=>{
@@ -272,7 +329,7 @@ test('new audio source gets a fresh autosave report id and does not reuse the pr
   assert.match(actions,/function autosaveReportId\(by,src\)/);
   assert.match(actions,/autosaveReportId\(by,entry\.src\)/);
   assert.match(render,/report\.assetSource===entry\.src/);
-  assert.match(html,/pronunciation-manifest\.js\?v=review-console-20260916-3/);
+  assert.match(html,/pronunciation-manifest\.js\?v=review-console-20260919-4/);
 });
 
 test('changed pronunciation source is review-again instead of inheriting stale needs-fix status',()=>{
@@ -299,4 +356,25 @@ test('reported state drives the repair-review loop',()=>{
   assert.equal(core.normalizeStatus({status:'needs-fix'}),'reported');
   const id=core.audioIdForKey('stop');
   assert.equal(core.mergeCatalog({stop:'new.wav'},{[id]:{source:'old.wav',status:'reported'}})[0].status,'review-again');
+});
+
+test('Repair reported hands current reported audios to ChatGPT instead of auto-repairing',()=>{
+  const html=readFileSync(join(reviewRoot,'index.html'),'utf8');
+  const app=readFileSync(join(reviewRoot,'review-app.js'),'utf8');
+  const store=readFileSync(join(reviewRoot,'firebase-store.js'),'utf8');
+  const workflow=readFileSync(join(root,'..','.github','workflows','pronunciation-review-backup.yml'),'utf8');
+
+  assert.match(html,/id="repairReported"[^>]*>Repair reported<\/button>/);
+  assert.match(app,/catalog\.filter\(entry=>entry\.status==='reported'\)/);
+  assert.match(app,/report\.assetSource===entry\.src/);
+  assert.match(app,/youteachtk\/Classroom-Online-Games/);
+  assert.match(app,/Verb Runner/);
+  assert.match(app,/chatgpt\.com\/\?q=/);
+  assert.match(app,/encodeURIComponent\(prompt\)/);
+  assert.match(app,/window\.open/);
+  assert.doesNotMatch(app,/requestRepairBatch/);
+  assert.doesNotMatch(store,/requestRepairBatch/);
+  assert.doesNotMatch(store,/repairRequestedAt/);
+  assert.doesNotMatch(workflow,/Prepare requested reported repairs/);
+  assert.doesNotMatch(workflow,/prepare-reported-pronunciation-repairs\.py/);
 });

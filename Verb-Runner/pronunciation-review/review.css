@@ -11,10 +11,16 @@ h1{font-size:20px;margin:0}
 .reviewer-field{display:grid;gap:3px;font-size:11px;font-weight:700;color:#5c6675}
 .reviewer-field input{width:180px}
 input,select,textarea{border:1px solid #bdc7d4;border-radius:8px;background:#fff;padding:8px 9px;color:#152238}
-.search{width:170px}
+.search-field{position:relative;display:inline-flex;align-items:center}
+.search{width:170px;padding-right:34px}
+.clear-search{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:26px;height:26px;padding:0;border:0;background:transparent;color:#657286;font-size:20px;font-weight:700;line-height:1;border-radius:50%}
+.clear-search:hover{background:#edf1f6;color:#243a5a}
+.clear-search[hidden]{display:none}
 button{border:1px solid #aeb9c7;border-radius:8px;background:#fff;padding:8px 10px;font-weight:700;color:#1e3150}
 button:hover{background:#f1f5fb}
 button.danger{border-color:#d99;color:#a21b1b;background:#fff5f5}
+.repair-reported-button{border-color:#d64242;background:#fff3f3;color:#9f2020}
+.repair-reported-button:disabled{opacity:.6;cursor:default}
 .summary{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;font-size:12px}
 .summary span{background:#eef2f7;border-radius:999px;padding:4px 7px}
 main{max-width:1180px;margin:auto;padding:10px 12px 90px}

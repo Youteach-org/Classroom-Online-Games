@@ -9,10 +9,10 @@ const root=join(here,'..');
 const corrections=JSON.parse(readFileSync(join(root,'pronunciation-corrections.json'),'utf8'));
 const generator=readFileSync(join(root,'scripts','generate-pronunciation.py'),'utf8');
 
-test('reviewed correction batch contains 42 validated replacements',()=>{
+test('reviewed correction batch contains 44 validated replacements',()=>{
   assert.equal(corrections.status,'VALIDATED_FOR_GENERATION');
   const entries=Object.entries(corrections.items||{});
-  assert.equal(entries.length,42);
+  assert.equal(entries.length,44);
   for(const [key,spec] of entries){
     assert.ok(spec.observed_issue?.trim(),key+' missing observed issue');
     assert.ok(spec.decision?.trim(),key+' missing validation decision');
@@ -77,8 +77,12 @@ test('correction goals preserve the observed teacher problems without copying th
   assert.match(corrections.items.bend.observed_issue,/igual que bent/i);
   assert.match(corrections.items.bend.correction_goal,/distinct from bent/i);
 
-  assert.match(corrections.items.build.observed_issue,/igual que built/i);
+  assert.match(corrections.items.build.observed_issue,/No (?:suena nada|audio)/i);
+  assert.match(corrections.items.build.latest_report_text,/No (?:suena nada|audio)/i);
   assert.match(corrections.items.build.correction_goal,/distinct from built/i);
+  assert.equal(corrections.items.build.voice,'fancy');
+  assert.match(corrections.items.build.approved_source_url,/storage\.googleapis\.com\/.*\.mp3/);
+  assert.match(corrections.items.build.previous_approved_source_url,/f9342d092faa4ce5ad46c32504d68c02/);
 
   assert.match(corrections.items.wrote.observed_issue,/Route/i);
   assert.match(corrections.items.wrote.correction_goal,/route pronunciations/i);
@@ -92,11 +96,22 @@ test('asked uses a second-pass explicit phoneme correction after teacher re-revi
   assert.match(generator,/correction_speed = float\(correction\.get\('speed'\) or SPEED\)/);
 });
 
-test('second-pass reports use explicit phonemes and washed is cached locally',()=>{
-  for(const key of ['change','eat','eaten','follow','forbade','stop','stopped','watched']){
+test('reported corrections keep explicit phonemes except FORBADE lexical G2P repair',()=>{
+  for(const key of ['change','eat','eaten','follow','stop','stopped','watched']){
     assert.equal(corrections.items[key].method,'raw_phonemes',key);
     assert.ok(corrections.items[key].kokoro_phonemes,key);
   }
+  assert.equal(corrections.items.forbade.method,'g2p_tokens');
+  assert.equal(corrections.items.forbade.target_text,'forbade');
+  assert.equal(corrections.items.forbade.kokoro_phonemes,undefined);
   assert.equal(corrections.items.washed.voice,'fancy');
   assert.match(corrections.items.washed.approved_source,/^\.\/audio\/pronunciation\/external\//);
+});
+
+test('external pronunciation cache validates binary audio instead of file size alone',()=>{
+  const cache=readFileSync(join(root,'scripts','cache-approved-external-pronunciation.py'),'utf8');
+  assert.match(cache,/def is_probably_audio\(data: bytes\)/);
+  assert.match(cache,/<!doctype html/);
+  assert.match(cache,/ID3/);
+  assert.match(cache,/Downloaded external pronunciation asset is not recognized audio/);
 });

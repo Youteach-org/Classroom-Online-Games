@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="google" content="notranslate">
   <title>Verb Runner Pronunciation Review</title>
-  <link rel="stylesheet" href="./review.css?v=11">
+  <link rel="stylesheet" href="./review.css?v=13">
 </head>
 <body>
   <header class="topbar">
@@ -18,7 +18,10 @@
         <span>Reviewed by</span>
         <input id="reviewerName" maxlength="60" placeholder="Your name" autocomplete="name">
       </label>
-      <input id="searchInput" class="search" placeholder="No. or word" autocomplete="off">
+      <div class="search-field">
+        <input id="searchInput" class="search" placeholder="No. or word" autocomplete="off" aria-label="Search audio">
+        <button id="clearSearch" class="clear-search" type="button" aria-label="Clear search" title="Clear search" hidden>×</button>
+      </div>
       <select id="statusFilter" aria-label="Filter">
         <option value="all">All</option>
         <option value="unreviewed">Unreviewed</option>
@@ -28,6 +31,7 @@
         <option value="duplicate">Duplicates</option>
         <option value="removed-duplicate">Removed duplicates</option>
       </select>
+      <button id="repairReported" class="repair-reported-button" type="button">Repair reported</button>
       <button id="exportJson" type="button">Export JSON</button>
       <button id="exportMarkdown" type="button">Export log</button>
     </div>
@@ -113,8 +117,8 @@
   </template>
 
   <script src="../../Support-Meter/config.js"></script>
-  <script src="../pronunciation-manifest.js?v=review-console-20260916-3"></script>
-  <script src="./review-core.js?v=4"></script>
-  <script type="module" src="./review-app.js?v=10"></script>
+  <script src="../pronunciation-manifest.js?v=review-console-20260919-4"></script>
+  <script src="./review-core.js?v=5"></script>
+  <script type="module" src="./review-app.js?v=15"></script>
 </body>
 </html>
