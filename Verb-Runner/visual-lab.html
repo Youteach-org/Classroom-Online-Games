@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sentence Runner Visual Lab</title>
+  <style>
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#93d9f0;font-family:Inter,system-ui,sans-serif}
+    #stage{position:fixed;inset:0}
+    canvas{display:block;width:100%;height:100%}
+    .hud{position:fixed;inset:0;pointer-events:none;color:#fff;text-shadow:0 2px 7px rgba(0,0,0,.35)}
+    .brand{position:absolute;left:24px;top:20px;padding:12px 16px;border-radius:18px;background:rgba(14,29,42,.76);backdrop-filter:blur(10px);box-shadow:0 8px 28px rgba(0,0,0,.20)}
+    .brand small{display:block;font-size:10px;font-weight:900;letter-spacing:.16em;color:#77e1ff}
+    .brand strong{display:block;margin-top:2px;font-size:23px;letter-spacing:.03em}
+    .prompt{position:absolute;top:20px;left:50%;transform:translateX(-50%);width:min(760px,65vw);padding:14px 20px 16px;border-radius:20px;background:rgba(17,31,45,.84);backdrop-filter:blur(12px);box-shadow:0 10px 30px rgba(0,0,0,.24);text-align:center}
+    .prompt small{display:block;font-size:10px;font-weight:950;letter-spacing:.15em;color:#ffe278}
+    .prompt strong{display:block;margin-top:5px;font-size:clamp(22px,2.1vw,34px);line-height:1.08}
+    .answers{position:absolute;top:132px;left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,minmax(170px,1fr));gap:10px;width:min(760px,72vw)}
+    .answer{padding:10px 13px;border-radius:16px;background:rgba(15,33,47,.82);border:2px solid rgba(255,255,255,.62);text-align:center;font-size:19px;font-weight:950;box-shadow:0 8px 22px rgba(0,0,0,.18)}
+    .answer:nth-child(2){border-color:#ffe278;box-shadow:0 8px 22px rgba(0,0,0,.18),0 0 24px rgba(255,226,120,.22)}
+    .caption{position:absolute;left:25px;bottom:22px;padding:11px 15px;border-radius:15px;background:rgba(14,29,42,.72);font-size:12px;font-weight:800;letter-spacing:.06em}
+    .zone{position:absolute;right:25px;bottom:22px;padding:11px 15px;border-radius:15px;background:rgba(14,29,42,.72);font-size:12px;font-weight:900;color:#b9f4ff;letter-spacing:.08em}
+    @media(max-width:760px){
+      .brand{display:none}.prompt{top:12px;width:86vw}.answers{top:119px;width:92vw;grid-template-columns:repeat(3,1fr)}
+      .answer{font-size:14px;padding:9px 5px}.caption{display:none}.zone{right:12px;bottom:12px}
+    }
+  </style>
+  <script type="importmap">
+    {
+      "imports":{
+        "three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+        "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="stage"></div>
+  <div class="hud">
+    <div class="brand"><small>VERB RUNNER 2.5 · VISUAL LAB</small><strong>SENTENCE RUNNER</strong></div>
+    <div class="prompt"><small>CHOOSE THE FORM THAT FITS THE CONTEXT</small><strong>Yesterday, Maya ___ to the market before class.</strong></div>
+    <div class="answers">
+      <div class="answer">WAS GOING</div>
+      <div class="answer">WENT</div>
+      <div class="answer">HAS GONE</div>
+    </div>
+    <div class="caption">HUMAN PARKOUR · VERTICAL CITY · NO FLAT ROAD</div>
+    <div class="zone">MARKET → ROOFTOPS → SEAFRONT</div>
+  </div>
+  <script type="module" src="./visual-lab.js?v=ss-visual-reset-20260920-1"></script>
+</body>
+</html>
