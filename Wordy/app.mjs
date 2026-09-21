@@ -38,4 +38,6 @@ controller.subscribe(state=>{
   }
 });
 
+window.addEventListener('pagehide',()=>controller.abandon());
+
 window.WordyPrototype={controller};
