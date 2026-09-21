@@ -13,9 +13,10 @@ test('local preview can start directly on a requested validation level',()=>{
   assert.match(app,/LEVELS\.some\(/);
 });
 
-test('development controls are mounted only on loopback hosts',()=>{
+test('development controls are mounted on local or GitHub Codespaces preview hosts',()=>{
   assert.match(app,/localhost/);
   assert.match(app,/127\.0\.0\.1/);
+  assert.match(app,/app\.github\.dev/);
   assert.match(app,/isLocalPreview/);
   assert.match(app,/wordy-devbar/);
 });
