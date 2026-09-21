@@ -9,3 +9,11 @@ test("Talk Talk feature CI deploys only a Cloudflare preview branch", async () =
   assert.match(workflow,/--branch=talk-talk-v1-20260921/);
   assert.doesNotMatch(workflow,/deploy-preview:[\s\S]*--branch=main/);
 });
+
+
+test("COG preview normalizes Cloudflare account id whitespace before Wrangler", async () => {
+  const workflow=await readFile(new URL("../.github/workflows/talk-talk-v1.yml",import.meta.url),"utf8");
+  assert.match(workflow,/CLOUDFLARE_ACCOUNT_ID_RAW/);
+  assert.match(workflow,/tr -d '\[:space:\]'/);
+  assert.match(workflow,/CLOUDFLARE_ACCOUNT_ID=%s/);
+});
