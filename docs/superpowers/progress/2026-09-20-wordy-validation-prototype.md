@@ -62,4 +62,9 @@ Task 8: complete.
 - GREEN/regression: review/telemetry tests 6/6; full local Wordy suite 45 tests, 45 pass, 0 fail.
 - Commits: e3f0e1d, 8f12604, f72c716.
 
-Task 9: in progress.
+Task 9: complete.
+- RED: `node --test Wordy/tests/input.test.mjs` failed with ERR_MODULE_NOT_FOUND for `Wordy/ui/input.mjs`, as expected.
+- GREEN/regression: input tests 6/6; full local Wordy suite 51 tests, 51 pass, 0 fail.
+- Commits: b1f7a4d (input tests), 26bed42 (input module).
+
+Task 10: in progress.
