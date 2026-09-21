@@ -10,6 +10,14 @@ permissions:
   contents: read
 
 jobs:
+  runner-probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Runner probe
+        run: |
+          node --version
+          echo "runner-ok"
+
   syntax:
     runs-on: ubuntu-latest
     steps:
