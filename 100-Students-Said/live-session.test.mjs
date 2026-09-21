@@ -25,7 +25,9 @@ test("monitor uses the shared YouTeach bridge but does not register on load", ()
   const registerIndex = js.indexOf("registerLiveGameSession");
   assert.ok(initializeIndex >= 0);
   assert.ok(registerIndex >= 0);
-  const initializeBody = js.slice(initializeIndex, initializeIndex + 2200);
+  const heartbeatIndex = js.indexOf("async function sendTeacherHeartbeat", initializeIndex);
+  assert.ok(heartbeatIndex > initializeIndex);
+  const initializeBody = js.slice(initializeIndex, heartbeatIndex);
   assert.doesNotMatch(initializeBody, /registerLiveGameSession\s*\(/);
 });
 
