@@ -28,3 +28,11 @@ test('browser app plays resolution timeline before revealing final result',()=>{
   assert.match(app,/timelinePlaying/);
   assert.match(app,/await\s+playResolutionTimeline/);
 });
+
+
+test('Cloudflare production build includes the Wordy static route',()=>{
+  const workflow=readFileSync(new URL('../../.github/workflows/cloudflare-pages-main.yml',import.meta.url),'utf8');
+  const copyCommands=workflow.match(/cp -R[^\n]*/g)??[];
+  assert.ok(copyCommands.length>=2,'expected both local and pinned production copy commands');
+  assert.ok(copyCommands.every(command=>/\bWordy\b/.test(command)),'every production copy command must include Wordy');
+});
