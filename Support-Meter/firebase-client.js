@@ -9,10 +9,27 @@ const at=path=>ref(db,`${root}/${path}`);
 const token=bytes=>Array.from(crypto.getRandomValues(new Uint8Array(bytes)),value=>value.toString(16).padStart(2,'0')).join('');
 const value=snapshot=>snapshot.exists()?snapshot.val():null;
 
-export async function createAssignedSession(setNumber){
+export async function createAssignedSession(setNumber,integration=null){
   const sessionRef=push(at('sessions')),sessionId=sessionRef.key,joinToken=token(18),manageToken=token(24),now=Date.now();
-  await update(at(''),{[`sessions/${sessionId}`]:{setNumber:Number(setNumber),joinToken,manageToken,status:'open',createdAt:now,lastActivity:now},[`sessionTokens/${joinToken}`]:{sessionId}});
-  return {sessionId,joinToken,manageToken,setNumber:Number(setNumber),createdAt:now};
+  const cleanIntegration=integration&&typeof integration==='object'
+    ?{...integration,cogSessionId:sessionId}
+    :null;
+  await update(at(''),{[`sessions/${sessionId}`]:{setNumber:Number(setNumber),joinToken,manageToken,status:'open',createdAt:now,lastActivity:now,...(cleanIntegration?{integration:cleanIntegration}:{})},[`sessionTokens/${joinToken}`]:{sessionId}});
+  return {sessionId,joinToken,manageToken,setNumber:Number(setNumber),createdAt:now,...(cleanIntegration?{integration:cleanIntegration}:{})};
+}
+
+export async function getAssignedSession(sessionId){
+  if(!sessionId)return null;
+  const session=value(await get(at(`sessions/${sessionId}`)));
+  return session?{...session,sessionId}:null;
+}
+
+export async function updateAssignedSessionIntegration(sessionId,integration){
+  if(!sessionId)return;
+  await update(at(`sessions/${sessionId}`),{
+    integration:integration||null,
+    lastActivity:Date.now()
+  });
 }
 
 export async function resolveJoinToken(joinToken){
