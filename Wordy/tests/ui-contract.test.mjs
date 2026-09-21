@@ -12,9 +12,12 @@ test('prototype exposes required HUD, board, global pop, and result hooks',()=>{
   }
 });
 
-test('board is a five-column equal-cell phone-first grid',()=>{
-  assert.match(css,/grid-template-columns:\s*repeat\(5/);
-  assert.match(css,/aspect-ratio:\s*5\s*\/\s*7/);
+test('board uses seven block rows with word-length flex sizing instead of equal square cells',()=>{
+  assert.doesNotMatch(css,/grid-template-columns:\s*repeat\(5/);
+  assert.match(css,/\.wordy-board\{[\s\S]*?display:flex/);
+  assert.match(css,/\.wordy-row\{/);
+  assert.match(css,/\.wordy-tile\.size-xs[\s\S]*?flex:/);
+  assert.match(css,/\.wordy-tile\.size-lg[\s\S]*?flex:/);
   assert.match(css,/touch-action:\s*none/);
   assert.match(css,/\.wordy-tile\.is-ready/);
   assert.match(css,/\.wordy-tile\.is-cross/);
@@ -71,7 +74,9 @@ test('renderGame marks ready and crossing cells and enables global pop',()=>{
     ]
   };
   renderGame(root,state);
-  const tiles=root.querySelector('#wordyBoard').children;
+  const rows=root.querySelector('#wordyBoard').children;
+  const tiles=rows.flatMap(row=>row.children);
+  assert.equal(rows.length,2);
   assert.equal(tiles.length,4);
   assert.equal(tiles[0].classList.contains('is-ready'),true);
   assert.equal(tiles[1].classList.contains('is-cross'),true);
@@ -122,18 +127,18 @@ test('renderResult re-renders the logical board snapshot for the top missed oppo
 });
 
 
-test('renderGame gives long words a smaller responsive typography class',()=>{
+test('renderGame gives short words less width and long words more width',()=>{
   const root=new FakeDocument();
   renderGame(root,{
     levelId:'T',levelTitle:'Test',movesLeft:5,score:0,instruction:'Test',phase:'playing',eventLabel:'',
-    board:[[{id:'long',word:'HOMEWORK'},{id:'very',word:'RESPONSIBILITY'}]],
+    board:[[{id:'short',word:'A'},{id:'mid',word:'LOOK'},{id:'long',word:'ATTENTION'}]],
     readyMatches:[]
   });
-  const tiles=root.querySelector('#wordyBoard').children;
-  assert.equal(tiles[0].classList.contains('is-long'),true);
-  assert.equal(tiles[1].classList.contains('is-very-long'),true);
-  assert.match(css,/\.wordy-tile\.is-long/);
-  assert.match(css,/\.wordy-tile\.is-very-long/);
+  const row=root.querySelector('#wordyBoard').children[0];
+  const tiles=row.children;
+  assert.equal(tiles[0].classList.contains('size-xs'),true);
+  assert.equal(tiles[1].classList.contains('size-sm'),true);
+  assert.equal(tiles[2].classList.contains('size-lg'),true);
 });
 
 test('tutorial replay stays miniature on a phone screen',()=>{
