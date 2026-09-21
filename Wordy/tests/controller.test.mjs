@@ -131,3 +131,64 @@ test('dead-board recovery can borrow a productive authored fallback when the cur
   assert.equal(game.state().phase,'playing');
   assert.ok(game.state().movesLeft>0);
 });
+
+
+test('telemetry identifies formed and broken relationships, not only ready counts',()=>{
+  const {game}=makeGame({moves:3,target:9999});
+  game.swap({row:0,col:1},{row:0,col:2});
+  let events=game.telemetryEvents();
+  const formed=events.find(event=>event.type==='relationship-formed');
+  const ready=events.filter(event=>event.type==='ready-change').at(-1);
+  const swap=events.find(event=>event.type==='swap');
+  assert.deepEqual(formed.payload.relationshipIds,['look-after']);
+  assert.deepEqual(ready.payload.relationshipIds,['look-after']);
+  assert.deepEqual(swap.payload.createdRelationshipIds,['look-after']);
+
+  game.swap({row:0,col:1},{row:0,col:2});
+  events=game.telemetryEvents();
+  const broken=events.find(event=>event.type==='relationship-broken');
+  assert.deepEqual(broken.payload.relationshipIds,['look-after']);
+});
+
+test('replay and abandonment are explicit telemetry events',()=>{
+  const {game}=makeGame();
+  game.abandon();
+  game.replay();
+  const types=game.telemetryEvents().map(event=>event.type);
+  assert.ok(types.includes('level-abandon'));
+  assert.ok(types.includes('level-replay'));
+});
+
+test('missed high-value opportunities are telemetry events',()=>{
+  const {game}=makeGame({moves:3,target:9999});
+  game.swap({row:6,col:3},{row:6,col:4});
+  const missed=game.telemetryEvents().find(event=>event.type==='missed-opportunity');
+  assert.equal(missed.payload.relationshipId,'look-after');
+  assert.ok(missed.payload.projectedScore>0);
+});
+
+test('creating a crossword emits cross-created telemetry',()=>{
+  const crossBank=createRelationshipBank([
+    relation('make-a-decision',['MAKE','A','DECISION'],'collocation',180,2),
+    relation('take-a-break',['TAKE','A','BREAK'],'collocation',180,2)
+  ]);
+  const crossLevel={
+    id:'F',title:'Cross',moves:5,goal:{type:'cross',target:1},instruction:'Cross',
+    boardRows:[
+      ['WENT','COFFEE','GONE','NOTES','BEGUN'],
+      ['BROKE','PROMISE','CHOSEN','SCHOOL','FUN'],
+      ['RAIN','TAKE','FOOD','HABIT','TRUTH'],
+      ['COLD','MAKE','A','DECISION','TIME'],
+      ['SEEN','WORK','BREAK','IDEA','HOMEWORK'],
+      ['DRANK','KNOWN','EXERCISE','BREAKFAST','DIFFERENCE'],
+      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+    ],fixtureMoves:[]
+  };
+  const game=createGameController({
+    bank:crossBank,levels:[crossLevel],initialLevelId:'F',rng:seeded(5),storage:createFakeStorage(),refillWord:()=> 'ZZZ'
+  });
+  game.swap({row:2,col:1},{row:2,col:2});
+  const cross=game.telemetryEvents().find(event=>event.type==='cross-created');
+  assert.equal(cross.payload.crossCount,1);
+  assert.deepEqual(new Set(cross.payload.relationshipIds),new Set(['make-a-decision','take-a-break']));
+});
