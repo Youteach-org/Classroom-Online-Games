@@ -79,6 +79,35 @@ function reviewCard(root,title,detail){
   return card;
 }
 
+
+function sameCell(a,b){
+  return a?.row===b?.row&&a?.col===b?.col;
+}
+
+function renderMissedReplay(root,item){
+  const replay=qs(root,'#replayBoard');
+  if(!replay)return;
+  const rows=item?.boardRows;
+  if(!Array.isArray(rows)||rows.length===0){
+    replay.replaceChildren?.();
+    return;
+  }
+  const suggested=item?.suggestedSwap;
+  const cells=[];
+  rows.forEach((row,rowIndex)=>row.forEach((word,colIndex)=>{
+    const tile=create(root,'div');
+    tile.className='replay-tile';
+    tile.classList?.add?.('replay-tile');
+    tile.textContent=word??'';
+    const cell={row:rowIndex,col:colIndex};
+    if(sameCell(cell,suggested?.from)||sameCell(cell,suggested?.to)){
+      tile.classList?.add?.('is-suggested');
+    }
+    cells.push(tile);
+  }));
+  replay.replaceChildren?.(...cells);
+}
+
 export function renderResult(root,review={newLearning:[],missed:[]}){
   const overlay=qs(root,'#resultOverlay');
   const newList=qs(root,'#newLearningList');
