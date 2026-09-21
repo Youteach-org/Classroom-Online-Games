@@ -36,6 +36,37 @@
           }
         }
       }
+    },
+    "talkTalk": {
+      ".read": true,
+      ".write": true,
+      "sessions": {
+        "$sessionId": {
+          "teams": {
+            "$teamKey": {
+              "confirmations": {
+                "$studentKey": {
+                  ".validate": "!newData.exists() || (newData.hasChildren(['studentKey','teamKey','teamRevision','microphoneUsable','tier','storageAvailableBytes','confirmedAt']) && newData.child('studentKey').isString() && newData.child('teamKey').isString() && newData.child('teamRevision').isString() && newData.child('microphoneUsable').isBoolean() && newData.child('tier').isString() && newData.child('storageAvailableBytes').isNumber() && newData.child('confirmedAt').isNumber())"
+                }
+              },
+              "hostStudentKey": {
+                ".validate": "!newData.exists() || newData.isString()"
+              },
+              "status": {
+                ".validate": "!newData.exists() || newData.isString()"
+              },
+              "captureMode": {
+                ".validate": "!newData.exists() || newData.isString()"
+              },
+              "turnEvents": {
+                "$eventId": {
+                  ".validate": "!newData.exists() || newData.isObject()"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
