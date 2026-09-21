@@ -45,4 +45,10 @@ Task 5: complete.
 - GREEN/regression: `node --test Wordy/tests/*.test.mjs` -> 25 tests, 25 pass, 0 fail.
 - Commits: 1c78abc (resolution tests), e9bc2f3 (global pop/cascade engine).
 
-Task 6: in progress.
+Task 6: complete.
+Ruling: Immediate scoring moves count only relationships newly created by the swap; preserving an already-ready relationship elsewhere does not make the swap a scoring move. This prevents false live-board signals. Cost if wrong: opportunity counts would be stricter than intended.
+- RED: `node --test Wordy/tests/generator.test.mjs` failed with ERR_MODULE_NOT_FOUND for `Wordy/engine/generator.mjs`, as expected.
+- GREEN/regression: `node --test Wordy/tests/*.test.mjs` -> 31 tests, 31 pass, 0 fail.
+- Commits: cb37c32 (generator tests), 7f2b011 (generator/dead-board engine).
+
+Task 7: in progress.
