@@ -1,0 +1,18 @@
+name: Talk Talk V1 CI
+
+on:
+  push:
+    branches:
+      - feature/talk-talk-v1-20260921
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Talk Talk tests
+        run: node --test Talk-Talk/tests/*.test.mjs
