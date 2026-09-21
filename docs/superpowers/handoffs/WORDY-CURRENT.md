@@ -5,76 +5,100 @@
 **Execution method:** Inline / Native via `superpowers:executing-plans`  
 **Plan:** `docs/superpowers/plans/2026-09-20-wordy-validation-prototype.md`  
 **Prototype spec:** `docs/superpowers/specs/2026-09-20-wordy-game-prototype-design.md`  
-**Architecture spec:** `docs/superpowers/specs/2026-09-20-wordy-game-architecture-design.md`
-
-## Continuity rule
-
-This file is the durable source of truth when a chat is nearing its context/length limit or when work moves to another ChatGPT/Codex-capable instance.
-
-Before changing chats, update every section below. Do not rely on the old chat for missing details.
+**Architecture spec:** `docs/superpowers/specs/2026-09-20-wordy-game-architecture-design.md`  
+**Execution ledger:** `docs/superpowers/progress/2026-09-20-wordy-validation-prototype.md`
 
 ## Current status
 
 - Design/specification: approved.
-- Implementation plan: approved for **inline/native execution**.
-- Product code implementation: **not started yet**.
-- Next implementation action: start Task 1 of the implementation plan using `superpowers:executing-plans` and TDD.
+- Validation prototype implementation plan: **all 11 tasks complete**.
+- Implementation location: `feature/wordy-game` only.
+- Product merge/deployment: **not performed**.
+- Wordy route in branch: `/Wordy/`.
+- Cloudflare production workflow on this branch now copies `Wordy/`, but it has not been run because the branch has not been merged to `main`.
+- Branch is diverged from `main`: at final implementation review it was 106 commits ahead and 68 behind, merge-base `dad2b8c1a77cb6ac02e10bfeb8cd36b492290f07`. Reconcile current `main` before any PR/merge.
 
-## Completed implementation tasks
+## Verification state
 
-None yet.
+Fresh verification was performed from a sandbox reconstructed from the current GitHub branch files:
 
-## Current task / exact step
+- `node --test Wordy/tests/*.test.mjs` -> **81 tests, 81 pass, 0 fail**.
+- `node --check Wordy/app.mjs` -> **exit 0**.
+- Review-focus subset -> **17 pass, 0 fail**.
+- Prototype-exclusion scan -> no Teacher Monitor, Firebase/session/login, currency/lives, loot-box, booster, obstacle, adaptive-mastery, or full-map implementation in production `Wordy/` files.
+- Final code review was a **self-review because no subagent tool is available**; no Critical or Important findings remained after fixes.
 
-**Task 1 — Curated relationship bank and index.**
+A temporary branch-only GitHub Actions test workflow was attempted but GitHub failed jobs before runner assignment (`runner_id: 0`, no steps). It was removed to avoid a permanent false-red branch check. This is an infrastructure limitation, not a Wordy test failure.
 
-Next step:
-1. Start inline execution with the Superpowers executing-plans workflow.
-2. Read the plan and prototype spec from GitHub.
-3. Set up the execution ledger/workspace required by the skill.
-4. Write the Task 1 failing test before writing implementation code.
+## Completed implementation capabilities
 
-## Commits relevant to current handoff
+- 85 curated V1 relationships across phrasal verbs, collocations, fixed expressions, and irregular verb sets.
+- 5×7 phone-first board.
+- Orthogonal adjacent swaps and legal non-scoring setup moves.
+- Straight contiguous horizontal/vertical matching.
+- Same-line nested suppression and true crossword intersections.
+- Persistent ready-to-pop relationships.
+- One global POP resolving all ready relationships without charging a move.
+- Shared crossing tiles removed once while both relationships score.
+- Vertical gravity/refill and automatic cascade generations.
+- Cascade runaway guard and dead-board recovery.
+- Provisional base/length/batch/cross/discovery/cascade scoring.
+- Validation levels A–G.
+- Controlled-random productive board generation and depth-2 viability check.
+- New Learning + verified missed-opportunity round review.
+- Logical mini-replay of the top missed opportunity.
+- Local prototype telemetry including formed/broken relations, crosses, misses, cascades, replay, and abandonment.
+- Swipe plus tap/tap mobile input.
+- Responsive long-word typography.
+- Readable cascade timeline, e.g. `LOOK AFTER` then `COMBO ×2 · TAKE A BREAK`.
+- COG landing-page card at `/Wordy/`.
+- Cloudflare build definition includes the `Wordy` static folder.
 
-- Architecture design: `9416a8b595ba5643eea06984d029e84aa6c843d7`
-- Prototype design: `81272f4d06eb66145d46afcc8edeb07b1fdeeee9`
-- Prototype design ambiguity cleanup: `9cbcec7d10fd057667dd082dbfb6484c9a8f6fac`
-- Implementation plan created: `0b2dbbbcfb3bdaa6407d773bb591dc4370a58709`
-- Implementation plan hardened: `061bd61162a5ad2b4ec069fdc46cc8a1603e449e`
-- Implementation plan self-review completed: `d809011483d3d532ae9e429f7a563ce03f8c3818`
+## Key late-stage commits
 
-## Test state
+- `34e8049` — timeline tests.
+- `7df0844` — resolution-event labels.
+- `140ba34` — timeline playback helper.
+- `01feec9` / `ce62261` — integration tests requiring timeline wiring.
+- `b74ded6` / `a02c0f8` — controller/app timeline integration.
+- `6d2ea3b` — deployment test requiring Wordy in Cloudflare build.
+- `acf4ee9` — Cloudflare build includes Wordy.
+- `e82ba15` — remove unavailable temporary branch CI workflow.
+- `59c59fe` — close durable execution ledger.
 
-No Wordy implementation tests have been run yet because product code has not started.
+Earlier task commits are listed in the execution ledger.
 
-## Rulings / deviations
+## Rulings / deviations that must survive chat changes
 
-- Execution mode is fixed to **inline/native**.
-- Per-task subagent implementation/review is not part of this project workflow.
-- GitHub handoff continuity is mandatory before changing chats.
+1. **Inline/native only:** do not switch routine work to subagent-driven development.
+2. The environment lacked an authenticated local private-repository worktree, so verification used a sandbox reconstructed from GitHub content.
+3. Immediate scoring moves count only relationships newly created by the swap; merely preserving an existing ready relation does not make a swap scoring.
+4. On `CascadeLimitError`, use a fresh controlled productive fallback rather than ordinary dead-board detection on the pre-pop board.
+5. Cascade feedback uses a UI timeline over the single deterministic resolution result. Do not duplicate the rules engine to animate cascades. If playtesting shows intermediate board motion is needed, add presentation snapshots/animation without creating a second gameplay authority.
+6. The temporary Wordy branch CI workflow was removed because GitHub provided no runner. Do not interpret those workflow failures as product-code failures.
 
-## Files changed during implementation
+## Known limitations / deferred work
 
-None yet.
+These are intentional prototype boundaries, not unfinished Task 1–11 work:
 
-## Unresolved implementation issues
+- final commercial name;
+- final art direction;
+- full progression/map and production stars;
+- developed Wordbook;
+- adaptive learning UI/model;
+- category preference UI;
+- boosters/obstacles;
+- Teacher Monitor / classroom-session integration;
+- large-scale content ingestion;
+- production scoring calibration;
+- richer per-generation board animation if user playtesting shows the text timeline is insufficient.
 
-None blocking Task 1. Product-level deferred decisions remain in the architecture spec and do not block the validation prototype.
+## Exact next action
 
-## Handoff update checklist
+Do **not** repeat implementation Tasks 1–11.
 
-Before ending a long chat, replace the status above with:
+The next product step is human review/playtesting of the validation prototype. Before a PR/merge into `main`, inspect the current `main` changes and reconcile the branch because it is behind main. Do not merge or deploy unless the user explicitly asks.
 
-- last completed task number and name;
-- commit SHA(s);
-- exact test command(s) and PASS/FAIL result;
-- current task and exact next step;
-- any `Ruling:` decisions made under executing-plans;
-- files created/modified;
-- known bugs or unresolved failures;
-- deployment status if deployment has started;
-- exact continuation prompt.
+## Continuation prompt
 
-## Continuation prompt template
-
-> Continue the Wordy validation prototype in `youteachtk/Classroom-Online-Games`, branch `feature/wordy-game`. Use Superpowers and execute **inline/native**, not subagent-driven. First read `docs/superpowers/handoffs/WORDY-CURRENT.md`, then `docs/superpowers/plans/2026-09-20-wordy-validation-prototype.md`, `docs/superpowers/specs/2026-09-20-wordy-game-prototype-design.md`, and the architecture spec. Trust the handoff and git history for completed tasks; do not repeat them. Resume at the exact current task/step recorded in the handoff. Follow TDD, commit boundaries, and update the handoff before this conversation approaches its own context limit.
+> Continue Wordy in `youteachtk/Classroom-Online-Games`, branch `feature/wordy-game`. Use Superpowers inline/native, not subagent-driven. First read `docs/superpowers/handoffs/WORDY-CURRENT.md` and the execution ledger. Tasks 1–11 of `docs/superpowers/plans/2026-09-20-wordy-validation-prototype.md` are complete; do not repeat them. The fresh reconstructed-branch suite passed 81/81 and `node --check Wordy/app.mjs` passed. No merge or deployment has happened. The branch was 106 ahead / 68 behind `main` at final review, so inspect/reconcile current main before any PR/merge. Resume with user-requested playtesting, revision, branch reconciliation, PR, or deployment only as explicitly requested.
