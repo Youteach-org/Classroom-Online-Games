@@ -10,6 +10,7 @@ import {
 } from "./ui/lesson-view.mjs";
 import { buildResultsModel, renderResultsView } from "./ui/results-view.mjs";
 import { renderConversationReplay } from "./ui/conversation-replay.mjs";
+import { bootstrapTalkTalkStudent, startTalkTalkHeartbeat } from "./live/student-bootstrap.mjs";
 
 document.documentElement.dataset.app = "talk-talk";
 document.title = TALK_TALK_GAME_NAME;
@@ -35,6 +36,29 @@ const activity = normalizeActivity(activitySource);
 let flow = null;
 let capture = null;
 let micOpen = false;
+let runtime = null;
+let stopHeartbeat = () => {};
+
+const runtimeReady = bootstrapTalkTalkStudent()
+  .then(value => {
+    runtime = value;
+    if (runtime.mode === "live") {
+      stopHeartbeat = startTalkTalkHeartbeat(runtime);
+      joinClassAction.hidden = true;
+      document.documentElement.dataset.sessionMode = "live";
+      document.documentElement.dataset.team = runtime.liveContext?.teamContext?.teamKey || "";
+    } else {
+      joinClassAction.hidden = false;
+      document.documentElement.dataset.sessionMode = "free";
+    }
+    return runtime;
+  })
+  .catch(error => {
+    recordingState.textContent = error?.message || "Could not open the YouTeach live session.";
+    throw error;
+  });
+
+window.addEventListener("pagehide", () => stopHeartbeat());
 
 function phaseNeedsSpeech(phase) {
   return ["say","use","react","speak","challenge"].includes(phase);
@@ -67,10 +91,11 @@ function showFlow() {
   });
 }
 
-continueAction?.addEventListener("click", () => {
+continueAction?.addEventListener("click", async () => {
+  const learner = runtime || await runtimeReady;
   homeView.hidden = true;
   lessonView.hidden = false;
-  flow = createIndividualFlow(activity, { studentKey:"local-preview" });
+  flow = createIndividualFlow(activity, { studentKey:learner.studentKey });
   showFlow();
 });
 
