@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
+import json
+import os
+from pathlib import Path
+from typing import Any
 
 def validate_stage1_preconditions(stage1, review):
     if stage1.get("project") != "Oral-Grader" or stage1.get("stage") != 1:
@@ -18,6 +23,63 @@ def validate_stage1_preconditions(stage1, review):
 
 PRONUNCIATION_VALUES = {"acceptable", "incorrect", "uncertain", "not_scored"}
 INTENT_CONFIDENCE_VALUES = {"high", "medium", "low", "uncertain"}
+EVIDENCE_SOURCES = {"audio", "stage1", "context", "model", "teacher-confirmed"}
+
+EVIDENCE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "speaker": {"type": "string"},
+        "start_offset": {"type": ["string", "null"]},
+        "end_offset": {"type": ["string", "null"]},
+        "stage1_heard": {"type": ["string", "null"]},
+        "reviewed_heard": {"type": ["string", "null"]},
+        "intended": {"type": ["string", "null"]},
+        "intent_confidence": {"type": "string", "enum": sorted(INTENT_CONFIDENCE_VALUES)},
+        "pronunciation": {"type": "string", "enum": sorted(PRONUNCIATION_VALUES)},
+        "counts_toward_pronunciation": {"type": "boolean"},
+        "pronunciation_note": {"type": ["string", "null"]},
+        "grammar_note": {"type": ["string", "null"]},
+        "vocabulary_note": {"type": ["string", "null"]},
+        "malformed_form_note": {"type": ["string", "null"]},
+        "transcription_note": {"type": ["string", "null"]},
+        "evidence_source": {
+            "type": "array",
+            "items": {"type": "string", "enum": ["audio", "stage1", "context", "model"]},
+        },
+    },
+    "required": [
+        "speaker", "start_offset", "end_offset", "stage1_heard", "reviewed_heard",
+        "intended", "intent_confidence", "pronunciation",
+        "counts_toward_pronunciation", "pronunciation_note", "grammar_note",
+        "vocabulary_note", "malformed_form_note", "transcription_note",
+        "evidence_source",
+    ],
+}
+
+INTERVENTION_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "student": {"type": ["string", "null"]},
+        "start_offset": {"type": ["string", "null"]},
+        "end_offset": {"type": ["string", "null"]},
+        "kind": {
+            "type": "string",
+            "enum": ["clarification", "word_supply", "reactivation", "other"],
+        },
+        "description": {"type": "string"},
+    },
+    "required": ["student", "start_offset", "end_offset", "kind", "description"],
+}
+
+STAGE2_RESPONSE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "evidence": {"type": "array", "items": EVIDENCE_SCHEMA},
+        "fluency_observations": {"type": "array", "items": {"type": "string"}},
+        "teacher_interventions": {"type": "array", "items": INTERVENTION_SCHEMA},
+    },
+    "required": ["evidence", "fluency_observations", "teacher_interventions"],
+}
 
 
 def normalize_evidence_item(item, allowed_students):
@@ -32,6 +94,11 @@ def normalize_evidence_item(item, allowed_students):
 
     if result.get("intent_confidence") not in INTENT_CONFIDENCE_VALUES:
         raise ValueError("unsupported intent confidence")
+
+    sources = result.get("evidence_source")
+    if not isinstance(sources, list) or any(source not in EVIDENCE_SOURCES for source in sources):
+        raise ValueError("unsupported evidence source")
+    result["evidence_source"] = list(sources)
 
     if verdict in {"uncertain", "not_scored"}:
         result["counts_toward_pronunciation"] = False
@@ -210,7 +277,211 @@ def render_markdown(result):
     if result.get("teacher_interventions"):
         lines.extend(["## Teacher interventions", ""])
         for intervention in result["teacher_interventions"]:
-            lines.append(f"- {intervention}")
+            if isinstance(intervention, dict):
+                student = intervention.get("student") or "unspecified student"
+                when = intervention.get("start_offset") or "?"
+                lines.append(
+                    f"- {when} · {student} · {intervention.get('kind')}: {intervention.get('description')}"
+                )
+            else:
+                lines.append(f"- {intervention}")
         lines.append("")
 
     return "\n".join(lines)
+
+
+
+def _attach_observations(summaries, fluency_observations, teacher_interventions):
+    for observation in fluency_observations:
+        for student in summaries:
+            if observation.casefold().startswith(student.casefold() + ":"):
+                summaries[student]["fluency_observations"].append(observation)
+    for intervention in teacher_interventions:
+        student = intervention.get("student") if isinstance(intervention, dict) else None
+        if student in summaries:
+            summaries[student]["teacher_interventions"].append(dict(intervention))
+
+
+def build_analysis_prompt(stage1, review):
+    context = {
+        "speaker_mapping": review.get("speaker_mapping") or {},
+        "turns": stage1.get("turns") or [],
+        "teacher_confirmed_pronunciation_evidence": (
+            review.get("teacher_confirmed_pronunciation_evidence") or []
+        ),
+    }
+    rules = """You are analyzing an English oral exam for teacher review.
+Original audio is primary evidence.
+Do not rewrite Stage 1.
+Do not silently normalize heard forms.
+Do not penalize an item solely because transcription is uncertain.
+Use pronunciation=incorrect only when intended meaning is sufficiently clear and the audio supports a pronunciation mismatch.
+Grammar, vocabulary, malformed forms, and pronunciation are separate.
+Rapid low-value exchanges may be omitted unless they affect pronunciation, speaker attribution, Fluency, Interaction, or intended-word inference.
+Teacher-confirmed evidence is authoritative and must not be contradicted.
+Use pronunciation=uncertain when audio or intended meaning is not sufficiently clear; uncertain must never count toward pronunciation.
+Use pronunciation=not_scored for grammar-only, vocabulary-only, malformed-form, discourse, or transcription issues.
+Keep grammar_note, vocabulary_note, malformed_form_note, transcription_note, and pronunciation_note separate.
+Return only useful evidence for later evaluation, not an exhaustive phonetic transcript.
+Prefix every fluency observation with the student name, for example 'Paul: ...' or 'Paulina: ...'.
+Do not assign final rubric scores.
+"""
+    return (
+        rules
+        + "\nAccepted Stage-1 context (reference only):\n"
+        + json.dumps(context, ensure_ascii=False, separators=(",", ":"))
+    )
+
+
+def validate_model_available(client, model_name):
+    expected = model_name.removeprefix("models/")
+    for model in client.models.list():
+        actual = str(getattr(model, "name", "")).removeprefix("models/")
+        if actual != expected:
+            continue
+        actions = set(getattr(model, "supported_actions", []) or [])
+        if "generateContent" not in actions:
+            raise RuntimeError(
+                f"Configured Stage-2 model {model_name} does not support generateContent"
+            )
+        return
+    raise RuntimeError(f"Configured Stage-2 model {model_name} is not available")
+
+
+def parse_model_payload(text):
+    try:
+        payload = json.loads(text)
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise ValueError("Stage-2 model returned invalid JSON") from exc
+    if not isinstance(payload, dict):
+        raise ValueError("Stage-2 model returned invalid JSON object")
+    if not isinstance(payload.get("evidence"), list):
+        raise ValueError("Stage-2 model payload must contain evidence array")
+    if not isinstance(payload.get("fluency_observations"), list):
+        raise ValueError(
+            "Stage-2 model payload must contain fluency_observations array"
+        )
+    if not isinstance(payload.get("teacher_interventions"), list):
+        raise ValueError(
+            "Stage-2 model payload must contain teacher_interventions array"
+        )
+    return payload
+
+
+def analyze_audio(
+    audio_path: Path,
+    pair_slug: str,
+    stage1_path: Path,
+    review_path: Path,
+    output_json: Path,
+    output_md: Path,
+):
+    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY or GOOGLE_API_KEY is required")
+    model_name = os.environ.get("ORAL_GRADER_STAGE2_MODEL")
+    if not model_name:
+        raise RuntimeError("ORAL_GRADER_STAGE2_MODEL is required")
+
+    stage1 = json.loads(stage1_path.read_text(encoding="utf-8"))
+    review = json.loads(review_path.read_text(encoding="utf-8"))
+    mapping = validate_stage1_preconditions(stage1, review)
+    if stage1.get("pair_slug") != pair_slug:
+        raise ValueError("pair slug does not match Stage-1 evidence")
+    if review.get("pair_slug") not in (None, pair_slug):
+        raise ValueError("pair slug does not match Stage-1 review")
+
+    from google import genai  # type: ignore
+
+    client = genai.Client(api_key=api_key)
+    validate_model_available(client, model_name)
+    uploaded_file = client.files.upload(file=str(audio_path))
+    interaction = client.interactions.create(
+        model=model_name,
+        input=[
+            {"type": "text", "text": build_analysis_prompt(stage1, review)},
+            {
+                "type": "audio",
+                "uri": uploaded_file.uri,
+                "mime_type": uploaded_file.mime_type,
+            },
+        ],
+        response_format={
+            "type": "text",
+            "mime_type": "application/json",
+            "schema": STAGE2_RESPONSE_SCHEMA,
+        },
+    )
+
+    output_text = getattr(interaction, "output_text", "") or ""
+    if not output_text.strip():
+        raise ValueError("Stage-2 model returned empty output")
+    payload = parse_model_payload(output_text)
+
+    allowed_students = {name for name in mapping.values() if name != "Teacher"}
+    model_evidence = []
+    for raw in payload["evidence"]:
+        if not isinstance(raw, dict):
+            raise ValueError("Stage-2 model evidence items must be objects")
+        item = normalize_evidence_item(raw, allowed_students)
+        item["model_origin"] = True
+        model_evidence.append(item)
+
+    evidence = apply_teacher_evidence(model_evidence, review)
+    summaries = build_student_summaries(evidence, mapping)
+    _attach_observations(
+        summaries,
+        payload["fluency_observations"],
+        payload["teacher_interventions"],
+    )
+
+    result = {
+        "project": "Oral-Grader",
+        "stage": 2,
+        "pair_slug": pair_slug,
+        "model": model_name,
+        "stage1_source": str(stage1_path),
+        "stage1_review": str(review_path),
+        "speaker_mapping": mapping,
+        "students": summaries,
+        "evidence": evidence,
+        "fluency_observations": payload["fluency_observations"],
+        "teacher_interventions": payload["teacher_interventions"],
+        "scoring_status": "evidence_only_not_final_rubric",
+    }
+
+    output_json.parent.mkdir(parents=True, exist_ok=True)
+    output_md.parent.mkdir(parents=True, exist_ok=True)
+    output_json.write_text(
+        json.dumps(result, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    output_md.write_text(render_markdown(result), encoding="utf-8")
+    return result
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("audio", type=Path)
+    parser.add_argument("--pair-slug", required=True)
+    parser.add_argument("--stage1", type=Path, required=True)
+    parser.add_argument("--review", type=Path, required=True)
+    parser.add_argument("--output-json", type=Path, required=True)
+    parser.add_argument("--output-md", type=Path, required=True)
+    args = parser.parse_args()
+
+    if not args.pair_slug.replace("-", "").isalnum():
+        raise SystemExit("pair_slug must contain only letters, numbers, and hyphens")
+
+    analyze_audio(
+        args.audio,
+        args.pair_slug,
+        args.stage1,
+        args.review,
+        args.output_json,
+        args.output_md,
+    )
+
+
+if __name__ == "__main__":
+    main()
