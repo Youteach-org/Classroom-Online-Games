@@ -43,3 +43,10 @@
 - Task 8 stale-assumption sweep: no remaining `board[`, `.cells`, test `col:`, or `repeat(5` hits in Wordy engine/UI/tests.
 - Task 8 final verification reconstructed from feature HEAD `ba29f1c9`: `node --test Wordy/tests/*.test.mjs` → **86/86 pass**; `node --check Wordy/app.mjs` → exit 0.
 - Task 8 GitHub commits: `28fef34`, `4bbc3dd`, `19128c8d`, `ba29f1c9`.
+
+- **Task 9 complete:** added an end-to-end Level A gameplay regression covering rebound, accepted WENT ↔ AFTER swap, one-move cost, LOOK AFTER ready state, POP, rigid gravity/refill, full 84-microcell occupancy, and post-resolution playability/objective completion.
+- Task 9 generated-board gate additionally verifies spans 1–4, in-bounds geometry, no empty stable microcells, at least four immediate productive swaps, and productive swaps across at least three rows.
+- Task 9 verification before documentation: `node --test Wordy/tests/*.test.mjs` → **88/88 pass**; `node --check Wordy/app.mjs` → exit 0.
+- Task 9 handoff cleanup: `WORDY-CURRENT.md` now makes the discrete 12×7 architecture the sole continuation authority and removes/supersedes productive-only swap, local-only, githack-preview, and stale PR #46 guidance.
+- Task 9 GitHub commits: `1a8e54f` (end-to-end gameplay regression), `ad85fd5` (authoritative handoff).
+- **Task 10 pending:** production promotion of the verified discrete-grid runtime. Do not merge/publish without explicit user instruction.
