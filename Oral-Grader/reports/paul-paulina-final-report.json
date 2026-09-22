@@ -1,0 +1,55 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "paul-paulina",
+  "report_status": "generated_for_teacher_review",
+  "students": [
+    {
+      "name": "Paul Betanzos Martínez",
+      "score": "33/40"
+    },
+    {
+      "name": "Paulina Gallegos Ramírez",
+      "score": "32/40"
+    }
+  ],
+  "format": {
+    "orientation": "portrait",
+    "language": "English",
+    "pages": 6,
+    "diagnostic_columns": [
+      "What you said",
+      "Why it needs work",
+      "Natural English"
+    ],
+    "color_key": {
+      "AGR": "light blue - present/simple agreement",
+      "PAST": "red - past forms",
+      "PERF": "green - perfect forms",
+      "MOD": "purple - conditionals/modals",
+      "U1-4": "orange - Units 1-4 target language",
+      "VOC": "pink - vocabulary/prepositions",
+      "ART": "yellow - articles/plurals",
+      "STR": "gray - structure/word order"
+    },
+    "pronunciation": "separate burgundy marking"
+  },
+  "pronunciation_evidence": [
+    {
+      "student": "Paul",
+      "heard": "fires",
+      "target": "fathers",
+      "status": "teacher-confirmed"
+    },
+    {
+      "student": "Paulina",
+      "status": "no confirmed pronunciation error"
+    }
+  ],
+  "reporting_rule": "Deep diagnostic feedback is stricter than the summative score; natural-English corrections must be idiomatic and must not preserve Spanish calques.",
+  "source_files": [
+    "Oral-Grader/transcripts/paul-paulina-stage1.json",
+    "Oral-Grader/analysis/paul-paulina-stage2.json",
+    "Oral-Grader/reviews/paul-paulina-stage2-review.json",
+    "Oral-Grader/rubrics/paul-paulina-rubric-draft.json"
+  ]
+}
