@@ -10,16 +10,16 @@ Unit 4 structures such as **even if, whether or not, only if, unless, otherwise,
 
 | Criterion | Paul | Paulina |
 | --- | ---: | ---: |
-| Fluency | 6/8 | 6/8 |
+| Fluency | 7/8 | 6/8 |
 | Coherence & Organization | 6/8 | 6/8 |
 | Grammar & Vocabulary | 6/8 | 6/8 |
 | Pronunciation & Intelligibility | 7/8 | 7/8 |
 | Communicative Interaction | 7/8 | 7/8 |
-| **Total** | **32/40** | **32/40** |
+| **Total** | **33/40** | **32/40** |
 
 ## Paul
 
-**Fluency — 6/8.** He maintains extended responses and keeps speaking despite hesitation, self-correction, and grammatical restructuring. The conversation continues without repeated teacher reactivation.
+**Fluency — 7/8.** He maintains extended responses with a relatively steady pace. There are hesitations and self-corrections, but he sustains speech without repeated teacher reactivation; compared with Paulina, his delivery is more continuous.
 
 **Coherence & Organization — 6/8.** He generally answers the prompt and develops relevant examples. Some fragments and lexical choices reduce precision, but the progression is usually understandable.
 
@@ -45,7 +45,7 @@ Unit 4 structures such as **even if, whether or not, only if, unless, otherwise,
 
 The student-facing report should remain **detailed and demanding** because its purpose is improvement: students need to see what they actually said, identify why it is wrong, and compare it with natural English.
 
-The grade, however, is **course-aligned rather than error-count based**. A student can therefore have a long correction report and still earn the passing **32/40** when communication is functional and the taught Units 1–4 language is sufficiently demonstrated.
+The grade, however, is **course-aligned rather than error-count based**. The **32/40** threshold is a minimum for passing, not a target score and not a reason to force ties. Students who demonstrate different levels of performance must receive different scores when the evidence supports that distinction.
 
 Calibration policy: `Oral-Grader/rubrics/units-1-4-scoring-calibration.md`
 
