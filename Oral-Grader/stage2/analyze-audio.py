@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import time
 from pathlib import Path
 from typing import Any
 
@@ -368,6 +369,47 @@ def parse_model_payload(text):
     return payload
 
 
+def _interaction_error_status_code(exc):
+    for attr in ("status_code", "code"):
+        value = getattr(exc, attr, None)
+        if isinstance(value, int):
+            return value
+    response = getattr(exc, "response", None)
+    value = getattr(response, "status_code", None)
+    if isinstance(value, int):
+        return value
+    body = getattr(exc, "body", None)
+    if isinstance(body, dict):
+        error = body.get("error")
+        if isinstance(error, dict) and isinstance(error.get("code"), int):
+            return error["code"]
+    return None
+
+
+def create_interaction_with_retry(
+    create_fn,
+    kwargs,
+    *,
+    attempts=2,
+    delay_seconds=20.0,
+    sleep_fn=time.sleep,
+):
+    transient_statuses = {429, 500, 502, 503, 504}
+    if attempts < 1:
+        raise ValueError("attempts must be at least 1")
+
+    for attempt in range(1, attempts + 1):
+        try:
+            return create_fn(**kwargs)
+        except Exception as exc:
+            status = _interaction_error_status_code(exc)
+            if status not in transient_statuses or attempt >= attempts:
+                raise
+            sleep_fn(delay_seconds)
+
+    raise RuntimeError("unreachable")
+
+
 def analyze_audio(
     audio_path: Path,
     pair_slug: str,
@@ -396,21 +438,26 @@ def analyze_audio(
     client = genai.Client(api_key=api_key)
     validate_model_available(client, model_name)
     uploaded_file = client.files.upload(file=str(audio_path))
-    interaction = client.interactions.create(
-        model=model_name,
-        input=[
-            {"type": "text", "text": build_analysis_prompt(stage1, review)},
-            {
-                "type": "audio",
-                "uri": uploaded_file.uri,
-                "mime_type": uploaded_file.mime_type,
+    interaction = create_interaction_with_retry(
+        client.interactions.create,
+        {
+            "model": model_name,
+            "input": [
+                {"type": "text", "text": build_analysis_prompt(stage1, review)},
+                {
+                    "type": "audio",
+                    "uri": uploaded_file.uri,
+                    "mime_type": uploaded_file.mime_type,
+                },
+            ],
+            "response_format": {
+                "type": "text",
+                "mime_type": "application/json",
+                "schema": STAGE2_RESPONSE_SCHEMA,
             },
-        ],
-        response_format={
-            "type": "text",
-            "mime_type": "application/json",
-            "schema": STAGE2_RESPONSE_SCHEMA,
         },
+        attempts=2,
+        delay_seconds=20.0,
     )
 
     output_text = getattr(interaction, "output_text", "") or ""
