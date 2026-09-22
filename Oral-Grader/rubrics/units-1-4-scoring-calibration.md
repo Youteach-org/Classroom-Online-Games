@@ -94,6 +94,8 @@ A student who demonstrates functional communication and sufficient control of th
 
 The detailed error report is for improvement; it is not an error-counting formula for failure.
 
+The **32/40** threshold is a minimum passing score, not a target and not a tie-forcing rule. When two students demonstrate meaningfully different performance, the rubric must preserve that difference even if both pass.
+
 ## Paul / Paulina calibration
 
 For the current Paul/Paulina oral:
@@ -106,7 +108,7 @@ For the current Paul/Paulina oral:
 
 Recommended calibrated total for this attempt:
 
-- Paul: **32/40**
+- Paul: **33/40**
 - Paulina: **32/40**
 
 These remain teacher-reviewable scores, not automatic final grades.
