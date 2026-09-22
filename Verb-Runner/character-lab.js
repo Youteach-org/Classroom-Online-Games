@@ -3,7 +3,7 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-const MODEL_URL='https://raw.githubusercontent.com/dpwhittaker/avatar-city/c21f285f84a35be7f7f1f8e9827e9e897ea55de1/public/characters/Casual3_Male.gltf';
+const MODEL_URL='https://raw.githubusercontent.com/dpwhittaker/avatar-city/c21f285f84a35be7f7f1f8e9827e9e897ea55de1/public/characters/Casual2_Male.gltf';
 
 const TARGET={
   hoodie:0xc94b40,
@@ -141,11 +141,7 @@ function styleBase(root){
       }else if(/belt|shoe|boot|access/.test(name)){
         m.color?.setHex(TARGET.shoes);
       }else if(/hair/.test(name)){
-        // The stock hair is intentionally hidden. A custom target hairstyle
-        // is attached to the animated head below.
-        m.transparent=true;
-        m.opacity=0;
-        m.depthWrite=false;
+        m.color?.setHex(TARGET.hair);
       }else if(/face|skin|head/.test(name)){
         m.color?.setHex(TARGET.skin);
       }
@@ -213,20 +209,20 @@ function addTargetHair(headBone){
 
   const hair=new THREE.Group();
   hair.name='TargetHair';
-  attachGroupAtWorld(headBone,hair,p.clone().add(new THREE.Vector3(0,.115,.015)));
+  attachGroupAtWorld(headBone,hair,new THREE.Vector3(0,2.31,.005));
 
   const baseMat=smoothMat(TARGET.hair,.75);
   const hiMat=smoothMat(TARGET.hairHi,.73);
 
-  const cap=new THREE.Mesh(
-    new THREE.SphereGeometry(.30,36,24,0,Math.PI*2,0,Math.PI*.63),
+  const crown=new THREE.Mesh(
+    new THREE.SphereGeometry(.245,36,24,0,Math.PI*2,0,Math.PI*.56),
     baseMat
   );
-  cap.scale.set(1.03,.92,.98);
-  cap.position.set(0,.005,.015);
-  cap.rotation.x=.08;
-  cap.castShadow=true;
-  hair.add(cap);
+  crown.scale.set(1.0,.78,.92);
+  crown.position.set(0,.015,.015);
+  crown.rotation.x=.06;
+  crown.castShadow=true;
+  hair.add(crown);
 
   const tufts=[
     {p:[-.13,.17,-.09],s:[.12,.16,.08],rz:.38,mat:hiMat},
@@ -316,10 +312,10 @@ function addTargetFace(headBone){
 
   const face=new THREE.Group();
   face.name='TargetFace';
-  attachGroupAtWorld(headBone,face,p.clone().add(new THREE.Vector3(0,.020,-.238)));
+  attachGroupAtWorld(headBone,face,new THREE.Vector3(0,2.145,-.305));
 
   const plane=new THREE.Mesh(
-    new THREE.PlaneGeometry(.39,.39,1,1),
+    new THREE.PlaneGeometry(.36,.34,1,1),
     new THREE.MeshBasicMaterial({
       map:createFaceTexture(),
       transparent:true,
@@ -338,25 +334,34 @@ function addSleeve(armBone){
   const next=childBone(armBone);
   if(!next)return;
 
-  const dir=next.position.clone();
+  scene.updateMatrixWorld(true);
+  const a=new THREE.Vector3();
+  const b=new THREE.Vector3();
+  armBone.getWorldPosition(a);
+  next.getWorldPosition(b);
+
+  const dir=b.clone().sub(a);
   const fullLen=dir.length();
   if(fullLen<.05)return;
 
-  const covered=.78;
-  const len=fullLen*covered;
-  const center=dir.clone().multiplyScalar(covered*.50);
+  const covered=.82;
+  const sleeveDir=dir.clone().multiplyScalar(covered);
+  const center=a.clone().add(sleeveDir.clone().multiplyScalar(.50));
 
   const sleeve=new THREE.Mesh(
-    new THREE.CylinderGeometry(.105,.125,len,28,2,false),
+    new THREE.CylinderGeometry(.115,.135,sleeveDir.length(),28,3,false),
     smoothMat(TARGET.hoodie,.72)
   );
   sleeve.position.copy(center);
   sleeve.quaternion.setFromUnitVectors(
     new THREE.Vector3(0,1,0),
-    dir.clone().normalize()
+    sleeveDir.clone().normalize()
   );
   sleeve.castShadow=true;
-  armBone.add(sleeve);
+
+  scene.add(sleeve);
+  scene.updateMatrixWorld(true);
+  armBone.attach(sleeve);
 }
 
 function addHoodieSleeves(root){
@@ -404,18 +409,18 @@ function addShoe(footBone,side){
   );
 
   const upper=new THREE.Mesh(
-    new RoundedBoxGeometry(.20,.12,.34,10,.055),
+    new RoundedBoxGeometry(.19,.095,.28,10,.045),
     smoothMat(TARGET.shoes,.58)
   );
-  upper.position.set(0,0,-.035);
+  upper.position.set(0,0,-.025);
   upper.castShadow=true;
   shoe.add(upper);
 
   const sole=new THREE.Mesh(
-    new RoundedBoxGeometry(.205,.055,.35,8,.025),
+    new RoundedBoxGeometry(.195,.045,.29,8,.020),
     smoothMat(TARGET.sole,.64)
   );
-  sole.position.set(0,-.075,-.035);
+  sole.position.set(0,-.058,-.025);
   sole.castShadow=true;
   shoe.add(sole);
 }
