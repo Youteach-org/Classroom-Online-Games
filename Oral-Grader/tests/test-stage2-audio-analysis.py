@@ -377,3 +377,33 @@ def test_interaction_retry_stops_after_configured_attempts():
         )
 
     assert len(calls) == 2
+
+
+class FakeCompatRateLimitError(RuntimeError):
+    pass
+
+
+def test_interaction_retry_recognizes_sdk_429_from_error_message():
+    calls = []
+    sleeps = []
+
+    def create(**kwargs):
+        calls.append(kwargs)
+        if len(calls) == 1:
+            raise FakeCompatRateLimitError(
+                "Error code: 429 - {'error': {'message': 'Rate limit exceeded', "
+                "'code': 'too_many_requests'}}"
+            )
+        return "ok"
+
+    result = mod.create_interaction_with_retry(
+        create,
+        {"model": "gemini-3.5-flash-lite", "input": []},
+        attempts=2,
+        delay_seconds=0.1,
+        sleep_fn=sleeps.append,
+    )
+
+    assert result == "ok"
+    assert len(calls) == 2
+    assert sleeps == [0.1]
