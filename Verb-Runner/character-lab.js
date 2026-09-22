@@ -114,6 +114,7 @@ function fitToHeight(root,targetHeight){
 }
 
 function neutralizeBase(root){
+  const materialDump=[];
   root.traverse(obj=>{
     if(!obj.isMesh)return;
     obj.castShadow=true;
@@ -122,6 +123,7 @@ function neutralizeBase(root){
     const source=Array.isArray(obj.material)?obj.material:[obj.material];
     const tuned=source.map(src=>{
       if(!src)return src;
+      materialDump.push({mesh:obj.name||'',material:src.name||'',color:src.color?src.color.getHexString():null});
       const m=src.clone();
       m.roughness=.78;
       m.metalness=0;
@@ -153,6 +155,7 @@ function neutralizeBase(root){
     });
     obj.material=Array.isArray(obj.material)?tuned:tuned[0];
   });
+  window.__characterMaterialDump=materialDump;
 }
 
 function bones(root){
