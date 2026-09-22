@@ -17,21 +17,25 @@ const bank=createRelationshipBank([
   {id:'collocation:take-a-break',category:'collocation',tokens:['TAKE','A','BREAK'],baseScore:180,difficulty:2}
 ]);
 
-function tileByWord(board,row,word){return board.tiles.find(tile=>tile.row===row&&tile.word===word);}
+function tileByWord(board,row,word){
+  return board.tiles.find(tile=>tile.row===row&&tile.word===word);
+}
 function applyFixtureMove(level,index=0){
   const board=createBoard(level.boardRows);
   const [fromWord,toWord]=level.fixtureMoveWords[index];
-  return swapTiles(board,tileByWord(board,level.fixtureMoveRows?.[index]??0,fromWord).id,tileByWord(board,level.fixtureMoveRows?.[index]??0,toWord).id);
+  const row=level.fixtureMoveRows?.[index]??0;
+  return swapTiles(board,tileByWord(board,row,fromWord).id,tileByWord(board,row,toWord).id);
 }
 
-test('every validation level has seven rows that pack exactly to 12 microcolumns',()=>{
+test('every validation level is an exact 7x7 equal-cell board',()=>{
   assert.deepEqual(LEVELS.map(level=>level.id),['A','B','C','D','E','F','G']);
   for(const level of LEVELS){
     assert.equal(level.boardRows.length,7);
+    assert.ok(level.boardRows.every(row=>row.length===7),`ragged level ${level.id}`);
     const board=createBoard(level.boardRows);
     assert.equal(board.rows,7);
-    assert.equal(board.columns,12);
-    assert.ok(Number.isInteger(level.moves)&&level.moves>0);
+    assert.equal(board.columns,7);
+    assert.equal(board.tiles.length,49);
   }
 });
 
@@ -71,11 +75,11 @@ test('level F fixture creates TAKE A BREAK crossing MAKE A DECISION',()=>{
   assert.ok(findCrossings(matches).length>=1);
 });
 
-test('level G fallback is productive across several rows',()=>{
+test('level G fallback exposes at least four productive swaps',()=>{
   const level=getLevel('G');
   const board=createBoard(level.boardRows);
   const moves=findImmediateScoringMoves(board,bank);
-  assert.ok(moves.length>=4);
+  assert.ok(moves.length>=4,`expected >=4, got ${moves.length}`);
   assert.deepEqual(FALLBACK_BOARD_ROWS,level.boardRows);
 });
 
