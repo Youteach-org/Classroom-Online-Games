@@ -3,47 +3,25 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-const ASSET_ROOT='https://raw.githubusercontent.com/dpwhittaker/avatar-city/c21f285f84a35be7f7f1f8e9827e9e897ea55de1/public/characters/';
+const MODEL_URL='https://raw.githubusercontent.com/dpwhittaker/avatar-city/c21f285f84a35be7f7f1f8e9827e9e897ea55de1/public/characters/Casual3_Male.gltf';
 
-const OPTIONS={
-  street:{
-    file:'Casual3_Male.gltf',
-    title:'Street Runner',
-    subtitle:'Sporty · contemporary · backpack',
-    palette:{top:0xc7463f,bottom:0x315b8a,accent:0x2b3440,hair:0x2d211d,skin:0xd99c76}
-  },
-  young:{
-    file:'Casual2_Male.gltf',
-    title:'Young Runner',
-    subtitle:'Young · agile · cleaner silhouette',
-    palette:{top:0xe05b37,bottom:0x253f66,accent:0x202a33,hair:0x31231e,skin:0xd99c76}
-  },
-  adventure:{
-    file:'Cowboy_Hair.gltf',
-    title:'Adventure Runner',
-    subtitle:'More hair · stronger face silhouette · adventurer',
-    palette:{top:0xbd463a,bottom:0x314c63,accent:0x63452e,hair:0x2a1c17,skin:0xd99c76}
-  },
-  utility:{
-    file:'Worker_Male.gltf',
-    title:'Utility Runner',
-    subtitle:'Robust · practical · more distinctive body',
-    palette:{top:0xb94238,bottom:0x2f506c,accent:0x26313a,hair:0x2a201c,skin:0xd99c76}
-  },
-  sportF:{
-    file:'Casual3_Female.gltf',
-    title:'Sport Runner F',
-    subtitle:'Sporty · contemporary · female option',
-    palette:{top:0xc64f55,bottom:0x36577e,accent:0x293540,hair:0x34231f,skin:0xd99c76}
-  }
+const TARGET={
+  hoodie:0xc84a3f,
+  jeans:0x315d91,
+  shoes:0xf4f1ea,
+  hair:0x2a1c18,
+  skin:0xd59a75,
+  eye:0x241f1d,
+  brow:0x34231e,
+  mouth:0x8b3c38
 };
 
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0xdce9ef);
 scene.fog=new THREE.Fog(0xdce9ef,18,35);
 
-const camera=new THREE.PerspectiveCamera(44,innerWidth/innerHeight,.05,80);
-camera.position.set(0,1.65,5.35);
+const camera=new THREE.PerspectiveCamera(43,innerWidth/innerHeight,.05,80);
+camera.position.set(3.35,1.62,-3.35);
 
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
 renderer.setPixelRatio(Math.min(devicePixelRatio,3));
@@ -57,22 +35,22 @@ renderer.domElement.style.imageRendering='auto';
 document.querySelector('#stage').appendChild(renderer.domElement);
 
 const controls=new OrbitControls(camera,renderer.domElement);
-controls.target.set(0,1.38,0);
+controls.target.set(0,1.35,0);
 controls.enableDamping=true;
 controls.dampingFactor=.075;
 controls.enablePan=false;
 controls.enableZoom=true;
-controls.minDistance=3.15;
-controls.maxDistance=7.5;
-controls.minPolarAngle=.55;
+controls.minDistance=3.0;
+controls.maxDistance=7.0;
+controls.minPolarAngle=.50;
 controls.maxPolarAngle=1.72;
 controls.rotateSpeed=.7;
 controls.zoomSpeed=.8;
 controls.update();
 
-scene.add(new THREE.HemisphereLight(0xf7fbff,0x78858e,2.55));
+scene.add(new THREE.HemisphereLight(0xf7fbff,0x78858e,2.6));
 
-const key=new THREE.DirectionalLight(0xfff1db,4.2);
+const key=new THREE.DirectionalLight(0xffefd7,4.4);
 key.position.set(-4.5,8,5);
 key.castShadow=true;
 key.shadow.mapSize.set(4096,4096);
@@ -85,12 +63,12 @@ key.shadow.normalBias=0.018;
 key.shadow.radius=2.5;
 scene.add(key);
 
-const faceLight=new THREE.DirectionalLight(0xffffff,1.45);
+const faceLight=new THREE.DirectionalLight(0xffffff,2.0);
 faceLight.position.set(0,3,-5);
 scene.add(faceLight);
 
-const rim=new THREE.DirectionalLight(0x9bdcff,2.0);
-rim.position.set(4,5,-5);
+const rim=new THREE.DirectionalLight(0x9bdcff,1.8);
+rim.position.set(4,5,4);
 scene.add(rim);
 
 const floor=new THREE.Mesh(
@@ -105,23 +83,16 @@ const runnerRoot=new THREE.Group();
 scene.add(runnerRoot);
 
 const shadow=new THREE.Mesh(
-  new THREE.CircleGeometry(.68,64),
-  new THREE.MeshBasicMaterial({color:0x1c2b35,transparent:true,opacity:.18,depthWrite:false})
+  new THREE.CircleGeometry(.64,64),
+  new THREE.MeshBasicMaterial({color:0x1c2b35,transparent:true,opacity:.17,depthWrite:false})
 );
 shadow.rotation.x=-Math.PI/2;
 shadow.position.y=.01;
 runnerRoot.add(shadow);
 
-const modelRoot=new THREE.Group();
-runnerRoot.add(modelRoot);
-
-const loader=new GLTFLoader();
 const clock=new THREE.Clock();
-
 let mixer=null;
-let activeAction=null;
-let activeHuman=null;
-let loadSerial=0;
+let actions=[];
 let running=true;
 
 function fitToHeight(root,targetHeight){
@@ -138,7 +109,7 @@ function fitToHeight(root,targetHeight){
 
 function cloneMaterial(mat){
   const m=mat.clone();
-  if('roughness' in m)m.roughness=.70;
+  if('roughness' in m)m.roughness=.68;
   if('metalness' in m)m.metalness=.01;
   m.dithering=true;
   if('flatShading' in m)m.flatShading=false;
@@ -146,12 +117,11 @@ function cloneMaterial(mat){
   return m;
 }
 
-function styleRunner(root,palette){
+function styleBase(root){
   root.traverse(obj=>{
     if(!obj.isMesh)return;
     obj.castShadow=true;
     obj.receiveShadow=false;
-
     if(obj.geometry?.attributes?.normal)obj.geometry.normalizeNormals();
 
     const source=Array.isArray(obj.material)?obj.material:[obj.material];
@@ -161,15 +131,15 @@ function styleRunner(root,palette){
       const name=(m.name||'').toLowerCase();
 
       if(/shirt|top|jacket|coat|vest|body/.test(name)){
-        m.color?.setHex(palette.top);
+        m.color?.setHex(TARGET.hoodie);
       }else if(/pants|trouser|jean|bottom/.test(name)){
-        m.color?.setHex(palette.bottom);
-      }else if(/belt|shoe|boot|access|strap/.test(name)){
-        m.color?.setHex(palette.accent);
+        m.color?.setHex(TARGET.jeans);
+      }else if(/belt|shoe|boot|access/.test(name)){
+        m.color?.setHex(TARGET.shoes);
       }else if(/hair/.test(name)){
-        m.color?.setHex(palette.hair);
+        m.color?.setHex(TARGET.hair);
       }else if(/face|skin|head/.test(name)){
-        m.color?.setHex(palette.skin);
+        m.color?.setHex(TARGET.skin);
       }
       return m;
     });
@@ -177,162 +147,201 @@ function styleRunner(root,palette){
   });
 }
 
-function findTorsoBone(root){
-  root.updateMatrixWorld(true);
-  const named=[];
-  const all=[];
-  const p=new THREE.Vector3();
+function boneList(root){
+  const list=[];
+  root.traverse(obj=>{if(obj.isBone)list.push(obj);});
+  return list;
+}
 
-  root.traverse(obj=>{
-    if(!obj.isBone)return;
-    obj.getWorldPosition(p);
-    const item={bone:obj,pos:p.clone()};
-    all.push(item);
-    if(/upper.?chest|chest|spine.?2|spine.?1|spine|torso/i.test(obj.name||''))named.push(item);
+function bestBone(root,regex){
+  const list=boneList(root).filter(b=>regex.test(b.name||''));
+  if(!list.length)return null;
+  list.sort((a,b)=>{
+    const ae=/end|tip/i.test(a.name||'')?1:0;
+    const be=/end|tip/i.test(b.name||'')?1:0;
+    return ae-be || (a.name||'').length-(b.name||'').length;
   });
-
-  const score=item=>{
-    const {x,y,z}=item.pos;
-    return Math.abs(x)*2.8+Math.abs(z)*1.4+Math.abs(y-1.55);
-  };
-
-  const pool=named.length?named:all;
-  pool.sort((a,b)=>score(a)-score(b));
-  return pool[0]?.bone||null;
+  return list[0];
 }
 
-function createBackpack(){
-  const g=new THREE.Group();
-  g.name='RunnerBackpack';
+function stylizeSkeleton(root){
+  const head=bestBone(root,/head/i);
+  const neck=bestBone(root,/neck/i);
 
-  const shellMat=new THREE.MeshStandardMaterial({color:0x26384d,roughness:.66,metalness:.03});
-  const trimMat=new THREE.MeshStandardMaterial({color:0xb46f43,roughness:.64,metalness:.02});
-  const strapMat=new THREE.MeshStandardMaterial({color:0x1d2936,roughness:.80,metalness:0});
-
-  const shell=new THREE.Mesh(new RoundedBoxGeometry(.66,.78,.31,10,.13),shellMat);
-  shell.position.set(0,0,.11);
-  shell.rotation.x=-.08;
-  shell.castShadow=true;
-  g.add(shell);
-
-  const flap=new THREE.Mesh(new RoundedBoxGeometry(.53,.27,.07,8,.07),trimMat);
-  flap.position.set(0,.17,.29);
-  flap.rotation.x=-.08;
-  flap.castShadow=true;
-  g.add(flap);
-
-  for(const x of [-.25,.25]){
-    const strap=new THREE.Mesh(new RoundedBoxGeometry(.075,.70,.07,6,.035),strapMat);
-    strap.position.set(x,.015,-.075);
-    strap.rotation.z=x<0?-.12:.12;
-    strap.rotation.x=-.06;
-    strap.castShadow=true;
-    g.add(strap);
+  if(head){
+    head.scale.multiplyScalar(1.13);
   }
-  return g;
+  if(neck){
+    neck.scale.multiplyScalar(.96);
+  }
+
+  // Slightly reduce the adult/tall feel of the stock mesh.
+  root.scale.x*=.96;
+  root.scale.z*=.96;
+
+  return {head,neck};
 }
 
-function attachBackpackToTorso(human){
-  const backpack=createBackpack();
-  backpack.position.set(0,1.48,-.24);
-  modelRoot.add(backpack);
+function smoothMat(color,roughness=.72){
+  return new THREE.MeshStandardMaterial({color,roughness,metalness:0});
+}
+
+function attachGroupAtWorld(parent,group,position){
+  scene.add(group);
+  group.position.copy(position);
+  scene.updateMatrixWorld(true);
+  parent.attach(group);
+}
+
+function addTargetHair(headBone){
+  if(!headBone)return;
 
   scene.updateMatrixWorld(true);
-  const torsoBone=findTorsoBone(human);
+  const p=new THREE.Vector3();
+  headBone.getWorldPosition(p);
 
-  if(torsoBone){
-    torsoBone.attach(backpack);
-    document.body.dataset.backpackAnchor=torsoBone.name||'unnamed-torso-bone';
-  }else{
-    document.body.dataset.backpackAnchor='model-root-fallback';
+  const hair=new THREE.Group();
+  hair.name='TargetHair';
+  attachGroupAtWorld(headBone,hair,p.clone().add(new THREE.Vector3(0,.10,.01)));
+
+  const mat=smoothMat(TARGET.hair,.76);
+  const pieces=[
+    {p:[-.13,.08,.01],s:[.18,.16,.15],r:[0,0,.28]},
+    {p:[ .00,.13,.02],s:[.20,.18,.16],r:[0,0,.00]},
+    {p:[ .14,.09,.02],s:[.17,.15,.14],r:[0,0,-.25]},
+    {p:[-.08,-.01,.08],s:[.18,.16,.14],r:[.1,0,.12]},
+    {p:[ .09,-.01,.08],s:[.18,.16,.14],r:[.1,0,-.12]},
+    {p:[-.10,.02,-.13],s:[.15,.13,.11],r:[-.25,0,.45]},
+    {p:[ .02,.05,-.16],s:[.17,.14,.10],r:[-.35,0,.08]},
+    {p:[ .12,.02,-.13],s:[.14,.12,.10],r:[-.25,0,-.35]}
+  ];
+
+  for(const spec of pieces){
+    const mesh=new THREE.Mesh(new THREE.SphereGeometry(1,28,20),mat);
+    mesh.position.set(...spec.p);
+    mesh.scale.set(...spec.s);
+    mesh.rotation.set(...spec.r);
+    mesh.castShadow=true;
+    hair.add(mesh);
   }
+
+  const quiffMat=smoothMat(0x33221d,.74);
+  const quiff=new THREE.Mesh(new THREE.SphereGeometry(1,30,22),quiffMat);
+  quiff.position.set(.05,.15,-.13);
+  quiff.scale.set(.16,.11,.08);
+  quiff.rotation.z=-.38;
+  quiff.castShadow=true;
+  hair.add(quiff);
 }
 
-function clearModel(){
-  if(mixer){
-    mixer.stopAllAction();
-    if(activeHuman)mixer.uncacheRoot(activeHuman);
-  }
-  mixer=null;
-  activeAction=null;
-  activeHuman=null;
+function addTargetFace(headBone){
+  if(!headBone)return;
 
-  while(modelRoot.children.length){
-    const child=modelRoot.children.pop();
-    child.traverse?.(obj=>{
-      if(obj.geometry && obj.userData?.labOwnedGeometry)obj.geometry.dispose?.();
-      const mats=Array.isArray(obj.material)?obj.material:[obj.material];
-      mats.forEach(m=>m?.dispose?.());
-    });
+  scene.updateMatrixWorld(true);
+  const p=new THREE.Vector3();
+  headBone.getWorldPosition(p);
+
+  const face=new THREE.Group();
+  face.name='TargetFace';
+  attachGroupAtWorld(headBone,face,p.clone().add(new THREE.Vector3(0,.015,-.205)));
+
+  const eyeWhite=smoothMat(0xfaf9f4,.5);
+  const eyeDark=smoothMat(TARGET.eye,.5);
+  const browMat=smoothMat(TARGET.brow,.7);
+  const mouthMat=smoothMat(TARGET.mouth,.65);
+  const noseMat=smoothMat(0xc88362,.7);
+
+  for(const x of [-.088,.088]){
+    const white=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),eyeWhite);
+    white.position.set(x,.055,0);
+    white.scale.set(.055,.042,.018);
+    face.add(white);
+
+    const iris=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),eyeDark);
+    iris.position.set(x,.054,-.017);
+    iris.scale.set(.025,.027,.014);
+    face.add(iris);
+
+    const brow=new THREE.Mesh(new RoundedBoxGeometry(.105,.018,.012,5,.008),browMat);
+    brow.position.set(x,.116,-.003);
+    brow.rotation.z=x<0?.10:-.10;
+    face.add(brow);
   }
+
+  const nose=new THREE.Mesh(new THREE.SphereGeometry(1,20,14),noseMat);
+  nose.position.set(0,-.005,-.012);
+  nose.scale.set(.030,.045,.025);
+  face.add(nose);
+
+  const mouth=new THREE.Mesh(new RoundedBoxGeometry(.095,.018,.012,5,.007),mouthMat);
+  mouth.position.set(0,-.090,-.004);
+  face.add(mouth);
 }
 
-function setSelectedButton(id){
-  document.querySelectorAll('[data-character]').forEach(btn=>{
-    btn.classList.toggle('active',btn.dataset.character===id);
-  });
+function addHoodieCollar(neckBone){
+  if(!neckBone)return;
+
+  scene.updateMatrixWorld(true);
+  const p=new THREE.Vector3();
+  neckBone.getWorldPosition(p);
+
+  const group=new THREE.Group();
+  group.name='HoodieCollar';
+  attachGroupAtWorld(neckBone,group,p.clone().add(new THREE.Vector3(0,-.045,.025)));
+
+  const mat=smoothMat(TARGET.hoodie,.74);
+  const left=new THREE.Mesh(new RoundedBoxGeometry(.18,.10,.12,8,.05),mat);
+  const right=left.clone();
+  left.position.set(-.095,0,0);
+  right.position.set(.095,0,0);
+  left.rotation.z=-.18;
+  right.rotation.z=.18;
+  left.castShadow=right.castShadow=true;
+  group.add(left,right);
 }
 
 function setCameraView(view){
-  const radius=5.1;
-  const y=1.65;
+  const radius=4.75;
+  const y=1.58;
   if(view==='front')camera.position.set(0,y,-radius);
-  else if(view==='three')camera.position.set(3.65,y,-3.65);
+  else if(view==='three')camera.position.set(3.35,y,-3.35);
   else camera.position.set(0,y,radius);
-  controls.target.set(0,1.38,0);
+  controls.target.set(0,1.34,0);
   controls.update();
 }
 
-async function loadCharacter(id){
-  const option=OPTIONS[id];
-  if(!option)return;
+function startCompactJog(gltf,human){
+  mixer=new THREE.AnimationMixer(human);
+  const clips=gltf.animations||[];
+  const walk=clips.find(c=>c.name==='Walk'||/^walk$/i.test(c.name)||/walk/i.test(c.name));
+  const run=clips.find(c=>c.name==='Run'||/^run$/i.test(c.name)||/run/i.test(c.name));
 
-  const serial=++loadSerial;
-  document.body.dataset.characterReady='loading';
-  setSelectedButton(id);
-  document.querySelector('#characterTitle').textContent=option.title;
-  document.querySelector('#characterSubtitle').textContent=option.subtitle;
+  actions=[];
 
-  loader.load(
-    ASSET_ROOT+option.file,
-    gltf=>{
-      if(serial!==loadSerial)return;
+  if(walk){
+    const a=mixer.clipAction(walk);
+    a.enabled=true;
+    a.setEffectiveWeight(run?.35:1);
+    a.timeScale=1.7;
+    a.play();
+    actions.push(a);
+  }
 
-      clearModel();
+  if(run){
+    const a=mixer.clipAction(run);
+    a.enabled=true;
+    a.setEffectiveWeight(walk?.65:1);
+    a.timeScale=1.05;
+    a.play();
+    actions.push(a);
+  }
 
-      const human=gltf.scene;
-      activeHuman=human;
-      fitToHeight(human,2.72);
-      human.rotation.y=Math.PI;
-      styleRunner(human,option.palette);
-      modelRoot.add(human);
-
-      scene.updateMatrixWorld(true);
-      attachBackpackToTorso(human);
-
-      mixer=new THREE.AnimationMixer(human);
-      const run=(gltf.animations||[]).find(c=>c.name==='Run'||/run/i.test(c.name))||gltf.animations?.[0];
-      if(run){
-        activeAction=mixer.clipAction(run);
-        activeAction.timeScale=1.12;
-        activeAction.play();
-        activeAction.paused=!running;
-      }
-
-      document.body.dataset.characterReady='true';
-      document.body.dataset.characterId=id;
-    },
-    undefined,
-    err=>{
-      console.error(err);
-      if(serial===loadSerial)document.body.dataset.characterReady='error';
-    }
-  );
+  if(!actions.length && clips[0]){
+    const a=mixer.clipAction(clips[0]);
+    a.play();
+    actions.push(a);
+  }
 }
-
-document.querySelectorAll('[data-character]').forEach(btn=>{
-  btn.addEventListener('click',()=>loadCharacter(btn.dataset.character));
-});
 
 document.querySelectorAll('[data-view]').forEach(btn=>{
   btn.addEventListener('click',()=>setCameraView(btn.dataset.view));
@@ -340,12 +349,39 @@ document.querySelectorAll('[data-view]').forEach(btn=>{
 
 document.querySelector('#motionToggle').addEventListener('click',event=>{
   running=!running;
-  if(activeAction)activeAction.paused=!running;
-  event.currentTarget.textContent=running?'PAUSE RUN':'RESUME RUN';
+  actions.forEach(a=>a.paused=!running);
+  event.currentTarget.textContent=running?'PAUSE JOG':'RESUME JOG';
 });
 
-loadCharacter('street');
-setCameraView('back');
+new GLTFLoader().load(
+  MODEL_URL,
+  gltf=>{
+    const human=gltf.scene;
+
+    fitToHeight(human,2.60);
+    human.rotation.y=Math.PI;
+    styleBase(human);
+    runnerRoot.add(human);
+
+    const bones=stylizeSkeleton(human);
+    scene.updateMatrixWorld(true);
+
+    addTargetHair(bones.head);
+    addTargetFace(bones.head);
+    addHoodieCollar(bones.neck);
+
+    startCompactJog(gltf,human);
+
+    document.body.dataset.characterReady='true';
+  },
+  undefined,
+  err=>{
+    console.error(err);
+    document.body.dataset.characterReady='error';
+  }
+);
+
+setCameraView('three');
 
 function animate(){
   requestAnimationFrame(animate);
