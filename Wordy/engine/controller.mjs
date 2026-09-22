@@ -1,5 +1,5 @@
 import { areSwapNeighbors, cloneBoard, createBoard } from './board.mjs';
-import { spanForWord, normalizeWord } from './tile-size.mjs';
+import { normalizeToken } from './relationship-bank.mjs';
 import { findMatches, findCrossings } from './matcher.mjs';
 import { resolvePlayerActivation, CascadeLimitError } from './resolution.mjs';
 import { findImmediateScoringMoves, createControlledBoard, recoverDeadBoard } from './generator.mjs';
@@ -8,7 +8,6 @@ import { createTelemetryStore } from './telemetry.mjs';
 import { buildResolutionEvents } from './resolution-events.mjs';
 
 const DISCOVERED_KEY='wordy.prototype.discovered.v1';
-const FALLBACK_BY_SPAN={1:'OF',2:'LOOK',3:'COFFEE',4:'ATTENTION'};
 
 function cloneMatch(match){
   return {...match,tileIds:[...(match.tileIds??[])],tokens:[...(match.tokens??[])]};
@@ -63,7 +62,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     };
   }
   function emit(){const view=snapshot();for(const listener of listeners)listener(view);}
-  function authoredBoard(level){return createBoard(level.boardRows,{columns:12});}
+  function authoredBoard(level){return createBoard(level.boardRows);}
   function fallbackBoard(){
     for(const level of [currentLevel,...levels]){
       if(!level)continue;
@@ -146,25 +145,32 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     return {status:'accepted',...resultBase};
   }
 
-  function contextualWords(span){
+  function contextualWords(){
     const present=new Set(state.board.tiles.map(tile=>tile.word));
     const connected=[],fallback=[];
-    for(const relation of bank.byId.values())for(const token of relation.tokens){
-      if(spanForWord(token)!==span)continue;
-      fallback.push(token);
-      if(relation.tokens.some(word=>present.has(word)))connected.push(token);
+    for(const relation of bank.byId.values()){
+      const relationTouchesBoard=relation.tokens.some(word=>present.has(word));
+      for(const token of relation.tokens){
+        fallback.push(token);
+        if(relationTouchesBoard)connected.push(token);
+      }
     }
     return connected.length?connected:fallback;
   }
-  function chooseRefillWord(span){
+  function chooseRefillWord({row,column,board,cascadeDepth}){
     if(typeof refillWord==='function'){
-      const custom=normalizeWord(refillWord({span,state:snapshot(),bank,rng}));
+      const custom=normalizeToken(refillWord({row,column,board,state:snapshot(),bank,rng,cascadeDepth}));
       if(custom)return custom;
     }
-    const words=contextualWords(span);
-    return words.length?words[Math.floor(rng()*words.length)]:FALLBACK_BY_SPAN[span];
+    const words=contextualWords();
+    return words.length?words[Math.floor(rng()*words.length)]:'WORD';
   }
-  function refillTile({span,row,startColumn}){return {id:'refill-'+(++refillCounter),word:chooseRefillWord(span),row,startColumn};}
+  function refillTile({row,column,board,cascadeDepth}){
+    return {
+      id:'refill-'+(++refillCounter),
+      word:chooseRefillWord({row,column,board,cascadeDepth})
+    };
+  }
   function recoverIfDead(){
     const recovered=recoverDeadBoard({board:state.board,bank,rng,fallbackBoard:fallbackBoard(),minScoringMoves:4,minProductiveRows:3});
     if(recovered.reset){state.board=recovered.board;refreshReady();telemetry.record('dead-board-reset',{levelId:state.levelId});logReady();}
