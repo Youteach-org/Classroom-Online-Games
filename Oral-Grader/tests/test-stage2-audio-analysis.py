@@ -407,3 +407,56 @@ def test_interaction_retry_recognizes_sdk_429_from_error_message():
     assert result == "ok"
     assert len(calls) == 2
     assert sleeps == [0.1]
+
+
+def test_intended_must_be_natural_idiomatic_english_or_omitted():
+    prompt = mod.build_analysis_prompt(stage1_context(), teacher_review())
+    assert "Intended language must be natural, idiomatic English" in prompt
+    assert "Never preserve Spanish word order or literal translation artifacts" in prompt
+    assert "set intended to null" in prompt
+
+
+def test_uncertain_intent_removes_speculative_intended_text():
+    item = sample_item(
+        intended="literal translated guess",
+        intent_confidence="uncertain",
+        pronunciation="uncertain",
+        counts_toward_pronunciation=True,
+    )
+    normalized = mod.normalize_evidence_item(item, {"Paul", "Paulina"})
+    assert normalized["intended"] is None
+    assert normalized["counts_toward_pronunciation"] is False
+
+
+def test_markdown_omits_acceptable_sentence_level_intended_corrections():
+    result = {
+        "pair_slug": "paul-paulina",
+        "model": "gemini-test",
+        "students": {
+            "Paul": {"grammar_patterns": [], "vocabulary_patterns": [], "fluency_observations": []},
+            "Paulina": {"grammar_patterns": [], "vocabulary_patterns": [], "fluency_observations": []},
+        },
+        "evidence": [
+            sample_item(
+                speaker="Paul",
+                reviewed_heard="I have many years living here.",
+                intended="I have been living here for many years.",
+                pronunciation="acceptable",
+                counts_toward_pronunciation=True,
+            ),
+            sample_item(
+                speaker="Paul",
+                reviewed_heard="fires",
+                intended="fathers",
+                pronunciation="incorrect",
+                counts_toward_pronunciation=True,
+                pronunciation_note="Teacher-confirmed pronunciation mismatch.",
+            ),
+        ],
+        "teacher_interventions": [],
+        "fluency_observations": [],
+    }
+    md = mod.render_markdown(result)
+    assert "I have been living here for many years." not in md
+    assert "fires" in md
+    assert "fathers" in md
