@@ -1,3 +1,20 @@
+## CURRENT OVERRIDE — 2026-09-21 discrete-grid rebuild
+
+This section overrides any older contradictory Wordy guidance below.
+
+- Approved architecture spec: `docs/superpowers/specs/2026-09-21-wordy-discrete-grid-swap-architecture.md`.
+- Implementation plan awaiting user review: `docs/superpowers/plans/2026-09-21-wordy-discrete-grid-candy-swap.md`.
+- Wordy is a page inside the existing Classroom Online Games site.
+- Development source remains `feature/wordy-game`.
+- User-facing review happens through the existing COG site at `https://classroom-online-games.pages.dev/Wordy/` after verified runtime promotion.
+- **Never use githack for this project.**
+- Do not use Vercel, Codespaces, or user-local download workflows for Wordy preview.
+- New board authority: 12×7 microgrid, tile spans 1–4.
+- All geometrically valid adjacent pairs are attemptable; nonproductive valid swaps rebound without spending a move.
+- Horizontal swaps may exchange different spans; vertical swaps require identical footprints.
+- Vertical linguistic matches may use different spans when all tiles share at least one microcolumn.
+- Rigid gravity is followed by exact cavity refill.
+
 # Wordy — Current Implementation Handoff
 
 **Repository:** `youteachtk/Classroom-Online-Games`  
