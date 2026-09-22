@@ -1,0 +1,68 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "paul-paulina",
+  "stage": "rubric-draft",
+  "status": "draft_for_teacher_review",
+  "rubric_maximum": 40,
+  "criterion_maximum": 8,
+  "evidence_sources": [
+    "Oral-Grader/transcripts/paul-paulina-stage1.json",
+    "Oral-Grader/analysis/paul-paulina-stage2.json",
+    "Oral-Grader/reviews/paul-paulina-stage2-review.json"
+  ],
+  "reporting_rules": {
+    "use_model_sentence_level_intended_rewrites": false,
+    "pronunciation_heard_to_intended_only_when_supported": true
+  },
+  "students": {
+    "Paul": {
+      "scores": {
+        "fluency": 6,
+        "coherence_and_organization": 6,
+        "grammar_and_vocabulary": 5,
+        "pronunciation_and_intelligibility": 7,
+        "communicative_interaction": 6
+      },
+      "total": 30,
+      "rationale": {
+        "fluency": "Maintains extended responses and the conversation despite hesitations, self-corrections, and grammatical restructuring. Speech is sustained rather than repeatedly abandoned.",
+        "coherence_and_organization": "Usually answers the prompt and develops relevant examples, but some responses contain fragments and lexical choices that make progression less clear.",
+        "grammar_and_vocabulary": "Frequent subject-verb agreement, article, preposition, verb-form, and word-choice errors occur across several turns, while the main meaning usually remains recoverable.",
+        "pronunciation_and_intelligibility": "Generally intelligible. One pronunciation error is teacher-confirmed from the audio: 'fires' for intended 'fathers'. No other pronunciation error is treated as certain.",
+        "communicative_interaction": "Takes turns, asks and answers questions, and remains engaged with the partner. Teacher clarification/word support occurs but does not dominate the exchange."
+      },
+      "key_evidence": [
+        "23.200s–29.600s: asks partner a question and keeps the exchange moving.",
+        "102.100s–132.400s and 241.700s–300.200s: sustains extended responses despite grammatical errors.",
+        "234.700s–240.700s: brief teacher clarification around 'father'.",
+        "Teacher-confirmed pronunciation evidence: heard 'fires', intended 'fathers'."
+      ]
+    },
+    "Paulina": {
+      "scores": {
+        "fluency": 6,
+        "coherence_and_organization": 5,
+        "grammar_and_vocabulary": 4,
+        "pronunciation_and_intelligibility": 6,
+        "communicative_interaction": 6
+      },
+      "total": 27,
+      "rationale": {
+        "fluency": "Sustains long turns and continues speaking even when searching for words, but frequent hesitation, repetition, pauses, and self-repair noticeably reduce smoothness.",
+        "coherence_and_organization": "Usually stays on the topic and provides examples, but ideas are often fragmented and difficult to organize because of word-retrieval and sentence-structure problems.",
+        "grammar_and_vocabulary": "Frequent errors affect tense, agreement, articles, prepositions, pronouns, word order, and word choice. Meaning is often recoverable but sometimes requires substantial interpretation.",
+        "pronunciation_and_intelligibility": "No pronunciation error is confirmed strongly enough to count as incorrect. Overall speech is often understandable, but some stretches require clarification, so intelligibility is not consistently effortless.",
+        "communicative_interaction": "Participates actively, responds to her partner, and returns questions such as 'And you?'. She remains engaged, though teacher clarification is needed during difficult stretches."
+      },
+      "key_evidence": [
+        "48.900s–100.600s and 465.000s–556.700s: sustains long turns with frequent hesitations and restructuring.",
+        "158.500s–226.100s: relevant response with noticeable word-retrieval difficulty.",
+        "590.400s–625.100s: teacher clarification sequence is needed before the meaning becomes clearer.",
+        "No teacher-confirmed pronunciation error currently counts against pronunciation."
+      ]
+    }
+  },
+  "teacher_review_required": true,
+  "final_pdf_allowed": false,
+  "note": "Scores are an evidence-based draft. Final rubric scores remain the teacher's decision."
+}
