@@ -47,7 +47,7 @@ test('players without a classroom session are reported to free mode even without
   assert.match(connectBlock,/if\(sessionCode\)return sessionApi\.connectRunner\(sessionCode,runnerSessionId,payload\);\s*return sessionApi\.connectFreeRunner\(runnerSessionId,payload\);/);
   assert.match(finishBlock,/if\(sessionCode\)return sessionApi\.finishRunner\(sessionCode,runnerSessionId,payload\);\s*return sessionApi\.finishFreeRunner\(runnerSessionId,payload\);/);
 
-  assert.match(game,/if\(sessionCode\)\{[\s\S]*?return data;\s*}\s*sessionData=\{status:'free',identitySource:youTeachIdentity\?'youteach':'local'\};\s*await sessionApi\.registerFreeRunnerPresence\(runnerSessionId,presenceData\);/);
+  assert.match(game,/if\(sessionCode\)\{[\s\S]*?return data;\s*}\s*sessionData=\{[\s\S]*?status:youTeachAssignmentContext\?'assignment-practice':'free'[\s\S]*?};\s*await sessionApi\.registerFreeRunnerPresence\(runnerSessionId,\{/);
 });
 
 test('Verb Runner entry point cache-busts the free-mode presence fix',()=>{
