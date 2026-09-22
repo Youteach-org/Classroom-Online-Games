@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import time
 from pathlib import Path
 from typing import Any
@@ -383,6 +384,10 @@ def _interaction_error_status_code(exc):
         error = body.get("error")
         if isinstance(error, dict) and isinstance(error.get("code"), int):
             return error["code"]
+
+    match = re.search(r"Error code:\\s*(\\d{3})\\b", str(exc))
+    if match:
+        return int(match.group(1))
     return None
 
 
