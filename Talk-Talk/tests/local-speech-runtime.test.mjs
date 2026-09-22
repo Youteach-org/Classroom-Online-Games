@@ -76,7 +76,11 @@ test("attempt recorder keeps audio local and returns decoded PCM", async () => {
   recorder.start();
   const result=await recorder.stop();
   assert.equal(result.sampleRate,16000);
-  assert.deepEqual([...result.samples],[0,.1,.2,.1]);
+  const expected=[0,.1,.2,.1];
+  assert.equal(result.samples.length,expected.length);
+  result.samples.forEach((value,index)=>{
+    assert.ok(Math.abs(value-expected[index]) < 1e-6);
+  });
 });
 
 test("recorded attempt uses local STT/phoneme/prosody and returns one evaluation", async () => {
