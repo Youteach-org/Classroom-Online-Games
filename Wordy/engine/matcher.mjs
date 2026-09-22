@@ -64,11 +64,11 @@ export function findMatches(board,bank){
   for(const [length,relationships] of bank.byLength.entries()){
     if(length<=board.columns){
       for(let row=0;row<board.rows;row++){
-        for(let startColumn=0;startColumn<=board.columns-length;startColumn++){
+        for(let columnStart=0;columnStart<=board.columns-length;columnStart++){
           const ids=[];
           let complete=true;
           for(let offset=0;offset<length;offset++){
-            const id=map[row][startColumn+offset];
+            const id=map[row][columnStart+offset];
             if(!id){complete=false;break;}
             ids.push(id);
           }
