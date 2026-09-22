@@ -196,10 +196,10 @@ function addShirtPanel(chest,hips){
   const center=chest.clone().lerp(hips,.31);
 
   const shape=new THREE.Shape();
-  shape.moveTo(-.105,.235);
-  shape.lineTo(.105,.235);
-  shape.lineTo(.145,-.215);
-  shape.lineTo(-.145,-.215);
+  shape.moveTo(-.092,.220);
+  shape.lineTo(.092,.220);
+  shape.lineTo(.128,-.205);
+  shape.lineTo(-.128,-.205);
   shape.closePath();
 
   const shirt=new THREE.Mesh(
@@ -280,18 +280,17 @@ function addGlove(hand,wrist,side){
 }
 
 function addCargoLeg(side,upper,knee,foot){
-  const sign=side==='L'?-1:1;
-
-  // Reference pants end around the middle of the calf.
+  // Start just above the knee to overlap the native shorts and avoid a skin gap.
+  const start=knee.clone().lerp(upper,.10);
   const end=knee.clone().lerp(foot,.48);
 
-  const dir=end.clone().sub(knee);
+  const dir=end.clone().sub(start);
   const len=dir.length();
   const leg=new THREE.Mesh(
-    new THREE.CylinderGeometry(.120,.137,len,26,3,false),
+    new THREE.CylinderGeometry(.132,.104,len,28,3,false),
     material(C.pants,.78)
   );
-  leg.position.copy(knee.clone().add(end).multiplyScalar(.5));
+  leg.position.copy(start.clone().add(end).multiplyScalar(.5));
   leg.quaternion.setFromUnitVectors(
     new THREE.Vector3(0,1,0),
     dir.clone().normalize()
@@ -299,24 +298,10 @@ function addCargoLeg(side,upper,knee,foot){
   leg.castShadow=true;
   runnerRoot.add(leg);
 
-  const cuff=rounded(.230,.058,.188,C.black,.020,.84);
+  const cuff=rounded(.200,.046,.158,C.black,.018,.84);
   cuff.position.copy(end);
   cuff.quaternion.copy(leg.quaternion);
   runnerRoot.add(cuff);
-
-  const pocketCenter=upper.clone().lerp(knee,.52);
-  const pocket=rounded(.105,.150,.042,C.pantsHi,.020,.80);
-  pocket.position.copy(pocketCenter);
-  pocket.position.x+=sign*.105;
-  pocket.position.z-=.045;
-  runnerRoot.add(pocket);
-
-  const tab=rounded(.022,.055,.018,C.red,.006,.72);
-  tab.position.copy(pocket.position);
-  tab.x+=sign*.068;
-  tab.y-=.018;
-  tab.z-=.024;
-  runnerRoot.add(tab);
 }
 
 function addBelt(){
@@ -373,12 +358,10 @@ function buildReferenceDetails(human){
   const RFoot=wpos(rFoot,new THREE.Vector3(.15,.036,-.077));
 
   addShirtPanel(chest,hips);
-  addInnerHood(neck);
   addGlove(LH,LW,'L');
   addGlove(RH,RW,'R');
   addCargoLeg('L',LUpper,LKnee,LFoot);
   addCargoLeg('R',RUpper,RKnee,RFoot);
-  addBelt();
 
   document.body.dataset.look='red-runner-static-v4';
 }
