@@ -3,7 +3,9 @@
 **Updated:** 2026-09-22  
 **Repository:** `Youteach-org/Classroom-Online-Games`  
 **Development branch:** `feature/wordy-game`  
-**Verified feature runtime/test HEAD:** `1a8e54ff87731953a35863f7f7d9798810134700`  
+**Final verification commit:** `3c6d594f476905dd8aefe5c204d6c057bff4e752`  
+**Promotion source feature HEAD:** `2c81e95c34c8bd8e5e893e31b01cf4cf39b2146a`  
+**Production commit (`main`):** `60d8d0df4b68b047dbf4e494c1542ef5f22652b3`  
 **Plan:** `docs/superpowers/plans/2026-09-21-wordy-discrete-grid-candy-swap.md`  
 **Spec:** `docs/superpowers/specs/2026-09-21-wordy-discrete-grid-swap-architecture.md`  
 **Ledger:** `docs/superpowers/progress/2026-09-21-wordy-discrete-grid-rebuild.md`
@@ -12,10 +14,10 @@
 
 The discrete-grid rebuild is the only authoritative Wordy implementation state.
 
-- Tasks 1–9 of the discrete-grid plan are implemented and verified.
-- Do **not** repeat Tasks 1–9.
-- Task 10 — production promotion of the verified discrete-grid runtime — is pending explicit user instruction.
-- Continue work in `feature/wordy-game` until production promotion is intentionally performed.
+- Tasks 1–10 of the discrete-grid plan are implemented, verified, and Task 10 is deployed.
+- Do **not** repeat Tasks 1–10.
+- The discrete-grid runtime is live on the canonical Classroom Online Games route.
+- Continue future development in `feature/wordy-game`; production currently points to the verified atomic runtime promotion on `main`.
 - The existing Classroom Online Games site remains the user-facing review destination after promotion:
   `https://classroom-online-games.pages.dev/Wordy/`
 - **Never use githack for Wordy.**
@@ -108,19 +110,21 @@ Fresh verification was performed from an isolated workspace reconstructed from t
   - the round either finishes by objective or remains immediately playable.
 - Task 9 also programmatically verifies generated boards have valid spans/bounds/full occupancy and at least four productive swaps across at least three rows.
 - Full suite with Task 9: **88/88 pass**.
-- `node --check Wordy/app.mjs` → exit 0.
+- Task 10 fresh verification workflow `35768528716` on commit `3c6d594f`: **88/88 pass**, 0 fail.
+- Task 10 `node --check Wordy/app.mjs` → exit 0.
+- Production deploy workflow `35768686972` completed **success** for exact main SHA `60d8d0df`.
+- Cloudflare deployment: `https://867f3ab8.classroom-online-games.pages.dev`.
+- Canonical-route live check workflow `35768813699` completed **success** and verified `/Wordy/`, `engine/tile-size.mjs` with `spanForWord`, and 12-column CSS.
 
 ## Publication state
 
-Historical publication and the new discrete-grid promotion are different things.
-
-- PR #46, the earlier Wordy validation prototype integration, **was merged** on 2026-09-21 with merge commit `41475ba7e9dd2c2e0f59b0f98658d2859ec20fef`.
-- `main` later received an earlier Wordy publication commit `a06cee78` and cache fix `339d5c53`.
-- The **new discrete-grid runtime on `feature/wordy-game` has not yet been promoted to production**.
-- Do not create another broad integration PR for the old prototype history.
-- Task 10 must copy only the verified Wordy runtime blobs needed by the live site to `main`; do not merge the entire feature branch wholesale.
-- After promotion, require the existing **Deploy Classroom Online Games to Cloudflare Pages** workflow to succeed for the exact production commit, then verify the canonical `/Wordy/` route.
-- Production promotion is a deliberate side effect and requires explicit user instruction.
+- PR #46, the earlier validation-prototype integration, was merged on 2026-09-21 with merge commit `41475ba7e9dd2c2e0f59b0f98658d2859ec20fef`.
+- The discrete-grid runtime was promoted atomically to `main` on 2026-09-22 as commit `60d8d0df4b68b047dbf4e494c1542ef5f22652b3`.
+- The promotion changed only Wordy runtime files; feature-branch docs, tests, devcontainer files, local-preview helpers, and unrelated history were not merged into `main`.
+- Existing workflow **Deploy Classroom Online Games to Cloudflare Pages**, run `35768686972`, deployed exact SHA `60d8d0df` successfully to project `classroom-online-games`.
+- Wrangler reported deployment complete at `https://867f3ab8.classroom-online-games.pages.dev`.
+- Independent live check run `35768813699` verified the canonical route `https://classroom-online-games.pages.dev/Wordy/` serves the discrete-grid runtime.
+- Temporary Task 10 verification workflows were removed from the feature branch after use.
 
 ## Superseded guidance
 
@@ -138,8 +142,9 @@ Any older handoff text or history that conflicts with this document is supersede
 
 ## Exact next action
 
-Do not reimplement the discrete-grid rebuild.
+Tasks 1–10 are complete. Do not repeat the rebuild or production promotion.
 
-The next planned action is **Task 10: promote the verified discrete-grid Wordy runtime to `main` and verify the existing Cloudflare deployment**, but perform that only after explicit user instruction to publish/deploy.
+The canonical production review route is:
+`https://classroom-online-games.pages.dev/Wordy/`
 
-Until then, `feature/wordy-game` is the source of truth for the rebuilt runtime.
+Next work should be driven by user playtesting or a new explicitly requested Wordy change. Use `feature/wordy-game` for new development and preserve the discrete-grid architecture unless a new approved spec supersedes it.
