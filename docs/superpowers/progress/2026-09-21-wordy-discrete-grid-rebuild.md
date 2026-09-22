@@ -34,3 +34,7 @@
 - Task 6 RED: tile-ID tap/swipe requests were empty under the cell-based input, CSS still used flex rows, and renderer attempted `state.board.forEach` on the new board object.
 - **Task 6 complete:** one 12×7 CSS Grid, direct tile placement from `row/startColumn/span`, ready/cross highlighting by `tileIds`, and tap/swipe input resolved through board geometry callbacks. Focused verification: **7/7 pass**.
 - Task 6 GitHub commits: `2896008`, `ff9fd87`, `565ae01`, `e467006`, `bd63c53`.
+
+- Task 7 RED: `swap-animation.mjs` did not exist and `app.mjs` still routed input through the old non-animated path.
+- **Task 7 complete:** accepted swaps use FLIP from pre-swap to rendered geometry, rejected productive attempts animate forward and rebound, interaction is locked during swap motion, and Web Animations absence degrades safely. Focused verification: **13/13 pass** plus `node --check Wordy/app.mjs` exit 0.
+- Task 7 GitHub commits: `32beeed`, `3fbab8d`, `b9f562b`.
