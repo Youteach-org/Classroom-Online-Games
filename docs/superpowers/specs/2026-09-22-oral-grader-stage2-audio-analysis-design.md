@@ -351,3 +351,19 @@ Stage 2 is acceptable for this pair when:
 After the teacher reviews the Stage-2 evidence, OG may proceed to rubric scoring and Stage 3 PDF generation.
 
 No final PDF should be generated before the Stage-2 evidence has been reviewed.
+
+
+## 20. Intended-language and reporting rule
+
+The `intended` field is a semantic reconstruction, not a literal correction of the student's original syntax.
+
+When Stage 2 supplies an `intended` value:
+
+- it must be natural, idiomatic English that expresses the student's most probable meaning;
+- it must not preserve Spanish word order, literal translation artifacts, or unnatural calques merely because they resemble the heard utterance;
+- it must not be used to cosmetically rewrite Stage 1;
+- when the probable natural-English meaning cannot be inferred confidently, `intended` must be null and `intent_confidence` must be `uncertain`.
+
+Teacher-facing reports must not print sentence-level `intended` rewrites for items whose pronunciation verdict is `acceptable`. The report may show `heard -> intended` only when it is necessary to explain a clearly supported pronunciation error or an explicitly uncertain pronunciation case.
+
+For the Paul/Paulina case, the existing model-generated sentence-level intended rewrites are not teacher-approved corrections and must not be reproduced in the final rubric/PDF.
