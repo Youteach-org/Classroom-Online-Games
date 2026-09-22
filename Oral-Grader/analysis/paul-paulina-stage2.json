@@ -1,0 +1,498 @@
+{
+  "project": "Oral-Grader",
+  "stage": 2,
+  "pair_slug": "paul-paulina",
+  "model": "gemini-3.5-flash-lite",
+  "stage1_source": "Oral-Grader/transcripts/paul-paulina-stage1.json",
+  "stage1_review": "Oral-Grader/reviews/paul-paulina-stage1-review.json",
+  "speaker_mapping": {
+    "spk:0": "Teacher",
+    "spk:1": "Paul",
+    "spk:2": "Paulina"
+  },
+  "students": {
+    "Paul": {
+      "incorrect_pronunciation_count": 1,
+      "acceptable_sample_count": 7,
+      "uncertain_count": 0,
+      "grammar_patterns": [
+        "Subject-verb agreement error ('you was' instead of 'you were'); preposition usage ('staying a' instead of 'staying in a').",
+        "Repetitive and non-standard infinitive usage ('for stop for help me for studying more').",
+        "Subject-verb agreement ('He have'); article misuse ('the most great'); adjective superlative error ('most great' instead of 'greatest').",
+        "Article misuse ('the soccer'); missing preposition ('a lot goals'); subject-verb agreement ('he have'); possessive pronoun error ('your career' instead of 'his career').",
+        "Article/determiner error ('the another player'); verb choice ('left a yellow card' instead of 'gave/showed a yellow card'); lexical error ('my angry past' instead of 'my anger passed').",
+        "Determiner/plural error ('the last Mondays'); noun adjunct order ('teacher history' instead of 'history teacher'); article misuse ('a homework'); auxiliary-verb error ('didn't had' instead of 'didn't have'); article misuse ('a a lot time').",
+        "Similar to earlier occurrence: article/determiner error ('the another player'); verb choice ('left a yellow card'); lexical error ('my angry pass' instead of 'my anger passed')."
+      ],
+      "vocabulary_patterns": [
+        "'appointment' used instead of 'appointment' in a non-standard way or misspoken.",
+        "'qualification' used instead of 'grade/GPA'; 'temperament' used in a somewhat non-standard context.",
+        "'arbit' used for referee/arbitrator."
+      ],
+      "malformed_form_patterns": [],
+      "transcription_notes": [
+        "Teacher-confirmed audio evidence overrides conflicting model/transcript normalization."
+      ],
+      "fluency_observations": [
+        "Paul: Speaks with moderate pace, occasional hesitations, self-corrections, and frequent grammatical restructuring."
+      ],
+      "teacher_interventions": [
+        {
+          "student": "Paul",
+          "start_offset": "234.700s",
+          "end_offset": "235s",
+          "kind": "clarification",
+          "description": "Teacher asks 'You what?' to prompt continuation or clarification."
+        },
+        {
+          "student": "Paul",
+          "start_offset": "399.500s",
+          "end_offset": "400.900s",
+          "kind": "word_supply",
+          "description": "Teacher supplies/confirms the word 'father'."
+        }
+      ],
+      "notes_for_rubric": []
+    },
+    "Paulina": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 8,
+      "uncertain_count": 0,
+      "grammar_patterns": [
+        "Missing preposition ('When I was a difficult moment' instead of 'When I was in a difficult moment').",
+        "Preposition missing ('was a difficult moment'); tense usage ('want help' instead of 'wanted to help'); awkward phrasing ('shared be shared to his').",
+        "Pronoun mismatch ('it's a good person' instead of 'she is a good person'); article misuse ('a my mayor'); missing object pronoun in 'motivates [me]'; non-standard clause structure ('for I would I be').",
+        "Non-standard verb form ('have passed'); uncount noun pluralization/misuse ('temperature' instead of 'temper'); non-standard adjective/verb form ('angries' instead of 'gets angry'); preposition misuse ('for all' instead of 'at everything').",
+        "Word order / structure error in introduction ('Me me too admire'); pronoun misuse ('it's a handsome person' instead of 'he is'); missing preposition ('a lot movies' instead of 'a lot of movies').",
+        "Pluralization mismatch ('a lot of stressful situation'); pronoun/copula agreement ('it one stressful situation... it's'); tense inconsistency ('study', 'present', 'forget'); verb-noun mismatch ('my shirt get up motivation'); subject-copula agreement ('I be so nervous person'); indirect object error ('say me' instead of 'say to me'); word order and fragment issues.",
+        "Reflexive/transitive error ('I stressed me' instead of 'stressed me out'); noun modifier error ('teacher of cow' - likely misspoken 'calculus' or similar).",
+        "Missing copula ('My teacher bald'); indirect object error ('say me'); non-standard phrase structure ('when the one person it's say say say for the you lost the temper'); auxiliary/modal error ('you show' instead of 'you should'); preposition/verb idiom error ('get on your bed' instead of 'go to bed'); adjective usage ('you sleepy' instead of 'you are sleepy')."
+      ],
+      "vocabulary_patterns": [
+        "'mayor' used likely intending 'motivator'.",
+        "'temperature' used instead of 'temper'.",
+        "'cow' used likely in place of a subject name or misspoken term."
+      ],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Paulina: Exhibits noticeable hesitation, frequent pauses ('um', 'uh', repetition of words), self-corrections, and difficulty retrieving vocabulary, leading to fragmented utterances."
+      ],
+      "teacher_interventions": [
+        {
+          "student": "Paulina",
+          "start_offset": "43s",
+          "end_offset": "44.500s",
+          "kind": "clarification",
+          "description": "Teacher prompts clarification on the pronoun 'You?'."
+        },
+        {
+          "student": "Paulina",
+          "start_offset": "612.100s",
+          "end_offset": "625.100s",
+          "kind": "clarification",
+          "description": "Teacher asks clarifying questions ('Cow what?', 'Playing a doles?', 'Who is bald?') to help Paulina specify her teacher."
+        }
+      ],
+      "notes_for_rubric": []
+    }
+  },
+  "evidence": [
+    {
+      "speaker": "Paul",
+      "start_offset": "23.200s",
+      "end_offset": "29.600s",
+      "stage1_heard": "Who helped you when you was staying a difficult moment?",
+      "reviewed_heard": "Who helped you when you was staying a difficult moment?",
+      "intended": "Who helped you when you were staying in a difficult moment?",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Subject-verb agreement error ('you was' instead of 'you were'); preposition usage ('staying a' instead of 'staying in a').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paulina",
+      "start_offset": "31.400s",
+      "end_offset": "42.800s",
+      "stage1_heard": "When I was a difficult moment I when I You.",
+      "reviewed_heard": "When I was a difficult moment I when I You.",
+      "intended": "When I was in a difficult moment, I... You?",
+      "intent_confidence": "medium",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Missing preposition ('When I was a difficult moment' instead of 'When I was in a difficult moment').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paulina",
+      "start_offset": "48.900s",
+      "end_offset": "100.600s",
+      "stage1_heard": "When when for example my friend was a difficult moment I want help um shared be shared to his uh maybe in some case I say say um I say with his um I in some case I I get to his uh And you?",
+      "reviewed_heard": "When when for example my friend was a difficult moment I want help um shared be shared to his uh maybe in some case I say say um I say with his um I in some case I I get to his uh And you?",
+      "intended": "When, for example, my friend was in a difficult moment, I wanted to help... share... to be shared with him... maybe in some cases I say... I talk with him... in some case I get to him... And you?",
+      "intent_confidence": "medium",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Preposition missing ('was a difficult moment'); tense usage ('want help' instead of 'wanted to help'); awkward phrasing ('shared be shared to his').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "102.100s",
+      "end_offset": "132.400s",
+      "stage1_heard": "Um my sister because when I lost one year of secondary my my father didn't help me uh for stop for help me for studying more. But my sister talked with my father and my father appointment is decision.",
+      "reviewed_heard": "Um my sister because when I lost one year of secondary my my father didn't help me uh for stop for help me for studying more. But my sister talked with my father and my father appointment is decision.",
+      "intended": "Um, my sister, because when I lost one year of secondary school, my father didn't help me... to stop... to help me study more. But my sister talked with my father, and my father appointed... his decision.",
+      "intent_confidence": "medium",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Repetitive and non-standard infinitive usage ('for stop for help me for studying more').",
+      "vocabulary_note": "'appointment' used instead of 'appointment' in a non-standard way or misspoken.",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paulina",
+      "start_offset": "158.500s",
+      "end_offset": "226.100s",
+      "stage1_heard": "I admire my mom because because I think it's a good person. My mom helps a good person. My mom it's a my mayor because because is a my example for um for um me maybe I I forget the word but maybe it's a my mom my mom motivate to step on more for for I would I I I be um uh um better person.",
+      "reviewed_heard": "I admire my mom because because I think it's a good person. My mom helps a good person. My mom it's a my mayor because because is a my example for um for um me maybe I I forget the word but maybe it's a my mom my mom motivate to step on more for for I would I I I be um uh um better person.",
+      "intended": "I admire my mom because I think she is a good person. My mom helps... My mom is my... mayor? [motivator?] because she is my example for me... maybe I forget the word, but my mom motivates me to step up more so that I can be a better person.",
+      "intent_confidence": "medium",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Pronoun mismatch ('it's a good person' instead of 'she is a good person'); article misuse ('a my mayor'); missing object pronoun in 'motivates [me]'; non-standard clause structure ('for I would I be').",
+      "vocabulary_note": "'mayor' used likely intending 'motivator'.",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "241.700s",
+      "end_offset": "300.200s",
+      "stage1_heard": "Because uh he is very intelligent. He have a lot attitudes uh when he left to the high school he had uh uh the most great uh classmate because he he lived with 9.8 the finally qualification and he and he have a lot temperament and he is very um",
+      "reviewed_heard": "Because uh he is very intelligent. He have a lot attitudes uh when he left to the high school he had uh uh the most great uh classmate because he he lived with 9.8 the finally qualification and he and he have a lot temperament and he is very um",
+      "intended": "Because he is very intelligent. He has a lot of attitudes... when he left high school, he had the greatest... classmate? [grades] because he graduated with 9.8 as final qualification, and he has a lot of temperament, and he is very...",
+      "intent_confidence": "medium",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Subject-verb agreement ('He have'); article misuse ('the most great'); adjective superlative error ('most great' instead of 'greatest').",
+      "vocabulary_note": "'qualification' used instead of 'grade/GPA'; 'temperament' used in a somewhat non-standard context.",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paulina",
+      "start_offset": "307.100s",
+      "end_offset": "326.700s",
+      "stage1_heard": "I think my mom and my mom have passed uh bad temperature temperature because because because she always angries for all.",
+      "reviewed_heard": "I think my mom and my mom have passed uh bad temperature temperature because because because she always angries for all.",
+      "intended": "I think my mom... and my mom has had a bad temper... because she is always angry about everything.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Non-standard verb form ('have passed'); uncount noun pluralization/misuse ('temperature' instead of 'temper'); non-standard adjective/verb form ('angries' instead of 'gets angry'); preposition misuse ('for all' instead of 'at everything').",
+      "vocabulary_note": "'temperature' used instead of 'temper'.",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "329.400s",
+      "end_offset": "355.600s",
+      "stage1_heard": "Uh and I admire uh Cristiano Ronaldo because I love the soccer and and he scored a lot goals and he have five Ballon d'Ors. Uh he have 985 goals in your career uh",
+      "reviewed_heard": "Uh and I admire uh Cristiano Ronaldo because I love the soccer and and he scored a lot goals and he have five Ballon d'Ors. Uh he have 985 goals in your career uh",
+      "intended": "And I admire Cristiano Ronaldo because I love soccer, and he has scored a lot of goals, and he has five Ballon d'Ors. He has 985 goals in his career...",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Article misuse ('the soccer'); missing preposition ('a lot goals'); subject-verb agreement ('he have'); possessive pronoun error ('your career' instead of 'his career').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paulina",
+      "start_offset": "358.500s",
+      "end_offset": "382s",
+      "stage1_heard": "Me me too admire a famous person but I admire I admire uh Tom Holland because I think Tom Holland it's a handsome person. Tom Holland has a lot uh a lot movies and he I think he is a good person in general.",
+      "reviewed_heard": "Me me too admire a famous person but I admire I admire uh Tom Holland because I think Tom Holland it's a handsome person. Tom Holland has a lot uh a lot movies and he I think he is a good person in general.",
+      "intended": "Me too, I admire a famous person, but I admire... Tom Holland, because I think Tom Holland is a handsome person. Tom Holland has a lot of movies, and I think he is a good person in general.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Word order / structure error in introduction ('Me me too admire'); pronoun misuse ('it's a handsome person' instead of 'he is'); missing preposition ('a lot movies' instead of 'a lot of movies').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "408.700s",
+      "end_offset": "458.100s",
+      "stage1_heard": "Uh uh stressful situation um when I was uh playing a soccer match and my friend kicked the leg of the another uh player and the arbit arbit uh left uh uh yellow card uh and I was very angry uh but then I the my angry past uh",
+      "reviewed_heard": "Uh uh stressful situation um when I was uh playing a soccer match and my friend kicked the leg of the another uh player and the arbit arbit uh left uh uh yellow card uh and I was very angry uh but then I the my angry past uh",
+      "intended": "A stressful situation: when I was playing a soccer match and my friend kicked the leg of another player, and the referee... gave a yellow card. I was very angry, but then my anger passed.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Article/determiner error ('the another player'); verb choice ('left a yellow card' instead of 'gave/showed a yellow card'); lexical error ('my angry past' instead of 'my anger passed').",
+      "vocabulary_note": "'arbit' used for referee/arbitrator.",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paulina",
+      "start_offset": "465s",
+      "end_offset": "556.700s",
+      "stage1_heard": "Uh I think a lot of stressful stressful situation but it one stressful situation for me it's for example the oral test because I study but in the moment I present there I present the oral test I forget all uh I felt so nervous uh my hands shake a lot my body shake my shirt my shirt get up motivation and I think in general uh in in general I be so uh nervous person and other stressful situation it's for example when my friends say me you can um you can whatever else things I in in this in this moment I think I lost my temper because I I say you can never say me words um and I'm angry and I'm angry with my friend.",
+      "reviewed_heard": "Uh I think a lot of stressful stressful situation but it one stressful situation for me it's for example the oral test because I study but in the moment I present there I present the oral test I forget all uh I felt so nervous uh my hands shake a lot my body shake my shirt my shirt get up motivation and I think in general uh in in general I be so uh nervous person and other stressful situation it's for example when my friends say me you can um you can whatever else things I in in this in this moment I think I lost my temper because I I say you can never say me words um and I'm angry and I'm angry with my friend.",
+      "intended": "I think of a lot of stressful situations, but one stressful situation for me is, for example, the oral test, because I study, but in the moment I present there, I present the oral test, I forget everything. I feel so nervous, my hands shake a lot, my body shakes, my shirt gets... [wet/sweaty?], and I think in general I am a very nervous person. And another stressful situation is, for example, when my friend says to me 'you can... whatever else things', in this moment I think I lose my temper because I say 'you can never say those words to me', and I'm angry with my friend.",
+      "intent_confidence": "medium",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Pluralization mismatch ('a lot of stressful situation'); pronoun/copula agreement ('it one stressful situation... it's'); tense inconsistency ('study', 'present', 'forget'); verb-noun mismatch ('my shirt get up motivation'); subject-copula agreement ('I be so nervous person'); indirect object error ('say me' instead of 'say to me'); word order and fragment issues.",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "558.400s",
+      "end_offset": "588.600s",
+      "stage1_heard": "Uh another stressful situation for me is uh the last Mondays my my teacher history uh gave uh a homework for tomorrow and I was very stressed because I I didn't had a a lot time.",
+      "reviewed_heard": "Uh another stressful situation for me is uh the last Mondays my my teacher history uh gave uh a homework for tomorrow and I was very stressed because I I didn't had a a lot time.",
+      "intended": "Another stressful situation for me is last Monday. My history teacher gave homework for tomorrow, and I was very stressed because I didn't have a lot of time.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Determiner/plural error ('the last Mondays'); noun adjunct order ('teacher history' instead of 'history teacher'); article misuse ('a homework'); auxiliary-verb error ('didn't had' instead of 'didn't have'); article misuse ('a a lot time').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paulina",
+      "start_offset": "590.400s",
+      "end_offset": "611.500s",
+      "stage1_heard": "Um I I sorry. Other situation I stressed I stressed me it's uh for example the last Monday too uh my teacher my teacher of cow.",
+      "reviewed_heard": "Um I I sorry. Other situation I stressed I stressed me it's uh for example the last Monday too uh my teacher my teacher of cow.",
+      "intended": "I'm sorry. Another situation that stressed me out is, for example, last Monday too, my teacher... my teacher of... [calculus?]",
+      "intent_confidence": "low",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Reflexive/transitive error ('I stressed me' instead of 'stressed me out'); noun modifier error ('teacher of cow' - likely misspoken 'calculus' or similar).",
+      "vocabulary_note": "'cow' used likely in place of a subject name or misspoken term.",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paulina",
+      "start_offset": "625.200s",
+      "end_offset": "714.500s",
+      "stage1_heard": "Yes, bald. My teacher bald. Uh my bald teacher uh say me always is um so like um it's a when the one person it's say say say for the you lost the temper and my teacher say me you you you sleep a a good because because uh the last class I I I in the class and the teacher say me you you show you show uh you show you show get get on your bed uh get on your bed early because because in the class you um you sleepy.",
+      "reviewed_heard": "Yes, bald. My teacher bald. Uh my bald teacher uh say me always is um so like um it's a when the one person it's say say say for the you lost the temper and my teacher say me you you you sleep a a good because because uh the last class I I I in the class and the teacher say me you you show you show uh you show you show get get on your bed uh get on your bed early because because in the class you um you sleepy.",
+      "intended": "Yes, bald. My bald teacher. My bald teacher always tells me... when a person loses their temper, my teacher says to me 'you should sleep well because in the last class I was in class and the teacher said to me 'you should get on your bed early / go to bed early' because in class you are sleepy.'",
+      "intent_confidence": "medium",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Missing copula ('My teacher bald'); indirect object error ('say me'); non-standard phrase structure ('when the one person it's say say say for the you lost the temper'); auxiliary/modal error ('you show' instead of 'you should'); preposition/verb idiom error ('get on your bed' instead of 'go to bed'); adjective usage ('you sleepy' instead of 'you are sleepy').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "399.900s",
+      "end_offset": "400.900s",
+      "stage1_heard": "fires",
+      "reviewed_heard": "fires",
+      "intended": "fathers",
+      "intent_confidence": "high",
+      "pronunciation": "incorrect",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": "Teacher-confirmed evidence: student produced 'fires' instead of 'fathers'.",
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1",
+        "model"
+      ],
+      "model_origin": true,
+      "superseded_by_teacher_evidence": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "684.900s",
+      "end_offset": "740.200s",
+      "stage1_heard": "Uh as a stressful situation and when I was playing in a soccer match and my friend kicked the leg of the another player and the referee uh left uh a yellow card and I was very angry but then I the my angry pass",
+      "reviewed_heard": "Uh as a stressful situation and when I was playing in a soccer match and my friend kicked the leg of the another player and the referee uh left uh a yellow card and I was very angry but then I the my angry pass",
+      "intended": "As a stressful situation: when I was playing in a soccer match and my friend kicked the leg of another player, and the referee gave a yellow card, and I was very angry, but then my anger passed.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Similar to earlier occurrence: article/determiner error ('the another player'); verb choice ('left a yellow card'); lexical error ('my angry pass' instead of 'my anger passed').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": null,
+      "end_offset": null,
+      "stage1_heard": null,
+      "reviewed_heard": "fires",
+      "intended": "fathers",
+      "intent_confidence": "high",
+      "pronunciation": "incorrect",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": "Gemini normalized this production toward 'father/fathers'; preserve the teacher-confirmed heard form 'fires' for Stage 2 pronunciation analysis.",
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": "Teacher-confirmed audio evidence overrides conflicting model/transcript normalization.",
+      "evidence_source": [
+        "teacher-confirmed",
+        "audio"
+      ],
+      "teacher_override": true,
+      "model_origin": false,
+      "teacher_status": "teacher-confirmed-from-audio"
+    }
+  ],
+  "fluency_observations": [
+    "Paul: Speaks with moderate pace, occasional hesitations, self-corrections, and frequent grammatical restructuring.",
+    "Paulina: Exhibits noticeable hesitation, frequent pauses ('um', 'uh', repetition of words), self-corrections, and difficulty retrieving vocabulary, leading to fragmented utterances."
+  ],
+  "teacher_interventions": [
+    {
+      "student": "Paulina",
+      "start_offset": "43s",
+      "end_offset": "44.500s",
+      "kind": "clarification",
+      "description": "Teacher prompts clarification on the pronoun 'You?'."
+    },
+    {
+      "student": "Paul",
+      "start_offset": "234.700s",
+      "end_offset": "235s",
+      "kind": "clarification",
+      "description": "Teacher asks 'You what?' to prompt continuation or clarification."
+    },
+    {
+      "student": "Paul",
+      "start_offset": "399.500s",
+      "end_offset": "400.900s",
+      "kind": "word_supply",
+      "description": "Teacher supplies/confirms the word 'father'."
+    },
+    {
+      "student": "Paulina",
+      "start_offset": "612.100s",
+      "end_offset": "625.100s",
+      "kind": "clarification",
+      "description": "Teacher asks clarifying questions ('Cow what?', 'Playing a doles?', 'Who is bald?') to help Paulina specify her teacher."
+    }
+  ],
+  "scoring_status": "evidence_only_not_final_rubric"
+}
