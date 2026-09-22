@@ -14,6 +14,6 @@ jobs:
         with:
           node-version: 20
       - name: Run focused Wordy tests
-        run: node --test Wordy/tests/matcher.test.mjs Wordy/tests/controller.test.mjs Wordy/tests/review-telemetry.test.mjs
+        run: node --test Wordy/tests/generator.test.mjs Wordy/tests/refill.test.mjs Wordy/tests/levels.test.mjs
       - name: Syntax check
         run: node --check Wordy/app.mjs
