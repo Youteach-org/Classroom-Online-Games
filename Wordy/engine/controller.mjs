@@ -1,10 +1,14 @@
 import { areSwapNeighbors, cloneBoard, createBoard } from './board.mjs';
+import { spanForWord, normalizeWord } from './tile-size.mjs';
 import { findMatches, findCrossings } from './matcher.mjs';
-import { findImmediateScoringMoves, createControlledBoard } from './generator.mjs';
+import { resolvePlayerActivation, CascadeLimitError } from './resolution.mjs';
+import { findImmediateScoringMoves, createControlledBoard, recoverDeadBoard } from './generator.mjs';
 import { captureMissedOpportunity, buildRoundReview } from './review.mjs';
 import { createTelemetryStore } from './telemetry.mjs';
+import { buildResolutionEvents } from './resolution-events.mjs';
 
 const DISCOVERED_KEY='wordy.prototype.discovered.v1';
+const FALLBACK_BY_SPAN={1:'OF',2:'LOOK',3:'COFFEE',4:'ATTENTION'};
 
 function cloneMatch(match){
   return {...match,tileIds:[...(match.tileIds??[])],tokens:[...(match.tokens??[])]};
@@ -13,12 +17,14 @@ function readDiscovered(storage){
   if(!storage?.getItem)return new Set();
   try{const value=JSON.parse(storage.getItem(DISCOVERED_KEY)||'[]');return new Set(Array.isArray(value)?value:[]);}catch{return new Set();}
 }
+function persistDiscovered(storage,ids){if(!storage?.setItem)return;try{storage.setItem(DISCOVERED_KEY,JSON.stringify([...ids]));}catch{}}
 function sameSwap(a,b){
   return !!a&&!!b&&(
     (a.fromTileId===b.fromTileId&&a.toTileId===b.toTileId)||
     (a.fromTileId===b.toTileId&&a.toTileId===b.fromTileId)
   );
 }
+function productiveRows(board,moves){const rows=new Set();for(const move of moves){for(const id of [move.swap.fromTileId,move.swap.toTileId]){const tile=board.tiles.find(t=>t.id===id);if(tile)rows.add(tile.row);}}return rows.size;}
 function objectiveComplete(level,state){
   switch(level.goal?.type){
     case 'score': return state.score>=level.goal.target;
@@ -30,12 +36,13 @@ function objectiveComplete(level,state){
   }
 }
 
-export function createGameController({bank,levels,initialLevelId,rng=Math.random,storage=null}={}){
+export function createGameController({bank,levels,initialLevelId,rng=Math.random,storage=null,refillWord=null}={}){
   if(!bank?.byId)throw new Error('relationship bank is required');
   if(!Array.isArray(levels)||levels.length===0)throw new Error('levels are required');
   const telemetry=createTelemetryStore({storage});
   const listeners=new Set();
   const discoveredIds=readDiscovered(storage);
+  let refillCounter=0;
   let levelIndex=Math.max(0,levels.findIndex(level=>level.id===initialLevelId));
   let currentLevel=null;
   let state=null;
@@ -56,8 +63,18 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     };
   }
   function emit(){const view=snapshot();for(const listener of listeners)listener(view);}
+  function authoredBoard(level){return createBoard(level.boardRows,{columns:12});}
+  function fallbackBoard(){
+    for(const level of [currentLevel,...levels]){
+      if(!level)continue;
+      const board=authoredBoard(level);
+      const moves=findImmediateScoringMoves(board,bank);
+      if(moves.length>=4&&productiveRows(board,moves)>=3)return board;
+    }
+    return authoredBoard(currentLevel);
+  }
   function initialBoard(level){
-    const authored=createBoard(level.boardRows,{columns:12});
+    const authored=authoredBoard(level);
     if(!level.generated)return authored;
     return createControlledBoard({bank,rows:authored.rows,columns:authored.columns,rng,minScoringMoves:4,minProductiveRows:3,fallbackBoard:authored});
   }
@@ -129,9 +146,70 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     return {status:'accepted',...resultBase};
   }
 
+  function contextualWords(span){
+    const present=new Set(state.board.tiles.map(tile=>tile.word));
+    const connected=[],fallback=[];
+    for(const relation of bank.byId.values())for(const token of relation.tokens){
+      if(spanForWord(token)!==span)continue;
+      fallback.push(token);
+      if(relation.tokens.some(word=>present.has(word)))connected.push(token);
+    }
+    return connected.length?connected:fallback;
+  }
+  function chooseRefillWord(span){
+    if(typeof refillWord==='function'){
+      const custom=normalizeWord(refillWord({span,state:snapshot(),bank,rng}));
+      if(custom)return custom;
+    }
+    const words=contextualWords(span);
+    return words.length?words[Math.floor(rng()*words.length)]:FALLBACK_BY_SPAN[span];
+  }
+  function refillTile({span,row,startColumn}){return {id:'refill-'+(++refillCounter),word:chooseRefillWord(span),row,startColumn};}
+  function recoverIfDead(){
+    const recovered=recoverDeadBoard({board:state.board,bank,rng,fallbackBoard:fallbackBoard(),minScoringMoves:4,minProductiveRows:3});
+    if(recovered.reset){state.board=recovered.board;refreshReady();telemetry.record('dead-board-reset',{levelId:state.levelId});logReady();}
+  }
+  function safeCascadeRecovery(){
+    state.board=createControlledBoard({bank,rows:state.board.rows,columns:state.board.columns,rng,minScoringMoves:4,minProductiveRows:3,fallbackBoard:fallbackBoard()});
+    refreshReady();telemetry.record('dead-board-reset',{levelId:state.levelId,reason:'cascade-limit'});logReady();
+  }
+  function applyResolutionStats(result){
+    state.score+=result.totalScore;
+    const first=result.generations[0];
+    state.bestBatch=Math.max(state.bestBatch,first?.matches?.length??0);
+    for(const generation of result.generations){
+      state.bestCascade=Math.max(state.bestCascade,generation.cascadeDepth??0);
+      state.crossCount+=generation.score?.crossCount??0;
+      for(const match of generation.matches??[])state.longestRelation=Math.max(state.longestRelation,match.tileIds?.length??0);
+      if((generation.cascadeDepth??0)>0)telemetry.record('cascade',{depth:generation.cascadeDepth,relationshipIds:generation.matches.map(match=>match.relationshipId)});
+    }
+    for(const id of result.newlyDiscoveredIds){discoveredIds.add(id);state.discoveredIds.add(id);roundNewIds.add(id);}
+    persistDiscovered(storage,discoveredIds);
+  }
   function pop(){
-    // Task 5 reconnects this to the tile-centric resolution engine.
-    return false;
+    if(state.phase!=='playing'||state.readyMatches.length===0)return false;
+    const readyCount=state.readyMatches.length;
+    state.phase='resolving';emit();
+    telemetry.record('pop',{readyCount,movesLeft:state.movesLeft});
+    try{
+      const result=resolvePlayerActivation({board:state.board,bank,discoveredIds:state.discoveredIds,refillTile});
+      state.board=result.board;
+      applyResolutionStats(result);
+      state.resolutionEvents=buildResolutionEvents(result);
+      state.eventLabel=result.generations.length>1?`COMBO ×${result.generations.length}`:(result.generations[0]?.score?.crossCount>0?'CROSS!':(result.newlyDiscoveredIds.length?'NEW!':''));
+      refreshReady();
+    }catch(error){
+      if(!(error instanceof CascadeLimitError)){state.phase='playing';emit();throw error;}
+      telemetry.record('cascade-limit',{levelId:state.levelId});
+      state.resolutionEvents=[];
+      safeCascadeRecovery();
+      state.eventLabel='BOARD RESET';
+    }
+    if(objectiveComplete(currentLevel,state))finishRound(true);
+    else if(state.movesLeft<=0)finishRound(false);
+    else{state.phase='playing';recoverIfDead();}
+    emit();
+    return true;
   }
   function replay(){telemetry.record('level-replay',{levelId:state.levelId,score:state.score});loadLevel(levelIndex);emit();return true;}
   function abandon(){if(state.phase==='result')return false;telemetry.record('level-abandon',{levelId:state.levelId,score:state.score,movesLeft:state.movesLeft,phase:state.phase});return true;}
