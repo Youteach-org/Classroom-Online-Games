@@ -168,13 +168,18 @@ Example:
 
 ### 6.2 Vertical relationship
 
-For visual and logical clarity, a vertical relationship requires all participating tiles to share the same footprint:
-- same `startColumn`;
-- same `span`;
-- consecutive rows;
-- correct token order from top to bottom.
+Vertical **matching** is less restrictive than vertical **swapping**.
 
-This keeps a vertical phrase visually columnar rather than zig-zagging through partially overlapping blocks.
+A vertical relationship requires:
+- consecutive rows;
+- correct token order from top to bottom;
+- at least one microcolumn that is occupied by every participating tile.
+
+Equivalently, the intersection of the participating tile footprints must be non-empty.
+
+This allows mixed-width phrases such as `TAKE / A / BREAK` to exist vertically while still reading as one visually continuous vertical stack.
+
+Vertical **swapping** remains stricter: two tiles can swap vertically only when their complete footprints are identical.
 
 ### 6.3 Crossings
 
@@ -212,16 +217,20 @@ A span-3 tile cannot fall if any of its three destination microcells is occupied
 
 ## 8. Refill
 
-After gravity stabilizes, refill operates on empty microcell runs from the top.
+After gravity stabilizes, refill operates on every remaining horizontal empty run.
+
+Rigid multi-cell gravity can leave cavities below wider supported tiles; those cavities must not remain permanently empty. Logical refill therefore packs each remaining empty run in place.
 
 Because span 1 exists, every positive-width empty run is fillable.
 
 Refill:
 - chooses only spans 1–4;
 - never overlaps existing occupancy;
-- prefers word sizes that exactly tile the available run;
+- uses a combination of spans whose total width exactly equals the empty run;
 - uses controlled lexical generation rather than unconstrained random words;
 - continues until all stable rows are fully packed.
+
+Presentation may animate newly created blocks entering from above or fading/dropping into their run, but the engine does not pretend that a block passed through occupied geometry.
 
 The generator should avoid visually pathological rows, such as excessive runs of span-1 tiles.
 
@@ -380,9 +389,9 @@ Implementation is not complete until tests prove at least:
 7. a rebounded swap consumes no move;
 8. a productive swap remains and consumes exactly one move;
 9. horizontal relations can contain mixed spans;
-10. vertical relations require equal footprint;
+10. vertical relations require consecutive rows and a non-empty shared microcolumn intersection;
 11. a span-3 tile falls only when all three cells below are empty;
-12. refill can close every empty run;
+12. refill can close every empty run, including cavities that rigid gravity cannot clear;
 13. crossings still score correctly;
 14. global POP still resolves all ready relationships;
 15. generated boards meet the productive-opportunity floor;
