@@ -5,10 +5,9 @@ function qs(root,selector){
 function readyUsage(matches){
   const usage=new Map();
   for(const match of matches??[]){
-    for(const cell of match.cells??[]){
-      const key=`${cell.row}:${cell.col}`;
-      if(!usage.has(key))usage.set(key,[]);
-      usage.get(key).push(match);
+    for(const tileId of match.tileIds??[]){
+      if(!usage.has(tileId))usage.set(tileId,[]);
+      usage.get(tileId).push(match);
     }
   }
   return usage;
@@ -25,7 +24,7 @@ function setText(root,selector,value){
 }
 
 export function renderGame(root,state){
-  if(!state?.board)throw new Error('state.board is required');
+  if(!state?.board?.tiles)throw new Error('state.board.tiles is required');
   const boardNode=qs(root,'#wordyBoard');
   const popButton=qs(root,'#popButton');
   const readyCount=qs(root,'#readyCount');
@@ -39,45 +38,31 @@ export function renderGame(root,state){
   setText(root,'#eventLabel',state.eventLabel??'');
 
   if(boardNode){
-    const rows=[];
-    state.board.forEach((row,rowIndex)=>{
-      const rowNode=create(root,'div');
-      rowNode.className='wordy-row';
-      rowNode.classList?.add?.('wordy-row');
-      rowNode.setAttribute?.('role','row');
-      const tiles=[];
-
-      row.forEach((tile,colIndex)=>{
+    const tiles=state.board.tiles
+      .slice()
+      .sort((a,b)=>a.row-b.row||a.startColumn-b.startColumn||a.id.localeCompare(b.id))
+      .map(tile=>{
         const button=create(root,'button');
         button.className='wordy-tile';
         button.classList?.add?.('wordy-tile');
         button.setAttribute?.('type','button');
         button.setAttribute?.('role','gridcell');
-        button.dataset.row=String(rowIndex);
-        button.dataset.col=String(colIndex);
-        button.dataset.tileId=tile?.id??'';
-
-        const word=tile?.word??'';
-        button.textContent=word;
-        const length=word.length;
-        if(length<=2)button.classList?.add?.('size-xs');
-        else if(length<=5)button.classList?.add?.('size-sm');
-        else if(length<=7)button.classList?.add?.('size-md');
-        else if(length<=10)button.classList?.add?.('size-lg');
-        else button.classList?.add?.('size-xl');
-
-        button.disabled=state.phase!=='playing'||!tile;
-        const cellMatches=usage.get(`${rowIndex}:${colIndex}`)??[];
-        if(cellMatches.length>0)button.classList?.add?.('is-ready');
-        const orientations=new Set(cellMatches.map(match=>match.orientation));
+        button.dataset.tileId=tile.id;
+        button.dataset.row=String(tile.row);
+        button.dataset.startColumn=String(tile.startColumn);
+        button.dataset.span=String(tile.span);
+        if(!button.style)button.style={};
+        button.style.gridRow=String(tile.row+1);
+        button.style.gridColumn=`${tile.startColumn+1} / span ${tile.span}`;
+        button.textContent=tile.word;
+        button.disabled=state.phase!=='playing';
+        const tileMatches=usage.get(tile.id)??[];
+        if(tileMatches.length)button.classList?.add?.('is-ready');
+        const orientations=new Set(tileMatches.map(match=>match.orientation));
         if(orientations.has('horizontal')&&orientations.has('vertical'))button.classList?.add?.('is-cross');
-        tiles.push(button);
+        return button;
       });
-
-      rowNode.append?.(...tiles);
-      rows.push(rowNode);
-    });
-    boardNode.replaceChildren?.(...rows);
+    boardNode.replaceChildren?.(...tiles);
   }
 
   if(readyCount)readyCount.textContent=matches.length===1?'1 ready':`${matches.length} ready`;
