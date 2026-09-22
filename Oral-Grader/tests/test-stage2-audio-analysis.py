@@ -310,3 +310,70 @@ def test_countable_incorrect_pronunciation_requires_intended_form():
             ),
             {"Paul", "Paulina"},
         )
+
+
+class FakeHttpError(RuntimeError):
+    def __init__(self, status_code):
+        super().__init__(f"HTTP {status_code}")
+        self.status_code = status_code
+
+
+def test_interaction_retry_retries_one_transient_503_then_succeeds():
+    calls = []
+    sleeps = []
+
+    def create(**kwargs):
+        calls.append(kwargs)
+        if len(calls) == 1:
+            raise FakeHttpError(503)
+        return "ok"
+
+    result = mod.create_interaction_with_retry(
+        create,
+        {"model": "gemini-3.8-flash", "input": []},
+        attempts=2,
+        delay_seconds=0.25,
+        sleep_fn=sleeps.append,
+    )
+
+    assert result == "ok"
+    assert len(calls) == 2
+    assert sleeps == [0.25]
+
+
+def test_interaction_retry_does_not_retry_permanent_error():
+    calls = []
+
+    def create(**kwargs):
+        calls.append(kwargs)
+        raise FakeHttpError(400)
+
+    with pytest.raises(FakeHttpError):
+        mod.create_interaction_with_retry(
+            create,
+            {"model": "gemini-3.8-flash", "input": []},
+            attempts=2,
+            delay_seconds=0,
+            sleep_fn=lambda _: None,
+        )
+
+    assert len(calls) == 1
+
+
+def test_interaction_retry_stops_after_configured_attempts():
+    calls = []
+
+    def create(**kwargs):
+        calls.append(kwargs)
+        raise FakeHttpError(503)
+
+    with pytest.raises(FakeHttpError):
+        mod.create_interaction_with_retry(
+            create,
+            {"model": "gemini-3.8-flash", "input": []},
+            attempts=2,
+            delay_seconds=0,
+            sleep_fn=lambda _: None,
+        )
+
+    assert len(calls) == 2
