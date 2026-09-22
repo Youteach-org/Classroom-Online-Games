@@ -245,7 +245,7 @@ The Stage-2 data model must support:
 - adding a teacher note;
 - preserving the previous model-produced value for auditability.
 
-The final PDF must use the reviewed value, not an superseded model-only value.
+The final PDF must use the reviewed value, not a superseded model-only value.
 
 ## 12. Scoring boundary
 
