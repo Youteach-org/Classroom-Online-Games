@@ -38,3 +38,8 @@
 - Task 7 RED: `swap-animation.mjs` did not exist and `app.mjs` still routed input through the old non-animated path.
 - **Task 7 complete:** accepted swaps use FLIP from pre-swap to rendered geometry, rejected productive attempts animate forward and rebound, interaction is locked during swap motion, and Web Animations absence degrades safely. Focused verification: **13/13 pass** plus `node --check Wordy/app.mjs` exit 0.
 - Task 7 GitHub commits: `32beeed`, `3fbab8d`, `b9f562b`.
+
+- **Task 8 complete:** missed-opportunity replay now renders from saved `rows/columns/tiles` geometry, suggested replay tiles are identified by tile ID, the miniature board uses the same 12-column grid model, and stale cell/matrix test fixtures were removed.
+- Task 8 stale-assumption sweep: no remaining `board[`, `.cells`, test `col:`, or `repeat(5` hits in Wordy engine/UI/tests.
+- Task 8 final verification reconstructed from feature HEAD `ba29f1c9`: `node --test Wordy/tests/*.test.mjs` → **86/86 pass**; `node --check Wordy/app.mjs` → exit 0.
+- Task 8 GitHub commits: `28fef34`, `4bbc3dd`, `19128c8d`, `ba29f1c9`.
