@@ -1,44 +1,30 @@
-import { createBoard, areAdjacent } from './board.mjs';
+import { areSwapNeighbors, cloneBoard, createBoard } from './board.mjs';
+import { spanForWord, normalizeWord } from './tile-size.mjs';
 import { findMatches, findCrossings } from './matcher.mjs';
 import { resolvePlayerActivation, CascadeLimitError } from './resolution.mjs';
-import {
-  findImmediateScoringMoves,
-  recoverDeadBoard,
-  createControlledBoard
-} from './generator.mjs';
+import { findImmediateScoringMoves, createControlledBoard, recoverDeadBoard } from './generator.mjs';
 import { captureMissedOpportunity, buildRoundReview } from './review.mjs';
 import { createTelemetryStore } from './telemetry.mjs';
 import { buildResolutionEvents } from './resolution-events.mjs';
 
 const DISCOVERED_KEY='wordy.prototype.discovered.v1';
-
-function cloneBoard(board){
-  return board.map(row=>row.map(tile=>tile==null?null:{...tile}));
-}
+const FALLBACK_BY_SPAN={1:'OF',2:'LOOK',3:'COFFEE',4:'ATTENTION'};
 
 function cloneMatch(match){
-  return {
-    ...match,
-    cells:(match.cells??[]).map(cell=>({...cell})),
-    tokens:[...(match.tokens??[])]
-  };
+  return {...match,tileIds:[...(match.tileIds??[])],tokens:[...(match.tokens??[])]};
 }
-
 function readDiscovered(storage){
   if(!storage?.getItem)return new Set();
-  try{
-    const value=JSON.parse(storage.getItem(DISCOVERED_KEY)||'[]');
-    return new Set(Array.isArray(value)?value:[]);
-  }catch{
-    return new Set();
-  }
+  try{const value=JSON.parse(storage.getItem(DISCOVERED_KEY)||'[]');return new Set(Array.isArray(value)?value:[]);}catch{return new Set();}
 }
-
-function persistDiscovered(storage,ids){
-  if(!storage?.setItem)return;
-  try{ storage.setItem(DISCOVERED_KEY,JSON.stringify([...ids])); }catch{ /* non-fatal */ }
+function persistDiscovered(storage,ids){if(!storage?.setItem)return;try{storage.setItem(DISCOVERED_KEY,JSON.stringify([...ids]));}catch{}}
+function sameSwap(a,b){
+  return !!a&&!!b&&(
+    (a.fromTileId===b.fromTileId&&a.toTileId===b.toTileId)||
+    (a.fromTileId===b.toTileId&&a.toTileId===b.fromTileId)
+  );
 }
-
+function productiveRows(board,moves){const rows=new Set();for(const move of moves){for(const id of [move.swap.fromTileId,move.swap.toTileId]){const tile=board.tiles.find(t=>t.id===id);if(tile)rows.add(tile.row);}}return rows.size;}
 function objectiveComplete(level,state){
   switch(level.goal?.type){
     case 'score': return state.score>=level.goal.target;
@@ -46,48 +32,11 @@ function objectiveComplete(level,state){
     case 'cascade': return state.bestCascade>=level.goal.target;
     case 'long-relation': return state.longestRelation>=level.goal.target;
     case 'cross': return state.crossCount>=level.goal.target;
-    default: return false;
+    default:return false;
   }
 }
 
-function inside(board,cell){
-  return Number.isInteger(cell?.row)&&Number.isInteger(cell?.col)&&
-    cell.row>=0&&cell.row<board.length&&cell.col>=0&&cell.col<board[0].length;
-}
-
-function sameCell(a,b){
-  return a?.row===b?.row&&a?.col===b?.col;
-}
-
-function sameSwap(a,b){
-  if(!a||!b)return false;
-  return (sameCell(a.from,b.from)&&sameCell(a.to,b.to))||
-    (sameCell(a.from,b.to)&&sameCell(a.to,b.from));
-}
-
-function boardWords(board){
-  return new Set(board.flatMap(row=>row.map(tile=>tile?.word).filter(Boolean)));
-}
-
-function contextualWords(board,bank){
-  const present=boardWords(board);
-  const connected=[];
-  const fallback=[];
-  for(const relation of bank.byId.values()){
-    fallback.push(...relation.tokens);
-    if(relation.tokens.some(token=>present.has(token)))connected.push(...relation.tokens);
-  }
-  return connected.length?connected:fallback;
-}
-
-export function createGameController({
-  bank,
-  levels,
-  initialLevelId,
-  rng=Math.random,
-  storage=null,
-  refillWord=null
-}){
+export function createGameController({bank,levels,initialLevelId,rng=Math.random,storage=null,refillWord=null}={}){
   if(!bank?.byId)throw new Error('relationship bank is required');
   if(!Array.isArray(levels)||levels.length===0)throw new Error('levels are required');
   const telemetry=createTelemetryStore({storage});
@@ -95,7 +44,6 @@ export function createGameController({
   const discoveredIds=readDiscovered(storage);
   let refillCounter=0;
   let levelIndex=Math.max(0,levels.findIndex(level=>level.id===initialLevelId));
-  if(levelIndex<0)levelIndex=0;
   let currentLevel=null;
   let state=null;
   let roundNewIds=new Set();
@@ -106,46 +54,31 @@ export function createGameController({
       board:cloneBoard(state.board),
       readyMatches:state.readyMatches.map(cloneMatch),
       discoveredIds:new Set(state.discoveredIds),
-      missedOpportunities:state.missedOpportunities.map(item=>({...item})),
-      review:state.review?{
-        newLearning:[...(state.review.newLearning??[])],
-        missed:[...(state.review.missed??[])]
-      }:null
+      missedOpportunities:state.missedOpportunities.map(item=>({
+        ...item,
+        boardSnapshot:item.boardSnapshot?cloneBoard(item.boardSnapshot):undefined,
+        suggestedSwap:item.suggestedSwap?{...item.suggestedSwap}:undefined
+      })),
+      review:state.review?{newLearning:[...(state.review.newLearning??[])],missed:[...(state.review.missed??[])]}:null
     };
   }
-
-  function emit(){
-    const view=snapshot();
-    for(const listener of listeners)listener(view);
-  }
-
+  function emit(){const view=snapshot();for(const listener of listeners)listener(view);}
+  function authoredBoard(level){return createBoard(level.boardRows,{columns:12});}
   function fallbackBoard(){
-    const current=createBoard(currentLevel.boardRows);
-    if(findImmediateScoringMoves(current,bank).length>=2)return current;
-    for(const level of levels){
-      const candidate=createBoard(level.boardRows);
-      if(findImmediateScoringMoves(candidate,bank).length>=2)return candidate;
+    for(const level of [currentLevel,...levels]){
+      if(!level)continue;
+      const board=authoredBoard(level);
+      const moves=findImmediateScoringMoves(board,bank);
+      if(moves.length>=4&&productiveRows(board,moves)>=3)return board;
     }
-    return current;
+    return authoredBoard(currentLevel);
   }
-
   function initialBoard(level){
-    const authored=createBoard(level.boardRows);
+    const authored=authoredBoard(level);
     if(!level.generated)return authored;
-    return createControlledBoard({
-      bank,
-      rows:authored.length,
-      cols:authored[0].length,
-      rng,
-      minScoringMoves:2,
-      fallbackBoard:authored
-    });
+    return createControlledBoard({bank,rows:authored.rows,columns:authored.columns,rng,minScoringMoves:4,minProductiveRows:3,fallbackBoard:authored});
   }
-
-  function refreshReady(){
-    state.readyMatches=findMatches(state.board,bank);
-  }
-
+  function refreshReady(){state.readyMatches=findMatches(state.board,bank);}
   function logReady(){
     telemetry.record('ready-change',{
       count:state.readyMatches.length,
@@ -153,117 +86,45 @@ export function createGameController({
       crossCount:findCrossings(state.readyMatches).length
     });
   }
-
   function loadLevel(index,{preserveDiscoveries=true}={}){
-    levelIndex=index;
-    currentLevel=levels[levelIndex];
-    roundNewIds=new Set();
+    levelIndex=index; currentLevel=levels[index]; roundNewIds=new Set();
     state={
-      levelId:currentLevel.id,
-      levelTitle:currentLevel.title,
-      instruction:currentLevel.instruction,
-      board:initialBoard(currentLevel),
-      movesLeft:currentLevel.moves,
-      score:0,
-      readyMatches:[],
-      discoveredIds:preserveDiscoveries?new Set(discoveredIds):new Set(),
-      bestBatch:0,
-      bestCascade:0,
-      longestRelation:0,
-      crossCount:0,
-      phase:'playing',
-      missedOpportunities:[],
-      resolutionEvents:[],
-      eventLabel:'',
-      success:null,
-      review:null
+      levelId:currentLevel.id,levelTitle:currentLevel.title,instruction:currentLevel.instruction,
+      board:initialBoard(currentLevel),movesLeft:currentLevel.moves,score:0,readyMatches:[],
+      discoveredIds:preserveDiscoveries?new Set(discoveredIds):new Set(),bestBatch:0,bestCascade:0,
+      longestRelation:0,crossCount:0,phase:'playing',missedOpportunities:[],resolutionEvents:[],
+      eventLabel:'',success:null,review:null
     };
     refreshReady();
     telemetry.record('level-start',{levelId:currentLevel.id,moves:currentLevel.moves});
-    return state;
   }
-
   function finishRound(success){
-    state.phase='result';
-    state.success=!!success;
-    state.review=buildRoundReview({
-      newRelationshipIds:[...roundNewIds],
-      missedOpportunities:state.missedOpportunities,
-      bank,
-      limit:3
-    });
-    telemetry.record('level-end',{
-      levelId:state.levelId,
-      success:state.success,
-      score:state.score,
-      movesLeft:state.movesLeft
-    });
+    state.phase='result'; state.success=!!success;
+    state.review=buildRoundReview({newRelationshipIds:[...roundNewIds],missedOpportunities:state.missedOpportunities,bank,limit:3});
+    telemetry.record('level-end',{levelId:state.levelId,success:state.success,score:state.score,movesLeft:state.movesLeft});
   }
 
-  function chooseRefillWord(){
-    if(typeof refillWord==='function')return String(refillWord({state:snapshot(),bank,rng})).trim().toUpperCase();
-    const words=contextualWords(state.board,bank);
-    if(words.length===0)return 'WORD';
-    return words[Math.floor(rng()*words.length)];
-  }
-
-  function refillTile(){
-    const word=chooseRefillWord();
-    return {id:'refill-'+(++refillCounter),word:word||'WORD'};
-  }
-
-  function recoverIfDead(){
-    const recovered=recoverDeadBoard({
-      board:state.board,
-      bank,
-      rng,
-      fallbackBoard:fallbackBoard()
-    });
-    if(recovered.reset){
-      state.board=recovered.board;
-      refreshReady();
-      telemetry.record('dead-board-reset',{levelId:state.levelId});
-      logReady();
+  function attemptSwap(fromTileId,toTileId){
+    const resultBase={fromTileId:String(fromTileId??''),toTileId:String(toTileId??'')};
+    if(state.phase!=='playing'||!areSwapNeighbors(state.board,resultBase.fromTileId,resultBase.toTileId)){
+      return {status:'invalid',...resultBase};
     }
-  }
 
-  function safeCascadeRecovery(){
-    state.board=createControlledBoard({
-      bank,
-      rows:state.board.length,
-      cols:state.board[0].length,
-      rng,
-      minScoringMoves:2,
-      fallbackBoard:fallbackBoard()
-    });
-    refreshReady();
-    telemetry.record('dead-board-reset',{levelId:state.levelId,reason:'cascade-limit'});
-    logReady();
-  }
-
-  function swap(from,to){
-    if(state.phase!=='playing')return false;
-    if(!inside(state.board,from)||!inside(state.board,to)||!areAdjacent(from,to))return false;
+    const scoringMoves=findImmediateScoringMoves(state.board,bank);
+    const chosenMove=scoringMoves.find(move=>sameSwap(move.swap,resultBase));
+    if(!chosenMove){
+      telemetry.record('swap-rebound',{...resultBase,movesLeft:state.movesLeft});
+      return {status:'rebound',...resultBase};
+    }
 
     state.resolutionEvents=[];
     const previousReadyIds=new Set(state.readyMatches.map(match=>match.relationshipId));
     const previousCrossCount=findCrossings(state.readyMatches).length;
-    const scoringMoves=findImmediateScoringMoves(state.board,bank);
-    const chosenMove=scoringMoves.find(move=>sameSwap(move.swap,{from,to}));
-    if(!chosenMove)return false;
-
-    const missed=captureMissedOpportunity({
-      board:state.board,
-      scoringMoves,
-      chosenSwap:{from,to},
-      bank
-    });
+    const missed=captureMissedOpportunity({board:state.board,scoringMoves,chosenSwap:resultBase,bank});
     if(missed){
       state.missedOpportunities.push(missed);
       telemetry.record('missed-opportunity',{
-        relationshipId:missed.relationshipId,
-        projectedScore:missed.projectedScore,
-        suggestedSwap:missed.suggestedSwap
+        relationshipId:missed.relationshipId,projectedScore:missed.projectedScore,suggestedSwap:missed.suggestedSwap
       });
     }
 
@@ -274,33 +135,44 @@ export function createGameController({
     const createdRelationshipIds=[...nextReadyIds].filter(id=>!previousReadyIds.has(id));
     const brokenRelationshipIds=[...previousReadyIds].filter(id=>!nextReadyIds.has(id));
     const nextCrossCount=findCrossings(state.readyMatches).length;
-    state.eventLabel=state.readyMatches.length
-      ?(state.readyMatches.length>1?`READY ×${state.readyMatches.length}`:'READY')
-      :'';
-    telemetry.record('swap',{
-      from:{...from},to:{...to},movesLeft:state.movesLeft,
-      createdRelationshipIds,
-      immediatelyCreatedRelationship:createdRelationshipIds.length>0
-    });
-    if(createdRelationshipIds.length){
-      telemetry.record('relationship-formed',{relationshipIds:createdRelationshipIds});
-    }
-    if(brokenRelationshipIds.length){
-      telemetry.record('relationship-broken',{relationshipIds:brokenRelationshipIds});
-    }
-    if(nextCrossCount>previousCrossCount){
-      telemetry.record('cross-created',{
-        crossCount:nextCrossCount,
-        relationshipIds:[...nextReadyIds]
-      });
-    }
+    state.eventLabel=state.readyMatches.length?(state.readyMatches.length>1?`READY ×${state.readyMatches.length}`:'READY'):'';
+    telemetry.record('swap',{...resultBase,movesLeft:state.movesLeft,createdRelationshipIds,immediatelyCreatedRelationship:createdRelationshipIds.length>0});
+    if(createdRelationshipIds.length)telemetry.record('relationship-formed',{relationshipIds:createdRelationshipIds});
+    if(brokenRelationshipIds.length)telemetry.record('relationship-broken',{relationshipIds:brokenRelationshipIds});
+    if(nextCrossCount>previousCrossCount)telemetry.record('cross-created',{crossCount:nextCrossCount,relationshipIds:[...nextReadyIds]});
     logReady();
-
     if(state.movesLeft<=0&&state.readyMatches.length===0)finishRound(false);
     emit();
-    return true;
+    return {status:'accepted',...resultBase};
   }
 
+  function contextualWords(span){
+    const present=new Set(state.board.tiles.map(tile=>tile.word));
+    const connected=[],fallback=[];
+    for(const relation of bank.byId.values())for(const token of relation.tokens){
+      if(spanForWord(token)!==span)continue;
+      fallback.push(token);
+      if(relation.tokens.some(word=>present.has(word)))connected.push(token);
+    }
+    return connected.length?connected:fallback;
+  }
+  function chooseRefillWord(span){
+    if(typeof refillWord==='function'){
+      const custom=normalizeWord(refillWord({span,state:snapshot(),bank,rng}));
+      if(custom)return custom;
+    }
+    const words=contextualWords(span);
+    return words.length?words[Math.floor(rng()*words.length)]:FALLBACK_BY_SPAN[span];
+  }
+  function refillTile({span,row,startColumn}){return {id:'refill-'+(++refillCounter),word:chooseRefillWord(span),row,startColumn};}
+  function recoverIfDead(){
+    const recovered=recoverDeadBoard({board:state.board,bank,rng,fallbackBoard:fallbackBoard(),minScoringMoves:4,minProductiveRows:3});
+    if(recovered.reset){state.board=recovered.board;refreshReady();telemetry.record('dead-board-reset',{levelId:state.levelId});logReady();}
+  }
+  function safeCascadeRecovery(){
+    state.board=createControlledBoard({bank,rows:state.board.rows,columns:state.board.columns,rng,minScoringMoves:4,minProductiveRows:3,fallbackBoard:fallbackBoard()});
+    refreshReady();telemetry.record('dead-board-reset',{levelId:state.levelId,reason:'cascade-limit'});logReady();
+  }
   function applyResolutionStats(result){
     state.score+=result.totalScore;
     const first=result.generations[0];
@@ -308,112 +180,42 @@ export function createGameController({
     for(const generation of result.generations){
       state.bestCascade=Math.max(state.bestCascade,generation.cascadeDepth??0);
       state.crossCount+=generation.score?.crossCount??0;
-      for(const match of generation.matches??[]){
-        state.longestRelation=Math.max(state.longestRelation,match.cells?.length??0);
-      }
-      if((generation.cascadeDepth??0)>0){
-        telemetry.record('cascade',{
-          depth:generation.cascadeDepth,
-          relationshipIds:generation.matches.map(match=>match.relationshipId)
-        });
-      }
+      for(const match of generation.matches??[])state.longestRelation=Math.max(state.longestRelation,match.tileIds?.length??0);
+      if((generation.cascadeDepth??0)>0)telemetry.record('cascade',{depth:generation.cascadeDepth,relationshipIds:generation.matches.map(match=>match.relationshipId)});
     }
-
-    for(const id of result.newlyDiscoveredIds){
-      discoveredIds.add(id);
-      state.discoveredIds.add(id);
-      roundNewIds.add(id);
-    }
+    for(const id of result.newlyDiscoveredIds){discoveredIds.add(id);state.discoveredIds.add(id);roundNewIds.add(id);}
     persistDiscovered(storage,discoveredIds);
   }
-
   function pop(){
     if(state.phase!=='playing'||state.readyMatches.length===0)return false;
     const readyCount=state.readyMatches.length;
-    state.phase='resolving';
-    emit();
+    state.phase='resolving';emit();
     telemetry.record('pop',{readyCount,movesLeft:state.movesLeft});
-
     try{
-      const result=resolvePlayerActivation({
-        board:state.board,
-        bank,
-        discoveredIds:state.discoveredIds,
-        refillTile
-      });
+      const result=resolvePlayerActivation({board:state.board,bank,discoveredIds:state.discoveredIds,refillTile});
       state.board=result.board;
       applyResolutionStats(result);
       state.resolutionEvents=buildResolutionEvents(result);
-      state.eventLabel=result.generations.length>1
-        ?`COMBO ×${result.generations.length}`
-        :(result.generations[0]?.score?.crossCount>0?'CROSS!':(result.newlyDiscoveredIds.length?'NEW!':''));
+      state.eventLabel=result.generations.length>1?`COMBO ×${result.generations.length}`:(result.generations[0]?.score?.crossCount>0?'CROSS!':(result.newlyDiscoveredIds.length?'NEW!':''));
       refreshReady();
     }catch(error){
-      if(!(error instanceof CascadeLimitError)){
-        state.phase='playing';
-        emit();
-        throw error;
-      }
+      if(!(error instanceof CascadeLimitError)){state.phase='playing';emit();throw error;}
       telemetry.record('cascade-limit',{levelId:state.levelId});
       state.resolutionEvents=[];
       safeCascadeRecovery();
       state.eventLabel='BOARD RESET';
     }
-
-    if(objectiveComplete(currentLevel,state)){
-      finishRound(true);
-    }else if(state.movesLeft<=0){
-      finishRound(false);
-    }else{
-      state.phase='playing';
-      recoverIfDead();
-    }
+    if(objectiveComplete(currentLevel,state))finishRound(true);
+    else if(state.movesLeft<=0)finishRound(false);
+    else{state.phase='playing';recoverIfDead();}
     emit();
     return true;
   }
-
-  function replay(){
-    telemetry.record('level-replay',{levelId:state.levelId,score:state.score});
-    loadLevel(levelIndex);
-    emit();
-    return true;
-  }
-
-  function abandon(){
-    if(state.phase==='result')return false;
-    telemetry.record('level-abandon',{
-      levelId:state.levelId,
-      score:state.score,
-      movesLeft:state.movesLeft,
-      phase:state.phase
-    });
-    return true;
-  }
-
-  function next(){
-    if(levelIndex>=levels.length-1)return false;
-    loadLevel(levelIndex+1);
-    emit();
-    return true;
-  }
-
-  function subscribe(listener){
-    if(typeof listener!=='function')throw new Error('listener must be a function');
-    listeners.add(listener);
-    listener(snapshot());
-    return ()=>listeners.delete(listener);
-  }
+  function replay(){telemetry.record('level-replay',{levelId:state.levelId,score:state.score});loadLevel(levelIndex);emit();return true;}
+  function abandon(){if(state.phase==='result')return false;telemetry.record('level-abandon',{levelId:state.levelId,score:state.score,movesLeft:state.movesLeft,phase:state.phase});return true;}
+  function next(){if(levelIndex>=levels.length-1)return false;loadLevel(levelIndex+1);emit();return true;}
+  function subscribe(listener){if(typeof listener!=='function')throw new Error('listener must be a function');listeners.add(listener);listener(snapshot());return ()=>listeners.delete(listener);}
 
   loadLevel(levelIndex);
-
-  return {
-    state:snapshot,
-    swap,
-    pop,
-    replay,
-    next,
-    abandon,
-    subscribe,
-    telemetryEvents:()=>telemetry.events()
-  };
+  return {state:snapshot,attemptSwap,pop,replay,next,abandon,subscribe,telemetryEvents:()=>telemetry.events()};
 }

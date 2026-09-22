@@ -33,7 +33,7 @@ export function scoreResolution({
     const relation=getRelationship(bank,match.relationshipId);
     if(!relation)throw new Error('unknown relationship: '+match.relationshipId);
     baseScore+=relation.baseScore;
-    lengthBonus+=lengthBonusFor(match.cells?.length??relation.tokens.length,config);
+    lengthBonus+=lengthBonusFor(match.tileIds?.length??relation.tokens.length,config);
     if(!known.has(relation.id))newIds.add(relation.id);
   }
 
