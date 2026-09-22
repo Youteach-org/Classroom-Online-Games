@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
 import { RELATIONSHIPS } from '../data/relationships.mjs';
 import { LEVELS } from '../data/levels.mjs';
 import { occupancyMap } from '../engine/board.mjs';
@@ -9,7 +10,6 @@ import { findImmediateScoringMoves, hasViablePlay, createControlledBoard } from 
 import { createFakeStorage, seeded } from './helpers.mjs';
 
 const bank=createRelationshipBank(RELATIONSHIPS);
-const fillerWords={1:'ZZ',2:'ZZZ',3:'ZZZZZZ',4:'ZZZZZZZZZ'};
 
 function tile(state,row,word){
   const found=state.board.tiles.find(candidate=>candidate.row===row&&candidate.word===word);
@@ -19,26 +19,30 @@ function tile(state,row,word){
 
 function assertValidStableBoard(board){
   assert.equal(board.rows,7);
-  assert.equal(board.columns,12);
+  assert.equal(board.columns,7);
+  assert.equal(board.tiles.length,49);
   for(const tile of board.tiles){
-    assert.ok(tile.span>=1&&tile.span<=4,`invalid span for ${tile.id}`);
+    assert.equal(Number.isInteger(tile.row),true,`invalid row for ${tile.id}`);
+    assert.equal(Number.isInteger(tile.column),true,`invalid column for ${tile.id}`);
     assert.ok(tile.row>=0&&tile.row<board.rows,`row out of bounds for ${tile.id}`);
-    assert.ok(tile.startColumn>=0&&tile.startColumn+tile.span<=board.columns,`column out of bounds for ${tile.id}`);
+    assert.ok(tile.column>=0&&tile.column<board.columns,`column out of bounds for ${tile.id}`);
+    assert.equal('span' in tile,false,`legacy span on ${tile.id}`);
+    assert.equal('startColumn' in tile,false,`legacy startColumn on ${tile.id}`);
   }
   const map=occupancyMap(board);
   assert.equal(map.length,7);
-  assert.equal(map.flat().length,84);
-  assert.ok(map.every(row=>row.every(Boolean)),'stable board must occupy all 84 microcells');
+  assert.equal(map.flat().length,49);
+  assert.ok(map.every(row=>row.every(Boolean)),'stable board must occupy all 49 cells');
 }
 
-test('Level A rebound, accepted LOOK AFTER swap, POP, gravity/refill and recovery stay valid end to end',()=>{
+test('Level A rebound, accepted LOOK AFTER swap, POP, column fall/refill and recovery stay valid end to end',()=>{
   const game=createGameController({
     bank,
     levels:LEVELS,
     initialLevelId:'A',
     rng:seeded(17),
     storage:createFakeStorage(),
-    refillWord:({span})=>fillerWords[span]
+    refillWord:()=> 'ZZ'
   });
 
   const initial=game.state();
@@ -68,7 +72,7 @@ test('Level A rebound, accepted LOOK AFTER swap, POP, gravity/refill and recover
   );
 });
 
-test('controlled generated board preserves 12x7 geometry and the four-move three-row productivity floor',()=>{
+test('controlled generated board is 7x7 and spreads at least four productive swaps across rows and columns',()=>{
   const fallbackLevel=LEVELS.find(level=>level.id==='G');
   const fallbackGame=createGameController({
     bank,
@@ -81,18 +85,48 @@ test('controlled generated board preserves 12x7 geometry and the four-move three
   const generated=createControlledBoard({
     bank,
     rows:7,
-    columns:12,
+    columns:7,
     rng:seeded(23),
     minScoringMoves:4,
     minProductiveRows:3,
+    minProductiveColumns:3,
+    allowStartingMatches:false,
     fallbackBoard:fallback
   });
   assertValidStableBoard(generated);
   const moves=findImmediateScoringMoves(generated,bank);
   assert.ok(moves.length>=4,`expected at least 4 productive moves, got ${moves.length}`);
-  const rows=new Set(moves.flatMap(move=>[
-    generated.tiles.find(tile=>tile.id===move.swap.fromTileId)?.row,
-    generated.tiles.find(tile=>tile.id===move.swap.toTileId)?.row
-  ]).filter(Number.isInteger));
-  assert.ok(rows.size>=3,`expected productive swaps across at least 3 rows, got ${rows.size}`);
+  const rows=new Set();
+  const columns=new Set();
+  for(const move of moves){
+    for(const id of [move.swap.fromTileId,move.swap.toTileId]){
+      const item=generated.tiles.find(tile=>tile.id===id);
+      if(item){rows.add(item.row);columns.add(item.column);}
+    }
+  }
+  assert.ok(rows.size>=3,`expected productive swaps across >=3 rows, got ${rows.size}`);
+  assert.ok(columns.size>=3,`expected productive swaps across >=3 columns, got ${columns.size}`);
+});
+
+test('runtime contains no legacy span geometry engine',()=>{
+  const tileSizeUrl=new URL('../engine/tile-size.mjs',import.meta.url);
+  assert.equal(existsSync(tileSizeUrl),false,'tile-size.mjs must be removed');
+
+  const runtimePaths=[
+    '../app.mjs',
+    '../engine/board.mjs',
+    '../engine/controller.mjs',
+    '../engine/generator.mjs',
+    '../engine/matcher.mjs',
+    '../engine/refill.mjs',
+    '../engine/resolution.mjs',
+    '../engine/review.mjs',
+    '../ui/input.mjs',
+    '../ui/render.mjs',
+    '../ui/swap-animation.mjs'
+  ];
+  for(const relative of runtimePaths){
+    const source=readFileSync(new URL(relative,import.meta.url),'utf8');
+    assert.doesNotMatch(source,/\bstartColumn\b|\bspanForWord\b|\bpartitionRun\b/,relative);
+  }
 });
