@@ -97,6 +97,9 @@ def normalize_evidence_item(item, allowed_students):
     if result.get("intent_confidence") not in INTENT_CONFIDENCE_VALUES:
         raise ValueError("unsupported intent confidence")
 
+    if result.get("intent_confidence") == "uncertain":
+        result["intended"] = None
+
     sources = result.get("evidence_source")
     if not isinstance(sources, list) or any(source not in EVIDENCE_SOURCES for source in sources):
         raise ValueError("unsupported evidence source")
@@ -239,7 +242,10 @@ def render_markdown(result):
             for item in result.get("evidence", [])
             if item.get("speaker") == student
             and (
-                item.get("counts_toward_pronunciation") is True
+                (
+                    item.get("pronunciation") == "incorrect"
+                    and item.get("counts_toward_pronunciation") is True
+                )
                 or item.get("pronunciation") == "uncertain"
             )
         ]
@@ -321,6 +327,9 @@ Use pronunciation=incorrect only when intended meaning is sufficiently clear and
 Grammar, vocabulary, malformed forms, and pronunciation are separate.
 Rapid low-value exchanges may be omitted unless they affect pronunciation, speaker attribution, Fluency, Interaction, or intended-word inference.
 Teacher-confirmed evidence is authoritative and must not be contradicted.
+Intended language must be natural, idiomatic English that expresses the student's probable meaning.
+Never preserve Spanish word order or literal translation artifacts merely because they resemble the original audio.
+If the intended natural English cannot be inferred confidently, set intended to null and intent_confidence to uncertain rather than inventing a correction.
 Use pronunciation=uncertain when audio or intended meaning is not sufficiently clear; uncertain must never count toward pronunciation.
 Use pronunciation=not_scored for grammar-only, vocabulary-only, malformed-form, discourse, or transcription issues.
 Keep grammar_note, vocabulary_note, malformed_form_note, transcription_note, and pronunciation_note separate.
