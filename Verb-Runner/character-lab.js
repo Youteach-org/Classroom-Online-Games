@@ -218,12 +218,12 @@ function addShirtPanel(chest,hips){
 
   // Black V-neck / inner layer.
   const v=new THREE.Shape();
-  v.moveTo(-.070,.055);
+  v.moveTo(-.055,.050);
   v.lineTo(0,-.010);
-  v.lineTo(.070,.055);
-  v.lineTo(.048,.080);
+  v.lineTo(.055,.050);
+  v.lineTo(.038,.072);
   v.lineTo(0,.035);
-  v.lineTo(-.048,.080);
+  v.lineTo(-.038,.072);
   v.closePath();
 
   const vMesh=new THREE.Mesh(
@@ -263,53 +263,60 @@ function addInnerHood(neck){
   runnerRoot.add(left,right);
 }
 
-function addStaticGloves(){
-  // Appearance-only phase: fixed to the neutral pose so nothing can float.
-  const specs=[
-    {x:-.365,y:1.085,z:-.010,rz:.08},
-    {x: .365,y:1.085,z:-.010,rz:-.08}
-  ];
-  for(const s of specs){
-    const glove=rounded(.105,.105,.105,C.black,.030,.84);
-    glove.position.set(s.x,s.y,s.z);
-    glove.rotation.z=s.rz;
-    runnerRoot.add(glove);
+function addGlove(hand,wrist,side){
+  const sign=side==='L'?-1:1;
 
-    const cuff=rounded(.115,.032,.110,C.redDark,.010,.74);
-    cuff.position.set(s.x,s.y+.062,s.z);
-    runnerRoot.add(cuff);
-  }
+  const palm=hand.clone().lerp(wrist,.28);
+  const glove=rounded(.115,.125,.110,C.black,.032,.84);
+  glove.position.copy(palm);
+  glove.position.z-=.004;
+  glove.rotation.z=sign*.045;
+  runnerRoot.add(glove);
+
+  const cuff=rounded(.120,.040,.115,C.redDark,.012,.74);
+  cuff.position.copy(wrist);
+  cuff.position.y-=.010;
+  runnerRoot.add(cuff);
 }
 
-function addCargoCapris(){
-  for(const x of [-.125,.125]){
-    const leg=new THREE.Mesh(
-      new THREE.CylinderGeometry(.112,.128,.43,26,2,false),
-      material(C.pants,.78)
-    );
-    leg.position.set(x,.615,.005);
-    leg.castShadow=true;
-    runnerRoot.add(leg);
+function addCargoLeg(side,upper,knee,foot){
+  const sign=side==='L'?-1:1;
 
-    const cuff=rounded(.225,.055,.180,C.black,.020,.84);
-    cuff.position.set(x,.398,.005);
-    runnerRoot.add(cuff);
-  }
+  // Reference pants end around the middle of the calf.
+  const end=knee.clone().lerp(foot,.48);
 
-  // Outer cargo pockets and red tabs.
-  const leftPocket=rounded(.100,.145,.040,C.pantsHi,.020,.80);
-  leftPocket.position.set(-.225,.820,-.050);
-  runnerRoot.add(leftPocket);
+  const dir=end.clone().sub(knee);
+  const len=dir.length();
+  const leg=new THREE.Mesh(
+    new THREE.CylinderGeometry(.120,.137,len,26,3,false),
+    material(C.pants,.78)
+  );
+  leg.position.copy(knee.clone().add(end).multiplyScalar(.5));
+  leg.quaternion.setFromUnitVectors(
+    new THREE.Vector3(0,1,0),
+    dir.clone().normalize()
+  );
+  leg.castShadow=true;
+  runnerRoot.add(leg);
 
-  const rightPocket=rounded(.100,.145,.040,C.pantsHi,.020,.80);
-  rightPocket.position.set(.225,.820,-.050);
-  runnerRoot.add(rightPocket);
+  const cuff=rounded(.230,.058,.188,C.black,.020,.84);
+  cuff.position.copy(end);
+  cuff.quaternion.copy(leg.quaternion);
+  runnerRoot.add(cuff);
 
-  for(const x of [-.275,.275]){
-    const tab=rounded(.022,.055,.018,C.red,.006,.72);
-    tab.position.set(x,.800,-.075);
-    runnerRoot.add(tab);
-  }
+  const pocketCenter=upper.clone().lerp(knee,.52);
+  const pocket=rounded(.105,.150,.042,C.pantsHi,.020,.80);
+  pocket.position.copy(pocketCenter);
+  pocket.position.x+=sign*.105;
+  pocket.position.z-=.045;
+  runnerRoot.add(pocket);
+
+  const tab=rounded(.022,.055,.018,C.red,.006,.72);
+  tab.position.copy(pocket.position);
+  tab.x+=sign*.068;
+  tab.y-=.018;
+  tab.z-=.024;
+  runnerRoot.add(tab);
 }
 
 function addBelt(){
@@ -324,9 +331,21 @@ function addBelt(){
 
 function buildReferenceDetails(human){
   const headBone=findBone(human,[/head/i]);
-  const neckBone=findBone(human,[/neck/i]);
-  const chestBone=findBone(human,[/upper.?chest/i,/chest/i,/spine.?2/i,/spine.?1/i,/spine/i]);
-  const hipsBone=findBone(human,[/hips/i,/pelvis/i]);
+  const neckBone=findBone(human,[/^Neck$/i,/neck/i]);
+  const chestBone=findBone(human,[/^Chest$/i,/upper.?chest/i,/chest/i,/spine/i]);
+  const hipsBone=findBone(human,[/^Hips$/i,/hips/i,/pelvis/i]);
+
+  const lWrist=findBone(human,[/^WristL$/i]);
+  const rWrist=findBone(human,[/^WristR$/i]);
+  const lHand=findBone(human,[/^Index1L$/i,/^Middle1L$/i]);
+  const rHand=findBone(human,[/^Index1R$/i,/^Middle1R$/i]);
+
+  const lUpper=findBone(human,[/^UpperLegL$/i]);
+  const rUpper=findBone(human,[/^UpperLegR$/i]);
+  const lKnee=findBone(human,[/^LowerLegL$/i]);
+  const rKnee=findBone(human,[/^LowerLegR$/i]);
+  const lFoot=findBone(human,[/^FootL$/i]);
+  const rFoot=findBone(human,[/^FootR$/i]);
 
   if(headBone)headBone.scale.multiplyScalar(1.045);
   scene.updateMatrixWorld(true);
@@ -337,17 +356,31 @@ function buildReferenceDetails(human){
     return {name:b.name||'',x:+p.x.toFixed(4),y:+p.y.toFixed(4),z:+p.z.toFixed(4)};
   });
 
-  const neck=wpos(neckBone,new THREE.Vector3(0,1.90,0));
-  const chest=wpos(chestBone,new THREE.Vector3(0,1.65,0));
-  const hips=wpos(hipsBone,new THREE.Vector3(0,1.19,0));
+  const neck=wpos(neckBone,new THREE.Vector3(0,1.90,-.06));
+  const chest=wpos(chestBone,new THREE.Vector3(0,1.79,-.06));
+  const hips=wpos(hipsBone,new THREE.Vector3(0,1.16,-.07));
+
+  const LW=wpos(lWrist,new THREE.Vector3(-.27,1.34,-.09));
+  const RW=wpos(rWrist,new THREE.Vector3(.27,1.34,-.09));
+  const LH=wpos(lHand,new THREE.Vector3(-.27,1.30,-.09));
+  const RH=wpos(rHand,new THREE.Vector3(.27,1.30,-.09));
+
+  const LUpper=wpos(lUpper,new THREE.Vector3(-.15,1.25,-.06));
+  const RUpper=wpos(rUpper,new THREE.Vector3(.15,1.25,-.06));
+  const LKnee=wpos(lKnee,new THREE.Vector3(-.156,.70,-.157));
+  const RKnee=wpos(rKnee,new THREE.Vector3(.156,.70,-.157));
+  const LFoot=wpos(lFoot,new THREE.Vector3(-.15,.036,-.077));
+  const RFoot=wpos(rFoot,new THREE.Vector3(.15,.036,-.077));
 
   addShirtPanel(chest,hips);
   addInnerHood(neck);
-  addStaticGloves();
-  addCargoCapris();
+  addGlove(LH,LW,'L');
+  addGlove(RH,RW,'R');
+  addCargoLeg('L',LUpper,LKnee,LFoot);
+  addCargoLeg('R',RUpper,RKnee,RFoot);
   addBelt();
 
-  document.body.dataset.look='red-runner-static-v3';
+  document.body.dataset.look='red-runner-static-v4';
 }
 
 function setCameraView(view){
