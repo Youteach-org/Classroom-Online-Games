@@ -6,14 +6,18 @@ import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'
 const MODEL_URL='https://raw.githubusercontent.com/dpwhittaker/avatar-city/c21f285f84a35be7f7f1f8e9827e9e897ea55de1/public/characters/Casual3_Male.gltf';
 
 const TARGET={
-  hoodie:0xc84a3f,
-  jeans:0x315d91,
-  shoes:0xf4f1ea,
-  hair:0x2a1c18,
+  hoodie:0xc94b40,
+  hoodieDark:0xa93632,
+  jeans:0x315f94,
+  jeansDark:0x244d7c,
+  shoes:0xf6f2ea,
+  sole:0xd7d4cf,
+  hair:0x2a1d19,
+  hairHi:0x3c2922,
   skin:0xd59a75,
-  eye:0x241f1d,
-  brow:0x34231e,
-  mouth:0x8b3c38
+  eye:0x2a211e,
+  brow:0x3a2721,
+  mouth:0x8d4743
 };
 
 const scene=new THREE.Scene();
@@ -63,7 +67,7 @@ key.shadow.normalBias=0.018;
 key.shadow.radius=2.5;
 scene.add(key);
 
-const faceLight=new THREE.DirectionalLight(0xffffff,2.0);
+const faceLight=new THREE.DirectionalLight(0xffffff,2.1);
 faceLight.position.set(0,3,-5);
 scene.add(faceLight);
 
@@ -137,7 +141,11 @@ function styleBase(root){
       }else if(/belt|shoe|boot|access/.test(name)){
         m.color?.setHex(TARGET.shoes);
       }else if(/hair/.test(name)){
-        m.color?.setHex(TARGET.hair);
+        // The stock hair is intentionally hidden. A custom target hairstyle
+        // is attached to the animated head below.
+        m.transparent=true;
+        m.opacity=0;
+        m.depthWrite=false;
       }else if(/face|skin|head/.test(name)){
         m.color?.setHex(TARGET.skin);
       }
@@ -164,22 +172,8 @@ function bestBone(root,regex){
   return list[0];
 }
 
-function stylizeSkeleton(root){
-  const head=bestBone(root,/head/i);
-  const neck=bestBone(root,/neck/i);
-
-  if(head){
-    head.scale.multiplyScalar(1.13);
-  }
-  if(neck){
-    neck.scale.multiplyScalar(.96);
-  }
-
-  // Slightly reduce the adult/tall feel of the stock mesh.
-  root.scale.x*=.96;
-  root.scale.z*=.96;
-
-  return {head,neck};
+function childBone(bone){
+  return bone?.children?.find(c=>c.isBone)||null;
 }
 
 function smoothMat(color,roughness=.72){
@@ -193,6 +187,23 @@ function attachGroupAtWorld(parent,group,position){
   parent.attach(group);
 }
 
+function stylizeSkeleton(root){
+  const head=bestBone(root,/head/i);
+  const neck=bestBone(root,/neck/i);
+  const leftHand=bestBone(root,/left.*hand|hand.*left|hand[._-]?l/i);
+  const rightHand=bestBone(root,/right.*hand|hand.*right|hand[._-]?r/i);
+
+  if(head)head.scale.multiplyScalar(1.045);
+  if(neck)neck.scale.multiplyScalar(.98);
+  if(leftHand)leftHand.scale.multiplyScalar(.88);
+  if(rightHand)rightHand.scale.multiplyScalar(.88);
+
+  root.scale.x*=.965;
+  root.scale.z*=.965;
+
+  return {head,neck};
+}
+
 function addTargetHair(headBone){
   if(!headBone)return;
 
@@ -202,36 +213,98 @@ function addTargetHair(headBone){
 
   const hair=new THREE.Group();
   hair.name='TargetHair';
-  attachGroupAtWorld(headBone,hair,p.clone().add(new THREE.Vector3(0,.10,.01)));
+  attachGroupAtWorld(headBone,hair,p.clone().add(new THREE.Vector3(0,.115,.015)));
 
-  const mat=smoothMat(TARGET.hair,.76);
-  const pieces=[
-    {p:[-.13,.08,.01],s:[.18,.16,.15],r:[0,0,.28]},
-    {p:[ .00,.13,.02],s:[.20,.18,.16],r:[0,0,.00]},
-    {p:[ .14,.09,.02],s:[.17,.15,.14],r:[0,0,-.25]},
-    {p:[-.08,-.01,.08],s:[.18,.16,.14],r:[.1,0,.12]},
-    {p:[ .09,-.01,.08],s:[.18,.16,.14],r:[.1,0,-.12]},
-    {p:[-.10,.02,-.13],s:[.15,.13,.11],r:[-.25,0,.45]},
-    {p:[ .02,.05,-.16],s:[.17,.14,.10],r:[-.35,0,.08]},
-    {p:[ .12,.02,-.13],s:[.14,.12,.10],r:[-.25,0,-.35]}
+  const baseMat=smoothMat(TARGET.hair,.75);
+  const hiMat=smoothMat(TARGET.hairHi,.73);
+
+  const cap=new THREE.Mesh(
+    new THREE.SphereGeometry(.30,36,24,0,Math.PI*2,0,Math.PI*.63),
+    baseMat
+  );
+  cap.scale.set(1.03,.92,.98);
+  cap.position.set(0,.005,.015);
+  cap.rotation.x=.08;
+  cap.castShadow=true;
+  hair.add(cap);
+
+  const tufts=[
+    {p:[-.13,.17,-.09],s:[.12,.16,.08],rz:.38,mat:hiMat},
+    {p:[-.045,.205,-.12],s:[.12,.18,.075],rz:.17,mat:baseMat},
+    {p:[ .055,.205,-.125],s:[.12,.18,.075],rz:-.12,mat:hiMat},
+    {p:[ .145,.16,-.09],s:[.11,.15,.08],rz:-.38,mat:baseMat},
+    {p:[ .00,.15,-.17],s:[.15,.11,.065],rz:-.05,mat:baseMat}
   ];
 
-  for(const spec of pieces){
-    const mesh=new THREE.Mesh(new THREE.SphereGeometry(1,28,20),mat);
+  for(const spec of tufts){
+    const mesh=new THREE.Mesh(new THREE.SphereGeometry(1,28,20),spec.mat);
     mesh.position.set(...spec.p);
     mesh.scale.set(...spec.s);
-    mesh.rotation.set(...spec.r);
+    mesh.rotation.z=spec.rz;
     mesh.castShadow=true;
     hair.add(mesh);
   }
+}
 
-  const quiffMat=smoothMat(0x33221d,.74);
-  const quiff=new THREE.Mesh(new THREE.SphereGeometry(1,30,22),quiffMat);
-  quiff.position.set(.05,.15,-.13);
-  quiff.scale.set(.16,.11,.08);
-  quiff.rotation.z=-.38;
-  quiff.castShadow=true;
-  hair.add(quiff);
+function createFaceTexture(){
+  const canvas=document.createElement('canvas');
+  canvas.width=512;
+  canvas.height=512;
+  const ctx=canvas.getContext('2d');
+
+  ctx.clearRect(0,0,512,512);
+  ctx.lineCap='round';
+
+  // Brows
+  ctx.strokeStyle='#3a2721';
+  ctx.lineWidth=22;
+  ctx.beginPath();
+  ctx.moveTo(110,152); ctx.quadraticCurveTo(165,126,212,148);
+  ctx.moveTo(300,148); ctx.quadraticCurveTo(347,126,402,152);
+  ctx.stroke();
+
+  // Eyes
+  const drawEye=(cx)=>{
+    ctx.fillStyle='#fffaf2';
+    ctx.beginPath();
+    ctx.ellipse(cx,220,48,35,0,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle='#2a211e';
+    ctx.beginPath();
+    ctx.ellipse(cx,222,24,27,0,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle='#ffffff';
+    ctx.beginPath();
+    ctx.arc(cx-8,212,7,0,Math.PI*2);
+    ctx.fill();
+  };
+  drawEye(168);
+  drawEye(344);
+
+  // Small stylized nose
+  ctx.strokeStyle='#b97659';
+  ctx.lineWidth=16;
+  ctx.beginPath();
+  ctx.moveTo(258,250);
+  ctx.quadraticCurveTo(246,286,263,300);
+  ctx.stroke();
+
+  // Friendly closed smile
+  ctx.strokeStyle='#8d4743';
+  ctx.lineWidth=18;
+  ctx.beginPath();
+  ctx.moveTo(205,352);
+  ctx.quadraticCurveTo(256,386,307,352);
+  ctx.stroke();
+
+  const texture=new THREE.CanvasTexture(canvas);
+  texture.colorSpace=THREE.SRGBColorSpace;
+  texture.minFilter=THREE.LinearFilter;
+  texture.magFilter=THREE.LinearFilter;
+  texture.needsUpdate=true;
+  return texture;
 }
 
 function addTargetFace(headBone){
@@ -243,39 +316,54 @@ function addTargetFace(headBone){
 
   const face=new THREE.Group();
   face.name='TargetFace';
-  attachGroupAtWorld(headBone,face,p.clone().add(new THREE.Vector3(0,.015,-.205)));
+  attachGroupAtWorld(headBone,face,p.clone().add(new THREE.Vector3(0,.020,-.238)));
 
-  const eyeWhite=smoothMat(0xfaf9f4,.5);
-  const eyeDark=smoothMat(TARGET.eye,.5);
-  const browMat=smoothMat(TARGET.brow,.7);
-  const mouthMat=smoothMat(TARGET.mouth,.65);
-  const noseMat=smoothMat(0xc88362,.7);
+  const plane=new THREE.Mesh(
+    new THREE.PlaneGeometry(.39,.39,1,1),
+    new THREE.MeshBasicMaterial({
+      map:createFaceTexture(),
+      transparent:true,
+      depthWrite:false,
+      side:THREE.DoubleSide,
+      alphaTest:.02
+    })
+  );
+  plane.rotation.y=Math.PI;
+  plane.renderOrder=5;
+  face.add(plane);
+}
 
-  for(const x of [-.088,.088]){
-    const white=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),eyeWhite);
-    white.position.set(x,.055,0);
-    white.scale.set(.055,.042,.018);
-    face.add(white);
+function addSleeve(armBone){
+  if(!armBone)return;
+  const next=childBone(armBone);
+  if(!next)return;
 
-    const iris=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),eyeDark);
-    iris.position.set(x,.054,-.017);
-    iris.scale.set(.025,.027,.014);
-    face.add(iris);
+  const dir=next.position.clone();
+  const fullLen=dir.length();
+  if(fullLen<.05)return;
 
-    const brow=new THREE.Mesh(new RoundedBoxGeometry(.105,.018,.012,5,.008),browMat);
-    brow.position.set(x,.116,-.003);
-    brow.rotation.z=x<0?.10:-.10;
-    face.add(brow);
-  }
+  const covered=.78;
+  const len=fullLen*covered;
+  const center=dir.clone().multiplyScalar(covered*.50);
 
-  const nose=new THREE.Mesh(new THREE.SphereGeometry(1,20,14),noseMat);
-  nose.position.set(0,-.005,-.012);
-  nose.scale.set(.030,.045,.025);
-  face.add(nose);
+  const sleeve=new THREE.Mesh(
+    new THREE.CylinderGeometry(.105,.125,len,28,2,false),
+    smoothMat(TARGET.hoodie,.72)
+  );
+  sleeve.position.copy(center);
+  sleeve.quaternion.setFromUnitVectors(
+    new THREE.Vector3(0,1,0),
+    dir.clone().normalize()
+  );
+  sleeve.castShadow=true;
+  armBone.add(sleeve);
+}
 
-  const mouth=new THREE.Mesh(new RoundedBoxGeometry(.095,.018,.012,5,.007),mouthMat);
-  mouth.position.set(0,-.090,-.004);
-  face.add(mouth);
+function addHoodieSleeves(root){
+  const left=bestBone(root,/left.*(upper)?arm|(upper)?arm.*left|upper.?arm[._-]?l/i);
+  const right=bestBone(root,/right.*(upper)?arm|(upper)?arm.*right|upper.?arm[._-]?r/i);
+  addSleeve(left);
+  addSleeve(right);
 }
 
 function addHoodieCollar(neckBone){
@@ -287,17 +375,56 @@ function addHoodieCollar(neckBone){
 
   const group=new THREE.Group();
   group.name='HoodieCollar';
-  attachGroupAtWorld(neckBone,group,p.clone().add(new THREE.Vector3(0,-.045,.025)));
+  attachGroupAtWorld(neckBone,group,p.clone().add(new THREE.Vector3(0,-.055,.015)));
 
-  const mat=smoothMat(TARGET.hoodie,.74);
-  const left=new THREE.Mesh(new RoundedBoxGeometry(.18,.10,.12,8,.05),mat);
+  const mat=smoothMat(TARGET.hoodieDark,.74);
+  const left=new THREE.Mesh(new RoundedBoxGeometry(.17,.09,.10,8,.045),mat);
   const right=left.clone();
-  left.position.set(-.095,0,0);
-  right.position.set(.095,0,0);
-  left.rotation.z=-.18;
-  right.rotation.z=.18;
+  left.position.set(-.085,0,0);
+  right.position.set(.085,0,0);
+  left.rotation.z=-.14;
+  right.rotation.z=.14;
   left.castShadow=right.castShadow=true;
   group.add(left,right);
+}
+
+function addShoe(footBone,side){
+  if(!footBone)return;
+
+  scene.updateMatrixWorld(true);
+  const p=new THREE.Vector3();
+  footBone.getWorldPosition(p);
+
+  const shoe=new THREE.Group();
+  shoe.name=side+'TargetShoe';
+  attachGroupAtWorld(
+    footBone,
+    shoe,
+    p.clone().add(new THREE.Vector3(0,-.045,-.060))
+  );
+
+  const upper=new THREE.Mesh(
+    new RoundedBoxGeometry(.20,.12,.34,10,.055),
+    smoothMat(TARGET.shoes,.58)
+  );
+  upper.position.set(0,0,-.035);
+  upper.castShadow=true;
+  shoe.add(upper);
+
+  const sole=new THREE.Mesh(
+    new RoundedBoxGeometry(.205,.055,.35,8,.025),
+    smoothMat(TARGET.sole,.64)
+  );
+  sole.position.set(0,-.075,-.035);
+  sole.castShadow=true;
+  shoe.add(sole);
+}
+
+function addTargetShoes(root){
+  const left=bestBone(root,/left.*foot|foot.*left|foot[._-]?l/i);
+  const right=bestBone(root,/right.*foot|foot.*right|foot[._-]?r/i);
+  addShoe(left,'Left');
+  addShoe(right,'Right');
 }
 
 function setCameraView(view){
@@ -321,8 +448,8 @@ function startCompactJog(gltf,human){
   if(walk){
     const a=mixer.clipAction(walk);
     a.enabled=true;
-    a.setEffectiveWeight(run?.35:1);
-    a.timeScale=1.7;
+    a.setEffectiveWeight(run?.72:1);
+    a.timeScale=1.72;
     a.play();
     actions.push(a);
   }
@@ -330,8 +457,8 @@ function startCompactJog(gltf,human){
   if(run){
     const a=mixer.clipAction(run);
     a.enabled=true;
-    a.setEffectiveWeight(walk?.65:1);
-    a.timeScale=1.05;
+    a.setEffectiveWeight(walk?.28:1);
+    a.timeScale=1.03;
     a.play();
     actions.push(a);
   }
@@ -358,7 +485,7 @@ new GLTFLoader().load(
   gltf=>{
     const human=gltf.scene;
 
-    fitToHeight(human,2.60);
+    fitToHeight(human,2.62);
     human.rotation.y=Math.PI;
     styleBase(human);
     runnerRoot.add(human);
@@ -368,7 +495,9 @@ new GLTFLoader().load(
 
     addTargetHair(bones.head);
     addTargetFace(bones.head);
+    addHoodieSleeves(human);
     addHoodieCollar(bones.neck);
+    addTargetShoes(human);
 
     startCompactJog(gltf,human);
 
