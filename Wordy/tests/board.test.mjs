@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { spanForWord } from '../engine/tile-size.mjs';
 import {
   createBoard,
   cloneBoard,
@@ -11,104 +10,97 @@ import {
   neighborForDirection,
   swapTiles,
   removeTiles,
-  emptyRuns,
+  settleGravity,
+  emptyCellsByColumn,
   boardKey
 } from '../engine/board.mjs';
 import { boardFromTiles } from './helpers.mjs';
 
-test('spanForWord returns only the four approved width buckets',()=>{
-  assert.equal(spanForWord('A'),1);
-  assert.equal(spanForWord('OF'),1);
-  assert.equal(spanForWord('LOOK'),2);
-  assert.equal(spanForWord('AFTER'),2);
-  assert.equal(spanForWord('COFFEE'),3);
-  assert.equal(spanForWord('HOMEWORK'),3);
-  assert.equal(spanForWord('ATTENTION'),4);
-  assert.equal(spanForWord('DIFFERENCE'),4);
-});
-
-test('createBoard packs an authored row to exactly 12 microcolumns',()=>{
+test('every tile occupies exactly one row/column cell',()=>{
   const board=createBoard([
-    ['LOOK','WENT','AFTER','MONEY','BEGUN','OF','A']
+    ['LOOK','AFTER','GO'],
+    ['MAKE','A','DECISION']
   ]);
-  assert.equal(board.columns,12);
-  assert.equal(board.rows,1);
+  assert.equal(board.rows,2);
+  assert.equal(board.columns,3);
   assert.deepEqual(
-    board.tiles.map(t=>[t.word,t.startColumn,t.span]),
+    board.tiles.map(({word,row,column})=>({word,row,column})),
     [
-      ['LOOK',0,2],['WENT',2,2],['AFTER',4,2],['MONEY',6,2],
-      ['BEGUN',8,2],['OF',10,1],['A',11,1]
+      {word:'LOOK',row:0,column:0},
+      {word:'AFTER',row:0,column:1},
+      {word:'GO',row:0,column:2},
+      {word:'MAKE',row:1,column:0},
+      {word:'A',row:1,column:1},
+      {word:'DECISION',row:1,column:2}
     ]
   );
+  assert.ok(board.tiles.every(tile=>!('span' in tile)&&!('startColumn' in tile)));
 });
 
-test('createBoard rejects rows that underfill or overflow 12 columns',()=>{
-  assert.throws(()=>createBoard([['LOOK','AFTER']]),/exactly 12/i);
+test('createBoard rejects ragged rows',()=>{
   assert.throws(
-    ()=>createBoard([['ATTENTION','DIFFERENCE','HOMEWORK','COFFEE']]),
-    /12 columns/i
+    ()=>createBoard([['LOOK','AFTER'],['MAKE','A','DECISION']]),
+    /same number of columns/i
   );
 });
 
-test('occupancyMap fills every microcell covered by each tile',()=>{
+test('occupancyMap maps exactly one tile id per occupied cell',()=>{
   const board=createBoard([
-    ['A','ATTENTION','LOOK','MAKE','OF','TO','I']
+    ['LOOK','AFTER'],
+    ['MAKE','DECISION']
   ]);
   const map=occupancyMap(board);
-  const attention=board.tiles.find(t=>t.word==='ATTENTION');
-  assert.deepEqual(map[0].slice(attention.startColumn,attention.startColumn+attention.span),
-    Array(attention.span).fill(attention.id));
-  assert.equal(map[0].filter(Boolean).length,12);
+  assert.equal(map.length,2);
+  assert.equal(map[0].length,2);
+  assert.equal(map[0][0],board.tiles.find(t=>t.word==='LOOK').id);
+  assert.equal(map[1][1],board.tiles.find(t=>t.word==='DECISION').id);
 });
 
-test('different-width touching tiles can swap horizontally and preserve identity',()=>{
+test('interior tile has four conventional orthogonal neighbors',()=>{
   const board=createBoard([
-    ['A','ATTENTION','LOOK','MAKE','OF','TO','I']
+    ['A','B','C'],
+    ['D','E','F'],
+    ['G','H','I']
+  ]);
+  const e=board.tiles.find(tile=>tile.word==='E');
+  assert.equal(tileById(board,neighborForDirection(board,e.id,'left')).word,'D');
+  assert.equal(tileById(board,neighborForDirection(board,e.id,'right')).word,'F');
+  assert.equal(tileById(board,neighborForDirection(board,e.id,'up')).word,'B');
+  assert.equal(tileById(board,neighborForDirection(board,e.id,'down')).word,'H');
+});
+
+test('edge tile exposes only real neighbors',()=>{
+  const board=createBoard([
+    ['A','B'],
+    ['C','D']
+  ]);
+  const a=board.tiles.find(tile=>tile.word==='A');
+  assert.equal(neighborForDirection(board,a.id,'left'),null);
+  assert.equal(neighborForDirection(board,a.id,'up'),null);
+  assert.equal(tileById(board,neighborForDirection(board,a.id,'right')).word,'B');
+  assert.equal(tileById(board,neighborForDirection(board,a.id,'down')).word,'C');
+});
+
+test('all orthogonally adjacent tiles can swap regardless of word length',()=>{
+  const board=createBoard([
+    ['A','ATTENTION'],
+    ['LOOK','DIFFERENCE']
   ]);
   const a=board.tiles.find(t=>t.word==='A');
   const attention=board.tiles.find(t=>t.word==='ATTENTION');
+  const look=board.tiles.find(t=>t.word==='LOOK');
   assert.equal(areSwapNeighbors(board,a.id,attention.id),true);
-  assert.equal(neighborForDirection(board,a.id,'right'),attention.id);
-  const next=swapTiles(board,a.id,attention.id);
-  assert.equal(tileById(board,a.id).startColumn,0);
-  assert.equal(tileById(next,attention.id).startColumn,0);
-  assert.equal(tileById(next,a.id).startColumn,4);
-  assert.equal(tileById(next,a.id).id,a.id);
+  assert.equal(areSwapNeighbors(board,a.id,look.id),true);
+  const horizontal=swapTiles(board,a.id,attention.id);
+  assert.equal(tileById(horizontal,attention.id).column,0);
+  assert.equal(tileById(horizontal,a.id).column,1);
+  const vertical=swapTiles(board,a.id,look.id);
+  assert.equal(tileById(vertical,look.id).row,0);
+  assert.equal(tileById(vertical,a.id).row,1);
 });
 
-test('vertical swap requires identical complete footprint',()=>{
-  const board=boardFromTiles({
-    rows:2,columns:12,
-    tiles:[
-      {id:'wide',word:'COFFEE',row:0,startColumn:0,span:3},
-      {id:'one',word:'A',row:1,startColumn:0,span:1},
-      {id:'two',word:'OF',row:1,startColumn:1,span:1},
-      {id:'three',word:'TO',row:1,startColumn:2,span:1}
-    ]
-  });
-  assert.equal(areSwapNeighbors(board,'wide','one'),false);
-  assert.equal(neighborForDirection(board,'wide','down'),null);
-});
-
-test('identical footprints on adjacent rows are vertical swap neighbors',()=>{
-  const board=boardFromTiles({
-    rows:2,columns:12,
-    tiles:[
-      {id:'look',word:'LOOK',row:0,startColumn:3,span:2},
-      {id:'after',word:'AFTER',row:1,startColumn:3,span:2}
-    ]
-  });
-  assert.equal(areSwapNeighbors(board,'look','after'),true);
-  assert.equal(neighborForDirection(board,'look','down'),'after');
-  const next=swapTiles(board,'look','after');
-  assert.equal(tileById(next,'look').row,1);
-  assert.equal(tileById(next,'after').row,0);
-});
-
-test('removeTiles is immutable and removes duplicate tile ids once',()=>{
-  const board=createBoard([
-    ['LOOK','WENT','AFTER','MONEY','BEGUN','OF','A']
-  ]);
+test('removeTiles is immutable and removes duplicate ids once',()=>{
+  const board=createBoard([['LOOK','AFTER'],['MAKE','DECISION']]);
   const look=board.tiles.find(t=>t.word==='LOOK');
   const next=removeTiles(board,[look.id,look.id]);
   assert.ok(tileById(board,look.id));
@@ -116,78 +108,58 @@ test('removeTiles is immutable and removes duplicate tile ids once',()=>{
   assert.equal(next.tiles.length,board.tiles.length-1);
 });
 
-test('emptyRuns reports exact horizontal gaps in incomplete rows',()=>{
+test('gravity bottom-packs each column and never changes column',()=>{
+  const board=createBoard([
+    ['A','B'],
+    ['C','D'],
+    ['E','F']
+  ]);
+  const removed=removeTiles(board,[
+    board.tiles.find(t=>t.word==='C').id,
+    board.tiles.find(t=>t.word==='F').id
+  ]);
+  const settled=settleGravity(removed);
+  assert.deepEqual(
+    settled.tiles.filter(t=>t.column===0).sort((a,b)=>a.row-b.row).map(t=>[t.word,t.row,t.column]),
+    [['A',1,0],['E',2,0]]
+  );
+  assert.deepEqual(
+    settled.tiles.filter(t=>t.column===1).sort((a,b)=>a.row-b.row).map(t=>[t.word,t.row,t.column]),
+    [['B',1,1],['D',2,1]]
+  );
+});
+
+test('emptyCellsByColumn reports only top holes after gravity',()=>{
   const board=boardFromTiles({
-    rows:1,columns:12,
+    rows:4,columns:2,
     tiles:[
-      {id:'left',word:'LOOK',row:0,startColumn:0,span:2},
-      {id:'right',word:'ATTENTION',row:0,startColumn:5,span:4}
+      {id:'a',word:'A',row:2,column:0},
+      {id:'b',word:'B',row:3,column:0},
+      {id:'c',word:'C',row:1,column:1},
+      {id:'d',word:'D',row:2,column:1},
+      {id:'e',word:'E',row:3,column:1}
     ]
   });
-  assert.deepEqual(emptyRuns(board,0),[
-    {row:0,startColumn:2,width:3},
-    {row:0,startColumn:9,width:3}
+  assert.deepEqual(emptyCellsByColumn(board),[
+    {row:0,column:0},
+    {row:1,column:0},
+    {row:0,column:1}
   ]);
 });
 
-test('cloneBoard and tilesInRow expose copies in geometric order',()=>{
-  const board=createBoard([
-    ['LOOK','WENT','AFTER','MONEY','BEGUN','OF','A']
-  ]);
+test('cloneBoard and tilesInRow expose copies in column order',()=>{
+  const board=createBoard([['LOOK','AFTER','GO']]);
   const copy=cloneBoard(board);
   copy.tiles[0].word='CHANGED';
   assert.equal(board.tiles[0].word,'LOOK');
-  assert.deepEqual(tilesInRow(board,0).map(t=>t.word),
-    ['LOOK','WENT','AFTER','MONEY','BEGUN','OF','A']);
+  assert.deepEqual(tilesInRow(board,0).map(t=>t.word),['LOOK','AFTER','GO']);
 });
 
-test('boardKey represents geometric word arrangement rather than tile identity',()=>{
-  const words=[['LOOK','WENT','AFTER','MONEY','BEGUN','OF','A']];
+test('boardKey represents word arrangement rather than tile identity',()=>{
+  const words=[['LOOK','AFTER'],['MAKE','DECISION']];
   const a=createBoard(words);
-  const b=createBoard(words,{idFactory:({row,index})=>`other-${row}-${index}`});
+  const b=createBoard(words,{idFactory:({row,column})=>`other-${row}-${column}`});
   const c=swapTiles(a,a.tiles[0].id,a.tiles[1].id);
   assert.equal(boardKey(a),boardKey(b));
   assert.notEqual(boardKey(a),boardKey(c));
-});
-
-
-test('span-3 tile does not fall through partial support and falls when its whole footprint clears',async()=>{
-  const {settleGravity}=await import('../engine/board.mjs');
-  const blocked=boardFromTiles({
-    rows:2,columns:12,
-    tiles:[
-      {id:'wide',word:'COFFEE',row:0,startColumn:0,span:3},
-      {id:'support',word:'A',row:1,startColumn:1,span:1}
-    ]
-  });
-  assert.equal(tileById(settleGravity(blocked),'wide').row,0);
-  const clear=removeTiles(blocked,['support']);
-  assert.equal(tileById(settleGravity(clear),'wide').row,1);
-});
-
-test('partitionRun tiles every positive width exactly using only spans 1-4',async()=>{
-  const {partitionRun}=await import('../engine/board.mjs');
-  for(let width=1;width<=12;width++){
-    const spans=partitionRun(width);
-    assert.equal(spans.reduce((sum,span)=>sum+span,0),width);
-    assert.ok(spans.every(span=>span>=1&&span<=4));
-  }
-});
-
-test('refill closes enclosed cavities left by rigid gravity without overlaps',async()=>{
-  const {settleGravity,refillEmptyRuns}=await import('../engine/board.mjs');
-  const board=boardFromTiles({
-    rows:2,columns:12,
-    tiles:[
-      {id:'wide',word:'COFFEE',row:0,startColumn:0,span:3},
-      {id:'support',word:'A',row:1,startColumn:1,span:1}
-    ]
-  });
-  const settled=settleGravity(board);
-  let id=0;
-  const words={1:'ZZ',2:'ZZZ',3:'ZZZZZZ',4:'ZZZZZZZZZ'};
-  const filled=refillEmptyRuns(settled,({span})=>({id:'refill-'+(++id),word:words[span]}));
-  const map=occupancyMap(filled);
-  assert.ok(map.every(row=>row.every(Boolean)));
-  assert.equal(tileById(filled,'wide').row,0);
 });
