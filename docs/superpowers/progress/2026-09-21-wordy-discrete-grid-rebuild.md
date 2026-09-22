@@ -21,3 +21,12 @@
 - Task 3 RED: after migrating matcher identity, the old generator failed to import removed `cellKey`; this correctly exposed its matrix-cell dependency.
 - **Task 3 complete:** geometric tile-ID swap enumeration, productive move discovery, 12-column controlled generation, minimum 4 productive swaps across at least 3 rows, dead-board recovery, and all A–G authored fixtures packed to 12 microcolumns. Final focused verification: **13/13 pass**.
 - Task 3 GitHub commits: `edb0af5`, `9e63daf`, `170caa9`, `4bc70a8`.
+
+- **Task 4 ruling:** the old controller statically imported the matrix-based resolution engine, so controller tests could not load after Tasks 1–3. Task 4 temporarily decoupled POP while migrating swap/state/review to tile IDs; Task 5 immediately reconnected POP to the new resolver. No compatibility matrix API was reintroduced.
+- Task 4 RED: new tests required `attemptSwap(fromTileId,toTileId)` with `invalid/rebound/accepted`; the old controller exposed only cell-based `swap(from,to)` and review snapshots used row matrices.
+- **Task 4 complete:** Candy-style rebound semantics, accepted productive swaps, unchanged canonical state/moves on rebound, tile-centric missed-opportunity snapshots, and rebound telemetry. Focused verification: **10/10 pass**.
+- Task 4 GitHub commits: `826aa9c`, `8b6b72d`, `7a14ba6`, `e321337`.
+- **Task 5 test correction:** the original 3-row partial-support example allowed the support tile itself to fall, changing the condition being tested. The regression uses 2 rows so the support is immovable at the bottom and isolates the intended rigid-footprint rule.
+- Task 5 RED: missing `settleGravity`, `partitionRun`, `refillEmptyRuns`; old resolver still imported removed matrix helpers; controller POP was intentionally disconnected after Task 4.
+- **Task 5 complete:** rigid multi-cell gravity, exact empty-run partition/refill, tile-ID removal, crossing-safe POP, cascade detection, span-aware refill words, and controller POP/recovery reconnection. Focused verification: **25/25 pass**.
+- Task 5 GitHub commits: `ba45044`, `1769705`, `c07bc80`, `e6ebcd4`, `b6f234c`, `89f7c94`.
