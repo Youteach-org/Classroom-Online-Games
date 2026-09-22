@@ -1,0 +1,147 @@
+name: Oral Grader V1 - Gemini Stage 1
+
+on:
+  push:
+    branches:
+      - feature/oral-grader-v1-20260922
+    paths:
+      - Oral-Grader/run-request.json
+  workflow_dispatch:
+    inputs:
+      pair_slug:
+        description: Output slug, for example paul-paulina
+        required: true
+        type: string
+      audio_url:
+        description: Optional temporary authenticated audio URL
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  stage1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out OG branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install OG dependencies
+        run: python -m pip install --disable-pip-version-check pytest google-genai
+
+      - name: Run OG unit tests
+        run: python -m pytest -q Oral-Grader/tests/test-gemini-transcribe.py
+
+      - name: Resolve Stage-1 request
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_PAIR_SLUG: ${{ inputs.pair_slug }}
+          DISPATCH_AUDIO_URL: ${{ inputs.audio_url }}
+          SECRET_AUDIO_URL: ${{ secrets.ORAL_GRADER_AUDIO_URL }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          if os.environ["EVENT_NAME"] == "workflow_dispatch":
+              pair_slug = os.environ.get("DISPATCH_PAIR_SLUG", "").strip()
+              source_url = (
+                  os.environ.get("DISPATCH_AUDIO_URL", "").strip()
+                  or os.environ.get("SECRET_AUDIO_URL", "").strip()
+              )
+          else:
+              payload = json.loads(
+                  Path("Oral-Grader/run-request.json").read_text(encoding="utf-8")
+              )
+              pair_slug = str(payload.get("pair_slug", "")).strip()
+              source_url = os.environ.get("SECRET_AUDIO_URL", "").strip()
+
+          if not pair_slug or not pair_slug.replace("-", "").isalnum():
+              raise SystemExit(
+                  "pair_slug must contain only letters, numbers, and hyphens"
+              )
+          if not source_url:
+              raise SystemExit(
+                  "No audio URL available. Configure ORAL_GRADER_AUDIO_URL "
+                  "or provide audio_url through workflow_dispatch."
+              )
+
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env:
+              env.write(f"PAIR_SLUG={pair_slug}\n")
+              env.write(f"SOURCE_URL={source_url}\n")
+          PY
+
+      - name: Verify Gemini credential is configured
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        shell: bash
+        run: |
+          if [ -z "$GEMINI_API_KEY" ] && [ -z "$GOOGLE_API_KEY" ]; then
+            echo "Gemini API key secret is not configured." >&2
+            exit 2
+          fi
+
+      - name: Download original audio
+        shell: bash
+        run: |
+          curl --fail --location --retry 2 --silent --show-error             "$SOURCE_URL"             -o /tmp/oral-grader-source.ogg
+          test -s /tmp/oral-grader-source.ogg
+          echo "Downloaded $(wc -c < /tmp/oral-grader-source.ogg) bytes"
+
+      - name: Run Gemini literal transcription
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        shell: bash
+        run: |
+          mkdir -p Oral-Grader/transcripts
+          python Oral-Grader/stage1/gemini-transcribe.py             /tmp/oral-grader-source.ogg             --pair-slug "$PAIR_SLUG"             --output-json "Oral-Grader/transcripts/${PAIR_SLUG}-stage1.json"             --output-md "Oral-Grader/transcripts/${PAIR_SLUG}-stage1.md"
+
+      - name: Validate Stage-1 output
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          pair_slug = os.environ["PAIR_SLUG"]
+          path = Path("Oral-Grader/transcripts") / f"{pair_slug}-stage1.json"
+          data = json.loads(path.read_text(encoding="utf-8"))
+
+          assert data["project"] == "Oral-Grader"
+          assert data["stage"] == 1
+          assert data["model"] == "gemini-3.5-transcribe"
+          assert data["mode"] == "verbatim"
+          assert data["speaker_diarization"] is True
+          assert data["word_timestamps"] is True
+          assert data["words"], "Gemini returned no word annotations"
+          assert data["turns"], "Gemini returned no speaker turns"
+
+          print(
+              f"Validated {len(data['words'])} words "
+              f"and {len(data['turns'])} speaker turns"
+          )
+          PY
+
+      - name: Commit literal transcript
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email             "41898282+github-actions[bot]@users.noreply.github.com"
+          git add             "Oral-Grader/transcripts/${PAIR_SLUG}-stage1.json"             "Oral-Grader/transcripts/${PAIR_SLUG}-stage1.md"
+          git commit -m "data(og): add ${PAIR_SLUG} Gemini Stage-1 transcript"
+          git push
