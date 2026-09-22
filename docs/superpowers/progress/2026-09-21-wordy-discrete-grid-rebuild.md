@@ -58,3 +58,6 @@
 - Canonical-route verification used temporary workflow `Wordy Task 10 Live Check`, run `35768813699`, which completed **success** after fetching `https://classroom-online-games.pages.dev/Wordy/`, `engine/tile-size.mjs`, and `styles.css`, confirming `spanForWord` and 12-column grid markers.
 - Temporary Task 10 workflows were removed from `feature/wordy-game` after verification.
 - **Discrete-grid plan Tasks 1–10 complete.**
+
+- Final review: self-review (no subagent tool available in this harness). Reviewed the production promotion against the plan's five Review Focus risks and the atomic main diff. No Critical or Important findings remained: rigid gravity requires the full footprint below to be clear; mixed-span vertical matching scans shared microcolumns and deduplicates by relationship/orientation/tile IDs; rebound exits before canonical state mutation; cavity refill partitions exact horizontal empty runs; production diff contains only Wordy runtime files.
+- Final verification evidence: pre-promotion workflow `35768528716` → **88/88 pass** plus syntax exit 0; Cloudflare run `35768686972` → **success** for exact main SHA `60d8d0df`; live canonical-route run `35768813699` → **success**.
