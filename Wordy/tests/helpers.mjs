@@ -22,3 +22,11 @@ export function relation(id,tokens,category='collocation',baseScore=120,difficul
 export function match(relationshipId,cells,orientation='horizontal',tokens=[]){
   return {relationshipId,cells,orientation,tokens};
 }
+
+export function boardFromTiles({rows,columns=12,tiles}){
+  return {
+    rows,
+    columns,
+    tiles:(tiles??[]).map(tile=>({...tile}))
+  };
+}
