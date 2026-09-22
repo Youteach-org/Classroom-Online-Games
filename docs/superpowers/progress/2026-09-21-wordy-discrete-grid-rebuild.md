@@ -49,4 +49,12 @@
 - Task 9 verification before documentation: `node --test Wordy/tests/*.test.mjs` → **88/88 pass**; `node --check Wordy/app.mjs` → exit 0.
 - Task 9 handoff cleanup: `WORDY-CURRENT.md` now makes the discrete 12×7 architecture the sole continuation authority and removes/supersedes productive-only swap, local-only, githack-preview, and stale PR #46 guidance.
 - Task 9 GitHub commits: `1a8e54f` (end-to-end gameplay regression), `ad85fd5` (authoritative handoff).
-- **Task 10 pending:** production promotion of the verified discrete-grid runtime. Do not merge/publish without explicit user instruction.
+- **Task 10 complete:** user explicitly authorized production publication on 2026-09-22.
+- Task 10 fresh pre-promotion verification used temporary workflow `Wordy Task 10 Verify`, run `35768528716`, commit `3c6d594f`: `node --test Wordy/tests/*.test.mjs` → **88/88 pass, 0 fail**; `node --check Wordy/app.mjs` → exit 0.
+- Promotion was built as one atomic commit from `main` parent `339d5c53`, copying only verified `Wordy/index.html`, `Wordy/app.mjs`, `Wordy/styles.css`, `Wordy/data/**`, `Wordy/engine/**`, and `Wordy/ui/**` blobs from the feature tree.
+- Pre-ref update compare showed exactly one commit ahead and only Wordy runtime changes; no docs/tests/devcontainer/unrelated feature history entered `main`.
+- Production commit: `60d8d0df4b68b047dbf4e494c1542ef5f22652b3` — `feat(wordy): promote discrete-grid runtime`.
+- Existing Cloudflare workflow run `35768686972` completed **success** for exact production SHA `60d8d0df`; Wrangler deployed project `classroom-online-games` and reported `https://867f3ab8.classroom-online-games.pages.dev`.
+- Canonical-route verification used temporary workflow `Wordy Task 10 Live Check`, run `35768813699`, which completed **success** after fetching `https://classroom-online-games.pages.dev/Wordy/`, `engine/tile-size.mjs`, and `styles.css`, confirming `spanForWord` and 12-column grid markers.
+- Temporary Task 10 workflows were removed from `feature/wordy-game` after verification.
+- **Discrete-grid plan Tasks 1–10 complete.**
