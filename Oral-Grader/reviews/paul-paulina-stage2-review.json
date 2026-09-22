@@ -1,0 +1,27 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "paul-paulina",
+  "stage": 2,
+  "review_status": "accepted_with_reporting_correction",
+  "accepted_for_rubric": true,
+  "teacher_reporting_rules": {
+    "use_model_sentence_level_intended_rewrites": false,
+    "intended_definition": "Natural, idiomatic English expressing the student's probable meaning; never a literal Spanish-to-English calque.",
+    "uncertain_intent_rule": "If natural intended meaning cannot be inferred confidently, omit it and mark intent uncertain.",
+    "final_report_rule": "Do not reproduce sentence-level intended corrections for pronunciation-acceptable items. Show heard -> intended only when needed to explain a supported pronunciation error or an uncertain pronunciation case."
+  },
+  "teacher_confirmed_pronunciation_evidence": [
+    {
+      "speaker": "Paul",
+      "heard": "fires",
+      "intended": "fathers",
+      "pronunciation": "incorrect",
+      "source": "teacher-confirmed-from-audio"
+    }
+  ],
+  "notes": [
+    "Stage-2 evidence is accepted for rubric use.",
+    "The model-generated sentence-level intended rewrites in the raw Stage-2 artifact are not approved as corrections and must not appear in the final report/PDF.",
+    "Grammar, vocabulary, fluency, interaction, and pronunciation evidence remain usable as evidence, subject to teacher review."
+  ]
+}
