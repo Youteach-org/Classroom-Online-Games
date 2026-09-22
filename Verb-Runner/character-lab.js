@@ -331,6 +331,12 @@ function buildReferenceDetails(human){
   if(headBone)headBone.scale.multiplyScalar(1.045);
   scene.updateMatrixWorld(true);
 
+  window.__characterBoneDump=allBones(human).map(b=>{
+    const p=new THREE.Vector3();
+    b.getWorldPosition(p);
+    return {name:b.name||'',x:+p.x.toFixed(4),y:+p.y.toFixed(4),z:+p.z.toFixed(4)};
+  });
+
   const neck=wpos(neckBone,new THREE.Vector3(0,1.90,0));
   const chest=wpos(chestBone,new THREE.Vector3(0,1.65,0));
   const hips=wpos(hipsBone,new THREE.Vector3(0,1.19,0));
