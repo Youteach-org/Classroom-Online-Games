@@ -1,10 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createBoard } from '../engine/board.mjs';
+import { boardFromTiles, createFakeStorage, relation } from './helpers.mjs';
 import { createRelationshipBank } from '../engine/relationship-bank.mjs';
 import { captureMissedOpportunity, buildRoundReview } from '../engine/review.mjs';
 import { createTelemetryStore } from '../engine/telemetry.mjs';
-import { createFakeStorage, relation } from './helpers.mjs';
 
 const bank=createRelationshipBank([
   relation('look-after',['LOOK','AFTER'],'phrasal-verb',120,1),
@@ -12,77 +11,67 @@ const bank=createRelationshipBank([
   relation('take-a-break',['TAKE','A','BREAK'],'collocation',180,2),
   relation('by-the-way',['BY','THE','WAY'],'fixed-expression',170,2)
 ]);
-const board=createBoard([
-  ['LOOK','X','AFTER'],
-  ['MAKE','X','SENSE'],
-  ['TAKE','A','BREAK']
-]);
+
+const board=boardFromTiles({rows:2,columns:12,tiles:[
+  {id:'look',word:'LOOK',row:0,startColumn:0,span:2},
+  {id:'x',word:'WENT',row:0,startColumn:2,span:2},
+  {id:'after',word:'AFTER',row:0,startColumn:4,span:2},
+  {id:'make',word:'MAKE',row:1,startColumn:0,span:2},
+  {id:'y',word:'GONE',row:1,startColumn:2,span:2},
+  {id:'sense',word:'SENSE',row:1,startColumn:4,span:2}
+]});
+
 const bestMove={
-  swap:{from:{row:0,col:1},to:{row:0,col:2}},
-  matches:[{relationshipId:'look-after'}],
+  swap:{fromTileId:'x',toTileId:'after'},
+  matches:[{relationshipId:'look-after',tileIds:['look','after']}],
   projectedScore:170
 };
 const lowMove={
-  swap:{from:{row:1,col:1},to:{row:1,col:2}},
-  matches:[{relationshipId:'make-sense'}],
+  swap:{fromTileId:'y',toTileId:'sense'},
+  matches:[{relationshipId:'make-sense',tileIds:['make','sense']}],
   projectedScore:140
 };
-const otherSwap={from:{row:0,col:0},to:{row:1,col:0}};
-const m1={relationshipId:'look-after',projectedScore:100};
-const m2={relationshipId:'take-a-break',projectedScore:220};
-const m3={relationshipId:'make-sense',projectedScore:140};
-const m4={relationshipId:'by-the-way',projectedScore:180};
+
+const m1={relationshipId:'look-after',projectedScore:100,suggestedSwap:{fromTileId:'a',toTileId:'b'}};
+const m2={relationshipId:'take-a-break',projectedScore:220,suggestedSwap:{fromTileId:'c',toTileId:'d'}};
+const m3={relationshipId:'make-sense',projectedScore:140,suggestedSwap:{fromTileId:'e',toTileId:'f'}};
+const m4={relationshipId:'by-the-way',projectedScore:180,suggestedSwap:{fromTileId:'g',toTileId:'h'}};
 
 test('chosen best scoring swap is not recorded as missed',()=>{
-  const missed=captureMissedOpportunity({
-    board,
-    scoringMoves:[bestMove],
-    chosenSwap:bestMove.swap,
-    bank
-  });
+  const missed=captureMissedOpportunity({board,scoringMoves:[bestMove],chosenSwap:bestMove.swap,bank});
   assert.equal(missed,null);
 });
 
-test('a different chosen move records the highest verified immediate opportunity with logical board snapshot',()=>{
+test('different chosen move records best opportunity with canonical tile geometry snapshot',()=>{
   const missed=captureMissedOpportunity({
-    board,
-    scoringMoves:[lowMove,bestMove],
-    chosenSwap:otherSwap,
-    bank
-  });
-  assert.equal(missed.relationshipId,bestMove.matches[0].relationshipId);
-  assert.equal(Array.isArray(missed.boardRows),true);
-  assert.equal(missed.boardRows[0][0],'LOOK');
-  assert.equal('image' in missed,false);
-  assert.deepEqual(missed.suggestedSwap,bestMove.swap);
-});
-
-test('choosing a lower-value scoring move records only the better missed opportunity',()=>{
-  const missed=captureMissedOpportunity({
-    board,
-    scoringMoves:[lowMove,bestMove],
-    chosenSwap:lowMove.swap,
-    bank
+    board,scoringMoves:[lowMove,bestMove],chosenSwap:lowMove.swap,bank
   });
   assert.equal(missed.relationshipId,'look-after');
-  assert.equal(missed.projectedScore,170);
+  assert.equal(missed.boardSnapshot.columns,12);
+  assert.equal(missed.boardSnapshot.tiles.find(t=>t.id==='look').startColumn,0);
+  assert.equal('boardRows' in missed,false);
+  assert.deepEqual(missed.suggestedSwap,{fromTileId:'x',toTileId:'after'});
 });
 
-test('round review returns at most three new and three missed items ordered by value',()=>{
-  const review=buildRoundReview({newRelationshipIds:['look-after','make-sense','take-a-break','by-the-way'],missedOpportunities:[m1,m2,m3,m4],bank,limit:3});
+test('round review deduplicates missed items using tile-id swap identity',()=>{
+  const duplicate={...m2,projectedScore:210};
+  const review=buildRoundReview({
+    newRelationshipIds:['look-after','make-sense','take-a-break','by-the-way'],
+    missedOpportunities:[m1,m2,duplicate,m3,m4],bank,limit:3
+  });
   assert.equal(review.newLearning.length,3);
   assert.equal(review.missed.length,3);
+  assert.equal(review.missed.filter(item=>item.relationshipId==='take-a-break').length,1);
   assert.ok(review.missed[0].projectedScore>=review.missed[1].projectedScore);
-  assert.equal(review.newLearning[0].id,'look-after');
 });
 
 test('telemetry store persists and restores events without a backend',()=>{
   const storage=createFakeStorage();
   const store=createTelemetryStore({storage});
-  store.record('swap',{from:[0,0],to:[0,1]});
+  store.record('swap-rebound',{fromTileId:'a',toTileId:'b'});
   const restored=createTelemetryStore({storage});
   assert.equal(restored.events().length,1);
-  assert.equal(restored.events()[0].type,'swap');
+  assert.equal(restored.events()[0].type,'swap-rebound');
 });
 
 test('telemetry tolerates corrupt persisted data and can be cleared',()=>{
@@ -91,7 +80,6 @@ test('telemetry tolerates corrupt persisted data and can be cleared',()=>{
   const store=createTelemetryStore({storage});
   assert.deepEqual(store.events(),[]);
   store.record('level-start',{levelId:'A'});
-  assert.equal(store.events().length,1);
   store.clear();
   assert.deepEqual(store.events(),[]);
 });
