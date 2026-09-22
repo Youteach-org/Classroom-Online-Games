@@ -63,3 +63,23 @@ V1 is NOT yet declared complete. Remaining gate:
 3. verify the exact preview deployments are green.
 
 Do not merge or publish production until those gates are satisfied.
+
+## Talk Talk V1 verified preview checkpoint — 2026-09-21
+
+COG implementation branch: `feature/talk-talk-v1-20260921`  
+Verified COG commit: `e292f14964320a20bb863162a3d663cb8b96d2a8`  
+Verified COG Actions run: `35678458509` — tests, preview deployment, HTTP probe, and Chrome headless all GREEN.  
+COG preview: `https://talk-talk-v1-20260921.classroom-online-games.pages.dev`
+
+YouTeach implementation branch: `feature/talk-talk-v1-20260921`  
+Verified YouTeach head: `20fb55c7a9c012bed98a2cb9b8dd3bfde38f78a2`  
+Verified YouTeach Actions run: `35676531388` — GREEN.  
+YouTeach preview family: `https://talk-talk-v1-20260921.youteach.pages.dev`
+
+Important origin rule:
+- production COG = `https://utichgion.org`;
+- Talk Talk YouTeach preview automatically maps to the same-named COG preview;
+- other generic YouTeach previews do not get remapped;
+- explicit allowed `COG_LIVE_ORIGIN` remains authoritative.
+
+Do not declare classroom validation complete until a real authenticated teacher/student run exercises microphone capture, team confirmation, in-person host flow, remote flow, result return, retry/disconnect, and real-device local-model performance.
