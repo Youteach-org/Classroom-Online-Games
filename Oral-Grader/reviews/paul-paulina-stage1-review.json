@@ -1,0 +1,27 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "paul-paulina",
+  "stage": 1,
+  "review_status": "accepted_with_notes",
+  "accepted_for_stage2": true,
+  "speaker_mapping": {
+    "spk:0": "Teacher",
+    "spk:1": "Paul",
+    "spk:2": "Paulina"
+  },
+  "fidelity_notes": [
+    "The transcript is sufficiently faithful to proceed, although some words are missing.",
+    "Several rapid question-and-answer exchanges between the students are imperfectly transcribed but are not material to the evaluation.",
+    "The raw Gemini transcript must remain unchanged; teacher-reviewed corrections belong in review/analysis layers."
+  ],
+  "teacher_confirmed_pronunciation_evidence": [
+    {
+      "heard": "fires",
+      "intended": "fathers",
+      "speaker": "Paul",
+      "timestamp": null,
+      "status": "teacher-confirmed-from-audio",
+      "note": "Gemini normalized this production toward 'father/fathers'; preserve the teacher-confirmed heard form 'fires' for Stage 2 pronunciation analysis."
+    }
+  ]
+}
