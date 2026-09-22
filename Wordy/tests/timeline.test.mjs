@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { buildResolutionEvents } from '../engine/resolution-events.mjs';
 import { playResolutionTimeline } from '../ui/timeline.mjs';
 
-const match=(id,tokens)=>({relationshipId:id,tokens,cells:tokens.map((_,col)=>({row:0,col}))});
+const match=(id,tokens)=>({relationshipId:id,tokens,tileIds:tokens.map((_,index)=>`${id}-${index}`)});
 
 test('resolution events describe player pop then each automatic cascade generation',()=>{
   const events=buildResolutionEvents({
