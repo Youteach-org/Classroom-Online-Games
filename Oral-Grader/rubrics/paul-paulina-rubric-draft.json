@@ -2,7 +2,7 @@
   "project": "Oral-Grader",
   "pair_slug": "paul-paulina",
   "stage": "rubric-draft",
-  "status": "draft_for_teacher_review",
+  "status": "recalibrated_draft_for_teacher_review",
   "rubric_maximum": 40,
   "criterion_maximum": 8,
   "evidence_sources": [
@@ -19,17 +19,17 @@
       "scores": {
         "fluency": 6,
         "coherence_and_organization": 6,
-        "grammar_and_vocabulary": 5,
+        "grammar_and_vocabulary": 6,
         "pronunciation_and_intelligibility": 7,
-        "communicative_interaction": 6
+        "communicative_interaction": 7
       },
-      "total": 30,
+      "total": 32,
       "rationale": {
         "fluency": "Maintains extended responses and the conversation despite hesitations, self-corrections, and grammatical restructuring. Speech is sustained rather than repeatedly abandoned.",
         "coherence_and_organization": "Usually answers the prompt and develops relevant examples, but some responses contain fragments and lexical choices that make progression less clear.",
-        "grammar_and_vocabulary": "Frequent subject-verb agreement, article, preposition, verb-form, and word-choice errors occur across several turns, while the main meaning usually remains recoverable.",
+        "grammar_and_vocabulary": "Course-aligned scoring: the diagnostic report retains all useful errors, but the summative score emphasizes Units 1–4 targets and functional use. Paul communicates relevant ideas about difficult experiences, admired people, stress, reactions, and personal qualities; repeated basic errors remain important for feedback but do not all count equally against the grade.",
         "pronunciation_and_intelligibility": "Generally intelligible. One pronunciation error is teacher-confirmed from the audio: 'fires' for intended 'fathers'. No other pronunciation error is treated as certain.",
-        "communicative_interaction": "Takes turns, asks and answers questions, and remains engaged with the partner. Teacher clarification/word support occurs but does not dominate the exchange."
+        "communicative_interaction": "Maintains turn-taking, asks and answers questions, responds to the partner, and keeps the exchange active. Brief teacher clarification/word support does not dominate the conversation."
       },
       "key_evidence": [
         "23.200s–29.600s: asks partner a question and keeps the exchange moving.",
@@ -41,17 +41,17 @@
     "Paulina": {
       "scores": {
         "fluency": 6,
-        "coherence_and_organization": 5,
-        "grammar_and_vocabulary": 4,
-        "pronunciation_and_intelligibility": 6,
-        "communicative_interaction": 6
+        "coherence_and_organization": 6,
+        "grammar_and_vocabulary": 6,
+        "pronunciation_and_intelligibility": 7,
+        "communicative_interaction": 7
       },
-      "total": 27,
+      "total": 32,
       "rationale": {
         "fluency": "Sustains long turns and continues speaking even when searching for words, but frequent hesitation, repetition, pauses, and self-repair noticeably reduce smoothness.",
-        "coherence_and_organization": "Usually stays on the topic and provides examples, but ideas are often fragmented and difficult to organize because of word-retrieval and sentence-structure problems.",
-        "grammar_and_vocabulary": "Frequent errors affect tense, agreement, articles, prepositions, pronouns, word order, and word choice. Meaning is often recoverable but sometimes requires substantial interpretation.",
-        "pronunciation_and_intelligibility": "No pronunciation error is confirmed strongly enough to count as incorrect. Overall speech is often understandable, but some stretches require clarification, so intelligibility is not consistently effortless.",
+        "coherence_and_organization": "Course-aligned scoring: despite fragmented syntax and word retrieval, she usually stays on the assigned topic and develops recognizable examples about helping others, admiration, stress, nervousness, and anger.",
+        "grammar_and_vocabulary": "The diagnostic report keeps the full error inventory, but the score emphasizes taught Units 1–4 language and successful communication. She uses relevant feelings/stress/anger language and personal examples; general grammar errors remain important learning targets without being counted one-for-one against the summative score.",
+        "pronunciation_and_intelligibility": "No pronunciation error is confirmed strongly enough to count as incorrect. Some stretches require clarification, but the difficulties are often lexical or grammatical rather than clearly phonological, so pronunciation remains relatively strong.",
         "communicative_interaction": "Participates actively, responds to her partner, and returns questions such as 'And you?'. She remains engaged, though teacher clarification is needed during difficult stretches."
       },
       "key_evidence": [
@@ -64,5 +64,11 @@
   },
   "teacher_review_required": true,
   "final_pdf_allowed": false,
-  "note": "Scores are an evidence-based draft. Final rubric scores remain the teacher's decision."
+  "note": "Recalibrated to separate diagnostic depth from summative grading and to emphasize taught Units 1–4 language. Both students are currently set at the 32/40 passing threshold pending teacher approval.",
+  "scoring_calibration": {
+    "policy": "Oral-Grader/rubrics/units-1-4-scoring-calibration.md",
+    "principle": "Deep diagnostic error analysis is separated from summative scoring. Scores prioritize taught and naturally elicited Units 1–4 language.",
+    "passing_threshold": "32/40",
+    "unelicited_unit4_rule": "Do not penalize absence of even if / whether or not / only if / unless / otherwise / if only when the prompt did not naturally elicit them."
+  }
 }
