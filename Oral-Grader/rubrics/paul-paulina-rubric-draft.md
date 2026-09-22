@@ -1,47 +1,52 @@
 # Oral Grader rubric draft — Paul / Paulina
 
-Status: **draft for teacher review**  
-Maximum: **40 points** · 8 points per criterion
+Status: **recalibrated draft for teacher review**  
+Maximum: **40 points** · 8 points per criterion  
+Passing threshold: **32/40**
 
-This draft uses the accepted Stage-1 transcript and reviewed Stage-2 evidence. Model-generated sentence-level `intended` rewrites are **not** used as corrections or scoring evidence.
+This draft separates **diagnostic feedback** from **summative grading**. The detailed report may retain every useful error so students can understand what they said and why it is problematic, but the score gives priority to language taught and naturally elicited in **Units 1–4**.
+
+Unit 4 structures such as **even if, whether or not, only if, unless, otherwise, if only** are **not penalized when the oral prompt did not naturally elicit them**.
 
 | Criterion | Paul | Paulina |
 | --- | ---: | ---: |
 | Fluency | 6/8 | 6/8 |
-| Coherence & Organization | 6/8 | 5/8 |
-| Grammar & Vocabulary | 5/8 | 4/8 |
-| Pronunciation & Intelligibility | 7/8 | 6/8 |
-| Communicative Interaction | 6/8 | 6/8 |
-| **Total** | **30/40** | **27/40** |
+| Coherence & Organization | 6/8 | 6/8 |
+| Grammar & Vocabulary | 6/8 | 6/8 |
+| Pronunciation & Intelligibility | 7/8 | 7/8 |
+| Communicative Interaction | 7/8 | 7/8 |
+| **Total** | **32/40** | **32/40** |
 
 ## Paul
 
-**Fluency — 6/8.** Maintains extended responses and the conversation despite hesitations, self-corrections, and grammatical restructuring. Speech is sustained rather than repeatedly abandoned.
+**Fluency — 6/8.** He maintains extended responses and keeps speaking despite hesitation, self-correction, and grammatical restructuring. The conversation continues without repeated teacher reactivation.
 
-**Coherence & Organization — 6/8.** Usually answers the prompt and develops relevant examples, but some responses contain fragments and lexical choices that make progression less clear.
+**Coherence & Organization — 6/8.** He generally answers the prompt and develops relevant examples. Some fragments and lexical choices reduce precision, but the progression is usually understandable.
 
-**Grammar & Vocabulary — 5/8.** Frequent subject-verb agreement, article, preposition, verb-form, and word-choice errors occur across several turns, while the main meaning usually remains recoverable.
+**Grammar & Vocabulary — 6/8.** The diagnostic report keeps his agreement, article, preposition, verb-form, and word-choice errors for study. For scoring, however, the emphasis is on functional command of Units 1–4 and relevant communication about difficult experiences, admired people, stress, reactions, and personal qualities. Errors are not counted mechanically one by one.
 
-**Pronunciation & Intelligibility — 7/8.** Generally intelligible. One pronunciation error is teacher-confirmed from the audio: **fires → fathers**. No other pronunciation error is treated as certain.
+**Pronunciation & Intelligibility — 7/8.** Overall intelligibility is good. One pronunciation error is teacher-confirmed: **fires → fathers**. No other pronunciation item is treated as certain enough to penalize.
 
-**Communicative Interaction — 6/8.** Takes turns, asks and answers questions, and remains engaged with the partner. Teacher clarification/word support occurs but does not dominate the exchange.
-
-Key evidence: 23.200s–29.600s; 102.100s–132.400s; 234.700s–240.700s; 241.700s–300.200s; teacher-confirmed **fires → fathers**.
+**Communicative Interaction — 7/8.** He asks and answers questions, takes turns, responds to the partner, and keeps the exchange moving. Brief teacher clarification/word support does not dominate the conversation.
 
 ## Paulina
 
-**Fluency — 6/8.** Sustains long turns and continues speaking even when searching for words, but frequent hesitation, repetition, pauses, and self-repair noticeably reduce smoothness.
+**Fluency — 6/8.** She sustains long turns and continues speaking even while searching for words. Hesitation, repetition, and self-repair reduce smoothness but do not prevent sustained communication.
 
-**Coherence & Organization — 5/8.** Usually stays on topic and provides examples, but ideas are often fragmented and difficult to organize because of word-retrieval and sentence-structure problems.
+**Coherence & Organization — 6/8.** She usually remains on topic and develops recognizable examples about helping others, admiration, stress, nervousness, and anger. Some stretches are fragmented, but the communicative purpose is generally recoverable.
 
-**Grammar & Vocabulary — 4/8.** Frequent errors affect tense, agreement, articles, prepositions, pronouns, word order, and word choice. Meaning is often recoverable but sometimes requires substantial interpretation.
+**Grammar & Vocabulary — 6/8.** Her full grammar and vocabulary error inventory remains in the diagnostic feedback. For the summative score, greater weight is given to taught Units 1–4 language, including feelings, stress, anger, character, reactions, and relevant tense use. General errors remain learning targets without being converted one-for-one into deductions.
 
-**Pronunciation & Intelligibility — 6/8.** No pronunciation error is confirmed strongly enough to count as incorrect. Overall speech is often understandable, but some stretches require clarification, so intelligibility is not consistently effortless.
+**Pronunciation & Intelligibility — 7/8.** No pronunciation error is confirmed strongly enough to count as incorrect. Some passages require clarification, but much of that difficulty is lexical or grammatical rather than clearly pronunciation-based.
 
-**Communicative Interaction — 6/8.** Participates actively, responds to her partner, and returns questions such as **“And you?”**. She remains engaged, though teacher clarification is needed during difficult stretches.
+**Communicative Interaction — 7/8.** She participates actively, responds to her partner, returns questions such as **“And you?”**, and remains engaged throughout the exchange. Teacher clarification is needed in difficult stretches but does not erase her participation.
 
-Key evidence: 48.900s–100.600s; 158.500s–226.100s; 465.000s–556.700s; 590.400s–625.100s.
+## Scoring principle for this block
 
----
+The student-facing report should remain **detailed and demanding** because its purpose is improvement: students need to see what they actually said, identify why it is wrong, and compare it with natural English.
 
-These scores are an evidence-based draft. The teacher remains the final grading authority, and the PDF must not be generated until this rubric is accepted.
+The grade, however, is **course-aligned rather than error-count based**. A student can therefore have a long correction report and still earn the passing **32/40** when communication is functional and the taught Units 1–4 language is sufficiently demonstrated.
+
+Calibration policy: `Oral-Grader/rubrics/units-1-4-scoring-calibration.md`
+
+The teacher remains the final grading authority. No final PDF is generated until this recalibrated rubric is accepted.
