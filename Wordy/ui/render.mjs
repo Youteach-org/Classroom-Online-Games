@@ -85,32 +85,37 @@ function reviewCard(root,title,detail){
 }
 
 
-function sameCell(a,b){
-  return a?.row===b?.row&&a?.col===b?.col;
-}
-
 function renderMissedReplay(root,item){
   const replay=qs(root,'#replayBoard');
   if(!replay)return;
-  const rows=item?.boardRows;
-  if(!Array.isArray(rows)||rows.length===0){
+  const board=item?.boardSnapshot;
+  if(!board?.tiles){
     replay.replaceChildren?.();
     return;
   }
-  const suggested=item?.suggestedSwap;
-  const cells=[];
-  rows.forEach((row,rowIndex)=>row.forEach((word,colIndex)=>{
-    const tile=create(root,'div');
-    tile.className='replay-tile';
-    tile.classList?.add?.('replay-tile');
-    tile.textContent=word??'';
-    const cell={row:rowIndex,col:colIndex};
-    if(sameCell(cell,suggested?.from)||sameCell(cell,suggested?.to)){
-      tile.classList?.add?.('is-suggested');
-    }
-    cells.push(tile);
-  }));
-  replay.replaceChildren?.(...cells);
+  const suggested=new Set([
+    String(item?.suggestedSwap?.fromTileId??''),
+    String(item?.suggestedSwap?.toTileId??'')
+  ].filter(Boolean));
+  const tiles=board.tiles
+    .slice()
+    .sort((a,b)=>a.row-b.row||a.startColumn-b.startColumn||a.id.localeCompare(b.id))
+    .map(source=>{
+      const tile=create(root,'div');
+      tile.className='replay-tile';
+      tile.classList?.add?.('replay-tile');
+      tile.dataset.tileId=source.id;
+      tile.dataset.row=String(source.row);
+      tile.dataset.startColumn=String(source.startColumn);
+      tile.dataset.span=String(source.span);
+      if(!tile.style)tile.style={};
+      tile.style.gridRow=String(source.row+1);
+      tile.style.gridColumn=`${source.startColumn+1} / span ${source.span}`;
+      tile.textContent=source.word??'';
+      if(suggested.has(source.id))tile.classList?.add?.('is-suggested');
+      return tile;
+    });
+  replay.replaceChildren?.(...tiles);
 }
 
 export function renderResult(root,review={newLearning:[],missed:[]}){
