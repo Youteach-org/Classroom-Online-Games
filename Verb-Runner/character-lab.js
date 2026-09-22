@@ -141,8 +141,14 @@ function styleBase(root){
       }else if(/belt|shoe|boot|access/.test(name)){
         m.color?.setHex(TARGET.shoes);
       }else if(/hair/.test(name)){
-        m.color?.setHex(TARGET.hair);
-      }else if(/face|skin|head/.test(name)){
+        m.transparent=true;
+        m.opacity=0;
+        m.depthWrite=false;
+      }else if(name==='face' || /face/.test(name)){
+        m.color?.setHex(TARGET.skin);
+      }else if(name==='skin' || /skin/.test(name)){
+        m.color?.setHex(TARGET.eye);
+      }else if(/head/.test(name)){
         m.color?.setHex(TARGET.skin);
       }
       return m;
@@ -189,7 +195,7 @@ function stylizeSkeleton(root){
   const leftHand=bestBone(root,/left.*hand|hand.*left|hand[._-]?l/i);
   const rightHand=bestBone(root,/right.*hand|hand.*right|hand[._-]?r/i);
 
-  if(head)head.scale.multiplyScalar(1.045);
+  if(head)head.scale.multiplyScalar(.94);
   if(neck)neck.scale.multiplyScalar(.98);
   if(leftHand)leftHand.scale.multiplyScalar(.88);
   if(rightHand)rightHand.scale.multiplyScalar(.88);
@@ -209,27 +215,30 @@ function addTargetHair(headBone){
 
   const hair=new THREE.Group();
   hair.name='TargetHair';
-  attachGroupAtWorld(headBone,hair,new THREE.Vector3(0,2.31,.005));
+  attachGroupAtWorld(headBone,hair,new THREE.Vector3(0,2.335,.005));
 
   const baseMat=smoothMat(TARGET.hair,.75);
   const hiMat=smoothMat(TARGET.hairHi,.73);
 
   const crown=new THREE.Mesh(
-    new THREE.SphereGeometry(.245,36,24,0,Math.PI*2,0,Math.PI*.56),
+    new THREE.SphereGeometry(.335,40,28,0,Math.PI*2,0,Math.PI*.62),
     baseMat
   );
-  crown.scale.set(1.0,.78,.92);
-  crown.position.set(0,.015,.015);
+  crown.scale.set(1.02,.82,.98);
+  crown.position.set(0,.015,.020);
   crown.rotation.x=.06;
   crown.castShadow=true;
   hair.add(crown);
 
   const tufts=[
-    {p:[-.13,.17,-.09],s:[.12,.16,.08],rz:.38,mat:hiMat},
-    {p:[-.045,.205,-.12],s:[.12,.18,.075],rz:.17,mat:baseMat},
-    {p:[ .055,.205,-.125],s:[.12,.18,.075],rz:-.12,mat:hiMat},
-    {p:[ .145,.16,-.09],s:[.11,.15,.08],rz:-.38,mat:baseMat},
-    {p:[ .00,.15,-.17],s:[.15,.11,.065],rz:-.05,mat:baseMat}
+    {p:[-.18,.16,-.12],s:[.14,.18,.09],rz:.46,mat:hiMat},
+    {p:[-.075,.215,-.15],s:[.14,.20,.085],rz:.20,mat:baseMat},
+    {p:[ .045,.225,-.16],s:[.15,.21,.085],rz:-.10,mat:hiMat},
+    {p:[ .165,.17,-.12],s:[.13,.18,.09],rz:-.42,mat:baseMat},
+    {p:[ .00,.16,-.22],s:[.18,.13,.08],rz:-.04,mat:baseMat},
+    {p:[-.18,.08,.11],s:[.13,.15,.10],rz:.28,mat:baseMat},
+    {p:[ .18,.08,.11],s:[.13,.15,.10],rz:-.28,mat:hiMat},
+    {p:[ .00,.10,.18],s:[.19,.14,.11],rz:.00,mat:baseMat}
   ];
 
   for(const spec of tufts){
@@ -499,8 +508,6 @@ new GLTFLoader().load(
     scene.updateMatrixWorld(true);
 
     addTargetHair(bones.head);
-    addTargetFace(bones.head);
-    addHoodieSleeves(human);
     addHoodieCollar(bones.neck);
     addTargetShoes(human);
 
