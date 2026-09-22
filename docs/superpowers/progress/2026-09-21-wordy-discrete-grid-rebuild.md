@@ -30,3 +30,7 @@
 - Task 5 RED: missing `settleGravity`, `partitionRun`, `refillEmptyRuns`; old resolver still imported removed matrix helpers; controller POP was intentionally disconnected after Task 4.
 - **Task 5 complete:** rigid multi-cell gravity, exact empty-run partition/refill, tile-ID removal, crossing-safe POP, cascade detection, span-aware refill words, and controller POP/recovery reconnection. Focused verification: **25/25 pass**.
 - Task 5 GitHub commits: `ba45044`, `1769705`, `c07bc80`, `e6ebcd4`, `b6f234c`, `89f7c94`.
+
+- Task 6 RED: tile-ID tap/swipe requests were empty under the cell-based input, CSS still used flex rows, and renderer attempted `state.board.forEach` on the new board object.
+- **Task 6 complete:** one 12×7 CSS Grid, direct tile placement from `row/startColumn/span`, ready/cross highlighting by `tileIds`, and tap/swipe input resolved through board geometry callbacks. Focused verification: **7/7 pass**.
+- Task 6 GitHub commits: `2896008`, `ff9fd87`, `565ae01`, `e467006`, `bd63c53`.
