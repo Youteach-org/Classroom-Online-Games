@@ -201,7 +201,7 @@ Horizontal `swapTiles` exchanges the two tiles' order inside their combined foot
 ```js
 test('different-width touching tiles can swap horizontally',()=>{
   const board=createBoard([
-    ['A','ATTENTION','LOOK','MAKE','OF','TO'] // 1+4+2+2+1+1 = 11; add I below in implementation fixture
+    ['A','ATTENTION','LOOK','MAKE','OF','TO','I'] // 1+4+2+2+1+1+1 = 12
   ],{columns:12});
   const a=board.tiles.find(t=>t.word==='A');
   const attention=board.tiles.find(t=>t.word==='ATTENTION');
@@ -388,7 +388,7 @@ git commit -m "refactor(wordy): match relationships on tile footprints"
 - Rewrite: `Wordy/engine/generator.mjs`
 - Modify: `Wordy/data/levels.mjs`
 - Modify: `Wordy/tests/generator.test.mjs`
-- Modify: `Wordy/tests/levels.test.mjs` if present; otherwise create it.
+- Modify: `Wordy/tests/levels.test.mjs`
 
 **Interfaces:**
 - Consumes: `areSwapNeighbors`, `swapTiles`, `findMatches`.
@@ -554,7 +554,7 @@ git commit -m "refactor(wordy): generate productive packed microgrid boards"
 - Modify: `Wordy/engine/controller.mjs`
 - Modify: `Wordy/engine/review.mjs`
 - Modify: `Wordy/tests/controller.test.mjs`
-- Modify: `Wordy/tests/review.test.mjs` if present; otherwise create it.
+- Modify: `Wordy/tests/review-telemetry.test.mjs`
 
 **Interfaces:**
 - Public controller method changes from cell-based `swap(from,to)` to:
@@ -641,7 +641,7 @@ A rebound attempt must never generate a missed-opportunity record.
 
 Run:
 ```bash
-node --test Wordy/tests/controller.test.mjs Wordy/tests/review.test.mjs
+node --test Wordy/tests/controller.test.mjs Wordy/tests/review-telemetry.test.mjs
 ```
 
 Expected: PASS.
@@ -649,7 +649,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add Wordy/engine/controller.mjs Wordy/engine/review.mjs Wordy/tests/controller.test.mjs Wordy/tests/review.test.mjs
+git add Wordy/engine/controller.mjs Wordy/engine/review.mjs Wordy/tests/controller.test.mjs Wordy/tests/review-telemetry.test.mjs
 git commit -m "feat(wordy): add Candy-style swap rebound semantics"
 ```
 
@@ -1039,10 +1039,9 @@ git commit -m "feat(wordy): animate accepted swaps and Candy-style rebounds"
 **Files:**
 - Modify: `Wordy/ui/render.mjs`
 - Modify: `Wordy/engine/review.mjs`
-- Modify: `Wordy/engine/resolution-events.mjs` only if match-shape assumptions remain.
 - Modify: `Wordy/tests/ui-contract.test.mjs`
-- Modify: `Wordy/tests/review.test.mjs`
-- Modify: `Wordy/tests/resolution-events.test.mjs`
+- Modify: `Wordy/tests/review-telemetry.test.mjs`
+- Modify: `Wordy/tests/timeline.test.mjs`
 - Modify: any remaining Wordy tests that access `board[row][col]`, `match.cells`, `from.row/col`, or 5-column CSS.
 
 **Interfaces:**
@@ -1089,7 +1088,7 @@ test('missed-opportunity replay uses the saved 12-column tile geometry',()=>{
 
 Run:
 ```bash
-node --test Wordy/tests/review.test.mjs Wordy/tests/ui-contract.test.mjs Wordy/tests/resolution-events.test.mjs
+node --test Wordy/tests/review-telemetry.test.mjs Wordy/tests/ui-contract.test.mjs Wordy/tests/timeline.test.mjs
 ```
 
 Expected: FAIL on old row/cell snapshots.
@@ -1142,7 +1141,7 @@ git commit -m "test(wordy): complete tile-centric regression migration"
 
 **Files:**
 - Modify: `docs/superpowers/handoffs/WORDY-CURRENT.md`
-- Modify: `docs/superpowers/progress/2026-09-20-wordy-validation-prototype.md` or create a new progress addendum if the old ledger is closed.
+- Create: `docs/superpowers/progress/2026-09-21-wordy-discrete-grid-rebuild.md`
 - Test: complete Wordy suite.
 
 **Interfaces:**
