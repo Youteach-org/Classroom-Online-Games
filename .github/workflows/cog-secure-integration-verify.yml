@@ -1,0 +1,76 @@
+name: Verify secure COG integration
+
+on:
+  push:
+    branches:
+      - feature/cog-youteach-secure-current-20260919-v2
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify and normalize Cloudflare secrets
+        env:
+          CLOUDFLARE_API_TOKEN_RAW: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID_RAW: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN_RAW" || (echo "::error::Missing CLOUDFLARE_API_TOKEN" && exit 1)
+          test -n "$CLOUDFLARE_ACCOUNT_ID_RAW" || (echo "::error::Missing CLOUDFLARE_ACCOUNT_ID" && exit 1)
+          CLEAN_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID_RAW" | tr -d '[:space:]')"
+          printf 'CLOUDFLARE_ACCOUNT_ID=%s\n' "$CLEAN_ACCOUNT_ID" >> "$GITHUB_ENV"
+
+      - name: Verify Verb Runner JavaScript
+        run: |
+          node --check Verb-Runner/coastal-scene-config.mjs
+          node --check Verb-Runner/coastal-world.mjs
+          node --check Verb-Runner/prototype.js
+          node --check Verb-Runner/session-sync.js
+
+      - name: Cache approved external pronunciation assets
+        run: python Verb-Runner/scripts/cache-approved-external-pronunciation.py
+
+      - name: Verify approved Verb Runner pronunciation assets
+        run: python Verb-Runner/scripts/generate-pronunciation.py
+
+      - name: Run Verb Runner regression tests
+        run: |
+          node --test Verb-Runner/tests/*.test.mjs
+          node --test Verb-Runner/sentence-run.test.js
+
+      - name: Run shared COG contract tests
+        run: node --test tests/*.test.mjs
+
+      - name: Prepare static preview
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          cp index.html dist/
+          cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Engineering teacher dist/
+
+      - name: Deploy isolated COG preview
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          npx wrangler@4 pages deploy dist             --project-name=classroom-online-games             --branch=cog-secure-current-v2             --commit-hash="${{ github.sha }}"
+
+      - name: Smoke test COG preview
+        run: |
+          set -euo pipefail
+          PREVIEW='https://cog-secure-current-v2.classroom-online-games.pages.dev'
+          fetch_preview() {
+            curl -fsSL --retry 10 --retry-delay 2 --retry-all-errors "$@"
+          }
+          fetch_preview "$PREVIEW/Verb-Runner/" -o /tmp/verb-runner.html
+          fetch_preview "$PREVIEW/Verb-Runner/prototype.js" -o /tmp/prototype.js
+          fetch_preview "$PREVIEW/Verb-Runner/session-sync.js" -o /tmp/session-sync.js
+          grep -q 'sendYouTeachResultButton' /tmp/verb-runner.html
+          grep -q 'assignmentLaunch' /tmp/prototype.js
+          grep -q 'resolveYouTeachAssignmentLaunchToken' /tmp/session-sync.js
+          grep -q 'submitYouTeachAssignmentResult' /tmp/session-sync.js
