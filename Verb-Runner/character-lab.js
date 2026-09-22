@@ -6,21 +6,21 @@ import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'
 const MODEL_URL='https://raw.githubusercontent.com/nikhilswain/Vercord/314cda6ff31e98ae8db86626ff559976a71d708a/public/game-assets/three-characters/hoodie-character.glb';
 
 const C={
-  red:0xd93435,
-  redDark:0x9f252b,
-  redHi:0xf04a3e,
-  black:0x151a24,
-  black2:0x242b38,
+  red:0xd83a3b,
+  redDark:0xa8242b,
+  redHi:0xf15346,
+  black:0x141923,
+  black2:0x222a39,
   pants:0x171e2c,
-  pantsHi:0x273247,
+  pantsHi:0x263247,
   white:0xf5f3ee,
-  sole:0xe8e5df,
+  sole:0xe7e4de,
   skin:0xe0a17d,
   skinShade:0xbf775e,
   hair:0x17171c,
-  hairHi:0x3a2421,
-  eye:0x261b18,
-  brown:0x71432f,
+  hairHi:0x4a2921,
+  eye:0x2c1d19,
+  brow:0x211919,
   metal:0xb8c2cc
 };
 
@@ -42,13 +42,13 @@ renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 document.querySelector('#stage').appendChild(renderer.domElement);
 
 const controls=new OrbitControls(camera,renderer.domElement);
-controls.target.set(0,1.26,0);
+controls.target.set(0,1.25,0);
 controls.enableDamping=true;
 controls.dampingFactor=.075;
 controls.enablePan=false;
 controls.enableZoom=true;
-controls.minDistance=2.75;
-controls.maxDistance=6.6;
+controls.minDistance=2.7;
+controls.maxDistance=6.5;
 controls.minPolarAngle=.46;
 controls.maxPolarAngle=1.72;
 controls.rotateSpeed=.7;
@@ -90,14 +90,14 @@ const runnerRoot=new THREE.Group();
 scene.add(runnerRoot);
 
 const shadow=new THREE.Mesh(
-  new THREE.CircleGeometry(.62,64),
-  new THREE.MeshBasicMaterial({color:0x1c2b35,transparent:true,opacity:.17,depthWrite:false})
+  new THREE.CircleGeometry(.59,64),
+  new THREE.MeshBasicMaterial({color:0x1c2b35,transparent:true,opacity:.16,depthWrite:false})
 );
 shadow.rotation.x=-Math.PI/2;
 shadow.position.y=.01;
 runnerRoot.add(shadow);
 
-function mat(color,rough=.72){
+function stdMat(color,rough=.72){
   return new THREE.MeshStandardMaterial({color,roughness:rough,metalness:0});
 }
 
@@ -113,59 +113,47 @@ function fitToHeight(root,targetHeight){
   root.position.y-=fitted.min.y;
 }
 
-function neutralizeBase(root){
-  const materialDump=[];
+function styleNativeMaterials(root){
+  const map={
+    purple:C.red,
+    lightblue:C.pants,
+    white:C.white,
+    skin:C.skin,
+    eyebrows:C.brow,
+    eye:C.eye,
+    hair:C.hair
+  };
+
   root.traverse(obj=>{
     if(!obj.isMesh)return;
     obj.castShadow=true;
     obj.receiveShadow=false;
 
-    const source=Array.isArray(obj.material)?obj.material:[obj.material];
-    const tuned=source.map(src=>{
+    const srcs=Array.isArray(obj.material)?obj.material:[obj.material];
+    const styled=srcs.map(src=>{
       if(!src)return src;
-      materialDump.push({mesh:obj.name||'',material:src.name||'',color:src.color?src.color.getHexString():null});
       const m=src.clone();
-      m.roughness=.78;
+      const key=(m.name||'').toLowerCase();
+      if(m.color && map[key]!==undefined)m.color.setHex(map[key]);
+      m.roughness=.72;
       m.metalness=0;
       m.dithering=true;
-
-      if(m.color){
-        const hsl={};
-        m.color.getHSL(hsl);
-
-        const isSkin=
-          hsl.h>0.035 && hsl.h<0.16 &&
-          hsl.s>0.12 && hsl.l>0.38;
-
-        const isVeryDark=hsl.l<0.17;
-
-        if(isSkin){
-          m.color.setHex(C.skin);
-        }else if(isVeryDark){
-          m.color.setHex(C.black);
-        }else{
-          // Everything that belongs to the original generic clothing becomes
-          // a dark underlayer so the red-runner shell defines the visible look.
-          m.color.setHex(C.black2);
-        }
-      }
-
       m.needsUpdate=true;
       return m;
     });
-    obj.material=Array.isArray(obj.material)?tuned:tuned[0];
+
+    obj.material=Array.isArray(obj.material)?styled:styled[0];
   });
-  window.__characterMaterialDump=materialDump;
 }
 
-function bones(root){
+function allBones(root){
   const out=[];
   root.traverse(o=>{if(o.isBone)out.push(o);});
   return out;
 }
 
 function findBone(root,patterns){
-  const bs=bones(root);
+  const bs=allBones(root);
   for(const regex of patterns){
     const matches=bs.filter(b=>regex.test(b.name||''));
     if(matches.length){
@@ -176,31 +164,30 @@ function findBone(root,patterns){
   return null;
 }
 
-function worldPos(bone,fallback){
+function wpos(bone,fallback){
   if(!bone)return fallback.clone();
   const p=new THREE.Vector3();
   bone.getWorldPosition(p);
   return p;
 }
 
-function rounded(w,h,d,color,radius=.06,rough=.72){
+function rounded(w,h,d,color,radius=.04,rough=.72){
   const mesh=new THREE.Mesh(
     new RoundedBoxGeometry(w,h,d,8,radius),
-    mat(color,rough)
+    stdMat(color,rough)
   );
   mesh.castShadow=true;
   return mesh;
 }
 
 function segment(a,b,radius,color,radial=24){
-  const mid=a.clone().add(b).multiplyScalar(.5);
   const dir=b.clone().sub(a);
   const len=Math.max(.001,dir.length());
   const mesh=new THREE.Mesh(
-    new THREE.CylinderGeometry(radius*.94,radius,len,radial,2,false),
-    mat(color,.72)
+    new THREE.CylinderGeometry(radius*.96,radius,len,radial,2,false),
+    stdMat(color,.76)
   );
-  mesh.position.copy(mid);
+  mesh.position.copy(a.clone().add(b).multiplyScalar(.5));
   mesh.quaternion.setFromUnitVectors(
     new THREE.Vector3(0,1,0),
     dir.clone().normalize()
@@ -208,285 +195,6 @@ function segment(a,b,radius,color,radial=24){
   mesh.castShadow=true;
   runnerRoot.add(mesh);
   return mesh;
-}
-
-function localPoint(base,dx,dy,dz){
-  return base.clone().add(new THREE.Vector3(dx,dy,dz));
-}
-
-function createSmile(center){
-  const pts=[
-    localPoint(center,-.070,-.055,-.276),
-    localPoint(center,-.035,-.075,-.285),
-    localPoint(center, .000,-.082,-.288),
-    localPoint(center, .035,-.075,-.285),
-    localPoint(center, .070,-.055,-.276)
-  ];
-  const curve=new THREE.CatmullRomCurve3(pts);
-  const smile=new THREE.Mesh(
-    new THREE.TubeGeometry(curve,20,.009,8,false),
-    mat(0x8b3e3a,.64)
-  );
-  smile.castShadow=false;
-  runnerRoot.add(smile);
-}
-
-function addHeadLook(headCenter){
-  // Slightly oversized anime-style head hides the generic low-poly head.
-  const head=new THREE.Mesh(
-    new THREE.SphereGeometry(.285,48,32),
-    mat(C.skin,.70)
-  );
-  head.scale.set(.96,1.10,.90);
-  head.position.copy(headCenter);
-  head.castShadow=true;
-  runnerRoot.add(head);
-
-  const earMat=mat(C.skinShade,.72);
-  for(const x of [-.274,.274]){
-    const ear=new THREE.Mesh(new THREE.SphereGeometry(.052,24,16),earMat);
-    ear.scale.set(.62,1.0,.42);
-    ear.position.copy(localPoint(headCenter,x,-.010,-.006));
-    ear.castShadow=true;
-    runnerRoot.add(ear);
-  }
-
-  // Eyes: large but not chibi; warm dark-brown iris.
-  for(const x of [-.092,.092]){
-    const eyeWhite=new THREE.Mesh(
-      new THREE.SphereGeometry(.050,24,16),
-      mat(C.white,.48)
-    );
-    eyeWhite.scale.set(1.12,.76,.30);
-    eyeWhite.position.copy(localPoint(headCenter,x,.038,-.253));
-    runnerRoot.add(eyeWhite);
-
-    const iris=new THREE.Mesh(
-      new THREE.SphereGeometry(.024,24,16),
-      mat(C.eye,.46)
-    );
-    iris.scale.set(.92,1.08,.46);
-    iris.position.copy(localPoint(headCenter,x,.035,-.282));
-    runnerRoot.add(iris);
-
-    const glint=new THREE.Mesh(
-      new THREE.SphereGeometry(.006,12,8),
-      new THREE.MeshBasicMaterial({color:0xffffff})
-    );
-    glint.position.copy(localPoint(headCenter,x-.006,.047,-.301));
-    runnerRoot.add(glint);
-
-    const brow=rounded(.105,.018,.018,C.hair,.007,.70);
-    brow.position.copy(localPoint(headCenter,x,.105,-.257));
-    brow.rotation.z=x<0?.11:-.11;
-    runnerRoot.add(brow);
-  }
-
-  const nose=new THREE.Mesh(
-    new THREE.SphereGeometry(.022,18,12),
-    mat(C.skinShade,.70)
-  );
-  nose.scale.set(.70,1.05,.80);
-  nose.position.copy(localPoint(headCenter,0,-.012,-.283));
-  runnerRoot.add(nose);
-
-  createSmile(headCenter);
-
-  // Hair cap.
-  const cap=new THREE.Mesh(
-    new THREE.SphereGeometry(.300,48,28,0,Math.PI*2,0,Math.PI*.64),
-    mat(C.hair,.78)
-  );
-  cap.position.copy(localPoint(headCenter,0,.080,.022));
-  cap.scale.set(1.05,.92,1.02);
-  cap.rotation.x=.06;
-  cap.castShadow=true;
-  runnerRoot.add(cap);
-
-  // Messy layered tufts inspired by the reference, with a few warm highlights.
-  const tufts=[
-    [-.205,.235,-.050,.105,.205,.090, .34, 0],
-    [-.125,.285,-.105,.115,.230,.085, .18, 0],
-    [-.035,.305,-.125,.120,.240,.085, .08, 1],
-    [ .060,.302,-.128,.120,.235,.083,-.09, 0],
-    [ .145,.270,-.105,.110,.218,.086,-.22, 1],
-    [ .220,.220,-.048,.100,.192,.090,-.36, 0],
-    [-.235,.145,.020,.092,.168,.092, .55, 0],
-    [ .235,.145,.020,.092,.168,.092,-.55, 0],
-    [-.170,.115,.155,.105,.155,.115, .26, 0],
-    [ .000,.115,.205,.135,.165,.120, .00, 0],
-    [ .170,.115,.155,.105,.155,.115,-.26, 0],
-    [-.020,.240,-.205,.115,.175,.068, .02, 1]
-  ];
-
-  for(const [x,y,z,sx,sy,sz,rz,hi] of tufts){
-    const tuft=new THREE.Mesh(
-      new THREE.ConeGeometry(.115,.36,9,1,false),
-      mat(hi?C.hairHi:C.hair,.77)
-    );
-    tuft.position.copy(localPoint(headCenter,x,y,z));
-    tuft.scale.set(sx/.115,sy/.36,sz/.115);
-    tuft.rotation.z=rz;
-    tuft.rotation.x=z<0?-.18:.12;
-    tuft.castShadow=true;
-    runnerRoot.add(tuft);
-  }
-}
-
-function addTorsoLook(chest,hips,neck){
-  const center=chest.clone().lerp(hips,.38);
-  center.z-=.005;
-
-  // Dark backing gives the open jacket depth.
-  const backing=rounded(.73,.76,.32,C.black,.075,.78);
-  backing.position.copy(localPoint(center,0,-.020,.010));
-  runnerRoot.add(backing);
-
-  // White tee visible through the open red jacket.
-  const tee=rounded(.39,.59,.075,C.white,.040,.76);
-  tee.position.copy(localPoint(center,0,-.015,-.183));
-  runnerRoot.add(tee);
-
-  // Red jacket side panels.
-  for(const x of [-.235,.235]){
-    const panel=rounded(.205,.67,.095,C.red,.045,.70);
-    panel.position.copy(localPoint(center,x,-.010,-.205));
-    panel.rotation.z=x<0?-.035:.035;
-    runnerRoot.add(panel);
-
-    const inner=rounded(.040,.57,.030,C.redDark,.012,.72);
-    inner.position.copy(localPoint(center,x<0?-.128:.128,-.005,-.260));
-    runnerRoot.add(inner);
-  }
-
-  // Lower white shirt hem.
-  const hem=rounded(.46,.095,.10,C.white,.035,.76);
-  hem.position.copy(localPoint(center,0,-.365,-.165));
-  runnerRoot.add(hem);
-
-  // Black hood volume + red outer collar, no backpack straps.
-  const hoodBack=new THREE.Mesh(
-    new THREE.TorusGeometry(.225,.075,16,36,Math.PI*1.65),
-    mat(C.black,.80)
-  );
-  hoodBack.position.copy(localPoint(neck,0,.030,.040));
-  hoodBack.rotation.set(Math.PI*.53,0,Math.PI*.17);
-  hoodBack.castShadow=true;
-  runnerRoot.add(hoodBack);
-
-  const collarL=rounded(.18,.080,.10,C.red,.035,.70);
-  const collarR=collarL.clone();
-  collarL.position.copy(localPoint(neck,-.105,-.055,-.100));
-  collarR.position.copy(localPoint(neck,.105,-.055,-.100));
-  collarL.rotation.z=-.20;
-  collarR.rotation.z=.20;
-  collarL.castShadow=collarR.castShadow=true;
-  runnerRoot.add(collarL,collarR);
-
-  // Small jacket emblem/zip detail.
-  const zipL=rounded(.015,.50,.016,C.metal,.004,.52);
-  const zipR=zipL.clone();
-  zipL.position.copy(localPoint(center,-.130,-.005,-.260));
-  zipR.position.copy(localPoint(center,.130,-.005,-.260));
-  runnerRoot.add(zipL,zipR);
-}
-
-function addArmLook(side,upper,lower,hand){
-  const sign=side==='L'?-1:1;
-
-  const u=upper;
-  const l=lower;
-  const h=hand;
-
-  // Red hoodie sleeves.
-  segment(u,l,.118,C.red,26);
-  segment(l,h,.103,C.red,26);
-
-  // Black cuff.
-  const cuffStart=l.clone().lerp(h,.74);
-  segment(cuffStart,h,.112,C.black,24);
-
-  // Fingerless glove block around the hand; base fingers can remain visible.
-  const glove=rounded(.155,.145,.135,C.black,.040,.82);
-  glove.position.copy(localPoint(h,0,.005,-.005));
-  glove.rotation.z=sign*.08;
-  runnerRoot.add(glove);
-
-  // Red wrist accent.
-  const band=rounded(.165,.045,.145,C.redDark,.018,.72);
-  band.position.copy(localPoint(h,0,.085,.005));
-  runnerRoot.add(band);
-}
-
-function addLegLook(side,hip,knee,foot){
-  const sign=side==='L'?-1:1;
-  const thighEnd=hip.clone().lerp(knee,.94);
-
-  // Baggy cargo upper leg.
-  segment(hip,thighEnd,.175,C.pants,28);
-
-  // Cropped lower leg / calf section, leaving a small ankle break.
-  const calfEnd=knee.clone().lerp(foot,.64);
-  segment(knee,calfEnd,.145,C.pants,28);
-
-  // Cargo cuff.
-  const cuff=rounded(.285,.075,.235,C.black,.028,.82);
-  cuff.position.copy(calfEnd);
-  runnerRoot.add(cuff);
-
-  // Side cargo pocket.
-  const pocket=rounded(.145,.205,.055,C.pantsHi,.030,.78);
-  pocket.position.copy(
-    hip.clone().lerp(knee,.52).add(new THREE.Vector3(sign*.165,0,-.035))
-  );
-  pocket.rotation.z=sign*.025;
-  runnerRoot.add(pocket);
-
-  const pocketTag=rounded(.035,.085,.025,C.red,.010,.70);
-  pocketTag.position.copy(
-    hip.clone().lerp(knee,.54).add(new THREE.Vector3(sign*.245,-.025,-.065))
-  );
-  runnerRoot.add(pocketTag);
-
-  addShoe(side,foot);
-}
-
-function addShoe(side,foot){
-  const sign=side==='L'?-1:1;
-
-  // High-top red body.
-  const ankle=rounded(.205,.245,.225,C.red,.050,.66);
-  ankle.position.copy(localPoint(foot,0,.055,-.010));
-  ankle.rotation.z=sign*.025;
-  runnerRoot.add(ankle);
-
-  const upper=rounded(.225,.135,.355,C.redHi,.052,.64);
-  upper.position.copy(localPoint(foot,0,-.030,-.095));
-  runnerRoot.add(upper);
-
-  // White toe and sole.
-  const toe=rounded(.205,.105,.145,C.white,.045,.60);
-  toe.position.copy(localPoint(foot,0,-.018,-.255));
-  runnerRoot.add(toe);
-
-  const sole=rounded(.235,.050,.370,C.sole,.022,.60);
-  sole.position.copy(localPoint(foot,0,-.110,-.100));
-  runnerRoot.add(sole);
-
-  // White side stripe/eyelet panel.
-  const stripe=rounded(.050,.125,.245,C.white,.018,.60);
-  stripe.position.copy(localPoint(foot,sign*.113,-.020,-.090));
-  runnerRoot.add(stripe);
-}
-
-function setCameraView(view){
-  const radius=4.45;
-  const y=1.48;
-  if(view==='front')camera.position.set(0,y,-radius);
-  else if(view==='three')camera.position.set(3.15,y,-3.15);
-  else camera.position.set(0,y,radius);
-  controls.target.set(0,1.24,0);
-  controls.update();
 }
 
 function poseStatic(human,gltf){
@@ -500,25 +208,169 @@ function poseStatic(human,gltf){
   if(idle){
     const action=mixer.clipAction(idle);
     action.play();
-    mixer.update(Math.min(.42,idle.duration*.22));
+    mixer.update(Math.min(.38,idle.duration*.22));
     action.paused=true;
   }
-
   scene.updateMatrixWorld(true);
 }
 
-function buildRedLook(human){
+function addFaceEnhancement(head){
+  // Keep the model's own face; only enlarge/read the eyes in an anime direction.
+  for(const x of [-.075,.075]){
+    const white=new THREE.Mesh(
+      new THREE.SphereGeometry(.034,24,16),
+      stdMat(C.white,.48)
+    );
+    white.scale.set(1.12,.77,.28);
+    white.position.set(head.x+x,head.y+.035,head.z-.203);
+    runnerRoot.add(white);
+
+    const iris=new THREE.Mesh(
+      new THREE.SphereGeometry(.0165,20,14),
+      stdMat(C.eye,.48)
+    );
+    iris.scale.set(.92,1.05,.42);
+    iris.position.set(head.x+x,head.y+.033,head.z-.224);
+    runnerRoot.add(iris);
+
+    const glint=new THREE.Mesh(
+      new THREE.SphereGeometry(.0045,10,8),
+      new THREE.MeshBasicMaterial({color:0xffffff})
+    );
+    glint.position.set(head.x+x-.004,head.y+.043,head.z-.236);
+    runnerRoot.add(glint);
+  }
+
+  // Friendly subtle smile.
+  const curve=new THREE.CatmullRomCurve3([
+    new THREE.Vector3(head.x-.050,head.y-.060,head.z-.214),
+    new THREE.Vector3(head.x,head.y-.072,head.z-.220),
+    new THREE.Vector3(head.x+.050,head.y-.060,head.z-.214)
+  ]);
+  const smile=new THREE.Mesh(
+    new THREE.TubeGeometry(curve,14,.006,7,false),
+    stdMat(0x8c4540,.64)
+  );
+  runnerRoot.add(smile);
+}
+
+function addHairEnhancement(head){
+  // The native hair remains visible. These tufts only add the longer,
+  // tousled silhouette of the red reference character.
+  const tufts=[
+    [-.160,.205,-.055,.078,.235,.070, .40,0],
+    [-.085,.255,-.095,.080,.265,.068, .20,0],
+    [ .000,.278,-.112,.082,.285,.066, .02,1],
+    [ .090,.255,-.095,.080,.255,.068,-.22,0],
+    [ .165,.205,-.052,.075,.225,.070,-.42,1],
+    [-.195,.145,.025,.065,.185,.075, .58,0],
+    [ .195,.145,.025,.065,.185,.075,-.58,0]
+  ];
+
+  for(const [x,y,z,rx,hy,rz,rot,hi] of tufts){
+    const tuft=new THREE.Mesh(
+      new THREE.ConeGeometry(rx,hy,8,1,false),
+      stdMat(hi?C.hairHi:C.hair,.78)
+    );
+    tuft.position.set(head.x+x,head.y+y,head.z+z);
+    tuft.rotation.z=rot;
+    tuft.rotation.x=z<0?-.14:.10;
+    tuft.scale.z=rz/rx;
+    tuft.castShadow=true;
+    runnerRoot.add(tuft);
+  }
+}
+
+function addOpenJacketDetail(chest,neck,hips){
+  const center=chest.clone().lerp(hips,.30);
+
+  // White T-shirt panel laid just above the native red hoodie surface.
+  const tee=rounded(.285,.49,.026,C.white,.018,.76);
+  tee.position.set(center.x,center.y-.025,center.z-.184);
+  runnerRoot.add(tee);
+
+  // Dark inner jacket edges make the red hoodie read as open.
+  for(const x of [-.165,.165]){
+    const edge=rounded(.026,.48,.025,C.black,.008,.80);
+    edge.position.set(center.x+x,center.y-.010,center.z-.203);
+    edge.rotation.z=x<0?-.025:.025;
+    runnerRoot.add(edge);
+
+    const zip=rounded(.010,.43,.012,C.metal,.003,.54);
+    zip.position.set(center.x+(x<0?-0.145:0.145),center.y-.005,center.z-.218);
+    runnerRoot.add(zip);
+  }
+
+  // Black hood/collar volume around the neck.
+  const hood=new THREE.Mesh(
+    new THREE.TorusGeometry(.205,.052,14,34,Math.PI*1.62),
+    stdMat(C.black,.82)
+  );
+  hood.position.set(neck.x,neck.y+.018,neck.z+.028);
+  hood.rotation.set(Math.PI*.53,0,Math.PI*.18);
+  hood.castShadow=true;
+  runnerRoot.add(hood);
+
+  // White undershirt hem below the jacket.
+  const hem=rounded(.34,.060,.035,C.white,.018,.76);
+  hem.position.set(center.x,hips.y+.105,center.z-.162);
+  runnerRoot.add(hem);
+}
+
+function addGlove(hand,side){
+  const glove=rounded(.125,.105,.110,C.black,.032,.82);
+  glove.position.copy(hand);
+  glove.position.y+=.005;
+  glove.position.z-=.008;
+  glove.rotation.z=side==='L'?.08:-.08;
+  runnerRoot.add(glove);
+
+  const wrist=rounded(.132,.036,.116,C.redDark,.012,.72);
+  wrist.position.copy(hand);
+  wrist.position.y+=.067;
+  runnerRoot.add(wrist);
+}
+
+function addCargoExtension(side,knee,foot,hip){
+  // Extend the native shorts into the cropped baggy cargo silhouette.
+  const end=knee.clone().lerp(foot,.57);
+  segment(knee,end,.115,C.pants,24);
+
+  const cuff=rounded(.235,.055,.190,C.black,.020,.84);
+  cuff.position.copy(end);
+  runnerRoot.add(cuff);
+
+  const sign=side==='L'?-1:1;
+  const pocket=rounded(.115,.155,.042,C.pantsHi,.022,.80);
+  pocket.position.copy(hip.clone().lerp(knee,.56));
+  pocket.position.x+=sign*.108;
+  pocket.position.z-=.040;
+  runnerRoot.add(pocket);
+
+  const tab=rounded(.024,.060,.020,C.red,.007,.70);
+  tab.position.copy(pocket.position);
+  tab.x+=sign*.070;
+  tab.y-=.020;
+  tab.z-=.028;
+  runnerRoot.add(tab);
+}
+
+function addHighTopCollar(foot){
+  // Native White/Purple shoe is now already white/red. Add only the taller collar.
+  const collar=rounded(.165,.145,.160,C.red,.035,.66);
+  collar.position.copy(foot);
+  collar.y+=.050;
+  collar.z+=.005;
+  runnerRoot.add(collar);
+}
+
+function buildReferenceDetails(human){
   const headBone=findBone(human,[/head/i]);
   const neckBone=findBone(human,[/neck/i]);
   const chestBone=findBone(human,[/upper.?chest/i,/chest/i,/spine.?2/i,/spine.?1/i,/spine/i]);
   const hipsBone=findBone(human,[/hips/i,/pelvis/i]);
 
-  const lUpper=findBone(human,[/left.*upper.*arm/i,/upper.*arm.*left/i,/upperarm.*l/i,/arm.*l/i]);
-  const lLower=findBone(human,[/left.*fore.*arm/i,/left.*lower.*arm/i,/fore.*arm.*left/i,/lower.*arm.*left/i]);
   const lHand=findBone(human,[/left.*hand/i,/hand.*left/i,/hand.*l/i]);
-
-  const rUpper=findBone(human,[/right.*upper.*arm/i,/upper.*arm.*right/i,/upperarm.*r/i,/arm.*r/i]);
-  const rLower=findBone(human,[/right.*fore.*arm/i,/right.*lower.*arm/i,/fore.*arm.*right/i,/lower.*arm.*right/i]);
   const rHand=findBone(human,[/right.*hand/i,/hand.*right/i,/hand.*r/i]);
 
   const lHip=findBone(human,[/left.*up.*leg/i,/left.*thigh/i,/thigh.*left/i,/upleg.*l/i]);
@@ -529,35 +381,47 @@ function buildRedLook(human){
   const rKnee=findBone(human,[/right.*leg/i,/right.*shin/i,/shin.*right/i,/leg.*r/i]);
   const rFoot=findBone(human,[/right.*foot/i,/foot.*right/i,/foot.*r/i]);
 
-  const head=worldPos(headBone,new THREE.Vector3(0,2.12,0)).add(new THREE.Vector3(0,.105,0));
-  const neck=worldPos(neckBone,new THREE.Vector3(0,1.92,0));
-  const chest=worldPos(chestBone,new THREE.Vector3(0,1.67,0));
-  const hips=worldPos(hipsBone,new THREE.Vector3(0,1.24,0));
+  // Small head scale adjustment: reference is youthful, not super-deformed.
+  if(headBone)headBone.scale.multiplyScalar(1.045);
+  scene.updateMatrixWorld(true);
 
-  const LU=worldPos(lUpper,new THREE.Vector3(-.30,1.77,0));
-  const LL=worldPos(lLower,new THREE.Vector3(-.45,1.42,0));
-  const LH=worldPos(lHand,new THREE.Vector3(-.46,1.12,0));
+  const head=wpos(headBone,new THREE.Vector3(0,2.10,0));
+  const neck=wpos(neckBone,new THREE.Vector3(0,1.91,0));
+  const chest=wpos(chestBone,new THREE.Vector3(0,1.66,0));
+  const hips=wpos(hipsBone,new THREE.Vector3(0,1.20,0));
 
-  const RU=worldPos(rUpper,new THREE.Vector3(.30,1.77,0));
-  const RL=worldPos(rLower,new THREE.Vector3(.45,1.42,0));
-  const RH=worldPos(rHand,new THREE.Vector3(.46,1.12,0));
+  const LH=wpos(lHand,new THREE.Vector3(-.43,1.10,0));
+  const RH=wpos(rHand,new THREE.Vector3(.43,1.10,0));
 
-  const LHip=worldPos(lHip,new THREE.Vector3(-.16,1.15,0));
-  const LKnee=worldPos(lKnee,new THREE.Vector3(-.16,.72,0));
-  const LFoot=worldPos(lFoot,new THREE.Vector3(-.16,.16,0));
+  const LHip=wpos(lHip,new THREE.Vector3(-.14,1.10,0));
+  const LKnee=wpos(lKnee,new THREE.Vector3(-.14,.68,0));
+  const LFoot=wpos(lFoot,new THREE.Vector3(-.14,.12,0));
 
-  const RHip=worldPos(rHip,new THREE.Vector3(.16,1.15,0));
-  const RKnee=worldPos(rKnee,new THREE.Vector3(.16,.72,0));
-  const RFoot=worldPos(rFoot,new THREE.Vector3(.16,.16,0));
+  const RHip=wpos(rHip,new THREE.Vector3(.14,1.10,0));
+  const RKnee=wpos(rKnee,new THREE.Vector3(.14,.68,0));
+  const RFoot=wpos(rFoot,new THREE.Vector3(.14,.12,0));
 
-  addHeadLook(head);
-  addTorsoLook(chest,hips,neck);
-  addArmLook('L',LU,LL,LH);
-  addArmLook('R',RU,RL,RH);
-  addLegLook('L',LHip,LKnee,LFoot);
-  addLegLook('R',RHip,RKnee,RFoot);
+  addFaceEnhancement(head);
+  addHairEnhancement(head);
+  addOpenJacketDetail(chest,neck,hips);
+  addGlove(LH,'L');
+  addGlove(RH,'R');
+  addCargoExtension('L',LKnee,LFoot,LHip);
+  addCargoExtension('R',RKnee,RFoot,RHip);
+  addHighTopCollar(LFoot);
+  addHighTopCollar(RFoot);
 
-  document.body.dataset.look='red-runner-static-v1';
+  document.body.dataset.look='red-runner-static-v2';
+}
+
+function setCameraView(view){
+  const radius=4.35;
+  const y=1.46;
+  if(view==='front')camera.position.set(0,y,-radius);
+  else if(view==='three')camera.position.set(3.08,y,-3.08);
+  else camera.position.set(0,y,radius);
+  controls.target.set(0,1.23,0);
+  controls.update();
 }
 
 document.querySelectorAll('[data-view]').forEach(btn=>{
@@ -568,16 +432,16 @@ new GLTFLoader().load(
   MODEL_URL,
   gltf=>{
     const human=gltf.scene;
-    fitToHeight(human,2.42);
+    fitToHeight(human,2.40);
     human.rotation.y=Math.PI;
-    human.scale.x*=.93;
-    human.scale.z*=.93;
+    human.scale.x*=.95;
+    human.scale.z*=.95;
 
-    neutralizeBase(human);
+    styleNativeMaterials(human);
     runnerRoot.add(human);
 
     poseStatic(human,gltf);
-    buildRedLook(human);
+    buildReferenceDetails(human);
 
     document.body.dataset.characterReady='true';
   },
