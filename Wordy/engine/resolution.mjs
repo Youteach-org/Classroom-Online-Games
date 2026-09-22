@@ -1,4 +1,4 @@
-import { removeCells, collapseColumns } from './board.mjs';
+import { removeTiles, settleGravity, refillEmptyRuns } from './board.mjs';
 import { findMatches } from './matcher.mjs';
 import { scoreResolution } from './scoring.mjs';
 
@@ -10,11 +10,7 @@ export class CascadeLimitError extends Error{
 }
 
 export function resolvePlayerActivation({
-  board,
-  bank,
-  discoveredIds=new Set(),
-  refillTile,
-  maxCascadeDepth=12
+  board,bank,discoveredIds=new Set(),refillTile,maxCascadeDepth=12
 }){
   if(typeof refillTile!=='function')throw new Error('refillTile must be a function');
   const known=discoveredIds instanceof Set?new Set(discoveredIds):new Set(discoveredIds??[]);
@@ -26,38 +22,12 @@ export function resolvePlayerActivation({
   const generations=[];
   for(let depth=0;matches.length>0;depth++){
     if(depth>maxCascadeDepth)throw new CascadeLimitError();
-
-    const score=scoreResolution({
-      matches,
-      bank,
-      discoveredIds:known,
-      cascadeDepth:depth
-    });
-
-    const removedTileIds=[];
-    const seenIds=new Set();
-    const cells=[];
-    for(const match of matches){
-      for(const cell of match.cells){
-        const tile=current[cell.row]?.[cell.col];
-        if(tile&&!seenIds.has(tile.id)){
-          seenIds.add(tile.id);
-          removedTileIds.push(tile.id);
-        }
-        cells.push(cell);
-      }
-    }
-
-    current=removeCells(current,cells);
-    current=collapseColumns(current,refillTile);
-
-    generations.push({
-      matches,
-      removedTileIds,
-      score,
-      cascadeDepth:depth
-    });
-
+    const score=scoreResolution({matches,bank,discoveredIds:known,cascadeDepth:depth});
+    const removedTileIds=[...new Set(matches.flatMap(match=>match.tileIds??[]))];
+    current=removeTiles(current,removedTileIds);
+    current=settleGravity(current);
+    current=refillEmptyRuns(current,refillTile);
+    generations.push({matches,removedTileIds,score,cascadeDepth:depth});
     for(const match of matches)known.add(match.relationshipId);
     matches=findMatches(current,bank);
   }
