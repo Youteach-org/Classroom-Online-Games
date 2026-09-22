@@ -1,51 +1,36 @@
 {
   "project": "Oral-Grader",
   "pair_slug": "paul-paulina",
-  "report_status": "generated_for_teacher_review",
-  "students": [
+  "report_status": "restructured-individual-reports",
+  "reports": [
     {
-      "name": "Paul Betanzos Martínez",
-      "score": "33/40"
+      "student": "Paul Betanzos Martínez",
+      "score": "33/40",
+      "file": "Paul-Betanzos-Martinez-Oral-Exam-Report-Units-1-4.pdf"
     },
     {
-      "name": "Paulina Gallegos Ramírez",
-      "score": "32/40"
+      "student": "Paulina Gallegos Ramírez",
+      "score": "32/40",
+      "file": "Paulina-Gallegos-Ramirez-Oral-Exam-Report-Units-1-4.pdf"
     }
   ],
-  "format": {
-    "orientation": "portrait",
-    "language": "English",
-    "pages": 6,
-    "diagnostic_columns": [
-      "What you said",
-      "Why it needs work",
-      "Natural English"
-    ],
-    "color_key": {
-      "AGR": "light blue - present/simple agreement",
-      "PAST": "red - past forms",
-      "PERF": "green - perfect forms",
-      "MOD": "purple - conditionals/modals",
-      "U1-4": "orange - Units 1-4 target language",
-      "VOC": "pink - vocabulary/prepositions",
-      "ART": "yellow - articles/plurals",
-      "STR": "gray - structure/word order"
-    },
-    "pronunciation": "separate burgundy marking"
+  "required_order": [
+    "original transcript first",
+    "natural corrected conversation second",
+    "rubric comparison third",
+    "priority practice last"
+  ],
+  "color_key": {
+    "fluency": "teal",
+    "coherence_and_organization": "orange",
+    "grammar_and_vocabulary": "blue",
+    "pronunciation_and_intelligibility": "burgundy/red",
+    "communicative_interaction": "purple"
   },
-  "pronunciation_evidence": [
-    {
-      "student": "Paul",
-      "heard": "fires",
-      "target": "fathers",
-      "status": "teacher-confirmed"
-    },
-    {
-      "student": "Paulina",
-      "status": "no confirmed pronunciation error"
-    }
-  ],
-  "reporting_rule": "Deep diagnostic feedback is stricter than the summative score; natural-English corrections must be idiomatic and must not preserve Spanish calques.",
+  "transcript_rule": "Show the full conversation for context, but color-mark only the student whose individual report is being viewed.",
+  "corrected_conversation_rule": "Show the full natural-English conversation, but color-mark only the corrected segments belonging to the student whose report is being viewed.",
+  "privacy_and_reporting_rule": "Do not include teacher-to-assistant comments, internal analysis notes, implementation notes, or user feedback about report generation.",
+  "pronunciation_rule": "Pronunciation issues are marked inside the transcript/corrected material under the Pronunciation & Intelligibility color, not in a separate meta-comment box.",
   "source_files": [
     "Oral-Grader/transcripts/paul-paulina-stage1.json",
     "Oral-Grader/analysis/paul-paulina-stage2.json",
