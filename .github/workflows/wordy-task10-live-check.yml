@@ -1,0 +1,25 @@
+name: Wordy Task 10 Live Check
+
+on:
+  push:
+    branches:
+      - feature/wordy-game
+    paths:
+      - ".github/workflows/wordy-task10-live-check.yml"
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify canonical Wordy route
+        run: |
+          set -euo pipefail
+          BASE="https://classroom-online-games.pages.dev/Wordy"
+          curl --fail --silent --show-error --location "$BASE/" -o /tmp/wordy-index.html
+          curl --fail --silent --show-error --location "$BASE/engine/tile-size.mjs" -o /tmp/tile-size.mjs
+          curl --fail --silent --show-error --location "$BASE/styles.css" -o /tmp/styles.css
+          grep -q 'app.mjs' /tmp/wordy-index.html
+          grep -q 'spanForWord' /tmp/tile-size.mjs
+          grep -q 'repeat(12' /tmp/styles.css
+          echo "Canonical Wordy route serves the discrete-grid runtime."
