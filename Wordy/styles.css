@@ -40,11 +40,11 @@ button{font:inherit}
 .event-label{min-height:22px;font-weight:900;letter-spacing:.08em;font-size:14px}
 .board-stage{width:100%;display:grid;place-items:center;flex:1;min-height:0}
 .wordy-board{
-  width:min(96vw,720px);
-  height:min(70dvh,680px);
-  min-height:430px;
+  width:min(94vw,620px);
+  aspect-ratio:1 / 1;
+  max-height:min(70dvh,620px);
   display:grid;
-  grid-template-columns:repeat(12,minmax(0,1fr));
+  grid-template-columns:repeat(7,minmax(0,1fr));
   grid-template-rows:repeat(7,minmax(0,1fr));
   gap:clamp(4px,.8vw,7px);
   touch-action:none;
@@ -65,12 +65,15 @@ button{font:inherit}
   overflow:hidden;
   white-space:nowrap;
   text-overflow:clip;
-  font-size:clamp(13px,2.7vw,19px);
+  font-size:clamp(12px,2.8vw,18px);
   line-height:1.02;
   font-weight:900;
   letter-spacing:-.02em;
   transition:transform .14s ease,box-shadow .14s ease,outline-color .14s ease;
 }
+.wordy-tile.text-medium{font-size:clamp(10px,2.4vw,16px)}
+.wordy-tile.text-long{font-size:clamp(9px,2.1vw,14px)}
+.wordy-tile.text-xlong{font-size:clamp(8px,1.8vw,12px);letter-spacing:-.045em}
 .wordy-tile:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.24)}
 .wordy-tile.is-ready{
   outline:3px solid #ffd55c;
@@ -131,10 +134,10 @@ button{font:inherit}
 .review-card span{display:block;margin-top:2px;font-size:13px;opacity:.78}
 .replay-board{
   width:min(62vw,240px);
-  aspect-ratio:12 / 7;
+  aspect-ratio:1 / 1;
   margin:12px auto 0;
   display:grid;
-  grid-template-columns:repeat(12,minmax(0,1fr));
+  grid-template-columns:repeat(7,minmax(0,1fr));
   grid-template-rows:repeat(7,minmax(0,1fr));
   gap:2px;
 }
