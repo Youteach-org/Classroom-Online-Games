@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRelationshipBank } from '../engine/relationship-bank.mjs';
 import { scoreResolution, DEFAULT_SCORE_CONFIG } from '../engine/scoring.mjs';
-import { relation, match } from './helpers.mjs';
+import { relation } from './helpers.mjs';
 
 const bank=createRelationshipBank([
   relation('m1',['LOOK','AFTER'],'phrasal-verb',120,1),
@@ -11,14 +11,14 @@ const bank=createRelationshipBank([
   relation('v',['TAKE','A','BREAK'],'collocation',180,2)
 ]);
 
-const m1=match('m1',[{row:0,col:0},{row:0,col:1}],'horizontal',['LOOK','AFTER']);
-const m2=match('m2',[{row:2,col:0},{row:2,col:1}],'horizontal',['MAKE','SENSE']);
-const horizontal=match('h',[
-  {row:1,col:0},{row:1,col:1},{row:1,col:2}
-],'horizontal',['MAKE','A','DECISION']);
-const vertical=match('v',[
-  {row:0,col:1},{row:1,col:1},{row:2,col:1}
-],'vertical',['TAKE','A','BREAK']);
+function m(relationshipId,tileIds,orientation='horizontal',tokens=[]){
+  return {relationshipId,tileIds,orientation,tokens};
+}
+
+const m1=m('m1',['look','after'],'horizontal',['LOOK','AFTER']);
+const m2=m('m2',['make','sense'],'horizontal',['MAKE','SENSE']);
+const horizontal=m('h',['make','shared-a','decision'],'horizontal',['MAKE','A','DECISION']);
+const vertical=m('v',['take','shared-a','break'],'vertical',['TAKE','A','BREAK']);
 
 test('batch bonus rewards resolving several ready relationships together',()=>{
   const one=scoreResolution({matches:[m1],bank,discoveredIds:new Set(),cascadeDepth:0});
@@ -47,7 +47,7 @@ test('discovery bonus is added only for unique relationships not already discove
   assert.equal(fresh.discoveryBonus-known.discoveryBonus,50);
 });
 
-test('length bonus is derived from resolved relationship length',()=>{
+test('length bonus is derived from resolved relationship tile count',()=>{
   const result=scoreResolution({matches:[horizontal],bank,discoveredIds:new Set(['h']),cascadeDepth:0});
   assert.equal(result.lengthBonus,40);
 });
