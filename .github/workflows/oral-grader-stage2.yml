@@ -17,7 +17,7 @@ permissions:
   contents: write
 
 env:
-  ORAL_GRADER_STAGE2_MODEL: gemini-3.8-flash
+  ORAL_GRADER_STAGE2_MODEL: gemini-3.5-flash-lite
 
 jobs:
   stage2:
