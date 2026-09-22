@@ -259,7 +259,8 @@ jobs:
               title:document.title,
               canvas:[document.querySelector('canvas')?.width,document.querySelector('canvas')?.height],
               hasSelector:Boolean(document.querySelector('.selector')),
-              text:(document.body?.innerText||'').slice(0,500)
+              text:(document.body?.innerText||'').slice(0,500),
+              materials:window.__characterMaterialDump||[]
             }));
             console.log('CHARACTER_LAB '+JSON.stringify(state));
             if(state.hasSelector)throw new Error('Old multi-character selector is still present');
