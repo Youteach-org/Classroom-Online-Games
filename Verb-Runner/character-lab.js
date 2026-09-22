@@ -208,7 +208,7 @@ function attachBackpackToTorso(human){
   const backpack=createBackpack();
 
   // Start in the same world-space pose as the previous lab version.
-  backpack.position.set(0,1.48,.18);
+  backpack.position.set(0,1.48,-.24);
   runnerRoot.add(backpack);
 
   scene.updateMatrixWorld(true);
@@ -226,22 +226,6 @@ function attachBackpackToTorso(human){
   }
 }
 
-function addHood(){
-  const hoodMat=new THREE.MeshStandardMaterial({
-    color:0xc7463f,
-    roughness:.74,
-    metalness:0
-  });
-  const hood=new THREE.Mesh(
-    new THREE.TorusGeometry(.29,.105,16,40,Math.PI*1.45),
-    hoodMat
-  );
-  hood.position.set(0,2.25,.05);
-  hood.rotation.set(Math.PI*.5,0,Math.PI*.27);
-  hood.castShadow=true;
-  runnerRoot.add(hood);
-}
-
 new GLTFLoader().load(
   MODEL_URL,
   gltf=>{
@@ -253,7 +237,6 @@ new GLTFLoader().load(
 
     scene.updateMatrixWorld(true);
     attachBackpackToTorso(human);
-    addHood();
 
     mixer=new THREE.AnimationMixer(human);
     const run=(gltf.animations||[]).find(c=>c.name==='Run'||/run/i.test(c.name))||gltf.animations?.[0];
