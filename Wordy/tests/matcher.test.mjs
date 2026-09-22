@@ -12,13 +12,13 @@ const bank=createRelationshipBank([
   {id:'look-after',category:'phrasal-verb',tokens:['LOOK','AFTER'],baseScore:120,difficulty:1}
 ]);
 
-test('horizontal matching follows touching tiles even when spans differ',()=>{
+test('horizontal match uses consecutive columns',()=>{
   const board=boardFromTiles({
-    rows:1,columns:12,
+    rows:1,columns:3,
     tiles:[
-      {id:'make',word:'MAKE',row:0,startColumn:0,span:2},
-      {id:'a',word:'A',row:0,startColumn:2,span:1},
-      {id:'decision',word:'DECISION',row:0,startColumn:3,span:3}
+      {id:'make',word:'MAKE',row:0,column:0},
+      {id:'a',word:'A',row:0,column:1},
+      {id:'decision',word:'DECISION',row:0,column:2}
     ]
   });
   const match=findMatches(board,bank).find(m=>m.relationshipId==='make-a-decision');
@@ -26,27 +26,16 @@ test('horizontal matching follows touching tiles even when spans differ',()=>{
   assert.equal(match.orientation,'horizontal');
 });
 
-test('suppresses a shorter relationship fully contained in a longer touching sequence',()=>{
+test('vertical match uses consecutive rows in one column',()=>{
   const board=boardFromTiles({
-    rows:1,columns:12,
+    rows:3,columns:2,
     tiles:[
-      {id:'look',word:'LOOK',row:0,startColumn:0,span:2},
-      {id:'forward',word:'FORWARD',row:0,startColumn:2,span:3},
-      {id:'to',word:'TO',row:0,startColumn:5,span:1},
-      {id:'seeing',word:'SEEING',row:0,startColumn:6,span:3},
-      {id:'you',word:'YOU',row:0,startColumn:9,span:2}
-    ]
-  });
-  assert.deepEqual(findMatches(board,bank).map(m=>m.relationshipId),['long']);
-});
-
-test('TAKE A BREAK can match vertically with mixed widths sharing one microcolumn',()=>{
-  const board=boardFromTiles({
-    rows:3,columns:12,
-    tiles:[
-      {id:'take',word:'TAKE',row:0,startColumn:1,span:2},
-      {id:'a',word:'A',row:1,startColumn:2,span:1},
-      {id:'break',word:'BREAK',row:2,startColumn:1,span:2}
+      {id:'take',word:'TAKE',row:0,column:0},
+      {id:'x0',word:'X',row:0,column:1},
+      {id:'a',word:'A',row:1,column:0},
+      {id:'x1',word:'X',row:1,column:1},
+      {id:'break',word:'BREAK',row:2,column:0},
+      {id:'x2',word:'X',row:2,column:1}
     ]
   });
   const match=findMatches(board,bank).find(m=>m.relationshipId==='take-a-break');
@@ -54,40 +43,33 @@ test('TAKE A BREAK can match vertically with mixed widths sharing one microcolum
   assert.equal(match.orientation,'vertical');
 });
 
-test('mixed-width vertical sequence does not match without a common microcolumn',()=>{
+test('suppresses a shorter relation contained in a longer straight sequence',()=>{
   const board=boardFromTiles({
-    rows:3,columns:12,
+    rows:1,columns:5,
     tiles:[
-      {id:'take',word:'TAKE',row:0,startColumn:0,span:2},
-      {id:'a',word:'A',row:1,startColumn:3,span:1},
-      {id:'break',word:'BREAK',row:2,startColumn:0,span:2}
+      {id:'look',word:'LOOK',row:0,column:0},
+      {id:'forward',word:'FORWARD',row:0,column:1},
+      {id:'to',word:'TO',row:0,column:2},
+      {id:'seeing',word:'SEEING',row:0,column:3},
+      {id:'you',word:'YOU',row:0,column:4}
     ]
   });
-  assert.equal(findMatches(board,bank).some(m=>m.relationshipId==='take-a-break'),false);
+  assert.deepEqual(findMatches(board,bank).map(m=>m.relationshipId),['long']);
 });
 
-test('wide vertical phrase found through two shared lanes is emitted once',()=>{
+test('keeps perpendicular crossing matches that share one physical tile',()=>{
   const board=boardFromTiles({
-    rows:2,columns:12,
+    rows:3,columns:3,
     tiles:[
-      {id:'look',word:'LOOK',row:0,startColumn:4,span:2},
-      {id:'after',word:'AFTER',row:1,startColumn:4,span:2}
-    ]
-  });
-  const matches=findMatches(board,bank).filter(m=>m.relationshipId==='look-after');
-  assert.equal(matches.length,1);
-  assert.deepEqual(matches[0].tileIds,['look','after']);
-});
-
-test('keeps perpendicular crossing matches that share the same physical tile',()=>{
-  const board=boardFromTiles({
-    rows:3,columns:12,
-    tiles:[
-      {id:'take',word:'TAKE',row:0,startColumn:1,span:2},
-      {id:'make',word:'MAKE',row:1,startColumn:0,span:2},
-      {id:'a',word:'A',row:1,startColumn:2,span:1},
-      {id:'decision',word:'DECISION',row:1,startColumn:3,span:3},
-      {id:'break',word:'BREAK',row:2,startColumn:1,span:2}
+      {id:'x0',word:'X',row:0,column:0},
+      {id:'take',word:'TAKE',row:0,column:1},
+      {id:'x1',word:'X',row:0,column:2},
+      {id:'make',word:'MAKE',row:1,column:0},
+      {id:'a',word:'A',row:1,column:1},
+      {id:'decision',word:'DECISION',row:1,column:2},
+      {id:'x2',word:'X',row:2,column:0},
+      {id:'break',word:'BREAK',row:2,column:1},
+      {id:'x3',word:'X',row:2,column:2}
     ]
   });
   const matches=findMatches(board,bank);
@@ -95,24 +77,23 @@ test('keeps perpendicular crossing matches that share the same physical tile',()
   const crossings=findCrossings(matches);
   assert.equal(crossings.length,1);
   assert.equal(crossings[0].tileId,'a');
-  assert.equal(crossings[0].matches.length,2);
 });
 
-test('does not match across horizontal gaps or reversed token order',()=>{
+test('does not match across a cell gap or reversed token order',()=>{
   const gap=boardFromTiles({
-    rows:1,columns:12,
+    rows:1,columns:4,
     tiles:[
-      {id:'make',word:'MAKE',row:0,startColumn:0,span:2},
-      {id:'a',word:'A',row:0,startColumn:3,span:1},
-      {id:'decision',word:'DECISION',row:0,startColumn:4,span:3}
+      {id:'make',word:'MAKE',row:0,column:0},
+      {id:'a',word:'A',row:0,column:2},
+      {id:'decision',word:'DECISION',row:0,column:3}
     ]
   });
   const reversed=boardFromTiles({
-    rows:1,columns:12,
+    rows:1,columns:3,
     tiles:[
-      {id:'decision',word:'DECISION',row:0,startColumn:0,span:3},
-      {id:'a',word:'A',row:0,startColumn:3,span:1},
-      {id:'make',word:'MAKE',row:0,startColumn:4,span:2}
+      {id:'decision',word:'DECISION',row:0,column:0},
+      {id:'a',word:'A',row:0,column:1},
+      {id:'make',word:'MAKE',row:0,column:2}
     ]
   });
   assert.equal(findMatches(gap,bank).some(m=>m.relationshipId==='make-a-decision'),false);

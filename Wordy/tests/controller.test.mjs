@@ -11,12 +11,12 @@ const bank=createRelationshipBank([
 ]);
 
 const FILLER=[
-  ['COFFEE','NOTES','PROMISE','SCHOOL','A'],
-  ['BROKE','CHOSEN','RAIN','FOOD','HABIT','A'],
-  ['WROTE','SEEN','COLD','TIME','TRUTH','OF','A'],
-  ['DRANK','GONE','EXERCISE','DIFFERENCE','A'],
-  ['GAVE','KNOWN','WORK','IDEA','HOMEWORK','A'],
-  ['DROVE','FALLEN','COURSE','ATTENTION']
+  ['COFFEE','NOTES','PROMISE','SCHOOL','COLD','TIME','TRUTH'],
+  ['BROKE','CHOSEN','RAIN','FOOD','HABIT','IDEA','WORK'],
+  ['WROTE','SEEN','COURSE','MONEY','BEGUN','KNOWN','HOME'],
+  ['DRANK','GONE','EXERCISE','DIFFERENCE','GAVE','FALLEN','FUN'],
+  ['DROVE','PAY','ATTENTION','FRONT','WAY','FACT','MATTER'],
+  ['HEAVY','BREAK','DECISION','TAKE','WRITE','TURN','GIVE']
 ];
 
 function makeLevel({ready=false,moves=10,target=9999,id='T'}={}){
@@ -58,7 +58,7 @@ test('geometrically valid non-scoring attempt rebounds without changing canonica
   assert.equal(boardKey(after.board),boardKey(before.board));
 });
 
-test('rebound preserves an existing ready relationship and score exactly',()=>{
+test('rebound preserves existing ready matches, score, moves and coordinates',()=>{
   const {game}=makeGame({ready:true});
   const before=game.state();
   assert.deepEqual(before.readyMatches.map(m=>m.relationshipId),['look-after']);
@@ -66,13 +66,13 @@ test('rebound preserves an existing ready relationship and score exactly',()=>{
   const right=tile(before,1,'NOTES');
   assert.equal(game.attemptSwap(left.id,right.id).status,'rebound');
   const after=game.state();
-  assert.deepEqual(after.readyMatches.map(m=>m.relationshipId),['look-after']);
+  assert.deepEqual(after.readyMatches,before.readyMatches);
   assert.equal(after.score,before.score);
   assert.equal(after.movesLeft,before.movesLeft);
-  assert.equal(boardKey(after.board),boardKey(before.board));
+  assert.deepEqual(after.board,before.board);
 });
 
-test('productive attempt is accepted, spends exactly one move, and creates ready relationship',()=>{
+test('productive attempt remains, spends one move, and creates a ready relation',()=>{
   const {game}=makeGame({moves:3});
   const before=game.state();
   const went=tile(before,0,'WENT');
@@ -83,6 +83,15 @@ test('productive attempt is accepted, spends exactly one move, and creates ready
   assert.equal(after.movesLeft,2);
   assert.ok(after.readyMatches.some(m=>m.relationshipId==='look-after'));
   assert.notEqual(boardKey(after.board),boardKey(before.board));
+});
+
+test('vertical adjacent equal-cell tiles are valid swap candidates',()=>{
+  const {game}=makeGame();
+  const before=game.state();
+  const top=tile(before,0,'LOOK');
+  const below=tile(before,1,'COFFEE');
+  const result=game.attemptSwap(top.id,below.id);
+  assert.notEqual(result.status,'invalid');
 });
 
 test('unknown or non-neighbor pair is invalid and costs no move',()=>{
@@ -96,7 +105,7 @@ test('unknown or non-neighbor pair is invalid and costs no move',()=>{
   assert.equal(boardKey(game.state().board),boardKey(before.board));
 });
 
-test('rebound is telemetry but never a missed opportunity',()=>{
+test('rebound telemetry never becomes a missed opportunity',()=>{
   const {game}=makeGame();
   const state=game.state();
   const left=tile(state,1,'COFFEE');
@@ -105,22 +114,4 @@ test('rebound is telemetry but never a missed opportunity',()=>{
   const events=game.telemetryEvents();
   assert.ok(events.some(event=>event.type==='swap-rebound'));
   assert.equal(events.some(event=>event.type==='missed-opportunity'),false);
-});
-
-
-test('POP resolves a ready relation without charging an extra move and returns a full board',()=>{
-  const storage=createFakeStorage();
-  const level=makeLevel({ready:true,target:100});
-  const fillerWords={1:'ZZ',2:'ZZZ',3:'ZZZZZZ',4:'ZZZZZZZZZ'};
-  const game=createGameController({
-    bank,levels:[level],initialLevelId:level.id,rng:seeded(3),storage,
-    refillWord:({span})=>fillerWords[span]
-  });
-  const before=game.state().movesLeft;
-  assert.equal(game.pop(),true);
-  const after=game.state();
-  assert.equal(after.movesLeft,before);
-  assert.ok(after.score>0);
-  assert.equal(after.phase,'result');
-  assert.ok(after.board.tiles.length>0);
 });

@@ -12,13 +12,13 @@ const bank=createRelationshipBank([
   relation('by-the-way',['BY','THE','WAY'],'fixed-expression',170,2)
 ]);
 
-const board=boardFromTiles({rows:2,columns:12,tiles:[
-  {id:'look',word:'LOOK',row:0,startColumn:0,span:2},
-  {id:'x',word:'WENT',row:0,startColumn:2,span:2},
-  {id:'after',word:'AFTER',row:0,startColumn:4,span:2},
-  {id:'make',word:'MAKE',row:1,startColumn:0,span:2},
-  {id:'y',word:'GONE',row:1,startColumn:2,span:2},
-  {id:'sense',word:'SENSE',row:1,startColumn:4,span:2}
+const board=boardFromTiles({rows:2,columns:3,tiles:[
+  {id:'look',word:'LOOK',row:0,column:0},
+  {id:'x',word:'WENT',row:0,column:1},
+  {id:'after',word:'AFTER',row:0,column:2},
+  {id:'make',word:'MAKE',row:1,column:0},
+  {id:'y',word:'GONE',row:1,column:1},
+  {id:'sense',word:'SENSE',row:1,column:2}
 ]});
 
 const bestMove={
@@ -42,14 +42,14 @@ test('chosen best scoring swap is not recorded as missed',()=>{
   assert.equal(missed,null);
 });
 
-test('different chosen move records best opportunity with canonical tile geometry snapshot',()=>{
+test('different move records best opportunity with row-column snapshot',()=>{
   const missed=captureMissedOpportunity({
     board,scoringMoves:[lowMove,bestMove],chosenSwap:lowMove.swap,bank
   });
   assert.equal(missed.relationshipId,'look-after');
-  assert.equal(missed.boardSnapshot.columns,12);
-  assert.equal(missed.boardSnapshot.tiles.find(t=>t.id==='look').startColumn,0);
-  assert.equal('boardRows' in missed,false);
+  assert.equal(missed.boardSnapshot.columns,3);
+  assert.equal(missed.boardSnapshot.tiles.find(t=>t.id==='look').column,0);
+  assert.equal('startColumn' in missed.boardSnapshot.tiles[0],false);
   assert.deepEqual(missed.suggestedSwap,{fromTileId:'x',toTileId:'after'});
 });
 
