@@ -409,6 +409,9 @@ let gameSettings={
 const sessionParams=new URLSearchParams(location.search);
 const sessionCode=(sessionParams.get('session')||'').toUpperCase();
 const launchToken=String(sessionParams.get('launch')||'').trim();
+const assignmentLaunchToken=String(sessionParams.get('assignmentLaunch')||'').trim();
+const assignmentIssuer=String(sessionParams.get('issuer')||'').trim();
+const assignmentLaunchMarker=sessionParams.get('ytAssignment')==='1'||Boolean(assignmentLaunchToken);
 const sessionStudentName=String(
   sessionParams.get('studentName')||
   sessionParams.get('nickname')||
@@ -421,6 +424,8 @@ let sessionData=null;
 let sessionRunFinished=false;
 let sessionLoadPromise=Promise.resolve(null);
 let youTeachIdentity=null;
+let assignmentLaunchContext=null;
+let launchCredentialFailed=assignmentLaunchMarker&&!assignmentLaunchToken;
 
 function localRunnerId(){
   try{
@@ -445,14 +450,27 @@ function readStoredYouTeachIdentity(){
 
 function storeYouTeachIdentity(identity){
   try{
-    if(identity?.studentKey)localStorage.setItem(YOUTEACH_IDENTITY_KEY,JSON.stringify(identity));
+    if(!identity?.studentKey)return;
+    const persistentIdentity={
+      studentKey:String(identity.studentKey||''),
+      nickname:String(identity.nickname||''),
+      fullName:String(identity.fullName||''),
+      groupName:String(identity.groupName||''),
+      studentNumber:String(identity.studentNumber||''),
+      identitySource:'youteach'
+    };
+    localStorage.setItem(YOUTEACH_IDENTITY_KEY,JSON.stringify(persistentIdentity));
   }catch{}
 }
 
-function cleanLaunchTokenFromUrl(){
-  if(!launchToken)return;
+function cleanLaunchTokenFromUrl(assignmentPractice=false){
+  if(!launchToken&&!assignmentLaunchToken)return;
   const clean=new URL(location.href);
   clean.searchParams.delete('launch');
+  clean.searchParams.delete('assignmentLaunch');
+  clean.searchParams.delete('issuer');
+  if(assignmentPractice)clean.searchParams.set('ytAssignment','1');
+  else clean.searchParams.delete('ytAssignment');
   history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
 }
 
@@ -472,6 +490,38 @@ function monitorIdentityData(){
     studentNumber:youTeachIdentity?.studentNumber||'',
     identitySource:youTeachIdentity?'youteach':'local'
   };
+}
+
+function assignmentLevelFromMode(modeId){
+  const levels={'verb':1,'sentence':2,'time-clues':3,'perfect-race':4,'final-race':5};
+  return levels[String(modeId||'')]||0;
+}
+
+function applyAssignmentLaunchContext(context){
+  const config=context?.cogActivity;
+  const level=assignmentLevelFromMode(config?.modeId);
+  const preset=difficultyPresets[String(config?.difficultyId||'')];
+  if(context?.purpose!=='assignment-practice'||!level||!preset)return false;
+
+  assignmentLaunchContext={
+    purpose:'assignment-practice',
+    officialSubmissionAllowed:false,
+    assignmentId:String(context.assignmentId||''),
+    assignmentCode:String(context.assignmentCode||''),
+    cogActivity:{...config}
+  };
+  currentLevel=level;
+  totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
+  applyDifficultyDefaults(preset);
+  document.querySelectorAll('[data-race]').forEach(btn=>{
+    btn.disabled=true;
+    btn.classList.toggle('active',Number(btn.dataset.level)===currentLevel);
+  });
+  document.querySelectorAll('[data-difficulty]').forEach(btn=>{
+    btn.disabled=true;
+    btn.classList.toggle('active',btn.dataset.difficulty===preset.name);
+  });
+  return true;
 }
 
 function sessionUpdate(patch={}){
@@ -737,7 +787,7 @@ function setLevelUI(){
 
   if(resultKicker)resultKicker.textContent=raceLabel()+' COMPLETE';
   if(nextLevelButton){
-    nextLevelButton.hidden=currentLevel>=5;
+    nextLevelButton.hidden=Boolean(assignmentLaunchContext)||currentLevel>=5;
     nextLevelButton.textContent=currentLevel===1
       ?'TRY NEXT RACE · SENTENCE RUNNER'
       :currentLevel===2
@@ -804,6 +854,9 @@ function applyDifficultyDefaults(preset){
 
 function selectRace(level){
   if(gameStarted)return;
+  if(assignmentLaunchContext){
+    level=assignmentLevelFromMode(assignmentLaunchContext.cogActivity?.modeId)||level;
+  }
   currentLevel=Math.max(1,Math.min(5,Number(level)||1));
   totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
 
@@ -855,13 +908,45 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
   .then(async api=>{
     sessionApi=api;
 
-    if(launchToken){
+    if(assignmentLaunchMarker&&!assignmentLaunchToken){
+      throw new Error('Reopen this assigned activity from YouTeach');
+    }
+
+    if(assignmentLaunchToken){
+      const resolved=await sessionApi.resolveYouTeachAssignmentLaunchToken(
+        assignmentLaunchToken,
+        assignmentIssuer
+      );
+      if(!resolved)throw new Error('Invalid or expired YouTeach assignment credential');
+      youTeachIdentity={
+        studentKey:resolved.studentKey,
+        nickname:resolved.nickname,
+        fullName:resolved.fullName,
+        groupName:resolved.groupName,
+        studentNumber:resolved.studentNumber,
+        identitySource:'youteach'
+      };
+      storeYouTeachIdentity(youTeachIdentity);
+      const assignedPractice=Boolean(
+        resolved.launchContext&&applyAssignmentLaunchContext(resolved.launchContext)
+      );
+      if(!assignedPractice)throw new Error('Invalid YouTeach assignment configuration');
+      runnerSessionId='YT-'+String(resolved.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
+      cleanLaunchTokenFromUrl(true);
+    }else if(launchToken){
       const resolved=await sessionApi.resolveYouTeachLaunchToken(launchToken);
       if(!resolved)throw new Error('Invalid or expired YouTeach credential');
-      youTeachIdentity=resolved;
-      storeYouTeachIdentity(resolved);
+      youTeachIdentity={
+        studentKey:resolved.studentKey,
+        nickname:resolved.nickname,
+        fullName:resolved.fullName,
+        groupName:resolved.groupName,
+        studentNumber:resolved.studentNumber,
+        identitySource:'youteach'
+      };
+      storeYouTeachIdentity(youTeachIdentity);
       runnerSessionId='YT-'+String(resolved.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
-      cleanLaunchTokenFromUrl();
+      cleanLaunchTokenFromUrl(false);
     }
 
     const presenceData={
@@ -886,16 +971,23 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
 
     sessionData={status:'free',identitySource:youTeachIdentity?'youteach':'local'};
     await sessionApi.registerFreeRunnerPresence(runnerSessionId,presenceData);
-    modelStatus.textContent=(youTeachIdentity?.nickname||sessionStudentName||runnerSessionId)+' · Free mode';
+    modelStatus.textContent=assignmentLaunchContext
+      ?(youTeachIdentity?.nickname||runnerSessionId)+' · Assigned '+raceLabel()+' · '+difficulty.name
+      :(youTeachIdentity?.nickname||sessionStudentName||runnerSessionId)+' · Free mode';
     return sessionData;
   })
   .catch(err=>{
     console.error('Verb Runner monitor presence failed',err);
     sessionApi=null;
     sessionData=null;
-    modelStatus.textContent=launchToken
-      ?'YouTeach credential expired · reopen Verb Runner from YouTeach'
-      :(sessionCode?'Session unavailable · local mode':modelStatus.textContent);
+    if(assignmentLaunchToken||launchToken||assignmentLaunchMarker){
+      launchCredentialFailed=true;
+      modelStatus.textContent='YouTeach credential expired · reopen this activity from YouTeach';
+      startButton.disabled=true;
+      if(startButtonLabel)startButtonLabel.textContent='REOPEN FROM YOUTEACH';
+    }else if(sessionCode){
+      modelStatus.textContent='Session unavailable · local mode';
+    }
     return null;
   });
 
@@ -2559,7 +2651,7 @@ document.querySelectorAll('[data-pause-runner]').forEach((btn,index)=>{
 
 document.querySelectorAll('[data-difficulty]').forEach(btn=>{
   btn.addEventListener('click',()=>{
-    if(sessionCode&&sessionData)return;
+    if((sessionCode&&sessionData)||assignmentLaunchContext)return;
     const preset=difficultyPresets[btn.dataset.difficulty]||difficultyPresets.medium;
     applyDifficultyDefaults(preset);
     document.querySelectorAll('[data-difficulty]').forEach(b=>b.classList.toggle('active',b===btn));
@@ -2572,6 +2664,10 @@ startButton.addEventListener('click',async()=>{
   ensureAudio();
   window.VerbRunnerPronunciation?.unlockPronunciation();
   await sessionLoadPromise;
+  if(launchCredentialFailed){
+    modelStatus.textContent='Reopen this assigned activity from YouTeach';
+    return;
+  }
   sessionRunFinished=false;
   resetRun();
   picker.classList.add('hidden');
