@@ -1,116 +1,96 @@
+const COMMON_ROWS={
+  ONE:['COFFEE','NOTES','PROMISE','SCHOOL','A'],
+  TWO:['BROKE','CHOSEN','RAIN','FOOD','HABIT','A'],
+  THREE:['WROTE','SEEN','COLD','TIME','TRUTH','OF','A'],
+  FOUR:['DRANK','GONE','EXERCISE','DIFFERENCE','A'],
+  FIVE:['GAVE','KNOWN','WORK','IDEA','HOMEWORK','A'],
+  SIX:['DROVE','FALLEN','COURSE','ATTENTION']
+};
+
+const LOOK_ROW=['LOOK','WENT','AFTER','MONEY','BEGUN','OF','A'];
+const MAKE_ROW=['MAKE','WENT','SENSE','MONEY','BEGUN','OF','A'];
+
 export const LEVELS=[
   {
     id:'A',title:'First Move',moves:10,
     goal:{type:'score',target:250},
     instruction:'Swap neighboring words to build a valid English relationship.',
-    boardRows:[
-      ['LOOK','WENT','AFTER','MONEY','BEGUN'],
-      ['COFFEE','NOTES','PROMISE','SCHOOL','FUN'],
-      ['BROKE','CHOSEN','RAIN','FOOD','HABIT'],
-      ['WROTE','SEEN','COLD','TIME','TRUTH'],
-      ['DRANK','GONE','EXERCISE','BREAKFAST','DIFFERENCE'],
-      ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
-      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
-    ],
-    fixtureMoves:[[{row:0,col:1},{row:0,col:2}]]
+    boardRows:[LOOK_ROW,COMMON_ROWS.ONE,COMMON_ROWS.TWO,COMMON_ROWS.THREE,COMMON_ROWS.FOUR,COMMON_ROWS.FIVE,COMMON_ROWS.SIX],
+    fixtureMoveWords:[['WENT','AFTER']],fixtureMoveRows:[0]
   },
   {
     id:'B',title:'Ready, Set, Pop',moves:12,
     goal:{type:'score',target:500},
     instruction:'Build a relationship, leave it ready, then use POP.',
-    boardRows:[
-      ['MAKE','WENT','SENSE','MONEY','BEGUN'],
-      ['COFFEE','NOTES','PROMISE','SCHOOL','FUN'],
-      ['BROKE','CHOSEN','RAIN','FOOD','HABIT'],
-      ['WROTE','SEEN','COLD','TIME','TRUTH'],
-      ['DRANK','GONE','EXERCISE','BREAKFAST','DIFFERENCE'],
-      ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
-      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
-    ],
-    fixtureMoves:[[{row:0,col:1},{row:0,col:2}]]
+    boardRows:[MAKE_ROW,COMMON_ROWS.ONE,COMMON_ROWS.TWO,COMMON_ROWS.THREE,COMMON_ROWS.FOUR,COMMON_ROWS.FIVE,COMMON_ROWS.SIX],
+    fixtureMoveWords:[['WENT','SENSE']],fixtureMoveRows:[0]
   },
   {
     id:'C',title:'Build the Batch',moves:16,
     goal:{type:'batch',target:2},
     instruction:'Keep one relationship ready while you prepare another.',
     boardRows:[
-      ['LOOK','WENT','AFTER','MONEY','BEGUN'],
-      ['COFFEE','NOTES','PROMISE','SCHOOL','FUN'],
-      ['MAKE','GONE','SENSE','RAIN','FOOD'],
-      ['WROTE','SEEN','COLD','TIME','TRUTH'],
-      ['DRANK','EXERCISE','BREAKFAST','DIFFERENCE','HABIT'],
-      ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
-      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+      LOOK_ROW,
+      COMMON_ROWS.ONE,
+      ['MAKE','GONE','SENSE','RAIN','FOOD','OF','A'],
+      COMMON_ROWS.THREE,COMMON_ROWS.FOUR,COMMON_ROWS.FIVE,COMMON_ROWS.SIX
     ],
-    fixtureMoves:[
-      [{row:0,col:1},{row:0,col:2}],
-      [{row:2,col:1},{row:2,col:2}]
-    ]
+    fixtureMoveWords:[['WENT','AFTER'],['GONE','SENSE']],fixtureMoveRows:[0,2]
   },
   {
     id:'D',title:'Let It Fall',moves:16,
     goal:{type:'cascade',target:1},
     instruction:'Use POP so falling words create another relationship.',
     boardRows:[
-      ['WENT','TAKE','GONE','COFFEE','NOTES'],
-      ['LOOK','AFTER','PROMISE','SCHOOL','FUN'],
-      ['BROKE','A','CHOSEN','RAIN','FOOD'],
-      ['WROTE','BREAK','SEEN','COLD','TIME'],
-      ['DRANK','MONEY','EXERCISE','HABIT','TRUTH'],
-      ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
-      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+      ['TAKE','COFFEE','PROMISE','TIME','OF','A'],
+      ['LOOK','AFTER','PROMISE','SCHOOL','OF','A'],
+      ['I','A','COFFEE','PROMISE','SCHOOL','A'],
+      ['BREAK','COFFEE','PROMISE','TIME','OF','A'],
+      COMMON_ROWS.THREE,COMMON_ROWS.FIVE,COMMON_ROWS.SIX
     ],
-    fixtureMoves:[],
-    fixtureRefillWords:['ZZZ','YYY']
+    fixtureMoveWords:[],fixtureMoveRows:[]
   },
   {
     id:'E',title:'Long Thought',moves:18,
     goal:{type:'long-relation',target:5},
     instruction:'Build a five-word expression.',
     boardRows:[
-      ['AS','MATTER','A','OF','FACT'],
-      ['COFFEE','NOTES','PROMISE','SCHOOL','FUN'],
-      ['BROKE','CHOSEN','RAIN','FOOD','HABIT'],
-      ['WROTE','SEEN','COLD','TIME','TRUTH'],
-      ['DRANK','GONE','EXERCISE','BREAKFAST','DIFFERENCE'],
-      ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
-      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+      ['AS','MATTER','A','OF','FACT','TIME','TRUTH'],
+      COMMON_ROWS.ONE,COMMON_ROWS.TWO,COMMON_ROWS.THREE,COMMON_ROWS.FOUR,COMMON_ROWS.FIVE,COMMON_ROWS.SIX
     ],
-    fixtureMoves:[[{row:0,col:1},{row:0,col:2}]]
+    fixtureMoveWords:[['MATTER','A']],fixtureMoveRows:[0]
   },
   {
     id:'F',title:'Crossroads',moves:18,
     goal:{type:'cross',target:1},
     instruction:'Keep the horizontal phrase ready and build a phrase through it.',
     boardRows:[
-      ['WENT','COFFEE','GONE','NOTES','BEGUN'],
-      ['BROKE','PROMISE','CHOSEN','SCHOOL','FUN'],
-      ['RAIN','TAKE','FOOD','HABIT','TRUTH'],
-      ['COLD','MAKE','A','DECISION','TIME'],
-      ['SEEN','WORK','BREAK','IDEA','HOMEWORK'],
-      ['DRANK','KNOWN','EXERCISE','BREAKFAST','DIFFERENCE'],
-      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+      COMMON_ROWS.ONE,
+      COMMON_ROWS.TWO,
+      ['A','PROMISE','TAKE','SCHOOL','FUN','OF'],
+      ['MAKE','A','DECISION','TIME','TRUTH','OF','I'],
+      ['I','BREAK','COFFEE','NOTES','MONEY','OF','A'],
+      COMMON_ROWS.FIVE,
+      COMMON_ROWS.SIX
     ],
-    fixtureMoves:[[{row:2,col:1},{row:2,col:2}]]
+    fixtureMoveWords:[['PROMISE','TAKE']],fixtureMoveRows:[2]
   },
   {
     id:'G',title:'Mixed Play',moves:20,
     goal:{type:'score',target:1800},
     instruction:'Use everything you have learned to build stronger activations.',
     boardRows:[
-      ['LOOK','WENT','AFTER','MONEY','BEGUN'],
-      ['COFFEE','TAKE','NOTES','SCHOOL','FUN'],
-      ['MAKE','GONE','SENSE','RAIN','FOOD'],
-      ['WROTE','A','COLD','TIME','TRUTH'],
-      ['DRANK','BREAK','EXERCISE','HABIT','DIFFERENCE'],
-      ['GAVE','KNOWN','WORK','IDEA','HOMEWORK'],
-      ['DROVE','FALLEN','COURSE','OPINION','ATTENTION']
+      LOOK_ROW,
+      COMMON_ROWS.ONE,
+      MAKE_ROW,
+      ['TAKE','WENT','NOTES','MONEY','BEGUN','OF','A'],
+      ['PAY','WENT','ATTENTION','OF','A','TO','I'],
+      COMMON_ROWS.FIVE,
+      ['GIVE','WENT','UP','MONEY','BEGUN','OF','A','TO']
     ],
     generated:true,
-    fixtureMoves:[
-      [{row:0,col:1},{row:0,col:2}],
-      [{row:2,col:1},{row:2,col:2}]
-    ]
+    fixtureMoveWords:[['WENT','AFTER'],['WENT','SENSE'],['WENT','NOTES'],['WENT','ATTENTION'],['WENT','UP']],
+    fixtureMoveRows:[0,2,3,4,6]
   }
 ];
 
