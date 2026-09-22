@@ -106,3 +106,21 @@ test('rebound is telemetry but never a missed opportunity',()=>{
   assert.ok(events.some(event=>event.type==='swap-rebound'));
   assert.equal(events.some(event=>event.type==='missed-opportunity'),false);
 });
+
+
+test('POP resolves a ready relation without charging an extra move and returns a full board',()=>{
+  const storage=createFakeStorage();
+  const level=makeLevel({ready:true,target:100});
+  const fillerWords={1:'ZZ',2:'ZZZ',3:'ZZZZZZ',4:'ZZZZZZZZZ'};
+  const game=createGameController({
+    bank,levels:[level],initialLevelId:level.id,rng:seeded(3),storage,
+    refillWord:({span})=>fillerWords[span]
+  });
+  const before=game.state().movesLeft;
+  assert.equal(game.pop(),true);
+  const after=game.state();
+  assert.equal(after.movesLeft,before);
+  assert.ok(after.score>0);
+  assert.equal(after.phase,'result');
+  assert.ok(after.board.tiles.length>0);
+});
