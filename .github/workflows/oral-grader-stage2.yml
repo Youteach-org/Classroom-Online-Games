@@ -1,0 +1,201 @@
+name: Oral Grader V1 - Gemini Stage 2
+
+on:
+  push:
+    branches:
+      - feature/oral-grader-v1-20260922
+    paths:
+      - Oral-Grader/stage2-run-request.json
+  workflow_dispatch:
+    inputs:
+      pair_slug:
+        description: Pair slug, for example paul-paulina
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  ORAL_GRADER_STAGE2_MODEL: gemini-3.8-flash
+
+jobs:
+  stage2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out OG branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install OG dependencies
+        run: python -m pip install --disable-pip-version-check pytest google-genai pydantic
+
+      - name: Run all OG unit tests
+        run: |
+          python -m pytest -q \
+            Oral-Grader/tests/test-gemini-transcribe.py \
+            Oral-Grader/tests/test-stage2-audio-analysis.py
+
+      - name: Resolve Stage-2 request and verify Stage 1
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_PAIR_SLUG: ${{ inputs.pair_slug }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          if os.environ["EVENT_NAME"] == "workflow_dispatch":
+              pair_slug = os.environ.get("DISPATCH_PAIR_SLUG", "").strip()
+          else:
+              request_path = Path("Oral-Grader/stage2-run-request.json")
+              payload = json.loads(request_path.read_text(encoding="utf-8"))
+              pair_slug = str(payload.get("pair_slug", "")).strip()
+
+          if not pair_slug or not pair_slug.replace("-", "").isalnum():
+              raise SystemExit("pair_slug must contain only letters, numbers, and hyphens")
+
+          stage1 = Path("Oral-Grader/transcripts") / f"{pair_slug}-stage1.json"
+          review = Path("Oral-Grader/reviews") / f"{pair_slug}-stage1-review.json"
+          if not stage1.is_file():
+              raise SystemExit(f"Missing Stage-1 transcript: {stage1}")
+          if not review.is_file():
+              raise SystemExit(f"Missing Stage-1 review: {review}")
+
+          stage1_data = json.loads(stage1.read_text(encoding="utf-8"))
+          review_data = json.loads(review.read_text(encoding="utf-8"))
+          if stage1_data.get("project") != "Oral-Grader" or stage1_data.get("stage") != 1:
+              raise SystemExit("Invalid Stage-1 transcript")
+          if not review_data.get("accepted_for_stage2"):
+              raise SystemExit("Stage 1 is not accepted for Stage 2")
+
+          mapping = review_data.get("speaker_mapping") or {}
+          if mapping.get("spk:0") != "Teacher" or mapping.get("spk:1") != "Paul" or mapping.get("spk:2") != "Paulina":
+              raise SystemExit("Stage-1 speaker mapping is incomplete or unexpected")
+
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env:
+              env.write(f"PAIR_SLUG={pair_slug}\n")
+              env.write(f"STAGE1_PATH={stage1}\n")
+              env.write(f"REVIEW_PATH={review}\n")
+          PY
+
+      - name: Verify Gemini and audio secrets
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          SOURCE_URL: ${{ secrets.ORAL_GRADER_AUDIO_URL }}
+        shell: bash
+        run: |
+          if [ -z "$GEMINI_API_KEY" ] && [ -z "$GOOGLE_API_KEY" ]; then
+            echo "Gemini API key secret is not configured." >&2
+            exit 2
+          fi
+          if [ -z "$SOURCE_URL" ]; then
+            echo "ORAL_GRADER_AUDIO_URL is not configured." >&2
+            exit 3
+          fi
+
+      - name: Record immutable Stage-1 hashes
+        shell: bash
+        run: |
+          sha256sum "$STAGE1_PATH" "$REVIEW_PATH" > /tmp/oral-grader-stage1.sha256
+          cat /tmp/oral-grader-stage1.sha256
+
+      - name: Download original audio
+        env:
+          SOURCE_URL: ${{ secrets.ORAL_GRADER_AUDIO_URL }}
+        shell: bash
+        run: |
+          curl --fail --location --retry 2 --silent --show-error \
+            "$SOURCE_URL" \
+            -o /tmp/oral-grader-stage2.ogg
+          test -s /tmp/oral-grader-stage2.ogg
+          echo "Downloaded $(wc -c < /tmp/oral-grader-stage2.ogg) bytes"
+
+      - name: Run Gemini Stage-2 audio analysis
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        shell: bash
+        run: |
+          mkdir -p Oral-Grader/analysis
+          python Oral-Grader/stage2/analyze-audio.py \
+            /tmp/oral-grader-stage2.ogg \
+            --pair-slug "$PAIR_SLUG" \
+            --stage1 "$STAGE1_PATH" \
+            --review "$REVIEW_PATH" \
+            --output-json "Oral-Grader/analysis/${PAIR_SLUG}-stage2.json" \
+            --output-md "Oral-Grader/analysis/${PAIR_SLUG}-stage2.md"
+
+      - name: Verify Stage-1 immutability
+        shell: bash
+        run: sha256sum -c /tmp/oral-grader-stage1.sha256
+
+      - name: Validate Stage-2 output
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          pair_slug = os.environ["PAIR_SLUG"]
+          path = Path("Oral-Grader/analysis") / f"{pair_slug}-stage2.json"
+          data = json.loads(path.read_text(encoding="utf-8"))
+
+          assert data["project"] == "Oral-Grader"
+          assert data["stage"] == 2
+          assert data["pair_slug"] == pair_slug
+          assert data["model"] == os.environ["ORAL_GRADER_STAGE2_MODEL"]
+          assert data["speaker_mapping"]["spk:1"] == "Paul"
+          assert data["speaker_mapping"]["spk:2"] == "Paulina"
+          assert data["scoring_status"] == "evidence_only_not_final_rubric"
+          assert "Paul" in data["students"]
+          assert "Paulina" in data["students"]
+
+          for item in data["evidence"]:
+              if item["pronunciation"] in {"uncertain", "not_scored"}:
+                  assert item["counts_toward_pronunciation"] is False
+
+          teacher_items = [
+              item for item in data["evidence"]
+              if item.get("speaker") == "Paul"
+              and str(item.get("reviewed_heard", "")).casefold() == "fires"
+              and str(item.get("intended", "")).casefold() == "fathers"
+              and item.get("teacher_override") is True
+          ]
+          assert teacher_items, "Missing teacher-confirmed fires -> fathers evidence"
+          item = teacher_items[0]
+          assert item["pronunciation"] == "incorrect"
+          assert item["counts_toward_pronunciation"] is True
+          print(
+              f"Validated Stage 2 with {len(data['evidence'])} evidence items; "
+              f"Paul={data['students']['Paul']['incorrect_pronunciation_count']} countable pronunciation errors; "
+              f"Paulina={data['students']['Paulina']['incorrect_pronunciation_count']}"
+          )
+          PY
+
+      - name: Commit Stage-2 analysis
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            "Oral-Grader/analysis/${PAIR_SLUG}-stage2.json" \
+            "Oral-Grader/analysis/${PAIR_SLUG}-stage2.md"
+          if git diff --cached --quiet; then
+            echo "No Stage-2 analysis changes to commit."
+            exit 0
+          fi
+          git commit -m "data(og): add ${PAIR_SLUG} Gemini Stage-2 analysis"
+          git push
