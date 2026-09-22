@@ -385,7 +385,7 @@ def _interaction_error_status_code(exc):
         if isinstance(error, dict) and isinstance(error.get("code"), int):
             return error["code"]
 
-    match = re.search(r"Error code:\\s*(\\d{3})\\b", str(exc))
+    match = re.search(r"Error code:\s*(\d{3})\b", str(exc))
     if match:
         return int(match.group(1))
     return None
