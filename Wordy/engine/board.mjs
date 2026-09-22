@@ -200,3 +200,67 @@ export function boardKey(board){
     .map(tile=>`${tile.row}:${tile.startColumn}:${tile.span}:${tile.word}`)
     .join('\u001e');
 }
+
+
+export function settleGravity(board){
+  let next=cloneBoard(board);
+  let moved=true;
+  while(moved){
+    moved=false;
+    const order=next.tiles.slice().sort((a,b)=>b.row-a.row||a.startColumn-b.startColumn||a.id.localeCompare(b.id));
+    for(const candidate of order){
+      const tile=rawTileById(next,candidate.id);
+      if(!tile||tile.row>=next.rows-1)continue;
+      const map=validateBoard(next);
+      let clear=true;
+      for(let col=tile.startColumn;col<tile.startColumn+tile.span;col++){
+        if(map[tile.row+1][col]!=null){ clear=false; break; }
+      }
+      if(!clear)continue;
+      tile.row+=1;
+      validateBoard(next);
+      moved=true;
+    }
+  }
+  return next;
+}
+
+export function partitionRun(width){
+  if(!Number.isInteger(width)||width<1)throw new Error('run width must be positive');
+  const spans=[];
+  let remaining=width;
+  while(remaining>0){
+    if(remaining===1){spans.push(1);break;}
+    if(remaining===2){spans.push(2);break;}
+    if(remaining===3){spans.push(3);break;}
+    if(remaining===5){spans.push(3,2);break;}
+    spans.push(4);
+    remaining-=4;
+  }
+  return spans;
+}
+
+export function refillEmptyRuns(board,refillTile){
+  if(typeof refillTile!=='function')throw new Error('refillTile must be a function');
+  const next=cloneBoard(board);
+  for(let row=0;row<next.rows;row++){
+    const runs=emptyRuns(next,row);
+    for(const run of runs){
+      let startColumn=run.startColumn;
+      for(const span of partitionRun(run.width)){
+        const raw=refillTile({span,row,startColumn});
+        if(!raw||!String(raw.id??''))throw new Error(`invalid refill tile at ${row},${startColumn}`);
+        const word=normalizeWord(raw.word);
+        if(!word)throw new Error(`invalid refill word at ${row},${startColumn}`);
+        if(spanForWord(word)!==span)throw new Error(`refill word ${word} does not fit span ${span}`);
+        const tile={id:String(raw.id),word,row,startColumn,span};
+        next.tiles.push(tile);
+        validateBoard(next);
+        startColumn+=span;
+      }
+    }
+  }
+  const map=validateBoard(next);
+  if(map.some(row=>row.some(cell=>cell==null)))throw new Error('refill did not fill board');
+  return next;
+}
