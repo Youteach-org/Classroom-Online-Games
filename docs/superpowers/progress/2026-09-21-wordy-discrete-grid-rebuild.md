@@ -17,3 +17,7 @@
 - Task 2 RED: matcher/scoring suite produced 6 expected failures because the old matcher still addressed matrix cells and crossing identity used cells.
 - **Task 2 complete:** horizontal touching-sequence matching, mixed-span vertical matching through a shared microcolumn, vertical deduplication across wide lanes, containment suppression, crossing identity by shared tile ID, and scoring length by `tileIds`. Final focused verification: **12/12 pass**.
 - Task 2 GitHub commits: `0d8ba7f`, `7406e89`, `978449e`, `6da3c4a`.
+
+- Task 3 RED: after migrating matcher identity, the old generator failed to import removed `cellKey`; this correctly exposed its matrix-cell dependency.
+- **Task 3 complete:** geometric tile-ID swap enumeration, productive move discovery, 12-column controlled generation, minimum 4 productive swaps across at least 3 rows, dead-board recovery, and all A–G authored fixtures packed to 12 microcolumns. Final focused verification: **13/13 pass**.
+- Task 3 GitHub commits: `edb0af5`, `9e63daf`, `170caa9`, `4bc70a8`.
