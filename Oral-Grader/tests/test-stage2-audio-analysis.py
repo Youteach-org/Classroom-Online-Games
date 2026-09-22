@@ -201,3 +201,112 @@ def test_local_processing_does_not_mutate_stage1_or_review():
 
     assert json.dumps(stage1, sort_keys=True) == stage1_before
     assert json.dumps(review, sort_keys=True) == review_before
+
+
+class FakeModel:
+    def __init__(self, name, supported_actions):
+        self.name = name
+        self.supported_actions = supported_actions
+
+
+class FakeModels:
+    def __init__(self, models):
+        self._models = models
+
+    def list(self):
+        return list(self._models)
+
+
+class FakeClient:
+    def __init__(self, models):
+        self.models = FakeModels(models)
+
+
+def stage1_context():
+    return {
+        "project": "Oral-Grader",
+        "stage": 1,
+        "pair_slug": "paul-paulina",
+        "turns": [
+            {"speaker": "spk:1", "start_offset": "23.200s", "end_offset": "29.600s", "heard": "Who helped you when you was staying a difficult moment?"},
+            {"speaker": "spk:2", "start_offset": "31.400s", "end_offset": "42.800s", "heard": "When I was a difficult moment I when I You."},
+        ],
+    }
+
+
+def test_analysis_prompt_contains_audio_first_and_category_rules():
+    prompt = mod.build_analysis_prompt(stage1_context(), teacher_review())
+    assert "Do not rewrite Stage 1" in prompt
+    assert "Original audio is primary evidence" in prompt
+    assert "uncertain" in prompt
+    assert "not_scored" in prompt
+    assert "grammar_note" in prompt
+    assert "vocabulary_note" in prompt
+    assert "Paul" in prompt
+    assert "Paulina" in prompt
+    assert "Who helped you when you was staying a difficult moment?" in prompt
+    assert "fires" in prompt
+    assert "fathers" in prompt
+    assert "Teacher-confirmed evidence is authoritative" in prompt
+
+
+def test_configured_model_must_exist():
+    client = FakeClient(models=[FakeModel("models/gemini-other", ["generateContent"])])
+    with pytest.raises(RuntimeError, match="not available"):
+        mod.validate_model_available(client, "gemini-3.8-flash")
+
+
+def test_configured_model_must_support_generate_content():
+    client = FakeClient(models=[FakeModel("models/gemini-3.8-flash", ["embedContent"])])
+    with pytest.raises(RuntimeError, match="generateContent"):
+        mod.validate_model_available(client, "gemini-3.8-flash")
+
+
+def test_configured_model_is_accepted_when_generate_content_supported():
+    client = FakeClient(models=[FakeModel("models/gemini-3.8-flash", ["generateContent"])])
+    mod.validate_model_available(client, "gemini-3.8-flash")
+
+
+def test_parse_model_payload_rejects_invalid_json():
+    with pytest.raises(ValueError, match="Stage-2 model returned invalid JSON"):
+        mod.parse_model_payload("{not-json")
+
+
+def test_parse_model_payload_requires_evidence_array():
+    with pytest.raises(ValueError, match="evidence"):
+        mod.parse_model_payload(json.dumps({"fluency_observations": [], "teacher_interventions": []}))
+    with pytest.raises(ValueError, match="evidence"):
+        mod.parse_model_payload(json.dumps({"evidence": {}, "fluency_observations": [], "teacher_interventions": []}))
+
+
+def test_parse_model_payload_requires_fluency_and_interventions_arrays():
+    with pytest.raises(ValueError, match="fluency_observations"):
+        mod.parse_model_payload(json.dumps({"evidence": [], "teacher_interventions": []}))
+    with pytest.raises(ValueError, match="teacher_interventions"):
+        mod.parse_model_payload(json.dumps({"evidence": [], "fluency_observations": []}))
+
+
+def test_unsupported_verdict_is_rejected_by_normalization():
+    with pytest.raises(ValueError, match="unsupported pronunciation verdict"):
+        mod.normalize_evidence_item(sample_item(pronunciation="bad"), {"Paul", "Paulina"})
+
+
+def test_invalid_evidence_source_is_rejected():
+    with pytest.raises(ValueError, match="evidence source"):
+        mod.normalize_evidence_item(
+            sample_item(evidence_source=["invented-source"]),
+            {"Paul", "Paulina"},
+        )
+
+
+def test_countable_incorrect_pronunciation_requires_intended_form():
+    with pytest.raises(ValueError, match="intended form"):
+        mod.normalize_evidence_item(
+            sample_item(
+                pronunciation="incorrect",
+                counts_toward_pronunciation=True,
+                intended=None,
+                pronunciation_note="Audio supports a mismatch.",
+            ),
+            {"Paul", "Paulina"},
+        )
