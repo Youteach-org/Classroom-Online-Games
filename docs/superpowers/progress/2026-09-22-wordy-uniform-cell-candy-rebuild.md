@@ -13,3 +13,6 @@ Pre-flight:
 - Ruling: staged migration means legacy full-suite tests will intentionally remain red until Task 6; Tasks 1–5 use their focused plan suites as completion gates, then Task 6 requires the full suite green. Cost if wrong: a cross-module regression could surface later than its originating task, so Task 6 must not be skipped.
 
 Branch-only CI workflow is temporary and will be removed after final branch verification.
+
+Task 1: complete (tests RED on 42f8cfc: missing equal-cell board API; GREEN on 589f409: node --test Wordy/tests/board.test.mjs → 11/11 pass; node --check Wordy/app.mjs → exit 0; GitHub Actions run 35780923806).
+Task 1: Ruling: helpers.mjs required no Task 1 change because boardFromTiles already clones arbitrary tile records; uniform row/column fixtures work without geometry-specific logic. Cost if wrong: later focused tests expose the helper mismatch before production code is accepted.
