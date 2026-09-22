@@ -149,3 +149,45 @@ test('boardKey represents geometric word arrangement rather than tile identity',
   assert.equal(boardKey(a),boardKey(b));
   assert.notEqual(boardKey(a),boardKey(c));
 });
+
+
+test('span-3 tile does not fall through partial support and falls when its whole footprint clears',async()=>{
+  const {settleGravity}=await import('../engine/board.mjs');
+  const blocked=boardFromTiles({
+    rows:2,columns:12,
+    tiles:[
+      {id:'wide',word:'COFFEE',row:0,startColumn:0,span:3},
+      {id:'support',word:'A',row:1,startColumn:1,span:1}
+    ]
+  });
+  assert.equal(tileById(settleGravity(blocked),'wide').row,0);
+  const clear=removeTiles(blocked,['support']);
+  assert.equal(tileById(settleGravity(clear),'wide').row,1);
+});
+
+test('partitionRun tiles every positive width exactly using only spans 1-4',async()=>{
+  const {partitionRun}=await import('../engine/board.mjs');
+  for(let width=1;width<=12;width++){
+    const spans=partitionRun(width);
+    assert.equal(spans.reduce((sum,span)=>sum+span,0),width);
+    assert.ok(spans.every(span=>span>=1&&span<=4));
+  }
+});
+
+test('refill closes enclosed cavities left by rigid gravity without overlaps',async()=>{
+  const {settleGravity,refillEmptyRuns}=await import('../engine/board.mjs');
+  const board=boardFromTiles({
+    rows:2,columns:12,
+    tiles:[
+      {id:'wide',word:'COFFEE',row:0,startColumn:0,span:3},
+      {id:'support',word:'A',row:1,startColumn:1,span:1}
+    ]
+  });
+  const settled=settleGravity(board);
+  let id=0;
+  const words={1:'ZZ',2:'ZZZ',3:'ZZZZZZ',4:'ZZZZZZZZZ'};
+  const filled=refillEmptyRuns(settled,({span})=>({id:'refill-'+(++id),word:words[span]}));
+  const map=occupancyMap(filled);
+  assert.ok(map.every(row=>row.every(Boolean)));
+  assert.equal(tileById(filled,'wide').row,0);
+});
