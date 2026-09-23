@@ -25,9 +25,27 @@ jobs:
           mkdir preview-dist
           cp Verb-Runner/character-viewer.html preview-dist/index.html
           curl --fail --location --retry 3 \
-            'https://storage.to3d.app/generated-3d/models/2026-09-23/task_244d3ed6-e3d8-457e-9e01-11d04cd41792_model.glb' \
+            'https://storage.to3d.app/generated-3d/models/2026-09-23/task_cee9ef71-b87a-4a01-973f-89a5d326cf95_model.glb' \
             --output preview-dist/red-runner.glb
           test -s preview-dist/red-runner.glb
+
+      - name: Inspect connected components
+        run: |
+          python -m pip install --quiet trimesh numpy
+          python <<'PY'
+          import trimesh, numpy as np
+          s=trimesh.load('preview-dist/red-runner.glb', force='scene')
+          print('GEOMETRIES', len(s.geometry))
+          for name,g in s.geometry.items():
+              print('GEOMETRY', name, 'EXTENTS', np.asarray(g.extents).tolist(), 'BOUNDS', np.asarray(g.bounds).tolist())
+              try:
+                  parts=g.split(only_watertight=False)
+                  print('COMPONENTS', name, len(parts))
+                  for i,p in enumerate(parts[:30]):
+                      print('COMP', name, i, 'EXTENTS', np.asarray(p.extents).tolist(), 'CENTER', np.asarray(p.bounds).mean(axis=0).tolist(), 'VERTS', len(p.vertices), 'FACES', len(p.faces))
+              except Exception as e:
+                  print('SPLIT_ERROR', name, repr(e))
+          PY
 
       - name: Reject flat card geometry
         run: |
