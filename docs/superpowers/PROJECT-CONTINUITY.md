@@ -31,3 +31,24 @@ It defines the teacher-controlled Buzzer → COG → Student Buzzer live-game li
 ## Interaction convention
 
 - Number every assistant response to this user. Keep the response number visible at the beginning of each reply when working on this project.
+
+
+## Verified YouTeach live bridge checkpoint — 2026-09-23
+
+Integration branch: `live-cog-20260922`.
+
+Matching previews:
+- YouTeach: `https://live-cog-20260922.youteach.pages.dev`
+- COG: `https://live-cog-20260922.classroom-online-games.pages.dev`
+
+Verified cross-repository behavior:
+- COG consumes signed YouTeach teacher/student launch credentials; no passwords are passed.
+- Verb Runner teacher session registration creates the canonical YouTeach `connectedGame`.
+- Student Buzzer JOIN GAME resolves the canonical YouTeach student identity, including active multi-group context.
+- Heartbeat, explicit END ACTIVITY, and result return use the shared live bridge contract.
+- Result retries are idempotent.
+- COG verification run `35766282665`: GREEN.
+- COG preview deploy run `35766282680`: GREEN.
+- Cross-repository browser smoke was driven from YouTeach run `35827006544` and passed through JOIN GAME, identity, heartbeat, result receipt/duplicate retry, Teacher Results UI, and END ACTIVITY.
+
+Use the same short preview branch name in YouTeach and COG for cross-repository preview verification. Long branch names can be truncated/disambiguated differently by Cloudflare Pages and break derived preview-origin matching.
