@@ -1,0 +1,46 @@
+name: Deploy Verb Runner Character Preview
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Verb-Runner/character-viewer.html'
+      - '.github/workflows/verb-runner-character-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare character preview
+        run: |
+          rm -rf preview-dist
+          mkdir preview-dist
+          cp Verb-Runner/character-viewer.html preview-dist/index.html
+          curl --fail --location --retry 3 \
+            'https://storage.to3d.app/generated-3d/models/2026-09-23/task_f69ae84b-b525-46e3-bf5a-89f1df8326a8_model.glb' \
+            --output preview-dist/red-runner.glb
+          test -s preview-dist/red-runner.glb
+
+      - name: Normalize Cloudflare account ID
+        env:
+          CLOUDFLARE_ACCOUNT_ID_RAW: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          CLEAN_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID_RAW" | tr -d '[:space:]')"
+          printf 'CLOUDFLARE_ACCOUNT_ID=%s\n' "$CLEAN_ACCOUNT_ID" >> "$GITHUB_ENV"
+
+      - name: Deploy interactive character preview
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          npx wrangler@4 pages deploy preview-dist \
+            --project-name=classroom-online-games \
+            --branch=vr-character-preview \
+            --commit-hash=${{ github.sha }}
