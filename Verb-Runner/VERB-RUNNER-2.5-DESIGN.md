@@ -416,3 +416,11 @@ The target location for the approved production asset is:
 `Verb-Runner/assets/characters/`
 
 The game should ultimately load the real model asset instead of reconstructing the character from primitive geometry in runtime code.
+
+
+### Character cleanup rules — locked
+
+- The production runner asset contains **only the character**. No floor, pedestal, card, shadow slab, or geometry connecting the shoes.
+- Left and right shoes must remain geometrically independent at ground contact so later rigging/foot placement is not obstructed.
+- The face must follow the approved ALEX reference more closely than a generic anime face; preserve the recognizable eye shape, nose/mouth proportions, jaw/cheek proportions, and hair-fringe relationship.
+- Visual approval happens before rigging and animation.
