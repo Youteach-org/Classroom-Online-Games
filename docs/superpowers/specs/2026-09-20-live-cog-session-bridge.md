@@ -230,3 +230,17 @@ The implementation is accepted when all of the following are true:
 12. Completed live-game results return automatically to YouTeach and are attached to the correct student/session.
 13. Retries/reconnects cannot duplicate an accepted result.
 14. Existing COG Assignment behavior remains a separate lifecycle.
+
+
+## Implementation reconciliation — 2026-09-23
+
+The verified Firebase implementation on the matching `live-cog-20260922` branches refines this specification as follows:
+
+- The teacher launch originates from the shared YouTeach Assignments activity flow after Smart Teams, not a permanent standalone COG button.
+- Student eligibility uses YouTeach's current multi-group membership model; the active Buzzer group may be a secondary membership without changing the student's primary `groupName`.
+- Signed student bridge context carries the active Buzzer group for the live activity.
+- YouTeach stores verified COG result receipts under `assignmentSubmissions/{assignmentId}/{studentKey}/cogResults/{resultId}`, preserving attempt history without treating results as PDF submissions or automatic grades.
+- Result retries are idempotent by result id.
+- Cross-repository Cloudflare preview verification uses the same short branch name in both repositories so derived preview origins remain aligned.
+
+Verified browser smoke: YouTeach Actions run `35827006544`; COG verification run `35766282665`; COG preview deploy run `35766282680`.
