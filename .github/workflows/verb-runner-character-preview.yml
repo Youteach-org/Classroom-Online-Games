@@ -1,0 +1,79 @@
+name: Deploy Verb Runner Character Preview
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Verb-Runner/character-viewer.html'
+      - '.github/workflows/verb-runner-character-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare character preview
+        run: |
+          rm -rf preview-dist
+          mkdir preview-dist
+          cp Verb-Runner/character-viewer.html preview-dist/index.html
+          curl --fail --location --retry 3 \
+            'https://storage.to3d.app/generated-3d/models/2026-09-23/task_244d3ed6-e3d8-457e-9e01-11d04cd41792_model.glb' \
+            --output preview-dist/red-runner.glb
+          test -s preview-dist/red-runner.glb
+
+      - name: Reject flat card geometry
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const b = fs.readFileSync('preview-dist/red-runner.glb');
+          if (b.toString('utf8',0,4) !== 'glTF') throw new Error('Not a GLB file');
+          let off = 12, json = null;
+          while (off + 8 <= b.length) {
+            const len = b.readUInt32LE(off);
+            const type = b.readUInt32LE(off + 4);
+            const chunk = b.subarray(off + 8, off + 8 + len);
+            if (type === 0x4E4F534A) json = JSON.parse(chunk.toString('utf8').replace(/\0+$/,'').trim());
+            off += 8 + len;
+          }
+          if (!json) throw new Error('No GLB JSON chunk');
+          const mins=[Infinity,Infinity,Infinity], maxs=[-Infinity,-Infinity,-Infinity];
+          let found=0;
+          for (const mesh of json.meshes || []) for (const p of mesh.primitives || []) {
+            const ai = p.attributes && p.attributes.POSITION;
+            if (ai == null) continue;
+            const a = json.accessors[ai];
+            if (!a || !a.min || !a.max) continue;
+            found++;
+            for (let k=0;k<3;k++){ mins[k]=Math.min(mins[k],a.min[k]); maxs[k]=Math.max(maxs[k],a.max[k]); }
+          }
+          if (!found) throw new Error('No POSITION bounds');
+          const d=maxs.map((v,i)=>v-mins[i]).sort((a,b)=>a-b);
+          const ratio=d[0]/d[1];
+          console.log('MODEL_DIMS_SORTED', d.join(','));
+          console.log('THINNESS_RATIO', ratio);
+          if (!(ratio > 0.12)) throw new Error('Generated model is still effectively a flat card/billboard');
+          NODE
+
+      - name: Normalize Cloudflare account ID
+        env:
+          CLOUDFLARE_ACCOUNT_ID_RAW: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          CLEAN_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID_RAW" | tr -d '[:space:]')"
+          printf 'CLOUDFLARE_ACCOUNT_ID=%s\n' "$CLEAN_ACCOUNT_ID" >> "$GITHUB_ENV"
+
+      - name: Deploy interactive character preview
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          npx wrangler@4 pages deploy preview-dist \
+            --project-name=classroom-online-games \
+            --branch=vr-character-preview \
+            --commit-hash=${{ github.sha }}

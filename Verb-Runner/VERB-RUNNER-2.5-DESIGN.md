@@ -372,3 +372,47 @@ Do not port to Levels 3–5 until the Level 2 prototype proves both:
 - Preserve answer readability.
 - Never create unavoidable obstacle + correct-answer conflicts.
 - Do not let spectacle obscure the instructional objective.
+
+
+## Character asset pipeline — locked decision (2026-09-22)
+
+The playable runner character must be a **real 3D asset**, not a screenshot, static render, or procedural placeholder presented as if it were the final model.
+
+### Required review workflow
+
+Before integration into gameplay, the character must be reviewable as an interactive 3D model/turntable so it can be rotated and inspected from all sides.
+
+Accepted production formats:
+- `.glb` preferred for the web build;
+- `.gltf` acceptable when external textures/resources are managed correctly;
+- FBX/OBJ may be used only as intermediate source formats before conversion to the web asset.
+
+### Visual reference rule
+
+The approved red reference character is the visual target. Matching only the red color is not sufficient.
+
+The 3D model must match the reference in:
+- overall silhouette;
+- head and face design;
+- body proportions;
+- limb proportions;
+- rounded/stylized construction;
+- recognizable character identity.
+
+A generic rigid geometric humanoid recolored red is **not acceptable**.
+
+### Character-specific constraints already approved
+
+- The runner must have a visible face.
+- Do not use a generic spread-leg mannequin stance as the character design.
+- Do not add the previously rejected backpack or backpack elements.
+- Keep the character suitable for later rigging and running/jumping/slide animations.
+
+### Repository rule
+
+Do not claim a character is implemented until the actual 3D model file is committed to the repository and can be loaded by the Verb Runner web runtime.
+
+The target location for the approved production asset is:
+`Verb-Runner/assets/characters/`
+
+The game should ultimately load the real model asset instead of reconstructing the character from primitive geometry in runtime code.

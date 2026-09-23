@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Verb Runner · Red Runner 3D Review</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    :root{font-family:Inter,system-ui,Arial,sans-serif;color:#13202c;background:#edf4f8}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
+    header{padding:14px 18px;background:#17232e;color:white;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    header h1{font-size:18px;margin:0}
+    header p{margin:2px 0 0;font-size:12px;opacity:.78}
+    main{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px;padding:14px}
+    .stage,.panel{background:white;border-radius:16px;box-shadow:0 8px 28px #18324718;overflow:hidden}
+    .stage{position:relative;min-height:70vh}
+    model-viewer{width:100%;height:100%;min-height:70vh;background:linear-gradient(#dceaf2,#f7fafc)}
+    .panel{padding:16px;overflow:auto}
+    .panel h2{font-size:15px;margin:0 0 8px}
+    .panel p,.panel li{font-size:13px;line-height:1.45}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    button,.file-label{border:0;border-radius:999px;padding:9px 12px;font:inherit;font-weight:700;cursor:pointer;background:#18232e;color:white}
+    input[type=file]{display:none}
+    .status{padding:10px 12px;border-radius:10px;background:#eef4f7;font-size:12px;margin-bottom:14px}
+    .checklist{padding-left:18px}
+    .checklist li{margin:6px 0}
+    @media(max-width:800px){main{grid-template-columns:1fr}.panel{order:-1}.stage,model-viewer{min-height:62vh}}
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Verb Runner · Red Runner 3D Review</h1>
+    <p>Revisión de apariencia 360° antes de rigging y animación</p>
+  </div>
+  <strong>ALEX reference · appearance only</strong>
+</header>
+
+<main>
+  <section class="stage">
+    <model-viewer
+      id="viewer"
+      alt="Modelo 3D del personaje rojo de Verb Runner"
+      camera-controls
+      touch-action="pan-y"
+      shadow-intensity="1"
+      exposure="1"
+      environment-image="neutral"
+      interaction-prompt="auto">
+    </model-viewer>
+  </section>
+
+  <aside class="panel">
+    <h2>Modelo</h2>
+    <div class="controls">
+      <label class="file-label" for="modelFile">Cargar .glb</label>
+      <input id="modelFile" type="file" accept=".glb,model/gltf-binary" />
+      <button id="frontBtn" type="button">Frente</button>
+      <button id="backBtn" type="button">Espalda</button>
+    </div>
+    <div id="status" class="status">Cargando el modelo 3D generado de ALEX…</div>
+
+    <h2>Referencia obligatoria</h2>
+    <ul class="checklist">
+      <li>Cabello negro despeinado, con volumen y mechones marcados.</li>
+      <li>Rostro juvenil/anime con ojos grandes y expresión reconocible.</li>
+      <li>Sudadera/chamarra roja abierta con interior negro y camiseta blanca.</li>
+      <li>Pantalón cargo negro corto/holgado.</li>
+      <li>Guantes negros sin dedos.</li>
+      <li>Tenis altos rojo/blanco.</li>
+      <li>Sin mochila.</li>
+      <li>No aceptar un humanoide rígido genérico recoloreado de rojo.</li>
+    </ul>
+
+    <p><strong>Control:</strong> arrastra o desliza para girar; rueda o pellizca para zoom.</p>
+  </aside>
+</main>
+
+<script>
+  const viewer = document.getElementById('viewer');
+  const status = document.getElementById('status');
+  const fileInput = document.getElementById('modelFile');
+  const productionModel = './red-runner.glb';
+
+  async function loadProductionModel(){
+    try{
+      const res = await fetch(productionModel,{method:'HEAD',cache:'no-store'});
+      if(!res.ok) throw new Error('not-found');
+      viewer.src = productionModel;
+      status.textContent = 'Cargando modelo de producción: red-runner.glb';
+    }catch{
+      status.textContent = 'El modelo no pudo cargarse desde el preview. También puedes cargar un .glb manualmente.';
+    }
+  }
+
+  fileInput.addEventListener('change',()=>{
+    const file = fileInput.files && fileInput.files[0];
+    if(!file) return;
+    if(!/\.glb$/i.test(file.name)){
+      status.textContent = 'Para esta revisión usa un archivo .glb.';
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    viewer.src = url;
+    status.textContent = 'Vista local: ' + file.name + ' (no se ha subido al repositorio).';
+  });
+
+  document.getElementById('frontBtn').addEventListener('click',()=>{
+    viewer.cameraOrbit = '0deg 80deg auto';
+    viewer.jumpCameraToGoal();
+  });
+  document.getElementById('backBtn').addEventListener('click',()=>{
+    viewer.cameraOrbit = '180deg 80deg auto';
+    viewer.jumpCameraToGoal();
+  });
+
+  viewer.addEventListener('load',()=>{
+    status.textContent = 'Modelo cargado. Ya puedes girarlo y revisar proporciones desde cualquier ángulo.';
+  });
+
+  loadProductionModel();
+</script>
+</body>
+</html>
