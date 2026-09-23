@@ -59,7 +59,7 @@
       <button id="frontBtn" type="button">Frente</button>
       <button id="backBtn" type="button">Espalda</button>
     </div>
-    <div id="status" class="status">Buscando assets/characters/red-runner.glb…</div>
+    <div id="status" class="status">Cargando el modelo 3D generado de ALEX…</div>
 
     <h2>Referencia obligatoria</h2>
     <ul class="checklist">
@@ -81,7 +81,7 @@
   const viewer = document.getElementById('viewer');
   const status = document.getElementById('status');
   const fileInput = document.getElementById('modelFile');
-  const productionModel = './assets/characters/red-runner.glb';
+  const productionModel = './red-runner.glb';
 
   async function loadProductionModel(){
     try{
@@ -90,7 +90,7 @@
       viewer.src = productionModel;
       status.textContent = 'Cargando modelo de producción: red-runner.glb';
     }catch{
-      status.textContent = 'Aún no existe red-runner.glb. Carga aquí el GLB generado para revisarlo en 360°.';
+      status.textContent = 'El modelo no pudo cargarse desde el preview. También puedes cargar un .glb manualmente.';
     }
   }
 
