@@ -80,6 +80,13 @@ jobs:
           if (!(ratio > 0.12)) throw new Error('Generated model is still effectively a flat card/billboard');
           NODE
 
+      - name: Upload current ALEX model
+        uses: actions/upload-artifact@v4
+        with:
+          name: alex-current-glb
+          path: preview-dist/red-runner.glb
+          retention-days: 7
+
       - name: Normalize Cloudflare account ID
         env:
           CLOUDFLARE_ACCOUNT_ID_RAW: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
