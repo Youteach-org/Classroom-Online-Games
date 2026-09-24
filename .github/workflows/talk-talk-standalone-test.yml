@@ -22,6 +22,7 @@ jobs:
       - name: Run standalone and UI contract tests
         run: |
           node --test Talk-Talk/tests/standalone-auth.test.mjs
+          node --test Talk-Talk/tests/pixel-reference.test.mjs
           node --test Talk-Talk/tests/visual-contract.test.mjs
           node --test Talk-Talk/tests/individual-shell.test.mjs
           node --test Talk-Talk/tests/module-shell.test.mjs
