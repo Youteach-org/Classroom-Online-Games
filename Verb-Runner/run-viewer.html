@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verb Runner · ALEX Run Cycle</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<style>
+:root{font-family:Inter,system-ui,Arial,sans-serif;color:#18232e;background:#edf4f8}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
+header{padding:13px 18px;background:#17232e;color:#fff;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header h1{font-size:18px;margin:0}header p{margin:3px 0 0;font-size:12px;opacity:.76}
+main{padding:14px;display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px;min-height:0}
+.stage,.panel{background:#fff;border-radius:16px;overflow:hidden}.stage{min-height:72vh}
+model-viewer{width:100%;height:100%;min-height:72vh;background:linear-gradient(#dceaf2,#f8fbfc)}
+.panel{padding:16px}.panel h2{font-size:15px;margin:0 0 9px}.panel p{font-size:13px;line-height:1.45}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+button{border:0;border-radius:999px;padding:10px 13px;background:#18232e;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+button.active{outline:3px solid #b8d2e2}.status{font-size:12px;background:#eef4f7;padding:10px 12px;border-radius:10px}
+@media(max-width:760px){main{grid-template-columns:1fr}.panel{order:-1}.stage,model-viewer{min-height:64vh}}
+</style>
+</head>
+<body>
+<header><div><h1>ALEX · RUN CYCLE 01</h1><p>Primera prueba de carrera · vista posterior prioritaria</p></div><strong>24 fps · loop in-place</strong></header>
+<main>
+<section class="stage">
+<model-viewer id="runner" src="./alex-run.glb?v=run-r01" camera-controls touch-action="pan-y"
+  shadow-intensity="1.15" exposure="1" environment-image="neutral"
+  camera-orbit="180deg 80deg 1.9m" field-of-view="34deg" autoplay animation-name="Run">
+</model-viewer>
+</section>
+<aside class="panel">
+<h2>Revisión de carrera</h2>
+<div class="controls">
+<button id="rear" type="button">Espalda</button><button id="front" type="button">Frente</button>
+<button id="play" type="button">Pausa</button>
+</div>
+<div class="controls">
+<button class="speed" data-speed=".8" type="button">0.8×</button>
+<button class="speed active" data-speed="1" type="button">1×</button>
+<button class="speed" data-speed="1.2" type="button">1.2×</button>
+</div>
+<div id="status" class="status">Cargando rig y ciclo Run…</div>
+<p>Esta prueba es deliberadamente <strong>en el sitio</strong>: el escenario será el que se desplace durante el juego. Aquí estamos evaluando únicamente piernas, brazos, rebote corporal y silueta posterior.</p>
+<p>Después de aprobar esta carrera ajustaremos velocidad, cambios de carril, salto y slide sin rehacer el personaje.</p>
+</aside>
+</main>
+<script>
+const v=document.getElementById('runner'),status=document.getElementById('status'),play=document.getElementById('play');
+let paused=false;
+v.addEventListener('load',()=>{
+  const list=v.availableAnimations||[];
+  if(list.includes('Run'))v.animationName='Run';
+  v.play({repetitions:Infinity});
+  status.textContent='Run cargado · '+(list.length?list.join(', '):'animación detectada');
+});
+document.getElementById('rear').addEventListener('click',()=>{v.cameraOrbit='180deg 80deg 1.9m';v.jumpCameraToGoal();});
+document.getElementById('front').addEventListener('click',()=>{v.cameraOrbit='0deg 80deg 1.9m';v.jumpCameraToGoal();});
+play.addEventListener('click',()=>{
+  paused=!paused;
+  if(paused){v.pause();play.textContent='Reanudar';}
+  else{v.play({repetitions:Infinity});play.textContent='Pausa';}
+});
+document.querySelectorAll('.speed').forEach(b=>b.addEventListener('click',()=>{
+  const s=Number(b.dataset.speed)||1;v.timeScale=s;
+  document.querySelectorAll('.speed').forEach(x=>x.classList.toggle('active',x===b));
+}));
+</script>
+</body>
+</html>
