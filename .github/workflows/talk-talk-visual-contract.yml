@@ -1,0 +1,17 @@
+name: Talk Talk visual contract
+
+on:
+  push:
+    branches:
+      - talk-talk-mockup-v2-20260923
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Run Talk Talk visual contract
+        run: node --test Talk-Talk/tests/visual-contract.test.mjs
