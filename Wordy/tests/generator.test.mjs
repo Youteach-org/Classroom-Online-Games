@@ -162,3 +162,47 @@ test('controlled neighborhood board exposes at least eight productive swaps with
   assert.ok(generatorModule.relationshipCoverage(board,fullBank,ids)>=0.85);
   assert.equal(findMatches(board,fullBank).length,0);
 });
+
+
+function selectedGraphIsConnected(ids,bank){
+  if(ids.length<=1)return true;
+  const remaining=new Set(ids);
+  const queue=[ids[0]];
+  remaining.delete(ids[0]);
+  while(queue.length){
+    const id=queue.shift();
+    const tokens=new Set(bank.byId.get(id).tokens);
+    for(const other of [...remaining]){
+      if(bank.byId.get(other).tokens.some(token=>tokens.has(token))){
+        remaining.delete(other);
+        queue.push(other);
+      }
+    }
+  }
+  return remaining.size===0;
+}
+
+test('normal 12-20 relation neighborhoods are graph-connected across representative seeds',()=>{
+  for(const size of [12,16,20]){
+    for(const seed of [3,17,41]){
+      const ids=generatorModule.selectRelationshipNeighborhood({
+        bank:fullBank,rng:seeded(seed),size
+      });
+      assert.equal(
+        selectedGraphIsConnected(ids,fullBank),
+        true,
+        `disconnected neighborhood size=${size} seed=${seed}: ${ids.join(', ')}`
+      );
+    }
+  }
+});
+
+test('tutorial-required LOOK AFTER and MAKE SENSE still end inside one connected neighborhood',()=>{
+  const ids=generatorModule.selectRelationshipNeighborhood({
+    bank:fullBank,
+    rng:seeded(27),
+    size:16,
+    requiredRelationshipIds:['phrasal-verb:look-after','collocation:make-sense']
+  });
+  assert.equal(selectedGraphIsConnected(ids,fullBank),true);
+});
