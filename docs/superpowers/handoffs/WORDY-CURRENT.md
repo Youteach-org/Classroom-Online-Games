@@ -7,7 +7,9 @@
 **Current production commit (`main`):** `9c3677b595dd7d082cfa29b19cad408738f982bc`  
 **New spec:** `docs/superpowers/specs/2026-09-22-wordy-uniform-cell-candy-architecture.md`  
 **New plan:** `docs/superpowers/plans/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
-**New ledger:** `docs/superpowers/progress/2026-09-22-wordy-uniform-cell-candy-rebuild.md`
+**Uniform-cell ledger:** `docs/superpowers/progress/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
+**Gameplay-density plan:** `docs/superpowers/plans/2026-09-24-wordy-gameplay-density-repair.md`  
+**Gameplay-density ledger:** `docs/superpowers/progress/2026-09-24-wordy-gameplay-density-repair.md`
 
 ## Authoritative continuation state
 
@@ -114,13 +116,13 @@ The refill system now:
 6. penalizes excessive duplicate words;
 7. selects between cascade, opportunity, and distractor buckets.
 
-Current prototype bucket weights:
+Current development-branch refill weights:
 
 ```js
 {
-  cascadeWeight: 0.18,
-  opportunityWeight: 0.57,
-  distractorWeight: 0.25
+  cascadeWeight: 0.15,
+  opportunityWeight: 0.70,
+  distractorWeight: 0.15
 }
 ```
 
@@ -139,7 +141,7 @@ The generator rejects boards that do not meet the configured constraints:
 - productive swaps distributed across multiple columns;
 - bounded duplicate words.
 
-Authored tutorial boards A–G remain available.
+On the current development branch, normal levels A–G are generated from connected active relationship neighborhoods; the old filler-heavy authored A–G boards are superseded.
 
 ## UI
 
@@ -244,8 +246,68 @@ The canonical route is therefore currently verified as loading the actual Wordy 
 
 `https://classroom-online-games.pages.dev/Wordy/`
 
+## Gameplay-density repair — development branch, 2026-09-24
+
+User playtesting showed that the first published 7×7 version was technically functional but did not implement the already-approved content-generation experience: boards exposed too few productive swaps, filler vocabulary made validity feel arbitrary, and early rounds ended too quickly.
+
+The repair is implemented and verified on `feature/wordy-game`, but is **not yet on production**.
+
+### Current branch behavior
+
+- all normal A–G levels are generated;
+- Level A: 18 moves, score target 900, 12 active relationships, minimum 8 productive swaps;
+- Level B: 20 moves, score target 1100, 14 active relationships, minimum 8 productive swaps;
+- Level C: 22 moves, score target 1400, 16 active relationships, minimum 10 productive swaps;
+- Level D: 22 moves, score target 1500, 16 active relationships, minimum 10 productive swaps;
+- Level E: 24 moves, score target 1700, 18 active relationships, minimum 10 productive swaps;
+- Level F: 24 moves, score target 1900, 18 active relationships, minimum 10 productive swaps;
+- Level G: 26 moves, score target 2300, 20 active relationships, minimum 12 productive swaps;
+- every generated level requires at least 4 productive rows, 4 productive columns, and relationship coverage >= 0.85;
+- relationship pools are graph-connected; the selector may not pad a small component with unrelated relations;
+- the controller rejects an unproductive candidate neighborhood before display and retries another one;
+- refill is restricted to the same active relationship neighborhood for the entire round;
+- runtime validity is also restricted to the same active round bank; relations that exist globally but are not active in the round do not score or become ready;
+- after POP, a sparse board is regenerated at no extra move cost using the same active neighborhood;
+- nonproductive swaps rebound with `NO MATCH`.
+
+This directly supersedes the filler-heavy A–F board behavior from the first 7×7 publication.
+
+### Validity rule
+
+V1 still uses the curated relationship bank, not unrestricted grammar.
+
+For example, `BAD HABIT` is an approved collocation in the bank. A grammatically possible or compositional phrase is not automatically a Wordy relationship merely because two English words can occur together. The repair addresses the UX problem by preventing arbitrary filler and keeping each board inside a coherent connected relationship neighborhood rather than by turning runtime validity into an open-ended grammar judge.
+
+### Verification
+
+Final fresh branch verification:
+
+- run `36064806265`;
+- `node --test Wordy/tests/*.test.mjs` → **97/97 pass**;
+- root production-deploy regression → **1/1 pass**;
+- `node --check Wordy/app.mjs` → pass.
+
+Review-specific RED/GREEN regressions also prove:
+
+- global-bank relationships cannot leak into round validity;
+- 12–20 relation pools remain graph-connected;
+- Level A starts with >=8 productive swaps;
+- Level G starts with >=12;
+- POP/recovery keeps the same active neighborhood, restores 49 cells, scores, and spends no extra move.
+
+Verified implementation/test HEAD before documentation-only commits: `dd5aaecbb039b87cb2115e9b3b3cc76aa980bb54`.
+Latest runtime change in that verified stack: `526a2ee75a87d38e8298e232da8eec732aee4c01`.
+
+### Publication distinction
+
+Production remains at `main` commit `9c3677b595dd7d082cfa29b19cad408738f982bc`.
+
+Therefore the canonical live route still has the earlier 7×7 gameplay until this density repair is explicitly promoted.
+
 ## Exact next action
 
-Tasks 1–6 and production promotion are complete. Do not rebuild or re-promote this architecture.
+The uniform-cell architecture and the gameplay-density repair are complete on `feature/wordy-game`.
 
-Next work should be driven by user playtesting of the live 7×7 Wordy prototype. Continue new changes on `feature/wordy-game`, preserve the uniform-cell architecture unless a new approved spec supersedes it, document changes in GitHub, verify them on the branch, and then promote selectively to current `main`.
+Do not rebuild either effort.
+
+The next action is a publication decision for the verified gameplay-density repair. If promoted, reconcile selectively against current `main`, preserve unrelated Classroom Online Games work, deploy through the existing Cloudflare workflows, and perform a real-browser canonical-route check before asking for another playtest.
