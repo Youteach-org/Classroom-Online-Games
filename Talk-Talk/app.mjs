@@ -23,7 +23,7 @@ const replayList = document.getElementById("replayList");
 const speechDock = document.getElementById("speechDock");
 const continueAction = document.getElementById("continueAction");
 const recordButton = document.getElementById("recordButton");
-const recordingState = document.getElementById("recordingState");
+const recordingState = document.getElementById("recordingState");\nconst joinClassAction = document.getElementById("joinClassAction");
 
 let activitySource=TELL_ME_WHAT_HAPPENED;
 if (new URLSearchParams(location.search).get("draft") === "preview") {
