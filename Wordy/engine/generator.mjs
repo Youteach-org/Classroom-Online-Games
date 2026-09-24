@@ -372,16 +372,17 @@ export function createControlledBoard({
   const minimumRows=Math.max(1,Number(minProductiveRows)||1);
   const minimumColumns=Math.max(1,Number(minProductiveColumns)||1);
   const minimumCoverage=Math.min(1,Math.max(0,Number(minRelationshipCoverage)||0));
-  const maxCopies=Math.max(2,Number(maxTokenCopies)||4);
   const relations=activeRelations(bank,relationshipIds)
     .filter(relation=>relation.tokens.length>=2&&relation.tokens.length<=Math.max(rows,columns));
   if(relations.length===0)throw new Error('relationship neighborhood has no playable relationships');
+  const uniqueWords=new Set(relations.flatMap(relation=>relation.tokens));
+  const requestedMaxCopies=Math.max(2,Number(maxTokenCopies)||4);
+  const maxCopies=Math.max(requestedMaxCopies,Math.ceil((rows*columns)/Math.max(1,uniqueWords.size)));
 
   for(let attempt=0;attempt<360;attempt++){
     const wordRows=wordRowsFromDeck({rows,columns,relations,rng,maxTokenCopies:maxCopies});
-    seedProductiveMoves(wordRows,shuffled(relations,rng),minimum,rng);
-    const board=createBoard(wordRows,{columns});
-    if(isProductiveEnough(board,bank,{
+    const naturalBoard=createBoard(wordRows,{columns});
+    if(isProductiveEnough(naturalBoard,bank,{
       minScoringMoves:minimum,
       minProductiveRows:minimumRows,
       minProductiveColumns:minimumColumns,
@@ -389,7 +390,22 @@ export function createControlledBoard({
       relationshipIds,
       minRelationshipCoverage:minimumCoverage,
       maxTokenCopies:maxCopies
-    }))return board;
+    }))return naturalBoard;
+
+    if(minimum>0){
+      const seededRows=wordRows.map(row=>[...row]);
+      seedProductiveMoves(seededRows,shuffled(relations,rng),minimum,rng);
+      const seededBoard=createBoard(seededRows,{columns});
+      if(isProductiveEnough(seededBoard,bank,{
+        minScoringMoves:minimum,
+        minProductiveRows:minimumRows,
+        minProductiveColumns:minimumColumns,
+        allowStartingMatches,
+        relationshipIds,
+        minRelationshipCoverage:minimumCoverage,
+        maxTokenCopies:maxCopies
+      }))return seededBoard;
+    }
   }
 
   if(fallbackBoard){
