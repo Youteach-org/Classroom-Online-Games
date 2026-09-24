@@ -233,11 +233,15 @@ for pb in arm.pose.bones:
 # v2 reverses the sagittal rotations from the defective pass:
 # knees now fold behind the runner and torso leans into the run.
 poses={
-    1:  dict(tL=-30,tR=26,sL=-10,sR=-52,aL=30,aR=-30,eL=52,eR=52,bob=.003,twist=-3),
-    7:  dict(tL=-4,tR=-8,sL=-36,sR=-72,aL=8,aR=-8,eL=58,eR=58,bob=.018,twist=2),
-    13: dict(tL=26,tR=-30,sL=-52,sR=-10,aL=-30,aR=30,eL=52,eR=52,bob=.003,twist=3),
-    19: dict(tL=-8,tR=-4,sL=-72,sR=-36,aL=-8,aR=8,eL=58,eR=58,bob=.018,twist=-2),
-    25: dict(tL=-30,tR=26,sL=-10,sR=-52,aL=30,aR=-30,eL=52,eR=52,bob=.003,twist=-3),
+    # Left foot reaches forward; right leg is extending behind.
+    1:  dict(tL=-25,tR=22,sL=8,sR=30,aL=28,aR=-28,eL=48,eR=48,bob=.002,twist=-2.5),
+    # Right knee drives forward/up while left leg pushes behind.
+    7:  dict(tL=18,tR=-38,sL=38,sR=70,aL=-34,aR=34,eL=55,eR=55,bob=.016,twist=2.0),
+    # Mirror contact.
+    13: dict(tL=22,tR=-25,sL=30,sR=8,aL=-28,aR=28,eL=48,eR=48,bob=.002,twist=2.5),
+    # Left knee drives forward/up while right leg pushes behind.
+    19: dict(tL=-38,tR=18,sL=70,sR=38,aL=34,aR=-34,eL=55,eR=55,bob=.016,twist=-2.0),
+    25: dict(tL=-25,tR=22,sL=8,sR=30,aL=28,aR=-28,eL=48,eR=48,bob=.002,twist=-2.5),
 }
 def rad(v): return math.radians(v)
 
@@ -252,8 +256,11 @@ for frame,p in poses.items():
     arm.pose.bones["thigh.R"].rotation_euler.x=rad(p["tR"])
     arm.pose.bones["shin.L"].rotation_euler.x=rad(p["sL"])
     arm.pose.bones["shin.R"].rotation_euler.x=rad(p["sR"])
-    arm.pose.bones["foot.L"].rotation_euler.x=rad(8 if p["tL"]<-15 else -8)
-    arm.pose.bones["foot.R"].rotation_euler.x=rad(8 if p["tR"]<-15 else -8)
+    # Counter-rotate ankles so shoes do not behave as rigid extensions of the shin.
+    toeL=6 if p["tL"]<-30 else 0
+    toeR=6 if p["tR"]<-30 else 0
+    arm.pose.bones["foot.L"].rotation_euler.x=rad(-(p["tL"]+p["sL"])+toeL)
+    arm.pose.bones["foot.R"].rotation_euler.x=rad(-(p["tR"]+p["sR"])+toeR)
 
     arm.pose.bones["upper_arm.L"].rotation_euler.x=rad(p["aL"])
     arm.pose.bones["upper_arm.R"].rotation_euler.x=rad(p["aR"])
