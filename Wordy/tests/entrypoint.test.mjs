@@ -10,7 +10,7 @@ test('Wordy entry point loads the controller module',()=>{
 });
 
 test('COG branch landing page exposes Wordy as a normal Classroom Online Game',()=>{
-  assert.match(rootHtml,/href="\.\/Wordy\/"/);
+  assert.match(rootHtml,/href="\/Wordy\/"/);
   assert.match(rootHtml,/Wordy/);
 });
 
@@ -27,9 +27,9 @@ test('browser app plays resolution timeline before revealing final result',()=>{
   assert.match(app,/await\s+playResolutionTimeline/);
 });
 
-test('Cloudflare production build excludes the branch-only Wordy static route',()=>{
+test('Cloudflare production build includes Wordy on the canonical production route',()=>{
   const workflow=readFileSync(new URL('../../.github/workflows/cloudflare-pages-main.yml',import.meta.url),'utf8');
   const copyCommands=workflow.match(/cp -R[^\n]*/g)??[];
   assert.ok(copyCommands.length>=2,'expected both local and pinned production copy commands');
-  assert.ok(copyCommands.every(command=>!(/\bWordy\b/.test(command))),'production copy commands must not include Wordy while it is branch-only');
+  assert.ok(copyCommands.every(command=>/\bWordy\b/.test(command)),'production copy commands must include Wordy');
 });
