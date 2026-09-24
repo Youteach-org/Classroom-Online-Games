@@ -3,78 +3,47 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Talk Talk Teacher Monitor</title>
+  <title>Talk Talk — Teacher</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
-<body>
-  <div class="teacher-layout">
-    <aside class="teacher-sidebar">
-      <a class="teacher-logo" href="./"><strong>TALK-TALK</strong></a><button id="standaloneLogoutBtn" class="sidebar-logout" type="button">↪ Log out</button>
-      <nav>
-        <button class="active" data-teacher-view="teacherMonitorView">▣ Teacher Monitor</button>
-        <a href="./creator.html">⌘ Creator Mode</a>
-        <button data-teacher-view="teacherAssessmentView">▤ Activities</button>
-        <button data-teacher-view="teacherEvidenceView">▧ Results</button>
-        <a href="/">⚙ Settings</a>
-      </nav>
-    </aside>
+<body class="reference-page teacher-reference-page" data-reference-source="a_clean_ui_ux_product_mockup_collage_with_multiple.png">
+  <main class="reference-shell teacher-reference-shell" aria-label="Talk Talk teacher preview">
+    <section id="teacherMonitorView" class="teacher-view reference-screen is-active teacher-monitor-reference" data-approved-screen="5" data-crop="12,607,514,1008">
+      <svg class="reference-art" viewBox="12 607 502 401" role="img" aria-label="Teacher Monitor"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
+      <button class="screen-hotspot teacher-team-one" data-target="teacherTeamView" aria-label="Open Team 1"></button>
+      <button id="sendTwistBtn" class="screen-hotspot teacher-send-twist" aria-label="Send Twist"></button>
+      <button id="endActivityBtn" class="screen-hotspot teacher-end" aria-label="End Activity"></button>
+    </section>
 
-    <main class="teacher-main">
-      <section id="teacherMonitorView" class="teacher-view is-active">
-        <header class="teacher-page-head"><div><p class="eyebrow">Talk Talk</p><h1>Teacher Monitor</h1></div><button id="endActivityBtn" class="btn danger" type="button">End Activity</button></header>
-        <div class="teacher-controls">
-          <label>Mode<select id="activityMode"><option value="practice">Practice</option><option value="assessment">Assessment</option></select></label>
-          <label>Twist<select id="twistSelect"><option value="remember-detail">Remember a detail</option></select></label>
-          <button id="sendTwistBtn" class="btn primary" type="button">Send Twist</button>
-        </div>
-        <p id="sessionState" class="session-title">Tell me what happened · Practice · 4 teams</p>
-        <div id="teamGrid" class="team-grid">
-          <button class="team-card speaking" data-team="team-1"><strong>Team 1</strong><span>Paul · Paulina</span><em>● Speaking</em><div class="mini-people"><span class="avatar-dot boy"></span><span class="avatar-dot girl"></span><span class="mini-wave">▂▅▃▆▂</span></div></button>
-          <button class="team-card ready" data-team="team-2"><strong>Team 2</strong><span>Karol · Nicole</span><em>● Ready</em><div class="mini-people"><span class="avatar-dot girl"></span><span class="avatar-dot girl alt"></span><span class="circle-icon">🎙</span></div></button>
-          <button class="team-card finished" data-team="team-3"><strong>Team 3</strong><span>Gael · Sofia</span><em>● Finished</em><div class="mini-people"><span class="avatar-dot boy"></span><span class="avatar-dot girl"></span><span class="circle-icon">▤</span></div></button>
-          <button class="team-card problem" data-team="team-4"><strong>Team 4</strong><span>Luis · Valeria</span><em>● Technical problem</em><div class="mini-people"><span class="avatar-dot boy alt"></span><span class="avatar-dot girl alt"></span><span class="circle-icon danger-icon">!</span></div></button>
-        </div>
-      </section>
+    <section id="teacherTeamView" class="teacher-view reference-screen teacher-narrow-reference" data-approved-screen="6" data-crop="528,607,844,1008" hidden>
+      <svg class="reference-art" viewBox="528 607 316 401" role="img" aria-label="Team detail"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
+      <button class="screen-hotspot teacher-back" data-target="teacherMonitorView" aria-label="Back to teams"></button>
+      <button class="screen-hotspot teacher-view-evaluation" data-target="teacherAssessmentView" aria-label="View full evaluation"></button>
+    </section>
 
-      <section id="teacherTeamView" class="teacher-view" hidden>
-        <button class="back-link" data-teacher-view="teacherMonitorView">← Back to teams</button>
-        <header class="teacher-page-head"><div><h1>Team 1</h1><p>Paul · Paulina</p></div><span class="status-chip">● Finished</span></header>
-        <nav class="tabbar teacher-tabs"><button class="active">Overview</button><button data-teacher-view="teacherEvidenceView">Transcript</button><button data-teacher-view="teacherAssessmentView">Evaluation</button><button data-teacher-view="teacherEvidenceView">Evidence</button></nav>
-        <div class="audio-player large"><button>▶</button><div><span class="audio-progress"></span></div><small>00:00 / 01:24</small><span>1x</span></div>
-        <h3>Participants</h3>
-        <article class="participant-row"><div class="character-avatar mini"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div><div><strong>Paul</strong><span class="status-chip small">Completed</span></div><time>01:24</time></article>
-        <article class="participant-row"><div class="character-avatar mini girl"><span class="avatar-hair"></span><span class="avatar-face">•ᴗ•</span><span class="avatar-body"></span></div><div><strong>Paulina</strong><span class="status-chip small">Completed</span></div><time>01:24</time></article>
-        <button class="btn primary wide" data-teacher-view="teacherAssessmentView">View full evaluation →</button>
-      </section>
+    <section id="teacherAssessmentView" class="teacher-view reference-screen teacher-eval-reference" data-approved-screen="7" data-crop="858,607,1195,1008" hidden>
+      <svg class="reference-art" viewBox="858 607 337 401" role="img" aria-label="Oral assessment"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
+      <button class="screen-hotspot teacher-publish" data-target="teacherEvidenceView" aria-label="Publish result and open evidence"></button>
+      <button class="screen-hotspot teacher-assessment-back" data-target="teacherTeamView" aria-label="Back to team detail"></button>
+    </section>
 
-      <section id="teacherAssessmentView" class="teacher-view" hidden>
-        <header class="teacher-page-head"><div><p class="eyebrow">Oral Assessment</p><h1>Paul & Paulina</h1></div><button class="btn outline">▶ Play recording</button></header>
-        <div class="score-banner"><span>Overall score</span><strong>28 / 40</strong></div>
-        <div class="rubric-list">
-          <div><span>Fluency</span><progress value="5" max="8"></progress><b>5 / 8</b></div>
-          <div><span>Coherence</span><progress value="6" max="8"></progress><b>6 / 8</b></div>
-          <div><span>Grammar & Vocabulary</span><progress value="5" max="8"></progress><b>5 / 8</b></div>
-          <div><span>Pronunciation</span><progress value="6" max="8"></progress><b>6 / 8</b></div>
-          <div><span>Interaction</span><progress value="6" max="8"></progress><b>6 / 8</b></div>
-        </div>
-        <div class="result-actions teacher-actions"><button class="btn outline">Edit scores</button><button class="btn outline">Generate report</button><button class="btn primary" data-teacher-view="teacherEvidenceView">Publish result</button></div>
-      </section>
+    <section id="teacherEvidenceView" class="teacher-view reference-screen teacher-evidence-reference" data-approved-screen="8" data-crop="1210,607,1527,1008" hidden>
+      <svg class="reference-art" viewBox="1210 607 317 401" role="img" aria-label="Evidence and transcription"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
+      <button class="screen-hotspot teacher-evidence-back" data-target="teacherAssessmentView" aria-label="Back to evaluation"></button>
+    </section>
 
-      <section id="teacherEvidenceView" class="teacher-view" hidden>
-        <header class="teacher-page-head"><div><p class="eyebrow">Evidence & transcription</p><h1>Paul & Paulina</h1></div><button class="btn outline" data-teacher-view="teacherAssessmentView">Back to evaluation</button></header>
-        <nav class="tabbar teacher-tabs"><button class="active">Transcript</button><button>Evidence</button><button>Comments</button></nav>
-        <div class="conversation-list evidence-list">
-          <article class="message-row"><div class="character-avatar mini"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div><div><strong>Paul</strong><p>I have went to the park yesterday with my family.</p></div><time>00:12</time></article>
-          <article class="message-row"><div class="character-avatar mini girl"><span class="avatar-hair"></span><span class="avatar-face">•ᴗ•</span><span class="avatar-body"></span></div><div><strong>Paulina</strong><p>Oh, nice! What did you do there?</p></div><time>00:18</time></article>
-          <article class="message-row"><div class="character-avatar mini"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div><div><strong>Paul</strong><p>We saw a bicycle fall and then we helped him.</p></div><time>00:25</time></article>
-        </div>
-        <h3>Detected issues</h3>
-        <div class="issue-row"><span class="issue-tag grammar">Grammar</span><p>“I have went...” → intended: “I have gone...”</p><time>00:12</time></div>
-        <div class="issue-row"><span class="issue-tag pronunciation">Pronunciation</span><p>“worked” — final /t/ not clearly produced</p><time>00:41</time></div>
-        <div class="issue-row"><span class="issue-tag interaction">Interaction</span><p>Teacher intervention required twice.</p><time>01:02</time></div>
-      </section>
-    </main>
-  </div>
+    <div class="preview-tools">
+      <span>Standalone preview · Teacher</span>
+      <button id="standaloneLogoutBtn" type="button">Log out</button>
+    </div>
+
+    <div class="compatibility-hooks" hidden>
+      <div id="teamGrid"></div>
+      <select id="activityMode"><option value="practice">Practice</option></select>
+      <select id="twistSelect"><option value="remember-detail">Remember a detail</option></select>
+      <div id="sessionState"></div>
+    </div>
+  </main>
   <script type="module" src="./teacher-app.mjs"></script>
 </body>
 </html>
