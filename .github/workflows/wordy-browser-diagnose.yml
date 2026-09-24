@@ -17,7 +17,7 @@ jobs:
           npx playwright install chromium
       - name: Diagnose live Wordy
         run: |
-          cat > /tmp/diag.mjs <<'EOF'
+          cat > diag-wordy.mjs <<'EOF'
           import { chromium } from 'playwright';
           const browser=await chromium.launch({headless:true});
           const page=await browser.newPage();
@@ -41,4 +41,4 @@ jobs:
           if(data.tiles!==49||!data.hasPrototype||errors.length) process.exitCode=3;
           await browser.close();
           EOF
-          node /tmp/diag.mjs
+          node diag-wordy.mjs
