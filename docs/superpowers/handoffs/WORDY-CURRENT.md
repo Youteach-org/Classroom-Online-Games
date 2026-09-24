@@ -1,123 +1,220 @@
 # Wordy — Current Implementation Handoff
 
-**Repository:** `youteachtk/Classroom-Online-Games`  
-**Branch:** `feature/wordy-game`  
-**Execution method:** Inline / Native via `superpowers:executing-plans`  
-**Plan:** `docs/superpowers/plans/2026-09-20-wordy-validation-prototype.md`  
-**Prototype spec:** `docs/superpowers/specs/2026-09-20-wordy-game-prototype-design.md`  
-**Architecture spec:** `docs/superpowers/specs/2026-09-20-wordy-game-architecture-design.md`  
-**Execution ledger:** `docs/superpowers/progress/2026-09-20-wordy-validation-prototype.md`
+**Updated:** 2026-09-22  
+**Repository:** `Youteach-org/Classroom-Online-Games`  
+**Development branch:** `feature/wordy-game`  
+**Uniform-cell verification commit:** `34bc8585ca681e842d79256b8153f8c528c4f84b`  
+**Current production commit (`main`):** `60d8d0df4b68b047dbf4e494c1542ef5f22652b3`  
+**New spec:** `docs/superpowers/specs/2026-09-22-wordy-uniform-cell-candy-architecture.md`  
+**New plan:** `docs/superpowers/plans/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
+**New ledger:** `docs/superpowers/progress/2026-09-22-wordy-uniform-cell-candy-rebuild.md`
 
-## Current status
+## Authoritative continuation state
 
-- Design/specification: approved.
-- Validation prototype implementation plan: **all 11 tasks complete**.
-- Implementation location: `feature/wordy-game` only.
-- Product merge/deployment: **not performed**.
-- Final integration PR: **#46 `feature/wordy-game` → `main` is open**. Do not create a duplicate PR.
-- Wordy route in branch: `/Wordy/`.
-- Cloudflare production workflow on this branch now copies `Wordy/`, but it has not been run because the branch has not been merged to `main`.
-- Branch reconciliation: **complete**. PR #45 merged current `main` into `feature/wordy-game` with merge commit `9c7800adbad71c921084bd8d4d3183683950418e`. After reconciliation the branch was 109 commits ahead and **0 behind** `main`.
+The **uniform-cell Candy architecture supersedes the 12-microcolumn/span architecture** for all future Wordy development.
 
-## Verification state
+Do not restore or continue any of the following:
 
-Fresh verification was performed from a sandbox reconstructed from the current GitHub branch files:
+- `span`;
+- `startColumn`;
+- `spanForWord`;
+- `tile-size.mjs`;
+- rigid multi-cell gravity;
+- horizontal cavity partition/refill;
+- variable-width logical pieces.
 
-- Post-reconciliation `node --test Wordy/tests/*.test.mjs` -> **81 tests, 81 pass, 0 fail**.
-- Post-reconciliation `node --check Wordy/app.mjs` -> **exit 0**.
-- Review-focus subset -> **17 pass, 0 fail**.
-- Prototype-exclusion scan -> no Teacher Monitor, Firebase/session/login, currency/lives, loot-box, booster, obstacle, adaptive-mastery, or full-map implementation in production `Wordy/` files.
-- Final code review was a **self-review because no subagent tool is available**; no Critical or Important findings remained after fixes.
+The current development branch is the authoritative new prototype. Production has **not yet been updated** to this architecture.
 
-A temporary branch-only GitHub Actions test workflow was attempted but GitHub failed jobs before runner assignment (`runner_id: 0`, no steps). It was removed to avoid a permanent false-red branch check. This is an infrastructure limitation, not a Wordy test failure.
+## Canonical board model
 
-## Completed implementation capabilities
+Wordy now uses a conventional rectangular equal-cell board:
 
-- 85 curated V1 relationships across phrasal verbs, collocations, fixed expressions, and irregular verb sets.
-- 5×7 phone-first board.
-- Orthogonal adjacent swaps and legal non-scoring setup moves.
-- Straight contiguous horizontal/vertical matching.
-- Same-line nested suppression and true crossword intersections.
-- Persistent ready-to-pop relationships.
-- One global POP resolving all ready relationships without charging a move.
-- Shared crossing tiles removed once while both relationships score.
-- Vertical gravity/refill and automatic cascade generations.
-- Cascade runaway guard and dead-board recovery.
-- Provisional base/length/batch/cross/discovery/cascade scoring.
-- Validation levels A–G.
-- Controlled-random productive board generation and depth-2 viability check.
-- New Learning + verified missed-opportunity round review.
-- Logical mini-replay of the top missed opportunity.
-- Local prototype telemetry including formed/broken relations, crosses, misses, cascades, replay, and abandonment.
-- Swipe plus tap/tap mobile input.
-- Responsive long-word typography.
-- Readable cascade timeline, e.g. `LOOK AFTER` then `COMBO ×2 · TAKE A BREAK`.
-- COG landing-page card at `/Wordy/`.
-- Cloudflare build definition includes the `Wordy` static folder.
+```js
+{
+  rows: 7,
+  columns: 7,
+  tiles: [
+    { id, word, row, column }
+  ]
+}
+```
 
-## Key late-stage commits
+Rules:
 
-- `34e8049` — timeline tests.
-- `7df0844` — resolution-event labels.
-- `140ba34` — timeline playback helper.
-- `01feec9` / `ce62261` — integration tests requiring timeline wiring.
-- `b74ded6` / `a02c0f8` — controller/app timeline integration.
-- `6d2ea3b` — deployment test requiring Wordy in Cloudflare build.
-- `acf4ee9` — Cloudflare build includes Wordy.
-- `e82ba15` — remove unavailable temporary branch CI workflow.
-- `59c59fe` — close durable execution ledger.
+- exactly 7 rows × 7 columns for the validation prototype;
+- every word occupies exactly one logical cell;
+- every physical tile has identical board dimensions;
+- word length affects typography only;
+- no gameplay geometry depends on character count;
+- a stable board has exactly 49 occupied cells.
 
-Earlier task commits are listed in the execution ledger.
+## Candy-style swap behavior
 
-## Rulings / deviations that must survive chat changes
+A player may attempt one orthogonally adjacent pair:
 
-1. **Inline/native only:** do not switch routine work to subagent-driven development.
-2. The environment lacked an authenticated local private-repository worktree, so verification used a sandbox reconstructed from GitHub content.
-3. Immediate scoring moves count only relationships newly created by the swap; merely preserving an existing ready relation does not make a swap scoring.
-4. On `CascadeLimitError`, use a fresh controlled productive fallback rather than ordinary dead-board detection on the pre-pop board.
-5. Cascade feedback uses a UI timeline over the single deterministic resolution result. Do not duplicate the rules engine to animate cascades. If playtesting shows intermediate board motion is needed, add presentation snapshots/animation without creating a second gameplay authority.
-6. The temporary Wordy branch CI workflow was removed because GitHub provided no runner. Do not interpret those workflow failures as product-code failures.
+- left;
+- right;
+- up;
+- down.
 
-## Known limitations / deferred work
+Rules:
 
-These are intentional prototype boundaries, not unfinished Task 1–11 work:
+- no diagonal swaps;
+- no jumps;
+- no footprint matching;
+- every in-bounds orthogonal neighbor is geometrically swappable;
+- a productive swap remains and spends exactly one move;
+- a nonproductive valid swap animates forward and rebounds;
+- rebound changes no canonical board state, move count, score, or ready relationship state.
 
-- final commercial name;
-- final art direction;
-- full progression/map and production stars;
-- developed Wordbook;
-- adaptive learning UI/model;
-- category preference UI;
-- boosters/obstacles;
-- Teacher Monitor / classroom-session integration;
-- large-scale content ingestion;
-- production scoring calibration;
-- richer per-generation board animation if user playtesting shows the text timeline is insufficient.
+## Matching
+
+Relationships are straight contiguous ordered cell sequences.
+
+### Horizontal
+
+Tokens occupy consecutive columns in one row.
+
+### Vertical
+
+Tokens occupy consecutive rows in one column.
+
+### Crossings
+
+A physical tile can belong simultaneously to one horizontal and one vertical relation. Shared tiles are removed physically once while all valid relationships score.
+
+Runtime linguistic validity still comes only from the curated relationship bank. There is no live LLM judge.
+
+## POP, gravity, refill, and cascades
+
+Global POP is preserved.
+
+- all ready relationships resolve together;
+- POP costs no extra move;
+- shared crossing tiles are removed once;
+- survivors fall vertically within their original column;
+- survivors never move laterally;
+- each column is compacted downward;
+- all empty cells after gravity are at the top of columns;
+- refill creates new one-cell tiles in those top cells;
+- cascade-created relationships auto-resolve until the board stabilizes;
+- dead-board recovery does not spend a move.
+
+## Relationship-aware refill
+
+Refill no longer chooses a word because it fits a physical width.
+
+The refill system now:
+
+1. builds a weighted bag from approved relationship tokens;
+2. evaluates candidate words against the local post-gravity board;
+3. rewards immediate valid relations;
+4. rewards one-swap opportunities;
+5. rewards adjacency to tokens from the same approved relationship;
+6. penalizes excessive duplicate words;
+7. selects between cascade, opportunity, and distractor buckets.
+
+Current prototype bucket weights:
+
+```js
+{
+  cascadeWeight: 0.18,
+  opportunityWeight: 0.57,
+  distractorWeight: 0.25
+}
+```
+
+These are tuning values, not final game balance.
+
+## Initial board generation
+
+Generated boards are 7×7 equal-cell boards drawn from the approved relationship vocabulary.
+
+The generator rejects boards that do not meet the configured constraints:
+
+- full 49-cell occupancy;
+- no starting relationship when `allowStartingMatches === false`;
+- minimum productive swap count;
+- productive swaps distributed across multiple rows;
+- productive swaps distributed across multiple columns;
+- bounded duplicate words.
+
+Authored tutorial boards A–G remain available.
+
+## UI
+
+The board is a 7×7 CSS Grid.
+
+- all tiles have equal dimensions;
+- `row` and `column` are the only placement coordinates;
+- long words use smaller typography classes:
+  - `text-medium`;
+  - `text-long`;
+  - `text-xlong`;
+- typography never changes tile dimensions;
+- tap/swipe input resolves ordinary orthogonal neighbors;
+- accepted swap animation and rejected rebound animation are preserved;
+- replay snapshots also use row/column geometry.
+
+## Verification
+
+Fresh GitHub Actions evidence for the uniform-cell rebuild:
+
+- Task 1 board geometry: run `35780923806` → **11/11 pass**.
+- Task 2 matcher/controller/review: run `35781756441` → **16/16 pass**.
+- Task 3 column gravity/top refill: run `35781460040` → **10/10 pass**.
+- Task 4 relationship-aware generation/refill: run `35782238263` → **16/16 pass**.
+- Task 5 equal-cell UI: run `35782473487` → **20/20 pass**.
+- Task 6 full integration: run `35794985695` on exact runtime commit `34bc8585ca681e842d79256b8153f8c528c4f84b`:
+  - `node --test Wordy/tests/*.test.mjs` → **90/90 pass**;
+  - failures: **0**;
+  - `node --check Wordy/app.mjs` → exit 0.
+
+The final integration tests verify:
+
+- Level A 7×7 load;
+- a nonproductive adjacent swap rebounds without spending a move;
+- WENT ↔ AFTER is accepted;
+- LOOK AFTER becomes ready;
+- POP resolves it;
+- the stable board returns to 49 occupied cells;
+- the round either finishes or remains playable;
+- generated boards expose at least four productive swaps across at least three rows and three columns;
+- `tile-size.mjs` is absent;
+- runtime code contains no `startColumn`, `spanForWord`, or `partitionRun` geometry.
+
+## Review status
+
+Superpowers final review was performed as a self-review because this harness exposes no reviewer subagent and the installed skill package does not include the requested `code-reviewer.md` resource.
+
+No Critical or Important findings remained after the full-suite gate.
+
+## Publication state
+
+The new uniform-cell runtime is **not yet on production**.
+
+Current production still serves the earlier 12-microcolumn runtime at:
+
+`https://classroom-online-games.pages.dev/Wordy/`
+
+Do not use the current production page to judge the new 7×7 implementation until it is explicitly promoted.
+
+Do not use:
+
+- githack;
+- Vercel;
+- alternate preview mirrors;
+- user-local downloads as the normal review path.
+
+When publication is explicitly authorized, promote only the reviewed Wordy runtime needed for the new prototype, then verify the exact production SHA and canonical Cloudflare route.
 
 ## Exact next action
 
-Do **not** repeat implementation Tasks 1–11.
+The implementation plan is complete on `feature/wordy-game`.
 
-The branch is reconciled with current `main` and final PR #46 is open. The next product step is PR review and, only with explicit user instruction, merge/deploy. Do not create another integration PR.
+Next step is an integration decision:
 
-## Continuation prompt
+- keep the branch for additional development/playtesting; or
+- promote the new Wordy runtime to `main` and Cloudflare, followed by a live canonical-route check.
 
-> Continue Wordy in `youteachtk/Classroom-Online-Games`, branch `feature/wordy-game`. Use Superpowers inline/native, not subagent-driven. First read `docs/superpowers/handoffs/WORDY-CURRENT.md` and the execution ledger. Tasks 1–11 of `docs/superpowers/plans/2026-09-20-wordy-validation-prototype.md` are complete; do not repeat them. The fresh reconstructed-branch suite passed 81/81 and `node --check Wordy/app.mjs` passed. No merge or deployment has happened. PR #45 already reconciled current `main` into the feature branch; post-reconciliation verification passed 81/81 and the branch was 0 behind `main`. Do not repeat reconciliation unless `main` moves again. Resume with user-requested playtesting, revision, PR, merge, or deployment only as explicitly requested.
-
-
-## Reconciliation record
-
-- PR #45: `main` -> `feature/wordy-game`.
-- Merge commit: `9c7800adbad71c921084bd8d4d3183683950418e`.
-- Post-merge divergence check: 109 ahead / 0 behind `main`.
-- Post-merge verification: 81/81 Wordy tests pass; `node --check Wordy/app.mjs` exit 0.
-- No production deployment occurred.
-
-
-## Final integration PR
-
-- PR #46: `feature/wordy-game` -> `main`.
-- URL: https://github.com/youteachtk/Classroom-Online-Games/pull/46
-- State at creation: open, not merged.
-- GitHub REST initially reported `mergeable_state: unknown`; this is calculation pending, not evidence of a conflict.
-- No production deployment has occurred.
+Do not rebuild Tasks 1–6.

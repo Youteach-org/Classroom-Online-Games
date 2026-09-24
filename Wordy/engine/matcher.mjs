@@ -1,17 +1,8 @@
-import { occupancyMap, tilesInRow } from './board.mjs';
+import { occupancyMap } from './board.mjs';
 
 function sameTokens(actual,expected){
   if(!actual||actual.length!==expected.length)return false;
-  for(let i=0;i<expected.length;i++){
-    if(actual[i]!==expected[i])return false;
-  }
-  return true;
-}
-
-function touchingSequence(tiles){
-  for(let i=1;i<tiles.length;i++){
-    if(tiles[i-1].startColumn+tiles[i-1].span!==tiles[i].startColumn)return false;
-  }
+  for(let i=0;i<expected.length;i++)if(actual[i]!==expected[i])return false;
   return true;
 }
 
@@ -20,10 +11,7 @@ function containsSequence(outerIds,innerIds){
   for(let start=0;start<=outerIds.length-innerIds.length;start++){
     let same=true;
     for(let i=0;i<innerIds.length;i++){
-      if(outerIds[start+i]!==innerIds[i]){
-        same=false;
-        break;
-      }
+      if(outerIds[start+i]!==innerIds[i]){same=false;break;}
     }
     if(same)return true;
   }
@@ -50,68 +38,63 @@ function tileMap(board){
 
 function firstPosition(match,byId){
   const tile=byId.get(match.tileIds[0]);
-  return tile??{row:Number.MAX_SAFE_INTEGER,startColumn:Number.MAX_SAFE_INTEGER};
+  return tile??{row:Number.MAX_SAFE_INTEGER,column:Number.MAX_SAFE_INTEGER};
+}
+
+function addMatch(raw,dedup,relation,orientation,ids){
+  const match={
+    relationshipId:relation.id,
+    orientation,
+    tileIds:[...ids],
+    tokens:[...relation.tokens]
+  };
+  const key=matchKey(match);
+  if(dedup.has(key))return;
+  dedup.add(key);
+  raw.push(match);
 }
 
 export function findMatches(board,bank){
   if(!board?.rows||!board?.columns||!Array.isArray(board.tiles)||!bank?.byLength)return [];
   const byId=tileMap(board);
+  const map=occupancyMap(board);
   const raw=[];
   const dedup=new Set();
 
   for(const [length,relationships] of bank.byLength.entries()){
-    for(let row=0;row<board.rows;row++){
-      const rowTiles=tilesInRow(board,row);
-      if(length>rowTiles.length)continue;
-      for(let start=0;start<=rowTiles.length-length;start++){
-        const sequence=rowTiles.slice(start,start+length);
-        if(!touchingSequence(sequence))continue;
-        const words=sequence.map(tile=>tile.word);
-        for(const relation of relationships){
-          if(!sameTokens(words,relation.tokens))continue;
-          const match={
-            relationshipId:relation.id,
-            orientation:'horizontal',
-            tileIds:sequence.map(tile=>tile.id),
-            tokens:[...relation.tokens]
-          };
-          const key=matchKey(match);
-          if(!dedup.has(key)){
-            dedup.add(key);
-            raw.push(match);
+    if(length<=board.columns){
+      for(let row=0;row<board.rows;row++){
+        for(let columnStart=0;columnStart<=board.columns-length;columnStart++){
+          const ids=[];
+          let complete=true;
+          for(let offset=0;offset<length;offset++){
+            const id=map[row][columnStart+offset];
+            if(!id){complete=false;break;}
+            ids.push(id);
+          }
+          if(!complete)continue;
+          const words=ids.map(id=>byId.get(id)?.word);
+          for(const relation of relationships){
+            if(sameTokens(words,relation.tokens))addMatch(raw,dedup,relation,'horizontal',ids);
           }
         }
       }
     }
-  }
 
-  const map=occupancyMap(board);
-  for(const [length,relationships] of bank.byLength.entries()){
-    if(length>board.rows)continue;
-    for(let col=0;col<board.columns;col++){
-      for(let startRow=0;startRow<=board.rows-length;startRow++){
-        const ids=[];
-        let complete=true;
-        for(let offset=0;offset<length;offset++){
-          const id=map[startRow+offset][col];
-          if(!id){ complete=false; break; }
-          ids.push(id);
-        }
-        if(!complete)continue;
-        const words=ids.map(id=>byId.get(id)?.word);
-        if(words.some(word=>!word))continue;
-        for(const relation of relationships){
-          if(!sameTokens(words,relation.tokens))continue;
-          const match={
-            relationshipId:relation.id,
-            orientation:'vertical',
-            tileIds:[...ids],
-            tokens:[...relation.tokens]
-          };
-          const key=matchKey(match);
-          if(!dedup.has(key)){
-            dedup.add(key);
-            raw.push(match);
+    if(length<=board.rows){
+      for(let column=0;column<board.columns;column++){
+        for(let startRow=0;startRow<=board.rows-length;startRow++){
+          const ids=[];
+          let complete=true;
+          for(let offset=0;offset<length;offset++){
+            const id=map[startRow+offset][column];
+            if(!id){complete=false;break;}
+            ids.push(id);
+          }
+          if(!complete)continue;
+          const words=ids.map(id=>byId.get(id)?.word);
+          for(const relation of relationships){
+            if(sameTokens(words,relation.tokens))addMatch(raw,dedup,relation,'vertical',ids);
           }
         }
       }
@@ -121,7 +104,7 @@ export function findMatches(board,bank){
   return suppressContained(raw).sort((a,b)=>{
     const ap=firstPosition(a,byId);
     const bp=firstPosition(b,byId);
-    return ap.row-bp.row||ap.startColumn-bp.startColumn||
+    return ap.row-bp.row||ap.column-bp.column||
       (a.orientation===b.orientation?0:(a.orientation==='horizontal'?-1:1))||
       b.tileIds.length-a.tileIds.length||a.relationshipId.localeCompare(b.relationshipId);
   });

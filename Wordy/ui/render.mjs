@@ -23,6 +23,23 @@ function setText(root,selector,value){
   if(node)node.textContent=String(value??'');
 }
 
+function typographyClass(word){
+  const length=String(word??'').length;
+  if(length>=9)return 'text-xlong';
+  if(length>=8)return 'text-long';
+  if(length>=6)return 'text-medium';
+  return '';
+}
+
+function applyTilePosition(node,tile){
+  node.dataset.tileId=tile.id;
+  node.dataset.row=String(tile.row);
+  node.dataset.column=String(tile.column);
+  if(!node.style)node.style={};
+  node.style.gridRow=String(tile.row+1);
+  node.style.gridColumn=String(tile.column+1);
+}
+
 export function renderGame(root,state){
   if(!state?.board?.tiles)throw new Error('state.board.tiles is required');
   const boardNode=qs(root,'#wordyBoard');
@@ -40,20 +57,16 @@ export function renderGame(root,state){
   if(boardNode){
     const tiles=state.board.tiles
       .slice()
-      .sort((a,b)=>a.row-b.row||a.startColumn-b.startColumn||a.id.localeCompare(b.id))
+      .sort((a,b)=>a.row-b.row||a.column-b.column||a.id.localeCompare(b.id))
       .map(tile=>{
         const button=create(root,'button');
         button.className='wordy-tile';
         button.classList?.add?.('wordy-tile');
+        const textClass=typographyClass(tile.word);
+        if(textClass)button.classList?.add?.(textClass);
         button.setAttribute?.('type','button');
         button.setAttribute?.('role','gridcell');
-        button.dataset.tileId=tile.id;
-        button.dataset.row=String(tile.row);
-        button.dataset.startColumn=String(tile.startColumn);
-        button.dataset.span=String(tile.span);
-        if(!button.style)button.style={};
-        button.style.gridRow=String(tile.row+1);
-        button.style.gridColumn=`${tile.startColumn+1} / span ${tile.span}`;
+        applyTilePosition(button,tile);
         button.textContent=tile.word;
         button.disabled=state.phase!=='playing';
         const tileMatches=usage.get(tile.id)??[];
@@ -84,7 +97,6 @@ function reviewCard(root,title,detail){
   return card;
 }
 
-
 function renderMissedReplay(root,item){
   const replay=qs(root,'#replayBoard');
   if(!replay)return;
@@ -99,18 +111,14 @@ function renderMissedReplay(root,item){
   ].filter(Boolean));
   const tiles=board.tiles
     .slice()
-    .sort((a,b)=>a.row-b.row||a.startColumn-b.startColumn||a.id.localeCompare(b.id))
+    .sort((a,b)=>a.row-b.row||a.column-b.column||a.id.localeCompare(b.id))
     .map(source=>{
       const tile=create(root,'div');
       tile.className='replay-tile';
       tile.classList?.add?.('replay-tile');
-      tile.dataset.tileId=source.id;
-      tile.dataset.row=String(source.row);
-      tile.dataset.startColumn=String(source.startColumn);
-      tile.dataset.span=String(source.span);
-      if(!tile.style)tile.style={};
-      tile.style.gridRow=String(source.row+1);
-      tile.style.gridColumn=`${source.startColumn+1} / span ${source.span}`;
+      const textClass=typographyClass(source.word);
+      if(textClass)tile.classList?.add?.(textClass);
+      applyTilePosition(tile,source);
       tile.textContent=source.word??'';
       if(suggested.has(source.id))tile.classList?.add?.('is-suggested');
       return tile;
