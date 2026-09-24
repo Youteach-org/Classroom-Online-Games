@@ -1,0 +1,44 @@
+name: Wordy Browser Live Verify
+on:
+  push:
+    branches:
+      - integration/wordy-uniform-cell-20260924
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install browser harness
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+      - name: Verify live Wordy renders
+        run: |
+          cat > verify-wordy.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage();
+          const errors=[];
+          page.on('console',msg=>{ if(msg.type()==='error') errors.push('console: '+msg.text()); });
+          page.on('pageerror',err=>errors.push('pageerror: '+err.message));
+          page.on('requestfailed',req=>errors.push('requestfailed: '+req.url()+' :: '+req.failure()?.errorText));
+          const response=await page.goto('https://classroom-online-games.pages.dev/Wordy/',{waitUntil:'networkidle',timeout:30000});
+          await page.waitForTimeout(1000);
+          const data=await page.evaluate(()=>({
+            title:document.title,
+            tiles:document.querySelectorAll('.wordy-tile').length,
+            level:document.querySelector('#levelLabel')?.textContent||'',
+            hasPrototype:!!window.WordyPrototype
+          }));
+          console.log(JSON.stringify({status:response?.status(),url:page.url(),data,errors},null,2));
+          if(response?.status()!==200) throw new Error('unexpected HTTP status');
+          if(data.title!=='Wordy Prototype') throw new Error('wrong page title: '+data.title);
+          if(data.tiles!==49) throw new Error('expected 49 tiles, got '+data.tiles);
+          if(!data.hasPrototype) throw new Error('WordyPrototype not initialized');
+          if(errors.length) throw new Error(errors.join('\n'));
+          await browser.close();
+          EOF
+          node verify-wordy.mjs
