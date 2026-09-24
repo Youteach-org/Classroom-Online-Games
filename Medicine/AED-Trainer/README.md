@@ -291,3 +291,15 @@ Purpose:
 - compact BLE / battery / pad indicators
 
 Do not use a touch display. Do not use a 2.4/2.8-inch TFT unless later physical testing demonstrates a real readability need.
+
+
+## Reusing an existing speaker
+
+The prototype may reuse a small speaker salvaged from a portable radio instead of purchasing a new speaker, provided its rating is verified first.
+
+Preferred:
+- 4 ohm or 8 ohm speaker
+- approximately 0.5 W to 3 W or higher continuous rating
+- driven through the MAX98357A I2S amplifier, never directly from an ESP32 GPIO
+
+Before wiring, check the label printed on the speaker magnet/frame. If the marking is unclear, measure DC resistance with a multimeter and select amplifier gain conservatively during initial testing.
