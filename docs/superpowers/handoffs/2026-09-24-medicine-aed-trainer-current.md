@@ -30,7 +30,7 @@ The web AED prototype implements:
 
 ## Safety invariant
 
-Never add high-voltage charging/discharge hardware or real-patient ECG interpretation to this project. This is a classroom trainer.
+Never add high-voltage charging/discharge hardware or any therapeutic output. Real single-lead ECG acquisition is allowed only for educational monitoring/visualization. It must not autonomously make AED treatment decisions. When a person is connected to ECG electrodes, use battery power and BLE to the Teacher Monitor rather than a wired USB connection to a mains-powered computer.
 
 ## Next implementation work
 
@@ -46,3 +46,27 @@ Never add high-voltage charging/discharge hardware or real-patient ECG interpret
 ## Hardware recommendation
 
 See `Medicine/AED-Trainer/README.md` for BOM, provisional GPIO mapping, prompt filenames and definition of done.
+
+
+## Confirmed live monitoring requirement — 2026-09-24
+
+BLE is required in the first near-final physical prototype.
+
+The Classroom Online Games **Teacher Monitor** is the canonical real-time instructor surface. Each trainer/team card should expose:
+- device online/offline and battery state;
+- current AED training state;
+- Pad A / Pad B state;
+- ECG electrode lead-off/contact state;
+- educational single-lead ECG waveform;
+- calculated heart rate and R-R interval trend;
+- selected instructor scenario;
+- analysis start/end;
+- simulated shock advised/not advised state;
+- simulated SHOCK button event;
+- CPR/reassessment state;
+- timestamped event timeline.
+
+Architecture target:
+ESP32-S3 -> BLE GATT telemetry -> teacher browser/bridge -> Teacher Monitor.
+
+The ECG display is educational/non-diagnostic and must not be used by software to issue an autonomous treatment recommendation.
