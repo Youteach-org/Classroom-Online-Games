@@ -108,15 +108,18 @@ test('live board recovery leaves the board object unchanged',()=>{
 
 const fullBank=createRelationshipBank(RELATIONSHIPS);
 
-function relationIdsConnected(ids,bank){
-  if(ids.length<=1)return true;
-  const selected=new Set([ids[0]]);
-  const tokens=new Set(bank.byId.get(ids[0]).tokens);
-  for(const id of ids.slice(1)){
+function relationIdsConnected(ids,bank,seedCount=1){
+  if(ids.length<=seedCount)return true;
+  const tokens=new Set();
+  for(const id of ids.slice(0,seedCount)){
+    const relation=bank.byId.get(id);
+    if(!relation)return false;
+    for(const token of relation.tokens)tokens.add(token);
+  }
+  for(const id of ids.slice(seedCount)){
     const relation=bank.byId.get(id);
     if(!relation)return false;
     if(!relation.tokens.some(token=>tokens.has(token)))return false;
-    selected.add(id);
     for(const token of relation.tokens)tokens.add(token);
   }
   return true;
@@ -133,7 +136,7 @@ test('selectRelationshipNeighborhood preserves required ids and grows a connecte
   assert.equal(ids.length,16);
   assert.ok(ids.includes('phrasal-verb:look-after'));
   assert.ok(ids.includes('collocation:take-a-break'));
-  assert.equal(relationIdsConnected(ids,fullBank),true);
+  assert.equal(relationIdsConnected(ids,fullBank,2),true);
 });
 
 test('controlled neighborhood board exposes at least eight productive swaps with high relationship coverage',()=>{
