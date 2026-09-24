@@ -3,99 +3,41 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Talk Talk</title>
+  <title>Talk Talk — Student</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
-<body>
-  <main class="tt-shell" aria-label="Talk Talk student">
-    <header class="tt-topbar">
-      <a class="tt-brand" href="/"><span class="tt-brand-mark">T</span><span><strong>TALK-TALK</strong><small>Classroom Online Games</small></span></a>
-      <div class="topbar-actions"><span class="tt-pill">Practice</span><button id="standaloneLogoutBtn" class="btn tiny outline" type="button">Log out</button></div>
-    </header>
-
-    <section id="studentHomeView" class="student-view is-active">
-      <div class="home-hero">
-        <div class="home-characters" aria-label="Students talking">
-          <div class="speech-bubble bubble-left">Hi!</div>
-          <div class="character character-boy">
-            <div class="character-avatar avatar-lg"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div>
-          </div>
-          <div class="chat-dots">•••</div>
-          <div class="character character-girl">
-            <div class="character-avatar avatar-lg girl"><span class="avatar-hair"></span><span class="avatar-face">•ᴗ•</span><span class="avatar-body"></span></div>
-          </div>
-          <div class="speech-bubble bubble-right">Ready?</div>
-        </div>
-        <article class="card home-card">
-          <p class="eyebrow">Speaking & pronunciation</p>
-          <h1>Ready to speak?</h1>
-          <p>Practice a sound, use it in a real message, then carry it into conversation.</p>
-          <button id="continueAction" class="btn primary wide" type="button">Continue <span>→</span></button>
-        </article>
-      </div>
+<body class="reference-page" data-reference-source="a_clean_ui_ux_product_mockup_collage_with_multiple.png">
+  <main class="reference-shell" aria-label="Talk Talk student preview">
+    <section id="studentHomeView" class="student-view reference-screen is-active" data-approved-screen="1" data-crop="10,40,378,550">
+      <svg class="reference-art" viewBox="10 40 368 510" role="img" aria-label="Talk Talk student home"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
+      <button id="continueAction" class="screen-hotspot student-continue" data-target="studentRecordingView" aria-label="Continue"></button>
     </section>
 
-    <section id="studentRecordingView" class="student-view" hidden>
-      <div class="student-header-row">
-        <div><strong>TALK-TALK</strong><p>Tell me what happened</p></div>
-        <span class="timer">◷ 03:00</span>
-      </div>
-      <article class="card activity-card">
-        <h2>Tell me what happened</h2>
-        <p>You are the storyteller. Your partner will ask questions.</p>
-      </article>
-      <div class="speaker-pair">
-        <div class="speaker active-speaker">
-          <div class="character-avatar"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div>
-          <strong>Paul</strong><span>Speaking...</span>
-        </div>
-        <div class="speaker">
-          <div class="character-avatar girl"><span class="avatar-hair"></span><span class="avatar-face">•ᴗ•</span><span class="avatar-body"></span></div>
-          <strong>Paulina</strong><span>Ready</span>
-        </div>
-      </div>
-      <div class="audio-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      <button id="recordButton" class="mic-orb" type="button" aria-label="Record">🎙</button>
-      <p id="recordingState" class="recording-state">Tap to check the microphone.</p>
-      <p class="microcopy">Audio stays on this device until the attempt is submitted for analysis.</p>
-      <div class="record-footer"><span><b class="red-dot"></b> Recording...</span><strong>02:14</strong><button id="finishRecordingBtn" class="btn soft" type="button">Finish</button></div>
+    <section id="studentRecordingView" class="student-view reference-screen" data-approved-screen="2" data-crop="392,40,760,550" hidden>
+      <svg class="reference-art" viewBox="392 40 368 510" role="img" aria-label="Talk Talk recording"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
+      <button id="recordButton" class="screen-hotspot student-mic" aria-label="Microphone"></button>
+      <button id="finishRecordingBtn" class="screen-hotspot student-finish" data-target="studentConversationView" aria-label="Finish recording"></button>
     </section>
 
-    <section id="studentConversationView" class="student-view" hidden>
-      <div class="student-header-row">
-        <strong>TALK-TALK</strong><span class="timer">◷ 02:30</span>
-      </div>
-      <nav class="tabbar"><button class="active">Conversation</button><button>My Practice</button><button>Tips</button></nav>
-      <div class="conversation-list">
-        <article class="message-row"><div class="character-avatar mini"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div><div><strong>Paul</strong><p>I have went to the park yesterday with my family.</p></div><time>00:12</time></article>
-        <article class="message-row"><div class="character-avatar mini girl"><span class="avatar-hair"></span><span class="avatar-face">•ᴗ•</span><span class="avatar-body"></span></div><div><strong>Paulina</strong><p>Oh, nice! What did you do there?</p></div><time>00:18</time></article>
-        <article class="message-row"><div class="character-avatar mini"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div><div><strong>Paul</strong><p>We saw a bicycle fall and then we helped him.</p></div><time>00:25</time></article>
-        <article class="message-row"><div class="character-avatar mini girl"><span class="avatar-hair"></span><span class="avatar-face">•ᴗ•</span><span class="avatar-body"></span></div><div><strong>Paulina</strong><p>That’s good. Did he get hurt?</p></div><time>00:32</time></article>
-      </div>
-      <div class="audio-player"><button>▶</button><div><span class="audio-progress"></span></div><small>00:00 / 01:24</small><span>1x</span></div>
-      <button id="showPracticeResultBtn" class="btn primary wide" type="button">See speaking review →</button>
+    <section id="studentConversationView" class="student-view reference-screen" data-approved-screen="3" data-crop="776,40,1145,550" hidden>
+      <svg class="reference-art" viewBox="776 40 369 510" role="img" aria-label="Talk Talk conversation"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
+      <button id="showPracticeResultBtn" class="screen-hotspot student-review" data-target="studentPracticeResultView" aria-label="Open speaking review"></button>
     </section>
 
-    <section id="studentPracticeResultView" class="student-view" hidden>
-      <div class="result-celebration">
-        <div class="result-icon">✦</div>
-        <h1>Your speaking review</h1>
-      </div>
-      <article class="feedback-card success">
-        <h3>✓ What worked well</h3>
-        <p>✓ You kept the conversation moving.</p>
-        <p>✓ Your partner understood your ideas.</p>
-        <p>✓ You used good connectors.</p>
-      </article>
-      <article class="feedback-card improve">
-        <h3>⌄ Work on</h3>
-        <ul><li>past participles (e.g. gone, seen)</li><li>final consonants (e.g. /t/, /d/)</li><li>answering with more detail</li></ul>
-      </article>
-      <div class="result-actions"><button id="tryAgainBtn" class="btn outline" type="button">Try again</button><button id="studentFullTranscriptBtn" class="btn primary" type="button">See full transcript →</button></div>
+    <section id="studentPracticeResultView" class="student-view reference-screen" data-approved-screen="4" data-crop="1160,40,1526,550" hidden>
+      <svg class="reference-art" viewBox="1160 40 366 510" role="img" aria-label="Talk Talk speaking review"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
+      <button id="tryAgainBtn" class="screen-hotspot student-try-again" data-target="studentRecordingView" aria-label="Try again"></button>
+      <button id="studentFullTranscriptBtn" class="screen-hotspot student-transcript" data-target="studentConversationView" aria-label="See full transcript"></button>
     </section>
+
+    <div class="preview-tools">
+      <span>Standalone preview · Student</span>
+      <button id="standaloneLogoutBtn" type="button">Log out</button>
+    </div>
+    <span id="lessonPhase" hidden>Student activity</span>
+    <div id="replayList" hidden></div>
+    <p id="recordingState" hidden>Ready</p>
   </main>
-  <span id="lessonPhase" hidden>Student activity</span>
-  <div id="replayList" hidden></div>
   <script type="module" src="./app.mjs"></script>
 </body>
 </html>
