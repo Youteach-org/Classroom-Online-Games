@@ -75,6 +75,9 @@ test('Level A behaves as a dense generated round instead of a scripted two-combi
   assert.equal(game.pop(),true);
   const resolved=game.state();
   assertValidStableBoard(resolved.board);
+  assert.equal(resolved.movesLeft,17,'POP/recovery must not spend an extra move');
+  assert.ok(resolved.score>0,'accepted relationship must score');
+  assert.deepEqual(resolved.activeRelationshipIds,ready.activeRelationshipIds,'round neighborhood must stay stable after POP/recovery');
   assert.ok(resolved.board.tiles.every(tile=>activeWords.has(tile.word)),'refill/recovery leaked a word outside the round neighborhood');
 
   if(resolved.phase==='playing'){
