@@ -262,3 +262,14 @@ Current preferred Mercado Libre shortlist:
 - 10,000 mAh UGREEN power bank: https://www.mercadolibre.com.mx/power-bank-10000-mah-ugreen/p/MLM63623139
 
 Training AED pads: no standalone replacement-pad listing has yet been verified as both suitable and currently in stock on Mercado Libre México. Until one is verified, do not purchase an expensive complete commercial AED trainer solely to obtain its pads; fabricate inert reusable training pads for the prototype from locally available low-voltage materials.
+
+
+## Display decision — revised 2026-09-24
+
+Touch input is not required for the AED trainer. Use physical controls for POWER, ANALYZE (if present), and SIMULATED SHOCK. The display is output-only and should show the current training step, prompts/status, battery/BLE state, pad/electrode state, and simple indicators.
+
+Preferred display for the near-final prototype: non-touch 2.8-inch SPI TFT, 240x320, ST7789V, preferably with metal frame/protection. Mercado Libre México listing reference: https://articulo.mercadolibre.com.mx/MLM-3140776172-modulo-tft-display-st7789v-240320-spi-28-_JM
+
+Acceptable lower-cost alternative: non-touch 2.4-inch SPI TFT, 240x320, ILI9341. Mercado Libre México listing reference: https://www.mercadolibre.com.mx/pantalla-lcd-tft-24--ips-spi-hd-240320-ili9341-arduino-rgb/up/MLMU466807101
+
+Reason: touch adds no necessary classroom function, consumes GPIO/library complexity, and creates another failure surface. Teacher controls and detailed live supervision belong in the Classroom Games Teacher Monitor, not on the student-facing physical screen.
