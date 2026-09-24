@@ -1,0 +1,94 @@
+name: Deploy ALEX Run Preview
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Verb-Runner/scripts/rig-alex-run.py'
+      - 'Verb-Runner/run-viewer.html'
+      - 'Verb-Runner/scripts/refine-alex.py'
+      - '.github/workflows/verb-runner-run-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare approved ALEX source
+        run: |
+          rm -rf run-dist
+          mkdir run-dist
+          curl --fail --location --retry 3 \
+            'https://storage.to3d.app/generated-3d/models/2026-09-23/task_cee9ef71-b87a-4a01-973f-89a5d326cf95_model.glb' \
+            --output run-dist/alex-static.glb
+          test -s run-dist/alex-static.glb
+
+      - name: Apply approved texture refinements
+        run: |
+          python -m pip install --quiet trimesh numpy networkx pillow opencv-python-headless
+          python Verb-Runner/scripts/refine-alex.py run-dist/alex-static.glb run-dist/alex-static.glb
+
+      - name: Install Blender
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y blender
+          blender --version | head -n 2
+
+      - name: Rig ALEX and build Run cycle
+        run: |
+          blender --background --python Verb-Runner/scripts/rig-alex-run.py -- \
+            run-dist/alex-static.glb run-dist/alex-run.glb
+          test -s run-dist/alex-run.glb
+
+      - name: Validate skin and Run animation
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const b=fs.readFileSync('run-dist/alex-run.glb');
+          if(b.toString('utf8',0,4)!=='glTF')throw new Error('Not GLB');
+          let off=12,j=null;
+          while(off+8<=b.length){
+            const len=b.readUInt32LE(off),type=b.readUInt32LE(off+4),chunk=b.subarray(off+8,off+8+len);
+            if(type===0x4E4F534A)j=JSON.parse(chunk.toString('utf8').replace(/\0+$/,'').trim());
+            off+=8+len;
+          }
+          if(!j)throw new Error('No JSON');
+          const anims=(j.animations||[]).map(a=>a.name);
+          console.log('ANIMATIONS',anims);
+          console.log('SKINS',(j.skins||[]).length,'NODES',(j.nodes||[]).length);
+          if(!(j.skins||[]).length)throw new Error('No skin exported');
+          if(!anims.some(n=>(n||'').toLowerCase().includes('run')))throw new Error('Run animation missing');
+          if(!(j.animations[0]?.channels?.length>5))throw new Error('Run animation has too few channels');
+          NODE
+
+      - name: Prepare interactive preview
+        run: |
+          cp Verb-Runner/run-viewer.html run-dist/index.html
+
+      - name: Upload animated GLB
+        uses: actions/upload-artifact@v4
+        with:
+          name: alex-run-cycle-01
+          path: run-dist/alex-run.glb
+          retention-days: 14
+
+      - name: Normalize Cloudflare account ID
+        env:
+          CLOUDFLARE_ACCOUNT_ID_RAW: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          CLEAN_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID_RAW" | tr -d '[:space:]')"
+          printf 'CLOUDFLARE_ACCOUNT_ID=%s\n' "$CLEAN_ACCOUNT_ID" >> "$GITHUB_ENV"
+
+      - name: Deploy ALEX Run preview
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          npx wrangler@4 pages deploy run-dist \
+            --project-name=classroom-online-games \
+            --branch=vr-alex-run-preview \
+            --commit-hash=${{ github.sha }}
