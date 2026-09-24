@@ -127,16 +127,37 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     levelIndex=index;
     currentLevel=levels[index];
     roundNewIds=new Set();
-    activeRelationshipIds=chooseActiveRelationships(currentLevel);
-    refillBag=buildRelationshipBag(bank,{
-      relationshipIds:activeRelationshipIds,
-      categoryWeights:currentLevel.categoryWeights??{}
-    });
+
+    let board=null;
+    if(currentLevel.generated){
+      let lastError=null;
+      for(let attempt=0;attempt<12&&!board;attempt++){
+        activeRelationshipIds=chooseActiveRelationships(currentLevel);
+        refillBag=buildRelationshipBag(bank,{
+          relationshipIds:activeRelationshipIds,
+          categoryWeights:currentLevel.categoryWeights??{}
+        });
+        try{
+          board=generatedBoard(currentLevel);
+        }catch(error){
+          lastError=error;
+        }
+      }
+      if(!board)throw lastError??new Error('unable to prepare generated level');
+    }else{
+      activeRelationshipIds=chooseActiveRelationships(currentLevel);
+      refillBag=buildRelationshipBag(bank,{
+        relationshipIds:activeRelationshipIds,
+        categoryWeights:currentLevel.categoryWeights??{}
+      });
+      board=initialBoard(currentLevel);
+    }
+
     state={
       levelId:currentLevel.id,
       levelTitle:currentLevel.title,
       instruction:currentLevel.instruction,
-      board:initialBoard(currentLevel),
+      board,
       movesLeft:currentLevel.moves,
       score:0,
       readyMatches:[],
