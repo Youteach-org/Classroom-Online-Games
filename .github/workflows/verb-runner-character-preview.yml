@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'Verb-Runner/character-viewer.html'
+      - 'Verb-Runner/scripts/refine-alex.py'
       - '.github/workflows/verb-runner-character-preview.yml'
   workflow_dispatch:
 
@@ -29,13 +30,16 @@ jobs:
             --output preview-dist/red-runner.glb
           test -s preview-dist/red-runner.glb
 
+      - name: Install refinement dependencies
+        run: |
+          python -m pip install --quiet trimesh numpy networkx pillow opencv-python-headless
+
       - name: Refine ALEX gameplay view
         run: |
           python Verb-Runner/scripts/refine-alex.py preview-dist/red-runner.glb preview-dist/red-runner.glb
 
       - name: Inspect connected components
         run: |
-          python -m pip install --quiet trimesh numpy networkx pillow opencv-python-headless
           python <<'PY'
           import trimesh, numpy as np
           s=trimesh.load('preview-dist/red-runner.glb', force='scene')
