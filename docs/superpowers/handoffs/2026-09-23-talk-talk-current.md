@@ -237,3 +237,43 @@ Visual decisions:
 Verification:
 - Talk-Talk/tests/visual-contract.test.mjs defines the static visual contract.
 - The feature must not be reported complete until the eight required view IDs and the green character system pass that contract.
+
+
+## Current redesign implementation branch
+
+Branch:
+- talk-talk-mockup-v2-20260923
+
+Visual contract:
+- Talk-Talk/tests/visual-contract.test.mjs
+
+CI workflow:
+- .github/workflows/talk-talk-visual-contract.yml
+- Runs JavaScript syntax checks plus all Talk-Talk tests.
+
+Implementation files in this redesign:
+- Talk-Talk/index.html
+- Talk-Talk/app.mjs
+- Talk-Talk/teacher.html
+- Talk-Talk/teacher-app.mjs
+- Talk-Talk/styles.css
+
+Navigation model:
+Student:
+- studentHomeView -> studentRecordingView -> studentConversationView -> studentPracticeResultView
+- Try again returns to recording.
+- Full transcript returns to conversation.
+
+Teacher:
+- teacherMonitorView
+- teacherTeamView
+- teacherAssessmentView
+- teacherEvidenceView
+- team cards support selection; double click opens team detail.
+- view buttons use data-teacher-view and showTeacherView().
+
+Characters:
+- Student home includes two large illustrated character components with speech bubbles.
+- Recording and conversation screens reuse character-avatar components.
+- Teacher monitor uses compact participant/avatar representations.
+- Characters remain part of the approved design and must not be removed in later simplifications.
