@@ -14,13 +14,21 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  syntax:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: Check Talk Talk modules
-        run: |
+      - run: |
           node --check Talk-Talk/app.mjs
           node --check Talk-Talk/teacher-app.mjs
-      - name: Run all Talk Talk tests
-        run: node --test Talk-Talk/tests/*.test.mjs
+
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        test: ["activity-draft.test.mjs","activity-engine.test.mjs","audio-capture.test.mjs","audio-worker.test.mjs","capability-profile.test.mjs","evaluation-engine.test.mjs","group-session.test.mjs","individual-flow.test.mjs","individual-shell.test.mjs","interaction-engine.test.mjs","live-bootstrap.test.mjs","local-speech-runtime.test.mjs","model-manifest.test.mjs","module-shell.test.mjs","remote-timeline.test.mjs","result-submit.test.mjs","speaker-id.test.mjs","speech-adapters.test.mjs","student-memory.test.mjs","sync-queue.test.mjs","talk-engine-lite.test.mjs","teacher-monitor.test.mjs","visual-contract.test.mjs","youteach-team-context.test.mjs"]
+    name: test / ${{ matrix.test }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: node --test "Talk-Talk/tests/${{ matrix.test }}"
