@@ -266,10 +266,17 @@ Training AED pads: no standalone replacement-pad listing has yet been verified a
 
 ## Display decision — revised 2026-09-24
 
-Touch input is not required for the AED trainer. Use physical controls for POWER, ANALYZE (if present), and SIMULATED SHOCK. The display is output-only and should show the current training step, prompts/status, battery/BLE state, pad/electrode state, and simple indicators.
+The AED trainer does not need a large TFT. Audio is the primary student guidance channel and the Classroom Games Teacher Monitor is the detailed instructor interface.
 
-Preferred display for the near-final prototype: non-touch 2.8-inch SPI TFT, 240x320, ST7789V, preferably with metal frame/protection. Mercado Libre México listing reference: https://articulo.mercadolibre.com.mx/MLM-3140776172-modulo-tft-display-st7789v-240320-spi-28-_JM
+**Preferred display:** 1.3-inch monochrome OLED, 128x64, I2C (SH1106/SSD1306-compatible class), non-touch.
+- Purpose: show only short prompts and compact status indicators.
+- Typical prompts: COLOQUE PARCHES, ANALIZANDO, NO TOQUE, PRESIONE SHOCK, INICIE RCP.
+- Optional icons/status: BLE, battery, pad connection.
+- Use only four electrical connections: VCC, GND, SDA, SCL.
+- Mount behind a clear acrylic/polycarbonate window for physical protection.
 
-Acceptable lower-cost alternative: non-touch 2.4-inch SPI TFT, 240x320, ILI9341. Mercado Libre México listing reference: https://www.mercadolibre.com.mx/pantalla-lcd-tft-24--ips-spi-hd-240320-ili9341-arduino-rgb/up/MLMU466807101
+Current Mercado Libre Mexico reference observed 2026-09-24: UNIT Electronics 1.3-inch 128x64 I2C OLED around MXN 95.50 and available through Mercado Libre search listings.
 
-Reason: touch adds no necessary classroom function, consumes GPIO/library complexity, and creates another failure surface. Teacher controls and detailed live supervision belong in the Classroom Games Teacher Monitor, not on the student-facing physical screen.
+**Lower-cost fallback:** 0.96-inch SSD1306 128x64 I2C OLED, around MXN 88.62 in current Mercado Libre listings. Use only if the enclosure/front-panel layout strongly favors the smaller display.
+
+Do not use a touch display. Do not use a 2.4/2.8-inch TFT unless later testing demonstrates a real readability need.
