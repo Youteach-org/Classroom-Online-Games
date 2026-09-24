@@ -1,0 +1,16 @@
+name: Talk Talk standalone preview tests
+
+on:
+  push:
+    branches:
+      - talk-talk-standalone-preview
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: node --test Talk-Talk/tests/standalone-auth.test.mjs
