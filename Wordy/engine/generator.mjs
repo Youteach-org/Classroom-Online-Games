@@ -85,6 +85,78 @@ function relationDegree(relation,relations){
   return degree;
 }
 
+function buildRelationGraph(relations){
+  const graph=new Map(relations.map(relation=>[relation.id,new Set()]));
+  const byToken=new Map();
+  for(const relation of relations){
+    for(const token of new Set(relation.tokens)){
+      if(!byToken.has(token))byToken.set(token,[]);
+      byToken.get(token).push(relation.id);
+    }
+  }
+  for(const ids of byToken.values()){
+    for(let i=0;i<ids.length;i++){
+      for(let j=i+1;j<ids.length;j++){
+        graph.get(ids[i]).add(ids[j]);
+        graph.get(ids[j]).add(ids[i]);
+      }
+    }
+  }
+  return graph;
+}
+
+function graphComponents(graph){
+  const unseen=new Set(graph.keys());
+  const components=[];
+  while(unseen.size){
+    const seed=unseen.values().next().value;
+    unseen.delete(seed);
+    const queue=[seed];
+    const component=[];
+    while(queue.length){
+      const id=queue.shift();
+      component.push(id);
+      for(const neighbor of graph.get(id)??[]){
+        if(!unseen.has(neighbor))continue;
+        unseen.delete(neighbor);
+        queue.push(neighbor);
+      }
+    }
+    components.push(component);
+  }
+  return components;
+}
+
+function shortestPathFromSet(graph,startIds,targetId,allowedIds){
+  if(startIds.has(targetId))return [targetId];
+  const allowed=new Set(allowedIds);
+  const queue=[];
+  const parent=new Map();
+  for(const id of startIds){
+    if(!allowed.has(id))continue;
+    queue.push(id);
+    parent.set(id,null);
+  }
+  while(queue.length){
+    const id=queue.shift();
+    for(const neighbor of graph.get(id)??[]){
+      if(!allowed.has(neighbor)||parent.has(neighbor))continue;
+      parent.set(neighbor,id);
+      if(neighbor===targetId){
+        const path=[neighbor];
+        let cursor=id;
+        while(cursor!=null){
+          path.push(cursor);
+          cursor=parent.get(cursor);
+        }
+        return path.reverse();
+      }
+      queue.push(neighbor);
+    }
+  }
+  return null;
+}
+
 export function selectRelationshipNeighborhood({
   bank,
   rng=Math.random,
@@ -94,51 +166,89 @@ export function selectRelationshipNeighborhood({
 }={}){
   const relations=allRelations(bank).filter(relation=>relationCategoryWeight(relation,categoryWeights)>0);
   if(relations.length===0)throw new Error('relationship bank has no selectable relationships');
+
   const target=Math.min(relations.length,Math.max(1,Number(size)||1));
+  const relationById=new Map(relations.map(relation=>[relation.id,relation]));
+  const required=[...new Set(requiredRelationshipIds??[])];
+
+  for(const id of required){
+    const relation=bank?.byId?.get?.(id);
+    if(!relation)throw new Error('unknown required relationship id: '+id);
+    if(!relationById.has(id))throw new Error('required relationship is disabled by category weights: '+id);
+  }
+
+  const graph=buildRelationGraph(relations);
+  const components=graphComponents(graph);
+  const requiredSet=new Set(required);
+  const eligibleComponents=components.filter(component=>
+    component.length>=target &&
+    [...requiredSet].every(id=>component.includes(id))
+  );
+  if(eligibleComponents.length===0){
+    throw new Error(`unable to select connected relationship neighborhood of size ${target}`);
+  }
+
+  const component=weightedPick(
+    eligibleComponents,
+    ids=>ids.length,
+    rng
+  );
+  const componentSet=new Set(component);
   const selected=[];
   const selectedIds=new Set();
   const tokens=new Set();
   const categories=new Set();
 
-  for(const id of requiredRelationshipIds??[]){
-    const relation=bank?.byId?.get?.(id);
-    if(!relation)throw new Error('unknown required relationship id: '+id);
-    if(relationCategoryWeight(relation,categoryWeights)<=0)throw new Error('required relationship is disabled by category weights: '+id);
-    if(selectedIds.has(id))continue;
+  function addRelation(id){
+    if(selectedIds.has(id)||selected.length>=target)return;
+    const relation=relationById.get(id);
+    if(!relation||!componentSet.has(id))return;
     selected.push(relation);
     selectedIds.add(id);
     relation.tokens.forEach(token=>tokens.add(token));
     categories.add(relation.category);
-    if(selected.length>=target)return selected.map(relation=>relation.id);
   }
 
-  if(selected.length===0){
+  if(required.length){
+    addRelation(required[0]);
+    for(const requiredId of required.slice(1)){
+      const path=shortestPathFromSet(graph,selectedIds,requiredId,component);
+      if(!path)throw new Error('required relationships cannot be connected');
+      const additions=path.filter(id=>!selectedIds.has(id));
+      if(selected.length+additions.length>target){
+        throw new Error('relationship neighborhood size is too small to connect required relationships');
+      }
+      for(const id of additions)addRelation(id);
+    }
+  }else{
+    const seedCandidates=component.map(id=>relationById.get(id));
     const seed=weightedPick(
-      relations,
-      relation=>relationCategoryWeight(relation,categoryWeights)*(1+relationDegree(relation,relations)*0.2)*(relation.tokens.length===2?1.25:1),
+      seedCandidates,
+      relation=>relationCategoryWeight(relation,categoryWeights)*
+        (1+relationDegree(relation,seedCandidates)*0.2)*
+        (relation.tokens.length===2?1.25:1),
       rng
     );
-    selected.push(seed);
-    selectedIds.add(seed.id);
-    seed.tokens.forEach(token=>tokens.add(token));
-    categories.add(seed.category);
+    addRelation(seed.id);
   }
 
   while(selected.length<target){
-    const remaining=relations.filter(relation=>!selectedIds.has(relation.id));
-    if(remaining.length===0)break;
-    const connected=remaining.filter(relation=>sharedTokenCount(relation,tokens)>0);
-    const pool=connected.length?connected:remaining;
-    const choice=weightedPick(pool,relation=>{
+    const connected=component
+      .filter(id=>!selectedIds.has(id))
+      .filter(id=>[...(graph.get(id)??[])].some(neighbor=>selectedIds.has(neighbor)))
+      .map(id=>relationById.get(id));
+
+    if(connected.length===0){
+      throw new Error('connected relationship component exhausted unexpectedly');
+    }
+
+    const choice=weightedPick(connected,relation=>{
       const shared=sharedTokenCount(relation,tokens);
       const categoryBonus=categories.has(relation.category)?1:1.45;
       const shortBonus=relation.tokens.length===2?1.2:1;
       return relationCategoryWeight(relation,categoryWeights)*(1+shared*6)*categoryBonus*shortBonus;
     },rng);
-    selected.push(choice);
-    selectedIds.add(choice.id);
-    choice.tokens.forEach(token=>tokens.add(token));
-    categories.add(choice.category);
+    addRelation(choice.id);
   }
 
   return selected.map(relation=>relation.id);
