@@ -63,3 +63,28 @@ Live YouTeach bridge integration is now merged to `main`.
 - Production deploys: GREEN
 
 Matching YouTeach production merge: `f11d83cc7d2a49bdbfee576c8b202c5f669672b2`.
+
+
+## Talk Talk — production continuity update (2026-09-23)
+
+Talk Talk is now a first-class Classroom Online Games project.
+
+Current handoff:
+- docs/superpowers/handoffs/2026-09-23-talk-talk-current.md
+
+Current production intent:
+- /Talk-Talk/
+- /Talk-Talk/teacher.html
+- /Talk-Talk/creator.html
+
+Architecture:
+- Talk Talk = product/session/UI layer.
+- Oral-Grader = literal transcription and oral-analysis engine.
+- Literal heard transcript is immutable evidence.
+
+Deployment incident:
+- PR #49 merged Talk Talk to main, but Cloudflare workflows omitted Talk-Talk from dist.
+- Fix branch: fix-talk-talk-deploy-20260923
+- Both deploy workflows are being corrected to include Talk-Talk in the static artifact.
+
+Future sessions must read the Talk Talk handoff before making changes.
