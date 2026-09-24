@@ -6,8 +6,16 @@ on:
 permissions:
   contents: read
 jobs:
-  test:
+  tests:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        test:
+          - youteach-team-context.test.mjs
+          - live-bootstrap.test.mjs
+          - result-submit.test.mjs
+    name: baseline / ${{ matrix.test }}
     steps:
       - uses: actions/checkout@v5
-      - run: node --test Talk-Talk/tests/youteach-team-context.test.mjs
+      - run: node --test "Talk-Talk/tests/${{ matrix.test }}"
