@@ -41,10 +41,10 @@ test('Codespaces preview can bind externally while local default stays loopback-
   assert.match(preview,/\|\|'127\.0\.0\.1'/);
 });
 
-test('Codespaces devcontainer auto-starts and previews Wordy on port 4173',()=>{
-  const config=JSON.parse(readFileSync(new URL('../../.devcontainer/devcontainer.json',import.meta.url),'utf8'));
-  assert.deepEqual(config.forwardPorts,[4173]);
-  assert.equal(config.portsAttributes['4173'].onAutoForward,'openPreview');
-  assert.match(String(config.postAttachCommand),/WORDY_PREVIEW_HOST=0\.0\.0\.0/);
-  assert.match(String(config.postAttachCommand),/Wordy\/preview-local\.mjs/);
+test('production packaging includes Wordy without depending on the local preview server',()=>{
+  const workflow=readFileSync(new URL('../../.github/workflows/cloudflare-pages-main.yml',import.meta.url),'utf8');
+  const copyCommands=workflow.match(/cp -R[^\n]*/g)??[];
+  assert.ok(copyCommands.length>=2);
+  assert.ok(copyCommands.every(command=>/\bWordy\b/.test(command)));
+  assert.doesNotMatch(workflow,/preview-local\.mjs/);
 });
