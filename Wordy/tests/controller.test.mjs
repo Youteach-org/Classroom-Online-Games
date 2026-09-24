@@ -161,3 +161,36 @@ test('rejected swap gives immediate NO MATCH feedback without charging a move',(
   assert.equal(after.eventLabel,'NO MATCH');
   assert.equal(after.movesLeft,before.movesLeft);
 });
+
+
+test('round validity is scoped to active relationship ids, not the global bank',()=>{
+  const scopedBank=createRelationshipBank([
+    relation('look-after',['LOOK','AFTER'],'phrasal-verb',120,1),
+    relation('after-look',['AFTER','LOOK'],'fixed-expression',120,1)
+  ]);
+  const level={
+    id:'S',title:'Scoped',moves:8,goal:{type:'score',target:9999},instruction:'Scoped',
+    generated:false,
+    relationshipIds:['look-after'],
+    boardRows:[
+      ['AFTER','LOOK','X','Y','Z','Q','R'],
+      ['A','B','C','D','E','F','G'],
+      ['H','I','J','K','L','M','N'],
+      ['O','P','S','T','U','V','W'],
+      ['AA','BB','CC','DD','EE','FF','GG'],
+      ['HH','II','JJ','KK','LL','MM','NN'],
+      ['OO','PP','SS','TT','UU','VV','WW']
+    ]
+  };
+  const game=createGameController({
+    bank:scopedBank,levels:[level],initialLevelId:'S',rng:seeded(5),storage:createFakeStorage()
+  });
+  const state=game.state();
+  assert.deepEqual(state.activeRelationshipIds,['look-after']);
+  assert.equal(state.readyMatches.some(match=>match.relationshipId==='after-look'),false);
+
+  const after=tile(state,0,'AFTER');
+  const look=tile(state,0,'LOOK');
+  assert.equal(game.attemptSwap(after.id,look.id).status,'rebound');
+  assert.equal(game.state().readyMatches.some(match=>match.relationshipId==='after-look'),false);
+});
