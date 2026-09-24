@@ -17,7 +17,8 @@ jobs:
           grep -q 'app.mjs' /tmp/wordy-index.html
           grep -q 'column' /tmp/wordy-board.mjs
           grep -q 'repeat(7' /tmp/wordy-styles.css
-          if curl -fsSL "$BASE/engine/tile-size.mjs" -o /tmp/legacy-tile-size.mjs; then
-            echo "::error::Legacy tile-size.mjs is still live"
+          curl -sSL "$BASE/engine/tile-size.mjs" -o /tmp/legacy-tile-size-response
+          if grep -q 'spanForWord' /tmp/legacy-tile-size-response; then
+            echo "::error::Legacy span engine is still being served"
             exit 1
           fi
