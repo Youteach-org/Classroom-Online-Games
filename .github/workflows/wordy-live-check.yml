@@ -1,0 +1,23 @@
+name: Wordy Live Check
+on:
+  push:
+    branches:
+      - integration/wordy-uniform-cell-20260924
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify canonical Wordy 7x7 runtime
+        run: |
+          set -euo pipefail
+          BASE="https://classroom-online-games.pages.dev/Wordy"
+          curl -fsSL --retry 5 --retry-delay 2 "$BASE/" -o /tmp/wordy-index.html
+          curl -fsSL --retry 5 --retry-delay 2 "$BASE/engine/board.mjs" -o /tmp/wordy-board.mjs
+          curl -fsSL --retry 5 --retry-delay 2 "$BASE/styles.css" -o /tmp/wordy-styles.css
+          grep -q 'app.mjs' /tmp/wordy-index.html
+          grep -q 'column' /tmp/wordy-board.mjs
+          grep -q 'repeat(7' /tmp/wordy-styles.css
+          if curl -fsSL "$BASE/engine/tile-size.mjs" -o /tmp/legacy-tile-size.mjs; then
+            echo "::error::Legacy tile-size.mjs is still live"
+            exit 1
+          fi
