@@ -34,7 +34,7 @@
     <h1>Verb Runner · Red Runner 3D Review</h1>
     <p>Revisión de apariencia 360° antes de rigging y animación</p>
   </div>
-  <strong>ALEX reference · appearance only</strong>
+  <strong>ALEX · smile revision 01</strong>
 </header>
 
 <main>
@@ -81,14 +81,14 @@
   const viewer = document.getElementById('viewer');
   const status = document.getElementById('status');
   const fileInput = document.getElementById('modelFile');
-  const productionModel = './red-runner.glb';
+  const productionModel = './red-runner.glb?v=alex-smile-r01';
 
   async function loadProductionModel(){
     try{
       const res = await fetch(productionModel,{method:'HEAD',cache:'no-store'});
       if(!res.ok) throw new Error('not-found');
       viewer.src = productionModel;
-      status.textContent = 'Cargando modelo de producción: red-runner.glb';
+      status.textContent = 'Cargando ALEX · smile revision 01';
     }catch{
       status.textContent = 'El modelo no pudo cargarse desde el preview. También puedes cargar un .glb manualmente.';
     }
