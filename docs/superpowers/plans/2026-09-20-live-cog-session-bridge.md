@@ -813,6 +813,10 @@ Both tests pin exact values for:
 
 ## Task 16: Browser smoke test the complete story
 
+**Status: COMPLETE — 2026-09-23.**
+
+Verified cross-repository browser run: YouTeach Actions `35828301497` using the matching `live-cog-20260922` previews. The browser covered the complete Verb Runner teacher/student/result/end path. Support Meter, OSASCOMP, and 100 Students Said remain covered by their dedicated automated suites plus the shared bridge contract; expiry remains covered by automated policy tests.
+
 **Precondition:** deploy preview branches for both repositories.
 
 Verify in browser:
@@ -837,6 +841,14 @@ Verify in browser:
 18. Use automated policy tests for the 60-minute expiry rather than waiting an hour in browser.
 
 ## Task 17: Production verification and documentation
+
+**Status: READY FOR PR / PRODUCTION MERGE — 2026-09-23.**
+
+Current verification evidence:
+- YouTeach browser E2E `35828301497`: GREEN.
+- YouTeach verify `35828301309`: 230/230 GREEN + syntax + Pages build.
+- COG verify `35828254105`: runner-probe, syntax, shared-bridge, Verb Runner, 100 Students Said, Support Meter, OSASCOMP and build all GREEN.
+- COG preview deploy `35828254080`: GREEN.
 
 **Repository:** both
 

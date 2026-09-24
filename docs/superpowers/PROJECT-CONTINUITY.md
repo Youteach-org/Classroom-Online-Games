@@ -47,8 +47,8 @@ Verified cross-repository behavior:
 - Student Buzzer JOIN GAME resolves the canonical YouTeach student identity, including active multi-group context.
 - Heartbeat, explicit END ACTIVITY, and result return use the shared live bridge contract.
 - Result retries are idempotent.
-- COG verification run `35766282665`: GREEN.
-- COG preview deploy run `35766282680`: GREEN.
-- Cross-repository browser smoke was driven from YouTeach run `35827006544` and passed through JOIN GAME, identity, heartbeat, result receipt/duplicate retry, Teacher Results UI, and END ACTIVITY.
+- COG verification run `35828254105`: GREEN.
+- COG preview deploy run `35828254080`: GREEN.
+- Cross-repository browser smoke was driven from YouTeach run `35828301497` and passed through JOIN GAME, identity, heartbeat, result receipt/duplicate retry, Teacher Results UI, and END ACTIVITY.
 
 Use the same short preview branch name in YouTeach and COG for cross-repository preview verification. Long branch names can be truncated/disambiguated differently by Cloudflare Pages and break derived preview-origin matching.

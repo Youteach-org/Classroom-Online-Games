@@ -243,4 +243,4 @@ The verified Firebase implementation on the matching `live-cog-20260922` branche
 - Result retries are idempotent by result id.
 - Cross-repository Cloudflare preview verification uses the same short branch name in both repositories so derived preview origins remain aligned.
 
-Verified browser smoke: YouTeach Actions run `35827006544`; COG verification run `35766282665`; COG preview deploy run `35766282680`.
+Verified browser smoke: YouTeach Actions run `35828301497`; COG verification run `35828254105`; COG preview deploy run `35828254080`.
