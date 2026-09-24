@@ -1,4 +1,7 @@
 import test from 'node:test';
+import { RELATIONSHIPS } from '../data/relationships.mjs';
+import { LEVELS } from '../data/levels.mjs';
+import { findImmediateScoringMoves, relationshipCoverage } from '../engine/generator.mjs';
 import assert from 'node:assert/strict';
 import { boardKey } from '../engine/board.mjs';
 import { createRelationshipBank } from '../engine/relationship-bank.mjs';
@@ -114,4 +117,47 @@ test('rebound telemetry never becomes a missed opportunity',()=>{
   const events=game.telemetryEvents();
   assert.ok(events.some(event=>event.type==='swap-rebound'));
   assert.equal(events.some(event=>event.type==='missed-opportunity'),false);
+});
+
+
+const fullBank=createRelationshipBank(RELATIONSHIPS);
+
+test('generated level A exposes its active neighborhood and at least eight productive swaps',()=>{
+  const game=createGameController({
+    bank:fullBank,
+    levels:LEVELS,
+    initialLevelId:'A',
+    rng:seeded(27),
+    storage:createFakeStorage()
+  });
+  const state=game.state();
+  assert.equal(state.movesLeft,18);
+  assert.equal(state.activeRelationshipIds.length,12);
+  assert.ok(findImmediateScoringMoves(state.board,fullBank).length>=8);
+  assert.ok(relationshipCoverage(state.board,fullBank,state.activeRelationshipIds)>=0.85);
+  assert.equal(state.phase,'playing');
+});
+
+test('generated mixed level G starts with at least twelve productive swaps',()=>{
+  const game=createGameController({
+    bank:fullBank,
+    levels:LEVELS,
+    initialLevelId:'G',
+    rng:seeded(41),
+    storage:createFakeStorage()
+  });
+  const state=game.state();
+  assert.equal(state.activeRelationshipIds.length,20);
+  assert.ok(findImmediateScoringMoves(state.board,fullBank).length>=12);
+});
+
+test('rejected swap gives immediate NO MATCH feedback without charging a move',()=>{
+  const {game}=makeGame();
+  const before=game.state();
+  const left=tile(before,1,'COFFEE');
+  const right=tile(before,1,'NOTES');
+  assert.equal(game.attemptSwap(left.id,right.id).status,'rebound');
+  const after=game.state();
+  assert.equal(after.eventLabel,'NO MATCH');
+  assert.equal(after.movesLeft,before.movesLeft);
 });
