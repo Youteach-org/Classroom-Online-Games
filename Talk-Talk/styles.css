@@ -42,3 +42,18 @@ button{cursor:pointer}
 
 @media(min-width:720px){.tt-shell{padding-top:24px}.home-hero{grid-template-columns:1fr}.student-view{padding:28px}}
 @media(max-width:760px){.teacher-layout{grid-template-columns:1fr}.teacher-sidebar{padding:14px}.teacher-sidebar nav{grid-template-columns:repeat(2,1fr)}.teacher-main{padding:14px}.team-grid{grid-template-columns:1fr}.rubric-list>div{grid-template-columns:1fr}.issue-row{grid-template-columns:1fr}.teacher-page-head{align-items:flex-start;flex-wrap:wrap}}
+
+.topbar-actions{display:flex;align-items:center;gap:8px}.btn.tiny{padding:7px 10px;border-radius:999px;font-size:.78rem}
+.sidebar-logout{width:100%;margin:-12px 0 18px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#e8fff5;border-radius:10px;padding:9px 11px;text-align:left}
+.standalone-login-page{min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(140deg,#eef8f3,#fbf7eb 55%,#f4f1e7)}
+.standalone-login-shell{width:min(900px,100%);display:grid;grid-template-columns:1fr 1fr;background:#fff;border:1px solid var(--tt-line);border-radius:26px;box-shadow:var(--shadow);overflow:hidden}
+.login-visual{min-height:560px;position:relative;background:linear-gradient(145deg,#dff5e9,#fff7dc);display:grid;place-items:center;align-content:center;gap:8px;padding:34px;overflow:hidden;text-align:center}
+.login-visual h1{margin:14px 0 0;font-size:2.2rem;color:var(--tt-green-deep)}.login-visual p{margin:0;color:#587268}
+.login-character-row{display:flex;align-items:end;gap:20px}.login-character-row .chat-dots{margin:0 0 54px}
+.login-bubble-one{left:12%;top:72px}.login-bubble-two{right:10%;top:122px}
+.login-card{padding:clamp(28px,5vw,54px);align-self:center}.login-card h2{font-size:2rem;margin:0 0 8px}.login-intro{color:var(--tt-muted);line-height:1.55}
+.login-form{display:grid;gap:14px;margin:24px 0}.login-form label{display:grid;gap:6px;font-weight:800}.login-form input{width:100%;padding:12px 13px;border:1px solid #cfdad6;border-radius:12px;font:inherit;outline:none}.login-form input:focus{border-color:var(--tt-green);box-shadow:0 0 0 3px rgba(34,181,115,.12)}
+.login-error{margin:0;color:#b23f37;font-weight:750;font-size:.9rem}
+.credential-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}.credential-card{border:1px solid var(--tt-line);background:#f8fbfa;border-radius:14px;padding:12px;text-align:left;color:var(--tt-ink)}.credential-card strong,.credential-card span{display:block}.credential-card span{margin-top:3px;color:var(--tt-muted);font-size:.84rem}.credential-card:hover{border-color:var(--tt-green);background:var(--tt-green-soft)}
+.test-warning{font-size:.75rem;color:var(--tt-muted);margin:16px 0 0}
+@media(max-width:720px){.standalone-login-shell{grid-template-columns:1fr}.login-visual{min-height:310px}.login-character-row{transform:scale(.78)}.login-bubble-one{left:9%;top:28px}.login-bubble-two{right:8%;top:68px}.credential-cards{grid-template-columns:1fr}}
