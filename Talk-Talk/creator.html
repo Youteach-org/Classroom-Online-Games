@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Talk Talk Creator</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div><p class="eyebrow">Talk Talk</p><h1>Creator Mode</h1></div>
+      <button id="testAsStudentBtn" class="primary" type="button">Test as Student</button>
+    </header>
+
+    <section class="panel creator-grid">
+      <label>Title<input id="titleField" type="text"></label>
+      <label>Level<select id="levelField"><option>A2</option><option>B1</option></select></label>
+      <label>Mode<select id="modeField"><option value="practice">Practice</option><option value="assessment">Assessment</option></select></label>
+      <label>Duration (minutes)<input id="durationField" type="number" min="1" max="60"></label>
+      <label class="wide">Situation<textarea id="situationField"></textarea></label>
+      <label class="wide">Instructions<textarea id="instructionsField"></textarea></label>
+      <label class="wide">Roles & private information<textarea id="rolesField" placeholder="Storyteller | You saw a bicycle fall."></textarea></label>
+      <label class="wide">Prompts<textarea id="promptsField"></textarea></label>
+      <label class="wide">Twist<textarea id="twistField"></textarea></label>
+      <label>Pronunciation targets<input id="pronunciationField" type="text"></label>
+      <label>Language targets<input id="languageField" type="text"></label>
+      <label>Interaction targets<input id="interactionField" type="text"></label>
+    </section>
+    <section id="creatorStatus" class="panel" aria-live="polite"></section>
+  </main>
+  <script type="module" src="./creator.mjs"></script>
+</body>
+</html>
