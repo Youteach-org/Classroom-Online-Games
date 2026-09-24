@@ -4,7 +4,7 @@
 **Repository:** `Youteach-org/Classroom-Online-Games`  
 **Development branch:** `feature/wordy-game`  
 **Uniform-cell verification commit:** `34bc8585ca681e842d79256b8153f8c528c4f84b`  
-**Current production commit (`main`):** `1a0840da6942e55d4483392e95dbb83c3c420edf`  
+**Current production commit (`main`):** `9c3677b595dd7d082cfa29b19cad408738f982bc`  
 **New spec:** `docs/superpowers/specs/2026-09-22-wordy-uniform-cell-candy-architecture.md`  
 **New plan:** `docs/superpowers/plans/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
 **New ledger:** `docs/superpowers/progress/2026-09-22-wordy-uniform-cell-candy-rebuild.md`
@@ -217,6 +217,32 @@ Do not use:
 - Vercel;
 - alternate preview mirrors;
 - user-local downloads as the normal review path.
+
+## Production load incident and fix — 2026-09-24
+
+A real-browser check after publication revealed that the canonical `/Wordy/` route could disappear even though both Cloudflare workflows reported success.
+
+Root cause:
+
+- two workflows deploy the same Cloudflare Pages project/production branch on every push to `main`;
+- `.github/workflows/cloudflare-pages-main.yml` included `Wordy` in its `dist/` bundle;
+- `.github/workflows/deploy-cloudflare-pages.yml` omitted `Wordy`;
+- on production commit `8ee661778fda769dd0f0300870952b870b81aa5f`, the workflow that omitted Wordy finished **5 seconds later** and overwrote the production deployment;
+- Chromium reproduction then loaded the Classroom Online Games landing page at `/Wordy/`, with title `Classroom Online Games`, 0 Wordy tiles, and no `window.WordyPrototype`.
+
+Fix:
+
+- added `Wordy` to the game-bundle copy command in `.github/workflows/deploy-cloudflare-pages.yml`;
+- added `tests/wordy-production-deploy.test.mjs` so every production workflow that deploys the `classroom-online-games` Pages project must include Wordy in its main game-bundle copy command;
+- RED verification run `36014788447` failed on the missing Wordy deployment entry;
+- GREEN verification run `36014983439` passed after the workflow fix;
+- production fix commit: `9c3677b595dd7d082cfa29b19cad408738f982bc`;
+- both production deploy workflows for that exact SHA completed successfully: `36015084363` and `36015084423`;
+- real Chromium verification run `36015218041` confirmed HTTP 200, title `Wordy Prototype`, **49 tiles**, level `A · First Move`, `window.WordyPrototype === true`, and **0 browser errors**.
+
+The canonical route is therefore currently verified as loading the actual Wordy game:
+
+`https://classroom-online-games.pages.dev/Wordy/`
 
 ## Exact next action
 
