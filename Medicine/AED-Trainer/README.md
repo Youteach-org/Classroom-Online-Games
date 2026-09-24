@@ -50,13 +50,14 @@ Recommended audio format for the first prototype: prerecorded mono WAV files. St
 21. Enclosure: 3D printed shell, laser-cut box or foam/PVC prototype enclosure — 1
 22. Printed labels: POWER, ANALYZE/STATUS, SHOCK, TRAINING ONLY — 1 set
 
-## Optional phase-2 pad placement detection
+## Pad handling — revised 2026-09-24
 
-For detecting whether the pads are placed on the correct zones of a manikin rather than merely plugged into the trainer:
-- 2 Hall-effect sensors in the pad backs plus small magnets/targets in the manikin, or
-- 4 low-voltage conductive contacts in the manikin with matching contacts on the pads.
+Do **not** use Hall sensors or magnets. The trainer will not attempt to verify physical pad position on the manikin.
 
-This remains low-voltage sensing only.
+For the first prototype:
+- use inert reusable training pads;
+- use cable/connector presence only if pad connection detection is desired;
+- physical placement on the manikin is evaluated by the instructor, not by sensors.
 
 ## Proposed ESP32-S3 pin map
 
@@ -362,3 +363,16 @@ Not required for this prototype:
 - high-voltage or therapeutic circuitry
 
 Purchase source rule remains Mercado Libre México only, with current stock verified before buying.
+
+
+## SHOCK button — revised 2026-09-24
+
+Do not use the expensive metal 22 mm illuminated button.
+
+Preferred low-cost choice: plastic arcade-style momentary pushbutton in yellow. It only needs a normally-open momentary contact for the ESP32 GPIO. Lighting is optional and not required for the first prototype.
+
+Current Mercado Libre México references observed 2026-09-24:
+- single illuminated arcade button around MXN 50, Mercado Libre listing search result;
+- pack of 10 yellow arcade buttons with microswitch around MXN 110–125, currently in stock.
+
+The SHOCK button is only a low-voltage digital input and never switches any therapeutic/high-voltage circuit.
