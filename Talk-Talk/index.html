@@ -7,54 +7,91 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <main class="app-shell student-shell" aria-label="Talk Talk">
-    <header class="topbar">
-      <a class="brand-lockup" href="/"><span class="brand-mark">TT</span><span><small>Classroom Online Games</small><strong>Talk Talk</strong></span></a>
-      <nav class="mini-nav" aria-label="Talk Talk navigation">
-        <a class="active" href="./">Student</a>
-        <a href="./creator.html">Creator</a>
-        <a href="./teacher.html">Teacher Monitor</a>
-      </nav>
-      <button id="joinClassAction" class="primary" type="button" hidden>Join Class</button>
+  <main class="tt-shell" aria-label="Talk Talk student">
+    <header class="tt-topbar">
+      <a class="tt-brand" href="/"><span class="tt-brand-mark">T</span><span><strong>TALK-TALK</strong><small>Classroom Online Games</small></span></a>
+      <span class="tt-pill">Practice</span>
     </header>
 
-    <section id="homeView" class="hero-layout">
-      <article class="panel hero-copy">
-        <p class="eyebrow">Speaking & pronunciation</p>
-        <h1>Ready to speak?</h1>
-        <p class="lead">Practice a sound, use it in a real message, then carry it into conversation.</p>
-        <div class="hero-points" aria-label="Talk Talk features">
-          <span>Conversation practice</span><span>Pronunciation evidence</span><span>Teacher review</span>
+    <section id="studentHomeView" class="student-view is-active">
+      <div class="home-hero">
+        <div class="home-characters" aria-label="Students talking">
+          <div class="speech-bubble bubble-left">Hi!</div>
+          <div class="character character-boy">
+            <div class="character-avatar avatar-lg"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div>
+          </div>
+          <div class="chat-dots">•••</div>
+          <div class="character character-girl">
+            <div class="character-avatar avatar-lg girl"><span class="avatar-hair"></span><span class="avatar-face">•ᴗ•</span><span class="avatar-body"></span></div>
+          </div>
+          <div class="speech-bubble bubble-right">Ready?</div>
         </div>
-        <button id="continueAction" class="primary hero-action" type="button">Continue <span aria-hidden="true">→</span></button>
+        <article class="card home-card">
+          <p class="eyebrow">Speaking & pronunciation</p>
+          <h1>Ready to speak?</h1>
+          <p>Practice a sound, use it in a real message, then carry it into conversation.</p>
+          <button id="continueAction" class="btn primary wide" type="button">Continue <span>→</span></button>
+        </article>
+      </div>
+    </section>
+
+    <section id="studentRecordingView" class="student-view" hidden>
+      <div class="student-header-row">
+        <div><strong>TALK-TALK</strong><p>Tell me what happened</p></div>
+        <span class="timer">◷ 03:00</span>
+      </div>
+      <article class="card activity-card">
+        <h2>Tell me what happened</h2>
+        <p>You are the storyteller. Your partner will ask questions.</p>
       </article>
-
-      <aside class="panel speaking-scene" aria-label="Conversation illustration">
-        <div class="speech-bubble left">What happened?</div>
-        <div class="people">
-          <div class="person person-a" aria-label="Student one"><span class="face">A</span><span class="body"></span></div>
-          <div class="sound-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-          <div class="person person-b" aria-label="Student two"><span class="face">B</span><span class="body"></span></div>
+      <div class="speaker-pair">
+        <div class="speaker active-speaker">
+          <div class="character-avatar"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div>
+          <strong>Paul</strong><span>Speaking...</span>
         </div>
-        <div class="speech-bubble right">Tell me more.</div>
-        <div class="scene-caption"><strong>Talk naturally.</strong><span>Talk Talk keeps the evidence so feedback stays connected to what was actually said.</span></div>
-      </aside>
+        <div class="speaker">
+          <div class="character-avatar girl"><span class="avatar-hair"></span><span class="avatar-face">•ᴗ•</span><span class="avatar-body"></span></div>
+          <strong>Paulina</strong><span>Ready</span>
+        </div>
+      </div>
+      <div class="audio-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <button id="recordButton" class="mic-orb" type="button" aria-label="Record">🎙</button>
+      <p id="recordingState" class="recording-state">Tap to check the microphone.</p>
+      <p class="microcopy">Audio stays on this device until the attempt is submitted for analysis.</p>
+      <div class="record-footer"><span><b class="red-dot"></b> Recording...</span><strong>02:14</strong><button id="finishRecordingBtn" class="btn soft" type="button">Finish</button></div>
     </section>
 
-    <section id="lessonView" class="panel lesson-card" hidden><p id="lessonPhase" class="visually-hidden" aria-live="polite">Lesson ready</p></section>
-
-    <section id="speechDock" class="panel speech-dock" hidden>
-      <div class="recording-topline"><span class="status-dot"></span><p id="recordingState" aria-live="polite">Ready</p></div>
-      <div class="wave-preview" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      <button id="recordButton" class="mic-button" type="button" aria-label="Record"><span aria-hidden="true">●</span></button>
-      <p class="microcopy">Tap to check the microphone. Audio stays on this device until an activity submits it for analysis.</p>
+    <section id="studentConversationView" class="student-view" hidden>
+      <div class="student-header-row">
+        <strong>TALK-TALK</strong><span class="timer">◷ 02:30</span>
+      </div>
+      <nav class="tabbar"><button class="active">Conversation</button><button>My Practice</button><button>Tips</button></nav>
+      <div class="conversation-list">
+        <article class="message-row"><div class="character-avatar mini"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div><div><strong>Paul</strong><p>I have went to the park yesterday with my family.</p></div><time>00:12</time></article>
+        <article class="message-row"><div class="character-avatar mini girl"><span class="avatar-hair"></span><span class="avatar-face">•ᴗ•</span><span class="avatar-body"></span></div><div><strong>Paulina</strong><p>Oh, nice! What did you do there?</p></div><time>00:18</time></article>
+        <article class="message-row"><div class="character-avatar mini"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div><div><strong>Paul</strong><p>We saw a bicycle fall and then we helped him.</p></div><time>00:25</time></article>
+        <article class="message-row"><div class="character-avatar mini girl"><span class="avatar-hair"></span><span class="avatar-face">•ᴗ•</span><span class="avatar-body"></span></div><div><strong>Paulina</strong><p>That’s good. Did he get hurt?</p></div><time>00:32</time></article>
+      </div>
+      <div class="audio-player"><button>▶</button><div><span class="audio-progress"></span></div><small>00:00 / 01:24</small><span>1x</span></div>
+      <button id="showPracticeResultBtn" class="btn primary wide" type="button">See speaking review →</button>
     </section>
 
-    <section id="resultsView" class="panel results-card" hidden></section>
-
-    <section id="replayPanel" class="panel" hidden>
-      <div class="section-heading"><div><p class="eyebrow">Conversation Replay</p><h2>Your conversation</h2></div></div>
-      <div id="replayList"></div>
+    <section id="studentPracticeResultView" class="student-view" hidden>
+      <div class="result-celebration">
+        <div class="result-icon">✦</div>
+        <h1>Your speaking review</h1>
+      </div>
+      <article class="feedback-card success">
+        <h3>✓ What worked well</h3>
+        <p>✓ You kept the conversation moving.</p>
+        <p>✓ Your partner understood your ideas.</p>
+        <p>✓ You used good connectors.</p>
+      </article>
+      <article class="feedback-card improve">
+        <h3>⌄ Work on</h3>
+        <ul><li>past participles (e.g. gone, seen)</li><li>final consonants (e.g. /t/, /d/)</li><li>answering with more detail</li></ul>
+      </article>
+      <div class="result-actions"><button id="tryAgainBtn" class="btn outline" type="button">Try again</button><button id="studentFullTranscriptBtn" class="btn primary" type="button">See full transcript →</button></div>
     </section>
   </main>
   <script type="module" src="./app.mjs"></script>
