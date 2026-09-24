@@ -88,3 +88,24 @@ Deployment incident:
 - Both deploy workflows are being corrected to include Talk-Talk in the static artifact.
 
 Future sessions must read the Talk Talk handoff before making changes.
+
+
+## Medicine / AED Educational Trainer — active development (2026-09-24)
+
+Development branch: `medicine-aed`.
+
+Current handoff:
+- `docs/superpowers/handoffs/2026-09-24-medicine-aed-trainer-current.md`
+
+Current paths:
+- `/Medicine/`
+- `/Medicine/AED-Trainer/`
+
+Safety invariant:
+- educational trainer only;
+- no high-voltage shock circuit;
+- no therapeutic output;
+- no real ECG diagnosis;
+- shockable/non-shockable result comes from a training scenario.
+
+Do not merge the Medicine card or AED trainer to `main` until the user explicitly says the project is ready.
