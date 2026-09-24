@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AED Educational Trainer | Classroom Online Games</title>
+  <style>
+    *{box-sizing:border-box}
+    :root{--bg:#09131f;--panel:#111f2e;--yellow:#ffd84a;--red:#e44149;--green:#2bc47d;--blue:#72b7ff;--muted:#a8b7c8}
+    body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at 20% 10%,#24384d 0,#09131f 38%,#050a10 100%);color:#fff;padding:24px}
+    .wrap{max-width:1180px;margin:auto}.back{color:#bcdcff;text-decoration:none}
+    h1{font-size:clamp(32px,5vw,48px);margin:12px 0 4px}.subtitle{color:var(--muted);line-height:1.5;margin:0 0 20px}
+    .warning{background:#fff2b8;color:#4e3b00;border:2px solid #ffd84a;border-radius:14px;padding:12px 14px;font-weight:800;margin:18px 0}
+    .layout{display:grid;grid-template-columns:minmax(330px,1.1fr) minmax(300px,.9fr);gap:22px}
+    .device,.panel{background:rgba(17,31,46,.96);border:1px solid #2b425a;border-radius:24px;box-shadow:0 22px 65px #0007}
+    .device{padding:22px}.panel{padding:20px}
+    .device-shell{background:linear-gradient(145deg,#353b43,#171b20);border-radius:28px;padding:18px;border:3px solid #49515a}
+    .screen{background:#d9f0d1;color:#102316;min-height:130px;border-radius:13px;padding:16px;font-family:ui-monospace,Consolas,monospace;box-shadow:inset 0 0 0 4px #778570}
+    .screen .state{font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.7}.screen .message{font-size:23px;font-weight:800;line-height:1.2;margin-top:8px}
+    .controls{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+    button,select{font:inherit}.btn{border:0;border-radius:16px;padding:15px 14px;font-weight:900;cursor:pointer;box-shadow:0 6px 0 #0005;transition:.12s}.btn:active{transform:translateY(2px);box-shadow:0 3px 0 #0005}.btn:disabled{cursor:not-allowed;opacity:.35}
+    .power{background:#d7f4e5;color:#0b4b2b}.analyze{background:#d7ebff;color:#123c68}.shock{background:var(--yellow);color:#332600;font-size:22px;border:4px solid #fff7c2}.reset{background:#edf0f4;color:#26374a}
+    .pads{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.pad{background:#252d35;border:2px solid #4f5b68;border-radius:16px;padding:14px}.pad label{display:flex;gap:10px;align-items:center;font-weight:800}.pad input{width:24px;height:24px}
+    .statusrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.chip{padding:7px 10px;border-radius:999px;background:#233244;color:#dce9f5;font-size:13px;font-weight:800}.chip.on{background:#154d35;color:#bdf8da}.chip.warn{background:#5b4213;color:#ffe9a5}
+    .section-title{font-size:17px;margin:0 0 12px;color:#dcecff}.field{margin-bottom:14px}.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:800}.field select{width:100%;padding:11px;border-radius:12px;background:#0d1722;color:#fff;border:1px solid #36516d}
+    .audio-line{display:flex;align-items:center;gap:10px;margin:10px 0 18px}.audio-line input{width:22px;height:22px}
+    .timeline{display:grid;gap:8px}.step{display:flex;gap:10px;align-items:flex-start;background:#0d1722;border:1px solid #263d54;border-radius:12px;padding:10px}.num{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#1c3147;font-weight:900;flex:0 0 auto}.step.active{border-color:var(--yellow);background:#251f0a}.step.done{border-color:#256647;background:#0d2a1d}
+    .log{margin-top:15px;background:#08111a;border-radius:12px;padding:12px;min-height:106px;max-height:180px;overflow:auto;font:13px/1.4 ui-monospace,Consolas,monospace;color:#cce1f2}
+    .tiny{font-size:12px;color:#91a1b2;line-height:1.45;margin-top:12px}
+    @media(max-width:850px){.layout{grid-template-columns:1fr}.controls{grid-template-columns:1fr}.pads{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <a class="back" href="/Medicine/">← Medicine</a>
+    <h1>AED Educational Trainer</h1>
+    <p class="subtitle">Web prototype for the ESP32 classroom trainer. The physical unit will reproduce the same state machine with prerecorded voice prompts.</p>
+    <div class="warning">SIMULATION ONLY — no electrical shock, no ECG acquisition and no automatic medical diagnosis.</div>
+    <div class="layout">
+      <section class="device">
+        <div class="device-shell">
+          <div class="screen" aria-live="polite">
+            <div class="state" id="stateLabel">OFF</div>
+            <div class="message" id="screenMessage">Press POWER to begin.</div>
+          </div>
+          <div class="statusrow">
+            <span class="chip" id="powerChip">Power off</span>
+            <span class="chip" id="padsChip">Pads not ready</span>
+            <span class="chip" id="audioChip">Audio on</span>
+          </div>
+          <div class="pads">
+            <div class="pad"><label><input id="padA" type="checkbox" disabled> Pad A connected</label></div>
+            <div class="pad"><label><input id="padB" type="checkbox" disabled> Pad B connected</label></div>
+          </div>
+          <div class="controls">
+            <button class="btn power" id="powerBtn">POWER</button>
+            <button class="btn analyze" id="analyzeBtn" disabled>ANALYZE</button>
+            <button class="btn shock" id="shockBtn" disabled>⚡ SHOCK</button>
+            <button class="btn reset" id="resetBtn">RESET</button>
+          </div>
+        </div>
+        <div class="log" id="log"></div>
+        <p class="tiny">The shock button only advances the simulation state. It never controls a high-voltage circuit.</p>
+      </section>
+
+      <aside class="panel">
+        <h2 class="section-title">Instructor controls</h2>
+        <div class="field">
+          <label for="scenario">Training scenario</label>
+          <select id="scenario">
+            <option value="shockable">Shockable rhythm — trainer advises shock</option>
+            <option value="nonshockable">Non-shockable rhythm — trainer advises CPR</option>
+          </select>
+        </div>
+        <label class="audio-line"><input type="checkbox" id="audioEnabled" checked> Browser voice prompts</label>
+
+        <h2 class="section-title">Training sequence</h2>
+        <div class="timeline" id="timeline">
+          <div class="step active" data-step="1"><span class="num">1</span><div><strong>Power on</strong><br><span>Start the trainer.</span></div></div>
+          <div class="step" data-step="2"><span class="num">2</span><div><strong>Attach pads</strong><br><span>Connect both simulated pads.</span></div></div>
+          <div class="step" data-step="3"><span class="num">3</span><div><strong>Analyze</strong><br><span>Trainer evaluates the selected scenario.</span></div></div>
+          <div class="step" data-step="4"><span class="num">4</span><div><strong>Stand clear / simulated shock</strong><br><span>Only when the scenario is shockable.</span></div></div>
+          <div class="step" data-step="5"><span class="num">5</span><div><strong>CPR cycle</strong><br><span>Resume CPR and prepare for reassessment.</span></div></div>
+        </div>
+        <p class="tiny">Voice wording is provisional for development. Before classroom use, the final audio script should be reviewed against the first-aid/AED protocol used in the course.</p>
+      </aside>
+    </div>
+  </main>
+
+<script>
+(function(){
+  const stateLabel=document.getElementById('stateLabel');
+  const screenMessage=document.getElementById('screenMessage');
+  const powerBtn=document.getElementById('powerBtn');
+  const analyzeBtn=document.getElementById('analyzeBtn');
+  const shockBtn=document.getElementById('shockBtn');
+  const resetBtn=document.getElementById('resetBtn');
+  const padA=document.getElementById('padA');
+  const padB=document.getElementById('padB');
+  const scenario=document.getElementById('scenario');
+  const audioEnabled=document.getElementById('audioEnabled');
+  const powerChip=document.getElementById('powerChip');
+  const padsChip=document.getElementById('padsChip');
+  const audioChip=document.getElementById('audioChip');
+  const log=document.getElementById('log');
+  let state='OFF';
+
+  function stamp(text){
+    const line=document.createElement('div');
+    line.textContent=new Date().toLocaleTimeString()+'  '+text;
+    log.prepend(line);
+  }
+  function speak(text){
+    if(!audioEnabled.checked || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='es-MX'; u.rate=0.95; u.pitch=1;
+    window.speechSynthesis.speak(u);
+  }
+  function setTimeline(step){
+    document.querySelectorAll('.step').forEach(el=>{
+      const n=Number(el.dataset.step);
+      el.classList.toggle('active',n===step);
+      el.classList.toggle('done',n<step);
+    });
+  }
+  function setState(next,message,voice,step){
+    state=next; stateLabel.textContent=next; screenMessage.textContent=message;
+    if(step) setTimeline(step);
+    stamp(next+': '+message);
+    if(voice) speak(voice);
+    render();
+  }
+  function padsReady(){return padA.checked && padB.checked}
+  function render(){
+    const on=state!=='OFF';
+    padA.disabled=!on; padB.disabled=!on;
+    analyzeBtn.disabled=!(on && padsReady() && ['APPLY_PADS','CPR'].includes(state));
+    shockBtn.disabled=state!=='SHOCK_ADVISED';
+    powerBtn.disabled=on;
+    powerChip.textContent=on?'Power on':'Power off'; powerChip.classList.toggle('on',on);
+    padsChip.textContent=padsReady()?'Pads connected':'Pads not ready'; padsChip.classList.toggle('on',padsReady());
+    audioChip.textContent=audioEnabled.checked?'Audio on':'Audio off'; audioChip.classList.toggle('warn',!audioEnabled.checked);
+  }
+  function onPadChange(){
+    if(state==='OFF') return;
+    if(padsReady()){
+      setState('APPLY_PADS','Pads detected. Press ANALYZE.','Parches conectados. No toque al paciente. Presione analizar.',3);
+    } else {
+      setState('APPLY_PADS','Connect both simulated pads.','Conecte ambos parches de entrenamiento al tórax.',2);
+    }
+  }
+
+  powerBtn.addEventListener('click',()=>{
+    setState('APPLY_PADS','Connect both simulated pads.','Unidad de entrenamiento encendida. Solicite ayuda y conecte ambos parches de entrenamiento.',2);
+  });
+  padA.addEventListener('change',onPadChange); padB.addEventListener('change',onPadChange);
+
+  analyzeBtn.addEventListener('click',()=>{
+    setState('ANALYZING','Analyzing selected training scenario…','Analizando. No toque al paciente.',3);
+    analyzeBtn.disabled=true;
+    setTimeout(()=>{
+      if(scenario.value==='shockable'){
+        setState('SHOCK_ADVISED','SHOCK ADVISED. Stand clear, then press SHOCK.','Descarga simulada recomendada. Aléjese del paciente. Presione el botón de descarga.',4);
+      }else{
+        setState('CPR','NO SHOCK ADVISED. Begin CPR.','No se recomienda descarga. Inicie reanimación cardiopulmonar.',5);
+      }
+    },1600);
+  });
+
+  shockBtn.addEventListener('click',()=>{
+    setState('SIMULATED_SHOCK','Simulated shock delivered. Resume CPR.','Descarga simulada aplicada. Reanude inmediatamente la reanimación cardiopulmonar.',5);
+    shockBtn.disabled=true;
+    setTimeout(()=>setState('CPR','CPR cycle active. Press ANALYZE when the instructor calls for reassessment.','Continúe la reanimación cardiopulmonar hasta la siguiente indicación.',5),900);
+  });
+
+  resetBtn.addEventListener('click',()=>{
+    if('speechSynthesis' in window) window.speechSynthesis.cancel();
+    padA.checked=false; padB.checked=false; log.innerHTML='';
+    setState('OFF','Press POWER to begin.',null,1);
+  });
+  audioEnabled.addEventListener('change',render);
+  scenario.addEventListener('change',()=>stamp('Instructor scenario set to '+scenario.options[scenario.selectedIndex].text));
+  render();
+  stamp('Trainer ready. Simulation only.');
+})();
+</script>
+</body>
+</html>
