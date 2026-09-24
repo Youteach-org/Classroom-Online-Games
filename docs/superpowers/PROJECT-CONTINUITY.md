@@ -52,3 +52,14 @@ Verified cross-repository behavior:
 - Cross-repository browser smoke was driven from YouTeach run `35828301497` and passed through JOIN GAME, identity, heartbeat, result receipt/duplicate retry, Teacher Results UI, and END ACTIVITY.
 
 Use the same short preview branch name in YouTeach and COG for cross-repository preview verification. Long branch names can be truncated/disambiguated differently by Cloudflare Pages and break derived preview-origin matching.
+
+
+## Production merge — 2026-09-23
+
+Live YouTeach bridge integration is now merged to `main`.
+
+- Production merge commit: `7ee3af882ccebbec0514d2cc29ed58b224c9ae46`
+- Production workflows: `35942782489` and `35942782493` — GREEN
+- Production deploys: GREEN
+
+Matching YouTeach production merge: `f11d83cc7d2a49bdbfee576c8b202c5f669672b2`.

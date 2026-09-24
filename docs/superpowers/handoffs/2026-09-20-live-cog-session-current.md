@@ -69,7 +69,7 @@ Long branch names can be truncated/disambiguated differently by Cloudflare and m
 
 - Task 15 — contract verification: COMPLETE.
 - Task 16 — browser E2E: COMPLETE.
-- Task 17 — final docs / PR / merge / production deploy verification: READY.
+- Task 17 — final docs / PR / merge / production deploy verification: COMPLETE.
 
 ## Next action
 
@@ -82,3 +82,11 @@ Create PRs from `live-cog-20260922` to `main` in both repositories. Confirm chec
 - Preserve standalone/free modes in each game.
 - Do not modify native game behavior unnecessarily to add bridge integration.
 - Keep YouTeach and COG as separate repositories with an explicit signed contract.
+
+
+## Production completion
+
+- PR #47 merged to `main` as `7ee3af882ccebbec0514d2cc29ed58b224c9ae46`.
+- Production workflows `35942782489` and `35942782493`: GREEN.
+- Matching YouTeach PR #15 merged as `f11d83cc7d2a49bdbfee576c8b202c5f669672b2`.
+- YouTeach production workflow `35942862101`: GREEN.
