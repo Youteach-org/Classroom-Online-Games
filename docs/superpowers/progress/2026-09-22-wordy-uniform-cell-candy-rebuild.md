@@ -60,3 +60,15 @@ Production integration (2026-09-24): complete.
 - Production route: `https://classroom-online-games.pages.dev/Wordy/`.
 
 Publication status: complete. Further Wordy work is playtest-driven and must continue from the uniform-cell architecture.
+
+Production load regression (2026-09-24): fixed.
+- User reported the canonical Wordy route did not load.
+- Real Chromium reproduction run `36014481694` showed `/Wordy/` returned the Classroom Online Games landing page: title `Classroom Online Games`, 0 Wordy tiles, no WordyPrototype.
+- Root cause: duplicate production deploy workflows target the same Cloudflare Pages project/branch, but `.github/workflows/deploy-cloudflare-pages.yml` omitted Wordy from its `dist/`; on main `8ee66177...` that workflow finished after the workflow that included Wordy, overwriting production with a build missing Wordy.
+- Added regression test `tests/wordy-production-deploy.test.mjs`.
+- RED run `36014788447`: failed exactly because deploy-cloudflare-pages.yml omitted Wordy.
+- Minimal fix: add Wordy to that workflow's game-bundle copy command.
+- GREEN run `36014983439`: regression test passed.
+- Production fix commit `9c3677b595dd7d082cfa29b19cad408738f982bc`.
+- Both production deploys on that SHA succeeded: `36015084363`, `36015084423`.
+- Real browser verification run `36015218041`: HTTP 200, `Wordy Prototype`, 49 tiles, level A · First Move, WordyPrototype initialized, 0 errors.
