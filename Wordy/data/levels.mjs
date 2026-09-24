@@ -1,10 +1,10 @@
 const COMMON_ROWS={
-  ONE:['COFFEE','NOTES','PROMISE','SCHOOL','A'],
-  TWO:['BROKE','CHOSEN','RAIN','FOOD','HABIT','A'],
-  THREE:['WROTE','SEEN','COLD','TIME','TRUTH','OF','A'],
-  FOUR:['DRANK','GONE','EXERCISE','DIFFERENCE','A'],
-  FIVE:['GAVE','KNOWN','WORK','IDEA','HOMEWORK','A'],
-  SIX:['DROVE','FALLEN','COURSE','ATTENTION']
+  ONE:['COFFEE','NOTES','PROMISE','SCHOOL','COLD','TIME','TRUTH'],
+  TWO:['BROKE','CHOSEN','RAIN','FOOD','HABIT','IDEA','WORK'],
+  THREE:['WROTE','SEEN','COURSE','MONEY','BEGUN','KNOWN','HOME'],
+  FOUR:['DRANK','GONE','EXERCISE','DIFFERENCE','GAVE','FALLEN','FUN'],
+  FIVE:['DROVE','PAY','ATTENTION','FRONT','WAY','FACT','MATTER'],
+  SIX:['HEAVY','BREAK','DECISION','TAKE','WRITE','TURN','GIVE']
 };
 
 const LOOK_ROW=['LOOK','WENT','AFTER','MONEY','BEGUN','OF','A'];
@@ -32,7 +32,7 @@ export const LEVELS=[
     boardRows:[
       LOOK_ROW,
       COMMON_ROWS.ONE,
-      ['MAKE','GONE','SENSE','RAIN','FOOD','OF','A'],
+      ['COLD','TIME','MAKE','GONE','SENSE','FOOD','HABIT'],
       COMMON_ROWS.THREE,COMMON_ROWS.FOUR,COMMON_ROWS.FIVE,COMMON_ROWS.SIX
     ],
     fixtureMoveWords:[['WENT','AFTER'],['GONE','SENSE']],fixtureMoveRows:[0,2]
@@ -42,11 +42,11 @@ export const LEVELS=[
     goal:{type:'cascade',target:1},
     instruction:'Use POP so falling words create another relationship.',
     boardRows:[
-      ['TAKE','COFFEE','PROMISE','TIME','OF','A'],
-      ['LOOK','AFTER','PROMISE','SCHOOL','OF','A'],
-      ['I','A','COFFEE','PROMISE','SCHOOL','A'],
-      ['BREAK','COFFEE','PROMISE','TIME','OF','A'],
-      COMMON_ROWS.THREE,COMMON_ROWS.FIVE,COMMON_ROWS.SIX
+      ['TAKE','COURSE','MONEY','BEGUN','TRUTH','WORK','IDEA'],
+      ['LOOK','AFTER','PROMISE','SCHOOL','COLD','TIME','FACT'],
+      ['A','NOTES','RAIN','FOOD','HABIT','HOME','FUN'],
+      ['BREAK','COFFEE','SEEN','KNOWN','GAVE','FALLEN','END'],
+      COMMON_ROWS.FOUR,COMMON_ROWS.FIVE,COMMON_ROWS.SIX
     ],
     fixtureMoveWords:[],fixtureMoveRows:[]
   },
@@ -67,9 +67,9 @@ export const LEVELS=[
     boardRows:[
       COMMON_ROWS.ONE,
       COMMON_ROWS.TWO,
-      ['A','PROMISE','TAKE','SCHOOL','FUN','OF'],
-      ['MAKE','A','DECISION','TIME','TRUTH','OF','I'],
-      ['I','BREAK','COFFEE','NOTES','MONEY','OF','A'],
+      ['TAKE','PROMISE','SCHOOL','FUN','OF','TIME','TRUTH'],
+      ['MAKE','A','DECISION','COLD','WORK','IDEA','HOME'],
+      ['I','BREAK','COFFEE','NOTES','MONEY','COURSE','HABIT'],
       COMMON_ROWS.FIVE,
       COMMON_ROWS.SIX
     ],
@@ -80,17 +80,17 @@ export const LEVELS=[
     goal:{type:'score',target:1800},
     instruction:'Use everything you have learned to build stronger activations.',
     boardRows:[
-      LOOK_ROW,
-      COMMON_ROWS.ONE,
-      MAKE_ROW,
-      ['TAKE','WENT','NOTES','MONEY','BEGUN','OF','A'],
-      ['PAY','WENT','ATTENTION','OF','A','TO','I'],
-      COMMON_ROWS.FIVE,
-      ['GIVE','WENT','UP','MONEY','BEGUN','OF','A','TO']
+      ['LOOK','WENT','AFTER','MONEY','BEGUN','OF','A'],
+      ['COLD','TIME','TRUTH','WORK','IDEA','HOME','COURSE'],
+      ['FOOD','HABIT','MAKE','GONE','SENSE','BREAK','COFFEE'],
+      ['BROKE','CHOSEN','SEEN','FALLEN','KNOWN','FUN','SCHOOL'],
+      ['PROMISE','MATTER','FACT','FRONT','TAKE','WENT','NOTES'],
+      ['WRITE','TURN','PICK','FIND','STAND','WAKE','SIT'],
+      ['PAY','WENT','ATTENTION','GIVE','WENT','UP','END']
     ],
     generated:true,
-    fixtureMoveWords:[['WENT','AFTER'],['WENT','SENSE'],['WENT','NOTES'],['WENT','ATTENTION'],['WENT','UP']],
-    fixtureMoveRows:[0,2,3,4,6]
+    fixtureMoveWords:[['WENT','AFTER'],['GONE','SENSE'],['WENT','NOTES'],['WENT','ATTENTION'],['WENT','UP']],
+    fixtureMoveRows:[0,2,4,6,6]
   }
 ];
 

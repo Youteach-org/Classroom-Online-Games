@@ -1,14 +1,14 @@
 import { areSwapNeighbors, cloneBoard, createBoard } from './board.mjs';
-import { spanForWord, normalizeWord } from './tile-size.mjs';
+import { normalizeToken } from './relationship-bank.mjs';
 import { findMatches, findCrossings } from './matcher.mjs';
 import { resolvePlayerActivation, CascadeLimitError } from './resolution.mjs';
 import { findImmediateScoringMoves, createControlledBoard, recoverDeadBoard } from './generator.mjs';
 import { captureMissedOpportunity, buildRoundReview } from './review.mjs';
 import { createTelemetryStore } from './telemetry.mjs';
 import { buildResolutionEvents } from './resolution-events.mjs';
+import { buildRelationshipBag, chooseRefillWord, DEFAULT_REFILL_PROFILE } from './refill.mjs';
 
 const DISCOVERED_KEY='wordy.prototype.discovered.v1';
-const FALLBACK_BY_SPAN={1:'OF',2:'LOOK',3:'COFFEE',4:'ATTENTION'};
 
 function cloneMatch(match){
   return {...match,tileIds:[...(match.tileIds??[])],tokens:[...(match.tokens??[])]};
@@ -47,6 +47,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
   let currentLevel=null;
   let state=null;
   let roundNewIds=new Set();
+  const refillBag=buildRelationshipBag(bank);
 
   function snapshot(){
     return {
@@ -63,7 +64,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     };
   }
   function emit(){const view=snapshot();for(const listener of listeners)listener(view);}
-  function authoredBoard(level){return createBoard(level.boardRows,{columns:12});}
+  function authoredBoard(level){return createBoard(level.boardRows);}
   function fallbackBoard(){
     for(const level of [currentLevel,...levels]){
       if(!level)continue;
@@ -76,7 +77,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
   function initialBoard(level){
     const authored=authoredBoard(level);
     if(!level.generated)return authored;
-    return createControlledBoard({bank,rows:authored.rows,columns:authored.columns,rng,minScoringMoves:4,minProductiveRows:3,fallbackBoard:authored});
+    return createControlledBoard({bank,rows:authored.rows,columns:authored.columns,rng,minScoringMoves:4,minProductiveRows:3,minProductiveColumns:3,allowStartingMatches:false,fallbackBoard:authored});
   }
   function refreshReady(){state.readyMatches=findMatches(state.board,bank);}
   function logReady(){
@@ -146,31 +147,25 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     return {status:'accepted',...resultBase};
   }
 
-  function contextualWords(span){
-    const present=new Set(state.board.tiles.map(tile=>tile.word));
-    const connected=[],fallback=[];
-    for(const relation of bank.byId.values())for(const token of relation.tokens){
-      if(spanForWord(token)!==span)continue;
-      fallback.push(token);
-      if(relation.tokens.some(word=>present.has(word)))connected.push(token);
-    }
-    return connected.length?connected:fallback;
-  }
-  function chooseRefillWord(span){
+  function refillTile({row,column,board,cascadeDepth}){
+    let word='';
     if(typeof refillWord==='function'){
-      const custom=normalizeWord(refillWord({span,state:snapshot(),bank,rng}));
-      if(custom)return custom;
+      word=normalizeToken(refillWord({row,column,board,state:snapshot(),bank,rng,cascadeDepth}));
     }
-    const words=contextualWords(span);
-    return words.length?words[Math.floor(rng()*words.length)]:FALLBACK_BY_SPAN[span];
+    if(!word){
+      word=chooseRefillWord({
+        row,column,board,bank,bag:refillBag,rng,
+        profile:DEFAULT_REFILL_PROFILE
+      });
+    }
+    return {id:'refill-'+(++refillCounter),word};
   }
-  function refillTile({span,row,startColumn}){return {id:'refill-'+(++refillCounter),word:chooseRefillWord(span),row,startColumn};}
   function recoverIfDead(){
-    const recovered=recoverDeadBoard({board:state.board,bank,rng,fallbackBoard:fallbackBoard(),minScoringMoves:4,minProductiveRows:3});
+    const recovered=recoverDeadBoard({board:state.board,bank,rng,fallbackBoard:fallbackBoard(),minScoringMoves:4,minProductiveRows:3,minProductiveColumns:3});
     if(recovered.reset){state.board=recovered.board;refreshReady();telemetry.record('dead-board-reset',{levelId:state.levelId});logReady();}
   }
   function safeCascadeRecovery(){
-    state.board=createControlledBoard({bank,rows:state.board.rows,columns:state.board.columns,rng,minScoringMoves:4,minProductiveRows:3,fallbackBoard:fallbackBoard()});
+    state.board=createControlledBoard({bank,rows:state.board.rows,columns:state.board.columns,rng,minScoringMoves:4,minProductiveRows:3,minProductiveColumns:3,allowStartingMatches:false,fallbackBoard:fallbackBoard()});
     refreshReady();telemetry.record('dead-board-reset',{levelId:state.levelId,reason:'cascade-limit'});logReady();
   }
   function applyResolutionStats(result){

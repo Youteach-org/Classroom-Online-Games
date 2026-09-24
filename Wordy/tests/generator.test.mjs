@@ -1,0 +1,104 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createBoard, tileById } from '../engine/board.mjs';
+import { createRelationshipBank } from '../engine/relationship-bank.mjs';
+import { findMatches } from '../engine/matcher.mjs';
+import {
+  enumerateSwaps,
+  findImmediateScoringMoves,
+  hasViablePlay,
+  createControlledBoard,
+  recoverDeadBoard
+} from '../engine/generator.mjs';
+import { seeded } from './helpers.mjs';
+
+const bank=createRelationshipBank([
+  {id:'look-after',category:'phrasal-verb',tokens:['LOOK','AFTER'],baseScore:120,difficulty:1},
+  {id:'make-sense',category:'collocation',tokens:['MAKE','SENSE'],baseScore:120,difficulty:1},
+  {id:'take-notes',category:'collocation',tokens:['TAKE','NOTES'],baseScore:120,difficulty:1},
+  {id:'pay-attention',category:'collocation',tokens:['PAY','ATTENTION'],baseScore:120,difficulty:1},
+  {id:'give-up',category:'phrasal-verb',tokens:['GIVE','UP'],baseScore:120,difficulty:1},
+  {id:'heavy-rain',category:'collocation',tokens:['HEAVY','RAIN'],baseScore:120,difficulty:1}
+]);
+
+const fallbackRows=[
+  ['LOOK','WENT','AFTER','MONEY','BEGUN','OF','A'],
+  ['COLD','TIME','TRUTH','WORK','IDEA','HOME','COURSE'],
+  ['FOOD','HABIT','MAKE','GONE','SENSE','BREAK','COFFEE'],
+  ['BROKE','CHOSEN','SEEN','FALLEN','KNOWN','FUN','SCHOOL'],
+  ['PROMISE','MATTER','FACT','FRONT','TAKE','WENT','NOTES'],
+  ['WRITE','TURN','PICK','FIND','STAND','WAKE','SIT'],
+  ['PAY','WENT','ATTENTION','GIVE','DOWN','OTHER','END']
+];
+const fallbackBoard=createBoard(fallbackRows);
+const deadBoard=createBoard(Array.from({length:7},(_,row)=>
+  Array.from({length:7},(_,column)=>`DEAD${row}${column}`)
+));
+
+test('enumerateSwaps exposes every right/down orthogonal pair exactly once',()=>{
+  const board=createBoard([
+    ['A','B','C'],
+    ['D','E','F']
+  ]);
+  const swaps=enumerateSwaps(board);
+  assert.equal(swaps.length,7);
+  const keys=new Set(swaps.map(s=>[s.fromTileId,s.toTileId].sort().join('|')));
+  assert.equal(keys.size,7);
+});
+
+test('a swap that only preserves an already-ready relation is not productive',()=>{
+  const readyBank=createRelationshipBank([
+    {id:'look-after',category:'phrasal-verb',tokens:['LOOK','AFTER'],baseScore:100,difficulty:1}
+  ]);
+  const board=createBoard([['LOOK','AFTER','X','Y']]);
+  const x=board.tiles.find(t=>t.word==='X');
+  const y=board.tiles.find(t=>t.word==='Y');
+  const moves=findImmediateScoringMoves(board,readyBank);
+  assert.equal(moves.some(move=>
+    new Set([move.swap.fromTileId,move.swap.toTileId]).has(x.id)&&
+    new Set([move.swap.fromTileId,move.swap.toTileId]).has(y.id)
+  ),false);
+});
+
+test('controlled board is full, starts match-free, and distributes productive swaps',()=>{
+  const board=createControlledBoard({
+    bank,rows:7,columns:7,rng:seeded(42),
+    minScoringMoves:4,minProductiveRows:3,minProductiveColumns:3,
+    allowStartingMatches:false
+  });
+  assert.equal(board.rows,7);
+  assert.equal(board.columns,7);
+  assert.equal(board.tiles.length,49);
+  assert.equal(findMatches(board,bank).length,0);
+  const moves=findImmediateScoringMoves(board,bank);
+  assert.ok(moves.length>=4,`expected >=4 productive swaps, got ${moves.length}`);
+  const rows=new Set();
+  const columns=new Set();
+  for(const move of moves){
+    for(const id of [move.swap.fromTileId,move.swap.toTileId]){
+      const tile=tileById(board,id);
+      rows.add(tile.row);
+      columns.add(tile.column);
+    }
+  }
+  assert.ok(rows.size>=3,`expected >=3 productive rows, got ${rows.size}`);
+  assert.ok(columns.size>=3,`expected >=3 productive columns, got ${columns.size}`);
+});
+
+test('dead board recovery returns a productive 7x7 replacement',()=>{
+  const result=recoverDeadBoard({
+    board:deadBoard,bank,rng:seeded(4),
+    minScoringMoves:4,minProductiveRows:3,minProductiveColumns:3,
+    fallbackBoard
+  });
+  assert.equal(result.reset,true);
+  assert.equal(result.board.rows,7);
+  assert.equal(result.board.columns,7);
+  assert.equal(hasViablePlay(result.board,bank),true);
+});
+
+test('live board recovery leaves the board object unchanged',()=>{
+  const result=recoverDeadBoard({board:fallbackBoard,bank,rng:seeded(4),fallbackBoard});
+  assert.equal(result.reset,false);
+  assert.equal(result.board,fallbackBoard);
+});
