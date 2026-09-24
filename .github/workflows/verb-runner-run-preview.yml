@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'Verb-Runner/scripts/rig-alex-run-v2.py'
+      - 'Verb-Runner/scripts/rig-alex-run-v3.py'
       - 'Verb-Runner/run-viewer.html'
       - 'Verb-Runner/scripts/refine-alex.py'
       - '.github/workflows/verb-runner-run-preview.yml'
@@ -41,7 +41,7 @@ jobs:
 
       - name: Rig ALEX and build Run cycle
         run: |
-          blender --background --python Verb-Runner/scripts/rig-alex-run-v2.py -- \
+          blender --background --python Verb-Runner/scripts/rig-alex-run-v3.py -- \
             run-dist/alex-static.glb run-dist/alex-run.glb
           test -s run-dist/alex-run.glb
 
@@ -57,7 +57,7 @@ jobs:
       - name: Upload run review frames
         uses: actions/upload-artifact@v4
         with:
-          name: alex-run-review-v2
+          name: alex-run-review-v3
           path: run-review/*.png
           retention-days: 7
 
