@@ -1,0 +1,42 @@
+name: Deploy Talk Talk standalone preview
+
+on:
+  push:
+    branches:
+      - talk-talk-standalone-preview
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify standalone preview
+        run: |
+          node --check Talk-Talk/standalone-auth.mjs
+          node --check Talk-Talk/login.mjs
+          node --check Talk-Talk/app.mjs
+          node --check Talk-Talk/teacher-app.mjs
+          node --test Talk-Talk/tests/standalone-auth.test.mjs
+          node --test Talk-Talk/tests/visual-contract.test.mjs
+          node --test Talk-Talk/tests/individual-shell.test.mjs
+          node --test Talk-Talk/tests/teacher-monitor.test.mjs
+      - name: Build preview
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          cp -R Talk-Talk dist/
+          cat > dist/index.html <<'HTML'
+          <!doctype html>
+          <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+          <meta http-equiv="refresh" content="0; url=./Talk-Talk/login.html"><title>Talk Talk Preview</title></head>
+          <body><p><a href="./Talk-Talk/login.html">Open Talk Talk</a></p></body></html>
+          HTML
+      - name: Deploy branch preview to Cloudflare Pages
+        run: npx wrangler@4 pages deploy dist --project-name=classroom-online-games --branch="${GITHUB_REF_NAME}"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
