@@ -312,3 +312,38 @@ Integration rule:
 - Do not claim the entire Talk Talk suite is green while these baseline failures remain.
 - The visual redesign itself is verified by its dedicated contract and shell/monitor tests.
 - Before production merge, either repair the three pre-existing integration tests or explicitly document an approved exception.
+
+
+## Standalone testing mode — 2026-09-24
+
+Purpose:
+- Begin Talk Talk UI/flow testing without any YouTeach dependency.
+- This is a temporary preview-only authentication layer, not production security.
+
+Preview branch:
+- talk-talk-standalone-preview
+
+Temporary test credentials:
+- Student: student / talktalk
+- Teacher: teacher / talktalk
+
+Standalone files:
+- Talk-Talk/login.html
+- Talk-Talk/login.mjs
+- Talk-Talk/standalone-auth.mjs
+- Talk-Talk/tests/standalone-auth.test.mjs
+
+Behavior:
+- Student credential routes to Talk-Talk/index.html.
+- Teacher credential routes to Talk-Talk/teacher.html.
+- Both views require the matching temporary standalone role.
+- Log out clears the temporary browser session and returns to login.
+- No YouTeach launch, team-context bridge, heartbeat or result-submit path is required for these preview UI tests.
+
+Security note:
+- Credentials are intentionally simple and client-side for temporary testing only.
+- Do not reuse them for production or personal accounts.
+
+Preview deployment:
+- .github/workflows/talk-talk-standalone-preview.yml
+- Deploys only this branch to a Cloudflare Pages preview, leaving main/production unchanged.
