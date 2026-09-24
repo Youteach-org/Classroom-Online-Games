@@ -204,3 +204,36 @@ A successful handoff should record:
 - workflow run IDs
 - direct route verification
 - known remaining issues
+
+
+## Visual target locked — 2026-09-23
+
+The approved eight-screen mockup is the mandatory visual target for Talk Talk.
+
+Do not reinterpret or simplify it.
+
+Student views required:
+1. Inicio (student)
+2. Grabación (student)
+3. Conversación (student)
+4. Resultado de práctica (student)
+
+Teacher views required:
+5. Teacher Monitor
+6. Detalle del equipo
+7. Evaluación oral
+8. Evidencia y transcripción
+
+Visual decisions:
+- KEEP the green visual identity from the approved mockup.
+- Green is the primary interaction/status color.
+- White cards on warm/light backgrounds.
+- Rounded cards and controls.
+- Include visible illustrated student characters/avatars.
+- Include speech bubbles, audio waveforms, participant avatars, status chips, transcript bubbles, rubric bars, and issue tags.
+- The characters are part of the UI target, not optional decoration.
+- Mobile/responsive layout remains required.
+
+Verification:
+- Talk-Talk/tests/visual-contract.test.mjs defines the static visual contract.
+- The feature must not be reported complete until the eight required view IDs and the green character system pass that contract.
