@@ -1,0 +1,39 @@
+name: Import Talk Talk canonical reference
+
+on:
+  push:
+    branches:
+      - talk-talk-standalone-preview
+    paths:
+      - Talk-Talk/reference-source.txt
+
+permissions:
+  contents: write
+
+jobs:
+  import-reference:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: talk-talk-standalone-preview
+      - name: Download and validate canonical reference
+        run: |
+          set -euo pipefail
+          url="$(cat Talk-Talk/reference-source.txt)"
+          mkdir -p Talk-Talk/reference
+          curl -fL "$url" -o Talk-Talk/reference/talk-talk-approved-8-screen-mockup.webp
+          test "$(stat -c '%s' Talk-Talk/reference/talk-talk-approved-8-screen-mockup.webp)" -eq 110770
+          printf '%s  %s\n' "13861b09c2eb65ad144c3d4b3f2711acb973184ff69aab8fd242fb2b23545631" "Talk-Talk/reference/talk-talk-approved-8-screen-mockup.webp" | sha256sum -c -
+          file Talk-Talk/reference/talk-talk-approved-8-screen-mockup.webp | grep -qi webp
+      - name: Commit canonical reference
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Talk-Talk/reference/talk-talk-approved-8-screen-mockup.webp
+          if git diff --cached --quiet; then
+            echo "Reference already current."
+            exit 0
+          fi
+          git commit -m "assets: import canonical Talk Talk 8-screen reference"
+          git push origin HEAD:talk-talk-standalone-preview
