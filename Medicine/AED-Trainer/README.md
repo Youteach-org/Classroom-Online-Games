@@ -335,3 +335,30 @@ After bench validation:
 - magnets/targets and robust pad connectors.
 
 When ECG electrodes are connected to a person, run from battery/power bank and use BLE to Teacher Monitor; do not keep a mains-powered PC USB connection attached.
+
+
+## Minimum purchase list — rapid prototype
+
+Confirmed simplification for the first near-final build:
+- ESP32-S3 DevKitC-1 N16R8 with BLE
+- confirmed 0.96-inch SSD1306 OLED
+- MAX98357A I2S audio amplifier
+- reuse existing radio speaker if compatible
+- AD8232 ECG kit with 3-lead cable/electrodes
+- yellow momentary SHOCK pushbutton
+- simple POWER switch/button
+- battery/power-bank supply
+- two Hall A3144 sensors plus two small neodymium magnets for training-pad placement detection
+- two inert reusable training pads made from EVA/foam
+- low-voltage pad connectors/cable
+- enclosure
+- perfboard, headers/connectors, wire, heat-shrink, screws/standoffs
+
+Not required for this prototype:
+- touch display
+- large TFT
+- separate microSD module; initial voice prompts can be stored in ESP32-S3 flash
+- new speaker if the existing radio speaker is compatible
+- high-voltage or therapeutic circuitry
+
+Purchase source rule remains Mercado Libre México only, with current stock verified before buying.
