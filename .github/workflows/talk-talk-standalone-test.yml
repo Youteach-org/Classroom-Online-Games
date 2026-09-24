@@ -9,9 +9,20 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - run: node --test Talk-Talk/tests/standalone-auth.test.mjs
-
+      - name: Check standalone modules
+        run: |
+          node --check Talk-Talk/standalone-auth.mjs
+          node --check Talk-Talk/login.mjs
+          node --check Talk-Talk/app.mjs
+          node --check Talk-Talk/teacher-app.mjs
+      - name: Run standalone and UI contract tests
+        run: |
+          node --test Talk-Talk/tests/standalone-auth.test.mjs
+          node --test Talk-Talk/tests/visual-contract.test.mjs
+          node --test Talk-Talk/tests/individual-shell.test.mjs
+          node --test Talk-Talk/tests/module-shell.test.mjs
+          node --test Talk-Talk/tests/teacher-monitor.test.mjs
