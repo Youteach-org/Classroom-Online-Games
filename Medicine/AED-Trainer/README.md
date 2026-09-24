@@ -190,3 +190,60 @@ When ECG electrodes are attached to a person:
 - do not maintain a USB connection to a mains-powered computer.
 
 Real ECG remains educational/non-diagnostic and is never allowed to autonomously trigger or recommend the simulated shock path.
+
+
+## Fast-track near-final BOM — 2026-09-24
+
+### Core HMI/controller
+**Preferred:** Waveshare ESP32-S3-Touch-LCD-2.8, current V2 touch version.
+This board replaces the separate ESP32-S3 + TFT + microSD + external display stack for the first near-final prototype. It provides ESP32-S3, 2.8-inch capacitive touch LCD, BLE 5, Wi-Fi, 16 MB Flash, 8 MB PSRAM, TF/microSD slot, onboard speaker/audio support and battery management.
+
+Manufacturer:
+https://www.waveshare.com/esp32-s3-touch-lcd-2.8.htm
+
+### Educational real ECG channel
+**Preferred:** AD8232 single-lead ECG front-end module supplied as a kit with:
+- AD8232 board
+- three-lead snap cable
+- disposable snap ECG electrodes
+
+The AD8232 is used only for educational waveform acquisition, R-peak/heart-rate/R-R visualization and lead-off monitoring. It must not control the simulated AED treatment recommendation.
+
+### Training pads
+Use **reusable AED training pads**, not operational defibrillation electrodes. The preferred ready-made reference is Laerdal AED Trainer Pads (198-80550), approximately 16 x 10.3 cm with 114 cm cable. These are training accessories and are appropriate as the visual/physical pad model for the simulator.
+
+### Power
+Use a rechargeable battery/power-bank or internal Li-ion/LiPo solution compatible with the selected Waveshare board. During real-person ECG acquisition the trainer must operate from battery and communicate to the Teacher Monitor over BLE.
+
+### Physical controls
+- large momentary illuminated yellow button for SIMULATED SHOCK;
+- POWER control;
+- optional ANALYZE control if not handled by the touchscreen;
+- instructor scenario control may be physical or Teacher-Monitor controlled.
+
+Do not use 120 VAC illuminated panel buttons. Prefer low-voltage LED buttons whose contacts are isolated from the lamp circuit.
+
+### Teacher Monitor
+BLE is mandatory. The physical unit streams live telemetry to the Classroom Online Games Teacher Monitor:
+- device/team ID
+- battery
+- training state
+- pad state
+- ECG lead state
+- educational ECG waveform
+- heart rate / R-R trend
+- scenario
+- analysis events
+- simulated shock events
+- CPR/reassessment
+- event timeline
+
+### Purchase-first order
+1. Waveshare ESP32-S3-Touch-LCD-2.8 V2 touch
+2. AD8232 kit with lead cable/electrodes
+3. reusable AED training pads
+4. low-voltage yellow illuminated momentary button
+5. battery/power-bank
+6. project enclosure
+7. wiring/connectors/perfboard/strain relief
+8. spare ECG electrodes
