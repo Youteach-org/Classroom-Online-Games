@@ -1,5 +1,8 @@
 import { createAudioCapture } from "./speech/audio-capture.mjs";
+import { clearStandaloneSession, requireStandaloneRole } from "./standalone-auth.mjs";
 
+const standaloneSession=requireStandaloneRole("student");
+if(standaloneSession){ document.documentElement.dataset.standaloneRole=standaloneSession.role; }
 const views=[...document.querySelectorAll(".student-view")];
 const recordingState=document.getElementById("recordingState");
 const recordButton=document.getElementById("recordButton");
@@ -39,6 +42,11 @@ recordButton?.addEventListener("click",async()=>{
     recordButton.dataset.active="false";
     recordingState.textContent="Recording paused.";
   }
+});
+
+document.getElementById("standaloneLogoutBtn")?.addEventListener("click",()=>{
+  clearStandaloneSession();
+  location.href="./login.html";
 });
 
 showStudentView("studentHomeView");
