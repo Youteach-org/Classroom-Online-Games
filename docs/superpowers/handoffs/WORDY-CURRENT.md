@@ -1,10 +1,10 @@
 # Wordy — Current Implementation Handoff
 
-**Updated:** 2026-09-22  
+**Updated:** 2026-09-24  
 **Repository:** `Youteach-org/Classroom-Online-Games`  
 **Development branch:** `feature/wordy-game`  
 **Uniform-cell verification commit:** `34bc8585ca681e842d79256b8153f8c528c4f84b`  
-**Current production commit (`main`):** `60d8d0df4b68b047dbf4e494c1542ef5f22652b3`  
+**Current production commit (`main`):** `1a0840da6942e55d4483392e95dbb83c3c420edf`  
 **New spec:** `docs/superpowers/specs/2026-09-22-wordy-uniform-cell-candy-architecture.md`  
 **New plan:** `docs/superpowers/plans/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
 **New ledger:** `docs/superpowers/progress/2026-09-22-wordy-uniform-cell-candy-rebuild.md`
@@ -23,7 +23,7 @@ Do not restore or continue any of the following:
 - horizontal cavity partition/refill;
 - variable-width logical pieces.
 
-The current development branch is the authoritative new prototype. Production has **not yet been updated** to this architecture.
+The uniform-cell implementation is now both the authoritative development architecture and the production Wordy runtime.
 
 ## Canonical board model
 
@@ -191,13 +191,25 @@ No Critical or Important findings remained after the full-suite gate.
 
 ## Publication state
 
-The new uniform-cell runtime is **not yet on production**.
+The uniform-cell 7×7 runtime is now **live on production**.
 
-Current production still serves the earlier 12-microcolumn runtime at:
+- Integration was reconciled against current `main` on temporary branch `integration/wordy-uniform-cell-20260924`.
+- Reconciled integration verification run `36007289820`: **90/90 pass**, syntax check pass, production packaging contract pass.
+- Runtime/content merge commit on `main`: `1a0840da6942e55d4483392e95dbb83c3c420edf`.
+- Both production workflows for that exact SHA succeeded:
+  - `36007480279` (`.github/workflows/deploy-cloudflare-pages.yml`) → success.
+  - `36007480106` (`.github/workflows/cloudflare-pages-main.yml`) → success.
+- Cloudflare preview deployments included `https://859b7213.classroom-online-games.pages.dev` and `https://f57ffd62.classroom-online-games.pages.dev`.
+- Canonical-route live verification run `36007849032` → **success**.
+- The live check confirmed:
+  - `/Wordy/` loads the Wordy module entrypoint;
+  - live `engine/board.mjs` contains the row/column uniform-cell runtime;
+  - live CSS uses `repeat(7`;
+  - the legacy `spanForWord` engine is not being served (Cloudflare's missing-file fallback can return HTTP 200, so validation is content-based rather than status-code-based).
+
+Canonical production route:
 
 `https://classroom-online-games.pages.dev/Wordy/`
-
-Do not use the current production page to judge the new 7×7 implementation until it is explicitly promoted.
 
 Do not use:
 
@@ -206,15 +218,8 @@ Do not use:
 - alternate preview mirrors;
 - user-local downloads as the normal review path.
 
-When publication is explicitly authorized, promote only the reviewed Wordy runtime needed for the new prototype, then verify the exact production SHA and canonical Cloudflare route.
-
 ## Exact next action
 
-The implementation plan is complete on `feature/wordy-game`.
+Tasks 1–6 and production promotion are complete. Do not rebuild or re-promote this architecture.
 
-Next step is an integration decision:
-
-- keep the branch for additional development/playtesting; or
-- promote the new Wordy runtime to `main` and Cloudflare, followed by a live canonical-route check.
-
-Do not rebuild Tasks 1–6.
+Next work should be driven by user playtesting of the live 7×7 Wordy prototype. Continue new changes on `feature/wordy-game`, preserve the uniform-cell architecture unless a new approved spec supersedes it, document changes in GitHub, verify them on the branch, and then promote selectively to current `main`.
