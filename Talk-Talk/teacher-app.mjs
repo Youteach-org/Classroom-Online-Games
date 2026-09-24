@@ -1,3 +1,8 @@
+import { clearStandaloneSession, requireStandaloneRole } from "./standalone-auth.mjs";
+
+const standaloneSession=requireStandaloneRole("teacher");
+if(standaloneSession){ document.documentElement.dataset.standaloneRole=standaloneSession.role; }
+
 const teacherViews=[...document.querySelectorAll(".teacher-view")];
 
 export function showTeacherView(id){
@@ -28,6 +33,11 @@ document.getElementById("sendTwistBtn")?.addEventListener("click",()=>{
 
 document.getElementById("endActivityBtn")?.addEventListener("click",()=>{
   document.getElementById("sessionState").textContent="Activity ended · Results ready for review";
+});
+
+document.getElementById("standaloneLogoutBtn")?.addEventListener("click",()=>{
+  clearStandaloneSession();
+  location.href="./login.html";
 });
 
 showTeacherView("teacherMonitorView");
