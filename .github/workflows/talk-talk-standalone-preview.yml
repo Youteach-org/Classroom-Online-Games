@@ -21,9 +21,15 @@ jobs:
           node --check Talk-Talk/app.mjs
           node --check Talk-Talk/teacher-app.mjs
           node --test Talk-Talk/tests/standalone-auth.test.mjs
+          node --test Talk-Talk/tests/pixel-reference.test.mjs
           node --test Talk-Talk/tests/visual-contract.test.mjs
           node --test Talk-Talk/tests/individual-shell.test.mjs
           node --test Talk-Talk/tests/teacher-monitor.test.mjs
+      - name: Validate canonical visual asset
+        run: |
+          test "$(stat -c '%s' Talk-Talk/reference/talk-talk-approved-8-screen-mockup.webp)" -eq 110770
+          printf '%s  %s\n' "13861b09c2eb65ad144c3d4b3f2711acb973184ff69aab8fd242fb2b23545631" "Talk-Talk/reference/talk-talk-approved-8-screen-mockup.webp" | sha256sum -c -
+          file Talk-Talk/reference/talk-talk-approved-8-screen-mockup.webp | grep -qi webp
       - name: Build preview
         run: |
           rm -rf dist
