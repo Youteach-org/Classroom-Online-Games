@@ -43,6 +43,14 @@ jobs:
           CLEAN_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID_RAW" | tr -d '[:space:]')"
           printf 'CLOUDFLARE_ACCOUNT_ID=%s\n' "$CLEAN_ACCOUNT_ID" >> "$GITHUB_ENV"
       - name: Deploy branch preview to Cloudflare Pages
-        run: npx wrangler@4 pages deploy dist --project-name=classroom-online-games --branch="${GITHUB_REF_NAME}"
+        run: |
+          npx wrangler@4 pages deploy dist --project-name=classroom-online-games --branch="${GITHUB_REF_NAME}" | tee wrangler-output.txt
+          grep -Eo 'https://[^ ]+\.pages\.dev' wrangler-output.txt | tail -1 > deployment-url.txt
+          test -s deployment-url.txt
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Save preview URL
+        uses: actions/upload-artifact@v4
+        with:
+          name: talk-talk-preview-url
+          path: deployment-url.txt
