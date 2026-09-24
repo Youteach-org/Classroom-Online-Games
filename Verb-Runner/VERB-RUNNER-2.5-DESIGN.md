@@ -424,3 +424,23 @@ The game should ultimately load the real model asset instead of reconstructing t
 - Left and right shoes must remain geometrically independent at ground contact so later rigging/foot placement is not obstructed.
 - The face must follow the approved ALEX reference more closely than a generic anime face; preserve the recognizable eye shape, nose/mouth proportions, jaw/cheek proportions, and hair-fringe relationship.
 - Visual approval happens before rigging and animation.
+
+
+## ALEX animation pipeline — Run Cycle 01 (2026-09-24)
+
+The approved red ALEX mesh now has a first **real skeletal rig** and an exported glTF animation named `Run`.
+
+Locked decisions for the first motion pass:
+- Run is authored **in place**; the game/environment supplies forward motion.
+- Rear gameplay view is the primary acceptance view.
+- First pass is a 25-frame loop at 24 fps (frame 25 repeats frame 1).
+- Only running is under review in this phase. Do not mix jump, slide, lane-change, stumble, recovery, or Victory Sprint into this acceptance pass.
+- The run rig contains one glTF skin and an animation named `Run`.
+- Preview supports rear/front inspection, pause/resume, and 0.8× / 1× / 1.2× playback.
+- The production game must not replace its current runner until Run Cycle 01 is visually approved.
+
+Preview branch:
+`vr-alex-run-preview`
+
+Preview URL:
+`https://vr-alex-run-preview.classroom-online-games.pages.dev`
