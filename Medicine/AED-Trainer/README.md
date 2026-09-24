@@ -147,3 +147,46 @@ Later optional: BLE GATT for wireless state mirroring. Do not require BLE for th
 - Web simulator follows the same sequence.
 - No high-voltage hardware exists in the unit.
 - Final prompt wording has been reviewed for the course.
+
+
+## Teacher Monitor BLE requirement — 2026-09-24
+
+BLE is mandatory for the near-final prototype.
+
+The physical trainer must publish live telemetry to the Classroom Online Games Teacher Monitor. The instructor should be able to supervise several teams/trainers from one monitor.
+
+### Required live telemetry
+
+- trainer/device ID
+- team/session identity
+- battery level
+- current AED training state
+- Pad A and Pad B state
+- ECG lead-off/contact state
+- educational single-lead ECG samples
+- detected R peaks / heart rate / R-R interval trend
+- instructor-selected training scenario
+- analyze event
+- shock-advised / no-shock-advised training state
+- simulated shock-button event
+- CPR/reassessment state
+- timestamped event stream
+
+### BLE transport
+
+Initial target: custom BLE GATT service with separate characteristics for:
+- device/status
+- state/events
+- ECG sample packets
+- configuration/scenario
+
+The Teacher Monitor is the canonical instructor-facing live view. A separate ECG-only page is not the target.
+
+### Real-person connection rule
+
+When ECG electrodes are attached to a person:
+- power the trainer from battery;
+- use BLE for telemetry;
+- do not maintain a USB connection to a mains-powered computer.
+
+Real ECG remains educational/non-diagnostic and is never allowed to autonomously trigger or recommend the simulated shock path.
