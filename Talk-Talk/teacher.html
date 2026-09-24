@@ -9,34 +9,70 @@
 <body>
   <div class="teacher-layout">
     <aside class="teacher-sidebar">
-      <a class="brand-lockup inverse" href="./"><span class="brand-mark">TT</span><span><small>Talk Talk</small><strong>Teacher</strong></span></a>
+      <a class="teacher-logo" href="./"><strong>TALK-TALK</strong></a>
       <nav>
-        <a class="active" href="./teacher.html">Teacher Monitor</a>
-        <a href="./creator.html">Creator Mode</a>
-        <a href="./">Student View</a>
-        <a href="/">All Games</a>
+        <button class="active" data-teacher-view="teacherMonitorView">▣ Teacher Monitor</button>
+        <a href="./creator.html">⌘ Creator Mode</a>
+        <button data-teacher-view="teacherAssessmentView">▤ Activities</button>
+        <button data-teacher-view="teacherEvidenceView">▧ Results</button>
+        <a href="/">⚙ Settings</a>
       </nav>
-      <div class="sidebar-note">Oral practice and assessment inside Classroom Online Games.</div>
     </aside>
 
     <main class="teacher-main">
-      <header class="topbar teacher-topbar">
-        <div><p class="eyebrow">Talk Talk</p><h1>Teacher Monitor</h1></div>
-        <div class="header-actions">
-          <button id="previewDemoBtn" class="secondary" type="button">Preview layout</button>
-          <button id="endActivityBtn" class="danger" type="button" disabled>End Activity</button>
+      <section id="teacherMonitorView" class="teacher-view is-active">
+        <header class="teacher-page-head"><div><p class="eyebrow">Talk Talk</p><h1>Teacher Monitor</h1></div><button id="endActivityBtn" class="btn danger" type="button">End Activity</button></header>
+        <div class="teacher-controls">
+          <label>Mode<select id="activityMode"><option value="practice">Practice</option><option value="assessment">Assessment</option></select></label>
+          <label>Twist<select id="twistSelect"><option value="remember-detail">Remember a detail</option></select></label>
+          <button id="sendTwistBtn" class="btn primary" type="button">Send Twist</button>
         </div>
-      </header>
-
-      <section class="panel teacher-toolbar" aria-label="Activity controls">
-        <label>Mode<select id="activityMode"><option value="practice">Practice</option><option value="assessment">Assessment</option></select></label>
-        <label>Twist<select id="twistSelect"><option value="remember-detail">Remember a detail</option></select></label>
-        <button id="sendTwistBtn" class="primary compact" type="button" disabled>Send Twist</button>
+        <p id="sessionState" class="session-title">Tell me what happened · Practice · 4 teams</p>
+        <div id="teamGrid" class="team-grid">
+          <button class="team-card speaking" data-team="team-1"><strong>Team 1</strong><span>Paul · Paulina</span><em>● Speaking</em><div class="mini-people"><span class="avatar-dot boy"></span><span class="avatar-dot girl"></span><span class="mini-wave">▂▅▃▆▂</span></div></button>
+          <button class="team-card ready" data-team="team-2"><strong>Team 2</strong><span>Karol · Nicole</span><em>● Ready</em><div class="mini-people"><span class="avatar-dot girl"></span><span class="avatar-dot girl alt"></span><span class="circle-icon">🎙</span></div></button>
+          <button class="team-card finished" data-team="team-3"><strong>Team 3</strong><span>Gael · Sofia</span><em>● Finished</em><div class="mini-people"><span class="avatar-dot boy"></span><span class="avatar-dot girl"></span><span class="circle-icon">▤</span></div></button>
+          <button class="team-card problem" data-team="team-4"><strong>Team 4</strong><span>Luis · Valeria</span><em>● Technical problem</em><div class="mini-people"><span class="avatar-dot boy alt"></span><span class="avatar-dot girl alt"></span><span class="circle-icon danger-icon">!</span></div></button>
+        </div>
       </section>
 
-      <section id="sessionState" class="panel session-strip" aria-live="polite">No active Talk Talk session.</section>
-      <section id="teamGrid" class="team-grid" aria-label="Teams"></section>
-      <section id="teamDetail" class="panel team-detail" hidden></section>
+      <section id="teacherTeamView" class="teacher-view" hidden>
+        <button class="back-link" data-teacher-view="teacherMonitorView">← Back to teams</button>
+        <header class="teacher-page-head"><div><h1>Team 1</h1><p>Paul · Paulina</p></div><span class="status-chip">● Finished</span></header>
+        <nav class="tabbar teacher-tabs"><button class="active">Overview</button><button data-teacher-view="teacherEvidenceView">Transcript</button><button data-teacher-view="teacherAssessmentView">Evaluation</button><button data-teacher-view="teacherEvidenceView">Evidence</button></nav>
+        <div class="audio-player large"><button>▶</button><div><span class="audio-progress"></span></div><small>00:00 / 01:24</small><span>1x</span></div>
+        <h3>Participants</h3>
+        <article class="participant-row"><div class="character-avatar mini"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div><div><strong>Paul</strong><span class="status-chip small">Completed</span></div><time>01:24</time></article>
+        <article class="participant-row"><div class="character-avatar mini girl"><span class="avatar-hair"></span><span class="avatar-face">•ᴗ•</span><span class="avatar-body"></span></div><div><strong>Paulina</strong><span class="status-chip small">Completed</span></div><time>01:24</time></article>
+        <button class="btn primary wide" data-teacher-view="teacherAssessmentView">View full evaluation →</button>
+      </section>
+
+      <section id="teacherAssessmentView" class="teacher-view" hidden>
+        <header class="teacher-page-head"><div><p class="eyebrow">Oral Assessment</p><h1>Paul & Paulina</h1></div><button class="btn outline">▶ Play recording</button></header>
+        <div class="score-banner"><span>Overall score</span><strong>28 / 40</strong></div>
+        <div class="rubric-list">
+          <div><span>Fluency</span><progress value="5" max="8"></progress><b>5 / 8</b></div>
+          <div><span>Coherence</span><progress value="6" max="8"></progress><b>6 / 8</b></div>
+          <div><span>Grammar & Vocabulary</span><progress value="5" max="8"></progress><b>5 / 8</b></div>
+          <div><span>Pronunciation</span><progress value="6" max="8"></progress><b>6 / 8</b></div>
+          <div><span>Interaction</span><progress value="6" max="8"></progress><b>6 / 8</b></div>
+        </div>
+        <div class="result-actions teacher-actions"><button class="btn outline">Edit scores</button><button class="btn outline">Generate report</button><button class="btn primary" data-teacher-view="teacherEvidenceView">Publish result</button></div>
+      </section>
+
+      <section id="teacherEvidenceView" class="teacher-view" hidden>
+        <header class="teacher-page-head"><div><p class="eyebrow">Evidence & transcription</p><h1>Paul & Paulina</h1></div><button class="btn outline" data-teacher-view="teacherAssessmentView">Back to evaluation</button></header>
+        <nav class="tabbar teacher-tabs"><button class="active">Transcript</button><button>Evidence</button><button>Comments</button></nav>
+        <div class="conversation-list evidence-list">
+          <article class="message-row"><div class="character-avatar mini"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div><div><strong>Paul</strong><p>I have went to the park yesterday with my family.</p></div><time>00:12</time></article>
+          <article class="message-row"><div class="character-avatar mini girl"><span class="avatar-hair"></span><span class="avatar-face">•ᴗ•</span><span class="avatar-body"></span></div><div><strong>Paulina</strong><p>Oh, nice! What did you do there?</p></div><time>00:18</time></article>
+          <article class="message-row"><div class="character-avatar mini"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div><div><strong>Paul</strong><p>We saw a bicycle fall and then we helped him.</p></div><time>00:25</time></article>
+        </div>
+        <h3>Detected issues</h3>
+        <div class="issue-row"><span class="issue-tag grammar">Grammar</span><p>“I have went...” → intended: “I have gone...”</p><time>00:12</time></div>
+        <div class="issue-row"><span class="issue-tag pronunciation">Pronunciation</span><p>“worked” — final /t/ not clearly produced</p><time>00:41</time></div>
+        <div class="issue-row"><span class="issue-tag interaction">Interaction</span><p>Teacher intervention required twice.</p><time>01:02</time></div>
+      </section>
     </main>
   </div>
   <script type="module" src="./teacher-app.mjs"></script>
