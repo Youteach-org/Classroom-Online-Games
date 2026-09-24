@@ -303,3 +303,35 @@ Preferred:
 - driven through the MAX98357A I2S amplifier, never directly from an ESP32 GPIO
 
 Before wiring, check the label printed on the speaker magnet/frame. If the marking is unclear, measure DC resistance with a multimeter and select amplifier gain conservatively during initial testing.
+
+
+## Minimum purchase set for first powered prototype
+
+Confirmed 2026-09-24 after simplifying the display/audio choices.
+
+Buy now:
+1. ESP32-S3 DevKitC-1 N16R8, preferably with headers already soldered.
+2. Confirmed 0.96-inch SSD1306 I2C OLED from Mercado Libre.
+3. MAX98357/MAX98357A I2S class-D amplifier module.
+4. AD8232 ECG kit with 3-lead cable and snap electrodes.
+5. Large momentary SHOCK pushbutton; illumination is optional.
+6. Breadboard/perfboard, Dupont/JST wiring and connectors.
+
+Reuse if already available:
+- small 4-ohm or 8-ohm radio speaker;
+- ordinary 5 V USB power bank for isolated battery operation;
+- USB-C data cable.
+
+Do not buy yet:
+- separate microSD module; the N16R8 board has enough flash for the first prompt set and adding microSD would slow the first build;
+- large TFT/touch display;
+- a second speaker;
+- final enclosure until the bench layout has been proven.
+
+After bench validation:
+- final ABS enclosure;
+- inert reusable AED pads;
+- two low-voltage pad-position sensors (Hall/reed/contact method);
+- magnets/targets and robust pad connectors.
+
+When ECG electrodes are connected to a person, run from battery/power bank and use BLE to Teacher Monitor; do not keep a mains-powered PC USB connection attached.
