@@ -45,3 +45,18 @@ Final review focus:
 - long words use typography classes without changing tile dimensions: covered by UI contract tests.
 Final review: no Critical or Important findings remained.
 Publication: intentionally not performed by this plan; main/Cloudflare remain unchanged until an explicit integration/publish decision.
+
+Production integration (2026-09-24): complete.
+- Direct feature→main merge was deliberately not used because the feature branch had diverged substantially from current main (122 commits ahead / 100 behind at reconciliation time).
+- Built temporary integration branch `integration/wordy-uniform-cell-20260924` from current main `d0a769ca2d27398eddb3f2d3f414bdf7b2e29ab7`.
+- Overlaid only Wordy runtime/tests and the uniform-cell Wordy documentation; removed legacy `Wordy/engine/tile-size.mjs`; did not import unrelated feature-branch history.
+- First reconciled full-suite run exposed three stale branch-only assumptions in entrypoint/local-preview tests; tests were corrected to current production semantics (canonical `/Wordy/` route, Wordy included in Cloudflare packaging, local preview optional).
+- Reconciled integration verification run `36007289820` on `99ab84047721aec107d7bd906deaa87ef72e43aa`: 90/90 pass, syntax pass, packaging contract pass.
+- Selective merge commit on current main: `1a0840da6942e55d4483392e95dbb83c3c420edf`.
+- Main Wordy tree was byte-for-byte identical to the verified integration Wordy tree across all 41 Wordy files.
+- Production workflows `36007480279` and `36007480106` both succeeded on exact main SHA `1a0840da...`.
+- Canonical live check initially produced a false failure because Cloudflare Pages returned a fallback page with HTTP 200 for missing `tile-size.mjs`; the check was corrected to inspect content instead of status code.
+- Corrected canonical live check run `36007849032`: success; live board module and CSS are the 7×7 runtime and legacy `spanForWord` is not served.
+- Production route: `https://classroom-online-games.pages.dev/Wordy/`.
+
+Publication status: complete. Further Wordy work is playtest-driven and must continue from the uniform-cell architecture.
