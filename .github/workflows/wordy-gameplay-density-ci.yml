@@ -17,5 +17,32 @@ jobs:
           node-version: 20
       - name: Focused gameplay density tests
         run: node --test Wordy/tests/generator.test.mjs Wordy/tests/refill.test.mjs Wordy/tests/levels.test.mjs Wordy/tests/controller.test.mjs
+      - name: Diagnose density constraints
+        if: failure()
+        run: |
+          node --input-type=module <<'EOF'
+          import { RELATIONSHIPS } from './Wordy/data/relationships.mjs';
+          import { createRelationshipBank } from './Wordy/engine/relationship-bank.mjs';
+          import { createControlledBoard, selectRelationshipNeighborhood, findImmediateScoringMoves, relationshipCoverage } from './Wordy/engine/generator.mjs';
+          const seeded=seed=>()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+          const bank=createRelationshipBank(RELATIONSHIPS);
+          const ids=selectRelationshipNeighborhood({bank,rng:seeded(31),size:16});
+          console.log('ids',ids);
+          for(const cfg of [
+            {minScoringMoves:0,minRelationshipCoverage:0},
+            {minScoringMoves:4,minRelationshipCoverage:0},
+            {minScoringMoves:8,minRelationshipCoverage:0},
+            {minScoringMoves:4,minRelationshipCoverage:.85},
+            {minScoringMoves:8,minRelationshipCoverage:.85}
+          ]){
+            try{
+              const board=createControlledBoard({bank,relationshipIds:ids,rows:7,columns:7,rng:seeded(44),minProductiveRows:1,minProductiveColumns:1,allowStartingMatches:false,...cfg});
+              console.log(cfg,'OK moves=',findImmediateScoringMoves(board,bank).length,'coverage=',relationshipCoverage(board,bank,ids));
+            }catch(error){
+              console.log(cfg,'FAIL',error.message);
+            }
+          }
+          EOF
       - name: Syntax check
+        if: always()
         run: node --check Wordy/app.mjs
