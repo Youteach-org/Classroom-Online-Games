@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'Verb-Runner/scripts/rig-alex-run.py'
+      - 'Verb-Runner/scripts/rig-alex-run-v2.py'
       - 'Verb-Runner/run-viewer.html'
       - 'Verb-Runner/scripts/refine-alex.py'
       - '.github/workflows/verb-runner-run-preview.yml'
@@ -41,9 +41,22 @@ jobs:
 
       - name: Rig ALEX and build Run cycle
         run: |
-          blender --background --python Verb-Runner/scripts/rig-alex-run.py -- \
+          blender --background --python Verb-Runner/scripts/rig-alex-run-v2.py -- \
             run-dist/alex-static.glb run-dist/alex-run.glb
           test -s run-dist/alex-run.glb
+
+      - name: Render key review frames
+        run: |
+          mkdir -p run-review
+          blender --background --python Verb-Runner/scripts/render-alex-run-review.py -- \
+            run-dist/alex-run.glb run-review
+
+      - name: Upload run review frames
+        uses: actions/upload-artifact@v4
+        with:
+          name: alex-run-review-v2
+          path: run-review/*.png
+          retention-days: 7
 
       - name: Validate skin and Run animation
         run: |
