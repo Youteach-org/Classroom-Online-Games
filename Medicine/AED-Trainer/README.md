@@ -247,3 +247,18 @@ BLE is mandatory. The physical unit streams live telemetry to the Classroom Onli
 6. project enclosure
 7. wiring/connectors/perfboard/strain relief
 8. spare ECG electrodes
+
+
+## Purchasing rule — Mercado Libre México only
+
+Confirmed 2026-09-24: source prototype purchases only from Mercado Libre México listings that show current stock. Do not recommend Amazon, manufacturer-direct, eBay, Walmart, Steren direct, or other marketplaces for this project.
+
+Current preferred Mercado Libre shortlist:
+- Freenove ESP32-S3 2.8-inch touch display FNK0104A listing: https://www.mercadolibre.com.mx/modulo-de-pantalla-tactil-freenove-esp32s3-de-28-pulgadas/up/MLMU4138490265
+- Alternative integrated ESP32-S3 touch board listing: https://www.mercadolibre.com.mx/desarrollo-de-pantalla-redonda-tactil-capacitiva-esp32-s3-de/p/MLM2077739318
+- AD8232 ECG kit: https://articulo.mercadolibre.com.mx/MLM-5255490390-aad8232-ecg-kit-modulo-sensor-de-pulso-ritmo-cardiaco-_JM
+- Adult Ambiderm T716 ECG electrodes, 50 pcs: https://www.mercadolibre.com.mx/electrodo-ecg-desechable-para-monitoreo-cardiaco--43x45mm/up/MLMU460139698
+- Yellow 22 mm momentary pushbutton: https://articulo.mercadolibre.com.mx/MLM-3334166542-push-boton-momentaneo-metalico-22mm-color-a-elegir-_JM
+- 10,000 mAh UGREEN power bank: https://www.mercadolibre.com.mx/power-bank-10000-mah-ugreen/p/MLM63623139
+
+Training AED pads: no standalone replacement-pad listing has yet been verified as both suitable and currently in stock on Mercado Libre México. Until one is verified, do not purchase an expensive complete commercial AED trainer solely to obtain its pads; fabricate inert reusable training pads for the prototype from locally available low-voltage materials.
