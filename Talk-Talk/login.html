@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Talk Talk — Test Login</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="standalone-login-page">
+  <main class="standalone-login-shell">
+    <section class="login-visual" aria-label="Talk Talk">
+      <div class="speech-bubble login-bubble-one">Hello!</div>
+      <div class="login-character-row">
+        <div class="character-avatar avatar-lg"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div>
+        <div class="chat-dots">•••</div>
+        <div class="character-avatar avatar-lg girl"><span class="avatar-hair"></span><span class="avatar-face">•ᴗ•</span><span class="avatar-body"></span></div>
+      </div>
+      <div class="speech-bubble login-bubble-two">Ready?</div>
+      <h1>TALK-TALK</h1>
+      <p>Standalone test access</p>
+    </section>
+
+    <section class="login-card">
+      <p class="eyebrow">Testing mode</p>
+      <h2>Sign in</h2>
+      <p class="login-intro">Use one of the temporary test accounts. This preview is not connected to YouTeach.</p>
+
+      <form id="standaloneLoginForm" class="login-form">
+        <label>Username
+          <input id="standaloneUsername" name="username" autocomplete="username" required>
+        </label>
+        <label>Password
+          <input id="standalonePassword" name="password" type="password" autocomplete="current-password" required>
+        </label>
+        <p id="standaloneLoginError" class="login-error" role="alert" hidden>Incorrect username or password.</p>
+        <button class="btn primary wide" type="submit">Enter Talk Talk →</button>
+      </form>
+
+      <div class="credential-cards" aria-label="Test credentials">
+        <button class="credential-card" type="button" data-fill-user="student">
+          <strong>Student</strong>
+          <span>student / talktalk</span>
+        </button>
+        <button class="credential-card" type="button" data-fill-user="teacher">
+          <strong>Teacher</strong>
+          <span>teacher / talktalk</span>
+        </button>
+      </div>
+      <p class="test-warning">Temporary testing credentials only. Do not reuse these credentials anywhere else.</p>
+    </section>
+  </main>
+  <script type="module" src="./login.mjs"></script>
+</body>
+</html>
