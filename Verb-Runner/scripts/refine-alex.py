@@ -122,6 +122,44 @@ def clean_front(bgr):
     out=cv2.addWeighted(sm,1.07,cv2.GaussianBlur(sm,(0,0),0.65),-0.07,0)
     return out
 
+def add_smile(bgr):
+    # Deliberately visible but restrained ALEX smile.
+    # Coordinates are tied to the orthographic review render, not the texture atlas.
+    out=bgr.copy()
+    h,w=out.shape[:2]
+    pts=[]
+    for x in range(int(w*.472), int(w*.529)):
+        t=(x-w*.5)/(w*.0285)
+        y=int(h*.234 + h*.006*(1-t*t))
+        pts.append((x,y))
+    curve=np.array(pts,np.int32)
+    cv2.polylines(out,[curve],False,(55,55,115),5,lineType=cv2.LINE_AA)
+    cv2.polylines(out,[curve],False,(70,80,150),2,lineType=cv2.LINE_AA)
+    for x,y in (pts[0],pts[-1]):
+        cv2.circle(out,(x,y),2,(55,55,115),-1,lineType=cv2.LINE_AA)
+    return out
+
+def bake_region(target_bgr, uvbuf, pixel_mask, weight):
+    global tex
+    target=cv2.cvtColor(target_bgr,cv2.COLOR_BGR2RGB)
+    valid=np.isfinite(uvbuf[...,0]) & pixel_mask
+    yy,xx=np.where(valid)
+    u=uvbuf[yy,xx,0]
+    v=uvbuf[yy,xx,1]
+    tx=np.clip(np.rint(u*(tw-1)).astype(int),0,tw-1)
+    ty=np.clip(np.rint((1-v)*(th-1)).astype(int),0,th-1)
+    cols=target[yy,xx].astype(np.float32)
+    flat=ty*tw+tx
+    sums=np.zeros((th*tw,3),dtype=np.float64)
+    counts=np.zeros(th*tw,dtype=np.float64)
+    for ch in range(3):
+        np.add.at(sums[:,ch],flat,cols[:,ch])
+    np.add.at(counts,flat,1)
+    hit=counts>0
+    baked=sums[hit]/counts[hit,None]
+    old=tex.reshape(-1,3)[hit].astype(np.float32)
+    tex.reshape(-1,3)[hit]=np.clip(old*(1-weight)+baked*weight,0,255).astype(np.uint8)
+
 def bake(target_bgr, uvbuf, weight):
     global tex
     target=cv2.cvtColor(target_bgr,cv2.COLOR_BGR2RGB)
@@ -151,8 +189,15 @@ front_bgr=cv2.cvtColor(front_rgb,cv2.COLOR_RGB2BGR)
 rear_bgr=cv2.cvtColor(rear_rgb,cv2.COLOR_RGB2BGR)
 
 # Front gets a light cleanup; rear gets the stronger pass because that is the gameplay view.
-bake(clean_front(front_bgr), front_uv, 0.22)
+front_clean=clean_front(front_bgr)
+bake(front_clean, front_uv, 0.22)
 bake(clean_rear(rear_bgr), rear_uv, 0.72)
+
+# Apply the smile at near-full strength only to the mouth region so clothing/body are untouched.
+smiling_front=add_smile(front_clean)
+YY,XX=np.ogrid[:H,:W]
+mouth_mask=((XX-W*.5)/(W*.05))**2+((YY-H*.237)/(H*.020))**2<1
+bake_region(smiling_front, front_uv, mouth_mask, 0.92)
 
 mesh.visual.material.baseColorTexture=Image.fromarray(tex)
 out_scene=trimesh.Scene()
