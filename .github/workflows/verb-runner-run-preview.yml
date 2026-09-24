@@ -50,6 +50,9 @@ jobs:
           mkdir -p run-review
           blender --background --python Verb-Runner/scripts/render-alex-run-review.py -- \
             run-dist/alex-run.glb run-review
+          test -s run-review/rear-01.png
+          test -s run-review/side-07.png
+          test -s run-review/front-13.png
 
       - name: Upload run review frames
         uses: actions/upload-artifact@v4
