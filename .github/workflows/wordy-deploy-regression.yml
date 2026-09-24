@@ -1,0 +1,14 @@
+name: Wordy Deploy Regression
+on:
+  push:
+    branches:
+      - integration/wordy-uniform-cell-20260924
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node --test tests/wordy-production-deploy.test.mjs
