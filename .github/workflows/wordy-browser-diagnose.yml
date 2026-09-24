@@ -1,0 +1,44 @@
+name: Wordy Browser Diagnose
+on:
+  push:
+    branches:
+      - integration/wordy-uniform-cell-20260924
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install browser harness
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+      - name: Diagnose live Wordy
+        run: |
+          cat > /tmp/diag.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage();
+          const errors=[];
+          page.on('console',msg=>{ if(msg.type()==='error') errors.push('console: '+msg.text()); });
+          page.on('pageerror',err=>errors.push('pageerror: '+err.message));
+          page.on('requestfailed',req=>errors.push('requestfailed: '+req.url()+' :: '+req.failure()?.errorText));
+          const response=await page.goto('https://classroom-online-games.pages.dev/Wordy/',{waitUntil:'networkidle',timeout:30000});
+          await page.waitForTimeout(1500);
+          const data=await page.evaluate(()=>({
+            title:document.title,
+            readyState:document.readyState,
+            tiles:document.querySelectorAll('.wordy-tile').length,
+            boardText:document.querySelector('#wordyBoard')?.textContent?.trim()||'',
+            level:document.querySelector('#levelLabel')?.textContent||'',
+            hasPrototype:!!window.WordyPrototype,
+            bodyText:document.body?.innerText?.slice(0,1000)||''
+          }));
+          console.log(JSON.stringify({status:response?.status(),url:page.url(),data,errors},null,2));
+          if(!response?.ok()) process.exitCode=2;
+          if(data.tiles!==49||!data.hasPrototype||errors.length) process.exitCode=3;
+          await browser.close();
+          EOF
+          node /tmp/diag.mjs
