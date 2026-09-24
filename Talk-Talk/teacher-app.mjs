@@ -15,7 +15,32 @@ const teamDetail=document.getElementById("teamDetail");
 const modeSelect=document.getElementById("activityMode");
 const twistSelect=document.getElementById("twistSelect");
 const sendTwistBtn=document.getElementById("sendTwistBtn");
-const endActivityBtn=document.getElementById("endActivityBtn");
+const endActivityBtn=document.getElementById("endActivityBtn");\nconst previewDemoBtn=document.getElementById("previewDemoBtn");
+
+const DEMO_SESSION={
+  sessionId:"demo-session",
+  activityTitle:"Tell Me What Happened",
+  mode:"assessment",
+  teams:[
+    {teamId:"team-1",label:"Team 1",state:"speaking",members:[
+      {studentKey:"paul",nickname:"Paul",online:true,phase:"speak",reportableEvidence:true,dimensions:{pronunciation:75,fluency:63,grammarVocabulary:63,interaction:75}},
+      {studentKey:"paulina",nickname:"Paulina",online:true,phase:"speak",reportableEvidence:true,dimensions:{pronunciation:88,fluency:82,grammarVocabulary:78,interaction:84}}
+    ]},
+    {teamId:"team-2",label:"Team 2",state:"ready",members:[
+      {studentKey:"karol",nickname:"Karol",online:true,phase:"hear"},
+      {studentKey:"nicole",nickname:"Nicole",online:true,phase:"hear"}
+    ]},
+    {teamId:"team-3",label:"Team 3",state:"finished",members:[
+      {studentKey:"gael",nickname:"Gael",online:true,phase:"results"},
+      {studentKey:"sofia",nickname:"Sofia",online:true,phase:"results"}
+    ]},
+    {teamId:"team-4",label:"Team 4",state:"technical-problem",members:[
+      {studentKey:"luis",nickname:"Luis",online:true,technicalProblem:true},
+      {studentKey:"valeria",nickname:"Valeria",online:true,phase:"speak"}
+    ]}
+  ]
+};
+
 
 let currentState=null;
 let currentSnapshot=buildMonitorSnapshot({});
@@ -138,4 +163,4 @@ endActivityBtn.addEventListener("click",() => {
 });
 
 window.addEventListener("talktalk:session-state",event => render(event.detail || {}));
-render(window.__TALK_TALK_TEACHER_SESSION__ || {});
+previewDemoBtn?.addEventListener("click",()=>{ selectedTeamId="team-1"; render(DEMO_SESSION); });\n\nrender(window.__TALK_TALK_TEACHER_SESSION__ || {});
