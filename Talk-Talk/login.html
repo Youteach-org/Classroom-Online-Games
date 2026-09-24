@@ -8,45 +8,26 @@
 </head>
 <body class="standalone-login-page">
   <main class="standalone-login-shell">
-    <section class="login-visual" aria-label="Talk Talk">
-      <div class="speech-bubble login-bubble-one">Hello!</div>
-      <div class="login-character-row">
-        <div class="character-avatar avatar-lg"><span class="avatar-hair"></span><span class="avatar-face">•‿•</span><span class="avatar-body"></span></div>
-        <div class="chat-dots">•••</div>
-        <div class="character-avatar avatar-lg girl"><span class="avatar-hair"></span><span class="avatar-face">•ᴗ•</span><span class="avatar-body"></span></div>
-      </div>
-      <div class="speech-bubble login-bubble-two">Ready?</div>
-      <h1>TALK-TALK</h1>
-      <p>Standalone test access</p>
+    <section class="login-reference" aria-label="Talk Talk approved student screen">
+      <svg class="reference-art" viewBox="10 40 368 510" role="img" aria-label="Talk Talk">
+        <image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image>
+      </svg>
     </section>
-
     <section class="login-card">
-      <p class="eyebrow">Testing mode</p>
-      <h2>Sign in</h2>
-      <p class="login-intro">Use one of the temporary test accounts. This preview is not connected to YouTeach.</p>
-
+      <p class="login-kicker">Standalone testing</p>
+      <h1>Talk Talk</h1>
+      <p class="login-intro">Temporary access without YouTeach. Choose a test role or enter the credentials.</p>
       <form id="standaloneLoginForm" class="login-form">
-        <label>Username
-          <input id="standaloneUsername" name="username" autocomplete="username" required>
-        </label>
-        <label>Password
-          <input id="standalonePassword" name="password" type="password" autocomplete="current-password" required>
-        </label>
+        <label>Username<input id="standaloneUsername" name="username" autocomplete="username" required></label>
+        <label>Password<input id="standalonePassword" name="password" type="password" autocomplete="current-password" required></label>
         <p id="standaloneLoginError" class="login-error" role="alert" hidden>Incorrect username or password.</p>
-        <button class="btn primary wide" type="submit">Enter Talk Talk →</button>
+        <button class="login-primary" type="submit">Enter Talk Talk →</button>
       </form>
-
       <div class="credential-cards" aria-label="Test credentials">
-        <button class="credential-card" type="button" data-fill-user="student">
-          <strong>Student</strong>
-          <span>student / talktalk</span>
-        </button>
-        <button class="credential-card" type="button" data-fill-user="teacher">
-          <strong>Teacher</strong>
-          <span>teacher / talktalk</span>
-        </button>
+        <button class="credential-card" type="button" data-fill-user="student"><strong>Student</strong><span>student / talktalk</span></button>
+        <button class="credential-card" type="button" data-fill-user="teacher"><strong>Teacher</strong><span>teacher / talktalk</span></button>
       </div>
-      <p class="test-warning">Temporary testing credentials only. Do not reuse these credentials anywhere else.</p>
+      <p class="test-warning">Temporary testing credentials only.</p>
     </section>
   </main>
   <script type="module" src="./login.mjs"></script>
