@@ -7,36 +7,38 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <main class="app-shell">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Talk Talk</p>
-        <h1>Teacher Monitor</h1>
-      </div>
-      <button id="endActivityBtn" class="danger" type="button" disabled>End Activity</button>
-    </header>
+  <div class="teacher-layout">
+    <aside class="teacher-sidebar">
+      <a class="brand-lockup inverse" href="./"><span class="brand-mark">TT</span><span><small>Talk Talk</small><strong>Teacher</strong></span></a>
+      <nav>
+        <a class="active" href="./teacher.html">Teacher Monitor</a>
+        <a href="./creator.html">Creator Mode</a>
+        <a href="./">Student View</a>
+        <a href="/">All Games</a>
+      </nav>
+      <div class="sidebar-note">Oral practice and assessment inside Classroom Online Games.</div>
+    </aside>
 
-    <section class="panel teacher-toolbar" aria-label="Activity controls">
-      <label>
-        Mode
-        <select id="activityMode">
-          <option value="practice">Practice</option>
-          <option value="assessment">Assessment</option>
-        </select>
-      </label>
-      <label>
-        Twist
-        <select id="twistSelect">
-          <option value="remember-detail">Remember a detail</option>
-        </select>
-      </label>
-      <button id="sendTwistBtn" class="secondary" type="button" disabled>Send Twist</button>
-    </section>
+    <main class="teacher-main">
+      <header class="topbar teacher-topbar">
+        <div><p class="eyebrow">Talk Talk</p><h1>Teacher Monitor</h1></div>
+        <div class="header-actions">
+          <button id="previewDemoBtn" class="secondary" type="button">Preview layout</button>
+          <button id="endActivityBtn" class="danger" type="button" disabled>End Activity</button>
+        </div>
+      </header>
 
-    <section id="sessionState" class="panel" aria-live="polite">No active Talk Talk session.</section>
-    <section id="teamGrid" class="team-grid" aria-label="Teams"></section>
-    <section id="teamDetail" class="panel" hidden></section>
-  </main>
+      <section class="panel teacher-toolbar" aria-label="Activity controls">
+        <label>Mode<select id="activityMode"><option value="practice">Practice</option><option value="assessment">Assessment</option></select></label>
+        <label>Twist<select id="twistSelect"><option value="remember-detail">Remember a detail</option></select></label>
+        <button id="sendTwistBtn" class="primary compact" type="button" disabled>Send Twist</button>
+      </section>
+
+      <section id="sessionState" class="panel session-strip" aria-live="polite">No active Talk Talk session.</section>
+      <section id="teamGrid" class="team-grid" aria-label="Teams"></section>
+      <section id="teamDetail" class="panel team-detail" hidden></section>
+    </main>
+  </div>
   <script type="module" src="./teacher-app.mjs"></script>
 </body>
 </html>
