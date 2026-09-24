@@ -1,0 +1,13 @@
+name: Talk Talk baseline check
+on:
+  push:
+    branches:
+      - talk-talk-baseline-check-20260923
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: node --test Talk-Talk/tests/youteach-team-context.test.mjs
