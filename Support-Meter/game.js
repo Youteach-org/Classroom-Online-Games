@@ -1,4 +1,9 @@
-import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun,deleteRun,cleanupExpiredFreeRuns} from './firebase-client.js';
+import {resolveJoinToken,getAssignedSession,createRun,updateRun,completeRun,appendResponse,watchRun,deleteRun,cleanupExpiredFreeRuns} from './firebase-client.js';
+import {
+  resolveSupportMeterStudentLaunch,
+  heartbeatSupportMeterStudent,
+  submitSupportMeterLiveResult
+} from './live-session.js';
 
 (() => {
   const cfg = window.SUPPORT_METER_CONFIG || {};
@@ -14,6 +19,10 @@ import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun
   function selectRandomSet(random=Math.random){return Math.floor(random()*3)+1;}
   function encodeStory(setId,storyId){return setId*10+storyId;}
   const joinToken=core.parseJoinToken(location.search);
+  const liveStudentToken=String(new URLSearchParams(location.search).get('ytLiveStudent')||'').trim();
+  let youTeachLiveStudentContext=null;
+  let youTeachHeartbeatTimer=null;
+  let youTeachHeartbeatBusy=false;
   let selectedSet=selectRandomSet();
   let stories=core.buildRun({setNumber:selectedSet,assigned:false});
   let stopWatchingRun=null;
@@ -47,6 +56,43 @@ import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun
 
   const state = {storyIndex:0,selectedFeeling:null,selectedExpression:null,wrongFeelings:[],wrongExpressions:[],attempt:1,meter:0,streak:0,coachEnabled:true,resolved:false,completed:false,started:false,runId:null,sessionId:'free',studentName:'',classCode:cfg.defaultClassCode||'SUPPORT',controlGeneration:0,pendingRedirect:null,translationAttemptCount:0,translationBlocked:false,resultData:null};
   el.code.value = state.classCode;
+
+  function cleanYouTeachLaunchFromUrl(){
+    const clean=new URL(location.href);
+    clean.searchParams.delete('ytLiveStudent');
+    clean.searchParams.delete('issuer');
+    history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
+  }
+
+  async function sendYouTeachStudentHeartbeat(){
+    if(youTeachHeartbeatBusy||!youTeachLiveStudentContext)return;
+    youTeachHeartbeatBusy=true;
+    try{
+      await heartbeatSupportMeterStudent({
+        studentContext:youTeachLiveStudentContext
+      });
+    }catch(error){
+      console.error('Support Meter YouTeach heartbeat failed',error);
+      if(Number(error?.status)===410){
+        if(youTeachHeartbeatTimer){
+          clearInterval(youTeachHeartbeatTimer);
+          youTeachHeartbeatTimer=null;
+        }
+        showFeedback('wrong','Activity expired','This YouTeach live activity is no longer available. Return to Student Buzzer.');
+      }
+    }finally{
+      youTeachHeartbeatBusy=false;
+    }
+  }
+
+  function startYouTeachStudentHeartbeat(){
+    if(!youTeachLiveStudentContext)return;
+    if(youTeachHeartbeatTimer)clearInterval(youTeachHeartbeatTimer);
+    sendYouTeachStudentHeartbeat().catch(()=>{});
+    youTeachHeartbeatTimer=setInterval(()=>{
+      sendYouTeachStudentHeartbeat().catch(()=>{});
+    },25000);
+  }
 
   function story(){ return stories[state.storyIndex]; }
   function questionForFeeling(s){return ({Frustration:`What is ${s.targetName} feeling?`,Empathy:`What is ${s.targetName} showing?`,Encouragement:`What is ${s.targetName} offering?`})[s.feeling];}
@@ -105,14 +151,78 @@ import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun
   function revealFeedback(){const s=story();const p=pronounForms(s.targetPronoun);return `The best match for ${s.targetName} is ${s.feeling}, and the line is “${s.expression}” because that matches what ${s.targetName} ${p.be} feeling and what ${s.targetName} would say in this moment.`;}
 
   async function createSession(){
-    state.studentName=(el.name.value.trim()||'Student').slice(0,60);state.classCode=(el.code.value.trim()||cfg.defaultClassCode||'SUPPORT').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,40);
-    if(joinToken){
-      const resolved=await resolveJoinToken(joinToken);
-      if(!resolved){el.startError.textContent='This activity link is invalid or has expired.';el.startError.classList.remove('hidden');return false;}
-      state.sessionId=resolved.sessionId;selectedSet=Number(resolved.setNumber);stories=core.buildRun({setNumber:selectedSet,assigned:true});
+    let identity={};
+
+    if(liveStudentToken){
+      try{
+        youTeachLiveStudentContext=await resolveSupportMeterStudentLaunch({
+          search:location.search
+        });
+        const liveContext=youTeachLiveStudentContext?.liveContext||{};
+        const canonical=youTeachLiveStudentContext?.identity||{};
+        const assignedSession=await getAssignedSession(liveContext.cogSessionId);
+
+        if(!assignedSession||assignedSession.status!=='open'){
+          throw new Error('This Support Meter live session is no longer open.');
+        }
+
+        state.studentName=String(canonical.nickname||canonical.fullName||'Student').slice(0,60);
+        state.classCode=String(canonical.groupName||cfg.defaultClassCode||'SUPPORT').slice(0,40);
+        state.sessionId=String(liveContext.cogSessionId||'');
+        selectedSet=Number(assignedSession.setNumber);
+        stories=core.buildRun({setNumber:selectedSet,assigned:true});
+        identity={
+          studentKey:String(canonical.studentKey||''),
+          nickname:String(canonical.nickname||''),
+          fullName:String(canonical.fullName||''),
+          groupName:String(canonical.groupName||''),
+          studentNumber:String(canonical.studentNumber||''),
+          identitySource:'youteach'
+        };
+        cleanYouTeachLaunchFromUrl();
+      }catch(error){
+        console.error(error);
+        el.startError.textContent=error?.message||'Could not verify this YouTeach live activity.';
+        el.startError.classList.remove('hidden');
+        return false;
+      }
+    }else{
+      state.studentName=(el.name.value.trim()||'Student').slice(0,60);
+      state.classCode=(el.code.value.trim()||cfg.defaultClassCode||'SUPPORT').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,40);
+
+      if(joinToken){
+        const resolved=await resolveJoinToken(joinToken);
+        if(!resolved){
+          el.startError.textContent='This activity link is invalid or has expired.';
+          el.startError.classList.remove('hidden');
+          return false;
+        }
+        state.sessionId=resolved.sessionId;
+        selectedSet=Number(resolved.setNumber);
+        stories=core.buildRun({setNumber:selectedSet,assigned:true});
+      }
     }
-    try{const created=await createRun({studentName:state.studentName,classCode:state.classCode,sessionId:state.sessionId,setNumber:selectedSet,storyOrder:stories.map(s=>s.id)});state.runId=created.runId;state.controlGeneration=created.run.redirectGeneration||0;stopWatchingRun=watchRun(state.runId,receiveTeacherControl);return true;}
-    catch(error){console.error(error);el.startError.textContent='Could not connect to the class monitor. Please try again.';el.startError.classList.remove('hidden');return false;}
+
+    try{
+      const created=await createRun({
+        studentName:state.studentName,
+        classCode:state.classCode,
+        sessionId:state.sessionId,
+        setNumber:selectedSet,
+        storyOrder:stories.map(s=>s.id),
+        ...identity
+      });
+      state.runId=created.runId;
+      state.controlGeneration=created.run.redirectGeneration||0;
+      stopWatchingRun=watchRun(state.runId,receiveTeacherControl);
+      if(youTeachLiveStudentContext)startYouTeachStudentHeartbeat();
+      return true;
+    }catch(error){
+      console.error(error);
+      el.startError.textContent='Could not connect to the class monitor. Please try again.';
+      el.startError.classList.remove('hidden');
+      return false;
+    }
   }
   function livePayload(lastAction,phase){return {studentName:state.studentName,currentStory:encodeStory(selectedSet,story().id),storyTitle:story().name,storySummary:story().frames.join(' '),storyProgress:state.storyIndex+1,phase,lastAction,liveExpression:state.selectedExpression,liveFeeling:state.selectedFeeling,attempt:state.attempt,supportMeter:state.meter,streak:state.streak,translationAttemptCount:state.translationAttemptCount,latestResult:lastAction.includes('Correct')?'correct':lastAction.includes('Incorrect')||lastAction.includes('revealed')?'incorrect':'waiting',status:state.completed?'completed':'online'};}
   async function live(lastAction,phase){if(!state.runId)return;try{await updateRun(state.runId,livePayload(lastAction,phase));}catch(error){console.error(error);}}
@@ -144,7 +254,42 @@ import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun
     el.resultCanvas.toBlob(blob=>{if(!blob){save(el.resultCanvas.toDataURL('image/png'));return;}const url=URL.createObjectURL(blob);save(url);setTimeout(()=>URL.revokeObjectURL(url),1000);},'image/png');
   }
   async function nextStory(){
-    if(state.storyIndex>=stories.length-1){state.resolved=true;try{const completed=await completeRun(state.runId,{lastAction:'Completed Support Meter',latestResult:'completed',storyProgress:stories.length,supportMeter:state.meter,streak:state.streak});state.completed=true;el.next.classList.add('hidden');showFinalResult(completed.completedAt);}catch(error){console.error(error);showFeedback('wrong','Could not save your result','Check your connection, then select Next Story again to finish and create your verified result.');}return;}
+    if(state.storyIndex>=stories.length-1){
+      state.resolved=true;
+      try{
+        const completed=await completeRun(state.runId,{
+          lastAction:'Completed Support Meter',
+          latestResult:'completed',
+          storyProgress:stories.length,
+          supportMeter:state.meter,
+          streak:state.streak
+        });
+        state.completed=true;
+        el.next.classList.add('hidden');
+
+        if(youTeachLiveStudentContext){
+          try{
+            await submitSupportMeterLiveResult({
+              studentContext:youTeachLiveStudentContext,
+              runId:state.runId,
+              completedAt:completed.completedAt||Date.now(),
+              supportMeter:state.meter,
+              streak:state.streak,
+              storiesCompleted:stories.length,
+              translationAttempts:state.translationAttemptCount
+            });
+          }catch(resultError){
+            console.error('Could not return Support Meter result to YouTeach',resultError);
+          }
+        }
+
+        showFinalResult(completed.completedAt);
+      }catch(error){
+        console.error(error);
+        showFeedback('wrong','Could not save your result','Check your connection, then select Next Story again to finish and create your verified result.');
+      }
+      return;
+    }
     state.storyIndex++;state.selectedFeeling=null;state.selectedExpression=null;state.wrongFeelings=[];state.wrongExpressions=[];state.attempt=1;state.resolved=false;el.submit.classList.remove('hidden');el.next.classList.add('hidden');renderStory();if(matchMedia('(max-width:900px)').matches)scrollTo({top:0,behavior:'smooth'});live('Viewing next mini-story','story');
   }
 
@@ -174,10 +319,35 @@ import {resolveJoinToken,createRun,updateRun,completeRun,appendResponse,watchRun
   el.exitCancel.onclick=()=>el.exitDialog.close();
   el.exitConfirm.onclick=leaveGame;
   addEventListener('beforeunload',event=>{if(core.shouldWarnBeforeExit(state)){event.preventDefault();event.returnValue='';}});
-  el.startBtn.onclick=async()=>{el.startError.classList.add('hidden');if(await createSession()){state.started=true;renderPlayerName();el.start.classList.add('hidden');el.game.classList.remove('hidden');renderStory();await live('Viewing mini-story','story');setInterval(()=>state.runId&&updateRun(state.runId,{status:state.completed?'completed':'online'}),cfg.heartbeatMs||30000);cleanupExpiredFreeRuns().catch(console.error);}};
+  async function startCurrentActivity(){
+    el.startError.classList.add('hidden');
+    if(await createSession()){
+      state.started=true;
+      renderPlayerName();
+      el.start.classList.add('hidden');
+      el.game.classList.remove('hidden');
+      renderStory();
+      await live('Viewing mini-story','story');
+      setInterval(()=>state.runId&&updateRun(state.runId,{status:state.completed?'completed':'online'}),cfg.heartbeatMs||30000);
+      cleanupExpiredFreeRuns().catch(console.error);
+    }
+  }
+  el.startBtn.onclick=startCurrentActivity;
   function toggleCoach(){state.coachEnabled=!state.coachEnabled;renderCoachToggle();setCoachVisible();}
   el.coachToggle.onclick=toggleCoach;if(el.mobileCoachToggle)el.mobileCoachToggle.onclick=toggleCoach;
   el.redirectAccept.onclick=acceptRedirect;
   el.translationCheck.onclick=checkTranslation;el.translationDialog.addEventListener('cancel',event=>event.preventDefault());
   el.feedbackClose.onclick=hideFeedback;el.submit.onclick=submit;el.next.onclick=nextStory;el.downloadResult.onclick=downloadFinalResult;el.finishedStudentMenu.onclick=requestStudentMenu;renderCoachToggle();setCoachVisible();
+  if(liveStudentToken){
+    el.name.closest('label')?.classList.add('hidden');
+    el.code.closest('label')?.classList.add('hidden');
+    el.startBtn.disabled=true;
+    el.startBtn.textContent='OPENING YOUTEACH ACTIVITY…';
+    startCurrentActivity().catch(error=>{
+      console.error(error);
+      el.startBtn.disabled=true;
+      el.startError.textContent=error?.message||'Could not open this YouTeach live activity.';
+      el.startError.classList.remove('hidden');
+    });
+  }
 })();

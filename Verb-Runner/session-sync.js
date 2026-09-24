@@ -86,7 +86,7 @@ function makeRunnerId(){
   return id;
 }
 
-async function createSession(settings){
+async function createSession(settings,liveTeacherContext=null){
   let code=makeCode();
   for(let tries=0;tries<8;tries++){
     const snap=await get(ref(db,`${ROOT}/sessions/${code}`));
@@ -94,12 +94,26 @@ async function createSession(settings){
     code=makeCode();
   }
   const now=serverTimestamp();
+  const liveContext=liveTeacherContext?.liveContext||null;
+  const teacher=liveTeacherContext?.teacher||null;
+  const integration=liveContext?.groupName&&liveContext?.youTeachSessionId
+    ?{
+      source:'youteach-buzzer',
+      live:true,
+      groupName:String(liveContext.groupName),
+      youTeachSessionId:String(liveContext.youTeachSessionId),
+      assignmentId:String(liveContext.assignmentId||''),
+      teacherUsername:String(teacher?.username||'')
+    }
+    :null;
+
   await set(ref(db,`${ROOT}/sessions/${code}`),{
     code,
     status:'active',
     createdAt:now,
     lastActivity:now,
     settings,
+    ...(integration?{integration}:{}),
     students:{}
   });
   return code;

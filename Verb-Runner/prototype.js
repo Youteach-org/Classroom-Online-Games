@@ -3,6 +3,12 @@ import { COASTAL_SCENE } from './coastal-scene-config.mjs?v=coastal-production-2
 import { buildCoastalWorld } from './coastal-world.mjs?v=coastal-production-20260915-1';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
+import {
+  resolveStudentLaunch,
+  saveStudentContext,
+  heartbeatStudent,
+  submitLiveResult
+} from '../shared/youteach-live-bridge.mjs';
 
 const ROBOT_URLS=[
   'https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb',
@@ -407,8 +413,10 @@ let gameSettings={
 };
 
 const sessionParams=new URLSearchParams(location.search);
-const sessionCode=(sessionParams.get('session')||'').toUpperCase();
+let sessionCode=(sessionParams.get('session')||'').toUpperCase();
 const launchToken=String(sessionParams.get('launch')||'').trim();
+const liveStudentToken=String(sessionParams.get('ytLiveStudent')||'').trim();
+const liveStudentIssuer=String(sessionParams.get('issuer')||'').trim();
 const sessionStudentName=String(
   sessionParams.get('studentName')||
   sessionParams.get('nickname')||
@@ -421,6 +429,44 @@ let sessionData=null;
 let sessionRunFinished=false;
 let sessionLoadPromise=Promise.resolve(null);
 let youTeachIdentity=null;
+let youTeachLiveStudentContext=null;
+let youTeachAttemptId='';
+let youTeachStudentHeartbeatTimer=null;
+let youTeachStudentHeartbeatBusy=false;
+
+async function sendYouTeachStudentHeartbeat(){
+  if(youTeachStudentHeartbeatBusy||!youTeachLiveStudentContext)return;
+  youTeachStudentHeartbeatBusy=true;
+  try{
+    await heartbeatStudent({studentContext:youTeachLiveStudentContext});
+  }catch(error){
+    console.error('YouTeach student heartbeat failed',error);
+    if(Number(error?.status)===410){
+      if(youTeachStudentHeartbeatTimer){
+        clearInterval(youTeachStudentHeartbeatTimer);
+        youTeachStudentHeartbeatTimer=null;
+      }
+      sessionData=null;
+      modelStatus.textContent='This classroom activity expired after 60 minutes with no participants.';
+      if(startButton){
+        startButton.disabled=true;
+        startButton.classList.remove('loading');
+      }
+      if(startButtonLabel)startButtonLabel.textContent='ACTIVITY EXPIRED';
+    }
+  }finally{
+    youTeachStudentHeartbeatBusy=false;
+  }
+}
+
+function startYouTeachStudentHeartbeat(){
+  if(!youTeachLiveStudentContext)return;
+  if(youTeachStudentHeartbeatTimer)clearInterval(youTeachStudentHeartbeatTimer);
+  sendYouTeachStudentHeartbeat().catch(()=>{});
+  youTeachStudentHeartbeatTimer=setInterval(()=>{
+    sendYouTeachStudentHeartbeat().catch(()=>{});
+  },25000);
+}
 
 function localRunnerId(){
   try{
@@ -449,10 +495,11 @@ function storeYouTeachIdentity(identity){
   }catch{}
 }
 
-function cleanLaunchTokenFromUrl(){
-  if(!launchToken)return;
+function cleanLaunchCredentialsFromUrl(){
   const clean=new URL(location.href);
   clean.searchParams.delete('launch');
+  clean.searchParams.delete('ytLiveStudent');
+  clean.searchParams.delete('issuer');
   history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
 }
 
@@ -851,17 +898,36 @@ function applySessionSettings(settings={}){
   progressValue.textContent='0 / '+totalChallenges;
 }
 
-sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
+sessionLoadPromise=import('./session-sync.js?v=live-cog-student-20260920')
   .then(async api=>{
     sessionApi=api;
 
-    if(launchToken){
+    if(liveStudentToken){
+      const resolved=await resolveStudentLaunch({
+        token:liveStudentToken,
+        issuer:liveStudentIssuer
+      });
+      if(!resolved||resolved.liveContext?.gameId!=='verb-runner'){
+        throw new Error('Invalid or expired YouTeach live activity credential');
+      }
+
+      youTeachLiveStudentContext=resolved;
+      saveStudentContext(resolved);
+      youTeachIdentity={
+        ...resolved.identity,
+        identitySource:'youteach'
+      };
+      storeYouTeachIdentity(youTeachIdentity);
+      runnerSessionId='YT-'+String(resolved.identity.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
+      sessionCode=String(resolved.liveContext.cogSessionId||'').toUpperCase();
+      cleanLaunchCredentialsFromUrl();
+    }else if(launchToken){
       const resolved=await sessionApi.resolveYouTeachLaunchToken(launchToken);
       if(!resolved)throw new Error('Invalid or expired YouTeach credential');
       youTeachIdentity=resolved;
       storeYouTeachIdentity(resolved);
       runnerSessionId='YT-'+String(resolved.studentKey).replace(/[.#$\[\]\/]/g,'_').slice(0,96);
-      cleanLaunchTokenFromUrl();
+      cleanLaunchCredentialsFromUrl();
     }
 
     const presenceData={
@@ -877,9 +943,24 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
       modelStatus.textContent='Loading classroom session '+sessionCode+'…';
       const data=await sessionApi.loadSession(sessionCode);
       if(!data||data.status!=='active')throw new Error('Session not active');
+
+      if(youTeachLiveStudentContext){
+        const integration=data.integration||{};
+        const liveContext=youTeachLiveStudentContext.liveContext||{};
+        if(
+          integration.source!=='youteach-buzzer'||
+          String(integration.groupName||'')!==String(liveContext.groupName||'')||
+          String(integration.youTeachSessionId||'')!==String(liveContext.youTeachSessionId||'')||
+          String(integration.assignmentId||'')!==String(liveContext.assignmentId||'')
+        ){
+          throw new Error('This Verb Runner session does not match your YouTeach class activity');
+        }
+      }
+
       sessionData=data;
       applySessionSettings(data.settings||{});
       await sessionApi.registerRunnerPresence(sessionCode,runnerSessionId,presenceData);
+      if(youTeachLiveStudentContext)startYouTeachStudentHeartbeat();
       modelStatus.textContent='Session '+sessionCode+' ready · '+(youTeachIdentity?.nickname||'connected');
       return data;
     }
@@ -893,13 +974,65 @@ sessionLoadPromise=import('./session-sync.js?v=youteach-credentials-20260915-1')
     console.error('Verb Runner monitor presence failed',err);
     sessionApi=null;
     sessionData=null;
-    modelStatus.textContent=launchToken
-      ?'YouTeach credential expired · reopen Verb Runner from YouTeach'
+    modelStatus.textContent=(liveStudentToken||launchToken)
+      ?'YouTeach credential expired · reopen Verb Runner from Student Buzzer'
       :(sessionCode?'Session unavailable · local mode':modelStatus.textContent);
     return null;
   });
 
 
+
+function newYouTeachAttemptId(){
+  const randomPart=globalThis.crypto?.randomUUID
+    ?globalThis.crypto.randomUUID().replace(/-/g,'').slice(0,20)
+    :Math.random().toString(36).slice(2,14);
+  return 'a'+Date.now().toString(36)+'_'+randomPart;
+}
+
+function buildYouTeachResultId(attemptId){
+  const sessionPart=String(sessionCode||'live').replace(/[^A-Za-z0-9_-]/g,'').slice(0,24)||'live';
+  return ('vr_'+sessionPart+'_'+String(attemptId||'attempt')).slice(0,160);
+}
+
+async function submitYouTeachLiveResult(summary){
+  if(!youTeachLiveStudentContext||!summary)return null;
+
+  const attemptId=youTeachAttemptId||newYouTeachAttemptId();
+  const result={
+    schemaVersion:1,
+    resultId:buildYouTeachResultId(attemptId),
+    attemptId,
+    resultType:'individual',
+    completedAt:Date.now(),
+    percentage:summary.accuracy,
+    points:null,
+    metrics:{
+      correct:Number(runState?.correct||0),
+      grammarErrors:Number(runState?.grammarErrors||0),
+      obstacleHits:Number(summary.obstacleHits||0),
+      bestStreak:Number(summary.bestStreak||0),
+      timeMs:Number(summary.timeMs||0),
+      momentum:Number(summary.momentum||0),
+      level:Number(currentLevel||0),
+      mode:raceMode(),
+      difficulty:String(difficulty?.name||'')
+    }
+  };
+
+  let lastError=null;
+  for(let attempt=1;attempt<=3;attempt++){
+    try{
+      return await submitLiveResult({studentContext:youTeachLiveStudentContext,result});
+    }catch(error){
+      lastError=error;
+      if([401,403,409,410].includes(Number(error?.status)))break;
+      if(attempt<3)await waitMs(attempt*1000);
+    }
+  }
+
+  console.error('Could not return Verb Runner result to YouTeach',lastError);
+  return null;
+}
 
 function formatTime(ms){
   const total=Math.max(0,Math.round(ms));
@@ -2295,6 +2428,12 @@ function finishRun(){
     }));
   }catch{}
 
+  if(youTeachLiveStudentContext){
+    submitYouTeachLiveResult(summary).catch(error=>{
+      console.error('Verb Runner live result submission failed',error);
+    });
+  }
+
   if(sessionData){
     sessionFinish({
       level:currentLevel,
@@ -2380,6 +2519,7 @@ function beginVictorySprint(){
 }
 
 function resetRun(){
+  youTeachAttemptId=newYouTeachAttemptId();
   totalChallenges=currentLevel===5?30:TOTAL_CHALLENGES;
   runState=window.VerbRunnerGameCore.createRunState(totalChallenges);
   challengeIndex=0;

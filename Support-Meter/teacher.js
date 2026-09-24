@@ -1,18 +1,81 @@
-import {createAssignedSession,watchSessions,redirectRun,downloadSessionData,deleteAssignedSession,cleanupExpiredFreeRuns} from './firebase-client.js';
+import {createAssignedSession,watchSessions,redirectRun,downloadSessionData,deleteAssignedSession,closeAssignedSession,updateAssignedSessionIntegration,cleanupExpiredFreeRuns} from './firebase-client.js';
+import {
+  loadSupportMeterTeacherContext,
+  registerSupportMeterSession,
+  endSupportMeterSession,
+  heartbeatSupportMeterTeacher
+} from './live-session.js';
 
 document.head.insertAdjacentHTML('beforeend','<link rel="stylesheet" href="teacher-v21.css">');
 const cfg=window.SUPPORT_METER_CONFIG,core=window.SupportMeterTeacherCore,firebaseCore=window.SupportMeterFirebaseCore,$=id=>document.getElementById(id);
-const el={set:$('setNumber'),create:$('createSession'),sessions:$('sessionList'),download:$('downloadResults'),error:$('assignmentError'),share:$('shareBox'),link:$('studentLink'),copy:$('copyLink'),dot:$('monitorDot'),status:$('monitorStatus'),grid:$('studentGrid'),focusStage:$('focusStage'),focused:$('focusedStudent'),rail:$('thumbnailRail'),empty:$('emptyMonitor'),online:$('onlineCount'),total:$('totalCount'),hide:$('hideOffline')};
+const el={set:$('setNumber'),create:$('createSession'),endLive:$('endLiveActivity'),sessions:$('sessionList'),download:$('downloadResults'),error:$('assignmentError'),share:$('shareBox'),link:$('studentLink'),copy:$('copyLink'),dot:$('monitorDot'),status:$('monitorStatus'),grid:$('studentGrid'),focusStage:$('focusStage'),focused:$('focusedStudent'),rail:$('thumbnailRail'),empty:$('emptyMonitor'),online:$('onlineCount'),total:$('totalCount'),hide:$('hideOffline')};
 let catalog=[],active='all',runs={},focusId=null,hideOffline=false;
+let liveTeacherContext=loadSupportMeterTeacherContext();
+let liveHeartbeatBusy=false;
 const esc=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
 const online=run=>run.status==='online'&&Date.now()-Number(run.lastSeen||0)<(cfg.onlineThresholdMs||40000);
 const current=()=>catalog.find(item=>item.sessionId===active);
+function liveIntegrationForContext(context){
+  const liveContext=context?.liveContext||{};
+  if(!context)return null;
+  return {
+    source:'youteach-buzzer',
+    active:true,
+    gameId:'support-meter',
+    gameName:'Support Meter',
+    youTeachSessionId:String(liveContext.youTeachSessionId||''),
+    groupName:String(liveContext.groupName||''),
+    assignmentId:String(liveContext.assignmentId||''),
+    startedAt:Date.now()
+  };
+}
+function liveSessionMatches(item,context=liveTeacherContext){
+  const integration=item?.integration||{};
+  const liveContext=context?.liveContext||{};
+  return Boolean(
+    item&&
+    item.sessionType==='assigned'&&
+    integration.active===true&&
+    integration.source==='youteach-buzzer'&&
+    context&&
+    String(integration.youTeachSessionId||'')===String(liveContext.youTeachSessionId||'')&&
+    String(integration.groupName||'')===String(liveContext.groupName||'')&&
+    String(integration.assignmentId||'')===String(liveContext.assignmentId||'')
+  );
+}
+function refreshLiveControls(){
+  if(!el.endLive)return;
+  el.endLive.hidden=!liveSessionMatches(current());
+  el.endLive.disabled=false;
+}
+async function sendSupportMeterTeacherHeartbeat(){
+  const item=current();
+  if(liveHeartbeatBusy||!liveSessionMatches(item)||!item?.sessionId)return;
+  liveHeartbeatBusy=true;
+  try{
+    await heartbeatSupportMeterTeacher({
+      teacherContext:liveTeacherContext,
+      sessionId:item.sessionId
+    });
+  }catch(error){
+    console.error('Support Meter teacher heartbeat failed',error);
+    if(Number(error?.status)===410){
+      const integration={...(item.integration||{}),active:false,expiredAt:Date.now()};
+      await updateAssignedSessionIntegration(item.sessionId,integration).catch(()=>{});
+      await closeAssignedSession(item.sessionId).catch(()=>{});
+      active='all';
+      showError('This YouTeach live activity expired after 60 minutes with no participants.');
+    }
+  }finally{
+    liveHeartbeatBusy=false;
+  }
+}
 const studentUrl=item=>`${location.origin}/Support-Meter/?join=${encodeURIComponent(item.joinToken)}`;
 function status(ok,text){el.dot.className=`dot${ok?' live':''}`;el.status.textContent=text;}
 function frame(run,n){const set=run.setNumber||Math.floor(Number(run.currentStory)/10)||1,story=Number(run.currentStory)%10||1;return `assets/stories-v16/set-${set}/story-${story}-frame-${n}.webp`;}
 function sessionCard(item){const selected=item.sessionId===active,date=item.sessionType==='assigned'?new Date(Number(item.createdAt||Date.now())).toLocaleString():'';return `<button class="session-card${selected?' selected':''}" type="button" data-session-id="${esc(item.sessionId)}"><strong>${esc(item.title)}</strong><span class="session-count">${item.studentCount} student${item.studentCount===1?'':'s'} · <span class="session-live">${item.onlineCount} LIVE</span></span>${date?`<small>${esc(date)}</small>`:'<small>Independent practice</small>'}</button>`;}
 function scrollSelectedSessionIntoView(){requestAnimationFrame(()=>{const selected=el.sessions.querySelector('.session-card.selected');if(!selected)return;const left=selected.offsetLeft,right=left+selected.offsetWidth,viewLeft=el.sessions.scrollLeft,viewRight=viewLeft+el.sessions.clientWidth;if(left<viewLeft)el.sessions.scrollTo({left,behavior:'smooth'});else if(right>viewRight)el.sessions.scrollTo({left:right-el.sessions.clientWidth,behavior:'smooth'});});}
-function refreshSessionList(){const all=firebaseCore.visibleRuns(runs,'all',Date.now()),allItem={sessionId:'all',title:'ALL ACTIVE STUDENTS',studentCount:all.length,onlineCount:all.filter(online).length,sessionType:'all'};el.sessions.innerHTML=[allItem,...catalog.map(item=>({...item,title:item.sessionType==='free'?'FREE MODE':`SET ${item.setNumber}`}))].map(sessionCard).join('');const item=current();el.download.disabled=!item||item.sessionType==='free';el.share.classList.toggle('hidden',!item?.joinToken);if(item?.joinToken)el.link.value=studentUrl(item);}
+function refreshSessionList(){const all=firebaseCore.visibleRuns(runs,'all',Date.now()),allItem={sessionId:'all',title:'ALL ACTIVE STUDENTS',studentCount:all.length,onlineCount:all.filter(online).length,sessionType:'all'};el.sessions.innerHTML=[allItem,...catalog.map(item=>({...item,title:item.sessionType==='free'?'FREE MODE':`SET ${item.setNumber}`}))].map(sessionCard).join('');const item=current();el.download.disabled=!item||item.sessionType==='free';el.share.classList.toggle('hidden',!item?.joinToken);if(item?.joinToken)el.link.value=studentUrl(item);refreshLiveControls();}
 function connectActive(){focusId=null;refreshSessionList();scrollSelectedSessionIntoView();render();status(true,'Live');}
 function moveControls(run){const targets=catalog.filter(item=>item.sessionType==='assigned'&&item.sessionId!==run.sessionId);if(!targets.length)return '';return `<div class="move-tools" data-no-focus><select aria-label="Move ${esc(run.studentName)} to session">${targets.map(item=>`<option value="${esc(item.sessionId)}">Set ${item.setNumber}</option>`).join('')}</select><button type="button">Move</button></div>`;}
 function card(run){
@@ -24,9 +87,81 @@ function card(run){
 }
 function render(){const all=firebaseCore.visibleRuns(runs,active,Date.now()),visible=hideOffline?all.filter(online):all;el.grid.innerHTML='';el.focused.innerHTML='';el.rail.innerHTML='';if(focusId&&!visible.some(run=>run.id===focusId))focusId=null;if(focusId){el.focused.appendChild(card(visible.find(run=>run.id===focusId)));visible.filter(run=>run.id!==focusId).forEach(run=>el.rail.appendChild(card(run)));}else visible.forEach(run=>el.grid.appendChild(card(run)));el.grid.classList.toggle('hidden',Boolean(focusId));el.focusStage.classList.toggle('hidden',!focusId);el.empty.classList.toggle('hidden',visible.length>0);el.empty.textContent=active==='all'?'No active students are visible yet.':'No students have joined this session yet.';el.total.textContent=`${all.length} student${all.length===1?'':'s'}`;el.online.textContent=`${all.filter(online).length} online`;}
 function showError(message){el.error.textContent=message;el.error.classList.remove('hidden');}
-async function createSession(){el.error.classList.add('hidden');try{const created=await createAssignedSession(Number(el.set.value));active=created.sessionId;connectActive();}catch(error){console.error(error);showError('Could not create the session. Please try again.');}}
+async function createSession(){
+  el.error.classList.add('hidden');
+  let created=null;
+  try{
+    liveTeacherContext=liveTeacherContext||loadSupportMeterTeacherContext();
+    const integration=liveIntegrationForContext(liveTeacherContext);
+    created=await createAssignedSession(Number(el.set.value),integration);
+
+    if(liveTeacherContext){
+      try{
+        await registerSupportMeterSession({
+          teacherContext:liveTeacherContext,
+          sessionId:created.sessionId
+        });
+        await heartbeatSupportMeterTeacher({
+          teacherContext:liveTeacherContext,
+          sessionId:created.sessionId
+        });
+      }catch(error){
+        const failedIntegration={...(created.integration||integration||{}),active:false,registrationFailedAt:Date.now()};
+        await updateAssignedSessionIntegration(created.sessionId,failedIntegration).catch(()=>{});
+        await closeAssignedSession(created.sessionId).catch(()=>{});
+        throw error;
+      }
+    }
+
+    active=created.sessionId;
+    connectActive();
+  }catch(error){
+    console.error(error);
+    active='all';
+    refreshSessionList();
+    render();
+    showError(error?.message||'Could not create the session. Please try again.');
+  }
+}
+async function endLiveActivity(){
+  const item=current();
+  if(!liveSessionMatches(item))return;
+  if(!confirm('End this activity for the group? Students will no longer be able to enter.'))return;
+
+  el.endLive.disabled=true;
+  try{
+    await endSupportMeterSession({
+      teacherContext:liveTeacherContext,
+      sessionId:item.sessionId
+    });
+    const endedIntegration={...(item.integration||{}),active:false,endedAt:Date.now()};
+    await updateAssignedSessionIntegration(item.sessionId,endedIntegration);
+    await closeAssignedSession(item.sessionId);
+    active='all';
+    connectActive();
+  }catch(error){
+    console.error(error);
+    showError(error?.message||'Could not end the live activity.');
+    el.endLive.disabled=false;
+  }
+}
+
 function csvRows(data){const rows=[];for(const [runId,responses] of Object.entries(data.responses||{})){const run=data.runs[runId]||{};for(const response of Object.values(responses||{}))rows.push({student_name:run.studentName,set_number:run.setNumber,story_id:response.storyId,story_title:response.storyTitle,selected_feeling:response.selectedFeeling,selected_expression:response.selectedExpression,feeling_correct:response.feelingCorrect,expression_correct:response.expressionCorrect,resolved:response.resolved,attempt:response.attempt,support_meter:response.supportMeter,streak:response.streak,created_at:new Date(response.createdAt).toISOString()});}return rows;}
 async function downloadResults(){const item=current();if(!item||item.sessionType==='free')return;try{const data=await downloadSessionData(item.sessionId),blob=new Blob([core.buildCsv(csvRows(data))],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),anchor=document.createElement('a');anchor.href=url;anchor.download=`support-meter-set-${item.setNumber}-${new Date().toISOString().slice(0,10)}.csv`;anchor.click();setTimeout(()=>URL.revokeObjectURL(url),1000);if(!confirm('The results download has started. Delete this session, all student activity, and close its link now?'))return;await deleteAssignedSession(item.sessionId);active='all';connectActive();}catch(error){console.error(error);showError('Could not prepare or delete the session results.');}}
-watchSessions(({sessions,runs:allRuns})=>{const previous=active;runs=allRuns;catalog=firebaseCore.normalizeSessions(sessions,runs,Date.now(),cfg.onlineThresholdMs||40000);if(previous!=='all'&&!catalog.some(item=>item.sessionId===previous))active='all';refreshSessionList();render();status(true,'Live');});
-el.create.onclick=createSession;el.sessions.onclick=event=>{const button=event.target.closest('[data-session-id]');if(!button)return;active=button.dataset.sessionId;connectActive();};el.copy.onclick=async()=>{await navigator.clipboard.writeText(el.link.value);el.copy.textContent='Copied!';setTimeout(()=>el.copy.textContent='Copy Student Link',1400);};el.download.onclick=downloadResults;el.hide.onclick=()=>{hideOffline=!hideOffline;el.hide.textContent=hideOffline?'Show offline':'Hide offline';render();};
-cleanupExpiredFreeRuns().catch(console.error);setInterval(()=>cleanupExpiredFreeRuns().catch(console.error),60000);render();
+watchSessions(({sessions,runs:allRuns})=>{
+  const previous=active;
+  runs=allRuns;
+  catalog=firebaseCore.normalizeSessions(sessions,runs,Date.now(),cfg.onlineThresholdMs||40000);
+  if(previous!=='all'&&!catalog.some(item=>item.sessionId===previous))active='all';
+
+  if(liveTeacherContext&&(active==='all'||active==='free')){
+    const matching=catalog.find(item=>liveSessionMatches(item,liveTeacherContext));
+    if(matching)active=matching.sessionId;
+  }
+
+  refreshSessionList();
+  render();
+  status(true,'Live');
+});
+el.create.onclick=createSession;if(el.endLive)el.endLive.onclick=endLiveActivity;el.sessions.onclick=event=>{const button=event.target.closest('[data-session-id]');if(!button)return;active=button.dataset.sessionId;connectActive();};el.copy.onclick=async()=>{await navigator.clipboard.writeText(el.link.value);el.copy.textContent='Copied!';setTimeout(()=>el.copy.textContent='Copy Student Link',1400);};el.download.onclick=downloadResults;el.hide.onclick=()=>{hideOffline=!hideOffline;el.hide.textContent=hideOffline?'Show offline':'Hide offline';render();};
+cleanupExpiredFreeRuns().catch(console.error);setInterval(()=>cleanupExpiredFreeRuns().catch(console.error),60000);setInterval(()=>sendSupportMeterTeacherHeartbeat().catch(()=>{}),25000);render();

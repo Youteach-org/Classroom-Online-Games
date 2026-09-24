@@ -9,10 +9,27 @@ const at=path=>ref(db,`${root}/${path}`);
 const token=bytes=>Array.from(crypto.getRandomValues(new Uint8Array(bytes)),value=>value.toString(16).padStart(2,'0')).join('');
 const value=snapshot=>snapshot.exists()?snapshot.val():null;
 
-export async function createAssignedSession(setNumber){
+export async function createAssignedSession(setNumber,integration=null){
   const sessionRef=push(at('sessions')),sessionId=sessionRef.key,joinToken=token(18),manageToken=token(24),now=Date.now();
-  await update(at(''),{[`sessions/${sessionId}`]:{setNumber:Number(setNumber),joinToken,manageToken,status:'open',createdAt:now,lastActivity:now},[`sessionTokens/${joinToken}`]:{sessionId}});
-  return {sessionId,joinToken,manageToken,setNumber:Number(setNumber),createdAt:now};
+  const cleanIntegration=integration&&typeof integration==='object'
+    ?{...integration,cogSessionId:sessionId}
+    :null;
+  await update(at(''),{[`sessions/${sessionId}`]:{setNumber:Number(setNumber),joinToken,manageToken,status:'open',createdAt:now,lastActivity:now,...(cleanIntegration?{integration:cleanIntegration}:{})},[`sessionTokens/${joinToken}`]:{sessionId}});
+  return {sessionId,joinToken,manageToken,setNumber:Number(setNumber),createdAt:now,...(cleanIntegration?{integration:cleanIntegration}:{})};
+}
+
+export async function getAssignedSession(sessionId){
+  if(!sessionId)return null;
+  const session=value(await get(at(`sessions/${sessionId}`)));
+  return session?{...session,sessionId}:null;
+}
+
+export async function updateAssignedSessionIntegration(sessionId,integration){
+  if(!sessionId)return;
+  await update(at(`sessions/${sessionId}`),{
+    integration:integration||null,
+    lastActivity:Date.now()
+  });
 }
 
 export async function resolveJoinToken(joinToken){
@@ -24,7 +41,7 @@ export async function resolveJoinToken(joinToken){
 
 export async function createRun(input){
   const runRef=push(at('runs')),runId=runRef.key,now=Date.now();
-  const run={studentName:String(input.studentName||'Student').slice(0,60),classCode:String(input.classCode||'CONNECT5').slice(0,40),sessionId:input.sessionId||'free',setNumber:Number(input.setNumber),storyOrder:input.storyOrder||[1,2,3,4,5,6,7,8],storyProgress:1,currentStory:Number(input.setNumber)*10+Number(input.storyOrder?.[0]||1),phase:'story',lastAction:'Started Support Meter',liveFeeling:null,liveExpression:null,latestResult:'waiting',attempt:1,supportMeter:0,streak:0,status:'online',startedAt:now,lastSeen:now,updatedAt:now,completedAt:null,redirectGeneration:0};
+  const run={studentName:String(input.studentName||'Student').slice(0,60),classCode:String(input.classCode||'CONNECT5').slice(0,40),sessionId:input.sessionId||'free',setNumber:Number(input.setNumber),studentKey:String(input.studentKey||'').slice(0,120),nickname:String(input.nickname||'').slice(0,60),fullName:String(input.fullName||'').slice(0,120),groupName:String(input.groupName||'').slice(0,80),studentNumber:String(input.studentNumber||'').slice(0,80),identitySource:String(input.identitySource||'local').slice(0,40),storyOrder:input.storyOrder||[1,2,3,4,5,6,7,8],storyProgress:1,currentStory:Number(input.setNumber)*10+Number(input.storyOrder?.[0]||1),phase:'story',lastAction:'Started Support Meter',liveFeeling:null,liveExpression:null,latestResult:'waiting',attempt:1,supportMeter:0,streak:0,status:'online',startedAt:now,lastSeen:now,updatedAt:now,completedAt:null,redirectGeneration:0};
   await set(runRef,run);await onDisconnect(runRef).update({status:'offline',lastSeen:serverTimestamp(),updatedAt:serverTimestamp()});
   return {runId,run};
 }
@@ -50,6 +67,14 @@ export async function downloadSessionData(sessionId){
   const runs=value(await get(query(at('runs'),orderByChild('sessionId'),equalTo(sessionId))))||{},allResponses=value(await get(at('responses')))||{},responses={};
   for(const runId of Object.keys(runs))responses[runId]=allResponses[runId]||{};
   return {runs,responses};
+}
+
+export async function closeAssignedSession(sessionId){
+  const session=value(await get(at(`sessions/${sessionId}`)));if(!session)return false;
+  const changes={[`sessions/${sessionId}/status`]:'closed',[`sessions/${sessionId}/closedAt`]:Date.now(),[`sessions/${sessionId}/lastActivity`]:Date.now()};
+  if(session.joinToken)changes[`sessionTokens/${session.joinToken}`]=null;
+  await update(at(''),changes);
+  return true;
 }
 
 export async function deleteAssignedSession(sessionId){
