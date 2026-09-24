@@ -268,15 +268,26 @@ Training AED pads: no standalone replacement-pad listing has yet been verified a
 
 The AED trainer does not need a large TFT. Audio is the primary student guidance channel and the Classroom Games Teacher Monitor is the detailed instructor interface.
 
-**Preferred display:** 1.3-inch monochrome OLED, 128x64, I2C (SH1106/SSD1306-compatible class), non-touch.
-- Purpose: show only short prompts and compact status indicators.
-- Typical prompts: COLOQUE PARCHES, ANALIZANDO, NO TOQUE, PRESIONE SHOCK, INICIE RCP.
-- Optional icons/status: BLE, battery, pad connection.
-- Use only four electrical connections: VCC, GND, SDA, SCL.
-- Mount behind a clear acrylic/polycarbonate window for physical protection.
+**Preferred display — confirmed by user:** 0.96-inch monochrome OLED, 128x64, I2C, SSD1306-class, non-touch.
 
-Current Mercado Libre Mexico reference observed 2026-09-24: UNIT Electronics 1.3-inch 128x64 I2C OLED around MXN 95.50 and available through Mercado Libre search listings.
+Confirmed Mercado Libre México listing:
+https://www.mercadolibre.com.mx/pantalla-display-oled-azul-ssd1306-128x64-12c-096-in/up/MLMU566800926
 
-**Lower-cost fallback:** 0.96-inch SSD1306 128x64 I2C OLED, around MXN 88.62 in current Mercado Libre listings. Use only if the enclosure/front-panel layout strongly favors the smaller display.
+Observed 2026-09-24:
+- price about MXN 78.90;
+- 128x64 pixels;
+- I2C interface;
+- 4 pins: GND, VCC, SCL, SDA;
+- 3-5 V supply;
+- approximately 2.7 x 2.7 cm module size;
+- current listing showed stock available.
 
-Do not use a touch display. Do not use a 2.4/2.8-inch TFT unless later testing demonstrates a real readability need.
+Purpose:
+- COLOQUE PARCHES
+- ANALIZANDO
+- NO TOQUE
+- PRESIONE SHOCK
+- INICIE RCP
+- compact BLE / battery / pad indicators
+
+Do not use a touch display. Do not use a 2.4/2.8-inch TFT unless later physical testing demonstrates a real readability need.
