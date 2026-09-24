@@ -277,3 +277,38 @@ Characters:
 - Recording and conversation screens reuse character-avatar components.
 - Teacher monitor uses compact participant/avatar representations.
 - Characters remain part of the approved design and must not be removed in later simplifications.
+
+
+## Verification status — redesign branch
+
+Feature branch:
+- talk-talk-mockup-v2-20260923
+
+Visual contract RED/GREEN evidence:
+- Initial visual contract run: 35955105635 — FAILED against the previous UI, as expected.
+- After implementation: 35955252998 — SUCCESS.
+- Handoff-updated visual run: 35955265697 — SUCCESS.
+
+Full Talk Talk matrix run:
+- 35955436077
+- Syntax: SUCCESS.
+- Visual contract: SUCCESS.
+- Student shell: SUCCESS.
+- Teacher monitor: SUCCESS.
+- Module shell: SUCCESS.
+- Most functional Talk Talk tests: SUCCESS.
+- Three tests remain red:
+  - youteach-team-context.test.mjs
+  - live-bootstrap.test.mjs
+  - result-submit.test.mjs
+
+Baseline comparison against clean main:
+- Baseline branch: talk-talk-baseline-check-20260923
+- youteach-team-context.test.mjs failed on clean main in run 35955477562.
+- live-bootstrap.test.mjs and result-submit.test.mjs also fail on clean main in baseline matrix run 35955516187.
+- Therefore these three failures predate the visual redesign; do not attribute them to the eight-screen UI implementation.
+
+Integration rule:
+- Do not claim the entire Talk Talk suite is green while these baseline failures remain.
+- The visual redesign itself is verified by its dedicated contract and shell/monitor tests.
+- Before production merge, either repair the three pre-existing integration tests or explicitly document an approved exception.
