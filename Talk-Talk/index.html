@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Talk Talk</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app-shell student-shell" aria-label="Talk Talk">
+    <header class="topbar">
+      <a class="brand-lockup" href="/"><span class="brand-mark">TT</span><span><small>Classroom Online Games</small><strong>Talk Talk</strong></span></a>
+      <nav class="mini-nav" aria-label="Talk Talk navigation">
+        <a class="active" href="./">Student</a>
+        <a href="./creator.html">Creator</a>
+        <a href="./teacher.html">Teacher Monitor</a>
+      </nav>
+      <button id="joinClassAction" class="primary" type="button" hidden>Join Class</button>
+    </header>
+
+    <section id="homeView" class="hero-layout">
+      <article class="panel hero-copy">
+        <p class="eyebrow">Speaking & pronunciation</p>
+        <h1>Ready to speak?</h1>
+        <p class="lead">Practice a sound, use it in a real message, then carry it into conversation.</p>
+        <div class="hero-points" aria-label="Talk Talk features">
+          <span>Conversation practice</span><span>Pronunciation evidence</span><span>Teacher review</span>
+        </div>
+        <button id="continueAction" class="primary hero-action" type="button">Continue <span aria-hidden="true">→</span></button>
+      </article>
+
+      <aside class="panel speaking-scene" aria-label="Conversation illustration">
+        <div class="speech-bubble left">What happened?</div>
+        <div class="people">
+          <div class="person person-a" aria-label="Student one"><span class="face">A</span><span class="body"></span></div>
+          <div class="sound-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="person person-b" aria-label="Student two"><span class="face">B</span><span class="body"></span></div>
+        </div>
+        <div class="speech-bubble right">Tell me more.</div>
+        <div class="scene-caption"><strong>Talk naturally.</strong><span>Talk Talk keeps the evidence so feedback stays connected to what was actually said.</span></div>
+      </aside>
+    </section>
+
+    <section id="lessonView" class="panel lesson-card" hidden><p id="lessonPhase" class="visually-hidden" aria-live="polite">Lesson ready</p></section>
+
+    <section id="speechDock" class="panel speech-dock" hidden>
+      <div class="recording-topline"><span class="status-dot"></span><p id="recordingState" aria-live="polite">Ready</p></div>
+      <div class="wave-preview" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <button id="recordButton" class="mic-button" type="button" aria-label="Record"><span aria-hidden="true">●</span></button>
+      <p class="microcopy">Tap to check the microphone. Audio stays on this device until an activity submits it for analysis.</p>
+    </section>
+
+    <section id="resultsView" class="panel results-card" hidden></section>
+
+    <section id="replayPanel" class="panel" hidden>
+      <div class="section-heading"><div><p class="eyebrow">Conversation Replay</p><h2>Your conversation</h2></div></div>
+      <div id="replayList"></div>
+    </section>
+  </main>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
