@@ -1,9 +1,14 @@
-name: Talk Talk visual contract
+name: Talk Talk verification
 
 on:
   push:
     branches:
       - talk-talk-mockup-v2-20260923
+      - main
+  pull_request:
+    paths:
+      - "Talk-Talk/**"
+      - ".github/workflows/talk-talk-visual-contract.yml"
 
 permissions:
   contents: read
@@ -13,5 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: Run Talk Talk visual contract
-        run: node --test Talk-Talk/tests/visual-contract.test.mjs
+      - name: Check Talk Talk modules
+        run: |
+          node --check Talk-Talk/app.mjs
+          node --check Talk-Talk/teacher-app.mjs
+      - name: Run all Talk Talk tests
+        run: node --test Talk-Talk/tests/*.test.mjs
