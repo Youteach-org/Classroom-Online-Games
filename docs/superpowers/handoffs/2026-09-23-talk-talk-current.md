@@ -403,3 +403,22 @@ TDD evidence for removing the screenshot shortcut:
 
 Future-session rule:
 Before modifying Talk Talk visuals, read this section. If a proposed implementation would make a screenshot look finished without implementing the underlying UI, do not do it.
+
+
+### Real-UI rebuild verification — 2026-09-25
+
+The prior screenshot/crop implementation has been removed from visible student/teacher UI.
+
+Verified branch state before this handoff update:
+- UI commit: `f24a911338e002b1ffdb892bb80fd2ffb8fcf5bf`
+- Standalone/UI tests: run `36101697406` — SUCCESS
+- Cloudflare preview deploy: run `36101697331` — SUCCESS
+- `Talk-Talk/index.html`: no approved-mockup image, no reference-art/reference-screen; uses independent character assets and real DOM panels.
+- `Talk-Talk/teacher.html`: no approved-mockup image, no reference-art/reference-screen; uses independent character assets and real DOM panels.
+- `Talk-Talk/styles.css`: no reference-art/reference-screen implementation.
+
+TDD sequence:
+- RED: `36101106759` caught the screenshot implementation.
+- GREEN: `36101697406` verifies the real-DOM implementation contract.
+
+Do not revert to the earlier direct-crop technique.
