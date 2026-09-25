@@ -1,4 +1,6 @@
 import test from 'node:test';
+import { RELATIONSHIPS } from '../data/relationships.mjs';
+import * as generatorModule from '../engine/generator.mjs';
 import assert from 'node:assert/strict';
 import { createBoard, tileById } from '../engine/board.mjs';
 import { createRelationshipBank } from '../engine/relationship-bank.mjs';
@@ -101,4 +103,106 @@ test('live board recovery leaves the board object unchanged',()=>{
   const result=recoverDeadBoard({board:fallbackBoard,bank,rng:seeded(4),fallbackBoard});
   assert.equal(result.reset,false);
   assert.equal(result.board,fallbackBoard);
+});
+
+
+const fullBank=createRelationshipBank(RELATIONSHIPS);
+
+function relationIdsConnected(ids,bank,seedCount=1){
+  if(ids.length<=seedCount)return true;
+  const tokens=new Set();
+  for(const id of ids.slice(0,seedCount)){
+    const relation=bank.byId.get(id);
+    if(!relation)return false;
+    for(const token of relation.tokens)tokens.add(token);
+  }
+  for(const id of ids.slice(seedCount)){
+    const relation=bank.byId.get(id);
+    if(!relation)return false;
+    if(!relation.tokens.some(token=>tokens.has(token)))return false;
+    for(const token of relation.tokens)tokens.add(token);
+  }
+  return true;
+}
+
+test('selectRelationshipNeighborhood preserves required ids and grows a connected active pool',()=>{
+  assert.equal(typeof generatorModule.selectRelationshipNeighborhood,'function');
+  const ids=generatorModule.selectRelationshipNeighborhood({
+    bank:fullBank,
+    rng:seeded(19),
+    size:16,
+    requiredRelationshipIds:['phrasal-verb:look-after','collocation:take-a-break']
+  });
+  assert.equal(ids.length,16);
+  assert.ok(ids.includes('phrasal-verb:look-after'));
+  assert.ok(ids.includes('collocation:take-a-break'));
+  assert.equal(relationIdsConnected(ids,fullBank,2),true);
+});
+
+test('controlled neighborhood board exposes at least eight productive swaps with high relationship coverage',()=>{
+  assert.equal(typeof generatorModule.relationshipCoverage,'function');
+  const ids=generatorModule.selectRelationshipNeighborhood({
+    bank:fullBank,rng:seeded(31),size:16
+  });
+  const board=createControlledBoard({
+    bank:fullBank,
+    relationshipIds:ids,
+    rows:7,columns:7,
+    rng:seeded(44),
+    minScoringMoves:8,
+    minProductiveRows:4,
+    minProductiveColumns:4,
+    minRelationshipCoverage:0.85,
+    allowStartingMatches:false
+  });
+  const moves=findImmediateScoringMoves(board,fullBank);
+  assert.ok(moves.length>=8,`expected >=8 productive swaps, got ${moves.length}`);
+  const activeWords=new Set(ids.flatMap(id=>fullBank.byId.get(id).tokens));
+  assert.ok(board.tiles.every(tile=>activeWords.has(tile.word)),'board contains word outside active neighborhood');
+  assert.ok(generatorModule.relationshipCoverage(board,fullBank,ids)>=0.85);
+  assert.equal(findMatches(board,fullBank).length,0);
+});
+
+
+function selectedGraphIsConnected(ids,bank){
+  if(ids.length<=1)return true;
+  const remaining=new Set(ids);
+  const queue=[ids[0]];
+  remaining.delete(ids[0]);
+  while(queue.length){
+    const id=queue.shift();
+    const tokens=new Set(bank.byId.get(id).tokens);
+    for(const other of [...remaining]){
+      if(bank.byId.get(other).tokens.some(token=>tokens.has(token))){
+        remaining.delete(other);
+        queue.push(other);
+      }
+    }
+  }
+  return remaining.size===0;
+}
+
+test('normal 12-20 relation neighborhoods are graph-connected across representative seeds',()=>{
+  for(const size of [12,16,20]){
+    for(const seed of [3,17,41]){
+      const ids=generatorModule.selectRelationshipNeighborhood({
+        bank:fullBank,rng:seeded(seed),size
+      });
+      assert.equal(
+        selectedGraphIsConnected(ids,fullBank),
+        true,
+        `disconnected neighborhood size=${size} seed=${seed}: ${ids.join(', ')}`
+      );
+    }
+  }
+});
+
+test('tutorial-required LOOK AFTER and MAKE SENSE still end inside one connected neighborhood',()=>{
+  const ids=generatorModule.selectRelationshipNeighborhood({
+    bank:fullBank,
+    rng:seeded(27),
+    size:16,
+    requiredRelationshipIds:['phrasal-verb:look-after','collocation:make-sense']
+  });
+  assert.equal(selectedGraphIsConnected(ids,fullBank),true);
 });
