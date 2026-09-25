@@ -1,0 +1,19 @@
+name: Wordy Visible Gravity Integration Verify
+on:
+  push:
+    branches:
+      - integration/wordy-visible-gravity-20260925
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Full Wordy suite
+        run: node --test Wordy/tests/*.test.mjs
+      - name: Production deploy guard
+        run: node --test tests/wordy-production-deploy.test.mjs
+      - name: Syntax
+        run: node --check Wordy/app.mjs
