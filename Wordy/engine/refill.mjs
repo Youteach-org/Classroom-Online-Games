@@ -3,9 +3,9 @@ import { findMatches } from './matcher.mjs';
 import { normalizeToken } from './relationship-bank.mjs';
 
 export const DEFAULT_REFILL_PROFILE={
-  cascadeWeight:0.18,
-  opportunityWeight:0.57,
-  distractorWeight:0.25
+  cascadeWeight:0.15,
+  opportunityWeight:0.70,
+  distractorWeight:0.15
 };
 
 export function buildRelationshipBag(bank,{relationshipIds=null,categoryWeights={}}={}){
