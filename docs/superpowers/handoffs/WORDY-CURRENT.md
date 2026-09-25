@@ -298,16 +298,37 @@ Review-specific RED/GREEN regressions also prove:
 Verified implementation/test HEAD before documentation-only commits: `dd5aaecbb039b87cb2115e9b3b3cc76aa980bb54`.
 Latest runtime change in that verified stack: `526a2ee75a87d38e8298e232da8eec732aee4c01`.
 
-### Publication distinction
+### Production promotion — 2026-09-24
 
-Production remains at `main` commit `9c3677b595dd7d082cfa29b19cad408738f982bc`.
+The gameplay-density repair is now published.
 
-Therefore the canonical live route still has the earlier 7×7 gameplay until this density repair is explicitly promoted.
+- Current production `main` commit: `852774b163c61e72b3210a35f985a757f0152bc7`.
+- Integration branch used for selective reconciliation: `integration/wordy-density-20260924`.
+- The integration started from the then-current `main` commit `4e6b9831d9ffc7a7510e0e1512b98018f284987a`.
+- Only the four Wordy runtime files and five Wordy test files from this repair were promoted; unrelated changes from the diverged feature branch were not merged.
+- Reconciled integration verification run `36075979198`:
+  - `node --test Wordy/tests/*.test.mjs` → **97/97 pass**;
+  - production deploy guard → pass;
+  - `node --check Wordy/app.mjs` → pass.
+- Production deployment runs for exact SHA `852774b163c61e72b3210a35f985a757f0152bc7`:
+  - `36076082167` → success;
+  - `36076082190` → success.
+- Canonical live verification run `36076204533` → success with marker `LIVE_WORDY_DENSITY_OK`.
+- The live check fetched the canonical `/Wordy/` route plus `data/levels.mjs`, `engine/controller.mjs`, and `engine/generator.mjs`, and confirmed:
+  - `Wordy Prototype` is served;
+  - Level A is live with 18 moves / 900 target / pool 12 / minimum 8 productive swaps;
+  - Level G is live with 26 moves / 2300 target / pool 20 / minimum 12 productive swaps;
+  - `activeRelationshipIds` and `roundBank` are live;
+  - `selectRelationshipNeighborhood` and `buildRelationGraph` are live.
+
+Canonical production route:
+
+`https://classroom-online-games.pages.dev/Wordy/`
 
 ## Exact next action
 
-The uniform-cell architecture and the gameplay-density repair are complete on `feature/wordy-game`.
+The uniform-cell architecture and gameplay-density repair are both live in production.
 
-Do not rebuild either effort.
+Do not rebuild or re-promote this repair.
 
-The next action is a publication decision for the verified gameplay-density repair. If promoted, reconcile selectively against current `main`, preserve unrelated Classroom Online Games work, deploy through the existing Cloudflare workflows, and perform a real-browser canonical-route check before asking for another playtest.
+The next action is user playtesting of the canonical Wordy route. Any new gameplay findings should be treated as a new change set on `feature/wordy-game`, documented in GitHub, verified on the branch, then selectively promoted against current `main`.
