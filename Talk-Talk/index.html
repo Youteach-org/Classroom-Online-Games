@@ -6,31 +6,166 @@
   <title>Talk Talk — Student</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
-<body class="reference-page" data-reference-source="a_clean_ui_ux_product_mockup_collage_with_multiple.png">
-  <main class="reference-shell" aria-label="Talk Talk student preview">
-    <section id="studentHomeView" class="student-view reference-screen is-active" data-approved-screen="1" data-crop="10,40,378,550">
-      <svg class="reference-art" viewBox="10 40 368 510" role="img" aria-label="Talk Talk student home"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
-      <button id="continueAction" class="screen-hotspot student-continue" data-target="studentRecordingView" aria-label="Continue"></button>
+<body class="tt-page">
+  <main class="student-stage" aria-label="Talk Talk student preview">
+
+    <section id="studentHomeView" class="student-view">
+      <div class="student-home-card">
+        <div class="home-brand">
+          <small>Classroom Online Games</small>
+          <h1>TALK-TALK</h1>
+          <h2>Speaking &amp; pronunciation</h2>
+        </div>
+        <img class="home-characters" src="./assets/home-characters.webp" alt="Two students talking">
+        <div class="home-cta-card">
+          <h3>Ready to speak?</h3>
+          <p>Practice a sound, use it in a real message,<br>then carry it into conversation.</p>
+          <button id="continueAction" class="tt-btn tt-btn-primary tt-btn-wide" data-target="studentRecordingView" type="button">Continue <span>→</span></button>
+        </div>
+      </div>
     </section>
 
-    <section id="studentRecordingView" class="student-view reference-screen" data-approved-screen="2" data-crop="392,40,760,550" hidden>
-      <svg class="reference-art" viewBox="392 40 368 510" role="img" aria-label="Talk Talk recording"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
-      <button id="recordButton" class="screen-hotspot student-mic" aria-label="Microphone"></button>
-      <button id="finishRecordingBtn" class="screen-hotspot student-finish" data-target="studentConversationView" aria-label="Finish recording"></button>
+    <section id="studentRecordingView" class="student-view" hidden>
+      <div class="recording-panel">
+        <header class="student-topbar">
+          <strong>TALK-TALK</strong>
+          <span class="mode-chip">Practice</span>
+          <span class="time-chip">◷ <b>03:00</b></span>
+        </header>
+
+        <article class="prompt-card">
+          <h2>Tell me what happened</h2>
+          <p>You are the storyteller. Your partner will ask questions.</p>
+        </article>
+
+        <div class="speaker-row">
+          <div class="speaker-column active">
+            <div class="character-avatar active-avatar">
+              <img src="./assets/paul-head.webp" alt="Paul">
+            </div>
+            <strong>Paul</strong>
+            <span>Speaking...</span>
+          </div>
+          <div class="speaker-column">
+            <div class="character-avatar">
+              <img src="./assets/paulina-record.webp" alt="Paulina">
+            </div>
+            <strong>Paulina</strong>
+            <span>Ready</span>
+          </div>
+        </div>
+
+        <div class="audio-wave" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+
+        <button id="recordButton" class="mic-button" type="button" aria-label="Microphone">♩<span class="mic-glyph">●</span></button>
+        <p class="mic-help">Tap to check the microphone.<br><span>Audio stays on this device.</span></p>
+
+        <footer class="recording-footer">
+          <span class="recording-label"><b class="record-dot"></b> Recording...</span>
+          <strong>02:14</strong>
+          <button id="finishRecordingBtn" class="tt-btn tt-btn-soft" data-target="studentConversationView" type="button">Finish</button>
+        </footer>
+      </div>
     </section>
 
-    <section id="studentConversationView" class="student-view reference-screen" data-approved-screen="3" data-crop="776,40,1145,550" hidden>
-      <svg class="reference-art" viewBox="776 40 369 510" role="img" aria-label="Talk Talk conversation"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
-      <button id="showPracticeResultBtn" class="screen-hotspot student-review" data-target="studentPracticeResultView" aria-label="Open speaking review"></button>
+    <section id="studentConversationView" class="student-view" hidden>
+      <div class="conversation-panel">
+        <header class="student-topbar">
+          <strong>TALK-TALK</strong>
+          <span class="mode-chip">Practice</span>
+          <span class="time-chip">◷ <b>02:30</b></span>
+        </header>
+
+        <nav class="student-tabs" aria-label="Conversation tabs">
+          <button class="active" type="button">Conversation</button>
+          <button type="button">My Practice</button>
+          <button type="button">Tips</button>
+        </nav>
+
+        <div class="chat-thread">
+          <article class="chat-row">
+            <img class="chat-avatar" src="./assets/paul-head.webp" alt="Paul">
+            <div class="chat-main"><strong>Paul</strong><p>I have went to the park yesterday<br>with my family.</p></div>
+            <time>00:12</time>
+          </article>
+          <article class="chat-row">
+            <img class="chat-avatar" src="./assets/paulina-head.webp" alt="Paulina">
+            <div class="chat-main"><strong>Paulina</strong><p>Oh, nice! What did you do there?</p></div>
+            <time>00:18</time>
+          </article>
+          <article class="chat-row">
+            <img class="chat-avatar" src="./assets/paul-head.webp" alt="Paul">
+            <div class="chat-main"><strong>Paul</strong><p>We saw a bicycle fall and<br>then we helped him.</p></div>
+            <time>00:25</time>
+          </article>
+          <article class="chat-row">
+            <img class="chat-avatar" src="./assets/paulina-head.webp" alt="Paulina">
+            <div class="chat-main"><strong>Paulina</strong><p>That’s good. Did he get hurt?</p></div>
+            <time>00:32</time>
+          </article>
+        </div>
+
+        <div class="audio-player student-player">
+          <button class="play-button" type="button">▶</button>
+          <div class="track"><span></span></div>
+          <div class="player-time"><small>00:00 / 01:24</small></div>
+          <button class="speed-button" type="button">1x</button>
+        </div>
+
+        <button id="showPracticeResultBtn" class="tt-btn tt-btn-primary tt-btn-wide review-trigger" data-target="studentPracticeResultView" type="button">See speaking review →</button>
+      </div>
     </section>
 
-    <section id="studentPracticeResultView" class="student-view reference-screen" data-approved-screen="4" data-crop="1160,40,1526,550" hidden>
-      <svg class="reference-art" viewBox="1160 40 366 510" role="img" aria-label="Talk Talk speaking review"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
-      <button id="tryAgainBtn" class="screen-hotspot student-try-again" data-target="studentRecordingView" aria-label="Try again"></button>
-      <button id="studentFullTranscriptBtn" class="screen-hotspot student-transcript" data-target="studentConversationView" aria-label="See full transcript"></button>
+    <section id="studentPracticeResultView" class="student-view" hidden>
+      <div class="practice-review-panel">
+        <header class="review-topbar">
+          <strong>TALK-TALK</strong>
+          <span class="mode-chip">Practice</span>
+        </header>
+
+        <div class="confetti" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+
+        <div class="review-title">
+          <div class="review-star">✣</div>
+          <h1>Your speaking review</h1>
+        </div>
+
+        <article class="review-card review-good">
+          <h2><span class="status-icon ok">✓</span> What worked well</h2>
+          <p>✓ <span>You kept the conversation moving.</span></p>
+          <p>✓ <span>Your partner understood your ideas.</span></p>
+          <p>✓ <span>You used good connectors.</span></p>
+        </article>
+
+        <article class="review-card review-work">
+          <h2><span class="status-icon down">⌄</span> Work on</h2>
+          <ul>
+            <li>past participles (e.g. <i>gone, seen</i>)</li>
+            <li>final consonants (e.g. /t/, /d/)</li>
+            <li>answering with more detail</li>
+          </ul>
+        </article>
+
+        <div class="review-actions">
+          <button id="tryAgainBtn" class="tt-btn tt-btn-outline" data-target="studentRecordingView" type="button">Try again</button>
+          <button id="studentFullTranscriptBtn" class="tt-btn tt-btn-primary" data-target="studentConversationView" type="button">See full transcript →</button>
+        </div>
+      </div>
     </section>
 
-    <div class="preview-tools"><span>Standalone preview · Student</span><div class="preview-nav"><button id="previewPrevBtn" type="button">← Previous</button><button id="previewNextBtn" type="button">Next →</button><button id="standaloneLogoutBtn" type="button">Log out</button></div></div>
+    <div class="preview-tools">
+      <span>Standalone preview · Student</span>
+      <div class="preview-nav">
+        <button id="previewPrevBtn" type="button">← Previous</button>
+        <button id="previewNextBtn" type="button">Next →</button>
+        <button id="standaloneLogoutBtn" type="button">Log out</button>
+      </div>
+    </div>
+
     <span id="lessonPhase" hidden>Student activity</span>
     <div id="replayList" hidden></div>
     <p id="recordingState" hidden>Ready</p>
