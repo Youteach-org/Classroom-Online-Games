@@ -74,22 +74,24 @@ test('Level A behaves as a dense generated round instead of a scripted two-combi
   assert.ok(ready.readyMatches.length>=1);
 
   const activeWords=new Set(
-    ready.activeRelationshipIds.flatMap(id=>bank.byId.get(id).tokens)
+    ready.activeRelationshipIds.flatMap(id=>bank.byId.get(id).tokens.map(token=>token==='AN'?'A':token))
   );
+  const readyTileIds=new Set(ready.readyMatches.flatMap(match=>match.tileIds));
+  const beforePopIds=new Set(ready.board.tiles.map(tile=>tile.id));
   assert.equal(game.pop(),true);
   const resolved=game.state();
   assertValidStableBoard(resolved.board);
   assert.equal(resolved.movesLeft,17,'POP/recovery must not spend an extra move');
+  assert.equal(resolved.phase,'playing','POP with moves remaining must continue the same round');
+  assert.equal(resolved.success,null);
   assert.ok(resolved.score>0,'accepted relationship must score');
   assert.deepEqual(resolved.activeRelationshipIds,ready.activeRelationshipIds,'round neighborhood must stay stable after POP/recovery');
   assert.ok(resolved.board.tiles.every(tile=>activeWords.has(tile.word)),'refill/recovery leaked a word outside the round neighborhood');
+  assert.ok([...readyTileIds].every(id=>!resolved.board.tiles.some(tile=>tile.id===id)),'READY tiles must be destroyed by POP');
+  assert.ok(resolved.board.tiles.some(tile=>!beforePopIds.has(tile.id)),'POP must refill with new tiles after gravity');
 
-  if(resolved.phase==='playing'){
-    const continuation=findImmediateScoringMoves(resolved.board,bank);
-    assert.ok(continuation.length>=4,`expected meaningful continuation after POP, got ${continuation.length}`);
-  }else{
-    assert.ok(resolved.score>=LEVELS[0].goal.target,'round ended before reaching the configured score target');
-  }
+  const continuation=findImmediateScoringMoves(resolved.board,bank);
+  assert.ok(continuation.length>=4,`expected meaningful continuation after POP, got ${continuation.length}`);
 });
 
 test('mixed Level G begins with at least twelve productive swaps from a twenty-relation neighborhood',()=>{
