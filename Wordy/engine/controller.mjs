@@ -1,5 +1,5 @@
 import { areSwapNeighbors, cloneBoard, createBoard } from './board.mjs';
-import { normalizeToken, createRelationshipBank } from './relationship-bank.mjs';
+import { canonicalTileToken, createRelationshipBank } from './relationship-bank.mjs';
 import { findMatches, findCrossings } from './matcher.mjs';
 import { resolvePlayerActivation, CascadeLimitError } from './resolution.mjs';
 import {
@@ -205,7 +205,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
 
   function attemptSwap(fromTileId,toTileId){
     const resultBase={fromTileId:String(fromTileId??''),toTileId:String(toTileId??'')};
-    if(state.phase!=='playing'||!areSwapNeighbors(state.board,resultBase.fromTileId,resultBase.toTileId)){
+    if(state.phase!=='playing'||state.movesLeft<=0||!areSwapNeighbors(state.board,resultBase.fromTileId,resultBase.toTileId)){
       return {status:'invalid',...resultBase};
     }
 
@@ -251,7 +251,9 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     if(brokenRelationshipIds.length)telemetry.record('relationship-broken',{relationshipIds:brokenRelationshipIds});
     if(nextCrossCount>previousCrossCount)telemetry.record('cross-created',{crossCount:nextCrossCount,relationshipIds:[...nextReadyIds]});
     logReady();
-    if(state.movesLeft<=0&&state.readyMatches.length===0)finishRound(false);
+    if(state.movesLeft<=0&&state.readyMatches.length===0){
+      finishRound(objectiveComplete(currentLevel,state));
+    }
     emit();
     return {status:'accepted',...resultBase};
   }
@@ -259,7 +261,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
   function refillTile({row,column,board,cascadeDepth}){
     let word='';
     if(typeof refillWord==='function'){
-      word=normalizeToken(refillWord({row,column,board,state:snapshot(),bank:roundBank,rng,cascadeDepth}));
+      word=canonicalTileToken(refillWord({row,column,board,state:snapshot(),bank:roundBank,rng,cascadeDepth}));
     }
     if(!word){
       word=chooseRefillWord({
@@ -398,9 +400,9 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
       state.eventLabel='BOARD RESET';
     }
 
-    if(objectiveComplete(currentLevel,state))finishRound(true);
-    else if(state.movesLeft<=0)finishRound(false);
-    else{
+    if(state.movesLeft<=0){
+      finishRound(objectiveComplete(currentLevel,state));
+    }else{
       state.phase='playing';
       recoverPlayableBoard();
     }

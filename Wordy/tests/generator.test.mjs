@@ -3,7 +3,7 @@ import { RELATIONSHIPS } from '../data/relationships.mjs';
 import * as generatorModule from '../engine/generator.mjs';
 import assert from 'node:assert/strict';
 import { createBoard, tileById } from '../engine/board.mjs';
-import { createRelationshipBank } from '../engine/relationship-bank.mjs';
+import { createRelationshipBank, canonicalTileToken } from '../engine/relationship-bank.mjs';
 import { findMatches } from '../engine/matcher.mjs';
 import {
   enumerateSwaps,
@@ -171,9 +171,9 @@ function selectedGraphIsConnected(ids,bank){
   remaining.delete(ids[0]);
   while(queue.length){
     const id=queue.shift();
-    const tokens=new Set(bank.byId.get(id).tokens);
+    const tokens=new Set(bank.byId.get(id).tokens.map(canonicalTileToken));
     for(const other of [...remaining]){
-      if(bank.byId.get(other).tokens.some(token=>tokens.has(token))){
+      if(bank.byId.get(other).tokens.map(canonicalTileToken).some(token=>tokens.has(token))){
         remaining.delete(other);
         queue.push(other);
       }

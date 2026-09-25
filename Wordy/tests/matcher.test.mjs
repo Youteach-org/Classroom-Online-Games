@@ -99,3 +99,23 @@ test('does not match across a cell gap or reversed token order',()=>{
   assert.equal(findMatches(gap,bank).some(m=>m.relationshipId==='make-a-decision'),false);
   assert.equal(findMatches(reversed,bank).some(m=>m.relationshipId==='make-a-decision'),false);
 });
+
+
+test('canonical A tile matches AN in HAVE AN OPINION while match keeps grammatical surface token',()=>{
+  const articleBank=createRelationshipBank([
+    {id:'have-an-opinion',category:'collocation',tokens:['HAVE','AN','OPINION'],baseScore:180,difficulty:2}
+  ]);
+  const board=boardFromTiles({
+    rows:1,columns:3,
+    tiles:[
+      {id:'have',word:'HAVE',row:0,column:0},
+      {id:'article',word:'A',row:0,column:1},
+      {id:'opinion',word:'OPINION',row:0,column:2}
+    ]
+  });
+  const match=findMatches(board,articleBank)[0];
+  assert.ok(match);
+  assert.equal(match.relationshipId,'have-an-opinion');
+  assert.deepEqual(match.tileIds,['have','article','opinion']);
+  assert.deepEqual(match.tokens,['HAVE','AN','OPINION']);
+});

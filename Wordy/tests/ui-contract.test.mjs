@@ -110,3 +110,59 @@ test('missed-opportunity replay uses saved row-column geometry and suggested ids
   assert.match(css,/\.replay-board\{[\s\S]*?grid-template-columns:repeat\(7/);
   assert.match(css,/\.replay-board\{[\s\S]*?grid-template-rows:repeat\(7/);
 });
+
+
+test('READY article tile renders AN for HAVE AN OPINION while canonical board word remains A',()=>{
+  const root=new FakeDocument();
+  const state={
+    levelId:'A',levelTitle:'Article',movesLeft:5,score:0,instruction:'Build',phase:'playing',eventLabel:'',
+    board:{rows:7,columns:7,tiles:[
+      {id:'have',word:'HAVE',row:0,column:0},
+      {id:'article',word:'A',row:0,column:1},
+      {id:'opinion',word:'OPINION',row:0,column:2}
+    ]},
+    readyMatches:[
+      {relationshipId:'have-an-opinion',orientation:'horizontal',tileIds:['have','article','opinion'],tokens:['HAVE','AN','OPINION']}
+    ]
+  };
+  renderGame(root,state);
+  const article=root.querySelector('#wordyBoard').children.find(tile=>tile.dataset.tileId==='article');
+  assert.equal(state.board.tiles[1].word,'A');
+  assert.equal(article.textContent,'AN');
+  assert.equal(article.classList.contains('is-ready'),true);
+});
+
+test('article tile stays A when READY relation requires A',()=>{
+  const root=new FakeDocument();
+  renderGame(root,{
+    levelId:'A',levelTitle:'Article',movesLeft:5,score:0,instruction:'Build',phase:'playing',eventLabel:'',
+    board:{rows:7,columns:7,tiles:[
+      {id:'take',word:'TAKE',row:0,column:0},
+      {id:'article',word:'A',row:0,column:1},
+      {id:'break',word:'BREAK',row:0,column:2}
+    ]},
+    readyMatches:[
+      {relationshipId:'take-a-break',orientation:'horizontal',tileIds:['take','article','break'],tokens:['TAKE','A','BREAK']}
+    ]
+  });
+  const article=root.querySelector('#wordyBoard').children.find(tile=>tile.dataset.tileId==='article');
+  assert.equal(article.textContent,'A');
+});
+
+
+test('at zero moves READY tiles cannot be moved but final POP remains enabled',()=>{
+  const root=new FakeDocument();
+  renderGame(root,{
+    levelId:'A',levelTitle:'Final POP',movesLeft:0,score:500,instruction:'Finish',phase:'playing',eventLabel:'READY',
+    board:{rows:7,columns:7,tiles:[
+      {id:'look',word:'LOOK',row:0,column:0},
+      {id:'after',word:'AFTER',row:0,column:1}
+    ]},
+    readyMatches:[
+      {relationshipId:'look-after',orientation:'horizontal',tileIds:['look','after'],tokens:['LOOK','AFTER']}
+    ]
+  });
+  const tiles=root.querySelector('#wordyBoard').children;
+  assert.ok(tiles.every(tile=>tile.disabled===true));
+  assert.equal(root.querySelector('#popButton').disabled,false);
+});

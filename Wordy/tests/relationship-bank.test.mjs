@@ -4,6 +4,8 @@ import { RELATIONSHIPS } from '../data/relationships.mjs';
 import {
   createRelationshipBank,
   normalizeToken,
+  canonicalTileToken,
+  tileTokenMatches,
   relationshipLengths
 } from '../engine/relationship-bank.mjs';
 
@@ -29,4 +31,18 @@ test('bank rejects duplicate ids and duplicate canonical token sequences in the 
     {id:'x',category:'collocation',tokens:['TAKE','NOTES'],baseScore:100,difficulty:1}
   ];
   assert.throws(()=>createRelationshipBank(duplicate),/duplicate/i);
+});
+
+
+test('indefinite article uses canonical A tile while preserving AN as relationship surface token',()=>{
+  assert.equal(canonicalTileToken('A'),'A');
+  assert.equal(canonicalTileToken('AN'),'A');
+  assert.equal(tileTokenMatches('A','AN'),true);
+  assert.equal(tileTokenMatches('A','A'),true);
+  assert.equal(tileTokenMatches('AN','A'),true);
+  assert.equal(tileTokenMatches('THE','AN'),false);
+
+  const relation=RELATIONSHIPS.find(item=>item.id==='collocation:have-an-opinion');
+  assert.ok(relation,'HAVE AN OPINION must exist in curated bank');
+  assert.deepEqual(relation.tokens,['HAVE','AN','OPINION']);
 });

@@ -2,6 +2,15 @@ export function normalizeToken(value){
   return String(value??'').trim().replace(/\s+/g,' ').toUpperCase();
 }
 
+export function canonicalTileToken(value){
+  const token=normalizeToken(value);
+  return token==='AN'?'A':token;
+}
+
+export function tileTokenMatches(actual,expected){
+  return canonicalTileToken(actual)===canonicalTileToken(expected);
+}
+
 function assertRelationship(raw,index){
   if(!raw||typeof raw!=='object')throw new Error(`invalid relationship at index ${index}`);
   if(!String(raw.id||'').trim())throw new Error(`invalid relationship id at index ${index}`);

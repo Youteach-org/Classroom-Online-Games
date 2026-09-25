@@ -9,6 +9,7 @@ import {
 import { findMatches } from './matcher.mjs';
 import { scoreResolution } from './scoring.mjs';
 import { buildRelationshipBag } from './refill.mjs';
+import { canonicalTileToken } from './relationship-bank.mjs';
 
 function matchKey(match){
   return `${match.relationshipId}|${match.orientation}|${(match.tileIds??[]).join(',')}`;
@@ -67,20 +68,24 @@ function activeRelations(bank,relationshipIds=null){
   return relations;
 }
 
+function relationBoardTokens(relation){
+  return relation.tokens.map(canonicalTileToken);
+}
+
 function sharedTokenCount(relation,tokens){
   let count=0;
-  for(const token of new Set(relation.tokens)){
+  for(const token of new Set(relationBoardTokens(relation))){
     if(tokens.has(token))count++;
   }
   return count;
 }
 
 function relationDegree(relation,relations){
-  const own=new Set(relation.tokens);
+  const own=new Set(relationBoardTokens(relation));
   let degree=0;
   for(const other of relations){
     if(other.id===relation.id)continue;
-    if(other.tokens.some(token=>own.has(token)))degree++;
+    if(relationBoardTokens(other).some(token=>own.has(token)))degree++;
   }
   return degree;
 }
@@ -89,7 +94,7 @@ function buildRelationGraph(relations){
   const graph=new Map(relations.map(relation=>[relation.id,new Set()]));
   const byToken=new Map();
   for(const relation of relations){
-    for(const token of new Set(relation.tokens)){
+    for(const token of new Set(relationBoardTokens(relation))){
       if(!byToken.has(token))byToken.set(token,[]);
       byToken.get(token).push(relation.id);
     }
@@ -205,7 +210,7 @@ export function selectRelationshipNeighborhood({
     if(!relation||!componentSet.has(id))return;
     selected.push(relation);
     selectedIds.add(id);
-    relation.tokens.forEach(token=>tokens.add(token));
+    relationBoardTokens(relation).forEach(token=>tokens.add(token));
     categories.add(relation.category);
   }
 
@@ -308,26 +313,31 @@ export function relationshipCoverage(board,bank,relationshipIds=null){
   const relations=activeRelations(bank,relationshipIds);
   const byWord=new Map();
   for(const relation of relations){
-    for(const token of new Set(relation.tokens)){
+    for(const token of new Set(relationBoardTokens(relation))){
       if(!byWord.has(token))byWord.set(token,[]);
       byWord.get(token).push(relation);
     }
   }
   const counts=new Map();
-  for(const tile of board.tiles)counts.set(tile.word,(counts.get(tile.word)??0)+1);
+  for(const tile of board.tiles){
+    const word=canonicalTileToken(tile.word);
+    counts.set(word,(counts.get(word)??0)+1);
+  }
 
   let covered=0;
   for(const tile of board.tiles){
-    const relationsForWord=byWord.get(tile.word)??[];
+    const tileWord=canonicalTileToken(tile.word);
+    const relationsForWord=byWord.get(tileWord)??[];
     const hasPartner=relationsForWord.some(relation=>{
+      const boardTokens=relationBoardTokens(relation);
       const tokenCounts=new Map();
-      for(const token of relation.tokens)tokenCounts.set(token,(tokenCounts.get(token)??0)+1);
+      for(const token of boardTokens)tokenCounts.set(token,(tokenCounts.get(token)??0)+1);
       for(const [token,needed] of tokenCounts){
         const available=counts.get(token)??0;
-        const required=token===tile.word?Math.min(needed,2):1;
-        if(available>=required && (token!==tile.word||needed>1||relation.tokens.some(other=>other!==tile.word)))return true;
+        const required=token===tileWord?Math.min(needed,2):1;
+        if(available>=required && (token!==tileWord||needed>1||boardTokens.some(other=>other!==tileWord)))return true;
       }
-      return relation.tokens.some(token=>token!==tile.word&&(counts.get(token)??0)>0);
+      return boardTokens.some(token=>token!==tileWord&&(counts.get(token)??0)>0);
     });
     if(hasPartner)covered++;
   }
@@ -366,7 +376,7 @@ function isProductiveEnough(board,bank,{
 }
 
 function relationshipDeck({relations,total,rng,maxTokenCopies,minUniqueWords}){
-  const words=shuffled([...new Set(relations.flatMap(relation=>relation.tokens))],rng);
+  const words=shuffled([...new Set(relations.flatMap(relation=>relationBoardTokens(relation)))],rng);
   if(words.length===0)throw new Error('relationship neighborhood has no playable words');
   if(words.length<minUniqueWords){
     throw new Error(`relationship neighborhood exposes only ${words.length} unique words; need ${minUniqueWords}`);
@@ -471,7 +481,7 @@ function seedProductiveMoves(wordRows,relations,count,rng){
 
   for(const relation of ordered){
     if(placed>=count)break;
-    const desired=[...relation.tokens];
+    const desired=[...relationBoardTokens(relation)];
     if(desired.length<2||desired.length>Math.max(rows,columns))continue;
     [desired[desired.length-2],desired[desired.length-1]]=
       [desired[desired.length-1],desired[desired.length-2]];
@@ -519,7 +529,7 @@ export function createControlledBoard({
   const relations=activeRelations(bank,relationshipIds)
     .filter(relation=>relation.tokens.length>=2&&relation.tokens.length<=Math.max(rows,columns));
   if(relations.length===0)throw new Error('relationship neighborhood has no playable relationships');
-  const uniqueWords=new Set(relations.flatMap(relation=>relation.tokens));
+  const uniqueWords=new Set(relations.flatMap(relation=>relationBoardTokens(relation)));
   const explicitCopyCap=Number(maxTokenCopies);
   const maxCopies=Number.isFinite(explicitCopyCap)&&explicitCopyCap>0
     ?Math.max(1,explicitCopyCap)
