@@ -4,7 +4,7 @@
 **Repository:** `Youteach-org/Classroom-Online-Games`  
 **Development branch:** `feature/wordy-game`  
 **Uniform-cell verification commit:** `34bc8585ca681e842d79256b8153f8c528c4f84b`  
-**Current production commit (`main`):** `9c3677b595dd7d082cfa29b19cad408738f982bc`  
+**Current production commit (`main`):** `852774b163c61e72b3210a35f985a757f0152bc7`  
 **New spec:** `docs/superpowers/specs/2026-09-22-wordy-uniform-cell-candy-architecture.md`  
 **New plan:** `docs/superpowers/plans/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
 **Uniform-cell ledger:** `docs/superpowers/progress/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
@@ -325,10 +325,75 @@ Canonical production route:
 
 `https://classroom-online-games.pages.dev/Wordy/`
 
+## Vocabulary-diversity repair — development branch, 2026-09-24
+
+User playtesting of the published density repair exposed a second generator defect: the board still repeated a small set of high-connectivity words (`A`, `TAKE`, `LOOK`, `MAKE`, `OF`, `IN`, `UP`, etc.) too often.
+
+### Root cause
+
+The round pool could contain 12–20 relationships, but board construction still filled 49 cells by repeatedly dealing complete relationship token bundles. Words that appear in many relationships were therefore overrepresented. The productive-move rescue step also overwrote cells with relation tokens, which could increase those repetitions further.
+
+Measured pre-fix behavior:
+- A: 18–21 unique words out of 49, average 19.6, maximum 4 copies;
+- B: 19–22 unique, max 4;
+- C: 21–25 unique, max 4;
+- D: 19–24 unique, max 4;
+- E: 23–28 unique, max 4;
+- F: 21–28 unique, max 4;
+- G: 25–32 unique, max 4.
+
+Diagnostic run: `36076476886`.
+
+### Development-branch fix
+
+1. Unique words from the active relationship neighborhood are dealt before any word is duplicated.
+2. Remaining duplicates are chosen from the least-used words rather than by replaying whole relationship bundles.
+3. Normal levels cap every word at 2 copies.
+4. Productive-move seeding rearranges existing words by swapping positions instead of overwriting cells with extra copies.
+5. Refill rejects any candidate word that has already reached the copy cap.
+6. Small test/demo banks keep adaptive copy limits only when the caller does not explicitly configure a cap.
+
+Level diversity profiles:
+
+| Level | Active relations | Minimum unique words | Max copies |
+|---|---:|---:|---:|
+| A | 24 | 34 | 2 |
+| B | 24 | 34 | 2 |
+| C | 26 | 36 | 2 |
+| D | 26 | 36 | 2 |
+| E | 28 | 38 | 2 |
+| F | 28 | 38 | 2 |
+| G | 32 | 40 | 2 |
+
+### Measured post-fix boards
+
+- A: 38–41 unique, max 2 copies, minimum 8 productive moves.
+- B: 39–43 unique, max 2, minimum 8 productive moves.
+- C: 41–42 unique, max 2, minimum 13 productive moves.
+- D: 39–46 unique, max 2, minimum 11 productive moves.
+- E: 44–48 unique, max 2, minimum 10 productive moves.
+- F: 42–47 unique, max 2, minimum 12 productive moves.
+- G: 49 unique words out of 49 in all three sampled boards, max 1, minimum 12 productive moves.
+
+Measurement run: `36077378583`.
+
+### Verification
+
+- RED run `36076804987` failed on missing board diversity, old pool sizes, and refill copy-cap behavior.
+- Final fresh verification run `36077230294`: Wordy **99/99 pass**, deployment guard pass, syntax pass.
+- Verified implementation/test HEAD before diagnostic-only commits: `2411ff8bddde409c9aa06f216cd9a5f598788506`.
+- Latest runtime change in that verified stack: `eb948e2ec2fa9594977fdc722af52224f6a882d0`.
+
+### Publication distinction
+
+This vocabulary-diversity repair is **not yet on production**.
+
+Production `main` remains at `852774b163c61e72b3210a35f985a757f0152bc7`, which contains the prior density repair but still has the repetitive vocabulary behavior reported by the user.
+
 ## Exact next action
 
-The uniform-cell architecture and gameplay-density repair are both live in production.
+The vocabulary-diversity repair is complete and verified on `feature/wordy-game`, but is not published.
 
-Do not rebuild or re-promote this repair.
+Do not rebuild the repair.
 
-The next action is user playtesting of the canonical Wordy route. Any new gameplay findings should be treated as a new change set on `feature/wordy-game`, documented in GitHub, verified on the branch, then selectively promoted against current `main`.
+The next action is a selective promotion decision: reconcile only the vocabulary-diversity runtime/tests against the current `main`, preserve unrelated Classroom Online Games work, deploy through both Cloudflare workflows, and verify the canonical Wordy route before requesting another playtest.
