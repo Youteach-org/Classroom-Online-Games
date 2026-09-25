@@ -4,7 +4,7 @@
 **Repository:** `Youteach-org/Classroom-Online-Games`  
 **Development branch:** `feature/wordy-game`  
 **Uniform-cell verification commit:** `34bc8585ca681e842d79256b8153f8c528c4f84b`  
-**Current production commit (`main`):** `c99b7c99a48d41a36a17d899173a02cfb78ff156`  
+**Current production commit (`main`):** `5540768cd4947c89fa382133856472c2b5d24f34`  
 **New spec:** `docs/superpowers/specs/2026-09-22-wordy-uniform-cell-candy-architecture.md`  
 **New plan:** `docs/superpowers/plans/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
 **Uniform-cell ledger:** `docs/superpowers/progress/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
@@ -467,16 +467,29 @@ Key regressions prove:
 - final POP finishes only after resolving gravity/refill/cascades;
 - ordinary POP destroys READY tiles, introduces new tile IDs through refill and returns to the same round when moves remain.
 
-### Publication distinction
+### Production promotion — 2026-09-25
 
-This repair is **not yet live**.
+This repair is now live in production.
 
-Production remains at `c99b7c99a48d41a36a17d899173a02cfb78ff156`.
+- Production `main`: `5540768cd4947c89fa382133856472c2b5d24f34`.
+- Selective integration branch: `integration/wordy-pop-loop-20260925`.
+- Reconciled integration verification run `36183857726`: **109/109 Wordy tests pass**, production deploy guard pass, syntax pass.
+- Cloudflare production deploys for exact SHA `5540768cd4947c89fa382133856472c2b5d24f34`:
+  - `36184008106` → success;
+  - `36184007994` → success.
+- Real Chromium production verification run `36184160428` → success with marker `LIVE_WORDY_POP_LOOP_OK`.
+- Live early-POP result: 3 moves before, 3 after, score 515, phase `playing`, success `null`.
+- Live final-POP result: zero-move swap rejected, final POP ends in `result`, success true.
+- Live article result: canonical tile `A`, relationship surface `AN`, rendered text `AN`.
+
+Canonical production route:
+
+`https://classroom-online-games.pages.dev/Wordy/`
 
 ## Exact next action
 
-The manual-POP lifecycle and A/AN repair are complete and verified on `feature/wordy-game`, but are not published.
+The manual-POP lifecycle and A/AN repair are live in production.
 
-Do not rebuild either change.
+Do not rebuild or re-promote this repair.
 
-The next action is a selective production promotion decision. Promotion must reconcile only the required Wordy runtime/tests against the then-current `main`, preserve unrelated Classroom Online Games changes, run the full Wordy suite and deploy guard on the integration branch, deploy through both Cloudflare workflows, and verify the canonical Wordy route before another playtest.
+The next action is user playtesting of the canonical Wordy route. Any further gameplay issue should be treated as a new change set on `feature/wordy-game`, documented, verified, and selectively promoted against the then-current `main`.
