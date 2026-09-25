@@ -206,3 +206,28 @@ test('tutorial-required LOOK AFTER and MAKE SENSE still end inside one connected
   });
   assert.equal(selectedGraphIsConnected(ids,fullBank),true);
 });
+
+
+test('diversity-first generated board has at least 34 unique words and no word appears more than twice',()=>{
+  const ids=generatorModule.selectRelationshipNeighborhood({
+    bank:fullBank,rng:seeded(91),size:24
+  });
+  const board=createControlledBoard({
+    bank:fullBank,
+    relationshipIds:ids,
+    rows:7,columns:7,
+    rng:seeded(92),
+    minScoringMoves:8,
+    minProductiveRows:4,
+    minProductiveColumns:4,
+    minRelationshipCoverage:0.85,
+    minUniqueWords:34,
+    maxTokenCopies:2,
+    allowStartingMatches:false
+  });
+  const counts=new Map();
+  for(const tile of board.tiles)counts.set(tile.word,(counts.get(tile.word)??0)+1);
+  assert.ok(counts.size>=34,`expected >=34 unique words, got ${counts.size}`);
+  assert.ok(Math.max(...counts.values())<=2,`expected max 2 copies, got ${Math.max(...counts.values())}`);
+  assert.ok(findImmediateScoringMoves(board,fullBank).length>=8);
+});
