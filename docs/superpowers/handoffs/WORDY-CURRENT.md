@@ -9,7 +9,9 @@
 **New plan:** `docs/superpowers/plans/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
 **Uniform-cell ledger:** `docs/superpowers/progress/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
 **Gameplay-density plan:** `docs/superpowers/plans/2026-09-24-wordy-gameplay-density-repair.md`  
-**Gameplay-density ledger:** `docs/superpowers/progress/2026-09-24-wordy-gameplay-density-repair.md`
+**Gameplay-density ledger:** `docs/superpowers/progress/2026-09-24-wordy-gameplay-density-repair.md`  
+**POP/A-AN plan:** `docs/superpowers/plans/2026-09-24-wordy-pop-loop-and-indefinite-article.md`  
+**POP/A-AN ledger:** `docs/superpowers/progress/2026-09-24-wordy-pop-loop-and-indefinite-article.md`
 
 ## Authoritative continuation state
 
@@ -403,10 +405,78 @@ Canonical production route:
 
 `https://classroom-online-games.pages.dev/Wordy/`
 
+## Manual POP lifecycle + A/AN repair — development branch, 2026-09-24
+
+This section supersedes any earlier wording that implied a POP could end a round because a score target was reached.
+
+### Authoritative gameplay loop
+
+`swap → READY relationship(s) → optional additional setup → POP → remove READY tiles → vertical gravity → top refill → automatic cascades → stable board → continue`
+
+Rules:
+
+- READY relationships remain on the board until the player presses POP.
+- POP is global and resolves every READY relationship together.
+- POP costs no movement.
+- POP does **not** end a round while movements remain.
+- Reaching a score target early does **not** end a round.
+- The movement budget is the round clock.
+- The final accepted move may leave READY relationships at `movesLeft = 0`.
+- At zero moves, no further swaps are allowed, but POP remains enabled if READY exists.
+- That final free POP resolves removal, gravity, refill and cascades.
+- Only after the final POP is complete is the result evaluated against the objective.
+
+### Indefinite article tile
+
+There is one physical indefinite-article tile: `A`.
+
+The board never needs a separate `AN` tile.
+
+A validated relationship may retain grammatical surface token `AN`, for example:
+
+`HAVE AN OPINION`
+
+When the physical `A` tile forms that READY relationship:
+
+- matcher accepts it as `AN`;
+- board state remains `word: 'A'`;
+- the READY tile renders as `AN`;
+- review/relationship text remains `HAVE AN OPINION`;
+- after the match is gone, the physical tile model remains the canonical `A` vocabulary rule.
+
+Generator connectivity, coverage and board vocabulary plus refill all canonicalize `AN → A`.
+
+The curated relationship bank now includes `collocation:have-an-opinion`.
+
+### Verification
+
+Final branch verification run: `36097367881`.
+
+- Wordy test suite: **109/109 pass**.
+- Production deploy guard: **1/1 pass**.
+- Syntax check: pass.
+- Verified runtime commit: `4e24d924f636709bf4b857fc7f7827a4058e1282`.
+
+Key regressions prove:
+
+- physical A matches grammatical AN;
+- READY HAVE AN OPINION visually changes A to AN;
+- refill never creates a physical AN tile;
+- an early score target cannot finish the round while moves remain;
+- zero moves disables swaps but preserves final POP;
+- final POP finishes only after resolving gravity/refill/cascades;
+- ordinary POP destroys READY tiles, introduces new tile IDs through refill and returns to the same round when moves remain.
+
+### Publication distinction
+
+This repair is **not yet live**.
+
+Production remains at `c99b7c99a48d41a36a17d899173a02cfb78ff156`.
+
 ## Exact next action
 
-The vocabulary-diversity repair is live in production.
+The manual-POP lifecycle and A/AN repair are complete and verified on `feature/wordy-game`, but are not published.
 
-Do not rebuild or re-promote this repair.
+Do not rebuild either change.
 
-The next action is user playtesting of the canonical Wordy route. Any further gameplay issue should be treated as a new change set on `feature/wordy-game`, documented, verified, and selectively promoted against the then-current `main`.
+The next action is a selective production promotion decision. Promotion must reconcile only the required Wordy runtime/tests against the then-current `main`, preserve unrelated Classroom Online Games changes, run the full Wordy suite and deploy guard on the integration branch, deploy through both Cloudflare workflows, and verify the canonical Wordy route before another playtest.
