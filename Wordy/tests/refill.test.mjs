@@ -116,3 +116,16 @@ test('refill never chooses a word that already reached the round copy cap',()=>{
     assert.notEqual(word,'LOOK');
   }
 });
+
+
+test('relationship refill bag canonicalizes AN to A and never creates a separate AN tile word',()=>{
+  const articleBank=createRelationshipBank([
+    {id:'have-an-opinion',category:'collocation',tokens:['HAVE','AN','OPINION'],baseScore:180,difficulty:2},
+    {id:'take-a-break',category:'collocation',tokens:['TAKE','A','BREAK'],baseScore:150,difficulty:1}
+  ]);
+  const bag=buildRelationshipBag(articleBank);
+  const words=bag.map(entry=>entry.word);
+  assert.ok(words.includes('A'));
+  assert.equal(words.includes('AN'),false);
+  assert.equal(words.filter(word=>word==='A').length,1);
+});
