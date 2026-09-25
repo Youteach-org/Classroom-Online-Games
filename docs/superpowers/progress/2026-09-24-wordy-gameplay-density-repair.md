@@ -183,12 +183,19 @@ Both now have explicit regression tests.
 
 ## Publication state
 
-**Not published.**
+**Published on 2026-09-24.**
 
-Production remains on `main` commit:
+Production `main` commit:
 
-`9c3677b595dd7d082cfa29b19cad408738f982bc`
+`852774b163c61e72b3210a35f985a757f0152bc7`
 
-That production version contains the 7×7 uniform-cell architecture and deploy-race fix, but **does not yet contain this gameplay-density repair**.
+Selective integration details:
 
-The repaired implementation is on `feature/wordy-game`. Promotion to `main` / Cloudflare requires a separate explicit integration step.
+- base `main`: `4e6b9831d9ffc7a7510e0e1512b98018f284987a`;
+- integration branch: `integration/wordy-density-20260924`;
+- promoted files: the four Wordy runtime files and five Wordy tests from this repair only;
+- integration verification run: `36075979198` → **97/97**, deploy guard pass, syntax pass;
+- Cloudflare production runs: `36076082167` and `36076082190` → success;
+- canonical live check: `36076204533` → success, `LIVE_WORDY_DENSITY_OK`.
+
+The canonical production route now serves the gameplay-density repair.
