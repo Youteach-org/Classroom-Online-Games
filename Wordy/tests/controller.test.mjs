@@ -1,4 +1,7 @@
 import test from 'node:test';
+import { RELATIONSHIPS } from '../data/relationships.mjs';
+import { LEVELS } from '../data/levels.mjs';
+import { findImmediateScoringMoves, relationshipCoverage } from '../engine/generator.mjs';
 import assert from 'node:assert/strict';
 import { boardKey } from '../engine/board.mjs';
 import { createRelationshipBank } from '../engine/relationship-bank.mjs';
@@ -114,4 +117,81 @@ test('rebound telemetry never becomes a missed opportunity',()=>{
   const events=game.telemetryEvents();
   assert.ok(events.some(event=>event.type==='swap-rebound'));
   assert.equal(events.some(event=>event.type==='missed-opportunity'),false);
+});
+
+
+const fullBank=createRelationshipBank(RELATIONSHIPS);
+
+test('generated level A exposes its active neighborhood and at least eight productive swaps',()=>{
+  const game=createGameController({
+    bank:fullBank,
+    levels:LEVELS,
+    initialLevelId:'A',
+    rng:seeded(27),
+    storage:createFakeStorage()
+  });
+  const state=game.state();
+  assert.equal(state.movesLeft,18);
+  assert.equal(state.activeRelationshipIds.length,12);
+  assert.ok(findImmediateScoringMoves(state.board,fullBank).length>=8);
+  assert.ok(relationshipCoverage(state.board,fullBank,state.activeRelationshipIds)>=0.85);
+  assert.equal(state.phase,'playing');
+});
+
+test('generated mixed level G starts with at least twelve productive swaps',()=>{
+  const game=createGameController({
+    bank:fullBank,
+    levels:LEVELS,
+    initialLevelId:'G',
+    rng:seeded(41),
+    storage:createFakeStorage()
+  });
+  const state=game.state();
+  assert.equal(state.activeRelationshipIds.length,20);
+  assert.ok(findImmediateScoringMoves(state.board,fullBank).length>=12);
+});
+
+test('rejected swap gives immediate NO MATCH feedback without charging a move',()=>{
+  const {game}=makeGame();
+  const before=game.state();
+  const left=tile(before,1,'COFFEE');
+  const right=tile(before,1,'NOTES');
+  assert.equal(game.attemptSwap(left.id,right.id).status,'rebound');
+  const after=game.state();
+  assert.equal(after.eventLabel,'NO MATCH');
+  assert.equal(after.movesLeft,before.movesLeft);
+});
+
+
+test('round validity is scoped to active relationship ids, not the global bank',()=>{
+  const scopedBank=createRelationshipBank([
+    relation('look-after',['LOOK','AFTER'],'phrasal-verb',120,1),
+    relation('after-look',['AFTER','LOOK'],'fixed-expression',120,1),
+    relation('look-up',['LOOK','UP'],'phrasal-verb',120,1)
+  ]);
+  const level={
+    id:'S',title:'Scoped',moves:8,goal:{type:'score',target:9999},instruction:'Scoped',
+    generated:false,
+    relationshipIds:['look-after'],
+    boardRows:[
+      ['AFTER','LOOK','A','B','C','D','E'],
+      ['LOOK','X','UP','F','G','H','I'],
+      ['J','K','L','M','N','O','P'],
+      ['Q','R','S','T','U','V','W'],
+      ['AA','BB','CC','DD','EE','FF','GG'],
+      ['HH','II','JJ','KK','LL','MM','NN'],
+      ['OO','PP','SS','TT','UU','VV','WW']
+    ]
+  };
+  const game=createGameController({
+    bank:scopedBank,levels:[level],initialLevelId:'S',rng:seeded(5),storage:createFakeStorage()
+  });
+  const state=game.state();
+  assert.deepEqual(state.activeRelationshipIds,['look-after']);
+  assert.equal(state.readyMatches.some(match=>match.relationshipId==='after-look'),false);
+
+  const x=tile(state,1,'X');
+  const up=tile(state,1,'UP');
+  assert.equal(game.attemptSwap(x.id,up.id).status,'rebound');
+  assert.equal(game.state().readyMatches.some(match=>match.relationshipId==='look-up'),false);
 });
