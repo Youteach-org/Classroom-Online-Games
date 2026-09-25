@@ -91,8 +91,8 @@ test('relationship-scoped refill bag never leaks words from outside the active n
 
 test('refill never chooses a word that already reached the round copy cap',()=>{
   const cappedBank=createRelationshipBank([
-    relation('look-after',['LOOK','AFTER'],'phrasal-verb',120,1),
-    relation('look-up',['LOOK','UP'],'phrasal-verb',120,1)
+    {id:'look-after',category:'phrasal-verb',tokens:['LOOK','AFTER'],baseScore:120,difficulty:1},
+    {id:'look-up',category:'phrasal-verb',tokens:['LOOK','UP'],baseScore:120,difficulty:1}
   ]);
   const board=boardFromTiles({
     rows:3,columns:3,
