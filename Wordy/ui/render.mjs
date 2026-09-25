@@ -54,13 +54,41 @@ function applyTilePosition(node,tile){
   node.style.gridColumn=String(tile.column+1);
 }
 
+export function renderBoardSnapshot(root,board,{matches=[],disabled=true}={}){
+  if(!board?.tiles)throw new Error('board.tiles is required');
+  const boardNode=qs(root,'#wordyBoard');
+  if(!boardNode)return null;
+  const usage=readyUsage(matches);
+  const tiles=board.tiles
+    .slice()
+    .sort((a,b)=>a.row-b.row||a.column-b.column||a.id.localeCompare(b.id))
+    .map(tile=>{
+      const button=create(root,'button');
+      button.className='wordy-tile';
+      button.classList?.add?.('wordy-tile');
+      const tileMatches=usage.get(tile.id)??[];
+      const surfaceWord=readySurfaceWord(tile,tileMatches);
+      const textClass=typographyClass(surfaceWord);
+      if(textClass)button.classList?.add?.(textClass);
+      button.setAttribute?.('type','button');
+      button.setAttribute?.('role','gridcell');
+      applyTilePosition(button,tile);
+      button.textContent=surfaceWord;
+      button.disabled=!!disabled;
+      if(tileMatches.length)button.classList?.add?.('is-ready');
+      const orientations=new Set(tileMatches.map(match=>match.orientation));
+      if(orientations.has('horizontal')&&orientations.has('vertical'))button.classList?.add?.('is-cross');
+      return button;
+    });
+  boardNode.replaceChildren?.(...tiles);
+  return boardNode;
+}
+
 export function renderGame(root,state){
   if(!state?.board?.tiles)throw new Error('state.board.tiles is required');
-  const boardNode=qs(root,'#wordyBoard');
   const popButton=qs(root,'#popButton');
   const readyCount=qs(root,'#readyCount');
   const matches=state.readyMatches??[];
-  const usage=readyUsage(matches);
 
   setText(root,'#levelLabel',`${state.levelId??''}${state.levelTitle?` · ${state.levelTitle}`:''}`);
   setText(root,'#scoreValue',state.score??0);
@@ -68,30 +96,10 @@ export function renderGame(root,state){
   setText(root,'#objectiveText',state.instruction??'');
   setText(root,'#eventLabel',state.eventLabel??'');
 
-  if(boardNode){
-    const tiles=state.board.tiles
-      .slice()
-      .sort((a,b)=>a.row-b.row||a.column-b.column||a.id.localeCompare(b.id))
-      .map(tile=>{
-        const button=create(root,'button');
-        button.className='wordy-tile';
-        button.classList?.add?.('wordy-tile');
-        const tileMatches=usage.get(tile.id)??[];
-        const surfaceWord=readySurfaceWord(tile,tileMatches);
-        const textClass=typographyClass(surfaceWord);
-        if(textClass)button.classList?.add?.(textClass);
-        button.setAttribute?.('type','button');
-        button.setAttribute?.('role','gridcell');
-        applyTilePosition(button,tile);
-        button.textContent=surfaceWord;
-        button.disabled=state.phase!=='playing'||Number(state.movesLeft??0)<=0;
-        if(tileMatches.length)button.classList?.add?.('is-ready');
-        const orientations=new Set(tileMatches.map(match=>match.orientation));
-        if(orientations.has('horizontal')&&orientations.has('vertical'))button.classList?.add?.('is-cross');
-        return button;
-      });
-    boardNode.replaceChildren?.(...tiles);
-  }
+  renderBoardSnapshot(root,state.board,{
+    matches,
+    disabled:state.phase!=='playing'||Number(state.movesLeft??0)<=0
+  });
 
   if(readyCount)readyCount.textContent=matches.length===1?'1 ready':`${matches.length} ready`;
   if(popButton){

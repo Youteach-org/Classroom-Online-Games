@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { renderGame, renderResult } from '../ui/render.mjs';
+import { renderGame, renderResult, renderBoardSnapshot } from '../ui/render.mjs';
 
 const css=readFileSync(new URL('../styles.css',import.meta.url),'utf8');
 const renderSource=readFileSync(new URL('../ui/render.mjs',import.meta.url),'utf8');
@@ -165,4 +165,22 @@ test('at zero moves READY tiles cannot be moved but final POP remains enabled',(
   const tiles=root.querySelector('#wordyBoard').children;
   assert.ok(tiles.every(tile=>tile.disabled===true));
   assert.equal(root.querySelector('#popButton').disabled,false);
+});
+
+
+test('renderBoardSnapshot renders an intermediate disabled board without changing HUD',()=>{
+  const root=new FakeDocument();
+  root.querySelector('#scoreValue').textContent='777';
+  renderBoardSnapshot(root,{
+    rows:2,columns:2,
+    tiles:[
+      {id:'keep',word:'KEEP',row:0,column:0},
+      {id:'up',word:'UP',row:1,column:0}
+    ]
+  },{disabled:true});
+  const tiles=root.querySelector('#wordyBoard').children;
+  assert.equal(tiles.length,2);
+  assert.equal(tiles.find(tile=>tile.dataset.tileId==='keep').disabled,true);
+  assert.equal(tiles.find(tile=>tile.dataset.tileId==='up').style.gridRow,'2');
+  assert.equal(root.querySelector('#scoreValue').textContent,'777');
 });

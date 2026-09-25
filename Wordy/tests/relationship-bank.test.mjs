@@ -46,3 +46,16 @@ test('indefinite article uses canonical A tile while preserving AN as relationsh
   assert.ok(relation,'HAVE AN OPINION must exist in curated bank');
   assert.deepEqual(relation.tokens,['HAVE','AN','OPINION']);
 });
+
+
+test('KEEP UP and KEEP IN are curated phrasal verbs',()=>{
+  const bank=createRelationshipBank(RELATIONSHIPS);
+  const keepUp=bank.byId.get('phrasal-verb:keep-up');
+  const keepIn=bank.byId.get('phrasal-verb:keep-in');
+  assert.ok(keepUp,'KEEP UP must exist in curated bank');
+  assert.ok(keepIn,'KEEP IN must exist in curated bank');
+  assert.equal(keepUp.category,'phrasal-verb');
+  assert.equal(keepIn.category,'phrasal-verb');
+  assert.deepEqual(keepUp.tokens,['KEEP','UP']);
+  assert.deepEqual(keepIn.tokens,['KEEP','IN']);
+});

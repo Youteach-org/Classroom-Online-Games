@@ -49,3 +49,68 @@ test('timeline writes each generation label in order and waits only between gene
   assert.deepEqual(history,['LOOK AFTER','COMBO ×2 · TAKE A BREAK']);
   assert.deepEqual(delays,[120]);
 });
+
+
+test('resolution events carry board stages needed for visible falling animation',()=>{
+  const boardBefore={rows:2,columns:1,tiles:[
+    {id:'remove',word:'LOOK',row:0,column:0},
+    {id:'fall',word:'AFTER',row:1,column:0}
+  ]};
+  const boardAfterRemoval={rows:2,columns:1,tiles:[
+    {id:'fall',word:'AFTER',row:1,column:0}
+  ]};
+  const boardAfterGravity={rows:2,columns:1,tiles:[
+    {id:'fall',word:'AFTER',row:1,column:0}
+  ]};
+  const boardAfterRefill={rows:2,columns:1,tiles:[
+    {id:'new',word:'KEEP',row:0,column:0},
+    {id:'fall',word:'AFTER',row:1,column:0}
+  ]};
+  const events=buildResolutionEvents({generations:[{
+    cascadeDepth:0,
+    matches:[match('look-after',['LOOK','AFTER'])],
+    removedTileIds:['remove'],
+    score:{total:170},
+    boardBefore,boardAfterRemoval,boardAfterGravity,boardAfterRefill
+  }]});
+  assert.equal(events.length,1);
+  assert.deepEqual(events[0].removedTileIds,['remove']);
+  assert.deepEqual(events[0].boardBefore,boardBefore);
+  assert.deepEqual(events[0].boardAfterRemoval,boardAfterRemoval);
+  assert.deepEqual(events[0].boardAfterGravity,boardAfterGravity);
+  assert.deepEqual(events[0].boardAfterRefill,boardAfterRefill);
+  assert.notEqual(events[0].boardBefore,boardBefore,'event snapshot should be cloned');
+});
+
+
+test('timeline plays remove gravity refill for every generation in order',async()=>{
+  const stages=[];
+  const labels=[];
+  const node={
+    get textContent(){return labels.at(-1)??'';},
+    set textContent(value){labels.push(String(value));}
+  };
+  const root={querySelector:selector=>selector==='#eventLabel'?node:null};
+  const board=(suffix)=>({rows:1,columns:1,tiles:[{id:'tile-'+suffix,word:'X',row:0,column:0}]});
+  const events=[0,1].map(index=>({
+    label:index===0?'LOOK AFTER':'COMBO ×2 · KEEP UP',
+    cascadeDepth:index,
+    removedTileIds:['old-'+index],
+    boardBefore:board('before-'+index),
+    boardAfterRemoval:{rows:1,columns:1,tiles:[]},
+    boardAfterGravity:{rows:1,columns:1,tiles:[]},
+    boardAfterRefill:board('refill-'+index)
+  }));
+  await playResolutionTimeline(root,events,{
+    delayMs:0,
+    sleep:async()=>{},
+    animateRemoval:async(_root,event)=>{stages.push('remove-'+event.cascadeDepth);},
+    animateGravity:async(_root,event)=>{stages.push('gravity-'+event.cascadeDepth);},
+    animateRefill:async(_root,event)=>{stages.push('refill-'+event.cascadeDepth);}
+  });
+  assert.deepEqual(stages,[
+    'remove-0','gravity-0','refill-0',
+    'remove-1','gravity-1','refill-1'
+  ]);
+  assert.deepEqual(labels,['LOOK AFTER','COMBO ×2 · KEEP UP']);
+});

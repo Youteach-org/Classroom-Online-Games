@@ -1,3 +1,5 @@
+import { cloneBoard } from './board.mjs';
+
 function phraseFor(match){
   const tokens=Array.isArray(match?.tokens)?match.tokens:[];
   return tokens.join(' ').trim();
@@ -12,12 +14,17 @@ export function buildResolutionEvents(result){
     let prefix='';
     if(depth>0)prefix=`COMBO ×${depth+1} · `;
     else if(matches.length>1)prefix=`POP ×${matches.length} · `;
-    return {
+    const event={
       cascadeDepth:depth,
       relationshipIds:matches.map(match=>match.relationshipId),
       phrases,
       label:prefix+phrases.join(' + '),
-      score:generation?.score?.total??0
+      score:generation?.score?.total??0,
+      removedTileIds:[...(generation?.removedTileIds??[])]
     };
+    for(const key of ['boardBefore','boardAfterRemoval','boardAfterGravity','boardAfterRefill']){
+      if(generation?.[key])event[key]=cloneBoard(generation[key]);
+    }
+    return event;
   }).filter(event=>event.label);
 }

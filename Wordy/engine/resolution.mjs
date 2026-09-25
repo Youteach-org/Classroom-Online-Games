@@ -44,12 +44,23 @@ export function resolvePlayerActivation({
   const generations=[];
   for(let depth=0;matches.length>0;depth++){
     if(depth>maxCascadeDepth)throw new CascadeLimitError();
+    const boardBefore=cloneBoard(current);
     const score=scoreResolution({matches,bank,discoveredIds:known,cascadeDepth:depth});
     const removedTileIds=[...new Set(matches.flatMap(match=>match.tileIds??[]))];
-    current=removeTiles(current,removedTileIds);
-    current=settleGravity(current);
-    current=refillFromTop(current,refillTile,depth+1);
-    generations.push({matches,removedTileIds,score,cascadeDepth:depth});
+    const boardAfterRemoval=removeTiles(current,removedTileIds);
+    const boardAfterGravity=settleGravity(boardAfterRemoval);
+    const boardAfterRefill=refillFromTop(boardAfterGravity,refillTile,depth+1);
+    current=boardAfterRefill;
+    generations.push({
+      matches,
+      removedTileIds,
+      score,
+      cascadeDepth:depth,
+      boardBefore,
+      boardAfterRemoval:cloneBoard(boardAfterRemoval),
+      boardAfterGravity:cloneBoard(boardAfterGravity),
+      boardAfterRefill:cloneBoard(boardAfterRefill)
+    });
     for(const match of matches)known.add(match.relationshipId);
     matches=findMatches(current,bank);
   }
