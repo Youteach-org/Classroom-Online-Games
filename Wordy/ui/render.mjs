@@ -13,6 +13,20 @@ function readyUsage(matches){
   return usage;
 }
 
+function readySurfaceWord(tile,matches){
+  if(tile?.word!=='A'||!matches?.length)return tile?.word??'';
+  const forms=new Set();
+  for(const match of matches){
+    const index=(match.tileIds??[]).indexOf(tile.id);
+    if(index<0)continue;
+    const token=match.tokens?.[index];
+    if(token==='A'||token==='AN')forms.add(token);
+  }
+  if(forms.has('A')&&forms.has('AN'))return 'A/AN';
+  if(forms.has('AN'))return 'AN';
+  return 'A';
+}
+
 function create(root,tag){
   if(!root?.createElement)throw new Error('render root must provide createElement');
   return root.createElement(tag);
@@ -62,14 +76,15 @@ export function renderGame(root,state){
         const button=create(root,'button');
         button.className='wordy-tile';
         button.classList?.add?.('wordy-tile');
-        const textClass=typographyClass(tile.word);
+        const tileMatches=usage.get(tile.id)??[];
+        const surfaceWord=readySurfaceWord(tile,tileMatches);
+        const textClass=typographyClass(surfaceWord);
         if(textClass)button.classList?.add?.(textClass);
         button.setAttribute?.('type','button');
         button.setAttribute?.('role','gridcell');
         applyTilePosition(button,tile);
-        button.textContent=tile.word;
+        button.textContent=surfaceWord;
         button.disabled=state.phase!=='playing';
-        const tileMatches=usage.get(tile.id)??[];
         if(tileMatches.length)button.classList?.add?.('is-ready');
         const orientations=new Set(tileMatches.map(match=>match.orientation));
         if(orientations.has('horizontal')&&orientations.has('vertical'))button.classList?.add?.('is-cross');
