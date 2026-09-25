@@ -198,7 +198,12 @@ test('round validity is scoped to active relationship ids, not the global bank',
 
 
 test('reaching score target on POP does not end round while moves remain',()=>{
-  const {game}=makeGame({ready:true,moves:3,target:50});
+  const storage=createFakeStorage();
+  const level=makeLevel({ready:true,moves:3,target:50,id:'CONTINUE'});
+  level.boardRows[1]=['MAKE','WENT','SENSE','SCHOOL','COLD','TIME','TRUTH'];
+  const game=createGameController({
+    bank,levels:[level],initialLevelId:level.id,rng:seeded(3),storage
+  });
   const before=game.state();
   assert.equal(before.readyMatches.length,1);
   assert.equal(game.pop(),true);
