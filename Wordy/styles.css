@@ -70,6 +70,7 @@ button{font:inherit}
   font-weight:900;
   letter-spacing:-.02em;
   transition:transform .14s ease,box-shadow .14s ease,outline-color .14s ease;
+  will-change:transform,opacity;
 }
 .wordy-tile.text-medium{font-size:clamp(10px,2.4vw,16px)}
 .wordy-tile.text-long{font-size:clamp(9px,2.1vw,14px)}
