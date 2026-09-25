@@ -6,15 +6,17 @@ import { LEVELS } from '../data/levels.mjs';
 import { occupancyMap } from '../engine/board.mjs';
 import { createRelationshipBank } from '../engine/relationship-bank.mjs';
 import { createGameController } from '../engine/controller.mjs';
-import { findImmediateScoringMoves, hasViablePlay, createControlledBoard } from '../engine/generator.mjs';
+import {
+  enumerateSwaps,
+  findImmediateScoringMoves,
+  relationshipCoverage
+} from '../engine/generator.mjs';
 import { createFakeStorage, seeded } from './helpers.mjs';
 
 const bank=createRelationshipBank(RELATIONSHIPS);
 
-function tile(state,row,word){
-  const found=state.board.tiles.find(candidate=>candidate.row===row&&candidate.word===word);
-  assert.ok(found,`missing ${word} on row ${row}`);
-  return found;
+function swapKey(swap){
+  return [swap.fromTileId,swap.toTileId].sort().join('|');
 }
 
 function assertValidStableBoard(board){
@@ -35,77 +37,71 @@ function assertValidStableBoard(board){
   assert.ok(map.every(row=>row.every(Boolean)),'stable board must occupy all 49 cells');
 }
 
-test('Level A rebound, accepted LOOK AFTER swap, POP, column fall/refill and recovery stay valid end to end',()=>{
+test('Level A behaves as a dense generated round instead of a scripted two-combination demo',()=>{
   const game=createGameController({
     bank,
     levels:LEVELS,
     initialLevelId:'A',
     rng:seeded(17),
-    storage:createFakeStorage(),
-    refillWord:()=> 'ZZ'
+    storage:createFakeStorage()
   });
 
   const initial=game.state();
-  const initialMoves=initial.movesLeft;
   assertValidStableBoard(initial.board);
+  assert.equal(initial.movesLeft,18);
+  assert.equal(initial.activeRelationshipIds.length,12);
+  assert.ok(relationshipCoverage(initial.board,bank,initial.activeRelationshipIds)>=0.85);
 
-  const coffee=tile(initial,1,'COFFEE');
-  const notes=tile(initial,1,'NOTES');
-  assert.equal(game.attemptSwap(coffee.id,notes.id).status,'rebound');
-  assert.equal(game.state().movesLeft,initialMoves);
+  const productive=findImmediateScoringMoves(initial.board,bank);
+  assert.ok(productive.length>=8,`expected >=8 starting productive swaps, got ${productive.length}`);
 
-  const beforeProductive=game.state();
-  const went=tile(beforeProductive,0,'WENT');
-  const after=tile(beforeProductive,0,'AFTER');
-  assert.equal(game.attemptSwap(went.id,after.id).status,'accepted');
+  const productiveKeys=new Set(productive.map(move=>swapKey(move.swap)));
+  const rejected=enumerateSwaps(initial.board).find(swap=>!productiveKeys.has(swapKey(swap)));
+  assert.ok(rejected,'expected at least one nonproductive adjacent swap');
+  assert.equal(game.attemptSwap(rejected.fromTileId,rejected.toTileId).status,'rebound');
+  assert.equal(game.state().movesLeft,18);
+  assert.equal(game.state().eventLabel,'NO MATCH');
 
+  const chosen=findImmediateScoringMoves(game.state().board,bank)[0];
+  assert.ok(chosen,'expected productive move after rebound');
+  assert.equal(game.attemptSwap(chosen.swap.fromTileId,chosen.swap.toTileId).status,'accepted');
   const ready=game.state();
-  assert.equal(ready.movesLeft,initialMoves-1);
-  assert.ok(ready.readyMatches.some(match=>match.relationshipId==='phrasal-verb:look-after'));
+  assert.equal(ready.movesLeft,17);
+  assert.ok(ready.readyMatches.length>=1);
 
+  const activeWords=new Set(
+    ready.activeRelationshipIds.flatMap(id=>bank.byId.get(id).tokens)
+  );
   assert.equal(game.pop(),true);
   const resolved=game.state();
   assertValidStableBoard(resolved.board);
-  assert.ok(
-    resolved.phase==='result'||hasViablePlay(resolved.board,bank),
-    'round must either finish by objective or remain immediately playable'
-  );
+  assert.equal(resolved.movesLeft,17,'POP/recovery must not spend an extra move');
+  assert.ok(resolved.score>0,'accepted relationship must score');
+  assert.deepEqual(resolved.activeRelationshipIds,ready.activeRelationshipIds,'round neighborhood must stay stable after POP/recovery');
+  assert.ok(resolved.board.tiles.every(tile=>activeWords.has(tile.word)),'refill/recovery leaked a word outside the round neighborhood');
+
+  if(resolved.phase==='playing'){
+    const continuation=findImmediateScoringMoves(resolved.board,bank);
+    assert.ok(continuation.length>=4,`expected meaningful continuation after POP, got ${continuation.length}`);
+  }else{
+    assert.ok(resolved.score>=LEVELS[0].goal.target,'round ended before reaching the configured score target');
+  }
 });
 
-test('controlled generated board is 7x7 and spreads at least four productive swaps across rows and columns',()=>{
-  const fallbackLevel=LEVELS.find(level=>level.id==='G');
-  const fallbackGame=createGameController({
+test('mixed Level G begins with at least twelve productive swaps from a twenty-relation neighborhood',()=>{
+  const game=createGameController({
     bank,
-    levels:[fallbackLevel],
+    levels:LEVELS,
     initialLevelId:'G',
-    rng:seeded(1),
+    rng:seeded(23),
     storage:createFakeStorage()
   });
-  const fallback=fallbackGame.state().board;
-  const generated=createControlledBoard({
-    bank,
-    rows:7,
-    columns:7,
-    rng:seeded(23),
-    minScoringMoves:4,
-    minProductiveRows:3,
-    minProductiveColumns:3,
-    allowStartingMatches:false,
-    fallbackBoard:fallback
-  });
-  assertValidStableBoard(generated);
-  const moves=findImmediateScoringMoves(generated,bank);
-  assert.ok(moves.length>=4,`expected at least 4 productive moves, got ${moves.length}`);
-  const rows=new Set();
-  const columns=new Set();
-  for(const move of moves){
-    for(const id of [move.swap.fromTileId,move.swap.toTileId]){
-      const item=generated.tiles.find(tile=>tile.id===id);
-      if(item){rows.add(item.row);columns.add(item.column);}
-    }
-  }
-  assert.ok(rows.size>=3,`expected productive swaps across >=3 rows, got ${rows.size}`);
-  assert.ok(columns.size>=3,`expected productive swaps across >=3 columns, got ${columns.size}`);
+  const state=game.state();
+  assertValidStableBoard(state.board);
+  assert.equal(state.activeRelationshipIds.length,20);
+  const moves=findImmediateScoringMoves(state.board,bank);
+  assert.ok(moves.length>=12,`expected at least 12 productive moves, got ${moves.length}`);
+  assert.ok(relationshipCoverage(state.board,bank,state.activeRelationshipIds)>=0.85);
 });
 
 test('runtime contains no legacy span geometry engine',()=>{
