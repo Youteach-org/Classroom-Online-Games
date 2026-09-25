@@ -1,5 +1,5 @@
 import { areSwapNeighbors, cloneBoard, createBoard } from './board.mjs';
-import { normalizeToken, createRelationshipBank } from './relationship-bank.mjs';
+import { canonicalTileToken, createRelationshipBank } from './relationship-bank.mjs';
 import { findMatches, findCrossings } from './matcher.mjs';
 import { resolvePlayerActivation, CascadeLimitError } from './resolution.mjs';
 import {
@@ -261,7 +261,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
   function refillTile({row,column,board,cascadeDepth}){
     let word='';
     if(typeof refillWord==='function'){
-      word=normalizeToken(refillWord({row,column,board,state:snapshot(),bank:roundBank,rng,cascadeDepth}));
+      word=canonicalTileToken(refillWord({row,column,board,state:snapshot(),bank:roundBank,rng,cascadeDepth}));
     }
     if(!word){
       word=chooseRefillWord({
