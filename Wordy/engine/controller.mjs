@@ -1,8 +1,13 @@
 import { areSwapNeighbors, cloneBoard, createBoard } from './board.mjs';
-import { normalizeToken } from './relationship-bank.mjs';
+import { normalizeToken, createRelationshipBank } from './relationship-bank.mjs';
 import { findMatches, findCrossings } from './matcher.mjs';
 import { resolvePlayerActivation, CascadeLimitError } from './resolution.mjs';
-import { findImmediateScoringMoves, createControlledBoard, recoverDeadBoard } from './generator.mjs';
+import {
+  findImmediateScoringMoves,
+  createControlledBoard,
+  recoverDeadBoard,
+  selectRelationshipNeighborhood
+} from './generator.mjs';
 import { captureMissedOpportunity, buildRoundReview } from './review.mjs';
 import { createTelemetryStore } from './telemetry.mjs';
 import { buildResolutionEvents } from './resolution-events.mjs';
@@ -24,7 +29,6 @@ function sameSwap(a,b){
     (a.fromTileId===b.toTileId&&a.toTileId===b.fromTileId)
   );
 }
-function productiveRows(board,moves){const rows=new Set();for(const move of moves){for(const id of [move.swap.fromTileId,move.swap.toTileId]){const tile=board.tiles.find(t=>t.id===id);if(tile)rows.add(tile.row);}}return rows.size;}
 function objectiveComplete(level,state){
   switch(level.goal?.type){
     case 'score': return state.score>=level.goal.target;
@@ -39,6 +43,7 @@ function objectiveComplete(level,state){
 export function createGameController({bank,levels,initialLevelId,rng=Math.random,storage=null,refillWord=null}={}){
   if(!bank?.byId)throw new Error('relationship bank is required');
   if(!Array.isArray(levels)||levels.length===0)throw new Error('levels are required');
+
   const telemetry=createTelemetryStore({storage});
   const listeners=new Set();
   const discoveredIds=readDiscovered(storage);
@@ -47,13 +52,16 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
   let currentLevel=null;
   let state=null;
   let roundNewIds=new Set();
-  const refillBag=buildRelationshipBag(bank);
+  let activeRelationshipIds=[];
+  let roundBank=bank;
+  let refillBag=[];
 
   function snapshot(){
     return {
       ...state,
       board:cloneBoard(state.board),
       readyMatches:state.readyMatches.map(cloneMatch),
+      activeRelationshipIds:[...(state.activeRelationshipIds??[])],
       discoveredIds:new Set(state.discoveredIds),
       missedOpportunities:state.missedOpportunities.map(item=>({
         ...item,
@@ -63,23 +71,51 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
       review:state.review?{newLearning:[...(state.review.newLearning??[])],missed:[...(state.review.missed??[])]}:null
     };
   }
+
   function emit(){const view=snapshot();for(const listener of listeners)listener(view);}
-  function authoredBoard(level){return createBoard(level.boardRows);}
-  function fallbackBoard(){
-    for(const level of [currentLevel,...levels]){
-      if(!level)continue;
-      const board=authoredBoard(level);
-      const moves=findImmediateScoringMoves(board,bank);
-      if(moves.length>=4&&productiveRows(board,moves)>=3)return board;
+
+  function chooseActiveRelationships(level){
+    if(Array.isArray(level.relationshipIds)&&level.relationshipIds.length){
+      return [...new Set(level.relationshipIds)];
     }
-    return authoredBoard(currentLevel);
+    if(!level.generated)return [...bank.byId.keys()];
+    return selectRelationshipNeighborhood({
+      bank,
+      rng,
+      size:level.relationshipPoolSize??16,
+      requiredRelationshipIds:level.requiredRelationshipIds??[],
+      categoryWeights:level.categoryWeights??{}
+    });
   }
+
+  function generatedBoard(level){
+    return createControlledBoard({
+      bank:roundBank,
+      rows:level.rows??7,
+      columns:level.columns??7,
+      rng,
+      minScoringMoves:level.minScoringMoves??8,
+      minProductiveRows:level.minProductiveRows??4,
+      minProductiveColumns:level.minProductiveColumns??4,
+      minRelationshipCoverage:level.minRelationshipCoverage??0.85,
+      maxTokenCopies:level.maxTokenCopies??4,
+      relationshipIds:activeRelationshipIds,
+      allowStartingMatches:false
+    });
+  }
+
   function initialBoard(level){
-    const authored=authoredBoard(level);
-    if(!level.generated)return authored;
-    return createControlledBoard({bank,rows:authored.rows,columns:authored.columns,rng,minScoringMoves:4,minProductiveRows:3,minProductiveColumns:3,allowStartingMatches:false,fallbackBoard:authored});
+    if(level.generated)return generatedBoard(level);
+    if(!Array.isArray(level.boardRows))throw new Error('authored level requires boardRows');
+    return createBoard(level.boardRows);
   }
-  function refreshReady(){state.readyMatches=findMatches(state.board,bank);}
+
+  function authoredFallback(){
+    if(!Array.isArray(currentLevel?.boardRows))return null;
+    return createBoard(currentLevel.boardRows);
+  }
+
+  function refreshReady(){state.readyMatches=findMatches(state.board,roundBank);}
   function logReady(){
     telemetry.record('ready-change',{
       count:state.readyMatches.length,
@@ -87,22 +123,83 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
       crossCount:findCrossings(state.readyMatches).length
     });
   }
+
   function loadLevel(index,{preserveDiscoveries=true}={}){
-    levelIndex=index; currentLevel=levels[index]; roundNewIds=new Set();
+    levelIndex=index;
+    currentLevel=levels[index];
+    roundNewIds=new Set();
+
+    let board=null;
+    if(currentLevel.generated){
+      let lastError=null;
+      for(let attempt=0;attempt<12&&!board;attempt++){
+        activeRelationshipIds=chooseActiveRelationships(currentLevel);
+        roundBank=createRelationshipBank(activeRelationshipIds.map(id=>bank.byId.get(id)));
+        refillBag=buildRelationshipBag(roundBank,{
+          relationshipIds:activeRelationshipIds,
+          categoryWeights:currentLevel.categoryWeights??{}
+        });
+        try{
+          board=generatedBoard(currentLevel);
+        }catch(error){
+          lastError=error;
+        }
+      }
+      if(!board)throw lastError??new Error('unable to prepare generated level');
+    }else{
+      activeRelationshipIds=chooseActiveRelationships(currentLevel);
+      roundBank=createRelationshipBank(activeRelationshipIds.map(id=>bank.byId.get(id)));
+      refillBag=buildRelationshipBag(roundBank,{
+        relationshipIds:activeRelationshipIds,
+        categoryWeights:currentLevel.categoryWeights??{}
+      });
+      board=initialBoard(currentLevel);
+    }
+
     state={
-      levelId:currentLevel.id,levelTitle:currentLevel.title,instruction:currentLevel.instruction,
-      board:initialBoard(currentLevel),movesLeft:currentLevel.moves,score:0,readyMatches:[],
-      discoveredIds:preserveDiscoveries?new Set(discoveredIds):new Set(),bestBatch:0,bestCascade:0,
-      longestRelation:0,crossCount:0,phase:'playing',missedOpportunities:[],resolutionEvents:[],
-      eventLabel:'',success:null,review:null
+      levelId:currentLevel.id,
+      levelTitle:currentLevel.title,
+      instruction:currentLevel.instruction,
+      board,
+      movesLeft:currentLevel.moves,
+      score:0,
+      readyMatches:[],
+      activeRelationshipIds:[...activeRelationshipIds],
+      discoveredIds:preserveDiscoveries?new Set(discoveredIds):new Set(),
+      bestBatch:0,
+      bestCascade:0,
+      longestRelation:0,
+      crossCount:0,
+      phase:'playing',
+      missedOpportunities:[],
+      resolutionEvents:[],
+      eventLabel:'',
+      success:null,
+      review:null
     };
     refreshReady();
-    telemetry.record('level-start',{levelId:currentLevel.id,moves:currentLevel.moves});
+    telemetry.record('level-start',{
+      levelId:currentLevel.id,
+      moves:currentLevel.moves,
+      activeRelationshipIds:[...activeRelationshipIds]
+    });
   }
+
   function finishRound(success){
-    state.phase='result'; state.success=!!success;
-    state.review=buildRoundReview({newRelationshipIds:[...roundNewIds],missedOpportunities:state.missedOpportunities,bank,limit:3});
-    telemetry.record('level-end',{levelId:state.levelId,success:state.success,score:state.score,movesLeft:state.movesLeft});
+    state.phase='result';
+    state.success=!!success;
+    state.review=buildRoundReview({
+      newRelationshipIds:[...roundNewIds],
+      missedOpportunities:state.missedOpportunities,
+      bank:roundBank,
+      limit:3
+    });
+    telemetry.record('level-end',{
+      levelId:state.levelId,
+      success:state.success,
+      score:state.score,
+      movesLeft:state.movesLeft
+    });
   }
 
   function attemptSwap(fromTileId,toTileId){
@@ -111,21 +208,25 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
       return {status:'invalid',...resultBase};
     }
 
-    const scoringMoves=findImmediateScoringMoves(state.board,bank);
+    const scoringMoves=findImmediateScoringMoves(state.board,roundBank);
     const chosenMove=scoringMoves.find(move=>sameSwap(move.swap,resultBase));
     if(!chosenMove){
+      state.eventLabel='NO MATCH';
       telemetry.record('swap-rebound',{...resultBase,movesLeft:state.movesLeft});
+      emit();
       return {status:'rebound',...resultBase};
     }
 
     state.resolutionEvents=[];
     const previousReadyIds=new Set(state.readyMatches.map(match=>match.relationshipId));
     const previousCrossCount=findCrossings(state.readyMatches).length;
-    const missed=captureMissedOpportunity({board:state.board,scoringMoves,chosenSwap:resultBase,bank});
+    const missed=captureMissedOpportunity({board:state.board,scoringMoves,chosenSwap:resultBase,bank:roundBank});
     if(missed){
       state.missedOpportunities.push(missed);
       telemetry.record('missed-opportunity',{
-        relationshipId:missed.relationshipId,projectedScore:missed.projectedScore,suggestedSwap:missed.suggestedSwap
+        relationshipId:missed.relationshipId,
+        projectedScore:missed.projectedScore,
+        suggestedSwap:missed.suggestedSwap
       });
     }
 
@@ -136,8 +237,15 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     const createdRelationshipIds=[...nextReadyIds].filter(id=>!previousReadyIds.has(id));
     const brokenRelationshipIds=[...previousReadyIds].filter(id=>!nextReadyIds.has(id));
     const nextCrossCount=findCrossings(state.readyMatches).length;
-    state.eventLabel=state.readyMatches.length?(state.readyMatches.length>1?`READY ×${state.readyMatches.length}`:'READY'):'';
-    telemetry.record('swap',{...resultBase,movesLeft:state.movesLeft,createdRelationshipIds,immediatelyCreatedRelationship:createdRelationshipIds.length>0});
+    state.eventLabel=state.readyMatches.length
+      ?(state.readyMatches.length>1?`READY ×${state.readyMatches.length}`:'READY')
+      :'';
+    telemetry.record('swap',{
+      ...resultBase,
+      movesLeft:state.movesLeft,
+      createdRelationshipIds,
+      immediatelyCreatedRelationship:createdRelationshipIds.length>0
+    });
     if(createdRelationshipIds.length)telemetry.record('relationship-formed',{relationshipIds:createdRelationshipIds});
     if(brokenRelationshipIds.length)telemetry.record('relationship-broken',{relationshipIds:brokenRelationshipIds});
     if(nextCrossCount>previousCrossCount)telemetry.record('cross-created',{crossCount:nextCrossCount,relationshipIds:[...nextReadyIds]});
@@ -150,24 +258,84 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
   function refillTile({row,column,board,cascadeDepth}){
     let word='';
     if(typeof refillWord==='function'){
-      word=normalizeToken(refillWord({row,column,board,state:snapshot(),bank,rng,cascadeDepth}));
+      word=normalizeToken(refillWord({row,column,board,state:snapshot(),bank:roundBank,rng,cascadeDepth}));
     }
     if(!word){
       word=chooseRefillWord({
-        row,column,board,bank,bag:refillBag,rng,
+        row,column,board,bank:roundBank,bag:refillBag,rng,
         profile:DEFAULT_REFILL_PROFILE
       });
     }
     return {id:'refill-'+(++refillCounter),word};
   }
-  function recoverIfDead(){
-    const recovered=recoverDeadBoard({board:state.board,bank,rng,fallbackBoard:fallbackBoard(),minScoringMoves:4,minProductiveRows:3,minProductiveColumns:3});
-    if(recovered.reset){state.board=recovered.board;refreshReady();telemetry.record('dead-board-reset',{levelId:state.levelId});logReady();}
+
+  function recoverSparseGeneratedBoard(){
+    if(!currentLevel.generated)return false;
+    if(state.readyMatches.length>0)return false;
+    const moves=findImmediateScoringMoves(state.board,roundBank);
+    const configured=currentLevel.minScoringMoves??8;
+    const floor=Math.max(2,Math.ceil(configured/2));
+    if(moves.length>=floor)return false;
+
+    const previousCount=moves.length;
+    state.board=generatedBoard(currentLevel);
+    refreshReady();
+    telemetry.record('sparse-board-reset',{
+      levelId:state.levelId,
+      productiveMovesBefore:previousCount,
+      targetFloor:floor,
+      activeRelationshipIds:[...activeRelationshipIds]
+    });
+    logReady();
+    return true;
   }
+
+  function recoverAuthoredDeadBoard(){
+    if(currentLevel.generated)return false;
+    const fallback=authoredFallback();
+    const recovered=recoverDeadBoard({
+      board:state.board,
+      bank:roundBank,
+      rng,
+      fallbackBoard:fallback,
+      minScoringMoves:4,
+      minProductiveRows:3,
+      minProductiveColumns:3
+    });
+    if(!recovered.reset)return false;
+    state.board=recovered.board;
+    refreshReady();
+    telemetry.record('dead-board-reset',{levelId:state.levelId});
+    logReady();
+    return true;
+  }
+
+  function recoverPlayableBoard(){
+    if(currentLevel.generated)return recoverSparseGeneratedBoard();
+    return recoverAuthoredDeadBoard();
+  }
+
   function safeCascadeRecovery(){
-    state.board=createControlledBoard({bank,rows:state.board.rows,columns:state.board.columns,rng,minScoringMoves:4,minProductiveRows:3,minProductiveColumns:3,allowStartingMatches:false,fallbackBoard:fallbackBoard()});
-    refreshReady();telemetry.record('dead-board-reset',{levelId:state.levelId,reason:'cascade-limit'});logReady();
+    if(currentLevel.generated){
+      state.board=generatedBoard(currentLevel);
+    }else{
+      state.board=createControlledBoard({
+        bank:roundBank,
+        rows:state.board.rows,
+        columns:state.board.columns,
+        rng,
+        minScoringMoves:4,
+        minProductiveRows:3,
+        minProductiveColumns:3,
+        allowStartingMatches:false,
+        fallbackBoard:authoredFallback()
+      });
+    }
+    refreshReady();
+    telemetry.record('dead-board-reset',{levelId:state.levelId,reason:'cascade-limit'});
+    logReady();
   }
+
   function applyResolutionStats(result){
     state.score+=result.totalScore;
     const first=result.generations[0];
@@ -175,42 +343,107 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     for(const generation of result.generations){
       state.bestCascade=Math.max(state.bestCascade,generation.cascadeDepth??0);
       state.crossCount+=generation.score?.crossCount??0;
-      for(const match of generation.matches??[])state.longestRelation=Math.max(state.longestRelation,match.tileIds?.length??0);
-      if((generation.cascadeDepth??0)>0)telemetry.record('cascade',{depth:generation.cascadeDepth,relationshipIds:generation.matches.map(match=>match.relationshipId)});
+      for(const match of generation.matches??[]){
+        state.longestRelation=Math.max(state.longestRelation,match.tileIds?.length??0);
+      }
+      if((generation.cascadeDepth??0)>0){
+        telemetry.record('cascade',{
+          depth:generation.cascadeDepth,
+          relationshipIds:generation.matches.map(match=>match.relationshipId)
+        });
+      }
     }
-    for(const id of result.newlyDiscoveredIds){discoveredIds.add(id);state.discoveredIds.add(id);roundNewIds.add(id);}
+    for(const id of result.newlyDiscoveredIds){
+      discoveredIds.add(id);
+      state.discoveredIds.add(id);
+      roundNewIds.add(id);
+    }
     persistDiscovered(storage,discoveredIds);
   }
+
   function pop(){
     if(state.phase!=='playing'||state.readyMatches.length===0)return false;
     const readyCount=state.readyMatches.length;
-    state.phase='resolving';emit();
+    state.phase='resolving';
+    emit();
     telemetry.record('pop',{readyCount,movesLeft:state.movesLeft});
+
     try{
-      const result=resolvePlayerActivation({board:state.board,bank,discoveredIds:state.discoveredIds,refillTile});
+      const result=resolvePlayerActivation({
+        board:state.board,
+        bank:roundBank,
+        discoveredIds:state.discoveredIds,
+        refillTile
+      });
       state.board=result.board;
       applyResolutionStats(result);
       state.resolutionEvents=buildResolutionEvents(result);
-      state.eventLabel=result.generations.length>1?`COMBO ×${result.generations.length}`:(result.generations[0]?.score?.crossCount>0?'CROSS!':(result.newlyDiscoveredIds.length?'NEW!':''));
+      state.eventLabel=result.generations.length>1
+        ?`COMBO ×${result.generations.length}`
+        :(result.generations[0]?.score?.crossCount>0
+          ?'CROSS!'
+          :(result.newlyDiscoveredIds.length?'NEW!':''));
       refreshReady();
     }catch(error){
-      if(!(error instanceof CascadeLimitError)){state.phase='playing';emit();throw error;}
+      if(!(error instanceof CascadeLimitError)){
+        state.phase='playing';
+        emit();
+        throw error;
+      }
       telemetry.record('cascade-limit',{levelId:state.levelId});
       state.resolutionEvents=[];
       safeCascadeRecovery();
       state.eventLabel='BOARD RESET';
     }
+
     if(objectiveComplete(currentLevel,state))finishRound(true);
     else if(state.movesLeft<=0)finishRound(false);
-    else{state.phase='playing';recoverIfDead();}
+    else{
+      state.phase='playing';
+      recoverPlayableBoard();
+    }
     emit();
     return true;
   }
-  function replay(){telemetry.record('level-replay',{levelId:state.levelId,score:state.score});loadLevel(levelIndex);emit();return true;}
-  function abandon(){if(state.phase==='result')return false;telemetry.record('level-abandon',{levelId:state.levelId,score:state.score,movesLeft:state.movesLeft,phase:state.phase});return true;}
-  function next(){if(levelIndex>=levels.length-1)return false;loadLevel(levelIndex+1);emit();return true;}
-  function subscribe(listener){if(typeof listener!=='function')throw new Error('listener must be a function');listeners.add(listener);listener(snapshot());return ()=>listeners.delete(listener);}
+
+  function replay(){
+    telemetry.record('level-replay',{levelId:state.levelId,score:state.score});
+    loadLevel(levelIndex);
+    emit();
+    return true;
+  }
+  function abandon(){
+    if(state.phase==='result')return false;
+    telemetry.record('level-abandon',{
+      levelId:state.levelId,
+      score:state.score,
+      movesLeft:state.movesLeft,
+      phase:state.phase
+    });
+    return true;
+  }
+  function next(){
+    if(levelIndex>=levels.length-1)return false;
+    loadLevel(levelIndex+1);
+    emit();
+    return true;
+  }
+  function subscribe(listener){
+    if(typeof listener!=='function')throw new Error('listener must be a function');
+    listeners.add(listener);
+    listener(snapshot());
+    return ()=>listeners.delete(listener);
+  }
 
   loadLevel(levelIndex);
-  return {state:snapshot,attemptSwap,pop,replay,next,abandon,subscribe,telemetryEvents:()=>telemetry.events()};
+  return {
+    state:snapshot,
+    attemptSwap,
+    pop,
+    replay,
+    next,
+    abandon,
+    subscribe,
+    telemetryEvents:()=>telemetry.events()
+  };
 }
