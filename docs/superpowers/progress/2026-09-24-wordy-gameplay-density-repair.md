@@ -199,3 +199,73 @@ Selective integration details:
 - canonical live check: `36076204533` → success, `LIVE_WORDY_DENSITY_OK`.
 
 The canonical production route now serves the gameplay-density repair.
+
+## Vocabulary repetition follow-up
+
+### User report
+
+After the density repair was published, the user reported that the board still repeated a small set of words so heavily that the board felt pointless.
+
+### Root-cause evidence
+
+Diagnostic run `36076476886` measured the defect directly:
+
+- A: 18–21 unique words / 49 (avg 19.6), max copies 4;
+- B: 19–22 unique, max 4;
+- C: 21–25 unique, max 4;
+- D: 19–24 unique, max 4;
+- E: 23–28 unique, max 4;
+- F: 21–28 unique, max 4;
+- G: 25–32 unique, max 4.
+
+High-connectivity words such as A, TAKE, LOOK, MAKE, OF, IN and UP repeatedly hit the four-copy ceiling because the deck algorithm repeated complete relationship bundles.
+
+A second feasibility diagnostic (`36076562041`) proved that merely widening the relationship pool was insufficient: the old deck algorithm could still collapse a 32-relation pool to only 29–37 visible unique words.
+
+### TDD contract
+
+New regression requirements:
+
+- normal stable boards may contain at most 2 copies of any word;
+- A/B minimum visible unique words: 34;
+- C/D: 36;
+- E/F: 38;
+- G: 40;
+- refill may not choose a word already at the current round copy cap.
+
+RED run `36076804987` failed on the missing diversity behavior, old pool sizes, and refill copy-cap behavior.
+
+### Fix
+
+- relationship pools widened to 24 / 24 / 26 / 26 / 28 / 28 / 32;
+- board generation now deals unique vocabulary before duplication;
+- duplicate slots choose from the least-used words;
+- productive-move seeding rearranges existing words by swapping instead of overwriting vocabulary;
+- normal levels explicitly cap every word at 2 copies;
+- refill filters out words already at the cap;
+- callers without an explicit cap retain adaptive behavior for tiny test/demo banks.
+
+### Verification
+
+Final branch CI: `36077230294`.
+
+- Wordy suite: 99/99 pass;
+- production deploy guard: pass;
+- syntax check: pass.
+
+Post-fix real-level measurement run `36077378583`:
+
+- A: 38–41 unique, max 2, min 8 productive moves;
+- B: 39–43 unique, max 2, min 8 moves;
+- C: 41–42 unique, max 2, min 13 moves;
+- D: 39–46 unique, max 2, min 11 moves;
+- E: 44–48 unique, max 2, min 10 moves;
+- F: 42–47 unique, max 2, min 12 moves;
+- G: 49/49 unique in all three sampled boards, max 1, min 12 moves.
+
+Verified implementation/test HEAD: `2411ff8bddde409c9aa06f216cd9a5f598788506`.
+Latest runtime change: `eb948e2ec2fa9594977fdc722af52224f6a882d0`.
+
+### Publication state
+
+Not published. Production remains at `852774b163c61e72b3210a35f985a757f0152bc7` with the repetitive vocabulary behavior.
