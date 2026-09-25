@@ -73,3 +73,17 @@ test('duplicate words receive a lower placement score',()=>{
   const fresh=scoreRefillCandidate({word:'AFTER',row:1,column:1,board:duplicateBoard,bank});
   assert.ok(fresh>duplicate);
 });
+
+
+test('default refill profile strongly favors opportunities without eliminating variety',()=>{
+  assert.deepEqual(DEFAULT_REFILL_PROFILE,{
+    cascadeWeight:0.15,
+    opportunityWeight:0.70,
+    distractorWeight:0.15
+  });
+});
+
+test('relationship-scoped refill bag never leaks words from outside the active neighborhood',()=>{
+  const bag=buildRelationshipBag(bank,{relationshipIds:['look-after']});
+  assert.deepEqual(new Set(bag.map(entry=>entry.word)),new Set(['LOOK','AFTER']));
+});
