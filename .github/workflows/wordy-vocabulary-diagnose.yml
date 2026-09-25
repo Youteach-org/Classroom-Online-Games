@@ -1,0 +1,42 @@
+name: Wordy Vocabulary Diagnose
+on:
+  push:
+    branches:
+      - feature/wordy-game
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Measure generated vocabulary repetition
+        run: |
+          node --input-type=module <<'EOF'
+          import { RELATIONSHIPS } from './Wordy/data/relationships.mjs';
+          import { LEVELS } from './Wordy/data/levels.mjs';
+          import { createRelationshipBank } from './Wordy/engine/relationship-bank.mjs';
+          import { createGameController } from './Wordy/engine/controller.mjs';
+
+          const bank=createRelationshipBank(RELATIONSHIPS);
+          const seeded=seed=>()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+          for(const level of LEVELS){
+            for(const seed of [3,17,27,41,73]){
+              const game=createGameController({bank,levels:LEVELS,initialLevelId:level.id,rng:seeded(seed),storage:null});
+              const state=game.state();
+              const counts=new Map();
+              for(const tile of state.board.tiles)counts.set(tile.word,(counts.get(tile.word)||0)+1);
+              const sorted=[...counts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+              const activeWords=new Set(state.activeRelationshipIds.flatMap(id=>bank.byId.get(id).tokens));
+              console.log(JSON.stringify({
+                level:level.id,seed,
+                activeRelations:state.activeRelationshipIds.length,
+                activeUniqueWords:activeWords.size,
+                boardUniqueWords:counts.size,
+                maxCopies:sorted[0]?.[1]||0,
+                top:sorted.slice(0,10)
+              }));
+            }
+          }
+          EOF
