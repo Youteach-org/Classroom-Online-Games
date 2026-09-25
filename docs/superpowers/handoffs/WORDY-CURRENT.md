@@ -4,7 +4,7 @@
 **Repository:** `Youteach-org/Classroom-Online-Games`  
 **Development branch:** `feature/wordy-game`  
 **Uniform-cell verification commit:** `34bc8585ca681e842d79256b8153f8c528c4f84b`  
-**Current production commit (`main`):** `852774b163c61e72b3210a35f985a757f0152bc7`  
+**Current production commit (`main`):** `c99b7c99a48d41a36a17d899173a02cfb78ff156`  
 **New spec:** `docs/superpowers/specs/2026-09-22-wordy-uniform-cell-candy-architecture.md`  
 **New plan:** `docs/superpowers/plans/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
 **Uniform-cell ledger:** `docs/superpowers/progress/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
@@ -384,16 +384,29 @@ Measurement run: `36077378583`.
 - Verified implementation/test HEAD before diagnostic-only commits: `2411ff8bddde409c9aa06f216cd9a5f598788506`.
 - Latest runtime change in that verified stack: `eb948e2ec2fa9594977fdc722af52224f6a882d0`.
 
-### Publication distinction
+### Production promotion — 2026-09-24
 
-This vocabulary-diversity repair is **not yet on production**.
+The vocabulary-diversity repair is now live in production.
 
-Production `main` remains at `852774b163c61e72b3210a35f985a757f0152bc7`, which contains the prior density repair but still has the repetitive vocabulary behavior reported by the user.
+- Production `main`: `c99b7c99a48d41a36a17d899173a02cfb78ff156`.
+- Selective integration branch: `integration/wordy-vocabulary-diversity-20260924`.
+- Only the four runtime files and five Wordy test files from this repair were promoted.
+- Reconciled integration verification run `36079368486`: **99/99 Wordy tests pass**, deployment guard pass, syntax pass.
+- Cloudflare production runs for exact SHA `c99b7c99a48d41a36a17d899173a02cfb78ff156`:
+  - `36079434478` → success;
+  - `36079434497` → success.
+- Real Chromium canonical-route verification run `36079518269` → success with marker `LIVE_WORDY_VOCABULARY_DIVERSITY_OK`.
+- Live Level A measurement: 49 tiles, 24 active relations, **36 unique words**, max **2 copies**.
+- Live Level G measurement: 49 tiles, 32 active relations, **49 unique words**, max **1 copy**.
+
+Canonical production route:
+
+`https://classroom-online-games.pages.dev/Wordy/`
 
 ## Exact next action
 
-The vocabulary-diversity repair is complete and verified on `feature/wordy-game`, but is not published.
+The vocabulary-diversity repair is live in production.
 
-Do not rebuild the repair.
+Do not rebuild or re-promote this repair.
 
-The next action is a selective promotion decision: reconcile only the vocabulary-diversity runtime/tests against the current `main`, preserve unrelated Classroom Online Games work, deploy through both Cloudflare workflows, and verify the canonical Wordy route before requesting another playtest.
+The next action is user playtesting of the canonical Wordy route. Any further gameplay issue should be treated as a new change set on `feature/wordy-game`, documented, verified, and selectively promoted against the then-current `main`.
