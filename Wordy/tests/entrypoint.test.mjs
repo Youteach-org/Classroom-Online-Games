@@ -33,3 +33,12 @@ test('Cloudflare production build includes Wordy on the canonical production rou
   assert.ok(copyCommands.length>=2,'expected both local and pinned production copy commands');
   assert.ok(copyCommands.every(command=>/\bWordy\b/.test(command)),'production copy commands must include Wordy');
 });
+
+
+test('browser app withholds final board render while resolution timeline is playing',()=>{
+  const app=readFileSync(new URL('../app.mjs',import.meta.url),'utf8');
+  assert.match(
+    app,
+    /controller\.subscribe\(state=>\{[\s\S]*?if\(!timelinePlaying\)\s*renderGame\(document,state\)/
+  );
+});
