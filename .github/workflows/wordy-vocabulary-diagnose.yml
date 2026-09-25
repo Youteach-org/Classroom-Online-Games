@@ -11,49 +11,35 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Measure pool diversity and board feasibility
+      - name: Measure real A-G board diversity
         run: |
           node --input-type=module <<'EOF'
           import { RELATIONSHIPS } from './Wordy/data/relationships.mjs';
+          import { LEVELS } from './Wordy/data/levels.mjs';
           import { createRelationshipBank } from './Wordy/engine/relationship-bank.mjs';
-          import { createControlledBoard, selectRelationshipNeighborhood, findImmediateScoringMoves, relationshipCoverage } from './Wordy/engine/generator.mjs';
+          import { createGameController } from './Wordy/engine/controller.mjs';
+          import { findImmediateScoringMoves } from './Wordy/engine/generator.mjs';
 
           const bank=createRelationshipBank(RELATIONSHIPS);
           const seeded=seed=>()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
 
-          for(const size of [16,20,24,28,32]){
-            for(const seed of [3,17,27,41,73]){
-              let ids;
-              try{
-                ids=selectRelationshipNeighborhood({bank,rng:seeded(seed),size});
-              }catch(error){
-                console.log(JSON.stringify({size,seed,error:'POOL '+error.message}));
-                continue;
-              }
-              const activeWords=new Set(ids.flatMap(id=>bank.byId.get(id).tokens));
-              const result={size,seed,activeUniqueWords:activeWords.size};
-              for(const maxCopies of [2,3]){
-                try{
-                  const board=createControlledBoard({
-                    bank,relationshipIds:ids,rows:7,columns:7,rng:seeded(seed+100),
-                    minScoringMoves:8,minProductiveRows:4,minProductiveColumns:4,
-                    minRelationshipCoverage:0.85,maxTokenCopies:maxCopies,allowStartingMatches:false
-                  });
-                  const counts=new Map();
-                  for(const tile of board.tiles)counts.set(tile.word,(counts.get(tile.word)||0)+1);
-                  const sorted=[...counts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
-                  result['copies'+maxCopies]={
-                    unique:counts.size,
-                    max:sorted[0]?.[1]||0,
-                    moves:findImmediateScoringMoves(board,bank).length,
-                    coverage:+relationshipCoverage(board,bank,ids).toFixed(3),
-                    top:sorted.slice(0,6)
-                  };
-                }catch(error){
-                  result['copies'+maxCopies]={error:error.message};
-                }
-              }
-              console.log(JSON.stringify(result));
+          for(const level of LEVELS){
+            for(const seed of [7,29,61]){
+              const game=createGameController({
+                bank,levels:LEVELS,initialLevelId:level.id,rng:seeded(seed),storage:null
+              });
+              const state=game.state();
+              const counts=new Map();
+              for(const tile of state.board.tiles)counts.set(tile.word,(counts.get(tile.word)||0)+1);
+              const sorted=[...counts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+              console.log(JSON.stringify({
+                level:level.id,seed,
+                pool:state.activeRelationshipIds.length,
+                uniqueWords:counts.size,
+                maxCopies:sorted[0]?.[1]||0,
+                productiveMoves:findImmediateScoringMoves(state.board,bank).length,
+                top:sorted.slice(0,8)
+              }));
             }
           }
           EOF
