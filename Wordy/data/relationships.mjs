@@ -43,7 +43,9 @@ const PHRASAL=[
   ['COME BACK',1,'return to a place'],
   ['GO OUT',1,'leave home or stop burning/shining'],
   ['GROW UP',1,'develop from a child into an adult'],
-  ['CARRY ON',2,'continue doing something']
+  ['CARRY ON',2,'continue doing something'],
+  ['KEEP UP',1,'continue at the same pace or maintain a level'],
+  ['KEEP IN',2,'make someone stay indoors or remain inside']
 ];
 
 const COLLOCATIONS=[
