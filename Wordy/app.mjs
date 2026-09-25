@@ -111,7 +111,7 @@ nextButton?.addEventListener('click',()=>{
 });
 
 controller.subscribe(state=>{
-  renderGame(document,state);
+  if(!timelinePlaying)renderGame(document,state);
   if(state.phase==='result'&&!timelinePlaying){
     renderResult(document,state.review??{newLearning:[],missed:[]});
   }else{
