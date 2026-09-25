@@ -113,3 +113,25 @@ test('pathological refill cannot create an infinite cascade',()=>{
     maxCascadeDepth:2
   }),error=>error instanceof CascadeLimitError&&/cascade limit/i.test(error.message));
 });
+
+
+test('resolution generation preserves removal gravity and refill board stages for animation',()=>{
+  refillId=0;
+  const result=resolvePlayerActivation({
+    board:cascadeBoard,bank,discoveredIds:new Set(),refillTile:fillerRefill
+  });
+  const generation=result.generations[0];
+  assert.ok(generation.boardBefore,'missing boardBefore');
+  assert.ok(generation.boardAfterRemoval,'missing boardAfterRemoval');
+  assert.ok(generation.boardAfterGravity,'missing boardAfterGravity');
+  assert.ok(generation.boardAfterRefill,'missing boardAfterRefill');
+
+  const rowOf=(board,id)=>board.tiles.find(tile=>tile.id===id)?.row;
+  assert.equal(rowOf(generation.boardBefore,'take'),0);
+  assert.equal(rowOf(generation.boardAfterRemoval,'take'),0,'survivor must not move during removal');
+  assert.equal(rowOf(generation.boardAfterGravity,'take'),1,'survivor must visibly fall one row');
+  assert.equal(generation.boardAfterRemoval.tiles.some(tile=>tile.id==='look'),false);
+  assert.equal(generation.boardAfterGravity.tiles.some(tile=>tile.id==='look'),false);
+  assert.ok(generation.boardAfterRefill.tiles.some(tile=>tile.id.startsWith('refill-')),'refill snapshot must contain new tile ids');
+  assert.equal(generation.boardAfterRefill.tiles.length,cascadeBoard.rows*cascadeBoard.columns);
+});
