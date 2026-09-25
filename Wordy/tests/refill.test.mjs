@@ -87,3 +87,32 @@ test('relationship-scoped refill bag never leaks words from outside the active n
   const bag=buildRelationshipBag(bank,{relationshipIds:['look-after']});
   assert.deepEqual(new Set(bag.map(entry=>entry.word)),new Set(['LOOK','AFTER']));
 });
+
+
+test('refill never chooses a word that already reached the round copy cap',()=>{
+  const cappedBank=createRelationshipBank([
+    relation('look-after',['LOOK','AFTER'],'phrasal-verb',120,1),
+    relation('look-up',['LOOK','UP'],'phrasal-verb',120,1)
+  ]);
+  const board=boardFromTiles({
+    rows:3,columns:3,
+    tiles:[
+      {id:'l1',word:'LOOK',row:0,column:0},
+      {id:'l2',word:'LOOK',row:0,column:1},
+      {id:'a1',word:'AFTER',row:1,column:0},
+      {id:'u1',word:'UP',row:2,column:0}
+    ]
+  });
+  const bag=[
+    {word:'LOOK',weight:100},
+    {word:'AFTER',weight:1},
+    {word:'UP',weight:1}
+  ];
+  for(let seed=1;seed<=20;seed++){
+    const word=chooseRefillWord({
+      row:0,column:2,board,bank:cappedBank,bag,
+      rng:seeded(seed),maxTokenCopies:2
+    });
+    assert.notEqual(word,'LOOK');
+  }
+});
