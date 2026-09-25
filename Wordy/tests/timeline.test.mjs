@@ -49,3 +49,35 @@ test('timeline writes each generation label in order and waits only between gene
   assert.deepEqual(history,['LOOK AFTER','COMBO ×2 · TAKE A BREAK']);
   assert.deepEqual(delays,[120]);
 });
+
+
+test('resolution events carry board stages needed for visible falling animation',()=>{
+  const boardBefore={rows:2,columns:1,tiles:[
+    {id:'remove',word:'LOOK',row:0,column:0},
+    {id:'fall',word:'AFTER',row:1,column:0}
+  ]};
+  const boardAfterRemoval={rows:2,columns:1,tiles:[
+    {id:'fall',word:'AFTER',row:1,column:0}
+  ]};
+  const boardAfterGravity={rows:2,columns:1,tiles:[
+    {id:'fall',word:'AFTER',row:1,column:0}
+  ]};
+  const boardAfterRefill={rows:2,columns:1,tiles:[
+    {id:'new',word:'KEEP',row:0,column:0},
+    {id:'fall',word:'AFTER',row:1,column:0}
+  ]};
+  const events=buildResolutionEvents({generations:[{
+    cascadeDepth:0,
+    matches:[match('look-after',['LOOK','AFTER'])],
+    removedTileIds:['remove'],
+    score:{total:170},
+    boardBefore,boardAfterRemoval,boardAfterGravity,boardAfterRefill
+  }]});
+  assert.equal(events.length,1);
+  assert.deepEqual(events[0].removedTileIds,['remove']);
+  assert.deepEqual(events[0].boardBefore,boardBefore);
+  assert.deepEqual(events[0].boardAfterRemoval,boardAfterRemoval);
+  assert.deepEqual(events[0].boardAfterGravity,boardAfterGravity);
+  assert.deepEqual(events[0].boardAfterRefill,boardAfterRefill);
+  assert.notEqual(events[0].boardBefore,boardBefore,'event snapshot should be cloned');
+});
