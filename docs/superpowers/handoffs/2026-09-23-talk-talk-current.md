@@ -349,54 +349,57 @@ Preview deployment:
 - Deploys only this branch to a Cloudflare Pages preview, leaving main/production unchanged.
 
 
-## Canonical visual lock — exact 8-screen mockup
+## Implementation lock — approved 8-screen mockup, real UI only
 
 Source visual:
-- Original ChatGPT artifact: `a_clean_ui_ux_product_mockup_collage_with_multiple.png`
-- Original dimensions: 1536 × 1024
-- This image is the visual source of truth for the standalone preview.
+- Original approved artifact: `a_clean_ui_ux_product_mockup_collage_with_multiple.png`
+- Dimensions: 1536 × 1024
+- It is a REFERENCE and comparison target only. It must never be rendered as the application UI.
 
-Canonical repository asset:
-- `Talk-Talk/reference/talk-talk-approved-8-screen-mockup.webp`
-- Size: 110770 bytes
-- SHA-256: `13861b09c2eb65ad144c3d4b3f2711acb973184ff69aab8fd242fb2b23545631`
-- Imported and validated by `.github/workflows/talk-talk-import-reference.yml`
+NON-NEGOTIABLE RULE — NO SHORTCUTS:
+- The approved mockup is a visual specification, not inspiration.
+- Reproduce each approved screen with real HTML/CSS/JS.
+- Do not use screenshots, crops, full-screen images, image backgrounds, or transparent hotspot overlays to simulate implementation.
+- Do not simplify, restyle, modernize, recolor, or reinterpret the approved screen without explicit user approval.
+- If a function is not implemented, leave it visibly pending rather than faking it.
+- Characters must be independent visual assets.
+- Text, cards, buttons, tabs, waveforms, scores, transcript items, controls and status indicators must remain real DOM elements.
+- The reference image may be retained only for side-by-side visual comparison and automated/manual validation.
 
-RULE — NO REINTERPRETATION:
-- Do not redraw, restyle, simplify, modernize, recolor, or reinterpret these eight approved screens without explicit user approval.
-- Visible student/teacher preview screens must use the canonical reference art directly.
-- Navigation/testing controls may only be transparent hotspots over the art or controls placed outside the approved screen.
-- CSS-drawn substitute characters, cards, bars, or typography are not acceptable for the approved preview.
+Independent character assets currently used:
+- `Talk-Talk/assets/home-characters.webp`
+- `Talk-Talk/assets/paul-head.webp`
+- `Talk-Talk/assets/paulina-head.webp`
+- `Talk-Talk/assets/paulina-record.webp`
 
-Exact student crops:
-1. Home — SVG viewBox `10 40 368 510`
-2. Recording — SVG viewBox `392 40 368 510`
-3. Conversation — SVG viewBox `776 40 369 510`
-4. Speaking review — SVG viewBox `1160 40 366 510`
+Required real views:
+Student:
+1. `studentHomeView` — Inicio
+2. `studentRecordingView` — Grabación
+3. `studentConversationView` — Conversación
+4. `studentPracticeResultView` — Resultado de práctica
 
-Exact teacher crops:
-5. Teacher Monitor — SVG viewBox `12 607 502 401`
-6. Team detail — SVG viewBox `528 607 316 401`
-7. Oral assessment — SVG viewBox `858 607 337 401`
-8. Evidence/transcription — SVG viewBox `1210 607 317 401`
+Teacher:
+5. `teacherMonitorView` — Teacher Monitor
+6. `teacherTeamView` — Detalle del equipo
+7. `teacherAssessmentView` — Evaluación oral
+8. `teacherEvidenceView` — Evidencia y transcripción
 
-Implementation:
-- `Talk-Talk/index.html`: exact crops for screens 1–4.
-- `Talk-Talk/teacher.html`: exact crops for screens 5–8.
-- `Talk-Talk/styles.css`: sizing + transparent hotspots only; no recreated character UI.
-- `Talk-Talk/app.mjs`: student screen navigation/history.
-- `Talk-Talk/teacher-app.mjs`: teacher screen navigation/history.
-- External Previous/Next/Log out controls are below the approved screen and do not alter its appearance.
+Current standalone branch:
+- `talk-talk-standalone-preview`
 
-Verification:
-- Exact-reference test: `Talk-Talk/tests/pixel-reference.test.mjs`
-- Visual contract: `Talk-Talk/tests/visual-contract.test.mjs`
-- Current verified commit: `bb08c9ff7a442223ce12fd9559305d9c9acb10ed`
-- Standalone tests run: `36058607591` — SUCCESS
-- Cloudflare deploy run: `36058607345` — SUCCESS
-- Canonical visual asset validation step: SUCCESS
-- Cloudflare preview alias: `https://talk-talk-standalone-preview.classroom-online-games.pages.dev`
+Tests enforcing this rule:
+- `Talk-Talk/tests/pixel-reference.test.mjs`
+  - explicitly rejects screenshot/crop UI
+  - requires independent character assets
+  - requires the eight real views and navigation
+- `Talk-Talk/tests/visual-contract.test.mjs`
+  - requires real DOM panels and approved green system
 
-Standalone credentials remain:
-- Student: `student / talktalk`
-- Teacher: `teacher / talktalk`
+TDD evidence for removing the screenshot shortcut:
+- RED run: `36101106759`
+- Failure occurred because the previous implementation still used the approved mockup as screen art.
+- The new implementation replaces that shortcut with real DOM UI.
+
+Future-session rule:
+Before modifying Talk Talk visuals, read this section. If a proposed implementation would make a screenshot look finished without implementing the underlying UI, do not do it.
