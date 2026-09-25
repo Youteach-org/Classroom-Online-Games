@@ -551,6 +551,7 @@ export function createControlledBoard({
         allowStartingMatches,
         relationshipIds,
         minRelationshipCoverage:minimumCoverage,
+        minUniqueWords:minimumUnique,
         maxTokenCopies:maxCopies
       }))return seededBoard;
     }
