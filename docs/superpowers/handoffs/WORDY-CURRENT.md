@@ -4,14 +4,16 @@
 **Repository:** `Youteach-org/Classroom-Online-Games`  
 **Development branch:** `feature/wordy-game`  
 **Uniform-cell verification commit:** `34bc8585ca681e842d79256b8153f8c528c4f84b`  
-**Current production commit (`main`):** `5540768cd4947c89fa382133856472c2b5d24f34`  
+**Current production commit (`main`):** `deec8182b1c8aa011de693125b0e51b0103d7d5b`  
 **New spec:** `docs/superpowers/specs/2026-09-22-wordy-uniform-cell-candy-architecture.md`  
 **New plan:** `docs/superpowers/plans/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
 **Uniform-cell ledger:** `docs/superpowers/progress/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
 **Gameplay-density plan:** `docs/superpowers/plans/2026-09-24-wordy-gameplay-density-repair.md`  
 **Gameplay-density ledger:** `docs/superpowers/progress/2026-09-24-wordy-gameplay-density-repair.md`  
 **POP/A-AN plan:** `docs/superpowers/plans/2026-09-24-wordy-pop-loop-and-indefinite-article.md`  
-**POP/A-AN ledger:** `docs/superpowers/progress/2026-09-24-wordy-pop-loop-and-indefinite-article.md`
+**POP/A-AN ledger:** `docs/superpowers/progress/2026-09-24-wordy-pop-loop-and-indefinite-article.md`  
+**Visible-gravity plan:** `docs/superpowers/plans/2026-09-25-wordy-visible-gravity-and-keep-phrases.md`  
+**Visible-gravity ledger:** `docs/superpowers/progress/2026-09-25-wordy-visible-gravity-and-keep-phrases.md`
 
 ## Authoritative continuation state
 
@@ -486,10 +488,82 @@ Canonical production route:
 
 `https://classroom-online-games.pages.dev/Wordy/`
 
+## Visible gravity + KEEP phrasals — production, 2026-09-25
+
+User playtesting exposed that the engine performed removal, gravity and refill logically, but the browser rendered only the final board. The old `timeline.mjs` changed labels without showing intermediate board states, so tiles appeared to disappear and new words appeared in place.
+
+### Root cause
+
+`controller.pop()` resolves the complete synchronous engine result before the UI timeline starts. Resolution generations previously contained only matches, removed IDs and scores. Because the controller subscriber also rendered the final state immediately, there was no visual state available for actual falling animation.
+
+### Runtime repair
+
+Each resolution generation now preserves:
+
+- `boardBefore`;
+- `boardAfterRemoval`;
+- `boardAfterGravity`;
+- `boardAfterRefill`.
+
+The browser timeline now visibly plays:
+
+`POP shrink/fade → holes → vertical gravity → refill entering from above → next cascade generation`
+
+Details:
+
+- READY tiles scale/fade out over 170 ms;
+- surviving tiles use FLIP animation to their true post-gravity cells over 300 ms;
+- refill tiles enter from above the board over 340 ms;
+- cascades replay the same sequence generation by generation;
+- the normal controller subscriber does not overwrite the animation DOM while `timelinePlaying` is true;
+- browsers without Web Animations support still render the correct final state.
+
+The engine rules remain unchanged: gravity is vertical only, refill uses top-of-column holes, POP costs no movement, and rounds continue while moves remain.
+
+### Relationship bank
+
+The curated phrasal-verb bank now includes:
+
+- `KEEP UP` — continue at the same pace or maintain a level;
+- `KEEP IN` — make someone stay indoors or remain inside.
+
+### Verification
+
+Branch verification:
+
+- full Wordy suite run `36186497856` → **115/115 pass**;
+- production deploy guard → pass;
+- syntax check → pass.
+- Chromium branch run `36186826373` → `VISIBLE_GRAVITY_BROWSER_OK`;
+  - controlled survivor fall: **447.9 px**;
+  - refill entry from above: **100.6–542.4 px**.
+
+Selective production integration:
+
+- integration branch: `integration/wordy-visible-gravity-20260925`;
+- reconciled runtime commit: `deec8182b1c8aa011de693125b0e51b0103d7d5b`;
+- integration verification run `36187189690` → **115/115 pass**, deploy guard pass, syntax pass;
+- Cloudflare runs `36187369363` and `36187369200` → success.
+
+Real public-browser verification:
+
+- run `36187570728` → `LIVE_VISIBLE_GRAVITY_OK`;
+- deterministic live Level A move formed `TAKE A BREAK`;
+- phase after POP: `playing`;
+- live removal animation recorded;
+- live survivor gravity: `translate(0px,-89.5625px)` → destination;
+- live refill: `translateY(-100.5625px)` → destination;
+- 24 animations recorded in that POP;
+- public relationship bank contained both `phrasal-verb:keep-up` and `phrasal-verb:keep-in`.
+
+Canonical production route:
+
+`https://classroom-online-games.pages.dev/Wordy/`
+
 ## Exact next action
 
-The manual-POP lifecycle and A/AN repair are live in production.
+Visible gravity/refill animation and KEEP UP / KEEP IN are live in production.
 
 Do not rebuild or re-promote this repair.
 
-The next action is user playtesting of the canonical Wordy route. Any further gameplay issue should be treated as a new change set on `feature/wordy-game`, documented, verified, and selectively promoted against the then-current `main`.
+The next action is user playtesting of the canonical Wordy route. Any new gameplay finding should be handled as a new change set on `feature/wordy-game`, verified there, then selectively promoted against current `main`.
