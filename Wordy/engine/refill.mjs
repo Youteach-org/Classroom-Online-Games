@@ -1,6 +1,6 @@
 import { areSwapNeighbors, cloneBoard, neighborForDirection, swapTiles } from './board.mjs';
 import { findMatches } from './matcher.mjs';
-import { normalizeToken } from './relationship-bank.mjs';
+import { normalizeToken, canonicalTileToken } from './relationship-bank.mjs';
 
 export const DEFAULT_REFILL_PROFILE={
   cascadeWeight:0.15,
@@ -16,7 +16,7 @@ export function buildRelationshipBag(bank,{relationshipIds=null,categoryWeights=
     const categoryWeight=Math.max(0,Number(categoryWeights[relation.category]??1));
     if(categoryWeight===0)continue;
     for(const token of relation.tokens){
-      const word=normalizeToken(token);
+      const word=canonicalTileToken(token);
       weights.set(word,(weights.get(word)??0)+categoryWeight);
     }
   }
@@ -26,7 +26,7 @@ export function buildRelationshipBag(bank,{relationshipIds=null,categoryWeights=
 }
 
 function placeCandidate({word,row,column,board}){
-  const normalized=normalizeToken(word);
+  const normalized=canonicalTileToken(word);
   if(!normalized)throw new Error('candidate word is required');
   if(board.tiles.some(tile=>tile.row===row&&tile.column===column))throw new Error('refill cell is already occupied');
   const next=cloneBoard(board);
@@ -39,14 +39,17 @@ function matchKey(match){
 }
 
 function relationConnects(bank,a,b){
+  const left=canonicalTileToken(a);
+  const right=canonicalTileToken(b);
   for(const relation of bank?.byId?.values?.()??[]){
-    if(relation.tokens.includes(a)&&relation.tokens.includes(b))return true;
+    const tokens=relation.tokens.map(canonicalTileToken);
+    if(tokens.includes(left)&&tokens.includes(right))return true;
   }
   return false;
 }
 
 function inspectCandidate({word,row,column,board,bank}){
-  const normalized=normalizeToken(word);
+  const normalized=canonicalTileToken(word);
   const placed=placeCandidate({word:normalized,row,column,board});
   const immediate=findMatches(placed,bank).filter(match=>match.tileIds.includes('__refill_probe__'));
   const beforeKeys=new Set(findMatches(placed,bank).map(matchKey));
