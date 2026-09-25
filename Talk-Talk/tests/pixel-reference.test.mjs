@@ -5,52 +5,44 @@ import { readFile } from "node:fs/promises";
 const student=await readFile(new URL("../index.html",import.meta.url),"utf8");
 const teacher=await readFile(new URL("../teacher.html",import.meta.url),"utf8");
 const css=await readFile(new URL("../styles.css",import.meta.url),"utf8");
-const asset="./reference/talk-talk-approved-8-screen-mockup.webp";
 
-test("all eight views render the canonical approved mockup asset",()=>{
-  assert.ok(student.includes(asset));
-  assert.ok(teacher.includes(asset));
-  assert.match(student,/data-reference-source="a_clean_ui_ux_product_mockup_collage_with_multiple\.png"/);
-  assert.match(teacher,/data-reference-source="a_clean_ui_ux_product_mockup_collage_with_multiple\.png"/);
-});
-
-test("student views use the exact approved crop boxes",()=>{
-  const boxes=[
-    ["studentHomeView","10 40 368 510"],
-    ["studentRecordingView","392 40 368 510"],
-    ["studentConversationView","776 40 369 510"],
-    ["studentPracticeResultView","1160 40 366 510"]
-  ];
-  for(const [id,box] of boxes){
-    assert.match(student,new RegExp('id="'+id+'"[\\s\\S]*?viewBox="'+box+'"'));
+test("approved mockup is implemented as real DOM, never as screenshot UI",()=>{
+  for(const source of [student,teacher]){
+    assert.doesNotMatch(source,/reference-art/);
+    assert.doesNotMatch(source,/talk-talk-approved-8-screen-mockup\.(png|webp)/);
+    assert.doesNotMatch(source,/<svg[^>]*viewBox=.*approved/i);
   }
+  assert.match(student,/class="student-home-card"/);
+  assert.match(student,/class="recording-panel"/);
+  assert.match(student,/class="conversation-panel"/);
+  assert.match(student,/class="practice-review-panel"/);
+  assert.match(teacher,/class="teacher-monitor-layout"/);
+  assert.match(teacher,/class="team-detail-panel"/);
+  assert.match(teacher,/class="oral-assessment-panel"/);
+  assert.match(teacher,/class="evidence-panel"/);
 });
 
-test("teacher views use the exact approved crop boxes",()=>{
-  const boxes=[
-    ["teacherMonitorView","12 607 502 401"],
-    ["teacherTeamView","528 607 316 401"],
-    ["teacherAssessmentView","858 607 337 401"],
-    ["teacherEvidenceView","1210 607 317 401"]
-  ];
-  for(const [id,box] of boxes){
-    assert.match(teacher,new RegExp('id="'+id+'"[\\s\\S]*?viewBox="'+box+'"'));
+test("characters are independent assets, not baked into screen captures",()=>{
+  assert.match(student,/assets\/home-characters\.webp/);
+  assert.match(student,/assets\/paul-head\.webp/);
+  assert.match(student,/assets\/paulina-head\.webp/);
+  assert.match(student,/assets\/paulina-record\.webp/);
+  assert.match(teacher,/assets\/paul-head\.webp/);
+  assert.match(teacher,/assets\/paulina-head\.webp/);
+  assert.match(css,/--tt-green:#0b5f4b/);
+});
+
+test("eight approved views keep their real interactive navigation",()=>{
+  for(const id of ["studentHomeView","studentRecordingView","studentConversationView","studentPracticeResultView"]){
+    assert.match(student,new RegExp('id="'+id+'"'));
   }
-});
-
-test("reference image is never restyled or replaced by recreated characters",()=>{
-  assert.match(css,/\.reference-art\{[^}]*display:block/);
-  assert.match(css,/\.reference-screen\{[^}]*position:relative/);
-  assert.doesNotMatch(student,/class="character-avatar/);
-  assert.doesNotMatch(teacher,/class="character-avatar/);
-});
-
-test("transparent hotspots preserve test navigation without changing the visual",()=>{
+  for(const id of ["teacherMonitorView","teacherTeamView","teacherAssessmentView","teacherEvidenceView"]){
+    assert.match(teacher,new RegExp('id="'+id+'"'));
+  }
   assert.match(student,/data-target="studentRecordingView"/);
   assert.match(student,/data-target="studentConversationView"/);
   assert.match(student,/data-target="studentPracticeResultView"/);
   assert.match(teacher,/data-target="teacherTeamView"/);
   assert.match(teacher,/data-target="teacherAssessmentView"/);
   assert.match(teacher,/data-target="teacherEvidenceView"/);
-  assert.match(css,/\.screen-hotspot\{[^}]*background:transparent/);
 });
