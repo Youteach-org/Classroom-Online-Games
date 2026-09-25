@@ -1,8 +1,9 @@
 import { occupancyMap } from './board.mjs';
+import { tileTokenMatches } from './relationship-bank.mjs';
 
 function sameTokens(actual,expected){
   if(!actual||actual.length!==expected.length)return false;
-  for(let i=0;i<expected.length;i++)if(actual[i]!==expected[i])return false;
+  for(let i=0;i<expected.length;i++)if(!tileTokenMatches(actual[i],expected[i]))return false;
   return true;
 }
 
