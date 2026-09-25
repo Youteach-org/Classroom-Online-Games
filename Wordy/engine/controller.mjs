@@ -98,7 +98,8 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
       minProductiveRows:level.minProductiveRows??4,
       minProductiveColumns:level.minProductiveColumns??4,
       minRelationshipCoverage:level.minRelationshipCoverage??0.85,
-      maxTokenCopies:level.maxTokenCopies??4,
+      minUniqueWords:level.minUniqueWords??0,
+      maxTokenCopies:level.maxTokenCopies??2,
       relationshipIds:activeRelationshipIds,
       allowStartingMatches:false
     });
@@ -263,7 +264,8 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     if(!word){
       word=chooseRefillWord({
         row,column,board,bank:roundBank,bag:refillBag,rng,
-        profile:DEFAULT_REFILL_PROFILE
+        profile:DEFAULT_REFILL_PROFILE,
+        maxTokenCopies:currentLevel.maxTokenCopies??2
       });
     }
     return {id:'refill-'+(++refillCounter),word};
