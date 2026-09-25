@@ -509,7 +509,7 @@ export function createControlledBoard({
   relationshipIds=null,
   minRelationshipCoverage=0,
   minUniqueWords=0,
-  maxTokenCopies=4
+  maxTokenCopies=null
 }){
   const minimum=Math.max(0,Number(minScoringMoves)||0);
   const minimumRows=Math.max(1,Number(minProductiveRows)||1);
@@ -520,7 +520,10 @@ export function createControlledBoard({
     .filter(relation=>relation.tokens.length>=2&&relation.tokens.length<=Math.max(rows,columns));
   if(relations.length===0)throw new Error('relationship neighborhood has no playable relationships');
   const uniqueWords=new Set(relations.flatMap(relation=>relation.tokens));
-  const maxCopies=Math.max(1,Number(maxTokenCopies)||4);
+  const explicitCopyCap=Number(maxTokenCopies);
+  const maxCopies=Number.isFinite(explicitCopyCap)&&explicitCopyCap>0
+    ?Math.max(1,explicitCopyCap)
+    :Math.max(4,Math.ceil((rows*columns)/Math.max(1,uniqueWords.size)));
   if(uniqueWords.size<minimumUnique)throw new Error('relationship neighborhood is not diverse enough');
   if(uniqueWords.size*maxCopies<rows*columns)throw new Error('relationship neighborhood cannot fill board within copy cap');
 
@@ -586,7 +589,7 @@ export function recoverDeadBoard({
   relationshipIds=null,
   minRelationshipCoverage=0,
   minUniqueWords=0,
-  maxTokenCopies=4
+  maxTokenCopies=null
 }){
   if(hasViablePlay(board,bank))return {board,reset:false};
   const replacement=createControlledBoard({
