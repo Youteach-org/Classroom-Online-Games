@@ -132,7 +132,7 @@ test('generated level A exposes its active neighborhood and at least eight produ
   });
   const state=game.state();
   assert.equal(state.movesLeft,18);
-  assert.equal(state.activeRelationshipIds.length,12);
+  assert.equal(state.activeRelationshipIds.length,24);
   assert.ok(findImmediateScoringMoves(state.board,fullBank).length>=8);
   assert.ok(relationshipCoverage(state.board,fullBank,state.activeRelationshipIds)>=0.85);
   assert.equal(state.phase,'playing');
@@ -147,7 +147,7 @@ test('generated mixed level G starts with at least twelve productive swaps',()=>
     storage:createFakeStorage()
   });
   const state=game.state();
-  assert.equal(state.activeRelationshipIds.length,20);
+  assert.equal(state.activeRelationshipIds.length,32);
   assert.ok(findImmediateScoringMoves(state.board,fullBank).length>=12);
 });
 
