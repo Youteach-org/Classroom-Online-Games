@@ -253,3 +253,18 @@ test('last move without READY ends immediately and evaluates final score',()=>{
   assert.equal(game.state().movesLeft,0);
   assert.ok(game.state().readyMatches.length>=1);
 });
+
+
+test('custom refill returning AN still creates canonical A tiles',()=>{
+  const storage=createFakeStorage();
+  const level=makeLevel({ready:true,moves:0,target:50,id:'ARTICLE-REFILL'});
+  const game=createGameController({
+    bank,levels:[level],initialLevelId:level.id,rng:seeded(3),storage,
+    refillWord:()=> 'AN'
+  });
+  assert.equal(game.pop(),true);
+  const after=game.state();
+  assert.equal(after.phase,'result');
+  assert.equal(after.board.tiles.some(tile=>tile.word==='AN'),false);
+  assert.ok(after.board.tiles.some(tile=>tile.word==='A'));
+});
