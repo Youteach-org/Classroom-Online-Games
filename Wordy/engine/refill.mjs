@@ -92,15 +92,17 @@ function weightedPick(entries,rng){
 }
 
 export function chooseRefillWord({
-  row,column,board,bank,bag=null,rng=Math.random,profile=DEFAULT_REFILL_PROFILE
+  row,column,board,bank,bag=null,rng=Math.random,profile=DEFAULT_REFILL_PROFILE,
+  maxTokenCopies=Infinity
 }){
   const candidates=(bag??buildRelationshipBag(bank)).map(entry=>{
     const info=inspectCandidate({word:entry.word,row,column,board,bank});
+    if(info.duplicates>=maxTokenCopies)return null;
     const localScore=scoreRefillCandidate({word:entry.word,row,column,board,bank});
     const bucket=info.immediateCount>0?'cascade':(info.oneSwap||info.adjacentConnections>0?'opportunity':'distractor');
     return {...entry,localScore,bucket,pickWeight:entry.weight*Math.max(1,localScore+40)};
-  });
-  if(candidates.length===0)throw new Error('refill relationship bag is empty');
+  }).filter(Boolean);
+  if(candidates.length===0)throw new Error('refill has no candidate below copy cap');
 
   const groups={
     cascade:candidates.filter(item=>item.bucket==='cascade'),
