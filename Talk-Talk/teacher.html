@@ -6,39 +6,148 @@
   <title>Talk Talk — Teacher</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
-<body class="reference-page teacher-reference-page" data-reference-source="a_clean_ui_ux_product_mockup_collage_with_multiple.png">
-  <main class="reference-shell teacher-reference-shell" aria-label="Talk Talk teacher preview">
-    <section id="teacherMonitorView" class="teacher-view reference-screen is-active teacher-monitor-reference" data-approved-screen="5" data-crop="12,607,514,1008">
-      <svg class="reference-art" viewBox="12 607 502 401" role="img" aria-label="Teacher Monitor"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
-      <button class="screen-hotspot teacher-team-one" data-target="teacherTeamView" aria-label="Open Team 1"></button>
-      <button id="sendTwistBtn" class="screen-hotspot teacher-send-twist" aria-label="Send Twist"></button>
-      <button id="endActivityBtn" class="screen-hotspot teacher-end" aria-label="End Activity"></button>
+<body class="tt-page teacher-page">
+  <main class="teacher-stage" aria-label="Talk Talk teacher preview">
+
+    <section id="teacherMonitorView" class="teacher-view">
+      <div class="teacher-monitor-layout">
+        <aside class="teacher-sidebar">
+          <div class="sidebar-brand">TALK-TALK</div>
+          <nav>
+            <button class="active" type="button">▣ <span>Teacher Monitor</span></button>
+            <button type="button">⌘ <span>Creator Mode</span></button>
+            <button type="button">▤ <span>Activities</span></button>
+            <button type="button">▧ <span>Results</span></button>
+            <button type="button">⚙ <span>Settings</span></button>
+          </nav>
+        </aside>
+
+        <section class="monitor-main">
+          <header class="teacher-head">
+            <h1>Teacher Monitor</h1>
+            <button id="endActivityBtn" class="end-activity" type="button">End Activity</button>
+          </header>
+
+          <div class="monitor-controls">
+            <label>Mode<select id="activityMode"><option>Practice</option></select></label>
+            <label>Twist<select id="twistSelect"><option>Remember a detail</option></select></label>
+            <button id="sendTwistBtn" class="send-twist" type="button">Send Twist</button>
+          </div>
+
+          <p id="sessionState" class="session-line">Tell me what happened · Practice · 4 teams</p>
+
+          <div id="teamGrid" class="team-grid">
+            <button class="team-card selected" data-target="teacherTeamView" type="button">
+              <strong>Team 1</strong><small>Paul · Paulina</small><span class="team-status speaking">● Speaking</span>
+              <div class="team-bottom"><span class="stacked-avatars"><img src="./assets/paul-head.webp"><img src="./assets/paulina-head.webp"></span><span class="tiny-wave">▂▅▃▇▅▂▅</span></div>
+            </button>
+            <button class="team-card" type="button">
+              <strong>Team 2</strong><small>Karol · Nicole</small><span class="team-status ready">● Ready</span>
+              <div class="team-bottom"><span class="stacked-avatars"><img class="hue-a" src="./assets/paulina-head.webp"><img class="hue-b" src="./assets/paulina-head.webp"></span><span class="round-tool">♩</span></div>
+            </button>
+            <button class="team-card" type="button">
+              <strong>Team 3</strong><small>Gael · Sofia</small><span class="team-status finished">● Finished</span>
+              <div class="team-bottom"><span class="stacked-avatars"><img class="hue-c" src="./assets/paul-head.webp"><img src="./assets/paulina-head.webp"></span><span class="round-tool">▤</span></div>
+            </button>
+            <button class="team-card" type="button">
+              <strong>Team 4</strong><small>Luis · Valeria</small><span class="team-status problem">● Technical problem</span>
+              <div class="team-bottom"><span class="stacked-avatars"><img class="hue-b" src="./assets/paul-head.webp"><img class="hue-a" src="./assets/paulina-head.webp"></span><span class="round-tool danger">!</span></div>
+            </button>
+          </div>
+        </section>
+      </div>
     </section>
 
-    <section id="teacherTeamView" class="teacher-view reference-screen teacher-narrow-reference" data-approved-screen="6" data-crop="528,607,844,1008" hidden>
-      <svg class="reference-art" viewBox="528 607 316 401" role="img" aria-label="Team detail"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
-      <button class="screen-hotspot teacher-back" data-target="teacherMonitorView" aria-label="Back to teams"></button>
-      <button class="screen-hotspot teacher-view-evaluation" data-target="teacherAssessmentView" aria-label="View full evaluation"></button>
+    <section id="teacherTeamView" class="teacher-view" hidden>
+      <div class="team-detail-panel">
+        <button class="teacher-back" data-target="teacherMonitorView" type="button">← Back to teams</button>
+        <header class="detail-head">
+          <div><h1>Team 1</h1><p>Paul · Paulina</p></div>
+          <span class="finished-chip">● Finished</span>
+        </header>
+
+        <nav class="detail-tabs">
+          <button class="active" type="button">Overview</button>
+          <button type="button">Transcript</button>
+          <button data-target="teacherAssessmentView" type="button">Evaluation</button>
+          <button data-target="teacherEvidenceView" type="button">Evidence</button>
+        </nav>
+
+        <div class="audio-player teacher-player">
+          <button class="play-button" type="button">▶</button>
+          <div class="track"><span></span></div>
+          <small>00:00 / 01:24</small>
+          <button class="speed-button" type="button">1x</button>
+        </div>
+
+        <h2 class="section-title">Participants</h2>
+
+        <article class="participant">
+          <img src="./assets/paul-head.webp" alt="Paul"><div><strong>Paul</strong><span>Completed</span></div><time>01:24</time>
+        </article>
+        <article class="participant">
+          <img src="./assets/paulina-head.webp" alt="Paulina"><div><strong>Paulina</strong><span>Completed</span></div><time>01:24</time>
+        </article>
+
+        <button class="tt-btn tt-btn-primary tt-btn-wide detail-evaluation" data-target="teacherAssessmentView" type="button">View full evaluation →</button>
+      </div>
     </section>
 
-    <section id="teacherAssessmentView" class="teacher-view reference-screen teacher-eval-reference" data-approved-screen="7" data-crop="858,607,1195,1008" hidden>
-      <svg class="reference-art" viewBox="858 607 337 401" role="img" aria-label="Oral assessment"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
-      <button class="screen-hotspot teacher-publish" data-target="teacherEvidenceView" aria-label="Publish result and open evidence"></button>
-      <button class="screen-hotspot teacher-assessment-back" data-target="teacherTeamView" aria-label="Back to team detail"></button>
+    <section id="teacherAssessmentView" class="teacher-view" hidden>
+      <div class="oral-assessment-panel">
+        <header class="assessment-head">
+          <div><h1>Oral Assessment</h1><p>Paul &amp; Paulina</p></div>
+          <div class="assessment-side"><small>Team 1</small><button class="play-recording" type="button">▷ Play recording</button></div>
+        </header>
+
+        <div class="overall-score"><strong>Overall score</strong><b>28 <span>/ 40</span></b></div>
+
+        <div class="rubric-list">
+          <div class="rubric-row"><span>Fluency</span><div class="rubric-track"><i style="width:62.5%"></i></div><b>5 / 8</b></div>
+          <div class="rubric-row"><span>Coherence</span><div class="rubric-track green"><i style="width:75%"></i></div><b>6 / 8</b></div>
+          <div class="rubric-row"><span>Grammar &amp; Vocabulary</span><div class="rubric-track amber"><i style="width:62.5%"></i></div><b>5 / 8</b></div>
+          <div class="rubric-row"><span>Pronunciation</span><div class="rubric-track purple"><i style="width:75%"></i></div><b>6 / 8</b></div>
+          <div class="rubric-row"><span>Interaction</span><div class="rubric-track red"><i style="width:75%"></i></div><b>6 / 8</b></div>
+        </div>
+
+        <div class="assessment-actions">
+          <button class="tt-btn tt-btn-outline" type="button">Edit scores</button>
+          <button class="tt-btn tt-btn-outline" type="button">Generate report</button>
+          <button class="tt-btn tt-btn-primary" data-target="teacherEvidenceView" type="button">Publish result</button>
+        </div>
+      </div>
     </section>
 
-    <section id="teacherEvidenceView" class="teacher-view reference-screen teacher-evidence-reference" data-approved-screen="8" data-crop="1210,607,1527,1008" hidden>
-      <svg class="reference-art" viewBox="1210 607 317 401" role="img" aria-label="Evidence and transcription"><image href="./reference/talk-talk-approved-8-screen-mockup.webp" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"></image></svg>
-      <button class="screen-hotspot teacher-evidence-back" data-target="teacherAssessmentView" aria-label="Back to evaluation"></button>
+    <section id="teacherEvidenceView" class="teacher-view" hidden>
+      <div class="evidence-panel">
+        <nav class="evidence-tabs">
+          <button class="active" type="button">Transcript</button>
+          <button type="button">Evidence</button>
+          <button type="button">Comments</button>
+        </nav>
+
+        <div class="evidence-thread">
+          <article class="evidence-message"><img src="./assets/paul-head.webp"><div><strong>Paul</strong><p>I have went to the park yesterday<br>with my family.</p></div><time>00:12</time></article>
+          <article class="evidence-message"><img src="./assets/paulina-head.webp"><div><strong>Paulina</strong><p>Oh, nice! What did you do there?</p></div><time>00:18</time></article>
+          <article class="evidence-message"><img src="./assets/paul-head.webp"><div><strong>Paul</strong><p>We saw a bicycle fall and then we helped him.</p></div><time>00:25</time></article>
+        </div>
+
+        <h2 class="issues-title">Detected issues</h2>
+        <div class="issue-row"><span class="issue-tag grammar">Grammar</span><p>“I have went...”<br>→ intended: “I have gone...”</p><time>00:12</time></div>
+        <div class="issue-row"><span class="issue-tag pronunciation">Pronunciation</span><p>“worked”<br>final /t/ not clearly produced</p><time>00:41</time></div>
+        <div class="issue-row"><span class="issue-tag interaction">Interaction</span><p>Teacher intervention required twice.</p><time>01:02</time></div>
+
+        <button class="teacher-back evidence-back" data-target="teacherAssessmentView" type="button">← Back to evaluation</button>
+      </div>
     </section>
 
-    <div class="preview-tools"><span>Standalone preview · Teacher</span><div class="preview-nav"><button id="previewPrevBtn" type="button">← Previous</button><button id="previewNextBtn" type="button">Next →</button><button id="standaloneLogoutBtn" type="button">Log out</button></div></div>
-
-    <div class="compatibility-hooks" hidden>
-      <div id="teamGrid"></div>
-      <select id="activityMode"><option value="practice">Practice</option></select>
-      <select id="twistSelect"><option value="remember-detail">Remember a detail</option></select>
-      <div id="sessionState"></div>
+    <div class="preview-tools teacher-preview-tools">
+      <span>Standalone preview · Teacher</span>
+      <div class="preview-nav">
+        <button id="previewPrevBtn" type="button">← Previous</button>
+        <button id="previewNextBtn" type="button">Next →</button>
+        <button id="standaloneLogoutBtn" type="button">Log out</button>
+      </div>
     </div>
   </main>
   <script type="module" src="./teacher-app.mjs"></script>
