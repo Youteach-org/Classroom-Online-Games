@@ -268,4 +268,17 @@ Latest runtime change: `eb948e2ec2fa9594977fdc722af52224f6a882d0`.
 
 ### Publication state
 
-Not published. Production remains at `852774b163c61e72b3210a35f985a757f0152bc7` with the repetitive vocabulary behavior.
+Published on 2026-09-24.
+
+- Production `main`: `c99b7c99a48d41a36a17d899173a02cfb78ff156`.
+- Selective integration branch: `integration/wordy-vocabulary-diversity-20260924`.
+- Integration verification run `36079368486`: **99/99 pass**, deploy guard pass, syntax pass.
+- Cloudflare production deploys:
+  - `36079434478` → success;
+  - `36079434497` → success.
+- Real-browser canonical-route verification: `36079518269` → success.
+- Live Level A: 36 unique words / 49, max 2 copies.
+- Live Level G: 49 unique words / 49, max 1 copy.
+- Live verification marker: `LIVE_WORDY_VOCABULARY_DIVERSITY_OK`.
+
+The canonical production route now serves the vocabulary-diversity repair.
