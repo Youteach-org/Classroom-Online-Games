@@ -22,7 +22,7 @@ jobs:
           echo $! >/tmp/wordy-http.pid
       - name: Verify visible POP gravity and refill
         run: |
-          cat > /tmp/verify-wordy-gravity.mjs <<'EOF'
+          cat > verify-wordy-gravity.mjs <<'EOF'
           import { chromium } from 'playwright';
 
           const browser=await chromium.launch({headless:true});
@@ -118,4 +118,4 @@ jobs:
           console.log('VISIBLE_GRAVITY_BROWSER_OK');
           await browser.close();
           EOF
-          node /tmp/verify-wordy-gravity.mjs
+          node verify-wordy-gravity.mjs
