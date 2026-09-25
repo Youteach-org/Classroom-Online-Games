@@ -158,10 +158,20 @@ No Critical or Important findings remained.
 
 ## Publication state
 
-**Not published.**
+**Published on 2026-09-25.**
 
-Production remains:
+Production `main` commit:
 
-`c99b7c99a48d41a36a17d899173a02cfb78ff156`
+`5540768cd4947c89fa382133856472c2b5d24f34`
 
-The POP lifecycle and A/AN repair are complete on `feature/wordy-game` and require a separate selective production promotion.
+Selective integration details:
+
+- integration branch: `integration/wordy-pop-loop-20260925`;
+- integration verification run `36183857726` → **109/109 pass**, deploy guard pass, syntax pass;
+- Cloudflare production runs `36184008106` and `36184007994` → success;
+- real-browser production verification `36184160428` → success with `LIVE_WORDY_POP_LOOP_OK`;
+- early POP stayed in `playing` with moves unchanged;
+- final zero-move POP ended the round;
+- canonical `A` rendered as `AN` inside `HAVE AN OPINION`.
+
+The canonical production route now serves this repair.
