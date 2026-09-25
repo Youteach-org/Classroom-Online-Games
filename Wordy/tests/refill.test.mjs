@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRelationshipBank } from '../engine/relationship-bank.mjs';
-import { boardFromTiles } from './helpers.mjs';
+import { boardFromTiles, seeded } from './helpers.mjs';
 import {
   DEFAULT_REFILL_PROFILE,
   buildRelationshipBag,
