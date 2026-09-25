@@ -1,0 +1,121 @@
+name: Wordy Visible Gravity Browser Verify
+on:
+  push:
+    branches:
+      - feature/wordy-game
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve branch
+        run: |
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/wordy-http.log 2>&1 &
+          echo $! >/tmp/wordy-http.pid
+      - name: Verify visible POP gravity and refill
+        run: |
+          cat > /tmp/verify-wordy-gravity.mjs <<'EOF'
+          import { chromium } from 'playwright';
+
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:900,height:900}});
+          const response=await page.goto('http://127.0.0.1:8080/Wordy/?gravity-verify=1',{waitUntil:'networkidle'});
+          if(response?.status()!==200)throw new Error('Wordy HTTP '+response?.status());
+
+          const result=await page.evaluate(async()=>{
+            const stamp=Date.now();
+            const {renderBoardSnapshot}=await import('/Wordy/ui/render.mjs?v='+stamp);
+            const {playResolutionTimeline}=await import('/Wordy/ui/timeline.mjs?v='+stamp);
+
+            const mk=(id,word,row,column)=>({id,word,row,column});
+            const boardBefore={rows:7,columns:7,tiles:[
+              mk('fall','KEEP',1,0),
+              mk('remove','UP',6,0)
+            ]};
+            const boardAfterRemoval={rows:7,columns:7,tiles:[
+              mk('fall','KEEP',1,0)
+            ]};
+            const boardAfterGravity={rows:7,columns:7,tiles:[
+              mk('fall','KEEP',6,0)
+            ]};
+            const refillTiles=[
+              mk('new-0','IN',0,0),
+              mk('new-1','LOOK',1,0),
+              mk('new-2','AFTER',2,0),
+              mk('new-3','MAKE',3,0),
+              mk('new-4','SENSE',4,0),
+              mk('new-5','TIME',5,0)
+            ];
+            const boardAfterRefill={rows:7,columns:7,tiles:[
+              ...refillTiles,
+              mk('fall','KEEP',6,0)
+            ]};
+
+            renderBoardSnapshot(document,boardBefore,{disabled:true});
+            await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+
+            const records=[];
+            const nativeAnimate=Element.prototype.animate;
+            Element.prototype.animate=function(keyframes,options){
+              records.push({
+                id:this.dataset?.tileId??'',
+                keyframes:Array.from(keyframes??[]).map(frame=>({...frame})),
+                options:{...options}
+              });
+              return nativeAnimate.call(this,keyframes,options);
+            };
+
+            await playResolutionTimeline(document,[{
+              label:'KEEP UP',
+              cascadeDepth:0,
+              removedTileIds:['remove'],
+              boardBefore,
+              boardAfterRemoval,
+              boardAfterGravity,
+              boardAfterRefill
+            }],{delayMs:0});
+
+            Element.prototype.animate=nativeAnimate;
+
+            const removal=records.find(record=>record.id==='remove'&&record.keyframes.some(frame=>String(frame.transform??'').includes('scale')));
+            const gravity=records.find(record=>record.id==='fall'&&record.keyframes.some(frame=>String(frame.transform??'').startsWith('translate(')));
+            const refill=records.find(record=>record.id.startsWith('new-')&&record.keyframes.some(frame=>String(frame.transform??'').startsWith('translateY(')));
+
+            if(!removal)throw new Error('no removal animation recorded');
+            if(!gravity)throw new Error('no gravity animation recorded for surviving tile');
+            if(!refill)throw new Error('no refill drop animation recorded');
+
+            const gravityStart=String(gravity.keyframes[0].transform??'');
+            const gravityDy=Number(gravityStart.match(/,(-?[0-9.]+)px\)/)?.[1]);
+            if(!(gravityDy<0))throw new Error('gravity did not start above destination: '+gravityStart);
+
+            const refillStart=String(refill.keyframes[0].transform??'');
+            const refillDy=Number(refillStart.match(/translateY\((-?[0-9.]+)px\)/)?.[1]);
+            if(!(refillDy<0))throw new Error('refill did not enter from above: '+refillStart);
+
+            const fallNode=document.querySelector('[data-tile-id="fall"]');
+            if(fallNode?.dataset?.row!=='6')throw new Error('survivor did not finish at gravity row 6');
+            for(const tile of refillTiles){
+              if(!document.querySelector('[data-tile-id="'+tile.id+'"]'))throw new Error('missing refill tile '+tile.id);
+            }
+
+            return {
+              animations:records.map(record=>({id:record.id,first:record.keyframes[0]?.transform??'',duration:record.options.duration})),
+              gravityStart,refillStart,
+              finalFallRow:fallNode.dataset.row
+            };
+          });
+
+          console.log(JSON.stringify(result,null,2));
+          console.log('VISIBLE_GRAVITY_BROWSER_OK');
+          await browser.close();
+          EOF
+          node /tmp/verify-wordy-gravity.mjs
