@@ -351,10 +351,12 @@ function isProductiveEnough(board,bank,{
   allowStartingMatches,
   relationshipIds,
   minRelationshipCoverage,
+  minUniqueWords,
   maxTokenCopies
 }){
   if(!allowStartingMatches&&findMatches(board,bank).length>0)return false;
   if(!duplicateLimitOkay(board,maxTokenCopies))return false;
+  if(new Set(board.tiles.map(tile=>tile.word)).size<minUniqueWords)return false;
   if(relationshipCoverage(board,bank,relationshipIds)<minRelationshipCoverage)return false;
   const moves=findImmediateScoringMoves(board,bank);
   const spread=productiveDimensions(board,moves);
@@ -363,43 +365,34 @@ function isProductiveEnough(board,bank,{
     spread.columns>=minProductiveColumns;
 }
 
-function relationshipDeck({relations,total,rng,maxTokenCopies}){
-  const deck=[];
-  const counts=new Map();
-  let copyLimit=Math.max(2,maxTokenCopies);
-  let safety=0;
-
-  while(deck.length<total&&safety++<500){
-    let progressed=false;
-    for(const relation of shuffled(relations,rng)){
-      const bundleCounts=new Map();
-      for(const token of relation.tokens)bundleCounts.set(token,(bundleCounts.get(token)??0)+1);
-      const fits=[...bundleCounts].every(([token,needed])=>(counts.get(token)??0)+needed<=copyLimit);
-      if(!fits)continue;
-      for(const token of relation.tokens){
-        deck.push(token);
-        counts.set(token,(counts.get(token)??0)+1);
-      }
-      progressed=true;
-      if(deck.length>=total)break;
-    }
-    if(!progressed){
-      copyLimit++;
-      if(copyLimit>maxTokenCopies+2)break;
-    }
+function relationshipDeck({relations,total,rng,maxTokenCopies,minUniqueWords}){
+  const words=shuffled([...new Set(relations.flatMap(relation=>relation.tokens))],rng);
+  if(words.length===0)throw new Error('relationship neighborhood has no playable words');
+  if(words.length<minUniqueWords){
+    throw new Error(`relationship neighborhood exposes only ${words.length} unique words; need ${minUniqueWords}`);
+  }
+  if(words.length*maxTokenCopies<total){
+    throw new Error('relationship neighborhood cannot fill board within copy cap');
   }
 
-  if(deck.length<total){
-    const words=[...new Set(relations.flatMap(relation=>relation.tokens))];
-    if(words.length===0)throw new Error('relationship neighborhood has no playable words');
-    while(deck.length<total)deck.push(words[Math.floor(clampRng(rng())*words.length)]);
+  const deck=words.slice(0,Math.min(total,words.length));
+  const counts=new Map(deck.map(word=>[word,1]));
+
+  while(deck.length<total){
+    const candidates=words.filter(word=>(counts.get(word)??0)<maxTokenCopies);
+    if(candidates.length===0)throw new Error('unable to fill diversity deck within copy cap');
+    const minCount=Math.min(...candidates.map(word=>counts.get(word)??0));
+    const leastUsed=candidates.filter(word=>(counts.get(word)??0)===minCount);
+    const word=leastUsed[Math.floor(clampRng(rng())*leastUsed.length)];
+    deck.push(word);
+    counts.set(word,(counts.get(word)??0)+1);
   }
 
-  return shuffled(deck,rng).slice(0,total);
+  return shuffled(deck,rng);
 }
 
-function wordRowsFromDeck({rows,columns,relations,rng,maxTokenCopies}){
-  const deck=relationshipDeck({relations,total:rows*columns,rng,maxTokenCopies});
+function wordRowsFromDeck({rows,columns,relations,rng,maxTokenCopies,minUniqueWords}){
+  const deck=relationshipDeck({relations,total:rows*columns,rng,maxTokenCopies,minUniqueWords});
   const out=[];
   for(let row=0;row<rows;row++)out.push(deck.slice(row*columns,(row+1)*columns));
   return out;
@@ -435,30 +428,69 @@ function cellsForPlacement(placement,length){
   }));
 }
 
+function findSourceCell(wordRows,word,locked){
+  for(let row=0;row<wordRows.length;row++){
+    for(let column=0;column<wordRows[0].length;column++){
+      const key=placementKey(row,column);
+      if(locked.has(key))continue;
+      if(wordRows[row][column]===word)return {row,column};
+    }
+  }
+  return null;
+}
+
+function arrangePatternBySwapping(wordRows,cells,desired,locked){
+  const trial=wordRows.map(row=>[...row]);
+  const trialLocked=new Set(locked);
+
+  for(let index=0;index<cells.length;index++){
+    const target=cells[index];
+    const targetKey=placementKey(target.row,target.column);
+    const word=desired[index];
+
+    if(trial[target.row][target.column]!==word){
+      const source=findSourceCell(trial,word,trialLocked);
+      if(!source)return null;
+      [trial[target.row][target.column],trial[source.row][source.column]]=
+        [trial[source.row][source.column],trial[target.row][target.column]];
+    }
+    trialLocked.add(targetKey);
+  }
+  return trial;
+}
+
 function seedProductiveMoves(wordRows,relations,count,rng){
   if(count<=0||relations.length===0)return 0;
   const rows=wordRows.length,columns=wordRows[0].length;
   const reserved=new Set();
   let placed=0;
-  const ordered=[
-    ...relations.filter(relation=>relation.tokens.length===2),
-    ...relations.filter(relation=>relation.tokens.length!==2)
-  ];
+  const ordered=shuffled(relations,rng).sort((a,b)=>
+    a.tokens.length-b.tokens.length||
+    new Set(b.tokens).size-new Set(a.tokens).size
+  );
 
   for(const relation of ordered){
     if(placed>=count)break;
-    const tokens=[...relation.tokens];
-    if(tokens.length<2||tokens.length>Math.max(rows,columns))continue;
-    const possible=shuffled(placementsFor(rows,columns,tokens.length),rng)
-      .find(placement=>cellsForPlacement(placement,tokens.length).every(cell=>!reserved.has(placementKey(cell.row,cell.column))));
-    if(!possible)continue;
+    const desired=[...relation.tokens];
+    if(desired.length<2||desired.length>Math.max(rows,columns))continue;
+    [desired[desired.length-2],desired[desired.length-1]]=
+      [desired[desired.length-1],desired[desired.length-2]];
 
-    [tokens[tokens.length-2],tokens[tokens.length-1]]=[tokens[tokens.length-1],tokens[tokens.length-2]];
-    const cells=cellsForPlacement(possible,tokens.length);
-    cells.forEach((cell,index)=>{
-      wordRows[cell.row][cell.column]=tokens[index];
-      reserved.add(placementKey(cell.row,cell.column));
-    });
+    let arranged=null;
+    let chosenCells=null;
+    for(const placement of shuffled(placementsFor(rows,columns,desired.length),rng)){
+      const cells=cellsForPlacement(placement,desired.length);
+      if(cells.some(cell=>reserved.has(placementKey(cell.row,cell.column))))continue;
+      const trial=arrangePatternBySwapping(wordRows,cells,desired,reserved);
+      if(!trial)continue;
+      arranged=trial;
+      chosenCells=cells;
+      break;
+    }
+    if(!arranged)continue;
+
+    for(let row=0;row<rows;row++)wordRows[row]=arranged[row];
+    for(const cell of chosenCells)reserved.add(placementKey(cell.row,cell.column));
     placed++;
   }
   return placed;
@@ -476,21 +508,29 @@ export function createControlledBoard({
   fallbackBoard=null,
   relationshipIds=null,
   minRelationshipCoverage=0,
-  maxTokenCopies=4
+  minUniqueWords=0,
+  maxTokenCopies=null
 }){
   const minimum=Math.max(0,Number(minScoringMoves)||0);
   const minimumRows=Math.max(1,Number(minProductiveRows)||1);
   const minimumColumns=Math.max(1,Number(minProductiveColumns)||1);
   const minimumCoverage=Math.min(1,Math.max(0,Number(minRelationshipCoverage)||0));
+  const minimumUnique=Math.max(0,Number(minUniqueWords)||0);
   const relations=activeRelations(bank,relationshipIds)
     .filter(relation=>relation.tokens.length>=2&&relation.tokens.length<=Math.max(rows,columns));
   if(relations.length===0)throw new Error('relationship neighborhood has no playable relationships');
   const uniqueWords=new Set(relations.flatMap(relation=>relation.tokens));
-  const requestedMaxCopies=Math.max(2,Number(maxTokenCopies)||4);
-  const maxCopies=Math.max(requestedMaxCopies,Math.ceil((rows*columns)/Math.max(1,uniqueWords.size)));
+  const explicitCopyCap=Number(maxTokenCopies);
+  const maxCopies=Number.isFinite(explicitCopyCap)&&explicitCopyCap>0
+    ?Math.max(1,explicitCopyCap)
+    :Math.max(4,Math.ceil((rows*columns)/Math.max(1,uniqueWords.size)));
+  if(uniqueWords.size<minimumUnique)throw new Error('relationship neighborhood is not diverse enough');
+  if(uniqueWords.size*maxCopies<rows*columns)throw new Error('relationship neighborhood cannot fill board within copy cap');
 
-  for(let attempt=0;attempt<360;attempt++){
-    const wordRows=wordRowsFromDeck({rows,columns,relations,rng,maxTokenCopies:maxCopies});
+  for(let attempt=0;attempt<480;attempt++){
+    const wordRows=wordRowsFromDeck({
+      rows,columns,relations,rng,maxTokenCopies:maxCopies,minUniqueWords:minimumUnique
+    });
     const naturalBoard=createBoard(wordRows,{columns});
     if(isProductiveEnough(naturalBoard,bank,{
       minScoringMoves:minimum,
@@ -499,6 +539,7 @@ export function createControlledBoard({
       allowStartingMatches,
       relationshipIds,
       minRelationshipCoverage:minimumCoverage,
+      minUniqueWords:minimumUnique,
       maxTokenCopies:maxCopies
     }))return naturalBoard;
 
@@ -513,6 +554,7 @@ export function createControlledBoard({
         allowStartingMatches,
         relationshipIds,
         minRelationshipCoverage:minimumCoverage,
+        minUniqueWords:minimumUnique,
         maxTokenCopies:maxCopies
       }))return seededBoard;
     }
@@ -528,6 +570,7 @@ export function createControlledBoard({
       allowStartingMatches,
       relationshipIds,
       minRelationshipCoverage:minimumCoverage,
+      minUniqueWords:minimumUnique,
       maxTokenCopies:maxCopies
     }))throw new Error('fallback board is not productive enough');
     return fallback;
@@ -545,14 +588,15 @@ export function recoverDeadBoard({
   minProductiveColumns=3,
   relationshipIds=null,
   minRelationshipCoverage=0,
-  maxTokenCopies=4
+  minUniqueWords=0,
+  maxTokenCopies=null
 }){
   if(hasViablePlay(board,bank))return {board,reset:false};
   const replacement=createControlledBoard({
     bank,rows:board.rows,columns:board.columns,rng,
     minScoringMoves,minProductiveRows,minProductiveColumns,
     allowStartingMatches:false,fallbackBoard,
-    relationshipIds,minRelationshipCoverage,maxTokenCopies
+    relationshipIds,minRelationshipCoverage,minUniqueWords,maxTokenCopies
   });
   return {board:replacement,reset:true};
 }

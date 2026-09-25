@@ -7,13 +7,13 @@ import { createRelationshipBank } from '../engine/relationship-bank.mjs';
 const bank=createRelationshipBank(RELATIONSHIPS);
 
 const EXPECTED={
-  A:{moves:18,target:900,pool:12,minMoves:8},
-  B:{moves:20,target:1100,pool:14,minMoves:8},
-  C:{moves:22,target:1400,pool:16,minMoves:10},
-  D:{moves:22,target:1500,pool:16,minMoves:10},
-  E:{moves:24,target:1700,pool:18,minMoves:10},
-  F:{moves:24,target:1900,pool:18,minMoves:10},
-  G:{moves:26,target:2300,pool:20,minMoves:12}
+  A:{moves:18,target:900,pool:24,minMoves:8,minUnique:34},
+  B:{moves:20,target:1100,pool:24,minMoves:8,minUnique:34},
+  C:{moves:22,target:1400,pool:26,minMoves:10,minUnique:36},
+  D:{moves:22,target:1500,pool:26,minMoves:10,minUnique:36},
+  E:{moves:24,target:1700,pool:28,minMoves:10,minUnique:38},
+  F:{moves:24,target:1900,pool:28,minMoves:10,minUnique:38},
+  G:{moves:26,target:2300,pool:32,minMoves:12,minUnique:40}
 };
 
 test('A-G use generated 7x7 neighborhood profiles with long casual-puzzle rounds',()=>{
@@ -27,6 +27,8 @@ test('A-G use generated 7x7 neighborhood profiles with long casual-puzzle rounds
     assert.deepEqual(level.goal,{type:'score',target:expected.target});
     assert.equal(level.relationshipPoolSize,expected.pool);
     assert.equal(level.minScoringMoves,expected.minMoves);
+    assert.equal(level.minUniqueWords,expected.minUnique);
+    assert.equal(level.maxTokenCopies,2);
     assert.ok(level.minProductiveRows>=4);
     assert.ok(level.minProductiveColumns>=4);
     assert.ok(level.minRelationshipCoverage>=0.85);
@@ -53,5 +55,6 @@ test('mixed play has the highest opportunity floor and round budget',()=>{
   assert.equal(g.minScoringMoves,12);
   assert.equal(g.moves,26);
   assert.equal(g.goal.target,2300);
-  assert.equal(g.relationshipPoolSize,20);
+  assert.equal(g.relationshipPoolSize,32);
+  assert.equal(g.minUniqueWords,40);
 });

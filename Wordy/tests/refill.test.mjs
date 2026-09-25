@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRelationshipBank } from '../engine/relationship-bank.mjs';
-import { boardFromTiles } from './helpers.mjs';
+import { boardFromTiles, seeded } from './helpers.mjs';
 import {
   DEFAULT_REFILL_PROFILE,
   buildRelationshipBag,
@@ -86,4 +86,33 @@ test('default refill profile strongly favors opportunities without eliminating v
 test('relationship-scoped refill bag never leaks words from outside the active neighborhood',()=>{
   const bag=buildRelationshipBag(bank,{relationshipIds:['look-after']});
   assert.deepEqual(new Set(bag.map(entry=>entry.word)),new Set(['LOOK','AFTER']));
+});
+
+
+test('refill never chooses a word that already reached the round copy cap',()=>{
+  const cappedBank=createRelationshipBank([
+    {id:'look-after',category:'phrasal-verb',tokens:['LOOK','AFTER'],baseScore:120,difficulty:1},
+    {id:'look-up',category:'phrasal-verb',tokens:['LOOK','UP'],baseScore:120,difficulty:1}
+  ]);
+  const board=boardFromTiles({
+    rows:3,columns:3,
+    tiles:[
+      {id:'l1',word:'LOOK',row:0,column:0},
+      {id:'l2',word:'LOOK',row:0,column:1},
+      {id:'a1',word:'AFTER',row:1,column:0},
+      {id:'u1',word:'UP',row:2,column:0}
+    ]
+  });
+  const bag=[
+    {word:'LOOK',weight:100},
+    {word:'AFTER',weight:1},
+    {word:'UP',weight:1}
+  ];
+  for(let seed=1;seed<=20;seed++){
+    const word=chooseRefillWord({
+      row:0,column:2,board,bank:cappedBank,bag,
+      rng:seeded(seed),maxTokenCopies:2
+    });
+    assert.notEqual(word,'LOOK');
+  }
 });

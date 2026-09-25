@@ -49,8 +49,12 @@ test('Level A behaves as a dense generated round instead of a scripted two-combi
   const initial=game.state();
   assertValidStableBoard(initial.board);
   assert.equal(initial.movesLeft,18);
-  assert.equal(initial.activeRelationshipIds.length,12);
+  assert.equal(initial.activeRelationshipIds.length,24);
   assert.ok(relationshipCoverage(initial.board,bank,initial.activeRelationshipIds)>=0.85);
+  const initialCounts=new Map();
+  for(const tile of initial.board.tiles)initialCounts.set(tile.word,(initialCounts.get(tile.word)??0)+1);
+  assert.ok(initialCounts.size>=34,`expected >=34 unique words, got ${initialCounts.size}`);
+  assert.ok(Math.max(...initialCounts.values())<=2);
 
   const productive=findImmediateScoringMoves(initial.board,bank);
   assert.ok(productive.length>=8,`expected >=8 starting productive swaps, got ${productive.length}`);
@@ -98,10 +102,14 @@ test('mixed Level G begins with at least twelve productive swaps from a twenty-r
   });
   const state=game.state();
   assertValidStableBoard(state.board);
-  assert.equal(state.activeRelationshipIds.length,20);
+  assert.equal(state.activeRelationshipIds.length,32);
   const moves=findImmediateScoringMoves(state.board,bank);
   assert.ok(moves.length>=12,`expected at least 12 productive moves, got ${moves.length}`);
   assert.ok(relationshipCoverage(state.board,bank,state.activeRelationshipIds)>=0.85);
+  const counts=new Map();
+  for(const tile of state.board.tiles)counts.set(tile.word,(counts.get(tile.word)??0)+1);
+  assert.ok(counts.size>=40,`expected >=40 unique words, got ${counts.size}`);
+  assert.ok(Math.max(...counts.values())<=2);
 });
 
 test('runtime contains no legacy span geometry engine',()=>{
