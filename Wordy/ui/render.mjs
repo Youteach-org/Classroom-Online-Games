@@ -84,7 +84,7 @@ export function renderGame(root,state){
         button.setAttribute?.('role','gridcell');
         applyTilePosition(button,tile);
         button.textContent=surfaceWord;
-        button.disabled=state.phase!=='playing';
+        button.disabled=state.phase!=='playing'||Number(state.movesLeft??0)<=0;
         if(tileMatches.length)button.classList?.add?.('is-ready');
         const orientations=new Set(tileMatches.map(match=>match.orientation));
         if(orientations.has('horizontal')&&orientations.has('vertical'))button.classList?.add?.('is-cross');
