@@ -195,3 +195,56 @@ test('round validity is scoped to active relationship ids, not the global bank',
   assert.equal(game.attemptSwap(x.id,up.id).status,'rebound');
   assert.equal(game.state().readyMatches.some(match=>match.relationshipId==='look-up'),false);
 });
+
+
+test('reaching score target on POP does not end round while moves remain',()=>{
+  const {game}=makeGame({ready:true,moves:3,target:50});
+  const before=game.state();
+  assert.equal(before.readyMatches.length,1);
+  assert.equal(game.pop(),true);
+  const after=game.state();
+  assert.ok(after.score>=50);
+  assert.equal(after.movesLeft,3);
+  assert.equal(after.phase,'playing');
+  assert.equal(after.success,null);
+});
+
+test('last move with READY disables further swaps but preserves one final free POP',()=>{
+  const {game}=makeGame({moves:1,target:50});
+  const before=game.state();
+  const went=tile(before,0,'WENT');
+  const afterWord=tile(before,0,'AFTER');
+  assert.equal(game.attemptSwap(went.id,afterWord.id).status,'accepted');
+
+  const zero=game.state();
+  assert.equal(zero.movesLeft,0);
+  assert.equal(zero.phase,'playing');
+  assert.ok(zero.readyMatches.length>=1);
+
+  const coffee=tile(zero,1,'COFFEE');
+  const notes=tile(zero,1,'NOTES');
+  assert.equal(game.attemptSwap(coffee.id,notes.id).status,'invalid');
+  assert.equal(game.state().movesLeft,0);
+
+  assert.equal(game.pop(),true);
+  const finished=game.state();
+  assert.equal(finished.movesLeft,0);
+  assert.equal(finished.phase,'result');
+  assert.equal(finished.success,true);
+  assert.ok(finished.score>=50);
+});
+
+test('last move without READY ends immediately and evaluates final score',()=>{
+  const {game}=makeGame({moves:1,target:9999});
+  const state=game.state();
+  const left=tile(state,1,'COFFEE');
+  const right=tile(state,1,'NOTES');
+  assert.equal(game.attemptSwap(left.id,right.id).status,'rebound');
+  assert.equal(game.state().movesLeft,1,'rebound still costs no move');
+
+  const went=tile(game.state(),0,'WENT');
+  const afterWord=tile(game.state(),0,'AFTER');
+  assert.equal(game.attemptSwap(went.id,afterWord.id).status,'accepted');
+  assert.equal(game.state().movesLeft,0);
+  assert.ok(game.state().readyMatches.length>=1);
+});
