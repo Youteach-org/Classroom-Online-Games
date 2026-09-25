@@ -148,3 +148,21 @@ test('article tile stays A when READY relation requires A',()=>{
   const article=root.querySelector('#wordyBoard').children.find(tile=>tile.dataset.tileId==='article');
   assert.equal(article.textContent,'A');
 });
+
+
+test('at zero moves READY tiles cannot be moved but final POP remains enabled',()=>{
+  const root=new FakeDocument();
+  renderGame(root,{
+    levelId:'A',levelTitle:'Final POP',movesLeft:0,score:500,instruction:'Finish',phase:'playing',eventLabel:'READY',
+    board:{rows:7,columns:7,tiles:[
+      {id:'look',word:'LOOK',row:0,column:0},
+      {id:'after',word:'AFTER',row:0,column:1}
+    ]},
+    readyMatches:[
+      {relationshipId:'look-after',orientation:'horizontal',tileIds:['look','after'],tokens:['LOOK','AFTER']}
+    ]
+  });
+  const tiles=root.querySelector('#wordyBoard').children;
+  assert.ok(tiles.every(tile=>tile.disabled===true));
+  assert.equal(root.querySelector('#popButton').disabled,false);
+});
