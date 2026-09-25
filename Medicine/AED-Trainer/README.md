@@ -376,3 +376,37 @@ Current Mercado Libre México references observed 2026-09-24:
 - pack of 10 yellow arcade buttons with microswitch around MXN 110–125, currently in stock.
 
 The SHOCK button is only a low-voltage digital input and never switches any therapeutic/high-voltage circuit.
+
+
+## Minimal fast-prototype purchase list — 2026-09-25
+
+Goal: build the first near-final physical prototype with the fewest purchases possible.
+
+Already selected:
+- ESP32-S3 DevKitC-1 N16R8 with BLE 5.
+- 0.96-inch SSD1306 128x64 I2C OLED.
+- Reuse existing small radio speaker if compatible.
+
+Buy:
+1. MAX98357A I2S 3 W amplifier.
+2. AD8232 ECG kit with 3-lead cable and electrodes.
+3. Large momentary SHOCK button. Preferred: 22 mm metal momentary button with 3-6 V DC yellow LED option.
+4. Battery power source / power bank.
+5. Two Hall-effect sensors plus small magnets for training-pad placement detection on the manikin.
+6. Robust low-voltage detachable connector(s) for the reusable training pads.
+7. Small perfboard / prototype PCB, hookup wire, headers/connectors, heat-shrink, spacers and screws.
+8. Enclosure after bench layout is validated.
+
+Do not buy for V1:
+- separate microSD module/card: store the first prompt set in ESP32-S3 N16R8 internal Flash/LittleFS;
+- separate speaker: reuse the user's radio speaker if electrically compatible;
+- touch screen or large TFT;
+- high-voltage parts of any kind.
+
+Training pads:
+- fabricate inert reusable pads for the manikin instead of buying operational defibrillation electrodes.
+- Hall/magnet sensing can indicate correct placement while remaining electrically isolated from the learner/manikin.
+
+Teacher Monitor:
+- BLE is required from V1 for live procedure state and educational ECG telemetry.
+
