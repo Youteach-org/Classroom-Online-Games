@@ -10,26 +10,44 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  shared:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run shared COG tests
-        run: node --test tests/*.test.mjs
-      - name: Run Talk Talk tests except live teacher
-        run: |
-          find Talk-Talk/tests -name '*.test.mjs' ! -name 'teacher-live.test.mjs' -print0 | xargs -0 node --test
-      - name: Run Talk Talk live teacher tests
-        run: node --test Talk-Talk/tests/teacher-live.test.mjs
-      - name: Run Verb Runner tests
-        run: node --test Verb-Runner/tests/*.test.mjs
-      - name: Run Support Meter tests
-        run: node --test Support-Meter/*.test.js Support-Meter/*.test.mjs
-      - name: Run 100 Students Said tests
-        run: cd 100-Students-Said && node --test *.test.js
+      - run: node --test tests/*.test.mjs
+
+  talk-talk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: find Talk-Talk/tests -name '*.test.mjs' ! -name 'teacher-live.test.mjs' -print0 | xargs -0 node --test
+
+  talk-talk-live-teacher:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node --test Talk-Talk/tests/teacher-live.test.mjs
+
+  verb-runner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node --test Verb-Runner/tests/*.test.mjs
+
+  support-meter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node --test Support-Meter/*.test.js Support-Meter/*.test.mjs
+
+  hundred-students-said:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd 100-Students-Said && node --test *.test.js
 
   deploy-preview:
-    needs: test
+    needs: [shared, talk-talk, talk-talk-live-teacher, verb-runner, support-meter, hundred-students-said]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -94,3 +112,4 @@ jobs:
           "$CHROME" --headless --no-sandbox --disable-gpu --virtual-time-budget=2500 --dump-dom             https://talk-talk-v1-20260921.classroom-online-games.pages.dev/Talk-Talk/teacher.html > /tmp/teacher-dom.html
           grep -Fq 'Ready to speak?' /tmp/student-dom.html
           grep -Fq 'Teacher Monitor' /tmp/teacher-dom.html
+
