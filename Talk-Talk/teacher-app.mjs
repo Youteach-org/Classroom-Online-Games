@@ -1,5 +1,10 @@
 import { TALK_TALK_GAME_NAME } from "./config.mjs";
 import {
+  bootstrapTalkTalkTeacher,
+  startTalkTalkTeacherHeartbeat,
+  endTalkTalkTeacher
+} from "./live/teacher-bootstrap.mjs";
+import {
   buildAssessmentPolicy,
   buildMonitorSnapshot,
   buildTwistCommand,
@@ -20,6 +25,36 @@ const endActivityBtn=document.getElementById("endActivityBtn");
 let currentState=null;
 let currentSnapshot=buildMonitorSnapshot({});
 let selectedTeamId="";
+let teacherRuntime=null;
+let stopTeacherHeartbeat=()=>{};
+
+const teacherRuntimeReady=bootstrapTalkTalkTeacher()
+  .then(runtime=>{
+    teacherRuntime=runtime;
+    if(runtime.mode === "live"){
+      stopTeacherHeartbeat=startTalkTalkTeacherHeartbeat(runtime);
+      render({
+        sessionId:runtime.cogSessionId,
+        activityTitle:runtime.assignmentTitle,
+        mode:modeSelect.value || "practice",
+        teams:[]
+      });
+    } else {
+      render({
+        sessionId:"",
+        activityTitle:"Tell Me What Happened",
+        mode:modeSelect.value || "practice",
+        teams:[]
+      });
+    }
+    return runtime;
+  })
+  .catch(error=>{
+    sessionStateEl.textContent=error?.message || "Could not connect Talk Talk to YouTeach.";
+    throw error;
+  });
+
+window.addEventListener("pagehide",()=>stopTeacherHeartbeat());
 
 function sendTeacherCommand(command) {
   const transport=window.__TALK_TALK_TEACHER_TRANSPORT__;
@@ -132,9 +167,19 @@ sendTwistBtn.addEventListener("click",() => {
   }));
 });
 
-endActivityBtn.addEventListener("click",() => {
+endActivityBtn.addEventListener("click",async() => {
   if (!currentSnapshot.sessionId) return;
   sendTeacherCommand(buildEndActivityCommand({ cogSessionId:currentSnapshot.sessionId }));
+  try {
+    const runtime=teacherRuntime || await teacherRuntimeReady;
+    await endTalkTalkTeacher(runtime);
+    stopTeacherHeartbeat();
+    sessionStateEl.textContent="Talk Talk activity ended.";
+    endActivityBtn.disabled=true;
+    sendTwistBtn.disabled=true;
+  } catch (error) {
+    sessionStateEl.textContent=error?.message || "Could not end the Talk Talk activity.";
+  }
 });
 
 window.addEventListener("talktalk:session-state",event => render(event.detail || {}));
