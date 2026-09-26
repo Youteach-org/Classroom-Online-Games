@@ -1,14 +1,55 @@
-name: Talk Talk live teacher diagnostic
+name: Talk Talk V1 preview
+
 on:
   push:
-    branches: [feature/talk-talk-v1-20260921]
+    branches:
+      - feature/talk-talk-v1-20260921
   workflow_dispatch:
+
 permissions:
   contents: read
+
 jobs:
-  test:
+  test-build-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Talk Talk teacher live test
-        run: node --test Talk-Talk/tests/teacher-live.test.mjs
+      - name: Run complete COG regression
+        run: |
+          node --test tests/*.test.mjs
+          node --test Talk-Talk/tests/*.test.mjs
+          node --test Verb-Runner/tests/*.test.mjs
+          node --test Support-Meter/*.test.js Support-Meter/*.test.mjs
+          cd 100-Students-Said && node --test *.test.js
+      - name: Prepare COG preview site
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          cp index.html dist/
+          cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Talk-Talk Engineering teacher shared dist/
+      - name: Normalize Cloudflare account id
+        env:
+          CLOUDFLARE_ACCOUNT_ID_RAW: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          CLEAN_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID_RAW" | tr -d '[:space:]')"
+          test -n "$CLEAN_ACCOUNT_ID"
+          printf 'CLOUDFLARE_ACCOUNT_ID=%s\n' "$CLEAN_ACCOUNT_ID" >> "$GITHUB_ENV"
+      - name: Deploy Talk Talk preview
+        run: npx wrangler@4 pages deploy dist --project-name=classroom-online-games --branch=talk-talk-v1-20260921 --commit-hash=${{ github.sha }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Verify Talk Talk teacher integration
+        run: |
+          set -eu
+          BASE="https://talk-talk-v1-20260921.classroom-online-games.pages.dev"
+          for n in 1 2 3 4 5 6 7 8; do
+            curl -fsS "$BASE/teacher/" -o /tmp/teacher-menu.html || true
+            curl -fsS "$BASE/Talk-Talk/teacher.html" -o /tmp/talk-teacher.html || true
+            curl -fsS "$BASE/Talk-Talk/live/teacher-bootstrap.mjs" -o /tmp/bootstrap.mjs || true
+            if grep -Fq 'Talk Talk Monitor' /tmp/teacher-menu.html 2>/dev/null               && grep -Fq 'Teacher Monitor' /tmp/talk-teacher.html 2>/dev/null               && grep -Fq 'registerLiveGameSession' /tmp/bootstrap.mjs 2>/dev/null; then
+              exit 0
+            fi
+            sleep 4
+          done
+          echo "::error::Talk Talk teacher integration not visible in preview"
+          exit 1
