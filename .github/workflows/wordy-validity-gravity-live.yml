@@ -1,0 +1,143 @@
+name: Wordy Validity Gravity Live
+on:
+  push:
+    branches:
+      - integration/wordy-validity-gravity-20260926
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+      - name: Verify live curated validity and visible falling motion
+        run: |
+          cat > verify.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:430,height:900}});
+          const errors=[];
+          page.on('pageerror',e=>errors.push('pageerror: '+e.message));
+          page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text());});
+
+          const response=await page.goto(
+            'https://classroom-online-games.pages.dev/Wordy/?verify-validity-gravity='+Date.now(),
+            {waitUntil:'networkidle',timeout:30000}
+          );
+          if(response?.status()!==200)throw new Error('HTTP '+response?.status());
+          await page.waitForFunction(()=>window.WordyPrototype?.controller?.state?.().board?.tiles?.length===49);
+
+          const result=await page.evaluate(async()=>{
+            const stamp=Date.now();
+            const {createRelationshipBank}=await import('/Wordy/engine/relationship-bank.mjs?v='+stamp);
+            const {createGameController}=await import('/Wordy/engine/controller.mjs?v='+stamp);
+            const {RELATIONSHIPS}=await import('/Wordy/data/relationships.mjs?v='+stamp);
+            const {findImmediateScoringMoves}=await import('/Wordy/engine/generator.mjs?v='+stamp);
+            const {gravityAnimationSpec,refillAnimationSpec}=await import('/Wordy/ui/timeline.mjs?v='+stamp);
+
+            const keepUp=RELATIONSHIPS.find(r=>r.tokens.join(' ')==='KEEP UP');
+            const keepIn=RELATIONSHIPS.find(r=>r.tokens.join(' ')==='KEEP IN');
+            if(!keepUp||!keepIn)throw new Error('KEEP UP/KEEP IN missing from curated bank');
+
+            const customBank=createRelationshipBank([
+              {id:'look-after',category:'phrasal-verb',tokens:['LOOK','AFTER'],baseScore:120,difficulty:1},
+              {id:'keep-up',category:'phrasal-verb',tokens:['KEEP','UP'],baseScore:120,difficulty:1},
+              {id:'keep-in',category:'phrasal-verb',tokens:['KEEP','IN'],baseScore:120,difficulty:1}
+            ]);
+            const level={
+              id:'CURATED',title:'Curated',moves:8,goal:{type:'score',target:9999},instruction:'',
+              generated:false,
+              relationshipIds:['look-after'],
+              boardRows:[
+                ['KEEP','IN','A','B','C','D','E'],
+                ['KEEP','X','UP','F','G','H','I'],
+                ['J','K','L','M','N','O','P'],
+                ['Q','R','S','T','U','V','W'],
+                ['AA','BB','CC','DD','EE','FF','GG'],
+                ['HH','II','JJ','KK','LL','MM','NN'],
+                ['OO','PP','SS','TT','UU','VV','WW']
+              ]
+            };
+            const game=createGameController({bank:customBank,levels:[level],initialLevelId:'CURATED',rng:()=>0.4,storage:null});
+            const initial=game.state();
+            if(!initial.readyMatches.some(m=>m.relationshipId==='keep-in'))throw new Error('KEEP IN rejected outside active pool');
+            const x=initial.board.tiles.find(t=>t.row===1&&t.word==='X');
+            const up=initial.board.tiles.find(t=>t.row===1&&t.word==='UP');
+            const swap=game.attemptSwap(x.id,up.id);
+            if(swap.status!=='accepted')throw new Error('KEEP UP swap rejected: '+swap.status);
+            if(!game.state().readyMatches.some(m=>m.relationshipId==='keep-up'))throw new Error('KEEP UP not READY');
+
+            const gravitySpec=gravityAnimationSpec(
+              {left:10,top:80,width:50,height:50},
+              {left:10,top:250,width:50,height:50}
+            );
+            const refillSpec=refillAnimationSpec({dy:-220,row:2,column:3});
+            if(gravitySpec.options.duration<480||gravitySpec.keyframes.length<3)throw new Error('gravity motion too subtle');
+            if(refillSpec.options.duration<520||refillSpec.keyframes.length<3)throw new Error('refill motion too subtle');
+
+            const controller=window.WordyPrototype.controller;
+            const state=controller.state();
+            const full=createRelationshipBank(RELATIONSHIPS);
+            const active=createRelationshipBank(state.activeRelationshipIds.map(id=>full.byId.get(id)));
+            const moves=findImmediateScoringMoves(state.board,full);
+            if(!moves.length)throw new Error('no live productive move');
+
+            const calls=[];
+            const original=Element.prototype.animate;
+            Element.prototype.animate=function(keyframes,options){
+              calls.push({id:this.dataset?.tileId??'',keyframes:structuredClone(keyframes),duration:options?.duration??0});
+              return original.call(this,keyframes,options);
+            };
+            const chosen=moves[0].swap;
+            const accepted=controller.attemptSwap(chosen.fromTileId,chosen.toTileId);
+            if(accepted.status!=='accepted')throw new Error('live productive swap rejected');
+            await new Promise(r=>setTimeout(r,220));
+            document.querySelector('#popButton').click();
+            await new Promise(r=>setTimeout(r,2400));
+            Element.prototype.animate=original;
+
+            const gravityCalls=calls.filter(call=>call.keyframes.some(frame=>
+              typeof frame?.transform==='string'&&frame.transform.startsWith('translate(')
+            ));
+            const refillCalls=calls.filter(call=>call.keyframes.some(frame=>
+              typeof frame?.transform==='string'&&frame.transform.startsWith('translateY(')
+            ));
+            if(gravityCalls.length===0)throw new Error('no gravity animation calls on live POP');
+            if(refillCalls.length===0)throw new Error('no refill animation calls on live POP');
+            if(!gravityCalls.every(call=>call.duration>=480))throw new Error('live gravity still too fast');
+            if(!refillCalls.every(call=>call.duration>=520))throw new Error('live refill still too fast');
+            if(!gravityCalls.some(call=>call.keyframes.length>=3))throw new Error('gravity missing landing bounce');
+            if(!refillCalls.some(call=>call.keyframes.length>=3))throw new Error('refill missing landing bounce');
+
+            return {
+              curated:{
+                activeRelationshipIds:initial.activeRelationshipIds,
+                keepInReady:true,
+                keepUpSwap:swap.status,
+                keepUpReady:true
+              },
+              motion:{
+                gravityCount:gravityCalls.length,
+                gravityDurations:gravityCalls.map(c=>c.duration),
+                refillCount:refillCalls.length,
+                refillDurations:refillCalls.map(c=>c.duration)
+              },
+              finalState:{
+                phase:controller.state().phase,
+                movesLeft:controller.state().movesLeft,
+                tiles:controller.state().board.tiles.length
+              }
+            };
+          });
+
+          console.log(JSON.stringify(result,null,2));
+          if(errors.length)throw new Error(errors.join('\n'));
+          console.log('LIVE_WORDY_CURATED_GRAVITY_OK');
+          await browser.close();
+          EOF
+          node verify.mjs
