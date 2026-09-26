@@ -90,7 +90,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
 
   function generatedBoard(level){
     return createControlledBoard({
-      bank:roundBank,
+      bank,
       rows:level.rows??7,
       columns:level.columns??7,
       rng,
@@ -116,7 +116,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     return createBoard(currentLevel.boardRows);
   }
 
-  function refreshReady(){state.readyMatches=findMatches(state.board,roundBank);}
+  function refreshReady(){state.readyMatches=findMatches(state.board,bank);}
   function logReady(){
     telemetry.record('ready-change',{
       count:state.readyMatches.length,
@@ -192,7 +192,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     state.review=buildRoundReview({
       newRelationshipIds:[...roundNewIds],
       missedOpportunities:state.missedOpportunities,
-      bank:roundBank,
+      bank,
       limit:3
     });
     telemetry.record('level-end',{
@@ -209,7 +209,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
       return {status:'invalid',...resultBase};
     }
 
-    const scoringMoves=findImmediateScoringMoves(state.board,roundBank);
+    const scoringMoves=findImmediateScoringMoves(state.board,bank);
     const chosenMove=scoringMoves.find(move=>sameSwap(move.swap,resultBase));
     if(!chosenMove){
       state.eventLabel='NO MATCH';
@@ -221,7 +221,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     state.resolutionEvents=[];
     const previousReadyIds=new Set(state.readyMatches.map(match=>match.relationshipId));
     const previousCrossCount=findCrossings(state.readyMatches).length;
-    const missed=captureMissedOpportunity({board:state.board,scoringMoves,chosenSwap:resultBase,bank:roundBank});
+    const missed=captureMissedOpportunity({board:state.board,scoringMoves,chosenSwap:resultBase,bank});
     if(missed){
       state.missedOpportunities.push(missed);
       telemetry.record('missed-opportunity',{
@@ -261,11 +261,11 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
   function refillTile({row,column,board,cascadeDepth}){
     let word='';
     if(typeof refillWord==='function'){
-      word=canonicalTileToken(refillWord({row,column,board,state:snapshot(),bank:roundBank,rng,cascadeDepth}));
+      word=canonicalTileToken(refillWord({row,column,board,state:snapshot(),bank,rng,cascadeDepth}));
     }
     if(!word){
       word=chooseRefillWord({
-        row,column,board,bank:roundBank,bag:refillBag,rng,
+        row,column,board,bank,bag:refillBag,rng,
         profile:DEFAULT_REFILL_PROFILE,
         maxTokenCopies:currentLevel.maxTokenCopies??2
       });
@@ -276,7 +276,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
   function recoverSparseGeneratedBoard(){
     if(!currentLevel.generated)return false;
     if(state.readyMatches.length>0)return false;
-    const moves=findImmediateScoringMoves(state.board,roundBank);
+    const moves=findImmediateScoringMoves(state.board,bank);
     const configured=currentLevel.minScoringMoves??8;
     const floor=Math.max(2,Math.ceil(configured/2));
     if(moves.length>=floor)return false;
@@ -299,7 +299,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     const fallback=authoredFallback();
     const recovered=recoverDeadBoard({
       board:state.board,
-      bank:roundBank,
+      bank,
       rng,
       fallbackBoard:fallback,
       minScoringMoves:4,
@@ -324,7 +324,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
       state.board=generatedBoard(currentLevel);
     }else{
       state.board=createControlledBoard({
-        bank:roundBank,
+        bank,
         rows:state.board.rows,
         columns:state.board.columns,
         rng,
@@ -375,7 +375,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     try{
       const result=resolvePlayerActivation({
         board:state.board,
-        bank:roundBank,
+        bank,
         discoveredIds:state.discoveredIds,
         refillTile
       });
