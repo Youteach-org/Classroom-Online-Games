@@ -188,3 +188,79 @@ Current production:
 Canonical route:
 
 `https://classroom-online-games.pages.dev/Wordy/`
+
+## 2026-09-26 follow-up: global curated validity + stronger motion
+
+### User report
+
+Production still felt wrong in two ways:
+
+- `KEEP UP` / `KEEP IN` could be visible but not recognized when outside the active round neighborhood.
+- The existing gravity/refill animation still felt like words disappeared and replacements appeared rather than clearly falling.
+
+### Root cause
+
+Validity remained scoped to `roundBank`, even though `KEEP UP` and `KEEP IN` were already in the full curated relationship bank.
+
+Live animation instrumentation also showed that the existing browser path did animate, but a representative POP used only 300 ms gravity and 340 ms refill. This was technically correct but visually too subtle for the intended Candy-style feel.
+
+Diagnostic run `36247133741` measured:
+
+- 3 removal animations;
+- 2 gravity animations at 300 ms;
+- 3 refill animations at 340 ms.
+
+### TDD
+
+RED:
+
+- `36247279935`: curated `KEEP IN` / `KEEP UP` outside the active pool were rejected.
+- `36247284240`: stronger motion contract was absent.
+
+GREEN:
+
+- `36247392560`: **117/117 pass**, deploy guard pass, syntax pass.
+
+### Runtime change
+
+- full curated `bank` now drives ready matching, productive swap detection, scoring, review, cascade resolution and playability checks;
+- `roundBank` remains responsible for generation/refill supply;
+- gravity now has a 480 ms minimum with landing overshoot;
+- refill now has a 520 ms minimum, lower initial opacity, landing overshoot and small stagger.
+
+### Selective promotion
+
+Production runtime:
+
+`bdbe27a488742879bf36066a4a423545157c5d17`
+
+Integration verification:
+
+`36247507097` → **117/117**, deploy guard pass, syntax pass.
+
+Cloudflare:
+
+- `36247576021` → success;
+- `36247576025` → success.
+
+Public Chromium verification:
+
+`36247810552` → `LIVE_WORDY_CURATED_GRAVITY_OK`
+
+Live assertions:
+
+- active relationship IDs: only `look-after`;
+- `KEEP IN` still READY;
+- `KEEP UP` productive swap accepted;
+- forced gravity scenario: 15 falling survivors, each >=480 ms;
+- 5 refill tiles, each >=520 ms;
+- board stable at 49 tiles;
+- phase `playing`, 17 moves remaining.
+
+### Publication state
+
+**Published.**
+
+Canonical route:
+
+`https://classroom-online-games.pages.dev/Wordy/`
