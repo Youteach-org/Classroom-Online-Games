@@ -86,6 +86,20 @@ jobs:
             const active=createRelationshipBank(state.activeRelationshipIds.map(id=>full.byId.get(id)));
             const moves=findImmediateScoringMoves(state.board,full);
             if(!moves.length)throw new Error('no live productive move');
+            const moveCreatesGravity=move=>{
+              const removed=new Set(move.matches.flatMap(match=>match.tileIds??[]));
+              return [...removed].some(id=>{
+                const removedTile=move.board.tiles.find(tile=>tile.id===id);
+                if(!removedTile)return false;
+                return move.board.tiles.some(tile=>
+                  tile.column===removedTile.column &&
+                  tile.row<removedTile.row &&
+                  !removed.has(tile.id)
+                );
+              });
+            };
+            const chosenMove=moves.find(moveCreatesGravity)??moves[0];
+            const expectsGravity=moveCreatesGravity(chosenMove);
 
             const calls=[];
             const original=Element.prototype.animate;
@@ -93,7 +107,7 @@ jobs:
               calls.push({id:this.dataset?.tileId??'',keyframes:structuredClone(keyframes),duration:options?.duration??0});
               return original.call(this,keyframes,options);
             };
-            const chosen=moves[0].swap;
+            const chosen=chosenMove.swap;
             const accepted=controller.attemptSwap(chosen.fromTileId,chosen.toTileId);
             if(accepted.status!=='accepted')throw new Error('live productive swap rejected');
             await new Promise(r=>setTimeout(r,220));
@@ -107,11 +121,11 @@ jobs:
             const refillCalls=calls.filter(call=>call.keyframes.some(frame=>
               typeof frame?.transform==='string'&&frame.transform.startsWith('translateY(')
             ));
-            if(gravityCalls.length===0)throw new Error('no gravity animation calls on live POP');
             if(refillCalls.length===0)throw new Error('no refill animation calls on live POP');
-            if(!gravityCalls.every(call=>call.duration>=480))throw new Error('live gravity still too fast');
+            if(expectsGravity&&gravityCalls.length===0)throw new Error('gravity-producing POP emitted no gravity animation');
+            if(gravityCalls.length&&!gravityCalls.every(call=>call.duration>=480))throw new Error('live gravity still too fast');
             if(!refillCalls.every(call=>call.duration>=520))throw new Error('live refill still too fast');
-            if(!gravityCalls.some(call=>call.keyframes.length>=3))throw new Error('gravity missing landing bounce');
+            if(gravityCalls.length&&!gravityCalls.some(call=>call.keyframes.length>=3))throw new Error('gravity missing landing bounce');
             if(!refillCalls.some(call=>call.keyframes.length>=3))throw new Error('refill missing landing bounce');
 
             return {
@@ -122,6 +136,7 @@ jobs:
                 keepUpReady:true
               },
               motion:{
+                expectedGravity:expectsGravity,
                 gravityCount:gravityCalls.length,
                 gravityDurations:gravityCalls.map(c=>c.duration),
                 refillCount:refillCalls.length,
