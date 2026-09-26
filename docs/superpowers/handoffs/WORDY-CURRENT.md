@@ -1,10 +1,10 @@
 # Wordy — Current Implementation Handoff
 
-**Updated:** 2026-09-24  
+**Updated:** 2026-09-26  
 **Repository:** `Youteach-org/Classroom-Online-Games`  
 **Development branch:** `feature/wordy-game`  
 **Uniform-cell verification commit:** `34bc8585ca681e842d79256b8153f8c528c4f84b`  
-**Current production commit (`main`):** `deec8182b1c8aa011de693125b0e51b0103d7d5b`  
+**Current production commit (`main`):** `bdbe27a488742879bf36066a4a423545157c5d17`  
 **New spec:** `docs/superpowers/specs/2026-09-22-wordy-uniform-cell-candy-architecture.md`  
 **New plan:** `docs/superpowers/plans/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
 **Uniform-cell ledger:** `docs/superpowers/progress/2026-09-22-wordy-uniform-cell-candy-rebuild.md`  
@@ -560,10 +560,79 @@ Canonical production route:
 
 `https://classroom-online-games.pages.dev/Wordy/`
 
+## Curated-global validity + stronger falling motion — production, 2026-09-26
+
+Follow-up playtesting showed two remaining UX problems:
+
+1. approved phrases such as `KEEP UP` and `KEEP IN` could still be rejected when they were not members of the round's active generation neighborhood;
+2. the existing gravity/refill animation was technically firing, but its 300/340 ms motion could still read as disappear/replace rather than a Candy-style fall.
+
+### Validity rule
+
+The active relationship neighborhood now controls **generation and refill vocabulary**, not linguistic validity.
+
+If a relationship exists anywhere in the curated global bank, it is valid whenever its tokens appear on the board.
+
+Therefore:
+
+- `KEEP UP` is valid;
+- `KEEP IN` is valid;
+- a board generated from a neighborhood that does not contain either relation still accepts them when the visible tokens form them;
+- unrestricted phrases such as `COLD MONEY` remain invalid unless explicitly added to the curated bank.
+
+### Falling motion
+
+The visual pipeline remains:
+
+`remove → gravity → refill → cascade`
+
+Motion was strengthened:
+
+- gravity duration floor: **480 ms**;
+- refill duration floor: **520 ms**;
+- gravity and refill use a three-keyframe landing motion with a small downward overshoot before settling;
+- refill begins at lower opacity and enters from above;
+- distance can lengthen the animation beyond the floor;
+- column/row staggering is applied to refill.
+
+### Verification
+
+TDD RED:
+
+- run `36247279935`: curated relation outside active pool was rejected;
+- run `36247284240`: visible-motion helper exports were absent.
+
+GREEN branch verification:
+
+- run `36247392560`: **117/117 Wordy tests pass**, deploy guard pass, syntax pass.
+
+Selective production integration:
+
+- base `main`: `deec8182b1c8aa011de693125b0e51b0103d7d5b`;
+- integration branch: `integration/wordy-validity-gravity-20260926`;
+- runtime commit: `bdbe27a488742879bf36066a4a423545157c5d17`;
+- files promoted: `Wordy/engine/controller.mjs`, `Wordy/ui/timeline.mjs`, and their two regression test files;
+- integration verification run `36247507097`: **117/117 pass**, deployment guard pass, syntax pass;
+- Cloudflare production runs `36247576021` and `36247576025`: success.
+
+Real public-browser verification:
+
+- run `36247810552`;
+- marker: `LIVE_WORDY_CURATED_GRAVITY_OK`;
+- active test pool contained only `look-after`, yet `KEEP IN` was READY and `KEEP UP` swap was accepted;
+- a deliberately gravity-producing live POP emitted **15 gravity animations** at 480 ms and **5 refill animations** at 520 ms;
+- the board returned to 49 tiles and phase `playing` with 17 moves remaining.
+
+Canonical production route:
+
+`https://classroom-online-games.pages.dev/Wordy/`
+
 ## Exact next action
 
-Visible gravity/refill animation and KEEP UP / KEEP IN are live in production.
+Curated-global validity and stronger gravity/refill motion are live in production.
 
-Do not rebuild or re-promote this repair.
+Do not revert validity to the active-round whitelist.
 
-The next action is user playtesting of the canonical Wordy route. Any new gameplay finding should be handled as a new change set on `feature/wordy-game`, verified there, then selectively promoted against current `main`.
+The generation neighborhood should continue to control board vocabulary and refill supply, while the full curated relationship bank remains the authority for what visible combinations are valid.
+
+The next action is user playtesting of the canonical Wordy route. Any new gameplay finding should be implemented on `feature/wordy-game`, verified, then selectively reconciled against current `main`.
