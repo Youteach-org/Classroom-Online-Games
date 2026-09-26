@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildResolutionEvents } from '../engine/resolution-events.mjs';
-import { playResolutionTimeline } from '../ui/timeline.mjs';
+import { playResolutionTimeline, gravityAnimationSpec, refillAnimationSpec } from '../ui/timeline.mjs';
 
 const match=(id,tokens)=>({relationshipId:id,tokens,tileIds:tokens.map((_,index)=>`${id}-${index}`)});
 
@@ -113,4 +113,31 @@ test('timeline plays remove gravity refill for every generation in order',async(
     'remove-1','gravity-1','refill-1'
   ]);
   assert.deepEqual(labels,['LOOK AFTER','COMBO ×2 · KEEP UP']);
+});
+
+
+test('gravity motion is visibly readable with landing overshoot instead of a near-instant jump',()=>{
+  const spec=gravityAnimationSpec(
+    {left:10,top:80,width:50,height:50},
+    {left:10,top:250,width:50,height:50}
+  );
+  assert.ok(spec.options.duration>=480);
+  assert.ok(spec.keyframes.length>=3);
+  assert.equal(spec.keyframes[0].transform,'translate(0px,-170px)');
+  assert.match(spec.keyframes.at(-2).transform,/translate\(0px,[6-9]px\)/);
+  assert.equal(spec.keyframes.at(-1).transform,'translate(0px,0px)');
+});
+
+test('refill motion enters clearly from above and lands with a small bounce',()=>{
+  const spec=refillAnimationSpec({
+    dy:-220,
+    row:2,
+    column:3
+  });
+  assert.ok(spec.options.duration>=520);
+  assert.ok(spec.keyframes.length>=3);
+  assert.equal(spec.keyframes[0].transform,'translateY(-220px)');
+  assert.ok(spec.keyframes[0].opacity<=0.45);
+  assert.match(spec.keyframes.at(-2).transform,/translateY\([6-9]px\)/);
+  assert.equal(spec.keyframes.at(-1).transform,'translateY(0px)');
 });
