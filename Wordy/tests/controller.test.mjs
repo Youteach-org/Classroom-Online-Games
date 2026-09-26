@@ -163,19 +163,19 @@ test('rejected swap gives immediate NO MATCH feedback without charging a move',(
 });
 
 
-test('round validity is scoped to active relationship ids, not the global bank',()=>{
-  const scopedBank=createRelationshipBank([
+test('all curated relationships remain valid even outside the generation pool',()=>{
+  const curatedBank=createRelationshipBank([
     relation('look-after',['LOOK','AFTER'],'phrasal-verb',120,1),
-    relation('after-look',['AFTER','LOOK'],'fixed-expression',120,1),
-    relation('look-up',['LOOK','UP'],'phrasal-verb',120,1)
+    relation('keep-up',['KEEP','UP'],'phrasal-verb',120,1),
+    relation('keep-in',['KEEP','IN'],'phrasal-verb',120,1)
   ]);
   const level={
-    id:'S',title:'Scoped',moves:8,goal:{type:'score',target:9999},instruction:'Scoped',
+    id:'CURATED',title:'Curated validity',moves:8,goal:{type:'score',target:9999},instruction:'Curated',
     generated:false,
     relationshipIds:['look-after'],
     boardRows:[
-      ['AFTER','LOOK','A','B','C','D','E'],
-      ['LOOK','X','UP','F','G','H','I'],
+      ['KEEP','IN','A','B','C','D','E'],
+      ['KEEP','X','UP','F','G','H','I'],
       ['J','K','L','M','N','O','P'],
       ['Q','R','S','T','U','V','W'],
       ['AA','BB','CC','DD','EE','FF','GG'],
@@ -184,18 +184,17 @@ test('round validity is scoped to active relationship ids, not the global bank',
     ]
   };
   const game=createGameController({
-    bank:scopedBank,levels:[level],initialLevelId:'S',rng:seeded(5),storage:createFakeStorage()
+    bank:curatedBank,levels:[level],initialLevelId:'CURATED',rng:seeded(5),storage:createFakeStorage()
   });
   const state=game.state();
   assert.deepEqual(state.activeRelationshipIds,['look-after']);
-  assert.equal(state.readyMatches.some(match=>match.relationshipId==='after-look'),false);
+  assert.equal(state.readyMatches.some(match=>match.relationshipId==='keep-in'),true);
 
   const x=tile(state,1,'X');
   const up=tile(state,1,'UP');
-  assert.equal(game.attemptSwap(x.id,up.id).status,'rebound');
-  assert.equal(game.state().readyMatches.some(match=>match.relationshipId==='look-up'),false);
+  assert.equal(game.attemptSwap(x.id,up.id).status,'accepted');
+  assert.equal(game.state().readyMatches.some(match=>match.relationshipId==='keep-up'),true);
 });
-
 
 test('reaching score target on POP does not end round while moves remain',()=>{
   const storage=createFakeStorage();
