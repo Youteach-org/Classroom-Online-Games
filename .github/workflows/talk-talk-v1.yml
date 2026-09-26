@@ -16,8 +16,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run shared COG tests
         run: node --test tests/*.test.mjs
-      - name: Run Talk Talk tests
-        run: node --test Talk-Talk/tests/*.test.mjs
+      - name: Run Talk Talk tests except live teacher
+        run: |
+          find Talk-Talk/tests -name '*.test.mjs' ! -name 'teacher-live.test.mjs' -print0 | xargs -0 node --test
+      - name: Run Talk Talk live teacher tests
+        run: node --test Talk-Talk/tests/teacher-live.test.mjs
       - name: Run Verb Runner tests
         run: node --test Verb-Runner/tests/*.test.mjs
       - name: Run Support Meter tests
