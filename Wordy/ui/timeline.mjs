@@ -50,6 +50,43 @@ async function defaultAnimateRemoval(root,event){
   renderBoardSnapshot(root,event.boardAfterRemoval,{disabled:true});
 }
 
+export function gravityAnimationSpec(from,to){
+  const dx=Number(from?.left??0)-Number(to?.left??0);
+  const dy=Number(from?.top??0)-Number(to?.top??0);
+  const distance=Math.hypot(dx,dy);
+  const duration=Math.round(Math.min(680,Math.max(480,380+distance*0.85)));
+  return {
+    keyframes:[
+      {transform:`translate(${dx}px,${dy}px)`},
+      {offset:.84,transform:'translate(0px,8px)'},
+      {transform:'translate(0px,0px)'}
+    ],
+    options:{
+      duration,
+      easing:'cubic-bezier(.18,.72,.18,1)',
+      fill:'both'
+    }
+  };
+}
+
+export function refillAnimationSpec({dy,row=0,column=0}={}){
+  const distance=Math.abs(Number(dy)||0);
+  const duration=Math.round(Math.min(720,Math.max(520,440+distance*0.65)));
+  return {
+    keyframes:[
+      {transform:`translateY(${Number(dy)||0}px)`,opacity:.28},
+      {offset:.84,transform:'translateY(8px)',opacity:1},
+      {transform:'translateY(0px)',opacity:1}
+    ],
+    options:{
+      duration,
+      delay:Math.max(0,Number(column)||0)*10+Math.max(0,Number(row)||0)*8,
+      easing:'cubic-bezier(.18,.72,.18,1)',
+      fill:'both'
+    }
+  };
+}
+
 async function defaultAnimateGravity(root,event){
   if(!event?.boardAfterRemoval||!event?.boardAfterGravity)return;
   const node=boardNode(root);
@@ -66,14 +103,8 @@ async function defaultAnimateGravity(root,event){
     const dx=from.left-to.left;
     const dy=from.top-to.top;
     if(Math.abs(dx)<0.5&&Math.abs(dy)<0.5)continue;
-    animations.push(runAnimation(tile,[
-      {transform:`translate(${dx}px,${dy}px)`},
-      {transform:'translate(0px,0px)'}
-    ],{
-      duration:300,
-      easing:'cubic-bezier(.22,.78,.18,1)',
-      fill:'both'
-    }));
+    const spec=gravityAnimationSpec(from,to);
+    animations.push(runAnimation(tile,spec.keyframes,spec.options));
   }
   await Promise.all(animations);
 }
@@ -97,14 +128,12 @@ async function defaultAnimateRefill(root,event){
     const dy=boardRect
       ?Math.min(-fallbackDistance,boardRect.top-rect.bottom-12)
       :-fallbackDistance;
-    animations.push(runAnimation(tile,[
-      {transform:`translateY(${dy}px)`,opacity:.72},
-      {transform:'translateY(0px)',opacity:1}
-    ],{
-      duration:340,
-      easing:'cubic-bezier(.18,.82,.2,1)',
-      fill:'both'
-    }));
+    const spec=refillAnimationSpec({
+      dy,
+      row:Number(tile?.dataset?.row??0),
+      column:Number(tile?.dataset?.column??0)
+    });
+    animations.push(runAnimation(tile,spec.keyframes,spec.options));
   }
   await Promise.all(animations);
 }
