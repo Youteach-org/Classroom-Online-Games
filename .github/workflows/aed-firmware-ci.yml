@@ -74,6 +74,17 @@ jobs:
           chmod +x "$MKLITTLEFS"
           "$MKLITTLEFS"             -c dist/littlefs-root             -p 256             -b 4096             -s 0x1F0000             dist/package/littlefs.bin
 
+      - name: Bundle official Windows esptool
+        run: |
+          curl -L --fail             -o dist/esptool-windows.zip             https://github.com/espressif/esptool/releases/download/v5.3.1/esptool-v5.3.1-windows-amd64.zip
+          echo "2b4a73c45db27426685896f64ce3e557f63a64f43cc100cb65c0cc3486af96d3  dist/esptool-windows.zip" | sha256sum -c -
+          mkdir -p dist/esptool-windows
+          unzip -q dist/esptool-windows.zip -d dist/esptool-windows
+          ESPTOOL_WIN="$(find dist/esptool-windows -type f -iname 'esptool.exe' | head -n 1)"
+          test -n "$ESPTOOL_WIN"
+          cp "$ESPTOOL_WIN" dist/package/esptool.exe
+          test -s dist/package/esptool.exe
+
       - name: Assemble flashable package
         run: |
           BOOTLOADER="$(find dist/build -maxdepth 1 -type f -name '*bootloader.bin' | head -n 1)"
@@ -89,7 +100,7 @@ jobs:
           cp "$FIRMWARE" dist/package/firmware.bin
 
           cp Medicine/AED-Trainer/firmware/FLASHING.md dist/package/FLASHING.md
-          cp Medicine/AED-Trainer/firmware/flash-windows.bat dist/package/flash-windows.bat
+          cp Medicine/AED-Trainer/firmware/flash-windows.bat dist/package/INSTALAR-V7.bat
           cp Medicine/AED-Trainer/firmware/flash-linux-macos.sh dist/package/flash-linux-macos.sh
           chmod +x dist/package/flash-linux-macos.sh
 
@@ -117,7 +128,7 @@ jobs:
       - name: Upload flashable package
         uses: actions/upload-artifact@v4
         with:
-          name: aed-esp32-wroom-flash-package
+          name: DEA-V7
           path: dist/package/
           if-no-files-found: error
           retention-days: 30
