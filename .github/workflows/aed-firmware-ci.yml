@@ -8,12 +8,14 @@ on:
     paths:
       - "Medicine/AED-Trainer/firmware/**"
       - "Medicine/AED-Trainer/audio/assets/**"
+      - "Medicine/AED-Trainer/audio/tools/**"
       - "Medicine/AED-Trainer/audio/manifest.json"
       - ".github/workflows/aed-firmware-ci.yml"
   pull_request:
     paths:
       - "Medicine/AED-Trainer/firmware/**"
       - "Medicine/AED-Trainer/audio/assets/**"
+      - "Medicine/AED-Trainer/audio/tools/**"
       - "Medicine/AED-Trainer/audio/manifest.json"
       - ".github/workflows/aed-firmware-ci.yml"
   workflow_dispatch:
@@ -43,10 +45,19 @@ jobs:
           mkdir -p dist/build dist/package
           arduino-cli compile             --fqbn esp32:esp32:esp32             --output-dir dist/build             Medicine/AED-Trainer/firmware/aed-trainer
 
+      - name: Prepare classroom voice pack
+        run: |
+          mkdir -p dist/classroom-audio
+          for src in Medicine/AED-Trainer/audio/assets/*.wav; do
+            dst="dist/classroom-audio/$(basename "$src")"
+            ffmpeg -hide_banner -loglevel error -y               -i "$src"               -af "highpass=f=140,lowpass=f=4500,acompressor=threshold=0.10:ratio=4:attack=5:release=100:makeup=2,loudnorm=I=-13:LRA=4:TP=-1.0,alimiter=limit=0.95"               -ac 1 -ar 10000 -c:a adpcm_ima_wav "$dst"
+          done
+          test "$(find dist/classroom-audio -maxdepth 1 -name '*.wav' | wc -l)" -eq 61
+
       - name: Build LittleFS voice image
         run: |
           mkdir -p dist/littlefs-root/audio
-          cp Medicine/AED-Trainer/audio/assets/*.wav dist/littlefs-root/audio/
+          cp dist/classroom-audio/*.wav dist/littlefs-root/audio/
 
           MKLITTLEFS="$(find "$HOME/.arduino15/packages/esp32/tools" -type f -name mklittlefs | head -n 1)"
           if [ -z "$MKLITTLEFS" ]; then
