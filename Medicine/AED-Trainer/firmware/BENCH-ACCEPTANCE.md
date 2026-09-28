@@ -11,9 +11,10 @@ The trainer is **simulation-only**. There is no therapeutic/high-voltage output.
 - MAX98357A I2S mono amplifier.
 - 3 ohm / 3 W speaker.
 - Physical momentary SHOCK button on GPIO32 to GND with `INPUT_PULLUP`.
-- START/PAUSE button on GPIO33 to GND.
+- START button on GPIO33 to GND.
 - MODE button on GPIO14 to GND.
-- RESET button on GPIO13 to GND.
+- PADS/OK button on GPIO13 to GND.
+- RESET button on GPIO17 to GND.
 - BCLK GPIO27, LRC GPIO26, audio DOUT GPIO25.
 - No Hall sensors or magnets.
 
@@ -42,7 +43,9 @@ The trainer is **simulation-only**. There is no therapeutic/high-voltage output.
 
 - [ ] With BLE disconnected, MODE cycles A1 through A8 while the trainer is idle.
 - [ ] With BLE disconnected, START launches the selected local base case.
-- [ ] During an active local case, START pauses and a second press resumes.
+- [ ] After the pad-placement instruction, the trainer waits indefinitely and does not analyze by itself.
+- [ ] PADS/OK confirms pad placement and starts simulated analysis.
+- [ ] A scripted contact fault returns to pad placement and requires PADS/OK again.
 - [ ] RESET returns the trainer to idle without requiring BLE.
 - [ ] Teacher Monitor may connect or disconnect without stopping the local case.
 - [ ] The idle screen says START can begin locally and BLE is optional.
