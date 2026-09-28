@@ -153,6 +153,22 @@ int main() {
     assert(outcome.value() == AnalysisOutcome::NO_SHOCK);
   }
 
+  {
+    TrainerCore core;
+    assert(core.loadCase({"A1", "T0", "C0"}));
+    assert(!core.pauseCase());
+    assert(core.startCase());
+    assert(core.pauseCase());
+    assert(core.snapshot().paused);
+    assert(!core.pauseCase());
+    assert(core.resumeCase());
+    assert(!core.snapshot().paused);
+    assert(!core.resumeCase());
+    assert(core.endCase());
+    assert(core.state() == TrainerState::OFF);
+    assert(!core.endCase());
+  }
+
   std::cout << "trainer-core tests passed\n";
   return 0;
 }
