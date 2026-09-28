@@ -1,0 +1,230 @@
+{
+  "project": "Oral-Grader",
+  "stage": 2,
+  "pair_slug": "adrian",
+  "model": "gemini-3.5-flash-lite",
+  "stage1_source": "Oral-Grader/transcripts/adrian-stage1.json",
+  "stage1_review": "Oral-Grader/reviews/adrian-stage1-review.json",
+  "speaker_mapping": {
+    "spk:0": "Teacher",
+    "spk:1": "Adrian"
+  },
+  "students": {
+    "Adrian": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 8,
+      "uncertain_count": 0,
+      "grammar_patterns": [
+        "Plural/singular mismatch ('friend have' instead of 'a friend has').",
+        "Pronoun slip ('he always' corrected to 'she always').",
+        "Singular/plural mismatch ('bad or good situation' instead of 'bad or good situations').",
+        "Tense shift ('I meet I met' / 'I have like a friendship').",
+        "Missing object pronoun after support ('support her').",
+        "Tense consistency slip ('I have' vs 'I had').",
+        "Subject-verb agreement error ('hands was' instead of 'hands were').",
+        "Self-correction from present to past tense."
+      ],
+      "vocabulary_patterns": [],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Adrian: Shows frequent pausing, restarts, and fillers ('like', 'um', 'well') when searching for vocabulary and structuring longer descriptive turns.",
+        "Adrian: Demonstrates generally smooth pacing during narrative recounts despite minor hesitation."
+      ],
+      "teacher_interventions": [
+        {
+          "student": "Adrian",
+          "start_offset": "319.700s",
+          "end_offset": "320.100s",
+          "kind": "other",
+          "description": "Teacher models the correct pronunciation of 'psychologist'."
+        }
+      ],
+      "notes_for_rubric": []
+    }
+  },
+  "evidence": [
+    {
+      "speaker": "Adrian",
+      "start_offset": "37.500s",
+      "end_offset": "47.700s",
+      "stage1_heard": "very good friend have like like a loyalty. It's loyalty, it's like polite",
+      "reviewed_heard": "very good friend have like like a loyalty. It's loyalty, it's like polite",
+      "intended": "A very good friend has qualities like loyalty. It's loyalty, being polite,",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Plural/singular mismatch ('friend have' instead of 'a friend has').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Adrian",
+      "start_offset": "98.900s",
+      "end_offset": "104.500s",
+      "stage1_heard": "Well, my best friend uh she's well, her name is Rennie and I love her so much because he always she always",
+      "reviewed_heard": "Well, my best friend uh she's well, her name is Rennie and I love her so much because he always she always",
+      "intended": "Well, my best friend, her name is Rennie, and I love her so much because she always",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Pronoun slip ('he always' corrected to 'she always').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Adrian",
+      "start_offset": "111s",
+      "end_offset": "115.100s",
+      "stage1_heard": "in your bad or good situation",
+      "reviewed_heard": "in your bad or good situation",
+      "intended": "in your bad or good situations",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Singular/plural mismatch ('bad or good situation' instead of 'bad or good situations').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Adrian",
+      "start_offset": "164s",
+      "end_offset": "170s",
+      "stage1_heard": "I meet meet I met her and when I was I think six and I have like a friendship. So good.",
+      "reviewed_heard": "I meet meet I met her and when I was I think six and I have like a friendship. So good.",
+      "intended": "I met her when I was about six, and we've had a very good friendship.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Tense shift ('I meet I met' / 'I have like a friendship').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Adrian",
+      "start_offset": "236.400s",
+      "end_offset": "241s",
+      "stage1_heard": "I'm going to support in everything so something like that",
+      "reviewed_heard": "I'm going to support in everything so something like that",
+      "intended": "I'm going to support her in everything, something like that.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Missing object pronoun after support ('support her').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Adrian",
+      "start_offset": "260.500s",
+      "end_offset": "266s",
+      "stage1_heard": "because I have a lot well, I had a lot of exams and it was so like um like stressful and hard because I have well,",
+      "reviewed_heard": "because I have a lot well, I had a lot of exams and it was so like um like stressful and hard because I have well,",
+      "intended": "because I had a lot of exams, and it was stressful and hard because I had...",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Tense consistency slip ('I have' vs 'I had').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Adrian",
+      "start_offset": "310.200s",
+      "end_offset": "312.400s",
+      "stage1_heard": "my hands was shaking a lot",
+      "reviewed_heard": "my hands was shaking a lot",
+      "intended": "my hands were shaking a lot",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Subject-verb agreement error ('hands was' instead of 'hands were').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Adrian",
+      "start_offset": "422s",
+      "end_offset": "426s",
+      "stage1_heard": "I have a lot well, I had a lot of exams",
+      "reviewed_heard": "I have a lot well, I had a lot of exams",
+      "intended": "I had a lot of exams",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Self-correction from present to past tense.",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    }
+  ],
+  "fluency_observations": [
+    "Adrian: Shows frequent pausing, restarts, and fillers ('like', 'um', 'well') when searching for vocabulary and structuring longer descriptive turns.",
+    "Adrian: Demonstrates generally smooth pacing during narrative recounts despite minor hesitation."
+  ],
+  "teacher_interventions": [
+    {
+      "student": "Adrian",
+      "start_offset": "319.700s",
+      "end_offset": "320.100s",
+      "kind": "other",
+      "description": "Teacher models the correct pronunciation of 'psychologist'."
+    }
+  ],
+  "scoring_status": "evidence_only_not_final_rubric"
+}
