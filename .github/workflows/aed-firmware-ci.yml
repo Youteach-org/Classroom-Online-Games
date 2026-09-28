@@ -40,6 +40,11 @@ jobs:
           arduino-cli lib install "Adafruit GFX Library"
           arduino-cli lib install "Adafruit SSD1306"
 
+      - name: Install FFmpeg for classroom mastering
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
       - name: Compile AED bench firmware
         run: |
           mkdir -p dist/build dist/package
