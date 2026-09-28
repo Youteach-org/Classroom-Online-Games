@@ -47,3 +47,9 @@ test("WAV playback is constrained to mono PCM16 and duplicated to stereo I2S", (
   assert.match(cpp, /stereo\[i\s*\*\s*2\]/);
   assert.match(cpp, /stereo\[i\s*\*\s*2\s*\+\s*1\]/);
 });
+
+test("audio player exposes a local CPR metronome click independent of voice files", () => {
+  assert.match(header, /bool\s+playMetronomeClick\s*\(/);
+  assert.match(cpp, /playMetronomeClick/);
+  assert.match(cpp, /16000/);
+});
