@@ -53,6 +53,10 @@ int main() {
   assert(status.find("battery=88") != std::string::npos);
   assert(status.size() < 180);
 
+  const auto unknownBattery = BleProtocol::encodeDeviceStatus(
+      2, "AED_TRAINER_001", "0.1.0", -1);
+  assert(unknownBattery.find("battery=") == std::string::npos);
+
   const auto state = BleProtocol::encodeTrainerState(2, "AED_TRAINER_001", "CPR", "A8", "T4", "C12", 3, false, true, 2);
   assert(state.find("v=1;type=state;seq=2") == 0);
   assert(state.find("state=CPR") != std::string::npos);
