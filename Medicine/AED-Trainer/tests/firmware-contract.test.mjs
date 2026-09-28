@@ -109,3 +109,15 @@ test("standalone physical controls remain available without BLE",()=>{
   assert.match(sketch,/BLE opcional/);
   assert.doesNotMatch(sketch,/Conecte Teacher Monitor por Bluetooth/);
 });
+
+
+test("standalone AED pacing includes inter-prompt and stage pauses",()=>{
+  const sketch=readFileSync(join(firmwareRoot,"aed-trainer.ino"),"utf8");
+  assert.match(sketch,/kInterPromptGapMs\s*=\s*1200/);
+  assert.match(sketch,/kApplyPadsDelayMs\s*=\s*8000/);
+  assert.match(sketch,/kAnalysisSettleMs\s*=\s*3000/);
+  assert.match(sketch,/kShockArmDelayMs\s*=\s*1800/);
+  assert.match(sketch,/kNoShockToCprMs\s*=\s*1800/);
+  assert.match(sketch,/nextPromptAllowedAt/);
+  assert.match(sketch,/promptGapReady/);
+});
