@@ -19,3 +19,14 @@ Status: CONFIRMED
 12. The Teacher Monitor is the canonical live supervisory surface for the instructor: current AED step, pad/electrode state, educational ECG waveform, heart rate/R-R metrics, simulated-shock events, CPR state and event log.
 13. When electrodes are attached to a real person, the trainer must run from battery power and use BLE for live monitoring; do not keep it tethered by USB to a mains-powered computer.
 14. The root Classroom Online Games page may show the Medicine access card on the feature branch, but not on production `main` until the project is ready.
+
+## OLED HMI decision — confirmed 2026-09-27
+
+15. The selected 0.96-inch 128x64 I2C OLED has been bench-tested and is operational at address `0x3C`.
+16. The installed panel is physically two-color: a yellow upper band and a blue lower area. The colors are fixed by the panel hardware; firmware does not choose yellow vs. blue per pixel.
+17. The AED HMI must deliberately use that physical split:
+   - **yellow upper band:** short title, current high-priority state, or critical warning such as `NO TOCAR`, `SHOCK`, `RCP`, `ANALIZANDO`, `PARCHES` or `ERROR`;
+   - **blue lower area:** operational instructions, CPR countdown, pad status, battery/BLE status, shock count and secondary information.
+18. Layouts must keep warning/title text inside the yellow band and operational information inside the blue area. The two-color split is a permanent UI constraint for the physical trainer.
+19. Bench validation included full-on/full-off, checkerboard inversion, horizontal/vertical line tests, grid, sweeps and progressive pixel filling; no display-cell faults were observed.
+20. The temporary bench validation used an ESP32-WROOM-32 with SDA on GPIO 21 and SCL on GPIO 22. Those pins are test-bench wiring only and do not override the final ESP32-S3 pin map.
