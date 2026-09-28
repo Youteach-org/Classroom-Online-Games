@@ -333,6 +333,10 @@ CommandResult TrainerCore::applyRemoteCommand(std::uint32_t seq, const std::stri
   return {true, {}};
 }
 
+void TrainerCore::resetRemoteSequenceNamespace() {
+  seenCommandSeqs_.clear();
+}
+
 TrainerSnapshot TrainerCore::snapshot() const {
   return {
       config_, state_, analysisIndex_, nextOverride_, pendingOutcome_, hintsUsed_, simulatedShockCount_,
