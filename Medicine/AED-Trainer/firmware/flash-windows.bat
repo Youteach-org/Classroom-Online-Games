@@ -109,19 +109,7 @@ if "%PORT%"=="" (
   exit /b 1
 )
 
-echo %PORT% | findstr /r /i "^COM[0-9][0-9]*$" >nul
-if errorlevel 1 (
-  echo %PORT% | findstr /r "^[0-9][0-9]*$" >nul
-  if not errorlevel 1 set "PORT=COM%PORT%"
-)
-
-echo %PORT% | findstr /r /i "^COM[0-9][0-9]*$" >nul
-if errorlevel 1 (
-  echo ERROR: Puerto no valido: %PORT%
-  echo Usa un formato como COM9.
-  pause
-  exit /b 1
-)
+if /i not "%PORT:~0,3%"=="COM" set "PORT=COM%PORT%"
 
 echo.
 echo Puerto seleccionado: %PORT%
