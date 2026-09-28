@@ -74,3 +74,15 @@ test("BLE callbacks only enqueue work and main loop polls it into TrainerCore",(
   assert.doesNotMatch(callbackBody,/core_|handleCommandWire/);
   assert.match(callbackBody,/queueCommandWire/);
 });
+
+
+test("final display is the tested 128x64 SSD1306 OLED on I2C 21/22, not the provisional TFT",()=>{
+  const config=readFileSync(join(firmwareRoot,"hardware-config.h"),"utf8");
+  const display=readFileSync(join(firmwareRoot,"display-adapter.cpp"),"utf8");
+  assert.match(config,/OLED_SDA\s*=\s*21/);
+  assert.match(config,/OLED_SCL\s*=\s*22/);
+  assert.match(config,/OLED_ADDRESS\s*=\s*0x3C/);
+  assert.match(display,/Adafruit_SSD1306/);
+  assert.match(display,/Wire\.begin\(HardwareConfig::OLED_SDA,\s*HardwareConfig::OLED_SCL\)/);
+  assert.doesNotMatch(config+display,/ST7789|TFT_|Adafruit_ST77|SPI\.begin/);
+});
