@@ -93,6 +93,26 @@ int main() {
     assert(before == after);
   }
 
+
+  {
+    TrainerCore core;
+    assert(core.loadCase({"A1", "T1", "C1"}));
+    assert(core.startCase());
+    const std::vector<std::string> expectedPrompts{
+      "AED_STARTUP",
+      "AED_CALL_HELP",
+      "AED_EXPOSE_CHEST",
+      "PARAMEDIC_CONTEXT_WET_CHEST",
+      "PARAMEDIC_CONTEXT_PREGNANCY"
+    };
+    for (const auto& expected : expectedPrompts) {
+      const auto prompt = core.popPrompt();
+      assert(prompt.has_value());
+      assert(prompt.value() == expected);
+    }
+    assert(!core.popPrompt().has_value());
+  }
+
   std::cout << "trainer-core tests passed\n";
   return 0;
 }
