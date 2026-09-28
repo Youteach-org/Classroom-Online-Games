@@ -17,6 +17,9 @@ namespace {
 I2SClass I2S;
 bool i2sActive = false;
 
+constexpr std::int32_t kVoiceGainNumerator = 3;
+constexpr std::int32_t kVoiceGainDenominator = 2;
+
 std::uint16_t readLe16(const std::uint8_t* p) {
   return static_cast<std::uint16_t>(p[0]) |
          (static_cast<std::uint16_t>(p[1]) << 8);
@@ -146,7 +149,11 @@ bool writeMonoAsStereo(const std::int16_t* mono, std::size_t samples) {
   while (offset < samples) {
     const std::size_t count = std::min(kChunk, samples - offset);
     for (std::size_t i = 0; i < count; ++i) {
-      const auto sample = mono[offset + i];
+      const std::int32_t boosted =
+          (static_cast<std::int32_t>(mono[offset + i]) * kVoiceGainNumerator) /
+          kVoiceGainDenominator;
+      const auto sample = static_cast<std::int16_t>(
+          std::clamp<std::int32_t>(boosted, -32768, 32767));
       stereo[i * 2] = sample;
       stereo[i * 2 + 1] = sample;
     }
@@ -308,7 +315,7 @@ bool AudioPlayer::playPrompt(const std::string& promptId) {
 
 bool AudioPlayer::playStartupTone() {
   constexpr std::uint32_t kRate = 16000;
-  constexpr std::int16_t kAmplitude = 5000;
+  constexpr std::int16_t kAmplitude = 12000;
 
   if (!startI2s(kRate)) return false;
 
@@ -358,7 +365,7 @@ bool AudioPlayer::playMetronomeClick() {
   constexpr std::uint32_t kRate = 16000;
   constexpr std::size_t kFrames = 480;  // 30 ms
   constexpr std::size_t kChunkFrames = 128;
-  constexpr std::int16_t kAmplitude = 6000;
+  constexpr std::int16_t kAmplitude = 12000;
 
   if (!startI2s(kRate)) return false;
 
