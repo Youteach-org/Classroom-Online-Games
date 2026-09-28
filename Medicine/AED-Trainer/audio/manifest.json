@@ -1,0 +1,560 @@
+{
+  "schemaVersion": 1,
+  "storage": "LittleFS internal flash",
+  "format": "WAV IMA-ADPCM mono",
+  "sampleRate": 10000,
+  "budgetBytes": 1750000,
+  "totalBytes": 1480294,
+  "sourceDurationSeconds": 287.0857142857143,
+  "clips": [
+    {
+      "filename": "aed-startup.wav",
+      "bytes": 20574,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 3.8922448979591837
+    },
+    {
+      "filename": "aed-call-help.wav",
+      "bytes": 14430,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 2.6644897959183673
+    },
+    {
+      "filename": "aed-expose-chest.wav",
+      "bytes": 11358,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 2.1681632653061222
+    },
+    {
+      "filename": "aed-attach-pads.wav",
+      "bytes": 13406,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 2.5338775510204083
+    },
+    {
+      "filename": "aed-check-pads.wav",
+      "bytes": 10334,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 2.0114285714285716
+    },
+    {
+      "filename": "aed-analyzing.wav",
+      "bytes": 21598,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.12734693877551
+    },
+    {
+      "filename": "aed-shock-advised.wav",
+      "bytes": 22622,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.440816326530612
+    },
+    {
+      "filename": "aed-press-shock.wav",
+      "bytes": 11358,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 2.1420408163265305
+    },
+    {
+      "filename": "aed-shock-delivered.wav",
+      "bytes": 10334,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 1.933061224489796
+    },
+    {
+      "filename": "aed-no-shock.wav",
+      "bytes": 11358,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 2.1681632653061222
+    },
+    {
+      "filename": "aed-begin-cpr.wav",
+      "bytes": 9310,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 1.6979591836734693
+    },
+    {
+      "filename": "aed-continue-cpr.wav",
+      "bytes": 10334,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 1.933061224489796
+    },
+    {
+      "filename": "aed-reassess.wav",
+      "bytes": 13406,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 2.507755102040816
+    },
+    {
+      "filename": "paramedic-context-wet-chest.wav",
+      "bytes": 27742,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.40734693877551
+    },
+    {
+      "filename": "paramedic-hint-wet-chest.wav",
+      "bytes": 24670,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.83265306122449
+    },
+    {
+      "filename": "paramedic-context-medication-patch.wav",
+      "bytes": 26718,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.146122448979592
+    },
+    {
+      "filename": "paramedic-hint-medication-patch.wav",
+      "bytes": 27742,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.328979591836735
+    },
+    {
+      "filename": "paramedic-context-implanted-device.wav",
+      "bytes": 22622,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.440816326530612
+    },
+    {
+      "filename": "paramedic-hint-implanted-device.wav",
+      "bytes": 30814,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 6.0081632653061225
+    },
+    {
+      "filename": "paramedic-context-chest-hair.wav",
+      "bytes": 26718,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.12
+    },
+    {
+      "filename": "paramedic-hint-chest-hair.wav",
+      "bytes": 23646,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.649795918367347
+    },
+    {
+      "filename": "paramedic-context-pediatric.wav",
+      "bytes": 17502,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 3.369795918367347
+    },
+    {
+      "filename": "paramedic-hint-pediatric.wav",
+      "bytes": 29790,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.877551020408164
+    },
+    {
+      "filename": "paramedic-context-person-touching.wav",
+      "bytes": 21598,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.153469387755102
+    },
+    {
+      "filename": "paramedic-hint-person-touching.wav",
+      "bytes": 23646,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.6236734693877555
+    },
+    {
+      "filename": "paramedic-context-movement.wav",
+      "bytes": 21598,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.12734693877551
+    },
+    {
+      "filename": "paramedic-hint-movement.wav",
+      "bytes": 28766,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.5902040816326535
+    },
+    {
+      "filename": "paramedic-context-electrical-hazard.wav",
+      "bytes": 22622,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.41469387755102
+    },
+    {
+      "filename": "paramedic-hint-electrical-hazard.wav",
+      "bytes": 23646,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.493061224489796
+    },
+    {
+      "filename": "paramedic-context-pregnancy.wav",
+      "bytes": 21598,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.12734693877551
+    },
+    {
+      "filename": "paramedic-hint-pregnancy.wav",
+      "bytes": 27742,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.459591836734694
+    },
+    {
+      "filename": "paramedic-context-opioid-arrest.wav",
+      "bytes": 34910,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 6.922448979591837
+    },
+    {
+      "filename": "paramedic-hint-opioid-arrest.wav",
+      "bytes": 28766,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.616326530612245
+    },
+    {
+      "filename": "paramedic-context-opioid-pulse.wav",
+      "bytes": 25694,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.067755102040817
+    },
+    {
+      "filename": "paramedic-hint-opioid-pulse.wav",
+      "bytes": 27742,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.328979591836735
+    },
+    {
+      "filename": "paramedic-context-drowning.wav",
+      "bytes": 23646,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.6236734693877555
+    },
+    {
+      "filename": "paramedic-hint-drowning.wav",
+      "bytes": 30814,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 6.086530612244898
+    },
+    {
+      "filename": "paramedic-context-hypothermia.wav",
+      "bytes": 29790,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.773061224489796
+    },
+    {
+      "filename": "paramedic-hint-hypothermia.wav",
+      "bytes": 31838,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 6.164897959183674
+    },
+    {
+      "filename": "paramedic-context-hyperthermia.wav",
+      "bytes": 23646,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.493061224489796
+    },
+    {
+      "filename": "paramedic-hint-hyperthermia.wav",
+      "bytes": 30814,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 6.112653061224489
+    },
+    {
+      "filename": "paramedic-context-electrocution.wav",
+      "bytes": 21598,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.12734693877551
+    },
+    {
+      "filename": "paramedic-hint-electrocution.wav",
+      "bytes": 33886,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 6.661224489795918
+    },
+    {
+      "filename": "paramedic-context-anaphylaxis.wav",
+      "bytes": 32862,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 6.373877551020408
+    },
+    {
+      "filename": "paramedic-hint-anaphylaxis.wav",
+      "bytes": 31838,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 6.217142857142857
+    },
+    {
+      "filename": "paramedic-context-asthma.wav",
+      "bytes": 26718,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.198367346938776
+    },
+    {
+      "filename": "paramedic-hint-asthma.wav",
+      "bytes": 25694,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.0416326530612245
+    },
+    {
+      "filename": "paramedic-context-poisoning.wav",
+      "bytes": 29790,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.877551020408164
+    },
+    {
+      "filename": "paramedic-hint-poisoning.wav",
+      "bytes": 32862,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 6.373877551020408
+    },
+    {
+      "filename": "paramedic-context-pe.wav",
+      "bytes": 26718,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.198367346938776
+    },
+    {
+      "filename": "paramedic-hint-pe.wav",
+      "bytes": 27742,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.328979591836735
+    },
+    {
+      "filename": "paramedic-context-lvad.wav",
+      "bytes": 29790,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.746938775510204
+    },
+    {
+      "filename": "paramedic-hint-lvad.wav",
+      "bytes": 20574,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.0751020408163265
+    },
+    {
+      "filename": "paramedic-context-electrolytes.wav",
+      "bytes": 30814,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 6.034285714285715
+    },
+    {
+      "filename": "paramedic-hint-electrolytes.wav",
+      "bytes": 23646,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.493061224489796
+    },
+    {
+      "filename": "paramedic-context-airway-obstruction.wav",
+      "bytes": 24670,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.858775510204081
+    },
+    {
+      "filename": "paramedic-hint-airway-obstruction.wav",
+      "bytes": 30814,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 6.0081632653061225
+    },
+    {
+      "filename": "paramedic-context-rosc-signs.wav",
+      "bytes": 25694,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.0416326530612245
+    },
+    {
+      "filename": "paramedic-hint-rosc-signs.wav",
+      "bytes": 30814,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.955918367346939
+    },
+    {
+      "filename": "paramedic-context-rearrest.wav",
+      "bytes": 30814,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 5.955918367346939
+    },
+    {
+      "filename": "paramedic-hint-rearrest.wav",
+      "bytes": 25694,
+      "codec": "adpcm_ima_wav",
+      "sampleRate": 10000,
+      "channels": 1,
+      "bitsPerSample": 4,
+      "sourceDurationSeconds": 4.937142857142857
+    }
+  ]
+}
