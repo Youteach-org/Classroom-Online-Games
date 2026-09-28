@@ -238,9 +238,14 @@ void setup() {
 }
 
 void loop() {
-  // BLE callbacks may have changed the authoritative core since the last loop.
-  syncStateView();
+  // BLE callbacks only enqueue transport work. TrainerCore is mutated here,
+  // from the loop task, so audio/display work cannot race the BLE stack.
+  ble.poll();
+
+  // Apply pause-clock bookkeeping before rendering a remote restart/end so a
+  // state change resets its timer after, not before, the pause adjustment.
   syncPauseClock();
+  syncStateView();
 
   // Keep the physical button path local. BLE can change scenario state but never
   // generates a fake physical button edge.
