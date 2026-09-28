@@ -1,68 +1,69 @@
-# Flashing the AED trainer — ESP32-WROOM-32
+# Instalación del DEA educativo — ESP32-WROOM-32
 
-This package is for the **current 4 MB ESP32-WROOM-32 bench prototype**.
+Este paquete corresponde al prototipo actual con **ESP32-WROOM-32 de 4 MB**.
 
-It contains:
+Incluye el firmware completo y los 61 audios locales. El DEA funciona de forma autónoma; Teacher Monitor es opcional por Bluetooth.
 
-- `bootloader.bin`
-- `partitions.bin`
-- `firmware.bin`
-- `littlefs.bin` — the 61 local AED/paramedic voice clips
-- Windows and Linux/macOS flashing scripts
-- SHA-256 checksums
+## Conexiones actuales
 
-The flash layout is fixed by the project's current `partitions.csv`:
+### OLED SSD1306 bicolor 128x64
 
-| Offset | File |
+- VCC → 3V3
+- GND → GND
+- SDA → GPIO21
+- SCL → GPIO22
+- dirección I2C → 0x3C
+
+### MAX98357A
+
+- VIN → VIN/5V
+- GND → GND
+- DIN → GPIO25
+- LRC/WS → GPIO26
+- BCLK → GPIO27
+- SD → 3V3
+- GAIN → GND para 12 dB si se desea mayor volumen
+- bocina únicamente entre SPK+ y SPK−
+
+### Botones
+
+Todos son pulsadores momentáneos entre GPIO y GND; el firmware usa INPUT_PULLUP.
+
+- START → GPIO33
+- MODE → GPIO14
+- PADS/OK → GPIO13
+- RESET → GPIO17
+- SHOCK → GPIO32
+
+## Instalación en Windows
+
+1. Descomprime todo el ZIP en una carpeta.
+2. Cierra Arduino Serial Monitor, VS Code y cualquier programa que esté usando el puerto del ESP32.
+3. Ejecuta `flash-windows.bat`.
+4. Escribe el puerto, por ejemplo `COM9`.
+5. Confirma con `S`.
+
+El instalador borra la flash y escribe automáticamente:
+
+| Offset | Archivo |
 |---:|---|
-| `0x1000` | `bootloader.bin` |
-| `0x8000` | `partitions.bin` |
-| `0x10000` | `firmware.bin` |
-| `0x210000` | `littlefs.bin` |
+| 0x1000 | bootloader.bin |
+| 0x8000 | partitions.bin |
+| 0x10000 | firmware.bin |
+| 0x210000 | littlefs.bin |
 
-## Before flashing
+## Primer arranque esperado
 
-Use the working ESP32-WROOM-32 board with its USB connection. The TFT, MAX98357A and SHOCK button may remain connected using the documented bench wiring.
+Al encender:
 
-Install Python 3 and esptool once:
+1. Deben escucharse dos tonos de autoprueba.
+2. La OLED muestra el DEA listo.
+3. MODE selecciona A1–A8.
+4. START inicia el caso.
+5. El DEA se detiene en colocación de electrodos hasta pulsar PADS/OK.
+6. Durante análisis se muestra un ECG educativo simulado.
+7. Si procede descarga, aparecen triángulos de advertencia y el equipo espera SHOCK.
+8. Durante RCP la OLED muestra el cronómetro 02:00 → 00:00 y el metrónomo funciona a 110/min.
+9. Después de los dos minutos se realiza el siguiente análisis.
 
-### Windows
-
-```bat
-py -m pip install --upgrade esptool
-```
-
-### Linux / macOS
-
-```bash
-python3 -m pip install --upgrade esptool
-```
-
-## Windows
-
-Open a terminal in the extracted package folder and run, replacing `COM5` with the board's actual port:
-
-```bat
-flash-windows.bat COM5
-```
-
-## Linux / macOS
-
-Replace `/dev/ttyUSB0` with the actual serial device:
-
-```bash
-./flash-linux-macos.sh /dev/ttyUSB0
-```
-
-The first-flash scripts deliberately erase the complete 4 MB flash before writing the new bootloader, partition table, firmware and LittleFS image. This avoids leaving an incompatible old partition layout behind.
-
-## Expected first boot
-
-The provisional TFT should show the idle Teacher Monitor/Bluetooth message. If LittleFS mounts correctly the serial monitor prints `AUDIO_FS_READY`. If the filesystem is unavailable, the trainer remains functional and displays text, but it does **not** auto-format or silently erase the audio partition.
-
-After flashing, continue with:
-
-1. `BENCH-ACCEPTANCE.md`
-2. `../REAL-DEVICE-ACCEPTANCE.md`
-
-Do not merge the hardware PR as released until those physical checks pass.
+El ECG es exclusivamente una representación didáctica del escenario. No analiza un paciente real ni determina clínicamente una descarga.
