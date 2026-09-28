@@ -1,5 +1,8 @@
 #include <Arduino.h>
 
+#include <array>
+#include <string>
+
 #include "audio-player.h"
 #include "ble-server.h"
 #include "display-adapter.h"
@@ -18,6 +21,9 @@ constexpr std::uint32_t kReassessDelayMs = 500;
 constexpr std::uint32_t kMetronomeBpm = 110;
 constexpr std::uint32_t kMetronomeIntervalMs = 60000 / kMetronomeBpm;
 
+constexpr std::array<const char*, 8> kLocalScenarios{
+    "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"};
+
 DisplayAdapter display;
 InputAdapter inputs;
 AudioPlayer audio;
@@ -29,11 +35,12 @@ std::uint32_t stateEnteredAt = 0;
 std::uint32_t lastMetronomeAt = 0;
 std::uint32_t pauseStartedAt = 0;
 bool lastPaused = false;
+std::size_t localScenarioIndex = 0;
 
 const char* stateFallback(TrainerState state) {
   switch (state) {
     case TrainerState::OFF:
-      return "Listo. Conecte Teacher Monitor por Bluetooth.";
+      return "DEA listo. START inicia. MODE cambia caso. BLE opcional.";
     case TrainerState::STARTUP:
       return "Iniciando caso de entrenamiento.";
     case TrainerState::APPLY_PADS:
@@ -67,6 +74,13 @@ void syncStateView(bool force = false) {
   ble.publishTrainerState();
 }
 
+void showLocalReady() {
+  std::string message =
+      "Caso " + std::string(kLocalScenarios[localScenarioIndex]) +
+      ". START inicia. MODE cambia. BLE opcional.";
+  display.showState(TrainerState::OFF, message.c_str());
+}
+
 void serviceOnePrompt() {
   const auto prompt = trainer.popPrompt();
   if (!prompt.has_value()) return;
@@ -83,8 +97,6 @@ void serviceOnePrompt() {
     ble.notifyEvent("AUDIO_MISSING");
   }
 
-  // Device prompts define the AED sequence timing. Paramedic context/hints
-  // must never postpone a CPR/reassessment timer.
   if (prompt.value().rfind("AED_", 0) == 0) {
     stateEnteredAt = millis();
   }
@@ -163,7 +175,6 @@ void advanceRuntime() {
   }
 }
 
-
 void syncPauseClock() {
   const bool paused = trainer.snapshot().paused;
   if (paused == lastPaused) return;
@@ -188,7 +199,8 @@ void serviceMetronome() {
   }
 
   const std::uint32_t now = millis();
-  if (static_cast<std::uint32_t>(now - lastMetronomeAt) < kMetronomeIntervalMs) {
+  if (static_cast<std::uint32_t>(now - lastMetronomeAt) <
+      kMetronomeIntervalMs) {
     return;
   }
 
@@ -206,7 +218,66 @@ void serviceShockButton() {
 
   Serial.println("SIMULATED_SHOCK");
   ble.notifyEvent("SHOCK_PRESS");
-  syncStateView();
+  syncStateView(true);
+}
+
+void serviceLocalControls() {
+  if (inputs.resetPressed()) {
+    if (trainer.endCase()) {
+      Serial.println("LOCAL_RESET");
+      ble.notifyEvent("LOCAL_RESET");
+      syncStateView(true);
+    }
+    showLocalReady();
+    return;
+  }
+
+  if (inputs.modePressed()) {
+    if (trainer.state() != TrainerState::OFF) {
+      Serial.println("MODE_IGNORED_ACTIVE_CASE");
+      return;
+    }
+
+    localScenarioIndex = (localScenarioIndex + 1) % kLocalScenarios.size();
+    trainer.loadCase({kLocalScenarios[localScenarioIndex], "T0", "C0"});
+    Serial.print("LOCAL_MODE: ");
+    Serial.println(kLocalScenarios[localScenarioIndex]);
+    ble.publishTrainerState();
+    showLocalReady();
+    return;
+  }
+
+  if (!inputs.startPressed()) return;
+
+  const auto snapshot = trainer.snapshot();
+
+  if (snapshot.state == TrainerState::OFF) {
+    if (trainer.startCase()) {
+      Serial.println("LOCAL_START");
+      ble.notifyEvent("LOCAL_START");
+      syncStateView(true);
+    }
+    return;
+  }
+
+  if (snapshot.paused) {
+    if (trainer.resumeCase()) {
+      Serial.println("LOCAL_RESUME");
+      ble.notifyEvent("LOCAL_RESUME");
+      display.showState(trainer.state(), stateFallback(trainer.state()));
+      ble.publishTrainerState();
+    }
+    return;
+  }
+
+  if (trainer.pauseCase()) {
+    Serial.println("LOCAL_PAUSE");
+    ble.notifyEvent("LOCAL_PAUSE");
+    display.showState(
+        trainer.state(),
+        "PAUSA. START reanuda. RESET vuelve a espera.");
+    ble.publishTrainerState();
+  }
 }
 
 }  // namespace
@@ -221,37 +292,33 @@ void setup() {
   const bool audioReady = audio.begin();
   Serial.println(audioReady ? "AUDIO_FS_READY" : "AUDIO_FS_UNAVAILABLE");
 
-  // Safe local default. Teacher Monitor may replace it before START.
+  const bool speakerOk = audio.playStartupTone();
+  Serial.println(speakerOk ? "SPEAKER_SELF_TEST_OK" : "SPEAKER_SELF_TEST_FAIL");
+
+  // Standalone default. Teacher Monitor may optionally load a richer case later.
   trainer.loadCase({"A1", "T0", "C0"});
 
   ble.begin();
+
   lastRenderedState = trainer.state();
   stateEnteredAt = millis();
   lastMetronomeAt = stateEnteredAt;
   lastPaused = false;
 
-  display.showState(
-      trainer.state(),
-      audioReady
-          ? "Conecte Teacher Monitor por Bluetooth"
-          : "Audio no disponible. El texto seguira funcionando.");
+  showLocalReady();
 }
 
 void loop() {
-  // BLE callbacks only enqueue transport work. TrainerCore is mutated here,
-  // from the loop task, so audio/display work cannot race the BLE stack.
+  // Teacher Monitor is optional. BLE never owns the local life cycle.
   ble.poll();
 
-  // Apply pause-clock bookkeeping before rendering a remote restart/end so a
-  // state change resets its timer after, not before, the pause adjustment.
+  // Physical controls always remain available.
+  serviceLocalControls();
   syncPauseClock();
   syncStateView();
 
-  // Keep the physical button path local. BLE can change scenario state but never
-  // generates a fake physical button edge.
   serviceShockButton();
 
-  // Context, AED instructions and DAR PISTA all leave the core through one queue.
   if (trainer.hasPrompt()) {
     serviceOnePrompt();
     syncStateView();
