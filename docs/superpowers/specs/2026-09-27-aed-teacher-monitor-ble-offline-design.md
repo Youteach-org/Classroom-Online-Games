@@ -56,6 +56,8 @@ If either browser fails the offline requirement, that is a release blocker. The 
 - selecting optional scene twists;
 - selecting optional advanced clinical conditions;
 - sending live instructor events;
+- triggering an optional **DAR PISTA** paramedic-companion hint;
+- tracking how many hints the team used during the case;
 - starting, pausing, resetting, and ending a training case;
 - choosing the next scripted shock/no-shock result where allowed;
 - viewing state, event history, battery, pad/contact status, and other trainer telemetry;
@@ -195,7 +197,10 @@ Initial live controls:
 - pause scenario;
 - resume scenario;
 - restart current case;
-- stop/end case.
+- stop/end case;
+- **DAR PISTA**: play the next available paramedic-companion hint for the active twist/clinical condition.
+
+Each use of **DAR PISTA** must be logged with the case event stream and increment the case hint counter. A hint must guide attention without stating the complete required action or solving the scenario for the students.
 
 Commands that would create an impossible or unsafe state must be rejected by the trainer state machine and reported back to the monitor.
 
@@ -203,11 +208,11 @@ Commands that would create an impossible or unsafe state must be rejected by the
 
 The physical unit stores and plays its own prerecorded audio. The Teacher Monitor sends semantic commands/events, never streams required voice audio over BLE.
 
-There are two clearly separated prompt classes:
+There are two clearly separated human-perception roles:
 
 ### AED voice
 
-Only prompts a real AED could reasonably produce in the selected simulated workflow, such as:
+The AED voice is the device itself. It uses the approved **female Latin American Spanish** medical-device voice and only says things a real AED could reasonably say in the selected simulated workflow, such as:
 
 - preparation/pad prompts;
 - check pads/contact;
@@ -220,19 +225,44 @@ Only prompts a real AED could reasonably produce in the selected simulated workf
 - begin/continue CPR;
 - reassessment prompts.
 
-### Instructor voice
+### Paramedic companion voice
 
-Used only when the training case must supply information the AED itself could not detect, such as a scene description or advanced clinical context.
+The second voice is **not an instructor and not part of the AED**. It represents a paramedic partner physically beside the trainees. It supplies scene observations or clinical information that the AED could not detect.
 
-The two classes must be distinguishable in the prompt catalog and in the physical trainer.
+The planned voice is a clearly different **male Latin American Spanish** voice: natural, professional, conversational, alert/urgent without sounding panicked.
+
+Its standard dialogue style starts naturally with **“Compañero…”** or an equivalent teammate address. It describes what the partner observes rather than announcing a diagnosis as a machine.
+
+Examples:
+
+- Context: “Compañero, acabamos de sacar al paciente del agua. Tiene el tórax mojado.”
+- Context: “Compañero, observo que la paciente parece estar embarazada.”
+- Context: “Compañero, veo un parche adherido justo donde iría uno de los electrodos.”
+- Context: “Compañero, noto un dispositivo implantado debajo de la piel del pecho.”
+
+The paramedic companion has two prompt levels:
+
+1. **Situation/context prompt** — automatically supplies the information required to understand the selected twist or clinical situation.
+2. **Optional hint prompt** — played only when the instructor presses **DAR PISTA**.
+
+A hint must point the learner toward what to reassess without directly giving the complete answer. Example:
+
+- Situation: “Compañero, acabamos de sacar al paciente del agua. Tiene el tórax mojado.”
+- Hint: “Compañero, revisa si las condiciones permiten colocar correctamente los electrodos.”
+
+The AED voice and paramedic-companion voice must never be interchangeable. The learner should always be able to tell whether an instruction came from the device or from the human teammate.
 
 ### Prompt catalog
 
-Every prompt receives a stable ID shared by Teacher Monitor and firmware, for example:
+Every prompt receives a stable ID shared by Teacher Monitor and firmware. Prefixes distinguish the source:
 
-`AED_ANALYZING`, `AED_SHOCK_ADVISED`, `AED_CHECK_PADS`, `INSTRUCTOR_WET_CHEST`.
+- `AED_...` — device voice.
+- `PARAMEDIC_CONTEXT_...` — teammate situation/context.
+- `PARAMEDIC_HINT_...` — optional teammate hint.
 
-The final audio set will use the approved female Latin American Spanish voice. Audio assets are stored locally in the trainer flash and do not require Internet or microSD during operation.
+Examples: `AED_ANALYZING`, `AED_SHOCK_ADVISED`, `AED_CHECK_PADS`, `PARAMEDIC_CONTEXT_WET_CHEST`, `PARAMEDIC_HINT_WET_CHEST`.
+
+Audio assets are stored locally in the trainer flash and do not require Internet or microSD during operation.
 
 ## 11. BLE architecture
 
@@ -259,7 +289,8 @@ Use a custom training service with stable UUIDs. The exact UUID values are assig
 - analysis cycle/index;
 - shock-enabled flag;
 - pads/contact status;
-- CPR/reassessment status.
+- CPR/reassessment status;
+- hints-used counter.
 
 **Instructor Command — WRITE**
 - load case;
@@ -276,7 +307,8 @@ Use a custom training service with stable UUIDs. The exact UUID values are assig
 - simulated shock;
 - CPR start/reassessment;
 - accepted/rejected instructor command;
-- disconnect/reconnect recovery event.
+- disconnect/reconnect recovery event;
+- paramedic context/hint prompt event and updated hints-used count.
 
 **ECG Stream — NOTIFY, optional until ECG hardware phase**
 - educational waveform packets;
@@ -353,6 +385,8 @@ Large touch-friendly controls for live events, grouped by:
 - movement/safety;
 - scenario lifecycle.
 
+A prominent **DAR PISTA** button is available when the active twist/clinical case has an unused paramedic hint. The button shows/updates the case hint count and is disabled when no further hint exists.
+
 ### Live monitor
 - current AED state;
 - current analysis cycle;
@@ -360,6 +394,7 @@ Large touch-friendly controls for live events, grouped by:
 - shock enabled/disabled;
 - last command + ACK;
 - event timeline;
+- hints used;
 - ECG panel when enabled.
 
 The layout must work in portrait and landscape on phones and tablets. Instructor controls must remain usable without hover interactions.
@@ -427,7 +462,9 @@ The BLE protocol includes a stable device ID from the start so multi-trainer sup
 - next-analysis override;
 - refibrillation event;
 - duplicate command rejection;
-- command rejection in invalid states.
+- command rejection in invalid states;
+- paramedic context prompt selection;
+- **DAR PISTA** selects the correct hint, increments the hint counter once, logs the event, and refuses duplicate/exhausted hints.
 
 ### BLE integration tests
 - scan/filter compatible trainer;
@@ -467,6 +504,8 @@ This architecture is complete when:
 - a training session requires no Wi-Fi/mobile data;
 - A1–A8, T0–T8, and C0–C16 are selectable;
 - live instructor events work;
+- the paramedic companion supplies context separately from the AED voice;
+- **DAR PISTA** plays optional non-answering hints and records hint usage;
 - physical trainer continues safely through BLE disconnects;
 - prompt IDs and scenario semantics are shared between monitor and firmware;
 - required audio is stored on the physical trainer;
