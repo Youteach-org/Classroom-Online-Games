@@ -23,3 +23,11 @@ Task 6 review fix: stale local case state after a trainer reboot could have re-e
 Task 7: complete — real-device Android/iOS Bluefy acceptance checklist added and README aligned to BLE/offline Teacher Monitor architecture.
 
 Physical release gate remains pending: real Android + Chrome/Chromium, real iPhone/iPad + Bluefy, and physical ESP32 must execute REAL-DEVICE-ACCEPTANCE.md.
+
+Task 3: complete — 6 BLE protocol contract groups pass; protocol v1 UUIDs frozen; representative full command is 89 bytes (<180-byte budget).
+Task 4: complete — Node verification 6/6 passes for scan/filter, authoritative sync, writes, disconnect, delayed reconnect sync, incompatible version block, and duplicate-event suppression.
+Task 5: complete — Node verification 5/5 passes for offline shell/cache readiness and old-cache cleanup; runtime asset list is local-only.
+Task 6: complete — 7 UI contract groups / 45 assertions pass; Teacher Monitor-only UI, DAR PISTA, safety label, responsive touch layout, local-only runtime, and authoritative reconnect behavior verified.
+Task 7: complete — real-device Android/iOS Bluefy acceptance checklist and README are present and aligned to the approved BLE/offline architecture.
+
+Release gate still pending by design: real Android Chrome + physical ESP32 and real iPhone/iPad Bluefy + physical ESP32 must pass REAL-DEVICE-ACCEPTANCE.md with Wi-Fi and mobile data disabled.
