@@ -36,3 +36,29 @@ Verification evidence:
 - Latest AED Firmware CI run 36374051656: job exists but has no steps/logs and concludes failure before compilation. Same infrastructure symptom as earlier runs.
 - AED Build Voice Pack run 36373736259: job exists but has no executable steps/logs; binary pack therefore remains pending.
 - Physical bench validation and Android/iOS real-device acceptance remain pending by design.
+
+Final review fixes:
+- Added local CPR metronome (110 BPM training cadence) through the proven ESP_I2S/MAX98357A path.
+- Paramedic context/hint playback no longer resets the AED/CPR state timer.
+- Pause/resume freezes timing instead of counting paused time.
+- Provisional ST7789 transliterates common Spanish UTF-8 characters so fallback text remains legible with the built-in font.
+- PAD_FAULT blocks new analysis; stand-clear violation blocks physical SHOCK until cleared.
+- LittleFS mount uses formatOnFail=false so a mount error cannot silently erase the local voice pack.
+- Teacher Monitor now resets only its event-dedup namespace after authoritative reconnect, allowing a physically rebooted AED to restart event sequence numbers without losing new events.
+- Firmware branch is synchronized with Teacher Monitor head 340e4bc08d56918dc0bc33fe4496f652457f1170; PR #53 reports mergeable=true and behind_by=0.
+
+Review scan:
+- 0 TODO/TBD/FIXME placeholders in PR diff.
+- no legacy driver/i2s.h;
+- no Creative Claw;
+- no runtime Hall/magnet pad detection;
+- no runtime SD/touch dependency;
+- physical SHOCK remains guarded by WAITING_SHOCK plus stand-clear state;
+- local audio path remains LittleFS + ESP_I2S + IMA-ADPCM;
+- CPR metronome is local and does not require BLE/Wi-Fi.
+
+Remaining non-software gates:
+1. GitHub Actions is creating firmware/audio jobs with no executed steps, so Arduino CLI compilation and automatic binary voice-pack conversion cannot currently complete there.
+2. The 61 HeyGen source clips are generated and preserved; binary LittleFS assets must still be produced by the committed builder when a runner/build machine is available.
+3. Flash and run firmware + LittleFS on the real WROOM bench unit.
+4. Execute firmware/BENCH-ACCEPTANCE.md and REAL-DEVICE-ACCEPTANCE.md on Android Chrome/Chromium and iPhone/iPad Bluefy with Wi-Fi/mobile data disabled.
