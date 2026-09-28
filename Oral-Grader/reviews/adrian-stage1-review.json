@@ -1,0 +1,17 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "adrian",
+  "stage": 1,
+  "review_status": "accepted_with_notes",
+  "accepted_for_stage2": true,
+  "speaker_mapping": {
+    "spk:0": "Teacher",
+    "spk:1": "Adrian"
+  },
+  "fidelity_notes": [
+    "Stage 1 provides a complete literal transcript with timestamps and clear separation between teacher prompts and Adrian's responses.",
+    "The raw Gemini transcript remains unchanged; grammatical interpretation and pronunciation judgments belong in Stage 2.",
+    "Teacher's isolated repetition of 'Psychologist.' is mapped to Teacher and must not be scored as Adrian's production."
+  ],
+  "teacher_confirmed_pronunciation_evidence": []
+}
