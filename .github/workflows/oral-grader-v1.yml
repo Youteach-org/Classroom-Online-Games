@@ -1,6 +1,6 @@
 name: Oral Grader V1 - Gemini Stage 1
 
-on:
+"on":
   push:
     branches:
       - feature/oral-grader-v1-20260922
