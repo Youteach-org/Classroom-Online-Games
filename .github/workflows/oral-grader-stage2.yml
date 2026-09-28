@@ -115,14 +115,7 @@ jobs:
           SECRET_AUDIO_URL: ${{ secrets.ORAL_GRADER_AUDIO_URL }}
         shell: bash
         run: |
-          SOURCE_URL="$(python - <<'PY'
-import json, os
-from pathlib import Path
-p = Path("Oral-Grader/stage2-run-request.json")
-d = json.loads(p.read_text(encoding="utf-8")) if p.is_file() else {}
-print(str(d.get("audio_url", "")).strip() or os.environ.get("SECRET_AUDIO_URL", "").strip())
-PY
-)"
+          SOURCE_URL="$(python -c 'import json, os; from pathlib import Path; p=Path("Oral-Grader/stage2-run-request.json"); d=json.loads(p.read_text(encoding="utf-8")) if p.is_file() else {}; print(str(d.get("audio_url", "")).strip() or os.environ.get("SECRET_AUDIO_URL", "").strip())')"
           if [ -z "$SOURCE_URL" ]; then echo "No Stage-2 audio URL available." >&2; exit 3; fi
           curl --fail --location --retry 2 --silent --show-error \
             "$SOURCE_URL" \
