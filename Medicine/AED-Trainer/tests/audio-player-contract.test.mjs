@@ -54,3 +54,10 @@ test("audio player exposes a local CPR metronome click independent of voice file
   assert.match(cpp, /playMetronomeClick/);
   assert.match(cpp, /16000/);
 });
+
+
+test("audio mounts the named littlefs partition used by partitions.csv", () => {
+  const partitions = readFileSync(join(fw, "partitions.csv"), "utf8");
+  assert.match(partitions, /littlefs\s*,\s*data/);
+  assert.match(cpp, /LittleFS\.begin\(false,\s*"\/littlefs",\s*10,\s*"littlefs"\)/);
+});
