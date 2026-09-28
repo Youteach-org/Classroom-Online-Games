@@ -15,6 +15,8 @@ constexpr std::uint32_t kShockArmDelayMs = 500;
 constexpr std::uint32_t kNoShockToCprMs = 500;
 constexpr std::uint32_t kCprCycleMs = 120000;
 constexpr std::uint32_t kReassessDelayMs = 500;
+constexpr std::uint32_t kMetronomeBpm = 110;
+constexpr std::uint32_t kMetronomeIntervalMs = 60000 / kMetronomeBpm;
 
 DisplayAdapter display;
 InputAdapter inputs;
@@ -24,6 +26,9 @@ BleServer ble(trainer);
 
 TrainerState lastRenderedState = TrainerState::OFF;
 std::uint32_t stateEnteredAt = 0;
+std::uint32_t lastMetronomeAt = 0;
+std::uint32_t pauseStartedAt = 0;
+bool lastPaused = false;
 
 const char* stateFallback(TrainerState state) {
   switch (state) {
@@ -55,6 +60,9 @@ void syncStateView(bool force = false) {
 
   lastRenderedState = current;
   stateEnteredAt = millis();
+  if (current == TrainerState::CPR) {
+    lastMetronomeAt = stateEnteredAt;
+  }
   display.showState(current, stateFallback(current));
   ble.publishTrainerState();
 }
@@ -75,8 +83,11 @@ void serviceOnePrompt() {
     ble.notifyEvent("AUDIO_MISSING");
   }
 
-  // Start post-prompt timing only after the spoken/text prompt completes.
-  stateEnteredAt = millis();
+  // Device prompts define the AED sequence timing. Paramedic context/hints
+  // must never postpone a CPR/reassessment timer.
+  if (prompt.value().rfind("AED_", 0) == 0) {
+    stateEnteredAt = millis();
+  }
 }
 
 bool elapsed(std::uint32_t intervalMs) {
@@ -152,6 +163,39 @@ void advanceRuntime() {
   }
 }
 
+
+void syncPauseClock() {
+  const bool paused = trainer.snapshot().paused;
+  if (paused == lastPaused) return;
+
+  const std::uint32_t now = millis();
+  if (paused) {
+    pauseStartedAt = now;
+  } else {
+    const std::uint32_t pausedFor = now - pauseStartedAt;
+    stateEnteredAt += pausedFor;
+    lastMetronomeAt += pausedFor;
+  }
+  lastPaused = paused;
+}
+
+void serviceMetronome() {
+  const auto snapshot = trainer.snapshot();
+  if (snapshot.state != TrainerState::CPR ||
+      snapshot.paused ||
+      trainer.hasPrompt()) {
+    return;
+  }
+
+  const std::uint32_t now = millis();
+  if (static_cast<std::uint32_t>(now - lastMetronomeAt) < kMetronomeIntervalMs) {
+    return;
+  }
+
+  audio.playMetronomeClick();
+  lastMetronomeAt = millis();
+}
+
 void serviceShockButton() {
   if (!inputs.shockPressed()) return;
 
@@ -183,6 +227,8 @@ void setup() {
   ble.begin();
   lastRenderedState = trainer.state();
   stateEnteredAt = millis();
+  lastMetronomeAt = stateEnteredAt;
+  lastPaused = false;
 
   display.showState(
       trainer.state(),
@@ -194,6 +240,7 @@ void setup() {
 void loop() {
   // BLE callbacks may have changed the authoritative core since the last loop.
   syncStateView();
+  syncPauseClock();
 
   // Keep the physical button path local. BLE can change scenario state but never
   // generates a fake physical button edge.
@@ -207,6 +254,7 @@ void loop() {
 
   advanceRuntime();
   syncStateView();
+  serviceMetronome();
 
   delay(5);
 }
