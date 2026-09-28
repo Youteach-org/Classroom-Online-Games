@@ -11,6 +11,9 @@ The trainer is **simulation-only**. There is no therapeutic/high-voltage output.
 - MAX98357A I2S mono amplifier.
 - 3 ohm / 3 W speaker.
 - Physical momentary SHOCK button on GPIO32 to GND with `INPUT_PULLUP`.
+- START/PAUSE button on GPIO33 to GND.
+- MODE button on GPIO14 to GND.
+- RESET button on GPIO13 to GND.
 - BCLK GPIO27, LRC GPIO26, audio DOUT GPIO25.
 - No Hall sensors or magnets.
 
@@ -26,13 +29,23 @@ The trainer is **simulation-only**. There is no therapeutic/high-voltage output.
 
 ## Boot / display / audio
 
-- [ ] Trainer boots without Wi-Fi.
+- [ ] Trainer boots without Wi-Fi and without Teacher Monitor.
+- [ ] A short two-tone startup sound is heard immediately, confirming the local I2S amplifier/speaker path.
 - [ ] OLED shows the idle/connection message.
 - [ ] Teacher Monitor is not required for the trainer to remain safely idle.
 - [ ] LittleFS mounts without formatting itself.
 - [ ] AED female voice plays clearly through MAX98357A/speaker.
 - [ ] Paramedic male voice is clearly distinguishable from the AED voice.
 - [ ] If one test audio file is deliberately absent, the trainer continues the state transition and leaves the prompt text visible instead of hanging.
+
+## Standalone controls
+
+- [ ] With BLE disconnected, MODE cycles A1 through A8 while the trainer is idle.
+- [ ] With BLE disconnected, START launches the selected local base case.
+- [ ] During an active local case, START pauses and a second press resumes.
+- [ ] RESET returns the trainer to idle without requiring BLE.
+- [ ] Teacher Monitor may connect or disconnect without stopping the local case.
+- [ ] The idle screen says START can begin locally and BLE is optional.
 
 ## SHOCK safety
 
