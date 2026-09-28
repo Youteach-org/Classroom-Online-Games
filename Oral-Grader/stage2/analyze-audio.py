@@ -15,11 +15,16 @@ def validate_stage1_preconditions(stage1, review):
     if not review.get("accepted_for_stage2"):
         raise ValueError("Stage 1 has not been accepted for Stage 2")
     mapping = review.get("speaker_mapping") or {}
-    required = {"spk:0", "spk:1", "spk:2"}
-    if not required.issubset(mapping):
+    if not mapping:
         raise ValueError("speaker mapping is incomplete")
-    if mapping["spk:0"] != "Teacher":
-        raise ValueError("speaker mapping must identify spk:0 as Teacher")
+    if "Teacher" not in mapping.values():
+        raise ValueError("speaker mapping must identify a Teacher")
+    students = [name for name in mapping.values() if name != "Teacher"]
+    if not students:
+        raise ValueError("speaker mapping must identify at least one student")
+    stage1_speakers = {turn.get("speaker") for turn in stage1.get("turns", []) if turn.get("speaker")}
+    if not stage1_speakers.issubset(mapping):
+        raise ValueError("speaker mapping is incomplete for Stage-1 speakers")
     return dict(mapping)
 
 
