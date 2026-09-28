@@ -101,11 +101,11 @@
   - Instructor Command: `7e57a003-6f73-4f67-9a2c-0b8d1f2e3a40`
   - Event Stream: `7e57a004-6f73-4f67-9a2c-0b8d1f2e3a40`
   - ECG Stream: `7e57a005-6f73-4f67-9a2c-0b8d1f2e3a40`
-- V1 messages are compact UTF-8 JSON with `v` and `seq` where applicable.
+- V1 messages are compact UTF-8 semicolon-separated `key=value` records with `v` and `seq` where applicable; values are restricted to stable ASCII tokens and no JSON library is required.
 
 - [ ] **Step 1: Write failing codec tests**
-  - parse load-case/lifecycle/live-event/hint commands;
-  - reject malformed version/sequence;
+  - parse load-case/lifecycle/live-event/hint records;
+  - reject duplicate keys, illegal token characters, malformed version/sequence;
   - serialize device status, trainer state, ACK/rejection and event messages;
   - representative payloads stay below 180 bytes.
 
@@ -113,7 +113,7 @@
   - Run host compile/test command for protocol files.
   - Expected: FAIL.
 
-- [ ] **Step 3: Implement protocol codec without Arduino-only dependencies**
+- [ ] **Step 3: Implement the dependency-free token parser/serializer without Arduino-only dependencies**
 
 - [ ] **Step 4: Run GREEN**
   - Expected: exit 0.
