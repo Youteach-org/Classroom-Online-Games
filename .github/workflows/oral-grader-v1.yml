@@ -66,7 +66,10 @@ jobs:
                   Path("Oral-Grader/run-request.json").read_text(encoding="utf-8")
               )
               pair_slug = str(payload.get("pair_slug", "")).strip()
-              source_url = os.environ.get("SECRET_AUDIO_URL", "").strip()
+              source_url = (
+                  str(payload.get("audio_url", "")).strip()
+                  or os.environ.get("SECRET_AUDIO_URL", "").strip()
+              )
 
           if not pair_slug or not pair_slug.replace("-", "").isalnum():
               raise SystemExit(
@@ -74,8 +77,8 @@ jobs:
               )
           if not source_url:
               raise SystemExit(
-                  "No audio URL available. Configure ORAL_GRADER_AUDIO_URL "
-                  "or provide audio_url through workflow_dispatch."
+                  "No audio URL available. Put audio_url in Oral-Grader/run-request.json, "
+                  "configure ORAL_GRADER_AUDIO_URL, or provide audio_url through workflow_dispatch."
               )
 
           with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env:
