@@ -170,7 +170,7 @@ jobs:
               if item["pronunciation"] in {"uncertain", "not_scored"}:
                   assert item["counts_toward_pronunciation"] is False
 
-          print(f"Validated Stage 2 with {len(data[\'evidence\'])} evidence items")
+          print(f"Validated Stage 2 with {len(data['evidence'])} evidence items")
           PY
 
       - name: Commit Stage-2 analysis
