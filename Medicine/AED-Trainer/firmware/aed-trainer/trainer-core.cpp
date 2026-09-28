@@ -200,7 +200,7 @@ std::optional<AnalysisOutcome> TrainerCore::consumeNextOutcome() {
 }
 
 bool TrainerCore::beginAnalysis() {
-  if (paused_) return false;
+  if (paused_ || padFault_) return false;
   if (state_ != TrainerState::APPLY_PADS && state_ != TrainerState::REASSESS) return false;
   const auto outcome = consumeNextOutcome();
   if (!outcome.has_value()) return false;
@@ -243,7 +243,7 @@ bool TrainerCore::beginCprAfterNoShock() {
 }
 
 bool TrainerCore::handleShockPress() {
-  if (state_ != TrainerState::WAITING_SHOCK) return false;
+  if (state_ != TrainerState::WAITING_SHOCK || standClearViolation_) return false;
   ++simulatedShockCount_;
   state_ = TrainerState::CPR;
   promptQueue_.push_back("AED_SHOCK_DELIVERED");
@@ -300,6 +300,7 @@ CommandResult TrainerCore::applyRemoteCommand(std::uint32_t seq, const std::stri
     nextOverride_ = AnalysisOutcome::NO_SHOCK;
   } else if (command == "PAD_FAULT") {
     padFault_ = true;
+    promptQueue_.push_back("AED_CHECK_PADS");
   } else if (command == "CLEAR_PAD_FAULT") {
     padFault_ = false;
   } else if (command == "MOVEMENT") {
@@ -315,8 +316,8 @@ CommandResult TrainerCore::applyRemoteCommand(std::uint32_t seq, const std::stri
   } else if (command == "RESUME") {
     paused_ = false;
   } else if (command == "END") {
+    resetProgress();
     state_ = TrainerState::OFF;
-    paused_ = false;
   } else if (command == "RESTART") {
     resetProgress();
     state_ = TrainerState::STARTUP;
