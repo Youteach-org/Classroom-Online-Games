@@ -56,8 +56,8 @@ test("commands are parsed, deduplicated, acknowledged and routed into TrainerCor
 test("reconnect reads are authoritative and BLE connection alone never changes treatment decision",()=>{
   assert.match(serverCpp,/publishDeviceStatus/);
   assert.match(serverCpp,/publishTrainerState/);
-  assert.match(serverCpp,/core_\.setBleConnected\(true\)/);
-  assert.match(serverCpp,/core_\.setBleConnected\(false\)/);
+  assert.match(serverCpp,/core_\.setBleConnected\(connected\)/);
+  assert.match(serverCpp,/transportConnected_/);
   assert.doesNotMatch(serverCpp,/setBleConnected[^\n]*FORCE_SHOCK/);
   assert.match(serverCpp,/startAdvertising/);
 });
