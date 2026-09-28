@@ -101,6 +101,36 @@ export function completeStandaloneAttempt(attempt,{
   };
 }
 
+
+function clampRubricScore(value){
+  const n=Number(value);
+  if(!Number.isFinite(n)) return null;
+  return Math.max(0,Math.min(8,Math.round(n)));
+}
+
+export function updateStandaloneTeacherReview(attempt,{
+  scores={},
+  comments="",
+  now=Date.now
+}={}){
+  const cleaned={};
+  for(const key of ["fluency","coherence","grammarVocabulary","pronunciation","interaction"]){
+    const value=clampRubricScore(scores?.[key]);
+    if(value!=null) cleaned[key]=value;
+  }
+  return {
+    ...clone(attempt),
+    teacher:{
+      ...(clone(attempt?.teacher)||{}),
+      status:"reviewed",
+      published:false,
+      scores:cleaned,
+      comments:String(comments||""),
+      reviewedAt:safeNow(now)
+    }
+  };
+}
+
 export function publishStandaloneAttempt(attempt,{
   comments="",
   now=Date.now
@@ -108,9 +138,10 @@ export function publishStandaloneAttempt(attempt,{
   return {
     ...clone(attempt),
     teacher:{
+      ...(clone(attempt?.teacher)||{}),
       status:"reviewed",
       published:true,
-      comments:String(comments||""),
+      comments:String(comments || attempt?.teacher?.comments || ""),
       publishedAt:safeNow(now)
     }
   };
