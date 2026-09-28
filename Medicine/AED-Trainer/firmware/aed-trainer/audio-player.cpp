@@ -272,7 +272,7 @@ bool AudioPlayer::begin() {
       -1,
       -1);
 
-  fsReady_ = LittleFS.begin(false);
+  fsReady_ = LittleFS.begin(false, "/littlefs", 10, "littlefs");
   return fsReady_;
 }
 
