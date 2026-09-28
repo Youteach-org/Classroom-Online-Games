@@ -52,6 +52,7 @@ let commandSeq = 1;
 let activeCase = null;
 let hintsUsed = 0;
 let caseActive = false;
+const INACTIVE_TRAINER_STATES = new Set(["OFF", "STARTUP", "IDLE", "ENDED", "COMPLETE"]);
 
 function fillSelect(select, entries) {
   select.replaceChildren();
@@ -165,8 +166,10 @@ function onBleEvent(event) {
 
   if (event.kind === "state") {
     ui.trainerState.textContent = event.message.state ?? "—";
+    caseActive = !INACTIVE_TRAINER_STATES.has(event.message.state);
+    setBuilderLocked(caseActive);
     hintsUsed = Number.parseInt(event.message.hints ?? "0", 10) || 0;
-    updateHintControl();
+    setRemoteAvailability();
     appendTimeline(
       `Estado: ${event.message.state} · análisis ${event.message.analysis} · shock ${event.message.shock === "1" ? "habilitado" : "bloqueado"}`
     );
