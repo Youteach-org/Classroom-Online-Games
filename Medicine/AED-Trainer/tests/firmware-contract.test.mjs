@@ -61,3 +61,16 @@ test("reconnect reads are authoritative and BLE connection alone never changes t
   assert.doesNotMatch(serverCpp,/setBleConnected[^\n]*FORCE_SHOCK/);
   assert.match(serverCpp,/startAdvertising/);
 });
+
+test("BLE callbacks only enqueue work and main loop polls it into TrainerCore",()=>{
+  assert.match(serverH,/void\s+poll\s*\(\s*\)/);
+  assert.match(serverH,/commandQueue_/);
+  assert.match(serverCpp,/xQueueSend/);
+  assert.match(serverCpp,/xQueueReceive/);
+  assert.match(serverCpp,/resetRemoteSequenceNamespace/);
+  assert.match(readFileSync(join(root,"firmware","aed-trainer","aed-trainer.ino"),"utf8"),/ble\.poll\(\)/);
+
+  const callbackBody = serverCpp.match(/class TrainerCommandCallbacks[\s\S]*?\n};/)?.[0] ?? "";
+  assert.doesNotMatch(callbackBody,/core_|handleCommandWire/);
+  assert.match(callbackBody,/queueCommandWire/);
+});
