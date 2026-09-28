@@ -97,27 +97,31 @@ test("standalone physical controls remain available without BLE",()=>{
   assert.match(config,/SHOCK_BUTTON\s*=\s*32/);
   assert.match(config,/START_BUTTON\s*=\s*33/);
   assert.match(config,/MODE_BUTTON\s*=\s*14/);
-  assert.match(config,/RESET_BUTTON\s*=\s*13/);
+  assert.match(config,/PADS_BUTTON\s*=\s*13/);
+  assert.match(config,/RESET_BUTTON\s*=\s*17/);
   assert.match(inputH,/startPressed/);
   assert.match(inputH,/modePressed/);
+  assert.match(inputH,/padsPressed/);
   assert.match(inputH,/resetPressed/);
   assert.match(inputCpp,/INPUT_PULLUP/);
   assert.match(sketch,/LOCAL_START/);
-  assert.match(sketch,/LOCAL_PAUSE/);
-  assert.match(sketch,/LOCAL_RESUME/);
+  assert.match(sketch,/LOCAL_PADS_CONFIRMED/);
   assert.match(sketch,/LOCAL_RESET/);
   assert.match(sketch,/BLE opcional/);
   assert.doesNotMatch(sketch,/Conecte Teacher Monitor por Bluetooth/);
 });
 
 
-test("standalone AED pacing includes inter-prompt and stage pauses",()=>{
+
+
+test("standalone AED waits for learner pad placement before analysis",()=>{
   const sketch=readFileSync(join(firmwareRoot,"aed-trainer.ino"),"utf8");
-  assert.match(sketch,/kInterPromptGapMs\s*=\s*1200/);
-  assert.match(sketch,/kApplyPadsDelayMs\s*=\s*8000/);
+  assert.match(sketch,/case TrainerState::APPLY_PADS:[\s\S]*?Intentionally wait here/);
+  assert.match(sketch,/void\s+servicePadsButton\s*\(\)/);
+  assert.match(sketch,/inputs\.padsPressed\(\)/);
+  assert.match(sketch,/trainer\.beginAnalysis\(\)/);
   assert.match(sketch,/kAnalysisSettleMs\s*=\s*3000/);
-  assert.match(sketch,/kShockArmDelayMs\s*=\s*1800/);
-  assert.match(sketch,/kNoShockToCprMs\s*=\s*1800/);
-  assert.match(sketch,/nextPromptAllowedAt/);
-  assert.match(sketch,/promptGapReady/);
+  assert.doesNotMatch(sketch,/kApplyPadsDelayMs/);
+  assert.doesNotMatch(sketch,/kInterPromptGapMs/);
+  assert.doesNotMatch(sketch,/LOCAL_PAUSE|LOCAL_RESUME/);
 });
