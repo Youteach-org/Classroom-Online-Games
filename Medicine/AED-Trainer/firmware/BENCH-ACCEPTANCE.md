@@ -7,12 +7,11 @@ The trainer is **simulation-only**. There is no therapeutic/high-voltage output.
 ## Bench hardware
 
 - ESP32-WROOM-32 development board.
-- Provisional 2.4-inch ST7789 SPI TFT.
+- Final tested 0.96-inch bicolor SSD1306 128x64 I2C OLED.
 - MAX98357A I2S mono amplifier.
 - 3 ohm / 3 W speaker.
 - Physical momentary SHOCK button on GPIO32 to GND with `INPUT_PULLUP`.
 - BCLK GPIO27, LRC GPIO26, audio DOUT GPIO25.
-- Touch and SD disconnected.
 - No Hall sensors or magnets.
 
 ## Firmware / flash preparation
@@ -28,7 +27,7 @@ The trainer is **simulation-only**. There is no therapeutic/high-voltage output.
 ## Boot / display / audio
 
 - [ ] Trainer boots without Wi-Fi.
-- [ ] TFT shows the idle/connection message.
+- [ ] OLED shows the idle/connection message.
 - [ ] Teacher Monitor is not required for the trainer to remain safely idle.
 - [ ] LittleFS mounts without formatting itself.
 - [ ] AED female voice plays clearly through MAX98357A/speaker.
@@ -116,14 +115,14 @@ Run once on Android Chrome/Chromium and once on iPhone/iPad Bluefy.
 - [ ] Reconnect does not replay/duplicate a prior simulated shock.
 - [ ] No class action depends on Wi-Fi, Firebase, cloud APIs, streamed audio, or SD storage.
 
-## Final-display migration check
+## Final OLED display check
 
-When replacing the provisional TFT with the tested bicolor 128x64 OLED:
-
-- [ ] No `TrainerCore`, BLE protocol, scenario, or audio logic changes are required.
-- [ ] Yellow upper band is used for warning/status information.
-- [ ] Blue lower area is used for operating state/instructions.
+- [ ] OLED powers from 3.3 V and is detected at I2C address 0x3C.
+- [ ] SDA is GPIO21 and SCL is GPIO22.
+- [ ] Yellow upper physical band is used for warning/state information.
+- [ ] Blue lower physical area is used for operating state/instructions.
 - [ ] Display remains non-touch.
+- [ ] No ST7789/TFT runtime dependency remains in the firmware.
 
 ## Record
 
