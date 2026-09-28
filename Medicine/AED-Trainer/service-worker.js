@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "aed-teacher-monitor-";
-const CACHE_NAME = "aed-teacher-monitor-v2";
+const CACHE_NAME = "aed-teacher-monitor-v3";
 const APP_SHELL = [
   "./",
   "./index.html",
