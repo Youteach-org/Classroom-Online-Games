@@ -52,8 +52,25 @@ jobs:
 
       - name: Prepare classroom voice pack
         run: |
-          mkdir -p dist/classroom-audio
-          for src in Medicine/AED-Trainer/audio/assets/*.wav; do
+          mkdir -p dist/classroom-source dist/classroom-audio
+          cp Medicine/AED-Trainer/audio/assets/*.wav dist/classroom-source/
+
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import urllib.request
+
+          data = json.loads(pathlib.Path("Medicine/AED-Trainer/audio/audio-sources.generated.json").read_text())
+          wanted = {"aed-begin-cpr.wav", "aed-continue-cpr.wav"}
+          for clip in data["clips"]:
+              if clip["filename"] in wanted:
+                  urllib.request.urlretrieve(
+                      clip["url"],
+                      pathlib.Path("dist/classroom-source") / clip["filename"],
+                  )
+          PY
+
+          for src in dist/classroom-source/*.wav; do
             dst="dist/classroom-audio/$(basename "$src")"
             ffmpeg -hide_banner -loglevel error -y               -i "$src"               -af "highpass=f=140,lowpass=f=4500,acompressor=threshold=0.10:ratio=4:attack=5:release=100:makeup=2,loudnorm=I=-13:LRA=4:TP=-1.0,alimiter=limit=0.95"               -ac 1 -ar 10000 -c:a adpcm_ima_wav "$dst"
           done
@@ -100,7 +117,7 @@ jobs:
           cp "$FIRMWARE" dist/package/firmware.bin
 
           cp Medicine/AED-Trainer/firmware/FLASHING.md dist/package/FLASHING.md
-          cp Medicine/AED-Trainer/firmware/flash-windows.bat dist/package/INSTALAR-V7.bat
+          cp Medicine/AED-Trainer/firmware/flash-windows.bat dist/package/INSTALAR-V8.bat
           cp Medicine/AED-Trainer/firmware/flash-linux-macos.sh dist/package/flash-linux-macos.sh
           chmod +x dist/package/flash-linux-macos.sh
 
@@ -128,7 +145,7 @@ jobs:
       - name: Upload flashable package
         uses: actions/upload-artifact@v4
         with:
-          name: DEA-V7
+          name: DEA-V8
           path: dist/package/
           if-no-files-found: error
           retention-days: 30
