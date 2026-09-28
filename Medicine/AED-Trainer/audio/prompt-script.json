@@ -104,7 +104,8 @@
       "text": "Inicie RCP.",
       "voiceProfile": "aed-female-latam",
       "filename": "aed-begin-cpr.wav",
-      "releaseReviewRequired": true
+      "releaseReviewRequired": true,
+      "ttsText": "Inicie erre ce pe."
     },
     {
       "id": "AED_CONTINUE_CPR",
@@ -112,7 +113,8 @@
       "text": "Continúe RCP.",
       "voiceProfile": "aed-female-latam",
       "filename": "aed-continue-cpr.wav",
-      "releaseReviewRequired": true
+      "releaseReviewRequired": true,
+      "ttsText": "Continúe erre ce pe."
     },
     {
       "id": "AED_REASSESS",
