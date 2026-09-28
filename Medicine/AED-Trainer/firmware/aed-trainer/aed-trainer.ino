@@ -1,12 +1,12 @@
 #include <Arduino.h>
 
-#include "display-adapter.h"
+#include "ble-server.h"\n#include "display-adapter.h"
 #include "input-adapter.h"
 #include "trainer-core.h"
 
 DisplayAdapter display;
 InputAdapter inputs;
-TrainerCore trainer;
+TrainerCore trainer;\nBleServer ble(trainer);
 
 void setup() {
   Serial.begin(115200);
@@ -24,7 +24,7 @@ void loop() {
   if (inputs.shockPressed()) {
     if (trainer.handleShockPress()) {
       display.showState(trainer.state(), "Descarga simulada aplicada. Inicie RCP.");
-      Serial.println("SIMULATED_SHOCK");
+      Serial.println("SIMULATED_SHOCK");\n      ble.notifyEvent("SHOCK_PRESS");\n      ble.publishTrainerState();
     }
   }
   delay(5);
