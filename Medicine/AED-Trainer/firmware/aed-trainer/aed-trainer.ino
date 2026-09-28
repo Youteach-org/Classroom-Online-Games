@@ -110,10 +110,7 @@ void syncStateView(bool force = false) {
 }
 
 void showLocalReady() {
-  std::string message =
-      "Caso " + std::string(kLocalScenarios[localScenarioIndex]) +
-      ". START inicia. MODE cambia. BLE opcional.";
-  display.showState(TrainerState::OFF, message.c_str());
+  display.showReadyCase(kLocalScenarios[localScenarioIndex]);
 }
 
 void serviceOnePrompt() {
