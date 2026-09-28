@@ -58,3 +58,7 @@ test("service worker removes obsolete AED cache versions during activate", () =>
   assert.match(sw, /caches\.delete/);
   assert.match(sw, /name\.startsWith\(CACHE_PREFIX\)/);
 });
+
+test("offline helper and service worker use the same cache version", () => {
+  assert.ok(sw.includes(`const CACHE_NAME = "${AED_CACHE_NAME}"`));
+});
