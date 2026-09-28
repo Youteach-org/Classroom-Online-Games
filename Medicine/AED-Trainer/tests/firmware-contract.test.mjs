@@ -145,3 +145,24 @@ test("OLED shows simulated ECG, graphic shock warning and CPR countdown",()=>{
   assert.match(sketch,/serviceDynamicDisplay/);
   assert.match(sketch,/analysisPhase/);
 });
+
+
+test("blue OLED content uses large text while yellow header stays compact",()=>{
+  const display=readFileSync(join(firmwareRoot,"display-adapter.cpp"),"utf8");
+  assert.match(display,/drawHeader\("DEA EDUCATIVO"\)/);
+  assert.match(display,/display\.setTextSize\(1\)/);
+  assert.match(display,/printCenteredLarge\("COLOQUE",\s*16,\s*2\)/);
+  assert.match(display,/printCenteredLarge\("NO TOQUE",\s*16,\s*2\)/);
+  assert.match(display,/printCenteredLarge\("COMPRIMA",\s*16,\s*2\)/);
+  assert.match(display,/printCenteredLarge\(timeText,\s*37,\s*3\)/);
+  assert.match(display,/showReadyCase/);
+});
+
+test("CPR lasts two full minutes before automatic rhythm reassessment",()=>{
+  const sketch=readFileSync(join(firmwareRoot,"aed-trainer.ino"),"utf8");
+  assert.match(sketch,/kCprCycleMs\s*=\s*120000/);
+  assert.match(
+    sketch,
+    /case TrainerState::CPR:[\s\S]*elapsed\(kCprCycleMs\)[\s\S]*trainer\.requestReassess\(\)/
+  );
+});
