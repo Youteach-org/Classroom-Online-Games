@@ -265,7 +265,7 @@ bool wavSupported(const WavInfo& wav) {
 }  // namespace
 
 bool AudioPlayer::begin() {
-  fsReady_ = LittleFS.begin(true);
+  fsReady_ = LittleFS.begin(false);
   if (!fsReady_) return false;
 
   I2S.setPins(
