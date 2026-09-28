@@ -11,13 +11,14 @@
 #include "trainer-core.h"
 
 namespace {
-constexpr std::uint32_t kStartupSettleMs = 500;
-constexpr std::uint32_t kApplyPadsDelayMs = 1500;
-constexpr std::uint32_t kAnalysisSettleMs = 500;
-constexpr std::uint32_t kShockArmDelayMs = 500;
-constexpr std::uint32_t kNoShockToCprMs = 500;
+constexpr std::uint32_t kInterPromptGapMs = 1200;
+constexpr std::uint32_t kStartupSettleMs = 1500;
+constexpr std::uint32_t kApplyPadsDelayMs = 8000;
+constexpr std::uint32_t kAnalysisSettleMs = 3000;
+constexpr std::uint32_t kShockArmDelayMs = 1800;
+constexpr std::uint32_t kNoShockToCprMs = 1800;
 constexpr std::uint32_t kCprCycleMs = 120000;
-constexpr std::uint32_t kReassessDelayMs = 500;
+constexpr std::uint32_t kReassessDelayMs = 1800;
 constexpr std::uint32_t kMetronomeBpm = 110;
 constexpr std::uint32_t kMetronomeIntervalMs = 60000 / kMetronomeBpm;
 
@@ -34,6 +35,7 @@ TrainerState lastRenderedState = TrainerState::OFF;
 std::uint32_t stateEnteredAt = 0;
 std::uint32_t lastMetronomeAt = 0;
 std::uint32_t pauseStartedAt = 0;
+std::uint32_t nextPromptAllowedAt = 0;
 bool lastPaused = false;
 std::size_t localScenarioIndex = 0;
 
@@ -82,6 +84,8 @@ void showLocalReady() {
 }
 
 void serviceOnePrompt() {
+  if (!promptGapReady()) return;
+
   const auto prompt = trainer.popPrompt();
   if (!prompt.has_value()) return;
 
@@ -91,6 +95,7 @@ void serviceOnePrompt() {
       text ? text : prompt.value().c_str());
 
   const bool played = audio.playPrompt(prompt.value());
+  nextPromptAllowedAt = millis() + kInterPromptGapMs;
   if (!played) {
     Serial.print("AUDIO_MISSING: ");
     Serial.println(prompt.value().c_str());
@@ -100,6 +105,10 @@ void serviceOnePrompt() {
   if (prompt.value().rfind("AED_", 0) == 0) {
     stateEnteredAt = millis();
   }
+}
+
+bool promptGapReady() {
+  return static_cast<std::int32_t>(millis() - nextPromptAllowedAt) >= 0;
 }
 
 bool elapsed(std::uint32_t intervalMs) {
@@ -225,6 +234,7 @@ void serviceLocalControls() {
   if (inputs.resetPressed()) {
     if (trainer.endCase()) {
       Serial.println("LOCAL_RESET");
+      nextPromptAllowedAt = 0;
       ble.notifyEvent("LOCAL_RESET");
       syncStateView(true);
     }
@@ -254,6 +264,7 @@ void serviceLocalControls() {
   if (snapshot.state == TrainerState::OFF) {
     if (trainer.startCase()) {
       Serial.println("LOCAL_START");
+      nextPromptAllowedAt = 0;
       ble.notifyEvent("LOCAL_START");
       syncStateView(true);
     }
