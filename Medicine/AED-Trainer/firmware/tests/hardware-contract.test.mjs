@@ -50,3 +50,14 @@ test("main sketch depends on adapters instead of direct TFT/button operations",(
   assert.doesNotMatch(sketch,/digitalRead\s*\(\s*HardwareConfig::SHOCK_BUTTON/);
   assert.doesNotMatch(sketch,/Adafruit_ST7789/);
 });
+
+test("firmware contains no Hall/magnet pad-placement implementation",()=>{
+  const all=[cfg,display,input,sketch].join("\n");
+  assert.doesNotMatch(all,/A3144|HallSensor|hallRead|MAGNET_PIN|magnetDetect/i);
+});
+
+test("CPR metronome is local and paramedic hints do not reset AED timing",()=>{
+  assert.match(sketch,/kMetronomeBpm\s*=\s*110/);
+  assert.match(sketch,/playMetronomeClick/);
+  assert.match(sketch,/rfind\("AED_",\s*0\)\s*==\s*0/);
+});
