@@ -31,6 +31,7 @@ BleServer ble(trainer);
 
 TrainerState lastRenderedState = TrainerState::OFF;
 std::uint32_t stateEnteredAt = 0;
+std::uint32_t cprCycleStartedAt = 0;
 std::uint32_t lastMetronomeAt = 0;
 std::uint32_t pauseStartedAt = 0;
 std::uint32_t lastDynamicDisplayAt = 0;
@@ -79,7 +80,7 @@ void renderOperationalView() {
 
   if (snapshot.state == TrainerState::CPR) {
     const std::uint32_t elapsedMs =
-        static_cast<std::uint32_t>(millis() - stateEnteredAt);
+        static_cast<std::uint32_t>(millis() - cprCycleStartedAt);
     const std::uint32_t remainingMs =
         elapsedMs >= kCprCycleMs ? 0 : kCprCycleMs - elapsedMs;
     display.showCprCountdown(remainingMs, kMetronomeBpm);
@@ -91,20 +92,24 @@ void renderOperationalView() {
 
 void syncStateView(bool force = false) {
   const TrainerState current = trainer.state();
-  if (!force && current == lastRenderedState) return;
+  const bool stateChanged = current != lastRenderedState;
+  if (!force && !stateChanged) return;
+
+  if (stateChanged) {
+    stateEnteredAt = millis();
+    lastDynamicDisplayAt = 0;
+
+    if (current == TrainerState::ANALYZING) {
+      analysisPhase = 0;
+    }
+
+    if (current == TrainerState::CPR) {
+      cprCycleStartedAt = stateEnteredAt;
+      lastMetronomeAt = stateEnteredAt;
+    }
+  }
 
   lastRenderedState = current;
-  stateEnteredAt = millis();
-  lastDynamicDisplayAt = 0;
-
-  if (current == TrainerState::ANALYZING) {
-    analysisPhase = 0;
-  }
-
-  if (current == TrainerState::CPR) {
-    lastMetronomeAt = stateEnteredAt;
-  }
-
   renderOperationalView();
   ble.publishTrainerState();
 }
@@ -201,7 +206,9 @@ void advanceRuntime() {
       break;
 
     case TrainerState::CPR:
-      if (!trainer.hasPrompt() && elapsed(kCprCycleMs)) {
+      // Never reassess before a complete two-minute CPR cycle.
+      if (!trainer.hasPrompt() &&
+          static_cast<std::uint32_t>(millis() - cprCycleStartedAt) >= kCprCycleMs) {
         changed = trainer.requestReassess();
       }
       break;
@@ -374,6 +381,7 @@ void setup() {
 
   lastRenderedState = trainer.state();
   stateEnteredAt = millis();
+  cprCycleStartedAt = stateEnteredAt;
   lastMetronomeAt = stateEnteredAt;
   lastPaused = false;
 
