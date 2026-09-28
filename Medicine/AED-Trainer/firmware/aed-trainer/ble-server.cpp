@@ -1,6 +1,7 @@
 #include "ble-server.h"
 
 #include <algorithm>
+#include <cstring>
 
 #include <BLE2902.h>
 #include <BLEDevice.h>
@@ -32,6 +33,7 @@ class TrainerServerCallbacks final : public BLEServerCallbacks {
   explicit TrainerServerCallbacks(BleServer* owner) : owner_(owner) {}
   void onConnect(BLEServer*) override { owner_->handleConnect(); }
   void onDisconnect(BLEServer*) override { owner_->handleDisconnect(); }
+
  private:
   BleServer* owner_;
 };
@@ -39,17 +41,23 @@ class TrainerServerCallbacks final : public BLEServerCallbacks {
 class TrainerCommandCallbacks final : public BLECharacteristicCallbacks {
  public:
   explicit TrainerCommandCallbacks(BleServer* owner) : owner_(owner) {}
+
   void onWrite(BLECharacteristic* characteristic) override {
-    owner_->handleCommandWire(characteristic->getValue().c_str());
+    // Keep this BLE-stack callback short and non-blocking. TrainerCore is only
+    // touched later from BleServer::poll() in the Arduino loop task.
+    owner_->queueCommandWire(characteristic->getValue().c_str());
   }
+
  private:
   BleServer* owner_;
 };
-}
+}  // namespace
 
 BleServer::BleServer(TrainerCore& core) : core_(core) {}
 
 void BleServer::begin() {
+  commandQueue_ = xQueueCreate(kCommandQueueDepth, sizeof(PendingCommand));
+
   BLEDevice::init("AED Trainer");
   server_ = BLEDevice::createServer();
   server_->setCallbacks(new TrainerServerCallbacks(this));
@@ -87,8 +95,84 @@ void BleServer::begin() {
   BLEDevice::startAdvertising();
 }
 
+void BleServer::queueCommandWire(const char* wire) {
+  if (!commandQueue_) {
+    queueOverflowed_.store(true, std::memory_order_release);
+    return;
+  }
+
+  PendingCommand pending;
+  if (!wire) {
+    pending.tooLong = false;
+    pending.wire[0] = '\0';
+  } else {
+    const std::size_t length = std::strlen(wire);
+    if (length >= kMaxCommandBytes) {
+      pending.tooLong = true;
+      pending.wire[0] = '\0';
+    } else {
+      std::memcpy(pending.wire, wire, length + 1);
+    }
+  }
+
+  if (xQueueSend(commandQueue_, &pending, 0) != pdTRUE) {
+    queueOverflowed_.store(true, std::memory_order_release);
+  }
+}
+
+void BleServer::handleConnect() {
+  transportConnected_.store(true, std::memory_order_release);
+  connectionChangePending_.store(true, std::memory_order_release);
+}
+
+void BleServer::handleDisconnect() {
+  transportConnected_.store(false, std::memory_order_release);
+  connectionChangePending_.store(true, std::memory_order_release);
+}
+
+void BleServer::applyConnectionState() {
+  if (!connectionChangePending_.exchange(false, std::memory_order_acq_rel)) return;
+
+  const bool connected = transportConnected_.load(std::memory_order_acquire);
+  core_.setBleConnected(connected);
+
+  if (connected) {
+    // Sequence IDs are idempotency keys only inside one BLE connection.
+    // A browser/app reload starts a fresh namespace at seq=1.
+    seenCommandSeqs_.clear();
+    core_.resetRemoteSequenceNamespace();
+
+    // Drop any writes that belonged to a previous connection.
+    if (commandQueue_) xQueueReset(commandQueue_);
+
+    publishDeviceStatus();
+    publishTrainerState();
+  } else {
+    BLEDevice::startAdvertising();
+  }
+}
+
+void BleServer::poll() {
+  applyConnectionState();
+
+  if (queueOverflowed_.exchange(false, std::memory_order_acq_rel)) {
+    notifyEvent("COMMAND_QUEUE_FULL");
+  }
+
+  if (!commandQueue_) return;
+
+  PendingCommand pending;
+  while (xQueueReceive(commandQueue_, &pending, 0) == pdTRUE) {
+    if (pending.tooLong) {
+      notifyCommandResult(0, false, "payload_too_long");
+      continue;
+    }
+    handleCommandWire(pending.wire);
+  }
+}
+
 void BleServer::setBatteryPercent(int value) {
-  batteryPercent_ = std::max(0, std::min(100, value));
+  batteryPercent_ = value < 0 ? -1 : std::max(0, std::min(100, value));
   publishDeviceStatus();
 }
 
@@ -97,43 +181,66 @@ void BleServer::publishDeviceStatus() {
   const auto wire = BleProtocol::encodeDeviceStatus(
       statusSeq_++, kDeviceId, kFirmwareVersion, batteryPercent_);
   statusCharacteristic_->setValue(wire.c_str());
-  if (connected_) statusCharacteristic_->notify();
+  if (transportConnected_.load(std::memory_order_acquire)) {
+    statusCharacteristic_->notify();
+  }
 }
 
 void BleServer::publishTrainerState() {
   if (!stateCharacteristic_) return;
+
   const auto snapshot = core_.snapshot();
-  const bool shockEnabled = snapshot.state == TrainerState::WAITING_SHOCK;
+  const bool shockEnabled =
+      snapshot.state == TrainerState::WAITING_SHOCK &&
+      !snapshot.standClearViolation;
   const bool padsReady = !snapshot.padFault;
+
   const auto wire = BleProtocol::encodeTrainerState(
       stateSeq_++, kDeviceId, stateToken(snapshot.state),
       snapshot.config.scenarioId, snapshot.config.twistId, snapshot.config.clinicalId,
       snapshot.analysisIndex, shockEnabled, padsReady, snapshot.hintsUsed);
+
   stateCharacteristic_->setValue(wire.c_str());
-  if (connected_) stateCharacteristic_->notify();
+  if (transportConnected_.load(std::memory_order_acquire)) {
+    stateCharacteristic_->notify();
+  }
 }
 
-void BleServer::notifyCommandResult(std::uint32_t commandSeq, bool accepted, const std::string& reason) {
+void BleServer::notifyCommandResult(
+    std::uint32_t commandSeq,
+    bool accepted,
+    const std::string& reason) {
   if (!eventCharacteristic_) return;
-  const auto wire = BleProtocol::encodeCommandResult(eventSeq_++, commandSeq, accepted, reason);
+
+  const auto wire = BleProtocol::encodeCommandResult(
+      eventSeq_++, commandSeq, accepted, reason);
   eventCharacteristic_->setValue(wire.c_str());
-  if (connected_) eventCharacteristic_->notify();
+
+  if (transportConnected_.load(std::memory_order_acquire)) {
+    eventCharacteristic_->notify();
+  }
 }
 
 void BleServer::notifyEvent(const std::string& event) {
   if (!eventCharacteristic_) return;
+
   const auto wire = BleProtocol::encodeEvent(
       eventSeq_++, event,
-      {{"hints", std::to_string(core_.hintsUsed())}, {"state", stateToken(core_.state())}});
+      {{"hints", std::to_string(core_.hintsUsed())},
+       {"state", stateToken(core_.state())}});
   eventCharacteristic_->setValue(wire.c_str());
-  if (connected_) eventCharacteristic_->notify();
+
+  if (transportConnected_.load(std::memory_order_acquire)) {
+    eventCharacteristic_->notify();
+  }
 }
 
 void BleServer::handleCommandWire(const std::string& wire) {
   std::string parseError;
   const auto parsed = BleProtocol::parseCommand(wire, &parseError);
   if (!parsed.has_value()) {
-    notifyCommandResult(0, false, parseError.empty() ? "parse_error" : parseError);
+    notifyCommandResult(
+        0, false, parseError.empty() ? "parse_error" : parseError);
     return;
   }
 
@@ -180,17 +287,4 @@ void BleServer::handleCommandWire(const std::string& wire) {
 
   notifyCommandResult(cmd.seq, accepted, reason);
   publishTrainerState();
-}
-
-void BleServer::handleConnect() {
-  connected_ = true;
-  core_.setBleConnected(true);
-  publishDeviceStatus();
-  publishTrainerState();
-}
-
-void BleServer::handleDisconnect() {
-  connected_ = false;
-  core_.setBleConnected(false);
-  BLEDevice::startAdvertising();
 }
