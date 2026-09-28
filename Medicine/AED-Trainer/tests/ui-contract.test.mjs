@@ -59,3 +59,9 @@ test("offline shell includes the new UI assets", () => {
   assert.match(sw, /"\.\/app\.js"/);
   assert.match(sw, /"\.\/styles\.css"/);
 });
+
+test("authoritative trainer state can deactivate a stale local case after reconnect", () => {
+  assert.match(app, /INACTIVE_TRAINER_STATES/);
+  assert.match(app, /caseActive\s*=\s*!INACTIVE_TRAINER_STATES\.has\(event\.message\.state/);
+  assert.match(app, /setBuilderLocked\(caseActive\)/);
+});
