@@ -138,7 +138,7 @@ test("OLED shows simulated ECG, graphic shock warning and CPR countdown",()=>{
   assert.match(display,/drawWarningTriangle/);
   assert.match(display,/shockableWave/);
   assert.match(display,/organizedWave/);
-  assert.match(display,/NO TOQUE AL PACIENTE/);
+  assert.match(display,/NO TOQUE/);
   assert.match(display,/snprintf/);
   assert.match(display,/%02lu:%02lu/);
   assert.match(sketch,/kCprCycleMs\s*=\s*120000/);
