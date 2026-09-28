@@ -73,12 +73,39 @@ def test_stage2_returns_accepted_speaker_mapping():
 
 
 @pytest.mark.parametrize("missing", ["spk:0", "spk:1", "spk:2"])
-def test_stage2_requires_complete_speaker_mapping(missing):
-    stage1 = {"project": "Oral-Grader", "stage": 1, "pair_slug": "paul-paulina"}
+def test_stage2_requires_mapping_for_every_stage1_speaker(missing):
+    stage1 = {
+        "project": "Oral-Grader",
+        "stage": 1,
+        "pair_slug": "paul-paulina",
+        "turns": [
+            {"speaker": "spk:0"},
+            {"speaker": "spk:1"},
+            {"speaker": "spk:2"},
+        ],
+    }
     review = teacher_review()
     review["speaker_mapping"].pop(missing)
     with pytest.raises(ValueError, match="speaker mapping"):
         mod.validate_stage1_preconditions(stage1, review)
+
+
+def test_stage2_accepts_single_student_mapping_when_stage1_has_two_speakers():
+    stage1 = {
+        "project": "Oral-Grader",
+        "stage": 1,
+        "pair_slug": "adrian",
+        "turns": [{"speaker": "spk:0"}, {"speaker": "spk:1"}],
+    }
+    review = {
+        "accepted_for_stage2": True,
+        "speaker_mapping": {"spk:0": "Teacher", "spk:1": "Adrian"},
+        "teacher_confirmed_pronunciation_evidence": [],
+    }
+    assert mod.validate_stage1_preconditions(stage1, review) == {
+        "spk:0": "Teacher",
+        "spk:1": "Adrian",
+    }
 
 
 def test_uncertain_never_counts_toward_pronunciation():
