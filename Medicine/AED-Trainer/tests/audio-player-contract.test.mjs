@@ -61,3 +61,12 @@ test("audio mounts the named littlefs partition used by partitions.csv", () => {
   assert.match(partitions, /littlefs\s*,\s*data/);
   assert.match(cpp, /LittleFS\.begin\(false,\s*"\/littlefs",\s*10,\s*"littlefs"\)/);
 });
+
+
+test("startup speaker self-test is generated locally over I2S", () => {
+  assert.match(header, /playStartupTone/);
+  assert.match(cpp, /AudioPlayer::playStartupTone/);
+  assert.match(cpp, /playSquare\(740,\s*90\)/);
+  assert.match(cpp, /playSquare\(1040,\s*130\)/);
+  assert.match(cpp, /kAmplitude\s*=\s*5000/);
+});
