@@ -8,6 +8,8 @@ on:
     paths:
       - "Medicine/AED-Trainer/firmware/**"
       - "Medicine/AED-Trainer/audio/assets/**"
+      - "Medicine/AED-Trainer/audio/audio-sources.generated.json"
+      - "Medicine/AED-Trainer/audio/prompt-script.json"
       - "Medicine/AED-Trainer/audio/tools/**"
       - "Medicine/AED-Trainer/audio/manifest.json"
       - ".github/workflows/aed-firmware-ci.yml"
@@ -15,6 +17,8 @@ on:
     paths:
       - "Medicine/AED-Trainer/firmware/**"
       - "Medicine/AED-Trainer/audio/assets/**"
+      - "Medicine/AED-Trainer/audio/audio-sources.generated.json"
+      - "Medicine/AED-Trainer/audio/prompt-script.json"
       - "Medicine/AED-Trainer/audio/tools/**"
       - "Medicine/AED-Trainer/audio/manifest.json"
       - ".github/workflows/aed-firmware-ci.yml"
