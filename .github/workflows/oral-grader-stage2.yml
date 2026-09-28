@@ -80,8 +80,11 @@ jobs:
               raise SystemExit("Stage 1 is not accepted for Stage 2")
 
           mapping = review_data.get("speaker_mapping") or {}
-          if mapping.get("spk:0") != "Teacher" or mapping.get("spk:1") != "Paul" or mapping.get("spk:2") != "Paulina":
-              raise SystemExit("Stage-1 speaker mapping is incomplete or unexpected")
+          if not mapping or "Teacher" not in mapping.values():
+              raise SystemExit("Stage-1 speaker mapping must include Teacher")
+          students = [name for name in mapping.values() if name != "Teacher"]
+          if not students:
+              raise SystemExit("Stage-1 speaker mapping contains no student")
 
           with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env:
               env.write(f"PAIR_SLUG={pair_slug}\n")
@@ -93,16 +96,12 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          SOURCE_URL: ${{ secrets.ORAL_GRADER_AUDIO_URL }}
+          SECRET_AUDIO_URL: ${{ secrets.ORAL_GRADER_AUDIO_URL }}
         shell: bash
         run: |
           if [ -z "$GEMINI_API_KEY" ] && [ -z "$GOOGLE_API_KEY" ]; then
             echo "Gemini API key secret is not configured." >&2
             exit 2
-          fi
-          if [ -z "$SOURCE_URL" ]; then
-            echo "ORAL_GRADER_AUDIO_URL is not configured." >&2
-            exit 3
           fi
 
       - name: Record immutable Stage-1 hashes
@@ -113,9 +112,11 @@ jobs:
 
       - name: Download original audio
         env:
-          SOURCE_URL: ${{ secrets.ORAL_GRADER_AUDIO_URL }}
+          SECRET_AUDIO_URL: ${{ secrets.ORAL_GRADER_AUDIO_URL }}
         shell: bash
         run: |
+          SOURCE_URL="$(python -c \'import json,os; from pathlib import Path; p=Path("Oral-Grader/stage2-run-request.json"); d=json.loads(p.read_text()) if p.is_file() else {}; print(str(d.get("audio_url","")).strip() or os.environ.get("SECRET_AUDIO_URL","").strip())\')"
+          if [ -z "$SOURCE_URL" ]; then echo "No Stage-2 audio URL available." >&2; exit 3; fi
           curl --fail --location --retry 2 --silent --show-error \
             "$SOURCE_URL" \
             -o /tmp/oral-grader-stage2.ogg
@@ -157,32 +158,19 @@ jobs:
           assert data["stage"] == 2
           assert data["pair_slug"] == pair_slug
           assert data["model"] == os.environ["ORAL_GRADER_STAGE2_MODEL"]
-          assert data["speaker_mapping"]["spk:1"] == "Paul"
-          assert data["speaker_mapping"]["spk:2"] == "Paulina"
+          assert data["speaker_mapping"], "Missing speaker mapping"
+          assert "Teacher" in data["speaker_mapping"].values()
           assert data["scoring_status"] == "evidence_only_not_final_rubric"
-          assert "Paul" in data["students"]
-          assert "Paulina" in data["students"]
+          expected_students = [name for name in data["speaker_mapping"].values() if name != "Teacher"]
+          assert expected_students, "No students in speaker mapping"
+          for student in expected_students:
+              assert student in data["students"], f"Missing student summary: {student}"
 
           for item in data["evidence"]:
               if item["pronunciation"] in {"uncertain", "not_scored"}:
                   assert item["counts_toward_pronunciation"] is False
 
-          teacher_items = [
-              item for item in data["evidence"]
-              if item.get("speaker") == "Paul"
-              and str(item.get("reviewed_heard", "")).casefold() == "fires"
-              and str(item.get("intended", "")).casefold() == "fathers"
-              and item.get("teacher_override") is True
-          ]
-          assert teacher_items, "Missing teacher-confirmed fires -> fathers evidence"
-          item = teacher_items[0]
-          assert item["pronunciation"] == "incorrect"
-          assert item["counts_toward_pronunciation"] is True
-          print(
-              f"Validated Stage 2 with {len(data['evidence'])} evidence items; "
-              f"Paul={data['students']['Paul']['incorrect_pronunciation_count']} countable pronunciation errors; "
-              f"Paulina={data['students']['Paulina']['incorrect_pronunciation_count']}"
-          )
+          print(f"Validated Stage 2 with {len(data[\'evidence\'])} evidence items")
           PY
 
       - name: Commit Stage-2 analysis
