@@ -70,3 +70,11 @@ test("startup speaker self-test is generated locally over I2S", () => {
   assert.match(cpp, /playSquare\(1040,\s*130\)/);
   assert.match(cpp, /kAmplitude\s*=\s*5000/);
 });
+
+
+test("voice playback applies bounded digital gain and louder local tones", () => {
+  assert.match(cpp, /kVoiceGainNumerator\s*=\s*3/);
+  assert.match(cpp, /kVoiceGainDenominator\s*=\s*2/);
+  assert.match(cpp, /std::clamp<std::int32_t>/);
+  assert.match(cpp, /kAmplitude\s*=\s*12000/);
+});
