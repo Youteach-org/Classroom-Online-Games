@@ -17,8 +17,8 @@ namespace {
 I2SClass I2S;
 bool i2sActive = false;
 
-constexpr std::int32_t kVoiceGainNumerator = 3;
-constexpr std::int32_t kVoiceGainDenominator = 2;
+constexpr std::int32_t kVoiceGainNumerator = 11;
+constexpr std::int32_t kVoiceGainDenominator = 10;
 
 std::uint16_t readLe16(const std::uint8_t* p) {
   return static_cast<std::uint16_t>(p[0]) |
