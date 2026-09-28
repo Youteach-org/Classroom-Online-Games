@@ -1,8 +1,10 @@
 const CACHE_PREFIX = "aed-teacher-monitor-";
-const CACHE_NAME = "aed-teacher-monitor-v1";
+const CACHE_NAME = "aed-teacher-monitor-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
+  "./styles.css",
+  "./app.js",
   "./aed-scenarios.js",
   "./scene-twists.js",
   "./clinical-cases.js",
