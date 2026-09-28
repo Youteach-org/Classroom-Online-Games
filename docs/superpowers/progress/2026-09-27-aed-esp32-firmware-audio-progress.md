@@ -16,7 +16,7 @@ Task 1: complete — pure TrainerCore implemented; A1-A8 sequences, duplicate co
 
 Task 2: complete — dependency-free BLE protocol v1 mirrors Teacher Monitor UUIDs/version/fields. Static cross-contract verification passes.
 
-Task 3: complete at source level — WROOM pin map, ST7789 adapter, GPIO32 debouncer and compile workflow committed. Arduino Actions remains blocked before step execution.
+Task 3: complete — WROOM pin map now targets the final tested SSD1306 128x64 bicolor OLED on SDA GPIO21 / SCL GPIO22 / address 0x3C, plus GPIO32 SHOCK input. The provisional ST7789 runtime dependency has been removed.
 
 Task 4: complete at source level — BLE GATT server exposes status/state/command/events/ECG characteristics and authoritative reconnect state. Protocol contract verification passes.
 
@@ -28,7 +28,7 @@ Task 7: source generation complete — all 61 HeyGen clips generated and recorde
 
 Task 8: complete at source level — prompt queue routes to display + audio, physical SHOCK remains local, stand-clear violation blocks SHOCK, pad fault blocks new analysis, movement holds analysis resolution, BLE state is published after local transitions, and audio failure leaves text/state logic running.
 
-Task 9: complete — README aligned to WROOM/TFT/MAX98357A/SHOCK prototype, no Hall/magnets, touch/SD intentionally unused, planned bicolor 128x64 OLED migration documented, and firmware/BENCH-ACCEPTANCE.md added.
+Task 9: complete — README and bench acceptance aligned to WROOM + final SSD1306 OLED + MAX98357A + SHOCK prototype, with no Hall/magnets and no touch/SD runtime dependency.
 
 Verification evidence:
 - IMA ADPCM decoder host compile/test: GREEN (g++ -std=c++17).
@@ -41,7 +41,7 @@ Final review fixes:
 - Added local CPR metronome (110 BPM training cadence) through the proven ESP_I2S/MAX98357A path.
 - Paramedic context/hint playback no longer resets the AED/CPR state timer.
 - Pause/resume freezes timing instead of counting paused time.
-- Provisional ST7789 transliterates common Spanish UTF-8 characters so fallback text remains legible with the built-in font.
+- Final SSD1306 adapter transliterates common Spanish UTF-8 characters so fallback text remains legible with the built-in font.
 - PAD_FAULT blocks new analysis; stand-clear violation blocks physical SHOCK until cleared.
 - LittleFS mount uses formatOnFail=false so a mount error cannot silently erase the local voice pack.
 - Teacher Monitor now resets only its event-dedup namespace after authoritative reconnect, allowing a physically rebooted AED to restart event sequence numbers without losing new events.
@@ -58,7 +58,6 @@ Review scan:
 - CPR metronome is local and does not require BLE/Wi-Fi.
 
 Remaining non-software gates:
-1. GitHub Actions is creating firmware/audio jobs with no executed steps, so Arduino CLI compilation and automatic binary voice-pack conversion cannot currently complete there.
-2. The 61 HeyGen source clips are generated and preserved; binary LittleFS assets must still be produced by the committed builder when a runner/build machine is available.
-3. Flash and run firmware + LittleFS on the real WROOM bench unit.
-4. Execute firmware/BENCH-ACCEPTANCE.md and REAL-DEVICE-ACCEPTANCE.md on Android Chrome/Chromium and iPhone/iPad Bluefy with Wi-Fi/mobile data disabled.
+1. Flash and run the current firmware + LittleFS package on the real WROOM bench unit with the final SSD1306 OLED.
+2. Execute firmware/BENCH-ACCEPTANCE.md and REAL-DEVICE-ACCEPTANCE.md on Android Chrome/Chromium and iPhone/iPad Bluefy with Wi-Fi/mobile data disabled.
+3. Confirm physical OLED rendering, MAX98357A audio, SHOCK lockout, A1/A5 flows and BLE reconnect behavior on the actual hardware.
