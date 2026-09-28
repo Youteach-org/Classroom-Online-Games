@@ -8,6 +8,49 @@
 namespace {
 Adafruit_ST7789 tft(HardwareConfig::TFT_CS, HardwareConfig::TFT_DC, HardwareConfig::TFT_RST);
 
+
+void printSpanishAscii(const char* text) {
+  if (!text) return;
+  const auto* p = reinterpret_cast<const unsigned char*>(text);
+
+  while (*p) {
+    if (*p == 0xC3 && p[1]) {
+      const unsigned char code = p[1];
+      char mapped = 0;
+      switch (code) {
+        case 0xA1: mapped = 'a'; break; // á
+        case 0xA9: mapped = 'e'; break; // é
+        case 0xAD: mapped = 'i'; break; // í
+        case 0xB3: mapped = 'o'; break; // ó
+        case 0xBA: mapped = 'u'; break; // ú
+        case 0xB1: mapped = 'n'; break; // ñ
+        case 0xBC: mapped = 'u'; break; // ü
+        case 0x81: mapped = 'A'; break;
+        case 0x89: mapped = 'E'; break;
+        case 0x8D: mapped = 'I'; break;
+        case 0x93: mapped = 'O'; break;
+        case 0x9A: mapped = 'U'; break;
+        case 0x91: mapped = 'N'; break;
+        case 0x9C: mapped = 'U'; break;
+        default: break;
+      }
+      if (mapped) tft.write(mapped);
+      p += 2;
+      continue;
+    }
+
+    if (*p == 0xC2 && p[1]) {
+      if (p[1] == 0xBF) tft.write('?');      // ¿
+      else if (p[1] == 0xA1) tft.write('!'); // ¡
+      p += 2;
+      continue;
+    }
+
+    if (*p < 0x80) tft.write(*p);
+    ++p;
+  }
+}
+
 const char* stateLabel(TrainerState state) {
   switch (state) {
     case TrainerState::OFF: return "APAGADO";
@@ -43,5 +86,5 @@ void DisplayAdapter::showState(TrainerState state, const char* message) {
   tft.setTextColor(HardwareConfig::DEA_WHITE, HardwareConfig::DEA_BLACK);
   tft.setTextSize(2);
   tft.setCursor(12, 70);
-  tft.print(message ? message : "");
+  printSpanishAscii(message ? message : "");
 }
