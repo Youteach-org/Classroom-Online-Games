@@ -33,6 +33,8 @@ TrainerState lastRenderedState = TrainerState::OFF;
 std::uint32_t stateEnteredAt = 0;
 std::uint32_t lastMetronomeAt = 0;
 std::uint32_t pauseStartedAt = 0;
+std::uint32_t lastDynamicDisplayAt = 0;
+std::uint32_t analysisPhase = 0;
 bool lastPaused = false;
 std::size_t localScenarioIndex = 0;
 
@@ -60,16 +62,50 @@ const char* stateFallback(TrainerState state) {
   return "DEA educativo";
 }
 
+void renderOperationalView() {
+  const auto snapshot = trainer.snapshot();
+
+  if (snapshot.state == TrainerState::ANALYZING &&
+      snapshot.pendingOutcome.has_value()) {
+    display.showAnalyzing(snapshot.pendingOutcome.value(), analysisPhase);
+    return;
+  }
+
+  if (snapshot.state == TrainerState::SHOCK_ADVISED ||
+      snapshot.state == TrainerState::WAITING_SHOCK) {
+    display.showShockWarning();
+    return;
+  }
+
+  if (snapshot.state == TrainerState::CPR) {
+    const std::uint32_t elapsedMs =
+        static_cast<std::uint32_t>(millis() - stateEnteredAt);
+    const std::uint32_t remainingMs =
+        elapsedMs >= kCprCycleMs ? 0 : kCprCycleMs - elapsedMs;
+    display.showCprCountdown(remainingMs, kMetronomeBpm);
+    return;
+  }
+
+  display.showState(snapshot.state, stateFallback(snapshot.state));
+}
+
 void syncStateView(bool force = false) {
   const TrainerState current = trainer.state();
   if (!force && current == lastRenderedState) return;
 
   lastRenderedState = current;
   stateEnteredAt = millis();
+  lastDynamicDisplayAt = 0;
+
+  if (current == TrainerState::ANALYZING) {
+    analysisPhase = 0;
+  }
+
   if (current == TrainerState::CPR) {
     lastMetronomeAt = stateEnteredAt;
   }
-  display.showState(current, stateFallback(current));
+
+  renderOperationalView();
   ble.publishTrainerState();
 }
 
@@ -106,6 +142,15 @@ void serviceOnePrompt() {
     display.showState(
         TrainerState::APPLY_PADS,
         "Coloque electrodos. Pulse PADS/OK al terminar.");
+    return;
+  }
+
+  const auto state = trainer.state();
+  if (state == TrainerState::ANALYZING ||
+      state == TrainerState::SHOCK_ADVISED ||
+      state == TrainerState::WAITING_SHOCK ||
+      state == TrainerState::CPR) {
+    renderOperationalView();
   }
 }
 
@@ -192,6 +237,27 @@ void syncPauseClock() {
     lastMetronomeAt += pausedFor;
   }
   lastPaused = paused;
+}
+
+void serviceDynamicDisplay() {
+  const auto snapshot = trainer.snapshot();
+  if (snapshot.paused) return;
+
+  const std::uint32_t now = millis();
+
+  if (snapshot.state == TrainerState::ANALYZING) {
+    if (static_cast<std::uint32_t>(now - lastDynamicDisplayAt) < 60) return;
+    lastDynamicDisplayAt = now;
+    analysisPhase += 2;
+    renderOperationalView();
+    return;
+  }
+
+  if (snapshot.state == TrainerState::CPR) {
+    if (static_cast<std::uint32_t>(now - lastDynamicDisplayAt) < 200) return;
+    lastDynamicDisplayAt = now;
+    renderOperationalView();
+  }
 }
 
 void serviceMetronome() {
@@ -336,6 +402,7 @@ void loop() {
 
   advanceRuntime();
   syncStateView();
+  serviceDynamicDisplay();
   serviceMetronome();
 
   delay(5);
