@@ -7,28 +7,101 @@ on:
       - feature/aed-esp32-firmware-audio
     paths:
       - "Medicine/AED-Trainer/firmware/**"
+      - "Medicine/AED-Trainer/audio/assets/**"
+      - "Medicine/AED-Trainer/audio/manifest.json"
       - ".github/workflows/aed-firmware-ci.yml"
   pull_request:
     paths:
       - "Medicine/AED-Trainer/firmware/**"
+      - "Medicine/AED-Trainer/audio/assets/**"
+      - "Medicine/AED-Trainer/audio/manifest.json"
       - ".github/workflows/aed-firmware-ci.yml"
+  workflow_dispatch:
 
 jobs:
   compile-esp32:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: arduino/setup-arduino-cli@v2
+
       - name: Install ESP32 core 3.3.12
         run: |
           arduino-cli config init
           arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
           arduino-cli core update-index
           arduino-cli core install esp32:esp32@3.3.12
+
       - name: Install display libraries
         run: |
           arduino-cli lib install "Adafruit GFX Library"
           arduino-cli lib install "Adafruit ST7735 and ST7789 Library"
+
       - name: Compile AED bench firmware
         run: |
-          arduino-cli compile --fqbn esp32:esp32:esp32 Medicine/AED-Trainer/firmware/aed-trainer
+          mkdir -p dist/build dist/package
+          arduino-cli compile             --fqbn esp32:esp32:esp32             --output-dir dist/build             Medicine/AED-Trainer/firmware/aed-trainer
+
+      - name: Build LittleFS voice image
+        run: |
+          mkdir -p dist/littlefs-root/audio
+          cp Medicine/AED-Trainer/audio/assets/*.wav dist/littlefs-root/audio/
+
+          MKLITTLEFS="$(find "$HOME/.arduino15/packages/esp32/tools" -type f -name mklittlefs | head -n 1)"
+          if [ -z "$MKLITTLEFS" ]; then
+            echo "mklittlefs was not found in ESP32 core tools"
+            find "$HOME/.arduino15/packages/esp32/tools" -maxdepth 3 -type f | sort
+            exit 1
+          fi
+
+          chmod +x "$MKLITTLEFS"
+          "$MKLITTLEFS"             -c dist/littlefs-root             -p 256             -b 4096             -s 0x1F0000             dist/package/littlefs.bin
+
+      - name: Assemble flashable package
+        run: |
+          BOOTLOADER="$(find dist/build -maxdepth 1 -type f -name '*bootloader.bin' | head -n 1)"
+          PARTITIONS="$(find dist/build -maxdepth 1 -type f -name '*.partitions.bin' | head -n 1)"
+          FIRMWARE="$(find dist/build -maxdepth 1 -type f -name '*.bin'             ! -name '*bootloader*'             ! -name '*partitions*'             ! -name '*boot_app0*'             ! -name '*merged*' | head -n 1)"
+
+          test -n "$BOOTLOADER"
+          test -n "$PARTITIONS"
+          test -n "$FIRMWARE"
+
+          cp "$BOOTLOADER" dist/package/bootloader.bin
+          cp "$PARTITIONS" dist/package/partitions.bin
+          cp "$FIRMWARE" dist/package/firmware.bin
+
+          cp Medicine/AED-Trainer/firmware/FLASHING.md dist/package/FLASHING.md
+          cp Medicine/AED-Trainer/firmware/flash-windows.bat dist/package/flash-windows.bat
+          cp Medicine/AED-Trainer/firmware/flash-linux-macos.sh dist/package/flash-linux-macos.sh
+          chmod +x dist/package/flash-linux-macos.sh
+
+          cat > dist/package/flash-layout.txt <<'EOF'
+          ESP32-WROOM-32 / 4 MB flash layout
+          0x001000  bootloader.bin
+          0x008000  partitions.bin
+          0x010000  firmware.bin
+          0x210000  littlefs.bin
+          EOF
+
+          (
+            cd dist/package
+            sha256sum bootloader.bin partitions.bin firmware.bin littlefs.bin > SHA256SUMS.txt
+            ls -lh
+          )
+
+      - name: Validate package size against partitions
+        run: |
+          test "$(stat -c%s dist/package/firmware.bin)" -le $((0x200000))
+          test "$(stat -c%s dist/package/littlefs.bin)" -le $((0x1F0000))
+          test -s dist/package/bootloader.bin
+          test -s dist/package/partitions.bin
+
+      - name: Upload flashable package
+        uses: actions/upload-artifact@v4
+        with:
+          name: aed-esp32-wroom-flash-package
+          path: dist/package/
+          if-no-files-found: error
+          retention-days: 30
