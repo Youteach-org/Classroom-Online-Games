@@ -36,6 +36,7 @@
 ### Task 1: Extract scenario catalogs and prompt catalog
 
 **Files:**
+- Create: `Medicine/AED-Trainer/package.json`
 - Create: `Medicine/AED-Trainer/aed-scenarios.js`
 - Create: `Medicine/AED-Trainer/scene-twists.js`
 - Create: `Medicine/AED-Trainer/clinical-cases.js`
@@ -43,6 +44,7 @@
 - Create: `Medicine/AED-Trainer/tests/catalogs.test.mjs`
 
 **Interfaces:**
+- `package.json` sets `{ "private": true, "type": "module" }` so Node and browser ES modules use the same source files.
 - Produces: `AED_SCENARIOS`, `SCENE_TWISTS`, `CLINICAL_CASES`, `PROMPTS` named exports.
 - Prompt IDs use prefixes `AED_`, `PARAMEDIC_CONTEXT_`, `PARAMEDIC_HINT_`.
 
@@ -56,7 +58,7 @@
   - Run: `node --test Medicine/AED-Trainer/tests/catalogs.test.mjs`
   - Expected: FAIL because modules/exports do not exist.
 
-- [ ] **Step 3: Implement the four catalog modules**
+- [ ] **Step 3: Add local ES-module package metadata and implement the four catalog modules**
   - Keep data declarative; no DOM or Bluetooth calls.
   - A scenario entry exposes `id`, `label`, and `analysisSequence`.
   - Twist/clinical entries expose `id`, `label`, `contextPromptId`, `hintPromptIds`.
@@ -126,12 +128,12 @@
   - ECG Stream: `7e57a005-6f73-4f67-9a2c-0b8d1f2e3a40`
 - Produces `encodeCommand(command)`, `decodeMessage(bytes)`, `validateStateMessage(message)`.
 
-**Protocol decision:** V1 messages are compact UTF-8 JSON with mandatory `v` protocol version and `seq` sequence ID on commands/events. This is intentionally human-debuggable for V1; all payloads used in this plan must remain below 180 UTF-8 bytes.
+**Protocol decision:** V1 messages are compact UTF-8 semicolon-separated `key=value` records with mandatory `v` protocol version and `seq` sequence ID on commands/events, for example `v=1;seq=12;type=cmd;cmd=load;scenario=A1;twist=T2;clinical=C1`. Wire values are restricted to stable ASCII tokens (`A-Z`, `a-z`, digits, `_`, `.`, `:`, `-`); human labels are never sent. This keeps the firmware parser small and dependency-free. All payloads used in this plan must remain below 180 UTF-8 bytes.
 
 - [ ] **Step 1: Write failing codec tests**
-  - round-trip case-load, live-event, hint, and lifecycle commands;
-  - reject missing/incorrect protocol version;
-  - reject malformed state payloads;
+  - round-trip case-load, live-event, hint, and lifecycle records;
+  - reject duplicate keys, illegal token characters, missing/incorrect protocol version;
+  - reject malformed state records;
   - assert representative payload byte lengths stay below 180.
 
 - [ ] **Step 2: Run RED**
