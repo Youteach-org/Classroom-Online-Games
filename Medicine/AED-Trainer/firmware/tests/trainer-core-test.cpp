@@ -137,6 +137,22 @@ int main() {
     assert(core.simulatedShockCount() == 1);
   }
 
+
+  {
+    TrainerCore core;
+    assert(core.loadCase({"A5", "T0", "C0"}));
+    assert(core.applyRemoteCommand(1, "FORCE_SHOCK").accepted);
+    assert(!core.applyRemoteCommand(1, "FORCE_NO_SHOCK").accepted);
+
+    core.resetRemoteSequenceNamespace();
+
+    const auto newSession = core.applyRemoteCommand(1, "FORCE_NO_SHOCK");
+    assert(newSession.accepted);
+    const auto outcome = core.consumeNextOutcome();
+    assert(outcome.has_value());
+    assert(outcome.value() == AnalysisOutcome::NO_SHOCK);
+  }
+
   std::cout << "trainer-core tests passed\n";
   return 0;
 }
