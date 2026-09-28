@@ -176,6 +176,7 @@ Implementation plans:
 
 Hardware acceptance:
 
+- [Physical trainer bench acceptance](./firmware/BENCH-ACCEPTANCE.md)
 - [Real-device Teacher Monitor acceptance](./REAL-DEVICE-ACCEPTANCE.md)
 
 ## Current release gates
