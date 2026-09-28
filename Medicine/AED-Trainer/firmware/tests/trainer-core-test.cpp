@@ -113,6 +113,30 @@ int main() {
     assert(!core.popPrompt().has_value());
   }
 
+
+  {
+    TrainerCore core;
+    assert(core.loadCase({"A1", "T0", "C0"}));
+    assert(core.startCase());
+    while (core.popPrompt().has_value()) {}
+    assert(core.enterApplyPads());
+
+    assert(core.applyRemoteCommand(301, "PAD_FAULT").accepted);
+    assert(!core.beginAnalysis());
+    assert(core.applyRemoteCommand(302, "CLEAR_PAD_FAULT").accepted);
+    assert(core.beginAnalysis());
+    assert(core.resolveAnalysis());
+    assert(core.armShock());
+
+    assert(core.applyRemoteCommand(303, "STAND_CLEAR_VIOLATION").accepted);
+    assert(!core.handleShockPress());
+    assert(core.simulatedShockCount() == 0);
+
+    assert(core.applyRemoteCommand(304, "CLEAR_STAND_CLEAR_VIOLATION").accepted);
+    assert(core.handleShockPress());
+    assert(core.simulatedShockCount() == 1);
+  }
+
   std::cout << "trainer-core tests passed\n";
   return 0;
 }
