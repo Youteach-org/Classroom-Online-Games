@@ -1,10 +1,10 @@
-# DEA V8 — ESP32-WROOM-32
+# DEA V9 — ESP32-WROOM-32
 
-V8 incluye:
+V9 incluye:
 
 - RCP de 2 minutos antes de cada nuevo análisis de ritmo;
-- pronunciación de RCP en español ("erre ce pe") en las instrucciones de voz;
-- texto de la zona azul de la OLED más grande, centrado y sin frases cortadas;
+- pronunciación de RCP como "erre ce pe" usando la misma voz femenina latinoamericana aprobada;
+- texto de la zona azul más grande, centrado y con palabras completas; solo reduce el tamaño en las líneas que realmente lo necesitan;
 - encabezados de la franja amarilla conservados en su tamaño actual;
 - ECG educativo simulado;
 - audio optimizado para salón;
@@ -13,10 +13,10 @@ V8 incluye:
 
 ## Windows
 
-1. Descomprime todo `DEA-V8.zip`.
+1. Descomprime todo `DEA-V9.zip`.
 2. Conecta el ESP32.
 3. Cierra Arduino Serial Monitor.
-4. Ejecuta `INSTALAR-V8.bat`.
+4. Ejecuta `INSTALAR-V9.bat`.
 5. Escribe el puerto, por ejemplo `COM9`.
 6. Escribe `S` para instalar.
 
