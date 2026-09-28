@@ -43,9 +43,10 @@ The physical trainer does **not** depend on Teacher Monitor. It can run a basic 
 
 Standalone controls:
 
-- **START / PAUSE** — GPIO33 to GND. Starts the selected local case; during an active case it pauses/resumes.
+- **START** — GPIO33 to GND. Starts the selected local case.
 - **MODE** — GPIO14 to GND. While idle, cycles through local base scenarios A1–A8.
-- **RESET** — GPIO13 to GND. Ends the current case and returns the trainer to idle.
+- **PADS / OK** — GPIO13 to GND. Confirms that the learner has placed the inert training electrodes; analysis cannot begin before this confirmation.
+- **RESET** — GPIO17 to GND. Ends the current case and returns the trainer to idle.
 - **SHOCK** — GPIO32 to GND. Accepted only when the core is in WAITING_SHOCK and stand-clear safety permits it.
 
 When Teacher Monitor is connected, the extended path is:
@@ -67,16 +68,9 @@ A class session must not depend on:
 
 Internet is allowed before class only to initially load/update the Teacher Monitor or install Bluefy.
 
-### Standalone pacing
+### Standalone training flow
 
-The autonomous trainer deliberately does not chain voice prompts back-to-back. Current bench pacing is:
-
-- about 1.2 s minimum silence between spoken prompts;
-- about 8 s after the pad-placement instruction before simulated analysis;
-- about 3 s of analysis dwell before the scripted result;
-- about 1.8 s between shock/no-shock decisions and the next instruction.
-
-These pauses are part of the training behavior, not audio-file silence.
+The autonomous trainer is **learner-action driven**, not a timed recording. Startup instructions may play in sequence, but the device then stops at pad placement. It remains in APPLY_PADS until the learner presses **PADS / OK**. Only then does simulated analysis begin. SHOCK waits for the physical SHOCK button when advised. CPR runs for the configured two-minute cycle before automatic reassessment. A scripted contact fault returns the trainer to pad placement and requires PADS / OK again.
 
 ### Audio level
 
@@ -165,9 +159,10 @@ Confirmed working together:
 - MAX98357A I2S mono amplifier.
 - 3 ohm / 3 W speaker.
 - Physical SHOCK button on GPIO32.
-- Physical START/PAUSE button on GPIO33.
+- Physical START button on GPIO33.
 - Physical MODE button on GPIO14.
-- Physical RESET button on GPIO13.
+- Physical PADS/OK button on GPIO13.
+- Physical RESET button on GPIO17.
 
 Current working audio pins:
 
