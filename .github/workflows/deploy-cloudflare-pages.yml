@@ -6,6 +6,7 @@ on:
       - main
       - live-cog-20260922
       - medicine-aed
+      - medicine-aed-preview
   workflow_dispatch:
 
 permissions:
