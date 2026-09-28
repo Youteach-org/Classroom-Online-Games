@@ -21,7 +21,13 @@ class InputAdapter {
  public:
   void begin();
   bool shockPressed();
+  bool startPressed();
+  bool modePressed();
+  bool resetPressed();
 
  private:
   ShockButtonDebouncer shockDebouncer_{35};
+  ShockButtonDebouncer startDebouncer_{35};
+  ShockButtonDebouncer modeDebouncer_{35};
+  ShockButtonDebouncer resetDebouncer_{35};
 };
