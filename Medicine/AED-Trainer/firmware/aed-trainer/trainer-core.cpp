@@ -258,6 +258,25 @@ bool TrainerCore::requestReassess() {
   return true;
 }
 
+bool TrainerCore::pauseCase() {
+  if (state_ == TrainerState::OFF || paused_) return false;
+  paused_ = true;
+  return true;
+}
+
+bool TrainerCore::resumeCase() {
+  if (state_ == TrainerState::OFF || !paused_) return false;
+  paused_ = false;
+  return true;
+}
+
+bool TrainerCore::endCase() {
+  if (state_ == TrainerState::OFF) return false;
+  resetProgress();
+  state_ = TrainerState::OFF;
+  return true;
+}
+
 std::vector<std::string> TrainerCore::availableHintIds() const {
   std::vector<std::string> result;
   const auto t = twistHint(config_.twistId);
@@ -312,12 +331,11 @@ CommandResult TrainerCore::applyRemoteCommand(std::uint32_t seq, const std::stri
   } else if (command == "CLEAR_STAND_CLEAR_VIOLATION") {
     standClearViolation_ = false;
   } else if (command == "PAUSE") {
-    paused_ = true;
+    valid = pauseCase();
   } else if (command == "RESUME") {
-    paused_ = false;
+    valid = resumeCase();
   } else if (command == "END") {
-    resetProgress();
-    state_ = TrainerState::OFF;
+    valid = endCase();
   } else if (command == "RESTART") {
     resetProgress();
     state_ = TrainerState::STARTUP;
