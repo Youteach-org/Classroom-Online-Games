@@ -42,6 +42,7 @@ void InputAdapter::begin() {
   pinMode(HardwareConfig::SHOCK_BUTTON, INPUT_PULLUP);
   pinMode(HardwareConfig::START_BUTTON, INPUT_PULLUP);
   pinMode(HardwareConfig::MODE_BUTTON, INPUT_PULLUP);
+  pinMode(HardwareConfig::PADS_BUTTON, INPUT_PULLUP);
   pinMode(HardwareConfig::RESET_BUTTON, INPUT_PULLUP);
 #endif
 }
@@ -68,6 +69,15 @@ bool InputAdapter::modePressed() {
 #ifdef ARDUINO
   return modeDebouncer_.update(
       digitalRead(HardwareConfig::MODE_BUTTON) == LOW, millis());
+#else
+  return false;
+#endif
+}
+
+bool InputAdapter::padsPressed() {
+#ifdef ARDUINO
+  return padsDebouncer_.update(
+      digitalRead(HardwareConfig::PADS_BUTTON) == LOW, millis());
 #else
   return false;
 #endif
