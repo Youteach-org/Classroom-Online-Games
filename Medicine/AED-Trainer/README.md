@@ -146,7 +146,22 @@ Current working audio pins:
 - LRC: GPIO26
 - DOUT: GPIO25
 
-The TFT is temporary. Touch and SD are intentionally unused. The final display can be replaced without coupling the training state machine to a specific display driver.
+The TFT is temporary. Touch and SD are intentionally unused. **No Hall sensors or magnets are used for pad placement.** Training-pad placement is evaluated by the instructor.
+
+The planned compact final display is the 128x64 bicolor OLED already tested on the bench: its yellow upper band is reserved for warnings/status and its blue lower area for operating information. Display changes remain isolated behind the display adapter, so the trainer core does not depend on ST7789 or OLED APIs.
+
+### Local voice pack
+
+The development dialogue set contains **61 local prompts** with two distinct roles:
+
+- female Latin-American Spanish AED voice;
+- male paramedic-companion voice.
+
+The source recordings total about **287 seconds**. PCM16 is too large for the current 4 MB WROOM, so the bench package is standardized as **WAV IMA-ADPCM, mono, 10 kHz**, stored in LittleFS. The firmware decoder converts it to PCM16 and duplicates the samples to stereo I2S slots for the MAX98357A.
+
+A custom no-OTA WROOM partition reserves 2 MB for the firmware application and the remaining large region for LittleFS. The audio pack has a 1,750,000-byte build budget and fails verification rather than silently dropping clips.
+
+See [audio/README.md](./audio/README.md) for the build and verification details.
 
 ## Development documents
 
@@ -169,6 +184,10 @@ Teacher Monitor software can be verified automatically for its local logic and c
 
 - real Android + Chrome/Chromium;
 - real iPhone/iPad + Bluefy;
-- the physical ESP32 trainer.
+- the physical ESP32 trainer;
+- all 61 generated audio files built and loaded into LittleFS;
+- the physical SHOCK lockout, stand-clear lockout, A1/A5 flows and audio fallback exercised using the bench checklist.
+
+The voice-source generation is complete. Binary audio conversion/commit is currently gated by GitHub Actions runner availability; the source manifest and deterministic build/verifier scripts are already committed.
 
 iOS support is not accepted until Bluefy is proven to reopen the cached monitor offline and communicate with the trainer over BLE with Wi-Fi and mobile data disabled.
