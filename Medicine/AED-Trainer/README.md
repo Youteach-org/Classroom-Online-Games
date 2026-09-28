@@ -135,7 +135,7 @@ The UI explicitly reports whether the required shell is cached.
 Confirmed working together:
 
 - ESP32-WROOM-32 development board.
-- Provisional 2.4-inch ST7789 SPI TFT.
+- Tested 0.96-inch bicolor SSD1306 128x64 I2C OLED.
 - MAX98357A I2S mono amplifier.
 - 3 ohm / 3 W speaker.
 - Physical SHOCK button on GPIO32.
@@ -146,9 +146,9 @@ Current working audio pins:
 - LRC: GPIO26
 - DOUT: GPIO25
 
-The TFT is temporary. Touch and SD are intentionally unused. **No Hall sensors or magnets are used for pad placement.** Training-pad placement is evaluated by the instructor.
+The final bench display is the tested 128x64 bicolor OLED. It is wired VCC→3V3, GND→GND, SDA→GPIO21 and SCL→GPIO22 at I2C address 0x3C. Its physical yellow upper band is reserved for warning/status information and its blue lower area for operating information. The display is non-touch. **No Hall sensors or magnets are used for pad placement.** Training-pad placement is evaluated by the instructor.
 
-The planned compact final display is the 128x64 bicolor OLED already tested on the bench: its yellow upper band is reserved for warnings/status and its blue lower area for operating information. Display changes remain isolated behind the display adapter, so the trainer core does not depend on ST7789 or OLED APIs.
+Display access remains isolated behind the display adapter, so TrainerCore does not depend on SSD1306 APIs.
 
 ### Local voice pack
 
@@ -189,6 +189,6 @@ Teacher Monitor software can be verified automatically for its local logic and c
 - all 61 generated audio files built and loaded into LittleFS;
 - the physical SHOCK lockout, stand-clear lockout, A1/A5 flows and audio fallback exercised using the bench checklist.
 
-The voice-source generation is complete. Binary audio conversion/commit is currently gated by GitHub Actions runner availability; the source manifest and deterministic build/verifier scripts are already committed.
+The voice-source generation and compact binary audio pack are complete. GitHub Actions builds and verifies the flashable firmware/LittleFS package.
 
 iOS support is not accepted until Bluefy is proven to reopen the cached monitor offline and communicate with the trainer over BLE with Wi-Fi and mobile data disabled.
