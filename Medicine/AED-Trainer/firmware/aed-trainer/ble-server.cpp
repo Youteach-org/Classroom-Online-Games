@@ -56,13 +56,22 @@ class TrainerCommandCallbacks final : public BLECharacteristicCallbacks {
 BleServer::BleServer(TrainerCore& core) : core_(core) {}
 
 void BleServer::begin() {
+  Serial.println("BLE_STAGE_1_QUEUE");
   commandQueue_ = xQueueCreate(kCommandQueueDepth, sizeof(PendingCommand));
+  Serial.println(commandQueue_ ? "BLE_STAGE_1_OK" : "BLE_STAGE_1_FAIL");
 
+  Serial.println("BLE_STAGE_2_INIT");
   BLEDevice::init("AED Trainer");
+  Serial.println("BLE_STAGE_2_OK");
+
+  Serial.println("BLE_STAGE_3_SERVER");
   server_ = BLEDevice::createServer();
+  Serial.println("BLE_STAGE_3_OK");
   server_->setCallbacks(new TrainerServerCallbacks(this));
 
+  Serial.println("BLE_STAGE_4_SERVICE");
   auto* service = server_->createService(BleProtocol::kServiceUuid);
+  Serial.println("BLE_STAGE_4_OK");
   statusCharacteristic_ = service->createCharacteristic(
       BleProtocol::kDeviceStatusUuid,
       BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
@@ -84,15 +93,23 @@ void BleServer::begin() {
   eventCharacteristic_->addDescriptor(new BLE2902());
   ecgCharacteristic_->addDescriptor(new BLE2902());
   commandCharacteristic_->setCallbacks(new TrainerCommandCallbacks(this));
+  Serial.println("BLE_STAGE_5_CHARACTERISTICS_OK");
 
+  Serial.println("BLE_STAGE_6_SERVICE_START");
   service->start();
+  Serial.println("BLE_STAGE_6_OK");
+
   publishDeviceStatus();
   publishTrainerState();
+  Serial.println("BLE_STAGE_7_INITIAL_STATE_OK");
 
+  Serial.println("BLE_STAGE_8_ADVERTISING_SETUP");
   auto* advertising = BLEDevice::getAdvertising();
   advertising->addServiceUUID(BleProtocol::kServiceUuid);
   advertising->setScanResponse(true);
+  Serial.println("BLE_STAGE_9_ADVERTISING_START");
   BLEDevice::startAdvertising();
+  Serial.println("BLE_STAGE_9_OK");
 }
 
 void BleServer::queueCommandWire(const char* wire) {
