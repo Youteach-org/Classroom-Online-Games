@@ -45,9 +45,20 @@ def main():
             dst = ASSETS / clip["filename"]
             print(f"[{index:02d}/{len(clips)}] {clip['filename']}")
             urllib.request.urlretrieve(clip["url"], src)
+            # Classroom profile: remove low-frequency energy that the small
+            # speaker cannot use efficiently, compress speech dynamics, keep
+            # average loudness high and hard-limit peaks before ADPCM.
+            voice_filter = (
+                "highpass=f=140,"
+                "lowpass=f=4500,"
+                "acompressor=threshold=0.10:ratio=4:attack=5:release=100:makeup=2,"
+                "loudnorm=I=-13:LRA=4:TP=-1.0,"
+                "alimiter=limit=0.95"
+            )
             run(
                 "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
                 "-i", str(src),
+                "-af", voice_filter,
                 "-ac", "1",
                 "-ar", str(TARGET_RATE),
                 "-c:a", "adpcm_ima_wav",
@@ -69,6 +80,7 @@ def main():
         "schemaVersion": 1,
         "storage": "LittleFS internal flash",
         "format": "WAV IMA-ADPCM mono",
+        "voiceProfile": "classroom-loud",
         "sampleRate": TARGET_RATE,
         "budgetBytes": BUDGET_BYTES,
         "totalBytes": total,
