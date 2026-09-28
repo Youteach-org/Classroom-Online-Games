@@ -157,7 +157,8 @@ std::string encodeDeviceStatus(std::uint32_t seq,
                                int batteryPercent) {
   std::string wire = beginRecord("status", seq);
   if (!appendField(&wire, "device", device) ||
-      !appendField(&wire, "firmware", firmware) ||
+      !appendField(&wire, "firmware", firmware)) return {};
+  if (batteryPercent >= 0 &&
       !appendField(&wire, "battery", std::to_string(batteryPercent))) return {};
   return wire;
 }
