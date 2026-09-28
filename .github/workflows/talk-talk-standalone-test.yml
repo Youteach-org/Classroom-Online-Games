@@ -21,7 +21,7 @@ jobs:
           node --check Talk-Talk/teacher-app.mjs
       - name: Run standalone and UI contract tests
         run: |
-          node --test Talk-Talk/tests/standalone-auth.test.mjs
+          node --test Talk-Talk/tests/standalone-auth.test.mjs\n          node --test Talk-Talk/tests/standalone-functional.test.mjs\n          node --test Talk-Talk/tests/attempt-recorder.test.mjs
           node --test Talk-Talk/tests/pixel-reference.test.mjs
           node --test Talk-Talk/tests/visual-contract.test.mjs
           node --test Talk-Talk/tests/individual-shell.test.mjs
