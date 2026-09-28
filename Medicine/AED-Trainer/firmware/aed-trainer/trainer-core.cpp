@@ -162,6 +162,8 @@ bool TrainerCore::loadCase(const CaseConfig& config) {
 
 void TrainerCore::queueStartupPrompts() {
   promptQueue_.push_back("AED_STARTUP");
+  promptQueue_.push_back("AED_CALL_HELP");
+  promptQueue_.push_back("AED_EXPOSE_CHEST");
   const auto twist = twistContext(config_.twistId);
   const auto clinical = clinicalContext(config_.clinicalId);
   if (!twist.empty()) promptQueue_.push_back(twist);
