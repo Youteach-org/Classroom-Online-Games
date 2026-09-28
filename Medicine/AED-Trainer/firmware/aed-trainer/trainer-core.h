@@ -68,6 +68,11 @@ class TrainerCore {
   bool handleShockPress();
   bool requestReassess();
 
+  // Local physical controls. These do not require BLE.
+  bool pauseCase();
+  bool resumeCase();
+  bool endCase();
+
   std::optional<AnalysisOutcome> consumeNextOutcome();
   std::optional<std::string> requestHint();
   std::optional<std::string> popPrompt();
