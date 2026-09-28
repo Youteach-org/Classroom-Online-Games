@@ -422,3 +422,102 @@ TDD sequence:
 - GREEN: `36101697406` verifies the real-DOM implementation contract.
 
 Do not revert to the earlier direct-crop technique.
+
+
+## Standalone functional flow — 2026-09-27
+
+Status:
+- Standalone UI is now functional without YouTeach.
+- Authentication remains temporary/simple:
+  - student / talktalk
+  - teacher / talktalk
+
+### Student flow now implemented
+
+Real browser behavior:
+1. Student opens the recording screen.
+2. Microphone permission is requested through `speech/audio-capture.mjs`.
+3. Recording uses the real browser `MediaRecorder` through `speech/attempt-recorder.mjs`.
+4. The original audio Blob is retained for playback.
+5. Audio is decoded to PCM and local prosody evidence is computed.
+6. The attempt is persisted locally for later teacher review.
+7. Student can play the saved recording.
+8. Student can retry and replace the standalone attempt.
+9. Student review shows only evidence actually available locally.
+
+Persistence:
+- Attempt metadata: browser `localStorage`
+- Recorded audio Blob: browser `IndexedDB`
+- Shared between the temporary student and teacher roles on the same browser/device.
+
+### Evidence policy in standalone mode
+
+Do not fabricate transcript or linguistic analysis.
+
+Currently real/local:
+- recording duration
+- saved audio
+- playback
+- prosody / fluency evidence
+- task-completion evidence based on the recorded attempt
+
+Still pending Oral-Grader:
+- literal transcript
+- pronunciation
+- grammar & vocabulary
+- coherence
+- interaction from multi-speaker evidence
+
+The UI must display these as pending rather than filling them with fixture/demo values.
+
+### Teacher flow now implemented
+
+Teacher Monitor reads the latest standalone attempt.
+
+Teacher can:
+- see whether a real attempt exists
+- open Team 1 detail
+- play the student's actual saved recording
+- see recording duration
+- see local fluency evidence
+- see explicit pending state for transcript/pronunciation/grammar/interaction
+- enter manual 0–8 rubric scores
+- add teacher comments
+- publish the result locally for standalone testing
+- generate a plain-text standalone review report
+- queue the visible Twist locally for the next test attempt
+- end the standalone activity locally
+
+The previous hard-coded Paul/Paulina transcript and 28/40 assessment were removed from the functional preview.
+
+### New standalone modules / contracts
+
+- `Talk-Talk/standalone-session.mjs`
+  - standalone attempt model
+  - local evaluation builder
+  - localStorage + IndexedDB persistence
+  - teacher review state
+  - local publish state
+- `Talk-Talk/speech/attempt-recorder.mjs`
+  - now returns the original recorded Blob in addition to decoded PCM
+
+Functional tests:
+- `Talk-Talk/tests/standalone-functional.test.mjs`
+- `Talk-Talk/tests/standalone-ui-flow.test.mjs`
+- `Talk-Talk/tests/attempt-recorder.test.mjs`
+
+TDD evidence:
+- Real functional RED after CI newline correction: run `36378694734` — FAILURE as expected.
+- Functional GREEN: run `36378970291` — SUCCESS.
+- Deploy workflow is now gated on the same standalone functional tests.
+
+### Next milestone
+
+Connect Oral-Grader to this real standalone attempt:
+1. Send/use the saved recording as Oral-Grader input.
+2. Preserve literal `heard_text`.
+3. Map Stage 2 evidence into the teacher/student views.
+4. Replace pending transcript/pronunciation/grammar/coherence/interaction states with real evidence.
+5. Keep teacher override separate from immutable transcript evidence.
+
+Do not reconnect YouTeach until the standalone end-to-end oral flow is stable.
