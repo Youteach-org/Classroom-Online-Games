@@ -40,10 +40,11 @@ test("every prompt script ID is mapped to its local filename", () => {
   }
 });
 
-test("WAV playback is constrained to mono PCM16 and duplicated to stereo I2S", () => {
-  assert.match(cpp, /audioFormat\s*!=\s*1/);
+test("WAV playback supports mono PCM16 and compact IMA-ADPCM, then outputs stereo I2S", () => {
+  assert.match(cpp, /audioFormat\s*==\s*1|audioFormat\s*!=\s*1/);
+  assert.match(cpp, /0x11|17/);
   assert.match(cpp, /channels\s*!=\s*1/);
-  assert.match(cpp, /bitsPerSample\s*!=\s*16/);
+  assert.match(cpp, /imaAdpcmDecodeNibble/);
   assert.match(cpp, /stereo\[i\s*\*\s*2\]/);
   assert.match(cpp, /stereo\[i\s*\*\s*2\s*\+\s*1\]/);
 });
