@@ -68,7 +68,7 @@ test("startup speaker self-test is generated locally over I2S", () => {
   assert.match(cpp, /AudioPlayer::playStartupTone/);
   assert.match(cpp, /playSquare\(740,\s*90\)/);
   assert.match(cpp, /playSquare\(1040,\s*130\)/);
-  assert.match(cpp, /kAmplitude\s*=\s*5000/);
+  assert.match(cpp, /kAmplitude\s*=\s*12000/);
 });
 
 
