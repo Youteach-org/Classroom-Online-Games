@@ -86,3 +86,26 @@ test("final display is the tested 128x64 SSD1306 OLED on I2C 21/22, not the prov
   assert.match(display,/Wire\.begin\(HardwareConfig::OLED_SDA,\s*HardwareConfig::OLED_SCL\)/);
   assert.doesNotMatch(config+display,/ST7789|TFT_|Adafruit_ST77|SPI\.begin/);
 });
+
+
+test("standalone physical controls remain available without BLE",()=>{
+  const config=readFileSync(join(firmwareRoot,"hardware-config.h"),"utf8");
+  const inputH=readFileSync(join(firmwareRoot,"input-adapter.h"),"utf8");
+  const inputCpp=readFileSync(join(firmwareRoot,"input-adapter.cpp"),"utf8");
+  const sketch=readFileSync(join(firmwareRoot,"aed-trainer.ino"),"utf8");
+
+  assert.match(config,/SHOCK_BUTTON\s*=\s*32/);
+  assert.match(config,/START_BUTTON\s*=\s*33/);
+  assert.match(config,/MODE_BUTTON\s*=\s*14/);
+  assert.match(config,/RESET_BUTTON\s*=\s*13/);
+  assert.match(inputH,/startPressed/);
+  assert.match(inputH,/modePressed/);
+  assert.match(inputH,/resetPressed/);
+  assert.match(inputCpp,/INPUT_PULLUP/);
+  assert.match(sketch,/LOCAL_START/);
+  assert.match(sketch,/LOCAL_PAUSE/);
+  assert.match(sketch,/LOCAL_RESUME/);
+  assert.match(sketch,/LOCAL_RESET/);
+  assert.match(sketch,/BLE opcional/);
+  assert.doesNotMatch(sketch,/Conecte Teacher Monitor por Bluetooth/);
+});
