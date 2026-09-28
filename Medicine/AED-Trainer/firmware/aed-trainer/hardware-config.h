@@ -15,7 +15,8 @@ constexpr int OLED_YELLOW_BAND_HEIGHT = 16;
 constexpr int SHOCK_BUTTON = 32;
 constexpr int START_BUTTON = 33;
 constexpr int MODE_BUTTON = 14;
-constexpr int RESET_BUTTON = 13;
+constexpr int PADS_BUTTON = 13;
+constexpr int RESET_BUTTON = 17;
 
 constexpr int I2S_DOUT = 25;
 constexpr int I2S_LRC = 26;
