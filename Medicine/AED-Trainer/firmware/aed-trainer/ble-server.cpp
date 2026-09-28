@@ -127,6 +127,7 @@ void BleServer::handleConnect() {
 
 void BleServer::handleDisconnect() {
   transportConnected_.store(false, std::memory_order_release);
+  if (commandQueue_) xQueueReset(commandQueue_);
   connectionChangePending_.store(true, std::memory_order_release);
 }
 
@@ -141,9 +142,6 @@ void BleServer::applyConnectionState() {
     // A browser/app reload starts a fresh namespace at seq=1.
     seenCommandSeqs_.clear();
     core_.resetRemoteSequenceNamespace();
-
-    // Drop any writes that belonged to a previous connection.
-    if (commandQueue_) xQueueReset(commandQueue_);
 
     publishDeviceStatus();
     publishTrainerState();
