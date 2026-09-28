@@ -1,0 +1,38 @@
+name: AED Build Voice Pack
+
+on:
+  push:
+    branches:
+      - feature/aed-esp32-firmware-audio
+    paths:
+      - "Medicine/AED-Trainer/audio/audio-sources.generated.json"
+      - "Medicine/AED-Trainer/audio/tools/build-audio-pack.py"
+      - ".github/workflows/aed-build-audio-pack.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-audio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/aed-esp32-firmware-audio
+          fetch-depth: 0
+      - name: Build compact local voice pack
+        run: python Medicine/AED-Trainer/audio/tools/build-audio-pack.py
+      - name: Verify local voice pack
+        run: python Medicine/AED-Trainer/audio/tools/verify-audio-pack.py
+      - name: Commit generated assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Medicine/AED-Trainer/audio/assets Medicine/AED-Trainer/audio/manifest.json
+          if git diff --cached --quiet; then
+            echo "Audio pack already current"
+          else
+            git commit -m "feat(aed): build compact local voice assets"
+            git push origin HEAD:feature/aed-esp32-firmware-audio
+          fi
