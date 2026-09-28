@@ -71,18 +71,19 @@ void drawLargeBlueState(TrainerState state) {
 
     case TrainerState::STARTUP:
       printCenteredLarge("ESCUCHE", 20, 2);
-      printCenteredLarge("INDIC.", 42, 2);
+      printCenteredLarge("LA VOZ", 42, 2);
       break;
 
     case TrainerState::APPLY_PADS:
       printCenteredLarge("COLOQUE", 16, 2);
-      printCenteredLarge("ELECTROD.", 32, 2);
-      printCenteredLarge("PADS/OK", 48, 2);
+      printCenteredLarge("PADS", 32, 2);
+      printCenteredLarge("PULSE OK", 48, 2);
       break;
 
     case TrainerState::NO_SHOCK_ADVISED:
-      printCenteredLarge("NO SHOCK", 20, 2);
-      printCenteredLarge("INICIE RCP", 44, 2);
+      printCenteredLarge("SIN", 16, 2);
+      printCenteredLarge("DESCARGA", 32, 2);
+      printCenteredLarge("INICIE RCP", 48, 2);
       break;
 
     case TrainerState::REASSESS:
