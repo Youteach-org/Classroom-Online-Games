@@ -73,8 +73,19 @@ test("startup speaker self-test is generated locally over I2S", () => {
 
 
 test("voice playback applies bounded digital gain and louder local tones", () => {
-  assert.match(cpp, /kVoiceGainNumerator\\s*=\\s*11/);
-  assert.match(cpp, /kVoiceGainDenominator\\s*=\\s*10/);
+  assert.match(cpp, /kVoiceGainNumerator\s*=\s*11/);
+  assert.match(cpp, /kVoiceGainDenominator\s*=\s*10/);
   assert.match(cpp, /std::clamp<std::int32_t>/);
   assert.match(cpp, /kAmplitude\s*=\s*12000/);
+});
+
+
+test("classroom voice image is mastered before LittleFS packaging", () => {
+  const workflow = readFileSync(join(root, "..", "..", ".github", "workflows", "aed-firmware-ci.yml"), "utf8");
+  assert.match(workflow, /Prepare classroom voice pack/);
+  assert.match(workflow, /highpass=f=140/);
+  assert.match(workflow, /acompressor=/);
+  assert.match(workflow, /loudnorm=I=-13:LRA=4:TP=-1\.0/);
+  assert.match(workflow, /alimiter=limit=0\.95/);
+  assert.match(workflow, /dist\/classroom-audio/);
 });
