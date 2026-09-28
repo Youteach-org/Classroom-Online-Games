@@ -93,6 +93,11 @@ export function createBleClient({ bluetooth }) {
       throw new Error("Invalid trainer state");
     }
 
+    // A physical trainer reboot restarts its event sequence counter. Once the
+    // authoritative status/state pair has been reread, begin a fresh event
+    // namespace so valid post-reboot events are not mistaken for old duplicates.
+    seenEventSeqs.clear();
+
     emit("status", statusMessage);
     emit("state", stateMessage);
     setConnectionState("ready");
