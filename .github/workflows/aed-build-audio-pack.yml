@@ -21,6 +21,10 @@ jobs:
         with:
           ref: feature/aed-esp32-firmware-audio
           fetch-depth: 0
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
       - name: Build compact local voice pack
         run: python Medicine/AED-Trainer/audio/tools/build-audio-pack.py
       - name: Verify local voice pack
