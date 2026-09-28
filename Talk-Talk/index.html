@@ -30,7 +30,7 @@
         <header class="student-topbar">
           <strong>TALK-TALK</strong>
           <span class="mode-chip">Practice</span>
-          <span class="time-chip">◷ <b>03:00</b></span>
+          <span class="time-chip">◷ <b id="recordingCountdown">03:00</b></span>
         </header>
 
         <article class="prompt-card">
@@ -44,7 +44,7 @@
               <img src="./assets/paul-head.webp" alt="Paul">
             </div>
             <strong>Paul</strong>
-            <span>Speaking...</span>
+            <span id="studentSpeakerState">Ready</span>
           </div>
           <div class="speaker-column">
             <div class="character-avatar">
@@ -59,13 +59,13 @@
           <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
         </div>
 
-        <button id="recordButton" class="mic-button" type="button" aria-label="Microphone">♩<span class="mic-glyph">●</span></button>
-        <p class="mic-help">Tap to check the microphone.<br><span>Audio stays on this device.</span></p>
+        <button id="recordButton" class="mic-button" type="button" aria-label="Start or stop recording"><span class="mic-glyph">●</span></button>
+        <p id="microphoneMessage" class="mic-help">Tap the microphone to start recording.<br><span>Audio stays on this device during standalone testing.</span></p>
 
         <footer class="recording-footer">
-          <span class="recording-label"><b class="record-dot"></b> Recording...</span>
-          <strong>02:14</strong>
-          <button id="finishRecordingBtn" class="tt-btn tt-btn-soft" data-target="studentConversationView" type="button">Finish</button>
+          <span class="recording-label"><b id="recordDot" class="record-dot is-idle"></b> <span id="recordingLabelText">Ready</span></span>
+          <strong id="recordingDuration">00:00</strong>
+          <button id="finishRecordingBtn" class="tt-btn tt-btn-soft" type="button">Finish</button>
         </footer>
       </div>
     </section>
@@ -75,43 +75,40 @@
         <header class="student-topbar">
           <strong>TALK-TALK</strong>
           <span class="mode-chip">Practice</span>
-          <span class="time-chip">◷ <b>02:30</b></span>
+          <span class="time-chip">Recorded <b id="conversationDuration">00:00</b></span>
         </header>
 
         <nav class="student-tabs" aria-label="Conversation tabs">
           <button class="active" type="button">Conversation</button>
-          <button type="button">My Practice</button>
-          <button type="button">Tips</button>
+          <button type="button" disabled title="Available after more practice history is connected">My Practice</button>
+          <button type="button" disabled title="Available after Oral-Grader integration">Tips</button>
         </nav>
 
         <div class="chat-thread">
           <article class="chat-row">
             <img class="chat-avatar" src="./assets/paul-head.webp" alt="Paul">
-            <div class="chat-main"><strong>Paul</strong><p>I have went to the park yesterday<br>with my family.</p></div>
-            <time>00:12</time>
+            <div class="chat-main">
+              <strong>Paul</strong>
+              <p id="transcriptStatus">Transcript pending — Oral-Grader is not connected yet.</p>
+            </div>
+            <time id="studentAttemptTime">--:--</time>
           </article>
           <article class="chat-row">
             <img class="chat-avatar" src="./assets/paulina-head.webp" alt="Paulina">
-            <div class="chat-main"><strong>Paulina</strong><p>Oh, nice! What did you do there?</p></div>
-            <time>00:18</time>
-          </article>
-          <article class="chat-row">
-            <img class="chat-avatar" src="./assets/paul-head.webp" alt="Paul">
-            <div class="chat-main"><strong>Paul</strong><p>We saw a bicycle fall and<br>then we helped him.</p></div>
-            <time>00:25</time>
-          </article>
-          <article class="chat-row">
-            <img class="chat-avatar" src="./assets/paulina-head.webp" alt="Paulina">
-            <div class="chat-main"><strong>Paulina</strong><p>That’s good. Did he get hurt?</p></div>
-            <time>00:32</time>
+            <div class="chat-main">
+              <strong>Paulina</strong>
+              <p>Partner turns will appear here when multi-speaker conversation capture is connected.</p>
+            </div>
+            <time>—</time>
           </article>
         </div>
 
+        <audio id="studentAudioElement" preload="metadata"></audio>
         <div class="audio-player student-player">
-          <button class="play-button" type="button">▶</button>
+          <button id="studentPlayButton" class="play-button" type="button" aria-label="Play recorded audio">▶</button>
           <div class="track"><span></span></div>
-          <div class="player-time"><small>00:00 / 01:24</small></div>
-          <button class="speed-button" type="button">1x</button>
+          <div class="player-time"><small id="studentPlayerTime">00:00 / 00:00</small></div>
+          <button class="speed-button" type="button" disabled>1x</button>
         </div>
 
         <button id="showPracticeResultBtn" class="tt-btn tt-btn-primary tt-btn-wide review-trigger" data-target="studentPracticeResultView" type="button">See speaking review →</button>
@@ -135,24 +132,25 @@
         </div>
 
         <article class="review-card review-good">
-          <h2><span class="status-icon ok">✓</span> What worked well</h2>
-          <p>✓ <span>You kept the conversation moving.</span></p>
-          <p>✓ <span>Your partner understood your ideas.</span></p>
-          <p>✓ <span>You used good connectors.</span></p>
+          <h2><span class="status-icon ok">✓</span> Local evidence available</h2>
+          <p>✓ <span id="recordingCapturedFeedback">Record an attempt to create evidence.</span></p>
+          <p>✓ <span id="studentFluencyValue">Fluency: pending recording</span></p>
+          <p>✓ <span id="studentTaskValue">Task completion: pending recording</span></p>
         </article>
 
         <article class="review-card review-work">
-          <h2><span class="status-icon down">⌄</span> Work on</h2>
+          <h2><span class="status-icon down">⌄</span> Pending Oral-Grader</h2>
           <ul>
-            <li>past participles (e.g. <i>gone, seen</i>)</li>
-            <li>final consonants (e.g. /t/, /d/)</li>
-            <li>answering with more detail</li>
+            <li>Transcript: pending</li>
+            <li>Pronunciation: pending</li>
+            <li>Grammar &amp; vocabulary: pending</li>
+            <li>Interaction: pending</li>
           </ul>
         </article>
 
         <div class="review-actions">
-          <button id="tryAgainBtn" class="tt-btn tt-btn-outline" data-target="studentRecordingView" type="button">Try again</button>
-          <button id="studentFullTranscriptBtn" class="tt-btn tt-btn-primary" data-target="studentConversationView" type="button">See full transcript →</button>
+          <button id="tryAgainBtn" class="tt-btn tt-btn-outline" type="button">Try again</button>
+          <button id="studentFullTranscriptBtn" class="tt-btn tt-btn-primary" data-target="studentConversationView" type="button">Review recording →</button>
         </div>
       </div>
     </section>
