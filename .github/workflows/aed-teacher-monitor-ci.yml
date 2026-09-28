@@ -1,0 +1,25 @@
+name: AED Teacher Monitor CI
+
+on:
+  push:
+    branches:
+      - medicine-aed
+      - feature/aed-teacher-monitor-offline-ble
+  pull_request:
+    paths:
+      - "Medicine/AED-Trainer/**"
+      - ".github/workflows/aed-teacher-monitor-ci.yml"
+
+jobs:
+  node-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Medicine/AED-Trainer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run AED Teacher Monitor tests
+        run: node --test tests/*.test.mjs
