@@ -265,16 +265,15 @@ bool wavSupported(const WavInfo& wav) {
 }  // namespace
 
 bool AudioPlayer::begin() {
-  fsReady_ = LittleFS.begin(false);
-  if (!fsReady_) return false;
-
   I2S.setPins(
       HardwareConfig::I2S_BCLK,
       HardwareConfig::I2S_LRC,
       HardwareConfig::I2S_DOUT,
       -1,
       -1);
-  return true;
+
+  fsReady_ = LittleFS.begin(false);
+  return fsReady_;
 }
 
 bool AudioPlayer::playPrompt(const std::string& promptId) {
@@ -304,6 +303,39 @@ bool AudioPlayer::playPrompt(const std::string& promptId) {
   file.close();
   stop();
   return ok;
+}
+
+
+bool AudioPlayer::playMetronomeClick() {
+  constexpr std::uint32_t kRate = 16000;
+  constexpr std::size_t kFrames = 480;  // 30 ms
+  constexpr std::size_t kChunkFrames = 128;
+  constexpr std::int16_t kAmplitude = 6000;
+
+  if (!startI2s(kRate)) return false;
+
+  std::int16_t stereo[kChunkFrames * 2];
+  std::size_t produced = 0;
+
+  while (produced < kFrames) {
+    const std::size_t count = std::min(kChunkFrames, kFrames - produced);
+    for (std::size_t i = 0; i < count; ++i) {
+      const std::size_t phase = (produced + i) % 16;
+      const std::int16_t sample = phase < 8 ? kAmplitude : -kAmplitude;
+      stereo[i * 2] = sample;
+      stereo[i * 2 + 1] = sample;
+    }
+
+    const std::size_t bytes = count * 2 * sizeof(std::int16_t);
+    if (I2S.write(reinterpret_cast<std::uint8_t*>(stereo), bytes) != bytes) {
+      stop();
+      return false;
+    }
+    produced += count;
+  }
+
+  stop();
+  return true;
 }
 
 void AudioPlayer::stop() {
