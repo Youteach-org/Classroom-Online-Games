@@ -67,6 +67,21 @@ A class session must not depend on:
 
 Internet is allowed before class only to initially load/update the Teacher Monitor or install Bluefy.
 
+### Standalone pacing
+
+The autonomous trainer deliberately does not chain voice prompts back-to-back. Current bench pacing is:
+
+- about 1.2 s minimum silence between spoken prompts;
+- about 8 s after the pad-placement instruction before simulated analysis;
+- about 3 s of analysis dwell before the scripted result;
+- about 1.8 s between shock/no-shock decisions and the next instruction.
+
+These pauses are part of the training behavior, not audio-file silence.
+
+### Audio level
+
+Firmware applies bounded digital gain to the local voice pack and louder local startup/metronome cues. The MAX98357A remains usable at its default hardware gain; if additional bench volume is required, the hardware GAIN pin can be evaluated separately rather than encoding device-specific analog gain into the firmware.
+
 ## Training model
 
 A case is assembled from independent layers:
