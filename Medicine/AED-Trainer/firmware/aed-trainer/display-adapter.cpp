@@ -65,44 +65,46 @@ void drawLargeBlueState(TrainerState state) {
 
   switch (state) {
     case TrainerState::OFF:
-      printCenteredLarge("LISTO", 22, 2);
-      printCenteredLarge("START", 44, 2);
+      printCenteredLarge("LISTO", 20, 2);
+      printCenteredLarge("PULSE START", 44, 1);
       break;
 
     case TrainerState::STARTUP:
-      printCenteredLarge("ESCUCHE", 20, 2);
+      printCenteredLarge("SIGA", 18, 2);
       printCenteredLarge("LA VOZ", 42, 2);
       break;
 
     case TrainerState::APPLY_PADS:
       printCenteredLarge("COLOQUE", 16, 2);
-      printCenteredLarge("PADS", 32, 2);
-      printCenteredLarge("PULSE OK", 48, 2);
+      printCenteredLarge("ELECTRODOS", 32, 2);
+      printCenteredLarge("PADS/OK", 48, 2);
       break;
 
     case TrainerState::NO_SHOCK_ADVISED:
-      printCenteredLarge("SIN", 16, 2);
-      printCenteredLarge("DESCARGA", 32, 2);
-      printCenteredLarge("INICIE RCP", 48, 2);
+      printCenteredLarge("NO SE INDICA", 18, 1);
+      printCenteredLarge("DESCARGA", 31, 2);
+      printCenteredLarge("INICIE RCP", 52, 1);
       break;
 
     case TrainerState::REASSESS:
-      printCenteredLarge("NO TOQUE", 20, 2);
-      printCenteredLarge("ANALISIS", 44, 2);
+      printCenteredLarge("PREPARESE", 18, 2);
+      printCenteredLarge("NUEVO ANALISIS", 45, 1);
       break;
 
     case TrainerState::ANALYZING:
-      printCenteredLarge("NO TOQUE", 20, 2);
+      printCenteredLarge("NO TOQUE", 18, 2);
+      printCenteredLarge("AL PACIENTE", 38, 1);
       break;
 
     case TrainerState::SHOCK_ADVISED:
     case TrainerState::WAITING_SHOCK:
-      printCenteredLarge("NO TOQUE", 20, 2);
-      printCenteredLarge("SHOCK", 43, 2);
+      printCenteredLarge("TODOS", 18, 2);
+      printCenteredLarge("DESPEJADOS", 35, 2);
+      printCenteredLarge("PRESIONE SHOCK", 56, 1);
       break;
 
     case TrainerState::CPR:
-      printCenteredLarge("RCP", 20, 2);
+      printCenteredLarge("CONTINUE RCP", 20, 1);
       break;
   }
 }
@@ -201,11 +203,14 @@ void DisplayAdapter::showAnalyzing(
   display.setTextWrap(false);
 
   drawHeader("ANALIZANDO");
-  printCenteredLarge("NO TOQUE", 16, 2);
 
-  // Keep the ECG trace in the remaining blue area instead of wasting it.
-  constexpr int kMiddle = 51;
-  constexpr int kTop = 34;
+  // Full instruction, fitted to the blue area without truncating words.
+  printCenteredLarge("NO TOQUE", 16, 2);
+  printCenteredLarge("AL PACIENTE", 34, 1);
+
+  // ECG remains visible in the lower part of the blue area.
+  constexpr int kMiddle = 53;
+  constexpr int kTop = 43;
   constexpr int kBottom = 63;
 
   for (int x = 0; x < HardwareConfig::OLED_WIDTH - 1; ++x) {
@@ -253,9 +258,10 @@ void DisplayAdapter::showShockWarning() {
       HardwareConfig::OLED_WIDTH,
       SSD1306_WHITE);
 
-  // Blue area: large, centered, no clipped sentences.
-  printCenteredLarge("NO TOQUE", 18, 2);
-  printCenteredLarge("SHOCK", 42, 2);
+  // Blue area: complete instruction, mixed sizes only where needed to fit.
+  printCenteredLarge("TODOS", 17, 2);
+  printCenteredLarge("DESPEJADOS", 33, 2);
+  printCenteredLarge("PRESIONE SHOCK", 55, 1);
 
   display.display();
 }
@@ -285,8 +291,8 @@ void DisplayAdapter::showCprCountdown(
       HardwareConfig::OLED_WIDTH,
       SSD1306_WHITE);
 
-  // Blue area uses large text and the entire available width.
-  printCenteredLarge("COMPRIMA", 16, 2);
+  // Blue area uses the space without clipping: full instruction plus timer.
+  printCenteredLarge("CONTINUE RCP", 17, 1);
 
   char timeText[6];
   std::snprintf(
