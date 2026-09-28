@@ -11,14 +11,12 @@
 #include "trainer-core.h"
 
 namespace {
-constexpr std::uint32_t kInterPromptGapMs = 1200;
-constexpr std::uint32_t kStartupSettleMs = 1500;
-constexpr std::uint32_t kApplyPadsDelayMs = 8000;
+constexpr std::uint32_t kStartupSettleMs = 500;
 constexpr std::uint32_t kAnalysisSettleMs = 3000;
-constexpr std::uint32_t kShockArmDelayMs = 1800;
-constexpr std::uint32_t kNoShockToCprMs = 1800;
+constexpr std::uint32_t kShockArmDelayMs = 500;
+constexpr std::uint32_t kNoShockToCprMs = 500;
 constexpr std::uint32_t kCprCycleMs = 120000;
-constexpr std::uint32_t kReassessDelayMs = 1800;
+constexpr std::uint32_t kReassessDelayMs = 500;
 constexpr std::uint32_t kMetronomeBpm = 110;
 constexpr std::uint32_t kMetronomeIntervalMs = 60000 / kMetronomeBpm;
 
@@ -35,7 +33,6 @@ TrainerState lastRenderedState = TrainerState::OFF;
 std::uint32_t stateEnteredAt = 0;
 std::uint32_t lastMetronomeAt = 0;
 std::uint32_t pauseStartedAt = 0;
-std::uint32_t nextPromptAllowedAt = 0;
 bool lastPaused = false;
 std::size_t localScenarioIndex = 0;
 
@@ -46,7 +43,7 @@ const char* stateFallback(TrainerState state) {
     case TrainerState::STARTUP:
       return "Iniciando caso de entrenamiento.";
     case TrainerState::APPLY_PADS:
-      return "Prepare y coloque los electrodos de entrenamiento.";
+      return "Coloque electrodos. Pulse PADS/OK al terminar.";
     case TrainerState::ANALYZING:
       return "Analizando ritmo simulado. No toque al paciente.";
     case TrainerState::SHOCK_ADVISED:
@@ -84,8 +81,6 @@ void showLocalReady() {
 }
 
 void serviceOnePrompt() {
-  if (!promptGapReady()) return;
-
   const auto prompt = trainer.popPrompt();
   if (!prompt.has_value()) return;
 
@@ -95,7 +90,6 @@ void serviceOnePrompt() {
       text ? text : prompt.value().c_str());
 
   const bool played = audio.playPrompt(prompt.value());
-  nextPromptAllowedAt = millis() + kInterPromptGapMs;
   if (!played) {
     Serial.print("AUDIO_MISSING: ");
     Serial.println(prompt.value().c_str());
@@ -105,10 +99,14 @@ void serviceOnePrompt() {
   if (prompt.value().rfind("AED_", 0) == 0) {
     stateEnteredAt = millis();
   }
-}
 
-bool promptGapReady() {
-  return static_cast<std::int32_t>(millis() - nextPromptAllowedAt) >= 0;
+  if (trainer.state() == TrainerState::APPLY_PADS &&
+      (prompt.value() == "AED_ATTACH_PADS" ||
+       prompt.value() == "AED_CHECK_PADS")) {
+    display.showState(
+        TrainerState::APPLY_PADS,
+        "Coloque electrodos. Pulse PADS/OK al terminar.");
+  }
 }
 
 bool elapsed(std::uint32_t intervalMs) {
@@ -132,11 +130,8 @@ void advanceRuntime() {
       break;
 
     case TrainerState::APPLY_PADS:
-      if (!snapshot.padFault &&
-          !trainer.hasPrompt() &&
-          elapsed(kApplyPadsDelayMs)) {
-        changed = trainer.beginAnalysis();
-      }
+      // Intentionally wait here. The trainer must not analyze until the
+      // learner confirms that the training pads have been placed.
       break;
 
     case TrainerState::ANALYZING:
@@ -230,11 +225,34 @@ void serviceShockButton() {
   syncStateView(true);
 }
 
+void servicePadsButton() {
+  if (!inputs.padsPressed()) return;
+
+  const auto snapshot = trainer.snapshot();
+  if (snapshot.state != TrainerState::APPLY_PADS) {
+    Serial.println("PADS_IGNORED");
+    return;
+  }
+
+  if (snapshot.padFault) {
+    Serial.println("PADS_BLOCKED_CONTACT_FAULT");
+    display.showState(
+        TrainerState::APPLY_PADS,
+        "Revise electrodos. Corrija contacto antes de continuar.");
+    return;
+  }
+
+  if (trainer.beginAnalysis()) {
+    Serial.println("LOCAL_PADS_CONFIRMED");
+    ble.notifyEvent("LOCAL_PADS_CONFIRMED");
+    syncStateView(true);
+  }
+}
+
 void serviceLocalControls() {
   if (inputs.resetPressed()) {
     if (trainer.endCase()) {
       Serial.println("LOCAL_RESET");
-      nextPromptAllowedAt = 0;
       ble.notifyEvent("LOCAL_RESET");
       syncStateView(true);
     }
@@ -259,35 +277,15 @@ void serviceLocalControls() {
 
   if (!inputs.startPressed()) return;
 
-  const auto snapshot = trainer.snapshot();
-
-  if (snapshot.state == TrainerState::OFF) {
-    if (trainer.startCase()) {
-      Serial.println("LOCAL_START");
-      nextPromptAllowedAt = 0;
-      ble.notifyEvent("LOCAL_START");
-      syncStateView(true);
-    }
+  if (trainer.state() != TrainerState::OFF) {
+    Serial.println("START_IGNORED_ACTIVE_CASE");
     return;
   }
 
-  if (snapshot.paused) {
-    if (trainer.resumeCase()) {
-      Serial.println("LOCAL_RESUME");
-      ble.notifyEvent("LOCAL_RESUME");
-      display.showState(trainer.state(), stateFallback(trainer.state()));
-      ble.publishTrainerState();
-    }
-    return;
-  }
-
-  if (trainer.pauseCase()) {
-    Serial.println("LOCAL_PAUSE");
-    ble.notifyEvent("LOCAL_PAUSE");
-    display.showState(
-        trainer.state(),
-        "PAUSA. START reanuda. RESET vuelve a espera.");
-    ble.publishTrainerState();
+  if (trainer.startCase()) {
+    Serial.println("LOCAL_START");
+    ble.notifyEvent("LOCAL_START");
+    syncStateView(true);
   }
 }
 
@@ -325,6 +323,7 @@ void loop() {
 
   // Physical controls always remain available.
   serviceLocalControls();
+  servicePadsButton();
   syncPauseClock();
   syncStateView();
 
