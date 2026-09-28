@@ -72,6 +72,17 @@ Internet is allowed before class only to initially load/update the Teacher Monit
 
 The autonomous trainer is **learner-action driven**, not a timed recording. Startup instructions may play in sequence, but the device then stops at pad placement. It remains in APPLY_PADS until the learner presses **PADS / OK**. Only then does simulated analysis begin. SHOCK waits for the physical SHOCK button when advised. CPR runs for the configured two-minute cycle before automatic reassessment. A scripted contact fault returns the trainer to pad placement and requires PADS / OK again.
 
+### OLED operating views
+
+The bicolor 128x64 OLED now uses its physical color split as part of the trainer UI:
+
+- during simulated analysis, the lower blue area displays an animated educational ECG trace;
+- shock-advised/waiting-shock states draw warning triangles in the yellow band and a large SHOCK prompt below;
+- during CPR, the screen shows a 2:00-to-0:00 countdown together with the 110/min target;
+- pad placement remains a manual PADS/OK training event, so no AD8232 or real ECG electronics are required.
+
+The ECG waveform is illustrative and follows the scripted scenario. It never makes a clinical shock/no-shock decision.
+
 ### Audio level
 
 Firmware applies bounded digital gain to the local voice pack and louder local startup/metronome cues. The MAX98357A remains usable at its default hardware gain; if additional bench volume is required, the hardware GAIN pin can be evaluated separately rather than encoding device-specific analog gain into the firmware.
