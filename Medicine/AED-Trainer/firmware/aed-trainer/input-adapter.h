@@ -23,11 +23,13 @@ class InputAdapter {
   bool shockPressed();
   bool startPressed();
   bool modePressed();
+  bool padsPressed();
   bool resetPressed();
 
  private:
   ShockButtonDebouncer shockDebouncer_{35};
   ShockButtonDebouncer startDebouncer_{35};
   ShockButtonDebouncer modeDebouncer_{35};
+  ShockButtonDebouncer padsDebouncer_{35};
   ShockButtonDebouncer resetDebouncer_{35};
 };
