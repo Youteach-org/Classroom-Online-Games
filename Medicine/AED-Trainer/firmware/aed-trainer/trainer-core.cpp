@@ -109,24 +109,30 @@ bool TrainerSnapshot::operator==(const TrainerSnapshot& other) const {
          standClearViolation == other.standClearViolation;
 }
 
-bool TrainerCore::validTwist(const std::string& id) const {
-  if (id.size() < 2 || id[0] != 'T') return false;
-  try {
-    const int value = std::stoi(id.substr(1));
-    return value >= 0 && value <= 8 && id == "T" + std::to_string(value);
-  } catch (...) {
-    return false;
+namespace {
+
+bool validNumberedId(const std::string& id, char prefix, int maxValue) {
+  if (id.size() < 2 || id[0] != prefix) return false;
+  if (id.size() > 2 && id[1] == '0') return false;
+
+  int value = 0;
+  for (std::size_t i = 1; i < id.size(); ++i) {
+    const char ch = id[i];
+    if (ch < '0' || ch > '9') return false;
+    value = value * 10 + (ch - '0');
+    if (value > maxValue) return false;
   }
+  return true;
+}
+
+}  // namespace
+
+bool TrainerCore::validTwist(const std::string& id) const {
+  return validNumberedId(id, 'T', 8);
 }
 
 bool TrainerCore::validClinical(const std::string& id) const {
-  if (id.size() < 2 || id[0] != 'C') return false;
-  try {
-    const int value = std::stoi(id.substr(1));
-    return value >= 0 && value <= 16 && id == "C" + std::to_string(value);
-  } catch (...) {
-    return false;
-  }
+  return validNumberedId(id, 'C', 16);
 }
 
 void TrainerCore::resetProgress() {
