@@ -4,8 +4,8 @@ Educational AED training system inside **Classroom Online Games**.
 
 The project has two parts:
 
-1. **Physical AED trainer (ESP32)** — the device students use.
-2. **Teacher Monitor** — the instructor-only control panel that talks directly to the physical trainer over Bluetooth Low Energy (BLE).
+1. **Physical AED trainer (ESP32)** — the autonomous device students use.
+2. **Teacher Monitor** — an optional instructor control panel that adds scenarios, twists, hints and live overrides over Bluetooth Low Energy (BLE).
 
 There is **no student web interface** for this trainer.
 
@@ -39,9 +39,20 @@ Use **Bluefy** as the Web Bluetooth-capable browser. We do not require a native 
 
 ### During class
 
-The runtime path is:
+The physical trainer does **not** depend on Teacher Monitor. It can run a basic AED case entirely by itself.
 
-`Teacher Monitor <-> Bluetooth LE <-> physical ESP32 trainer`
+Standalone controls:
+
+- **START / PAUSE** — GPIO33 to GND. Starts the selected local case; during an active case it pauses/resumes.
+- **MODE** — GPIO14 to GND. While idle, cycles through local base scenarios A1–A8.
+- **RESET** — GPIO13 to GND. Ends the current case and returns the trainer to idle.
+- **SHOCK** — GPIO32 to GND. Accepted only when the core is in WAITING_SHOCK and stand-clear safety permits it.
+
+When Teacher Monitor is connected, the extended path is:
+
+`Teacher Monitor <-> Bluetooth LE <-> autonomous physical ESP32 trainer`
+
+Disconnecting BLE never stops the local case or changes the scripted shock/no-shock result.
 
 A class session must not depend on:
 
@@ -139,12 +150,17 @@ Confirmed working together:
 - MAX98357A I2S mono amplifier.
 - 3 ohm / 3 W speaker.
 - Physical SHOCK button on GPIO32.
+- Physical START/PAUSE button on GPIO33.
+- Physical MODE button on GPIO14.
+- Physical RESET button on GPIO13.
 
 Current working audio pins:
 
 - BCLK: GPIO27
 - LRC: GPIO26
 - DOUT: GPIO25
+
+At power-on, the ESP32 generates a short local two-tone speaker self-test over I2S. This does not depend on LittleFS or the voice files, so hearing it immediately confirms the MAX98357A/speaker path is alive.
 
 The final bench display is the tested 128x64 bicolor OLED. It is wired VCC→3V3, GND→GND, SDA→GPIO21 and SCL→GPIO22 at I2C address 0x3C. Its physical yellow upper band is reserved for warning/status information and its blue lower area for operating information. The display is non-touch. **No Hall sensors or magnets are used for pad placement.** Training-pad placement is evaluated by the instructor.
 
