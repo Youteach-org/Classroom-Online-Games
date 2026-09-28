@@ -15,10 +15,10 @@
           <div class="sidebar-brand">TALK-TALK</div>
           <nav>
             <button class="active" type="button">▣ <span>Teacher Monitor</span></button>
-            <button type="button">⌘ <span>Creator Mode</span></button>
-            <button type="button">▤ <span>Activities</span></button>
-            <button type="button">▧ <span>Results</span></button>
-            <button type="button">⚙ <span>Settings</span></button>
+            <a href="./creator.html">⌘ <span>Creator Mode</span></a>
+            <button type="button" disabled>▤ <span>Activities</span></button>
+            <button type="button" disabled>▧ <span>Results</span></button>
+            <button type="button" disabled>⚙ <span>Settings</span></button>
           </nav>
         </aside>
 
@@ -34,24 +34,21 @@
             <button id="sendTwistBtn" class="send-twist" type="button">Send Twist</button>
           </div>
 
-          <p id="sessionState" class="session-line">Tell me what happened · Practice · 4 teams</p>
+          <p id="sessionState" class="session-line">Standalone · waiting for a student attempt</p>
 
           <div id="teamGrid" class="team-grid">
             <button class="team-card selected" data-target="teacherTeamView" type="button">
-              <strong>Team 1</strong><small>Paul · Paulina</small><span class="team-status speaking">● Speaking</span>
+              <strong>Team 1</strong><small>Paul · Paulina</small><span id="teacherAttemptState" class="team-status ready">● No attempt</span>
               <div class="team-bottom"><span class="stacked-avatars"><img src="./assets/paul-head.webp"><img src="./assets/paulina-head.webp"></span><span class="tiny-wave">▂▅▃▇▅▂▅</span></div>
             </button>
-            <button class="team-card" type="button">
-              <strong>Team 2</strong><small>Karol · Nicole</small><span class="team-status ready">● Ready</span>
-              <div class="team-bottom"><span class="stacked-avatars"><img class="hue-a" src="./assets/paulina-head.webp"><img class="hue-b" src="./assets/paulina-head.webp"></span><span class="round-tool">♩</span></div>
+            <button class="team-card is-placeholder" type="button" disabled>
+              <strong>Team 2</strong><small>Standalone slot</small><span class="team-status ready">● Waiting</span>
             </button>
-            <button class="team-card" type="button">
-              <strong>Team 3</strong><small>Gael · Sofia</small><span class="team-status finished">● Finished</span>
-              <div class="team-bottom"><span class="stacked-avatars"><img class="hue-c" src="./assets/paul-head.webp"><img src="./assets/paulina-head.webp"></span><span class="round-tool">▤</span></div>
+            <button class="team-card is-placeholder" type="button" disabled>
+              <strong>Team 3</strong><small>Standalone slot</small><span class="team-status ready">● Waiting</span>
             </button>
-            <button class="team-card" type="button">
-              <strong>Team 4</strong><small>Luis · Valeria</small><span class="team-status problem">● Technical problem</span>
-              <div class="team-bottom"><span class="stacked-avatars"><img class="hue-b" src="./assets/paul-head.webp"><img class="hue-a" src="./assets/paulina-head.webp"></span><span class="round-tool danger">!</span></div>
+            <button class="team-card is-placeholder" type="button" disabled>
+              <strong>Team 4</strong><small>Standalone slot</small><span class="team-status ready">● Waiting</span>
             </button>
           </div>
         </section>
@@ -63,57 +60,58 @@
         <button class="teacher-back" data-target="teacherMonitorView" type="button">← Back to teams</button>
         <header class="detail-head">
           <div><h1>Team 1</h1><p>Paul · Paulina</p></div>
-          <span class="finished-chip">● Finished</span>
+          <span id="teacherDetailStatus" class="finished-chip">● Waiting</span>
         </header>
 
         <nav class="detail-tabs">
           <button class="active" type="button">Overview</button>
-          <button type="button">Transcript</button>
+          <button data-target="teacherEvidenceView" type="button">Transcript</button>
           <button data-target="teacherAssessmentView" type="button">Evaluation</button>
           <button data-target="teacherEvidenceView" type="button">Evidence</button>
         </nav>
 
+        <audio id="teacherAudioElement" preload="metadata"></audio>
         <div class="audio-player teacher-player">
-          <button class="play-button" type="button">▶</button>
+          <button id="teacherPlayButton" class="play-button" type="button">▶</button>
           <div class="track"><span></span></div>
-          <small>00:00 / 01:24</small>
-          <button class="speed-button" type="button">1x</button>
+          <small id="teacherPlayerTime">00:00 / 00:00</small>
+          <button class="speed-button" type="button" disabled>1x</button>
         </div>
 
         <h2 class="section-title">Participants</h2>
 
         <article class="participant">
-          <img src="./assets/paul-head.webp" alt="Paul"><div><strong>Paul</strong><span>Completed</span></div><time>01:24</time>
+          <img src="./assets/paul-head.webp" alt="Paul"><div><strong>Paul</strong><span id="teacherParticipantState">Waiting</span></div><time id="teacherParticipantDuration">00:00</time>
         </article>
         <article class="participant">
-          <img src="./assets/paulina-head.webp" alt="Paulina"><div><strong>Paulina</strong><span>Completed</span></div><time>01:24</time>
+          <img src="./assets/paulina-head.webp" alt="Paulina"><div><strong>Paulina</strong><span>Partner capture pending</span></div><time>—</time>
         </article>
 
-        <button class="tt-btn tt-btn-primary tt-btn-wide detail-evaluation" data-target="teacherAssessmentView" type="button">View full evaluation →</button>
+        <button class="tt-btn tt-btn-primary tt-btn-wide detail-evaluation" data-target="teacherAssessmentView" type="button">View evaluation →</button>
       </div>
     </section>
 
     <section id="teacherAssessmentView" class="teacher-view" hidden>
       <div class="oral-assessment-panel">
         <header class="assessment-head">
-          <div><h1>Oral Assessment</h1><p>Paul &amp; Paulina</p></div>
-          <div class="assessment-side"><small>Team 1</small><button class="play-recording" type="button">▷ Play recording</button></div>
+          <div><h1>Oral Assessment</h1><p>Standalone attempt</p></div>
+          <div class="assessment-side"><small>Team 1</small><button id="teacherAssessmentPlayButton" class="play-recording" type="button">▷ Play recording</button></div>
         </header>
 
-        <div class="overall-score"><strong>Overall score</strong><b>28 <span>/ 40</span></b></div>
+        <div class="overall-score"><strong>Overall score</strong><b id="teacherOverallScore">Partial <span>evidence</span></b></div>
 
         <div class="rubric-list">
-          <div class="rubric-row"><span>Fluency</span><div class="rubric-track"><i style="width:62.5%"></i></div><b>5 / 8</b></div>
-          <div class="rubric-row"><span>Coherence</span><div class="rubric-track green"><i style="width:75%"></i></div><b>6 / 8</b></div>
-          <div class="rubric-row"><span>Grammar &amp; Vocabulary</span><div class="rubric-track amber"><i style="width:62.5%"></i></div><b>5 / 8</b></div>
-          <div class="rubric-row"><span>Pronunciation</span><div class="rubric-track purple"><i style="width:75%"></i></div><b>6 / 8</b></div>
-          <div class="rubric-row"><span>Interaction</span><div class="rubric-track red"><i style="width:75%"></i></div><b>6 / 8</b></div>
+          <div class="rubric-row"><span>Fluency</span><div class="rubric-track"><i id="teacherFluencyBar" style="width:0%"></i></div><b id="teacherFluencyScore">— / 8</b></div>
+          <div class="rubric-row"><span>Coherence</span><div class="rubric-track green"><i id="teacherCoherenceBar" style="width:0%"></i></div><b id="teacherCoherenceScore">Pending</b></div>
+          <div class="rubric-row"><span>Grammar &amp; Vocabulary</span><div class="rubric-track amber"><i id="teacherGrammarBar" style="width:0%"></i></div><b id="teacherGrammarScore">Pending</b></div>
+          <div class="rubric-row"><span>Pronunciation</span><div class="rubric-track purple"><i id="teacherPronunciationBar" style="width:0%"></i></div><b id="teacherPronunciationScore">Pending</b></div>
+          <div class="rubric-row"><span>Interaction</span><div class="rubric-track red"><i id="teacherInteractionBar" style="width:0%"></i></div><b id="teacherInteractionScore">Pending</b></div>
         </div>
 
         <div class="assessment-actions">
-          <button class="tt-btn tt-btn-outline" type="button">Edit scores</button>
-          <button class="tt-btn tt-btn-outline" type="button">Generate report</button>
-          <button class="tt-btn tt-btn-primary" data-target="teacherEvidenceView" type="button">Publish result</button>
+          <button id="teacherEditScoresBtn" class="tt-btn tt-btn-outline" type="button">Edit scores</button>
+          <button id="teacherReportBtn" class="tt-btn tt-btn-outline" type="button">Generate report</button>
+          <button id="teacherPublishBtn" class="tt-btn tt-btn-primary" type="button">Publish result</button>
         </div>
       </div>
     </section>
@@ -122,20 +120,22 @@
       <div class="evidence-panel">
         <nav class="evidence-tabs">
           <button class="active" type="button">Transcript</button>
-          <button type="button">Evidence</button>
-          <button type="button">Comments</button>
+          <button type="button" disabled>Evidence</button>
+          <button type="button" disabled>Comments</button>
         </nav>
 
         <div class="evidence-thread">
-          <article class="evidence-message"><img src="./assets/paul-head.webp"><div><strong>Paul</strong><p>I have went to the park yesterday<br>with my family.</p></div><time>00:12</time></article>
-          <article class="evidence-message"><img src="./assets/paulina-head.webp"><div><strong>Paulina</strong><p>Oh, nice! What did you do there?</p></div><time>00:18</time></article>
-          <article class="evidence-message"><img src="./assets/paul-head.webp"><div><strong>Paul</strong><p>We saw a bicycle fall and then we helped him.</p></div><time>00:25</time></article>
+          <article class="evidence-message">
+            <img src="./assets/paul-head.webp" alt="Paul">
+            <div><strong>Paul</strong><p id="teacherTranscriptStatus">Transcript pending — Oral-Grader is not connected yet.</p></div>
+            <time id="teacherEvidenceTime">--:--</time>
+          </article>
         </div>
 
-        <h2 class="issues-title">Detected issues</h2>
-        <div class="issue-row"><span class="issue-tag grammar">Grammar</span><p>“I have went...”<br>→ intended: “I have gone...”</p><time>00:12</time></div>
-        <div class="issue-row"><span class="issue-tag pronunciation">Pronunciation</span><p>“worked”<br>final /t/ not clearly produced</p><time>00:41</time></div>
-        <div class="issue-row"><span class="issue-tag interaction">Interaction</span><p>Teacher intervention required twice.</p><time>01:02</time></div>
+        <h2 class="issues-title">Available local evidence</h2>
+        <div class="issue-row"><span class="issue-tag interaction">Audio</span><p id="teacherAudioEvidence">No recording loaded.</p><time>local</time></div>
+        <div class="issue-row"><span class="issue-tag pronunciation">Fluency</span><p id="teacherFluencyEvidence">Pending a recorded attempt.</p><time>local</time></div>
+        <div class="issue-row"><span class="issue-tag grammar">Language</span><p>Pronunciation and grammar remain pending Oral-Grader.</p><time>pending</time></div>
 
         <button class="teacher-back evidence-back" data-target="teacherAssessmentView" type="button">← Back to evaluation</button>
       </div>
