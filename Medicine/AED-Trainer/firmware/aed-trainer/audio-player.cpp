@@ -306,6 +306,54 @@ bool AudioPlayer::playPrompt(const std::string& promptId) {
 }
 
 
+bool AudioPlayer::playStartupTone() {
+  constexpr std::uint32_t kRate = 16000;
+  constexpr std::int16_t kAmplitude = 5000;
+
+  if (!startI2s(kRate)) return false;
+
+  auto playSquare = [&](std::uint32_t frequency, std::uint32_t durationMs) -> bool {
+    constexpr std::size_t kChunkFrames = 128;
+    std::int16_t stereo[kChunkFrames * 2];
+
+    const std::size_t totalFrames =
+        static_cast<std::size_t>((kRate * durationMs) / 1000U);
+    const std::size_t halfPeriod =
+        std::max<std::size_t>(1, kRate / (frequency * 2U));
+
+    std::size_t produced = 0;
+    while (produced < totalFrames) {
+      const std::size_t count =
+          std::min(kChunkFrames, totalFrames - produced);
+
+      for (std::size_t i = 0; i < count; ++i) {
+        const bool high = ((produced + i) / halfPeriod) % 2U == 0U;
+        const std::int16_t sample = high ? kAmplitude : -kAmplitude;
+        stereo[i * 2] = sample;
+        stereo[i * 2 + 1] = sample;
+      }
+
+      const std::size_t bytes = count * 2 * sizeof(std::int16_t);
+      if (I2S.write(reinterpret_cast<std::uint8_t*>(stereo), bytes) != bytes) {
+        return false;
+      }
+      produced += count;
+    }
+    return true;
+  };
+
+  bool ok = playSquare(740, 90);
+  if (ok) {
+    std::int16_t silence[80 * 2]{};
+    ok = I2S.write(reinterpret_cast<std::uint8_t*>(silence), sizeof(silence))
+        == sizeof(silence);
+  }
+  if (ok) ok = playSquare(1040, 130);
+
+  stop();
+  return ok;
+}
+
 bool AudioPlayer::playMetronomeClick() {
   constexpr std::uint32_t kRate = 16000;
   constexpr std::size_t kFrames = 480;  // 30 ms
