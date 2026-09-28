@@ -1,0 +1,33 @@
+name: AED Firmware CI
+
+on:
+  push:
+    branches:
+      - medicine-aed
+      - feature/aed-esp32-firmware-audio
+    paths:
+      - "Medicine/AED-Trainer/firmware/**"
+      - ".github/workflows/aed-firmware-ci.yml"
+  pull_request:
+    paths:
+      - "Medicine/AED-Trainer/firmware/**"
+      - ".github/workflows/aed-firmware-ci.yml"
+
+jobs:
+  compile-esp32:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Install ESP32 core 3.3.12
+        run: |
+          arduino-cli config init
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@3.3.12
+      - name: Install display libraries
+        run: |
+          arduino-cli lib install "Adafruit GFX Library"
+          arduino-cli lib install "Adafruit ST7735 and ST7789 Library"
+      - name: Compile AED bench firmware
+        run: |
+          arduino-cli compile --fqbn esp32:esp32:esp32 Medicine/AED-Trainer/firmware/aed-trainer
