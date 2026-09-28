@@ -331,3 +331,17 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
   .preview-tools{align-items:flex-start;flex-direction:column}
   .preview-nav{width:100%;justify-content:space-between}
 }
+
+/* standalone functional states */
+.record-dot.is-idle{background:#9aa6a1}
+.mic-button[data-recording]{box-shadow:0 0 0 6px rgba(57,185,133,.18),0 0 0 2px #55bc98 inset}
+button:disabled{cursor:not-allowed;opacity:.48}
+.student-tabs button:disabled,.evidence-tabs button:disabled{color:#9aa5a1;background:#fff}
+.teacher-sidebar nav a{
+  border:0;border-radius:7px;background:transparent;color:#f1f8f5;
+  padding:9px 8px;text-align:left;font-size:.66rem;display:flex;gap:7px;align-items:center;text-decoration:none
+}
+.teacher-sidebar nav a:hover{background:#0a6e59}
+.teacher-sidebar nav button:disabled{opacity:.42}
+.team-card.is-placeholder{background:#f7f9f8;color:#72807b}
+audio{max-width:100%}
