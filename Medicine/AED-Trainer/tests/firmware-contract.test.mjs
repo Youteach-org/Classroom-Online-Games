@@ -125,3 +125,23 @@ test("standalone AED waits for learner pad placement before analysis",()=>{
   assert.doesNotMatch(sketch,/kInterPromptGapMs/);
   assert.doesNotMatch(sketch,/LOCAL_PAUSE|LOCAL_RESUME/);
 });
+
+
+test("OLED shows simulated ECG, graphic shock warning and CPR countdown",()=>{
+  const header=readFileSync(join(firmwareRoot,"display-adapter.h"),"utf8");
+  const display=readFileSync(join(firmwareRoot,"display-adapter.cpp"),"utf8");
+  const sketch=readFileSync(join(firmwareRoot,"aed-trainer.ino"),"utf8");
+
+  assert.match(header,/showAnalyzing/);
+  assert.match(header,/showShockWarning/);
+  assert.match(header,/showCprCountdown/);
+  assert.match(display,/drawWarningTriangle/);
+  assert.match(display,/shockableWave/);
+  assert.match(display,/organizedWave/);
+  assert.match(display,/NO TOQUE AL PACIENTE/);
+  assert.match(display,/snprintf/);
+  assert.match(display,/%02lu:%02lu/);
+  assert.match(sketch,/kCprCycleMs\s*=\s*120000/);
+  assert.match(sketch,/serviceDynamicDisplay/);
+  assert.match(sketch,/analysisPhase/);
+});
