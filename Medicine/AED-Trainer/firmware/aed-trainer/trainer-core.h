@@ -74,6 +74,7 @@ class TrainerCore {
   bool hasPrompt() const;
 
   CommandResult applyRemoteCommand(std::uint32_t seq, const std::string& command);
+  void resetRemoteSequenceNamespace();
 
   void setBleConnected(bool connected) { bleConnected_ = connected; }
   bool bleConnected() const { return bleConnected_; }
