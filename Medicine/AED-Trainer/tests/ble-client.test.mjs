@@ -108,8 +108,11 @@ test("reconnect remains syncing until authoritative reads complete", async () =>
   let release;
   const gate = new Promise((resolve) => { release = resolve; });
   const statusChar = rig.chars.get(DEVICE_STATUS_UUID);
-  const originalRead = statusChar.readValue.bind(statusChar);
-  statusChar.readImpl = async () => { await gate; return originalRead(); };
+  statusChar.readImpl = async () => {
+    await gate;
+    const bytes = enc.encode(statusChar.text);
+    return new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  };
 
   const pending = client.scanAndConnect();
   await new Promise((resolve) => setTimeout(resolve, 0));
