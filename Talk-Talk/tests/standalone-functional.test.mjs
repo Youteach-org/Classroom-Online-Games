@@ -5,7 +5,8 @@ import {
   createStandaloneAttempt,
   completeStandaloneAttempt,
   buildLocalStandaloneEvaluation,
-  createStandaloneAttemptStore
+  createStandaloneAttemptStore,
+  updateStandaloneTeacherReview
 } from "../standalone-session.mjs";
 
 test("new standalone attempt contains no invented transcript or linguistic scores", () => {
@@ -77,4 +78,20 @@ test("standalone store shares metadata and audio between student and teacher rol
   assert.equal(loaded.attempt.studentName,"Paul");
   assert.equal(loaded.attempt.audioKey,"a1");
   assert.equal(await loaded.audioBlob.text(),"audio");
+});
+
+
+test("teacher review stores manual rubric scores without changing transcript evidence", () => {
+  const attempt=createStandaloneAttempt({now:()=>1000});
+  const reviewed=updateStandaloneTeacherReview(attempt,{
+    scores:{fluency:6,coherence:7,grammarVocabulary:5,pronunciation:6,interaction:7},
+    comments:"Good recovery.",
+    now:()=>2000
+  });
+  assert.deepEqual(reviewed.teacher.scores,{
+    fluency:6,coherence:7,grammarVocabulary:5,pronunciation:6,interaction:7
+  });
+  assert.equal(reviewed.teacher.comments,"Good recovery.");
+  assert.equal(reviewed.teacher.status,"reviewed");
+  assert.equal(reviewed.transcript.heardText,"");
 });
