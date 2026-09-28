@@ -143,3 +143,21 @@ test("duplicate event sequence IDs do not emit duplicate timeline events", async
 
   assert.equal(events.filter((e) => e.kind === "event" && e.message.seq === 44).length, 1);
 });
+
+test("event sequence namespace is reset after authoritative reconnect", async () => {
+  const rig = makeRig();
+  const client = createBleClient({ bluetooth: rig.bluetooth });
+  const events = [];
+  client.subscribe((event) => events.push(event));
+  await client.scanAndConnect();
+
+  const eventChar = rig.chars.get(EVENT_STREAM_UUID);
+  eventChar.emit("v=1;type=event;seq=1;event=BEFORE_REBOOT");
+  rig.device.disconnectNow();
+
+  await client.scanAndConnect();
+  eventChar.emit("v=1;type=event;seq=1;event=AFTER_REBOOT");
+
+  assert.equal(events.filter((e) => e.kind === "event" && e.message.seq === 1).length, 2);
+  assert.ok(events.some((e) => e.kind === "event" && e.message.event === "AFTER_REBOOT"));
+});
