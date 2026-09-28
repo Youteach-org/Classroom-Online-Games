@@ -97,6 +97,7 @@ export function createAttemptRecorder({
             const blob = new Blob(chunks,{type:mimeType});
             const decoded = await decodeBlob(blob);
             resolve({
+              blob,
               samples:decoded.samples instanceof Float32Array
                 ? decoded.samples
                 : Float32Array.from(decoded.samples || []),
