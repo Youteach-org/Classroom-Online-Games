@@ -14,3 +14,12 @@ Ruling: GitHub Actions creates checks but assigns no runner (runner_id 0, zero s
 
 Task 1: complete — 4 catalog contract groups pass; A1-A8, T0-T8, C0-C16 and prompt-role mappings verified.
 Task 2: complete — 7 trainer-engine contract groups pass; sequences, overrides, refibrillation, duplicate seq rejection, hints, invalid events and serialization verified.
+
+Task 3: complete — BLE protocol v1 UUIDs frozen; 6 codec/validation contracts pass; representative full command is 89 bytes (<180).
+Task 4: complete — 6 Web Bluetooth contracts pass: service filtering, command write gating, disconnect, authoritative reconnect sync, incompatible protocol block, duplicate-event suppression.
+Task 5: complete — 5 offline-shell contracts pass; all required assets local, cache completeness and obsolete-cache cleanup verified.
+Task 6: complete — Teacher Monitor replaces student simulator; 7 UI contracts pass including authoritative trainer-state resync.
+Task 6 review fix: stale local case state after a trainer reboot could have re-enabled live controls. Added RED regression and fixed app.js so OFF/STARTUP/IDLE/ENDED/COMPLETE from the trainer deactivate the local case.
+Task 7: complete — real-device Android/iOS Bluefy acceptance checklist added and README aligned to BLE/offline Teacher Monitor architecture.
+
+Physical release gate remains pending: real Android + Chrome/Chromium, real iPhone/iPad + Bluefy, and physical ESP32 must execute REAL-DEVICE-ACCEPTANCE.md.
