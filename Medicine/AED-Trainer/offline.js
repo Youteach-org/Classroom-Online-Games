@@ -1,8 +1,10 @@
-export const AED_CACHE_NAME = "aed-teacher-monitor-v1";
+export const AED_CACHE_NAME = "aed-teacher-monitor-v2";
 
 export const OFFLINE_REQUIRED_ASSETS = Object.freeze([
   "./",
   "./index.html",
+  "./styles.css",
+  "./app.js",
   "./aed-scenarios.js",
   "./scene-twists.js",
   "./clinical-cases.js",
