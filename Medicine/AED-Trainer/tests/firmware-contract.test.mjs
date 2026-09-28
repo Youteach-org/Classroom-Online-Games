@@ -152,8 +152,10 @@ test("blue OLED content uses large text while yellow header stays compact",()=>{
   assert.match(display,/drawHeader\("DEA EDUCATIVO"\)/);
   assert.match(display,/display\.setTextSize\(1\)/);
   assert.match(display,/printCenteredLarge\("COLOQUE",\s*16,\s*2\)/);
+  assert.match(display,/printCenteredLarge\("ELECTRODOS",\s*32,\s*2\)/);
   assert.match(display,/printCenteredLarge\("NO TOQUE",\s*16,\s*2\)/);
-  assert.match(display,/printCenteredLarge\("COMPRIMA",\s*16,\s*2\)/);
+  assert.match(display,/printCenteredLarge\("AL PACIENTE",\s*34,\s*1\)/);
+  assert.match(display,/printCenteredLarge\("CONTINUE RCP",\s*17,\s*1\)/);
   assert.match(display,/printCenteredLarge\(timeText,\s*37,\s*3\)/);
   assert.match(display,/showReadyCase/);
 });
@@ -161,8 +163,22 @@ test("blue OLED content uses large text while yellow header stays compact",()=>{
 test("CPR lasts two full minutes before automatic rhythm reassessment",()=>{
   const sketch=readFileSync(join(firmwareRoot,"aed-trainer.ino"),"utf8");
   assert.match(sketch,/kCprCycleMs\s*=\s*120000/);
+  assert.match(sketch,/cprCycleStartedAt/);
   assert.match(
     sketch,
-    /case TrainerState::CPR:[\s\S]*elapsed\(kCprCycleMs\)[\s\S]*trainer\.requestReassess\(\)/
+    /case TrainerState::CPR:[\s\S]*millis\(\)\s*-\s*cprCycleStartedAt[\s\S]*kCprCycleMs[\s\S]*trainer\.requestReassess\(\)/
   );
+});
+
+
+test("blue OLED keeps complete words and only reduces size where needed",()=>{
+  const display=readFileSync(join(firmwareRoot,"display-adapter.cpp"),"utf8");
+  assert.match(display,/ELECTRODOS/);
+  assert.match(display,/AL PACIENTE/);
+  assert.match(display,/TODOS/);
+  assert.match(display,/DESPEJADOS/);
+  assert.match(display,/PRESIONE SHOCK/);
+  assert.match(display,/CONTINUE RCP/);
+  assert.doesNotMatch(display,/ELECTROD\./);
+  assert.doesNotMatch(display,/INDIC\./);
 });
