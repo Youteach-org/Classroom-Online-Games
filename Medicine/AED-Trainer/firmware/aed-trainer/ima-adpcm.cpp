@@ -20,7 +20,7 @@ constexpr int kIndexTable[16] = {
 
 std::int16_t imaAdpcmDecodeNibble(std::uint8_t nibble, ImaAdpcmState& state) {
   nibble &= 0x0F;
-  state.stepIndex = std::clamp(state.stepIndex, 0, 88);
+  state.stepIndex = std::clamp<std::int32_t>(state.stepIndex, 0, 88);
 
   const int step = kStepTable[state.stepIndex];
   int diff = step >> 3;
@@ -30,6 +30,7 @@ std::int16_t imaAdpcmDecodeNibble(std::uint8_t nibble, ImaAdpcmState& state) {
 
   state.predictor += (nibble & 0x08) ? -diff : diff;
   state.predictor = std::clamp<std::int32_t>(state.predictor, -32768, 32767);
-  state.stepIndex = std::clamp(state.stepIndex + kIndexTable[nibble], 0, 88);
+  state.stepIndex = std::clamp<std::int32_t>(
+      state.stepIndex + static_cast<std::int32_t>(kIndexTable[nibble]), 0, 88);
   return static_cast<std::int16_t>(state.predictor);
 }
