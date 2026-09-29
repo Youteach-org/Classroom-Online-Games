@@ -154,11 +154,14 @@ class JobService:
             raise KeyError("job not found")
         if not isinstance(result, dict):
             raise ValueError("result must be an object")
+        final_status = str(result.get("status") or "completed")
+        if final_status not in {"completed", "review_required"}:
+            raise ValueError("result status must be completed or review_required")
 
         updated = self.job_store.update(
             clean_job_id,
             {
-                "status": "completed",
+                "status": final_status,
                 "result": _copy(result),
                 "updatedAt": int(self.now()),
                 "completedAt": int(self.now()),
@@ -168,6 +171,25 @@ class JobService:
         if storage_key:
             self.audio_store.delete(storage_key)
         return _copy(updated)
+
+    def require_review(self, job_id, *, reason, details=None):
+        clean_job_id = _require_string(job_id, "jobId")
+        row = self.job_store.get(clean_job_id)
+        if not row:
+            raise KeyError("job not found")
+        return _copy(
+            self.job_store.update(
+                clean_job_id,
+                {
+                    "status": "review_required",
+                    "review": {
+                        "reason": _require_string(reason, "reason"),
+                        "details": _copy(details or {}),
+                    },
+                    "updatedAt": int(self.now()),
+                },
+            )
+        )
 
     def fail(self, job_id, *, retryable, error_code):
         clean_job_id = _require_string(job_id, "jobId")
