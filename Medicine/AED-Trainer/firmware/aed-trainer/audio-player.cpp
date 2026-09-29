@@ -11,6 +11,7 @@
 #include "hardware-config.h"
 #include "ima-adpcm.h"
 #include "prompt-map.h"
+#include "shock-sample.h"
 
 namespace {
 
@@ -362,11 +363,72 @@ bool AudioPlayer::playStartupTone() {
 }
 
 bool AudioPlayer::playShockBuzz() {
-  return playPrompt("FX_SHOCK_ELECTRIC");
+  if (!startI2s(kShockSampleRate)) return false;
+
+  constexpr std::size_t kChunkFrames = 128;
+  std::int16_t stereo[kChunkFrames * 2];
+  std::size_t offset = 0;
+
+  while (offset < kShockSampleCount) {
+    const std::size_t count =
+        std::min(kChunkFrames, kShockSampleCount - offset);
+
+    for (std::size_t i = 0; i < count; ++i) {
+      const std::int16_t sample =
+          static_cast<std::int16_t>(kShockSample[offset + i]) << 8;
+      stereo[i * 2] = sample;
+      stereo[i * 2 + 1] = sample;
+    }
+
+    const std::size_t bytes = count * 2 * sizeof(std::int16_t);
+    if (I2S.write(reinterpret_cast<std::uint8_t*>(stereo), bytes) != bytes) {
+      stop();
+      return false;
+    }
+    offset += count;
+  }
+
+  stop();
+  return true;
 }
 
 bool AudioPlayer::playMetronomeClick() {
-  return playPrompt("FX_CPR_BEAT");
+  constexpr std::uint32_t kRate = 16000;
+  constexpr std::uint32_t kFrequency = 1400;
+  constexpr std::uint32_t kDurationMs = 85;
+  constexpr std::int16_t kAmplitude = 20000;
+  constexpr std::size_t kChunkFrames = 128;
+
+  if (!startI2s(kRate)) return false;
+
+  std::int16_t stereo[kChunkFrames * 2];
+  const std::size_t totalFrames =
+      static_cast<std::size_t>((kRate * kDurationMs) / 1000U);
+  const std::size_t halfPeriod =
+      std::max<std::size_t>(1, kRate / (kFrequency * 2U));
+
+  std::size_t produced = 0;
+  while (produced < totalFrames) {
+    const std::size_t count =
+        std::min(kChunkFrames, totalFrames - produced);
+
+    for (std::size_t i = 0; i < count; ++i) {
+      const bool high = ((produced + i) / halfPeriod) % 2U == 0U;
+      const std::int16_t sample = high ? kAmplitude : -kAmplitude;
+      stereo[i * 2] = sample;
+      stereo[i * 2 + 1] = sample;
+    }
+
+    const std::size_t bytes = count * 2 * sizeof(std::int16_t);
+    if (I2S.write(reinterpret_cast<std::uint8_t*>(stereo), bytes) != bytes) {
+      stop();
+      return false;
+    }
+    produced += count;
+  }
+
+  stop();
+  return true;
 }
 
 void AudioPlayer::stop() {
