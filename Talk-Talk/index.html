@@ -72,7 +72,9 @@
         <div id="recordingReviewActions" class="recording-review-actions" hidden>
           <button id="studentReviewAudioBtn" class="tt-btn tt-btn-outline" type="button">▶ Review audio</button>
           <button id="studentRecordAgainBtn" class="tt-btn tt-btn-soft" type="button">↻ Record again</button>
+          <button id="studentGradeBtn" class="tt-btn tt-btn-primary" type="button">Califica</button>
         </div>
+        <p id="gradingStatus" class="grading-status" aria-live="polite">Record and review a take before sending it to Oral-Grader.</p>
       </div>
     </section>
 
@@ -95,7 +97,7 @@
             <img class="chat-avatar" src="./assets/paul-head.webp" alt="Paul">
             <div class="chat-main">
               <strong>Paul</strong>
-              <p id="transcriptStatus">Transcript pending — Oral-Grader is not connected yet.</p>
+              <p id="transcriptStatus">Transcript pending — submit the accepted take with Califica.</p>
             </div>
             <time id="studentAttemptTime">--:--</time>
           </article>
