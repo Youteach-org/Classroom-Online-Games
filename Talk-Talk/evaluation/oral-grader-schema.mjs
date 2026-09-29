@@ -167,6 +167,9 @@ export function normalizeOralGraderResult(raw){
   if(status!=="completed" && status!=="review_required"){
     return out;
   }
+  if(status==="review_required" && !input.transcript){
+    return out;
+  }
 
   out.transcript=normalizeTranscript(input.transcript);
   out.analysis=clone(requireObject(input.analysis,"analysis"));
