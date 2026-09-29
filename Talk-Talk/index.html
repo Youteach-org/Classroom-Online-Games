@@ -92,22 +92,14 @@
           <button type="button" disabled title="Available after Oral-Grader integration">Tips</button>
         </nav>
 
-        <div class="chat-thread">
+        <div id="studentTranscriptThread" class="chat-thread">
           <article class="chat-row">
             <img class="chat-avatar" src="./assets/paul-head.webp" alt="Paul">
             <div class="chat-main">
-              <strong>Paul</strong>
+              <strong>Oral-Grader</strong>
               <p id="transcriptStatus">Transcript pending — submit the accepted take with Califica.</p>
             </div>
             <time id="studentAttemptTime">--:--</time>
-          </article>
-          <article class="chat-row">
-            <img class="chat-avatar" src="./assets/paulina-head.webp" alt="Paulina">
-            <div class="chat-main">
-              <strong>Paulina</strong>
-              <p>Partner turns will appear here when multi-speaker conversation capture is connected.</p>
-            </div>
-            <time>—</time>
           </article>
         </div>
 
@@ -137,22 +129,22 @@
         <div class="review-title">
           <div class="review-star">✣</div>
           <h1>Your speaking review</h1>
+          <p id="studentResultStatus" class="result-status">Waiting for Oral-Grader.</p>
         </div>
 
         <article class="review-card review-good">
-          <h2><span class="status-icon ok">✓</span> Local evidence available</h2>
-          <p>✓ <span id="recordingCapturedFeedback">Record an attempt to create evidence.</span></p>
-          <p>✓ <span id="studentFluencyValue">Fluency: pending recording</span></p>
-          <p>✓ <span id="studentTaskValue">Task completion: pending recording</span></p>
+          <h2><span class="status-icon ok">✓</span> What worked well</h2>
+          <ul id="studentFeedbackGood" class="feedback-list">
+            <li id="recordingCapturedFeedback">Your accepted recording will be evaluated online.</li>
+          </ul>
+          <p hidden><span id="studentFluencyValue">Awaiting Oral-Grader</span></p>
+          <p hidden><span id="studentTaskValue">Awaiting Oral-Grader</span></p>
         </article>
 
         <article class="review-card review-work">
-          <h2><span class="status-icon down">⌄</span> Pending Oral-Grader</h2>
-          <ul>
-            <li>Transcript: pending</li>
-            <li>Pronunciation: pending</li>
-            <li>Grammar &amp; vocabulary: pending</li>
-            <li>Interaction: pending</li>
+          <h2><span class="status-icon down">⌄</span> Work on</h2>
+          <ul id="studentFeedbackWork" class="feedback-list">
+            <li>Evidence-based feedback will appear after Oral-Grader completes.</li>
           </ul>
         </article>
 
