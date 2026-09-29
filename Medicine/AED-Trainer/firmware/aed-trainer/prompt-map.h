@@ -23,6 +23,8 @@ inline constexpr PromptMapEntry kPromptMap[] = {
   { "AED_BEGIN_CPR", "/audio/aed-begin-cpr.wav", "Inicie RCP." },
   { "AED_CONTINUE_CPR", "/audio/aed-continue-cpr.wav", "Continúe RCP." },
   { "AED_REASSESS", "/audio/aed-reassess.wav", "Prepárese para un nuevo análisis." },
+  { "FX_SHOCK_ELECTRIC", "/audio/fx-shock-electric.wav", "" },
+  { "FX_CPR_BEAT", "/audio/fx-cpr-beat.wav", "" },
   { "PARAMEDIC_CONTEXT_WET_CHEST", "/audio/paramedic-context-wet-chest.wav", "Compañero, acabamos de sacar al paciente del agua. Tiene el tórax mojado." },
   { "PARAMEDIC_HINT_WET_CHEST", "/audio/paramedic-hint-wet-chest.wav", "Compañero, revisa si las condiciones permiten colocar correctamente los electrodos." },
   { "PARAMEDIC_CONTEXT_MEDICATION_PATCH", "/audio/paramedic-context-medication-patch.wav", "Compañero, veo un parche adherido justo donde iría uno de los electrodos." },
