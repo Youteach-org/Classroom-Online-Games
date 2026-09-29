@@ -87,8 +87,9 @@ void drawLargeBlueState(TrainerState state) {
       break;
 
     case TrainerState::REASSESS:
-      printCenteredLarge("PREPARESE", 18, 2);
-      printCenteredLarge("NUEVO ANALISIS", 45, 1);
+      printCenteredLarge("DETENGA RCP", 18, 1);
+      printCenteredLarge("NUEVO", 32, 2);
+      printCenteredLarge("ANALISIS", 49, 2);
       break;
 
     case TrainerState::ANALYZING:
@@ -178,6 +179,43 @@ void DisplayAdapter::showState(TrainerState state, const char* message) {
   display.display();
 }
 
+void DisplayAdapter::showStartupStep(StartupStep step) {
+  if (!displayReady) return;
+
+  display.clearDisplay();
+  display.setTextColor(SSD1306_WHITE);
+  display.setTextWrap(false);
+  drawHeader("INICIO");
+
+  switch (step) {
+    case StartupStep::CHECK_RESPONSE:
+      printCenteredLarge("COMPRUEBE", 17, 2);
+      printCenteredLarge("RESPUESTA", 35, 2);
+      printCenteredLarge("PADS/OK", 56, 1);
+      break;
+
+    case StartupStep::CALL_HELP:
+      printCenteredLarge("SOLICITE", 16, 2);
+      printCenteredLarge("AYUDA MEDICA", 36, 1);
+      printCenteredLarge("PADS/OK", 53, 1);
+      break;
+
+    case StartupStep::CHECK_BREATHING:
+      printCenteredLarge("COMPRUEBE", 17, 2);
+      printCenteredLarge("RESPIRACION", 39, 1);
+      printCenteredLarge("PADS/OK", 55, 1);
+      break;
+
+    case StartupStep::EXPOSE_CHEST:
+      printCenteredLarge("DESCUBRA", 16, 2);
+      printCenteredLarge("EL PECHO", 36, 2);
+      printCenteredLarge("PADS/OK", 56, 1);
+      break;
+  }
+
+  display.display();
+}
+
 void DisplayAdapter::showReadyCase(const char* scenarioId) {
   if (!displayReady) return;
 
@@ -239,7 +277,7 @@ void DisplayAdapter::showAnalyzing(
   display.display();
 }
 
-void DisplayAdapter::showShockWarning() {
+void DisplayAdapter::showShockWarning(bool trianglesVisible) {
   if (!displayReady) return;
 
   display.clearDisplay();
@@ -247,8 +285,10 @@ void DisplayAdapter::showShockWarning() {
   display.setTextWrap(false);
 
   // Yellow band remains compact, as requested.
-  drawWarningTriangle(0, 2);
-  drawWarningTriangle(115, 2);
+  if (trianglesVisible) {
+    drawWarningTriangle(0, 2);
+    drawWarningTriangle(115, 2);
+  }
   display.setTextSize(1);
   display.setCursor(29, 3);
   display.print("DESCARGA");
