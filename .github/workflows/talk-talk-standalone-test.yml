@@ -26,6 +26,7 @@ jobs:
           node --test Talk-Talk/tests/standalone-auth.test.mjs
           node --test Talk-Talk/tests/oral-grader-schema.test.mjs
           node --test Talk-Talk/tests/oral-grader-mapper.test.mjs
+          node --test Talk-Talk/tests/oral-grader-client.test.mjs
           node --test Talk-Talk/tests/standalone-functional.test.mjs
           node --test Talk-Talk/tests/standalone-ui-flow.test.mjs
           node --test Talk-Talk/tests/attempt-recorder.test.mjs
