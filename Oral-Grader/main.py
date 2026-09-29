@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from firebase_admin import db, initialize_app, storage
-from firebase_functions import https_fn
+from firebase_functions import db_fn, https_fn
 
 
 ROOT = Path(__file__).resolve().parent
@@ -24,6 +24,13 @@ def _load(relative_path, module_name):
 AUTH = _load("online/auth.py", "oral_grader_online_auth")
 JOB_SERVICE = _load("online/job-service.py", "oral_grader_online_job_service")
 FIREBASE_ADAPTER = _load("online/firebase-adapter.py", "oral_grader_firebase_adapter")
+PROCESSOR = _load("online/processor.py", "oral_grader_online_processor")
+STAGE1 = _load("stage1/gemini-transcribe.py", "oral_grader_stage1")
+STAGE2 = _load("stage2/analyze-audio.py", "oral_grader_stage2")
+STAGE3 = _load("stage3/score-rubric.py", "oral_grader_stage3")
+
+os.environ.setdefault("ORAL_GRADER_STAGE2_MODEL", "gemini-3.5-flash-lite")
+os.environ.setdefault("ORAL_GRADER_RUBRIC_MODEL", "gemini-3.5-flash-lite")
 
 ALLOWED_STANDALONE_CREDENTIALS = {
     "student": {"password": "talktalk", "role": "student"},
@@ -186,3 +193,42 @@ def oral_grader_job_status(request):
         return _json_response(request, {"ok": False, "error": str(exc)}, 400)
     except KeyError:
         return _json_response(request, {"ok": False, "error": "job-not-found"}, 404)
+
+
+@db_fn.on_value_created(
+    reference="/classroomGames/talkTalk/oralGrader/jobs/{jobId}",
+    secrets=["GEMINI_API_KEY"],
+)
+def process_oral_grader_job(event):
+    job_id = str((event.params or {}).get("jobId") or "").strip()
+    if not job_id:
+        raise ValueError("jobId is required")
+
+    job_store = FIREBASE_ADAPTER.FirebaseJobStore(db.reference)
+    audio_store = FIREBASE_ADAPTER.FirebaseAudioStore(storage.bucket())
+    service = JOB_SERVICE.create_job_service(
+        job_store=job_store,
+        audio_store=audio_store,
+    )
+    runners = PROCESSOR.ModuleRunners(STAGE1, STAGE2, STAGE3)
+
+    try:
+        return PROCESSOR.process_online_job(
+            job_id,
+            job_store=job_store,
+            audio_store=audio_store,
+            service=service,
+            runners=runners,
+            calibration_path=ROOT / "rubrics" / "units-1-4-scoring-calibration.md",
+            work_root=Path("/tmp"),
+        )
+    except Exception:
+        try:
+            service.fail(
+                job_id,
+                retryable=True,
+                error_code="oral-grader-processing-error",
+            )
+        except Exception:
+            pass
+        raise
