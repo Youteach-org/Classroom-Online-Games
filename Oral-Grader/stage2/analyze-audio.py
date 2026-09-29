@@ -17,7 +17,9 @@ def validate_stage1_preconditions(stage1, review):
     mapping = review.get("speaker_mapping") or {}
     if not mapping:
         raise ValueError("speaker mapping is incomplete")
-    if "Teacher" not in mapping.values():
+    context = review.get("context") or {}
+    session_kind = context.get("session_kind")
+    if "Teacher" not in mapping.values() and session_kind != "peer_conversation":
         raise ValueError("speaker mapping must identify a Teacher")
     students = [name for name in mapping.values() if name != "Teacher"]
     if not students:
@@ -323,7 +325,7 @@ def build_analysis_prompt(stage1, review):
             review.get("teacher_confirmed_pronunciation_evidence") or []
         ),
     }
-    rules = """You are analyzing an English oral exam for teacher review.
+    rules = """You are analyzing an English oral performance for evaluation.
 Original audio is primary evidence.
 Do not rewrite Stage 1.
 Do not silently normalize heard forms.
