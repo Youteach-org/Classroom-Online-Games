@@ -18,7 +18,11 @@ const views=ids.map(id=>document.getElementById(id)).filter(Boolean);
 const recordButton=document.getElementById("recordButton");
 const finishButton=document.getElementById("finishRecordingBtn");
 const studentAudio=document.getElementById("studentAudioElement");
+const recordingReviewAudio=document.getElementById("recordingReviewAudio");
 const studentPlayButton=document.getElementById("studentPlayButton");
+const studentReviewAudioBtn=document.getElementById("studentReviewAudioBtn");
+const studentRecordAgainBtn=document.getElementById("studentRecordAgainBtn");
+const recordingReviewActions=document.getElementById("recordingReviewActions");
 
 let current=0;
 let attempt=createStandaloneAttempt();
@@ -49,14 +53,17 @@ function setAudioBlob(blob){
     audioUrl="";
   }
   audioBlob=blob||null;
-  if(studentAudio){
-    studentAudio.removeAttribute("src");
-    if(audioBlob && globalThis.URL?.createObjectURL){
-      audioUrl=URL.createObjectURL(audioBlob);
-      studentAudio.src=audioUrl;
-    }
+  for(const audio of [studentAudio,recordingReviewAudio]){
+    audio?.removeAttribute("src");
+  }
+  if(audioBlob && globalThis.URL?.createObjectURL){
+    audioUrl=URL.createObjectURL(audioBlob);
+    if(studentAudio) studentAudio.src=audioUrl;
+    if(recordingReviewAudio) recordingReviewAudio.src=audioUrl;
   }
   if(studentPlayButton) studentPlayButton.disabled=!audioBlob;
+  if(studentReviewAudioBtn) studentReviewAudioBtn.disabled=!audioBlob;
+  if(recordingReviewActions) recordingReviewActions.hidden=!audioBlob;
 }
 
 function renderAttempt(){
@@ -194,10 +201,39 @@ async function stopRecording({navigate=false}={}){
   }
 }
 
+async function startFreshRecording(){
+  if(isRecording) return;
+  recordingReviewAudio?.pause?.();
+  studentAudio?.pause?.();
+  await store.clear();
+  attempt=createStandaloneAttempt();
+  setAudioBlob(null);
+  renderAttempt();
+  setRecordingUi(false,"Starting a new recording...");
+  await startRecording();
+}
+
 recordButton?.addEventListener("click",async()=>{
   if(isRecording) await stopRecording({navigate:false});
   else await startRecording();
 });
+
+studentReviewAudioBtn?.addEventListener("click",async()=>{
+  if(!recordingReviewAudio?.src) return;
+  if(recordingReviewAudio.paused){
+    await recordingReviewAudio.play();
+    studentReviewAudioBtn.textContent="❚❚ Pause review";
+  }else{
+    recordingReviewAudio.pause();
+    studentReviewAudioBtn.textContent="▶ Review audio";
+  }
+});
+
+recordingReviewAudio?.addEventListener("ended",()=>{
+  if(studentReviewAudioBtn) studentReviewAudioBtn.textContent="▶ Review audio";
+});
+
+studentRecordAgainBtn?.addEventListener("click",startFreshRecording);
 
 finishButton?.addEventListener("click",async()=>{
   if(isRecording){
@@ -218,12 +254,8 @@ document.querySelectorAll("[data-target]").forEach(control=>{
 
 document.getElementById("tryAgainBtn")?.addEventListener("click",async()=>{
   if(isRecording) await stopRecording({navigate:false});
-  await store.clear();
-  attempt=createStandaloneAttempt();
-  setAudioBlob(null);
-  setRecordingUi(false,"Tap the microphone to start a new attempt.");
-  renderAttempt();
   showStudentView("studentRecordingView");
+  await startFreshRecording();
 });
 
 document.getElementById("previewPrevBtn")?.addEventListener("click",()=>{
