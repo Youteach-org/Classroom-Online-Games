@@ -6,6 +6,12 @@ import uuid
 ALLOWED_MODES = {"practice", "assessment", "live_assessment"}
 
 
+class DuplicateIdempotencyError(RuntimeError):
+    def __init__(self, existing_job_id):
+        super().__init__("idempotency key already claimed")
+        self.existing_job_id = str(existing_job_id or "").strip()
+
+
 def _copy(value):
     return copy.deepcopy(value)
 
@@ -123,6 +129,12 @@ class JobService:
 
         try:
             return _copy(self.job_store.create(created))
+        except DuplicateIdempotencyError as exc:
+            self.audio_store.delete(storage_key)
+            existing = self.job_store.get(exc.existing_job_id)
+            if not existing:
+                raise
+            return _copy(existing)
         except Exception:
             self.audio_store.delete(storage_key)
             raise
