@@ -1,11 +1,11 @@
 @echo off
 setlocal EnableExtensions
-title DEA V13
+title DEA V14
 
 cd /d "%~dp0"
 
 echo ============================================================
-echo   DEA V13
+echo   DEA V14
 echo ============================================================
 echo.
 echo Cierra Arduino Serial Monitor antes de continuar.
@@ -14,7 +14,7 @@ echo.
 for %%F in (esptool.exe bootloader.bin partitions.bin firmware.bin littlefs.bin) do (
   if not exist "%%F" (
     echo ERROR: Falta %%F.
-    echo Descomprime TODO DEA-V13.zip en una carpeta.
+    echo Descomprime TODO DEA-V14.zip en una carpeta.
     pause
     exit /b 1
   )
@@ -36,7 +36,7 @@ if /i not "%PORT:~0,3%"=="COM" set "PORT=COM%PORT%"
 
 echo.
 echo Puerto: %PORT%
-set /p "CONFIRM=Escribe S para instalar V13: "
+set /p "CONFIRM=Escribe S para instalar V14: "
 if /i not "%CONFIRM%"=="S" (
   echo Cancelado.
   pause
@@ -57,7 +57,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo [2/2] Instalando V13...
+echo [2/2] Instalando V14...
 "%~dp0esptool.exe" --chip esp32 --port "%PORT%" --baud 460800 ^
   write-flash --flash-mode dio --flash-size 4MB ^
   0x1000 bootloader.bin ^
@@ -74,7 +74,7 @@ if errorlevel 1 (
 
 echo.
 echo ============================================================
-echo   V13 INSTALADA
+echo   V14 INSTALADA
 echo ============================================================
 echo.
 echo Si el ESP32 no reinicia solo, desconecta y vuelve a conectarlo.
