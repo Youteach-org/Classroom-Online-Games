@@ -7,6 +7,8 @@ name: Oral Grader Stage 3 Tests
     paths:
       - Oral-Grader/stage3/**
       - Oral-Grader/online/**
+      - Oral-Grader/main.py
+      - Oral-Grader/requirements.txt
       - Oral-Grader/tests/test-stage3-rubric-scoring.py
       - Oral-Grader/tests/test-online-job-service.py
       - Oral-Grader/tests/test-firebase-online-boundary.py
