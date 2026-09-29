@@ -27,17 +27,19 @@ test("student UI does not ship fake transcript or fake linguistic feedback",()=>
   assert.match(student,/Oral-Grader/i);
 });
 
-test("teacher UI reads latest standalone attempt instead of hard-coded assessment",()=>{
+test("teacher UI reads shared online Oral Grader jobs instead of hard-coded/local attempts",()=>{
   for(const id of [
-    "teacherAttemptState","teacherAudioElement","teacherTranscriptStatus",
+    "teacherAttemptState","teacherAudioElement","teacherTranscriptThread",
     "teacherFluencyScore","teacherPublishBtn","teacherEditScoresBtn","teacherReportBtn"
   ]){
     assert.match(teacher,new RegExp('id="'+id+'"'));
   }
   assert.doesNotMatch(teacher,/28\s*\/\s*40/);
   assert.doesNotMatch(teacher,/I have went to the park/i);
-  assert.match(teacherApp,/createStandaloneAttemptStore/);
-  assert.match(teacherApp,/publishStandaloneAttempt/);
+  assert.match(teacherApp,/createOralGraderClient/);
+  assert.match(teacherApp,/listJobs/);
+  assert.doesNotMatch(teacherApp,/createStandaloneAttemptStore/);
+  assert.doesNotMatch(teacherApp,/publishStandaloneAttempt/);
 });
 
 
