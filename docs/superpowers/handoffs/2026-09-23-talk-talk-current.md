@@ -608,3 +608,20 @@ Every material Talk Talk / Oral Grader change must, in the same development sequ
 - add/adjust regression tests when the decision is mechanically enforceable.
 
 Future sessions must read GitHub before proposing architecture.
+
+
+### 2026-09-28 architecture documentation trace
+
+Canonical documentation commits:
+- decision: `18685f95a620664f2df1030e8a49867e170f4567`
+- spec: `e815623341d36f268b20f09ea6f3de524a024f51`
+- plan: `a3091af0d1974d802ba76b6b1f6dabc511cf6de2`
+- audit: `1d396aad35a501d4baa8cfc85c2da749e2b01cac`
+- handoff architecture correction: `d72b57bd3c30c271a3176dc3c8de9cd08e65ac06`
+- continuity enforcement: `4b3f3a3c5c8ea4da404c124c987b1e8005c737dc`
+
+Progress checkpoint:
+- `docs/superpowers/progress/2026-09-28-talk-talk-oral-grader-online.md`
+
+Exact next action:
+- execute Task 1 of the 2026-09-28 online-integration plan: recover/formalize the Oral Grader final 5x8 rubric scorer before wiring Talk Talk's `Califica` button to an online job.
