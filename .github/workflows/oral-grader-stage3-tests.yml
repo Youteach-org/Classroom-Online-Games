@@ -23,5 +23,5 @@ jobs:
           python-version: "3.12"
       - name: Install test dependency
         run: python -m pip install --disable-pip-version-check pytest
-      - name: Run Oral Grader Stage-3 contract tests
-        run: python -m pytest -q Oral-Grader/tests/test-stage3-rubric-scoring.py
+      - name: Run complete Oral Grader unit suite
+        run: python -m pytest -q Oral-Grader/tests
