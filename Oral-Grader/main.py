@@ -195,6 +195,99 @@ def oral_grader_job_status(request):
         return _json_response(request, {"ok": False, "error": "job-not-found"}, 404)
 
 
+@https_fn.on_request(secrets=["TALK_TALK_SESSION_SECRET"])
+def oral_grader_job_list(request):
+    preflight = _preflight(request)
+    if preflight is not None:
+        return preflight
+    if request.method != "GET":
+        return _json_response(request, {"ok": False, "error": "method-not-allowed"}, 405)
+
+    try:
+        actor = _bearer_claims(request)
+        limit = int(request.args.get("limit") or 50)
+        service = JOB_SERVICE.create_job_service(
+            job_store=FIREBASE_ADAPTER.FirebaseJobStore(db.reference),
+            audio_store=FIREBASE_ADAPTER.FirebaseAudioStore(storage.bucket()),
+        )
+        jobs = service.list_jobs(actor=actor, limit=limit)
+        return _json_response(
+            request,
+            {"ok": True, "jobs": [_public_job(job) for job in jobs]},
+            200,
+        )
+    except (PermissionError, ValueError) as exc:
+        status = 401 if isinstance(exc, PermissionError) else 400
+        return _json_response(request, {"ok": False, "error": str(exc)}, status)
+
+
+@https_fn.on_request(secrets=["TALK_TALK_SESSION_SECRET"])
+def oral_grader_audio(request):
+    preflight = _preflight(request)
+    if preflight is not None:
+        return preflight
+    if request.method != "GET":
+        return _json_response(request, {"ok": False, "error": "method-not-allowed"}, 405)
+
+    try:
+        actor = _bearer_claims(request)
+        job_id = str(request.args.get("jobId") or "").strip()
+        if not job_id:
+            raise ValueError("jobId is required")
+        service = JOB_SERVICE.create_job_service(
+            job_store=FIREBASE_ADAPTER.FirebaseJobStore(db.reference),
+            audio_store=FIREBASE_ADAPTER.FirebaseAudioStore(storage.bucket()),
+        )
+        source = service.get_audio(job_id, actor=actor)
+        return https_fn.Response(
+            source["bytes"],
+            status=200,
+            headers={
+                **_cors_headers(request),
+                "Content-Type": source["mimeType"],
+                "Cache-Control": "no-store",
+            },
+        )
+    except (PermissionError, ValueError) as exc:
+        status = 401 if isinstance(exc, PermissionError) else 400
+        return _json_response(request, {"ok": False, "error": str(exc)}, status)
+    except KeyError:
+        return _json_response(request, {"ok": False, "error": "audio-not-found"}, 404)
+
+
+@https_fn.on_request(secrets=["TALK_TALK_SESSION_SECRET"])
+def oral_grader_teacher_review(request):
+    preflight = _preflight(request)
+    if preflight is not None:
+        return preflight
+    if request.method != "POST":
+        return _json_response(request, {"ok": False, "error": "method-not-allowed"}, 405)
+
+    try:
+        actor = _bearer_claims(request)
+        body = request.get_json(silent=True) or {}
+        job_id = str(body.get("jobId") or "").strip()
+        if not job_id:
+            raise ValueError("jobId is required")
+        service = JOB_SERVICE.create_job_service(
+            job_store=FIREBASE_ADAPTER.FirebaseJobStore(db.reference),
+            audio_store=FIREBASE_ADAPTER.FirebaseAudioStore(storage.bucket()),
+        )
+        job = service.save_teacher_review(
+            job_id,
+            scores=body.get("scores"),
+            comments=body.get("comments", ""),
+            publish=bool(body.get("publish")),
+            actor=actor,
+        )
+        return _json_response(request, {"ok": True, "job": _public_job(job)}, 200)
+    except (PermissionError, ValueError) as exc:
+        status = 401 if isinstance(exc, PermissionError) else 400
+        return _json_response(request, {"ok": False, "error": str(exc)}, status)
+    except KeyError:
+        return _json_response(request, {"ok": False, "error": "job-not-found"}, 404)
+
+
 @db_fn.on_value_created(
     reference="/classroomGames/talkTalk/oralGrader/jobs/{jobId}",
     secrets=["GEMINI_API_KEY"],
