@@ -650,3 +650,17 @@ Important:
 - this is NOT deployed yet;
 - browser-local scoring remains preview-only;
 - next UI task is `Califica`, which submits the accepted take online and retains local recovery until server acknowledgement.
+
+
+### Califica online submission implemented — 2026-09-29
+
+On `feature/talk-talk-oral-grader-online-20260928`:
+- Review audio and Record again remain available.
+- Finish stops/accepts the local take.
+- Califica submits the accepted take to the online Oral Grader client.
+- local recovery remains until online processing is acknowledged;
+- retries use the same idempotency key;
+- server-issued `jobId` is persisted.
+- GREEN run: `36534266881`.
+
+Next: online job monitoring + real OG student result rendering.
