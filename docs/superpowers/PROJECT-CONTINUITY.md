@@ -88,3 +88,26 @@ Deployment incident:
 - Both deploy workflows are being corrected to include Talk-Talk in the static artifact.
 
 Future sessions must read the Talk Talk handoff before making changes.
+
+
+## Talk Talk / Oral Grader required read order — 2026-09-28
+
+Before changing Talk Talk recording, grading, submission, persistence, Teacher Monitor result behavior, or Oral Grader integration, read:
+
+1. `docs/superpowers/decisions/2026-09-28-talk-talk-oral-grader-online-architecture.md`
+2. `docs/superpowers/specs/2026-09-28-talk-talk-oral-grader-online-integration.md`
+3. `docs/superpowers/plans/2026-09-28-talk-talk-oral-grader-online-integration.md`
+4. `docs/superpowers/audits/2026-09-28-talk-talk-oral-grader-state.md`
+5. `docs/superpowers/handoffs/2026-09-23-talk-talk-current.md`
+
+Canonical architecture:
+- Talk Talk records and manages UI/session/submission.
+- Accepted audio is sent online to Oral Grader when the student chooses the grading action.
+- Oral Grader is the authoritative transcription/evidence/rubric engine.
+- Browser storage is temporary recovery only.
+- Teacher and student must not need the same device/browser.
+- Final automatic grading means five 0-8 rubric dimensions plus total /40 returned by Oral Grader.
+- Literal `heard_text` is immutable.
+- Never substitute Talk Talk local prosody/duration scoring for Oral Grader's final rubric.
+
+Future assistants must inspect the current Oral Grader branch before saying a capability is missing or proposing a replacement.
