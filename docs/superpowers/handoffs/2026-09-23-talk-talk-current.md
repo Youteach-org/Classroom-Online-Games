@@ -521,3 +521,29 @@ Connect Oral-Grader to this real standalone attempt:
 5. Keep teacher override separate from immutable transcript evidence.
 
 Do not reconnect YouTeach until the standalone end-to-end oral flow is stable.
+
+
+### Student recording acceptance flow — 2026-09-28
+
+The recording screen now supports an explicit acceptance loop before advancing:
+- Stop recording.
+- `Review audio` plays/pauses the just-recorded take on the same screen.
+- `Record again` discards the previous standalone attempt/audio and immediately starts a fresh take.
+- `Finish` accepts the current recorded take and advances to conversation/review.
+
+Implementation:
+- `Talk-Talk/index.html`: `recordingReviewAudio`, `studentReviewAudioBtn`, `studentRecordAgainBtn`.
+- `Talk-Talk/app.mjs`: `startFreshRecording()`, in-place recording review playback, re-record behavior.
+- `Talk-Talk/tests/standalone-ui-flow.test.mjs`: prevents regression of these controls.
+
+TDD evidence:
+- RED: run `36510734696` — expected failure before controls existed.
+- GREEN: run `36510800002` — SUCCESS.
+- Preview deploy: run `36510799998` — SUCCESS.
+
+Production-readiness note:
+- This standalone build is a functional beta, not yet the complete classroom production architecture.
+- Current persistence is browser-local (localStorage + IndexedDB). Teacher review sees the student's attempt only when both roles use the same browser/device/profile.
+- Full automatic oral grading is NOT connected yet. Local automatic evidence currently covers recorded duration/task completion and prosody/fluency only.
+- Literal transcription, pronunciation, grammar/vocabulary, coherence and interaction remain pending Oral-Grader.
+- Do not market/label this build as fully auto-grading until Oral-Grader is wired and end-to-end tested.
