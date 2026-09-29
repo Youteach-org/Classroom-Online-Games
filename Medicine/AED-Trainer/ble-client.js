@@ -108,7 +108,8 @@ export function createBleClient({ bluetooth }) {
     setConnectionState("connecting");
     try {
       const selected = await bluetooth.requestDevice({
-        filters: [{ services: [AED_SERVICE_UUID] }]
+        filters: [{ namePrefix: "AED Trainer" }],
+        optionalServices: [AED_SERVICE_UUID]
       });
       bindDevice(selected);
 
