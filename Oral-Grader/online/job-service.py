@@ -4,6 +4,13 @@ import uuid
 
 
 ALLOWED_MODES = {"practice", "assessment", "live_assessment"}
+RUBRIC_KEYS = (
+    "fluency",
+    "coherence_and_organization",
+    "grammar_and_vocabulary",
+    "pronunciation_and_intelligibility",
+    "communicative_interaction",
+)
 
 
 class DuplicateIdempotencyError(RuntimeError):
@@ -34,6 +41,25 @@ def _validate_actor(actor, *, allow_teacher=False):
     if not str(actor.get("sub") or "").strip():
         raise PermissionError("authenticated actor subject is required")
     return {"role": role, "sub": str(actor["sub"]).strip()}
+
+
+def _validate_teacher(actor):
+    clean = _validate_actor(actor, allow_teacher=True)
+    if clean["role"] != "teacher":
+        raise PermissionError("authenticated teacher actor is required")
+    return clean
+
+
+def _validate_teacher_scores(scores):
+    if not isinstance(scores, dict) or set(scores) != set(RUBRIC_KEYS):
+        raise ValueError("teacher review must contain exactly the five rubric scores")
+    clean = {}
+    for key in RUBRIC_KEYS:
+        value = scores[key]
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0 or value > 8:
+            raise ValueError(f"{key} must be an integer in 0..8")
+        clean[key] = value
+    return clean
 
 
 def _validate_job_payload(raw):
@@ -167,9 +193,75 @@ class JobService:
                 "completedAt": int(self.now()),
             },
         )
-        storage_key = (row.get("audio") or {}).get("storageKey")
-        if final_status == "completed" and storage_key:
-            self.audio_store.delete(storage_key)
+        return _copy(updated)
+
+    def list_jobs(self, *, actor, limit=50):
+        _validate_teacher(actor)
+        clean_limit = max(1, min(100, int(limit)))
+        return _copy(self.job_store.list_recent(limit=clean_limit))
+
+    def get_audio(self, job_id, *, actor):
+        _validate_teacher(actor)
+        clean_job_id = _require_string(job_id, "jobId")
+        row = self.job_store.get(clean_job_id)
+        if not row:
+            raise KeyError("job not found")
+        audio = row.get("audio") or {}
+        storage_key = _require_string(audio.get("storageKey"), "audio storage key")
+        data = self.audio_store.read(storage_key)
+        if not isinstance(data, (bytes, bytearray, memoryview)) or len(data) == 0:
+            raise KeyError("audio not found")
+        return {
+            "bytes": bytes(data),
+            "mimeType": str(audio.get("mimeType") or "application/octet-stream"),
+        }
+
+    def save_teacher_review(
+        self,
+        job_id,
+        *,
+        scores,
+        comments,
+        publish,
+        actor,
+    ):
+        teacher = _validate_teacher(actor)
+        clean_job_id = _require_string(job_id, "jobId")
+        row = self.job_store.get(clean_job_id)
+        if not row:
+            raise KeyError("job not found")
+        clean_scores = _validate_teacher_scores(scores)
+        total = sum(clean_scores.values())
+        published = bool(publish)
+        review = {
+            "scores": clean_scores,
+            "total": total,
+            "comments": str(comments or ""),
+            "reviewedBy": teacher["sub"],
+            "reviewedAt": int(self.now()),
+            "published": published,
+        }
+        if published:
+            review["publishedAt"] = int(self.now())
+
+        patch = {
+            "teacherReview": review,
+            "publishState": "published" if published else "reviewed",
+            "updatedAt": int(self.now()),
+        }
+        updated = self.job_store.update(clean_job_id, patch)
+
+        if published:
+            storage_key = (row.get("audio") or {}).get("storageKey")
+            if storage_key:
+                self.audio_store.delete(storage_key)
+            updated = self.job_store.update(
+                clean_job_id,
+                {
+                    "audioAvailable": False,
+                    "updatedAt": int(self.now()),
+                },
+            )
         return _copy(updated)
 
     def require_review(self, job_id, *, reason, details=None):
