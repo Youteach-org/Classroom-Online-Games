@@ -142,6 +142,9 @@ def test_firebase_entrypoint_exposes_preview_auth_submit_and_status_without_brow
     assert "talk_talk_preview_login" in source
     assert "oral_grader_submit" in source
     assert "oral_grader_job_status" in source
+    assert "oral_grader_job_list" in source
+    assert "oral_grader_audio" in source
+    assert "oral_grader_teacher_review" in source
     assert "process_oral_grader_job" in source
     assert "db_fn.on_value_created" in source
     assert "TALK_TALK_SESSION_SECRET" in source
@@ -183,3 +186,37 @@ def test_firebase_audio_store_downloads_source_for_processor(tmp_path):
 
     assert returned == target
     assert target.read_bytes() == b"audio-bytes"
+
+
+def test_firebase_job_store_lists_recent_shared_jobs():
+    mod = load(ADAPTER_PATH, "og_firebase_adapter_list")
+    tree = {}
+    store = mod.FirebaseJobStore(lambda path: FakeRef(tree, tuple(p for p in path.split("/") if p)))
+    store.create({"jobId":"job-a","idempotencyKey":"a","status":"completed","createdAt":1})
+    store.create({"jobId":"job-b","idempotencyKey":"b","status":"submitted","createdAt":2})
+
+    rows = store.list_recent(limit=10)
+    assert [row["jobId"] for row in rows] == ["job-b","job-a"]
+
+
+def test_firebase_audio_store_reads_source_bytes():
+    mod = load(ADAPTER_PATH, "og_firebase_adapter_read")
+    bucket = FakeBucket()
+    bucket.objects["oral-grader/jobs/job-123/source"] = {
+        "data": b"source-audio",
+        "content_type": "audio/webm",
+    }
+
+    class ReadBlob(FakeBlob):
+        def download_as_bytes(self):
+            return self.store[self.key]["data"]
+
+    class ReadBucket(FakeBucket):
+        def __init__(self, objects):
+            self.objects = objects
+
+        def blob(self, key):
+            return ReadBlob(self.objects, key)
+
+    store = mod.FirebaseAudioStore(ReadBucket(bucket.objects))
+    assert store.read("oral-grader/jobs/job-123/source") == b"source-audio"
