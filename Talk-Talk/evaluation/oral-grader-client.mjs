@@ -47,13 +47,31 @@ export function createOralGraderClient({
   const urls={
     login:requireUrl(endpoints?.login,"login"),
     submit:requireUrl(endpoints?.submit,"submit"),
-    status:requireUrl(endpoints?.status,"status")
+    status:requireUrl(endpoints?.status,"status"),
+    list:requireUrl(endpoints?.list,"list"),
+    audio:requireUrl(endpoints?.audio,"audio"),
+    review:requireUrl(endpoints?.review,"review")
   };
   let sessionToken=String(token||"").trim();
 
   function authHeaders(){
     if(!sessionToken) throw new OralGraderHttpError("Oral Grader session token is required.",{status:401});
     return {Authorization:"Bearer "+sessionToken};
+  }
+
+  async function getJobRecord(jobId){
+    const cleanId=String(jobId||"").trim();
+    if(!cleanId) throw new TypeError("jobId is required");
+    const response=await fetchImpl(
+      urls.status+"?jobId="+encodeURIComponent(cleanId),
+      {method:"GET",headers:authHeaders()}
+    );
+    const payload=await ensureOk(response);
+    const job=payload.job;
+    if(!job || typeof job!=="object"){
+      throw new OralGraderHttpError("Oral Grader status returned no job.",{status:502,payload});
+    }
+    return job;
   }
 
   return Object.freeze({
@@ -119,18 +137,10 @@ export function createOralGraderClient({
       };
     },
 
+    getJobRecord,
+
     async getJob(jobId){
-      const cleanId=String(jobId||"").trim();
-      if(!cleanId) throw new TypeError("jobId is required");
-      const response=await fetchImpl(
-        urls.status+"?jobId="+encodeURIComponent(cleanId),
-        {method:"GET",headers:authHeaders()}
-      );
-      const payload=await ensureOk(response);
-      const job=payload.job;
-      if(!job || typeof job!=="object"){
-        throw new OralGraderHttpError("Oral Grader status returned no job.",{status:502,payload});
-      }
+      const job=await getJobRecord(jobId);
       if(
         (job.status==="completed" || job.status==="review_required") &&
         job.result &&
@@ -139,9 +149,59 @@ export function createOralGraderClient({
         return normalizeOralGraderResult(job.result);
       }
       return normalizeOralGraderResult({
-        jobId:String(job.jobId||cleanId),
+        jobId:String(job.jobId||jobId),
         status:String(job.status||"")
       });
+    },
+
+    async listJobs({limit=50}={}){
+      const cleanLimit=Math.max(1,Math.min(100,Math.trunc(Number(limit)||50)));
+      const response=await fetchImpl(
+        urls.list+"?limit="+encodeURIComponent(cleanLimit),
+        {method:"GET",headers:authHeaders()}
+      );
+      const payload=await ensureOk(response);
+      if(!Array.isArray(payload.jobs)){
+        throw new OralGraderHttpError("Oral Grader list returned no jobs.",{status:502,payload});
+      }
+      return payload.jobs;
+    },
+
+    async getAudioBlob(jobId){
+      const cleanId=String(jobId||"").trim();
+      if(!cleanId) throw new TypeError("jobId is required");
+      const response=await fetchImpl(
+        urls.audio+"?jobId="+encodeURIComponent(cleanId),
+        {method:"GET",headers:authHeaders()}
+      );
+      if(!response.ok){
+        const payload=await parseJson(response);
+        throw new OralGraderHttpError(
+          payload?.error || "Oral Grader audio request failed.",
+          {status:response.status,payload}
+        );
+      }
+      return response.blob();
+    },
+
+    async saveTeacherReview(jobId,{scores,comments="",publish=false}={}){
+      const cleanId=String(jobId||"").trim();
+      if(!cleanId) throw new TypeError("jobId is required");
+      const response=await fetchImpl(urls.review,{
+        method:"POST",
+        headers:{...authHeaders(),"Content-Type":"application/json"},
+        body:JSON.stringify({
+          jobId:cleanId,
+          scores:scores||{},
+          comments:String(comments||""),
+          publish:Boolean(publish)
+        })
+      });
+      const payload=await ensureOk(response);
+      if(!payload.job || typeof payload.job!=="object"){
+        throw new OralGraderHttpError("Teacher review returned no job.",{status:502,payload});
+      }
+      return payload.job;
     }
   });
 }
