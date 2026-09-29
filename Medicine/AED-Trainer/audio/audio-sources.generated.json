@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedBy": "HeyGen create_speech",
-  "totalDurationSeconds": 288.18285714285713,
+  "totalDurationSeconds": 287.8375714285714,
   "voiceProfiles": {
     "aed-female-latam": {
       "voiceId": "fWZozqyB99JyQDYA98eg",
@@ -83,21 +83,23 @@
     {
       "filename": "aed-continue-cpr.wav",
       "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=16d575ba-e132-4949-a2ba-43d4769d7912.wav",
-      "duration": 2.295,
+      "duration": 1.849,
       "composition": {
         "segments": [
           {
+            "source": "original-aed-continue",
             "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=16d575ba-e132-4949-a2ba-43d4769d7912.wav",
-            "start": 0.2,
-            "end": 0.94
+            "start": 0.18,
+            "end": 0.928
           },
           {
-            "silence": 0.035
+            "silence": 0.07
           },
           {
+            "source": "approved-lucia-rcp",
             "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/7e5eebc368ab477a9175b7d2a2c3317e/id=8be30466-b0d4-4cd6-84fe-5c857eee5171.wav",
-            "start": 0.9,
-            "end": 2.42
+            "start": 0.985,
+            "end": 2.016
           }
         ]
       }
