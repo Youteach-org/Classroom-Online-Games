@@ -70,7 +70,7 @@ Internet is allowed before class only to initially load/update the Teacher Monit
 
 ### Standalone training flow
 
-The autonomous trainer is **learner-action driven**, not a timed recording. Startup instructions may play in sequence, but the device then stops at pad placement. It remains in APPLY_PADS until the learner presses **PADS / OK**. Only then does simulated analysis begin. SHOCK waits for the physical SHOCK button when advised. CPR runs for the configured two-minute cycle before automatic reassessment. A scripted contact fault returns the trainer to pad placement and requires PADS / OK again.
+The autonomous trainer is **learner-action driven**, not a timed recording. After START, **PADS / OK** confirms each learner step in order: check responsiveness, request emergency help, check breathing, expose the chest, and confirm placement of the training electrodes. The device does not advance those learner actions on a timer. Only after pad placement is confirmed does simulated analysis begin. SHOCK waits indefinitely for the physical SHOCK button when advised. The CPR display holds at **2:00** while the CPR instruction plays; the full two-minute cycle and 110/min metronome begin only after that audio finishes. At 0:00 the trainer moves to reassessment. A scripted contact fault returns the trainer to pad placement and requires PADS / OK again.
 
 ### OLED operating views
 
@@ -118,7 +118,7 @@ The Teacher Monitor can:
 
 ### AED voice
 
-Female Latin American Spanish. It represents the device itself and is limited to AED-like prompts.
+Female Latin American Spanish. It represents the device itself and is limited to AED-like prompts. The V10 `AED_BEGIN_CPR` prompt uses the separately approved Lucía take so **ERRE CE PE** is intelligible; the rest of the AED prompt bank is not replaced by that voice.
 
 ### Paramedic companion
 
