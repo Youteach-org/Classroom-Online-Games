@@ -39,6 +39,11 @@ class FakeJobStore:
         self.jobs[job_id].update(patch)
         return dict(self.jobs[job_id])
 
+    def list_recent(self, limit=50):
+        rows=list(self.jobs.values())
+        rows.sort(key=lambda row: row.get("createdAt",0), reverse=True)
+        return [dict(row) for row in rows[:limit]]
+
 
 class FakeAudioStore:
     def __init__(self):
@@ -50,6 +55,9 @@ class FakeAudioStore:
         self.put_calls.append((key, bytes(data), mime_type))
         self.objects[key] = bytes(data)
         return key
+
+    def read(self, key):
+        return self.objects.get(key)
 
     def delete(self, key):
         self.delete_calls.append(key)
@@ -179,7 +187,7 @@ def test_status_returns_shared_online_job_without_raw_audio():
     assert "audioBytes" not in out
 
 
-def test_completed_job_persists_result_then_deletes_temporary_audio():
+def test_completed_job_persists_result_and_retains_audio_until_teacher_publish():
     mod = load(SERVICE_PATH, "og_online_service_complete")
     jobs = FakeJobStore()
     audio = FakeAudioStore()
@@ -204,8 +212,8 @@ def test_completed_job_persists_result_then_deletes_temporary_audio():
 
     assert out["status"] == "completed"
     assert out["result"] == result
-    assert submitted["audio"]["storageKey"] in audio.delete_calls
-    assert submitted["audio"]["storageKey"] not in audio.objects
+    assert submitted["audio"]["storageKey"] not in audio.delete_calls
+    assert submitted["audio"]["storageKey"] in audio.objects
 
 
 def test_retryable_failure_keeps_audio_for_retry():
@@ -281,3 +289,154 @@ def test_concurrent_idempotency_claim_returns_winning_job_and_cleans_losing_audi
     assert out["jobId"] == "job-winner"
     assert "oral-grader/jobs/job-loser/source" in audio.delete_calls
     assert len(audio.put_calls) == 1
+
+
+def test_teacher_lists_shared_jobs_and_student_cannot_list_all_jobs():
+    mod = load(SERVICE_PATH, "og_online_service_list")
+    jobs = FakeJobStore()
+    service = mod.create_job_service(
+        job_store=jobs,
+        audio_store=FakeAudioStore(),
+        now=lambda: 2000,
+        job_id_factory=lambda: "job-123",
+    )
+    service.submit(job_payload(), b"audio", actor={"role":"student","sub":"student"})
+
+    rows = service.list_jobs(actor={"role":"teacher","sub":"teacher"})
+    assert len(rows) == 1
+    assert rows[0]["jobId"] == "job-123"
+
+    with pytest.raises(PermissionError, match="teacher"):
+        service.list_jobs(actor={"role":"student","sub":"student"})
+
+
+def test_teacher_can_read_audio_before_publish_and_publish_deletes_it():
+    mod = load(SERVICE_PATH, "og_online_service_teacher_audio")
+    jobs = FakeJobStore()
+    audio = FakeAudioStore()
+    service = mod.create_job_service(
+        job_store=jobs,
+        audio_store=audio,
+        now=lambda: 2000,
+        job_id_factory=lambda: "job-123",
+    )
+    submitted = service.submit(
+        job_payload(), b"source-audio",
+        actor={"role":"student","sub":"student"}
+    )
+    service.complete("job-123", {
+        "jobId":"job-123",
+        "status":"completed",
+        "students":[{"studentId":"student-1","total":33}],
+    })
+
+    source = service.get_audio(
+        "job-123",
+        actor={"role":"teacher","sub":"teacher"}
+    )
+    assert source["bytes"] == b"source-audio"
+    assert source["mimeType"] == "audio/webm"
+
+    published = service.save_teacher_review(
+        "job-123",
+        scores={
+            "fluency":7,
+            "coherence_and_organization":6,
+            "grammar_and_vocabulary":6,
+            "pronunciation_and_intelligibility":7,
+            "communicative_interaction":7,
+        },
+        comments="Ready to publish.",
+        publish=True,
+        actor={"role":"teacher","sub":"teacher"},
+    )
+    assert published["teacherReview"]["published"] is True
+    assert published["teacherReview"]["total"] == 33
+    assert submitted["audio"]["storageKey"] in audio.delete_calls
+    assert submitted["audio"]["storageKey"] not in audio.objects
+
+
+def test_teacher_override_is_separate_from_immutable_oral_grader_result():
+    mod = load(SERVICE_PATH, "og_online_service_override")
+    jobs = FakeJobStore()
+    audio = FakeAudioStore()
+    service = mod.create_job_service(
+        job_store=jobs,
+        audio_store=audio,
+        now=lambda: 2000,
+        job_id_factory=lambda: "job-123",
+    )
+    service.submit(job_payload(), b"audio", actor={"role":"student","sub":"student"})
+    original = {
+        "jobId":"job-123",
+        "status":"completed",
+        "transcript":{"heard_text":"I have went to the park."},
+        "students":[{
+            "studentId":"student-1",
+            "rubric_scores":{
+                "fluency":7,
+                "coherence_and_organization":6,
+                "grammar_and_vocabulary":6,
+                "pronunciation_and_intelligibility":7,
+                "communicative_interaction":7,
+            },
+            "total":33,
+        }],
+    }
+    service.complete("job-123", original)
+
+    reviewed = service.save_teacher_review(
+        "job-123",
+        scores={
+            "fluency":6,
+            "coherence_and_organization":6,
+            "grammar_and_vocabulary":6,
+            "pronunciation_and_intelligibility":7,
+            "communicative_interaction":7,
+        },
+        comments="Manual fluency adjustment.",
+        publish=False,
+        actor={"role":"teacher","sub":"teacher"},
+    )
+
+    assert reviewed["result"] == original
+    assert reviewed["result"]["transcript"]["heard_text"] == "I have went to the park."
+    assert reviewed["teacherReview"]["scores"]["fluency"] == 6
+    assert reviewed["teacherReview"]["total"] == 32
+    assert reviewed["teacherReview"]["published"] is False
+
+
+def test_teacher_review_requires_all_five_scores_in_zero_to_eight():
+    mod = load(SERVICE_PATH, "og_online_service_review_validation")
+    jobs = FakeJobStore()
+    service = mod.create_job_service(
+        job_store=jobs,
+        audio_store=FakeAudioStore(),
+        now=lambda: 2000,
+        job_id_factory=lambda: "job-123",
+    )
+    service.submit(job_payload(), b"audio", actor={"role":"student","sub":"student"})
+
+    with pytest.raises(ValueError, match="five"):
+        service.save_teacher_review(
+            "job-123",
+            scores={"fluency":7},
+            comments="",
+            publish=False,
+            actor={"role":"teacher","sub":"teacher"},
+        )
+
+    with pytest.raises(ValueError, match="0..8"):
+        service.save_teacher_review(
+            "job-123",
+            scores={
+                "fluency":9,
+                "coherence_and_organization":6,
+                "grammar_and_vocabulary":6,
+                "pronunciation_and_intelligibility":7,
+                "communicative_interaction":7,
+            },
+            comments="",
+            publish=False,
+            actor={"role":"teacher","sub":"teacher"},
+        )
