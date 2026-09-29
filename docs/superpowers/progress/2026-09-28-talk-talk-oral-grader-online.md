@@ -156,3 +156,74 @@ TDD:
 
 Next:
 - Task 4: authenticated online grading-job boundary with audio upload, idempotency and server-side Oral Grader execution.
+
+
+## Task 4 — authenticated online grading-job boundary
+
+Status: COMPLETE IN CODE / NOT DEPLOYED YET.
+
+### Talk Talk client branch
+
+Branch:
+- `feature/talk-talk-oral-grader-online-20260928`
+
+Implemented:
+- `Talk-Talk/evaluation/oral-grader-client.mjs`
+- preview login obtains a short-lived server-signed token;
+- accepted audio uploads as multipart data;
+- metadata uses the canonical job schema;
+- server assigns `jobId`;
+- retries reuse the same idempotency key;
+- status polling returns processing state or canonical completed result;
+- HTTP retryability is surfaced to the UI layer.
+
+Verification:
+- Talk Talk suite run `36532577640` — SUCCESS.
+
+### Oral Grader backend branch
+
+Branch:
+- `feature/oral-grader-talk-talk-online-20260928`
+
+Implemented:
+- `Oral-Grader/main.py`
+- `Oral-Grader/online/auth.py`
+- `Oral-Grader/online/job-service.py`
+- `Oral-Grader/online/firebase-adapter.py`
+- `Oral-Grader/online/processor.py`
+- Firebase Python runtime under `Oral-Grader/`.
+
+Backend behavior:
+- HTTPS preview login endpoint;
+- HTTPS grading submission endpoint;
+- HTTPS job-status endpoint;
+- HMAC-signed temporary preview sessions;
+- RTDB authoritative job state under `classroomGames/talkTalk/oralGrader/jobs/{jobId}`;
+- temporary Cloud Storage audio;
+- deterministic/idempotent job identity;
+- duplicate submission does not duplicate the job/audio;
+- asynchronous RTDB-created trigger;
+- real Stage 1 -> Stage 2 -> Stage 3 processing;
+- statuses: transcribing -> analyzing -> scoring -> completed/review_required;
+- raw audio deleted after completed result;
+- raw audio retained for retry/review-required cases;
+- server-side Gemini secret binding only.
+
+Peer-conversation adaptation:
+- Talk Talk does not require a teacher voice in the recording.
+- controlled first-speaker order maps diarized speakers to Talk Talk student identity order;
+- mismatched/ambiguous diarization produces `review_required`, never guessed identity;
+- Stage 2 accepts explicit `peer_conversation` context without requiring `Teacher`.
+
+Verification:
+- RED processor run `36533118950` — missing processor + peer-conversation support as expected.
+- Final backend suite run `36533554028` — SUCCESS, 65 tests passing.
+- Backend HEAD at verification: `ee7dc8f65d16f9905ac2b69067a346142bed10e4`.
+
+Deployment status:
+- Firebase Functions have NOT been deployed yet.
+- `TALK_TALK_SESSION_SECRET` and `GEMINI_API_KEY` must exist in Firebase Secret Manager before deployment.
+- Do not claim online grading is live until the deployed endpoints and an actual audio job are verified.
+
+Exact next task:
+- Task 5: replace the standalone local Finish/grading transition with explicit `Califica` online submission while keeping Review audio / Record again and local recovery until server acknowledgement.
