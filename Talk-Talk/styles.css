@@ -364,3 +364,8 @@ audio{max-width:100%}
   text-align:center;
 }
 .recording-review-actions #studentGradeBtn{background:#0b5f4b;color:#fff}
+
+.result-status{margin:2px 0 12px;color:#687671;font-size:.72rem}
+.feedback-list{margin:0;padding-left:18px}
+.feedback-list li{font-size:.76rem;line-height:1.38;margin:7px 0}
+.chat-row.is-oral-grader-result .chat-main p{background:#f2f4f3}
