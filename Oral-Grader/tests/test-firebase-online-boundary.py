@@ -145,8 +145,8 @@ def test_firebase_entrypoint_exposes_preview_auth_submit_and_status_without_brow
     assert "process_oral_grader_job" in source
     assert "db_fn.on_value_created" in source
     assert "TALK_TALK_SESSION_SECRET" in source
-    assert "GEMINI_API_KEY" in source
-    assert "GEMINI_API_KEY" not in source
+    assert 'secrets=["GEMINI_API_KEY"]' in source
+    assert "AIza" not in source
     assert "Authorization" in source or "authorization" in source.lower()
     assert "audio" in source
     assert "idempotencyKey" in source
