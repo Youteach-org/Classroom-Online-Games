@@ -20,14 +20,28 @@ test("every prompt catalog ID has exactly one script row", () => {
   for (const id of Object.keys(PROMPTS)) assert.ok(byId.has(id), id);
 });
 
-test("voice roles map to the two approved profiles", () => {
+test("voice roles use the approved base profiles plus the two CPR exceptions", () => {
+  const aedExceptions = new Map([
+    ["AED_BEGIN_CPR", "aed-cpr-lucia"],
+    ["AED_CONTINUE_CPR", "aed-continue-hybrid"]
+  ]);
+
   for (const row of rows) {
     const prompt = PROMPTS[row.id];
     assert.equal(row.role, prompt.role);
     assert.equal(row.text, prompt.text);
     assert.equal(row.filename, prompt.audioAsset);
-    if (row.role === "aed") assert.equal(row.voiceProfile, "aed-female-latam");
-    if (row.role === "paramedic") assert.equal(row.voiceProfile, "paramedic-male-latam");
+
+    if (row.role === "aed") {
+      assert.equal(
+        row.voiceProfile,
+        aedExceptions.get(row.id) ?? "aed-female-latam",
+        row.id
+      );
+    }
+    if (row.role === "paramedic") {
+      assert.equal(row.voiceProfile, "paramedic-male-latam");
+    }
   }
 });
 
@@ -51,9 +65,11 @@ test("development medical dialogue remains flagged for release review", () => {
   for (const row of rows) assert.equal(row.releaseReviewRequired, true, row.id);
 });
 
-test("script declares both approved voice profiles", () => {
+test("script declares base profiles and approved CPR exceptions", () => {
   assert.equal(script.voiceProfiles["aed-female-latam"].gender, "female");
   assert.equal(script.voiceProfiles["aed-female-latam"].locale, "es-MX");
   assert.equal(script.voiceProfiles["paramedic-male-latam"].gender, "male");
   assert.equal(script.voiceProfiles["paramedic-male-latam"].locale, "es-MX");
+  assert.equal(script.voiceProfiles["aed-cpr-lucia"].locale, "es-MX");
+  assert.equal(script.voiceProfiles["aed-continue-hybrid"].locale, "es-MX");
 });
