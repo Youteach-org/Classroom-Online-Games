@@ -369,3 +369,14 @@ audio{max-width:100%}
 .feedback-list{margin:0;padding-left:18px}
 .feedback-list li{font-size:.76rem;line-height:1.38;margin:7px 0}
 .chat-row.is-oral-grader-result .chat-main p{background:#f2f4f3}
+
+.teacher-student-select{
+  margin-top:6px;
+  max-width:150px;
+  border:1px solid #d5dedb;
+  border-radius:7px;
+  background:#fff;
+  padding:5px 7px;
+  font-size:.58rem;
+}
+.team-grid{max-height:270px;overflow:auto;padding-right:2px}
