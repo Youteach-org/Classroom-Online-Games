@@ -237,7 +237,10 @@ async function connectTrainer() {
     const client = await ensureBleClient();
     await client.scanAndConnect();
   } catch (error) {
-    const message = String(error?.message ?? error);
+    let message = String(error?.message ?? error);
+    if (/Web Bluetooth API globally disabled/i.test(message)) {
+      message = "BRAVE BLOQUEA WEB BLUETOOTH. ABRA ESTA MISMA PAGINA EN CHROME O EDGE.";
+    }
     ui.connectionStatus.textContent = "ERROR BLE";
     ui.connectionStatus.dataset.state = "incompatible";
     ui.bleDiagnostic.textContent = message;
