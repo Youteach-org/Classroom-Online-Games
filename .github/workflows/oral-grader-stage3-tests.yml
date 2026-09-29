@@ -28,4 +28,5 @@ jobs:
           python -m pytest -q \
             Oral-Grader/tests/test-gemini-transcribe.py \
             Oral-Grader/tests/test-stage2-audio-analysis.py \
-            Oral-Grader/tests/test-stage3-rubric-scoring.py
+            Oral-Grader/tests/test-stage3-rubric-scoring.py \
+            Oral-Grader/tests/test-online-job-service.py
