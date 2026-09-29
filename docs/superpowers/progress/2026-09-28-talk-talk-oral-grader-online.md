@@ -255,3 +255,28 @@ Current limitation:
 
 Exact next task:
 - Task 6: monitor the shared online job and render real Oral Grader transcript/evidence/result in the student views.
+
+
+## Task 6 — online student result monitoring
+
+Status: COMPLETE IN CODE / awaiting deployed backend for live E2E.
+
+Implemented:
+- `Talk-Talk/evaluation/oral-grader-monitor.mjs`;
+- shared job polling through the authenticated online client;
+- persistent processing states: submitted -> transcribing -> analyzing -> scoring;
+- automatic resume after page reload when a non-terminal `jobId` is stored;
+- terminal completed/review-required/failed states;
+- early `review_required` can exist without fabricated transcript/scores;
+- completed result stores the canonical Oral Grader payload and immutable literal transcript;
+- student conversation view renders real OG transcript segments dynamically;
+- student speaking-review view renders real OG comments/rubric-derived focus areas;
+- local prosody/duration diagnostics are no longer presented as the production result.
+
+TDD:
+- RED: run `36534451359` — monitor module missing.
+- intermediate visual-contract failure: `36534616174` — dynamic Paulina avatar lost explicit HTML asset reference.
+- GREEN: run `36534676945` — complete Talk Talk integration suite SUCCESS.
+
+Next:
+- Task 7: Teacher Monitor reads the shared online job/result from a separate browser/session; teacher override/publish remains separate from immutable Oral Grader evidence.
