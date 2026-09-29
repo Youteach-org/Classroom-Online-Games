@@ -121,3 +121,25 @@ Current repository:
 - Firebase RTDB project already exists.
 
 The implementation choice preserves Oral Grader as the single grading engine.
+
+
+## Amendment — teacher playback retention (2026-09-29)
+
+The earlier statement "delete raw temporary audio immediately after successful processing/result persistence" is superseded for Talk Talk.
+
+Reason:
+- the approved Teacher Monitor includes real recording playback;
+- teacher review/override must be evidence-grounded;
+- deleting the source immediately after Stage 3 would make that approved control non-functional.
+
+Canonical retention rule:
+- browser copy remains temporary recovery only;
+- server raw audio remains temporary in Cloud Storage after Stage 3 while teacher review is pending;
+- teacher may play the submitted source recording through an authenticated server endpoint;
+- publishing the teacher result deletes the raw server audio;
+- a separate expiry/cleanup policy must delete abandoned/unpublished raw audio after the configured retention window;
+- the raw object key is never exposed directly to the browser;
+- raw audio is never committed to Git.
+
+Cost if wrong:
+- retaining audio until publish increases temporary Storage/privacy exposure; therefore authenticated access, publish deletion, and expiry cleanup are mandatory.
