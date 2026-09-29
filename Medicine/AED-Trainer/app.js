@@ -162,7 +162,8 @@ function onBleEvent(event) {
     const labels = {
       selected: `SELECCIONADO: ${event.message.device}`,
       gatt: `CONECTANDO GATT: ${event.message.device}`,
-      service: "BUSCANDO SERVICIO DEL DEA"
+      service: `BUSCANDO SERVICIO DEL DEA · INTENTO ${event.message.attempt ?? 1}`,
+      retry: `REINTENTO BLE ${event.message.attempt ?? 1}: ${event.message.error ?? "reconectando"}`
     };
     ui.bleDiagnostic.textContent = labels[event.message.stage] ?? `BLE: ${event.message.stage}`;
     return;
