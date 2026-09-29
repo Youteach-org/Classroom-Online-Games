@@ -24,7 +24,8 @@ jobs:
       - name: Install test dependency
         run: python -m pip install --disable-pip-version-check pytest
       - name: Run complete Oral Grader unit suite
-        run: python -m pytest -q \
-  Oral-Grader/tests/test-gemini-transcribe.py \
-  Oral-Grader/tests/test-stage2-audio-analysis.py \
-  Oral-Grader/tests/test-stage3-rubric-scoring.py
+        run: |
+          python -m pytest -q \
+            Oral-Grader/tests/test-gemini-transcribe.py \
+            Oral-Grader/tests/test-stage2-audio-analysis.py \
+            Oral-Grader/tests/test-stage3-rubric-scoring.py
