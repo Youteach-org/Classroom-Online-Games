@@ -227,3 +227,31 @@ Deployment status:
 
 Exact next task:
 - Task 5: replace the standalone local Finish/grading transition with explicit `Califica` online submission while keeping Review audio / Record again and local recovery until server acknowledgement.
+
+
+## Task 5 — Califica online submission
+
+Status: COMPLETE IN CODE / awaiting deployed backend for live E2E.
+
+Implemented:
+- `Talk-Talk/evaluation/oral-grader-submission.mjs`
+- `Talk-Talk/evaluation/oral-grader-config.mjs`
+- preview login now obtains/stores server `onlineToken`;
+- recording screen keeps `Finish` as stop/accept;
+- after stopping: Review audio / Record again / Califica;
+- `Califica` is the only grading submission action;
+- accepted recording remains in IndexedDB during upload and after server acknowledgement;
+- idempotency key is `<attemptId>:grade`;
+- retryable failure preserves the same key and local audio;
+- successful submission stores the server `jobId`;
+- integration app does not pretend the local prosody diagnostic is the Oral Grader result.
+
+TDD:
+- RED: run `36533854389` — missing submission module.
+- GREEN: run `36534266881` — complete Talk Talk integration suite SUCCESS.
+
+Current limitation:
+- backend code exists but is not deployed, so the integration-branch login/Califica cannot complete live until Firebase Functions + secrets are deployed.
+
+Exact next task:
+- Task 6: monitor the shared online job and render real Oral Grader transcript/evidence/result in the student views.
