@@ -146,6 +146,8 @@ void TrainerCore::resetProgress() {
   padFault_ = false;
   movement_ = false;
   standClearViolation_ = false;
+  cprStarted_ = false;
+  startupStep_ = StartupStep::CHECK_RESPONSE;
   seenCommandSeqs_.clear();
   promptQueue_.clear();
 }
@@ -172,9 +174,35 @@ void TrainerCore::queueStartupPrompts() {
 
 bool TrainerCore::startCase() {
   if (state_ != TrainerState::OFF) return false;
+  startupStep_ = StartupStep::CHECK_RESPONSE;
   state_ = TrainerState::STARTUP;
   queueStartupPrompts();
   return true;
+}
+
+bool TrainerCore::advanceStartupStep() {
+  if (state_ != TrainerState::STARTUP || paused_) return false;
+
+  switch (startupStep_) {
+    case StartupStep::CHECK_RESPONSE:
+      startupStep_ = StartupStep::CALL_HELP;
+      promptQueue_.push_back("AED_CALL_HELP");
+      return true;
+
+    case StartupStep::CALL_HELP:
+      startupStep_ = StartupStep::CHECK_BREATHING;
+      return true;
+
+    case StartupStep::CHECK_BREATHING:
+      startupStep_ = StartupStep::EXPOSE_CHEST;
+      promptQueue_.push_back("AED_EXPOSE_CHEST");
+      return true;
+
+    case StartupStep::EXPOSE_CHEST:
+      return enterApplyPads();
+  }
+
+  return false;
 }
 
 bool TrainerCore::enterApplyPads() {
@@ -238,7 +266,8 @@ bool TrainerCore::armShock() {
 bool TrainerCore::beginCprAfterNoShock() {
   if (state_ != TrainerState::NO_SHOCK_ADVISED) return false;
   state_ = TrainerState::CPR;
-  promptQueue_.push_back("AED_BEGIN_CPR");
+  promptQueue_.push_back(cprStarted_ ? "AED_CONTINUE_CPR" : "AED_BEGIN_CPR");
+  cprStarted_ = true;
   return true;
 }
 
@@ -247,7 +276,8 @@ bool TrainerCore::handleShockPress() {
   ++simulatedShockCount_;
   state_ = TrainerState::CPR;
   promptQueue_.push_back("AED_SHOCK_DELIVERED");
-  promptQueue_.push_back("AED_BEGIN_CPR");
+  promptQueue_.push_back(cprStarted_ ? "AED_CONTINUE_CPR" : "AED_BEGIN_CPR");
+  cprStarted_ = true;
   return true;
 }
 
@@ -338,6 +368,7 @@ CommandResult TrainerCore::applyRemoteCommand(std::uint32_t seq, const std::stri
     valid = endCase();
   } else if (command == "RESTART") {
     resetProgress();
+    startupStep_ = StartupStep::CHECK_RESPONSE;
     state_ = TrainerState::STARTUP;
     queueStartupPrompts();
   } else if (command == "HINT") {
