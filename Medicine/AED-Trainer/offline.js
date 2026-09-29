@@ -1,4 +1,4 @@
-export const AED_CACHE_NAME = "aed-teacher-monitor-v3";
+export const AED_CACHE_NAME = "aed-teacher-monitor-v12";
 
 export const OFFLINE_REQUIRED_ASSETS = Object.freeze([
   "./",
@@ -35,6 +35,7 @@ export async function registerOfflineSupport({
   if (!navigatorRef?.serviceWorker || !cachesRef) return "unsupported";
 
   const registration = await navigatorRef.serviceWorker.register("./service-worker.js");
+  await registration.update();
   if (registration.installing) return "installing";
 
   if (navigatorRef.serviceWorker.ready) {
