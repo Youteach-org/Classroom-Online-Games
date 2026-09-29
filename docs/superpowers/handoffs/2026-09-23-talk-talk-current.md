@@ -625,3 +625,28 @@ Progress checkpoint:
 
 Exact next action:
 - execute Task 1 of the 2026-09-28 online-integration plan: recover/formalize the Oral Grader final 5x8 rubric scorer before wiring Talk Talk's `Califica` button to an online job.
+
+
+### Online Oral Grader boundary implemented — 2026-09-29
+
+Task 4 is implemented in code across two isolated branches:
+- Talk Talk client: `feature/talk-talk-oral-grader-online-20260928`
+- Oral Grader/Firebase backend: `feature/oral-grader-talk-talk-online-20260928`
+
+Verified:
+- Talk Talk online client suite: `36532577640` — SUCCESS.
+- Oral Grader online backend/full suite: `36533554028` — SUCCESS, 65 tests.
+
+The backend now has:
+- preview token auth;
+- idempotent audio submission;
+- temporary Cloud Storage audio;
+- shared RTDB job state;
+- async Stage 1 -> Stage 2 -> Stage 3 processor;
+- peer-conversation mode without mandatory teacher voice;
+- review-required fallback for ambiguous speaker mapping.
+
+Important:
+- this is NOT deployed yet;
+- browser-local scoring remains preview-only;
+- next UI task is `Califica`, which submits the accepted take online and retains local recovery until server acknowledgement.
