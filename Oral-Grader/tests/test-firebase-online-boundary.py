@@ -156,3 +156,30 @@ def test_runtime_requirements_include_firebase_sdk():
     req = REQUIREMENTS.read_text(encoding="utf-8")
     assert "firebase-functions" in req
     assert "firebase-admin" in req
+
+
+def test_firebase_audio_store_downloads_source_for_processor(tmp_path):
+    mod = load(ADAPTER_PATH, "og_firebase_adapter_download")
+    bucket = FakeBucket()
+    bucket.objects["oral-grader/jobs/job-123/source"] = {
+        "data": b"audio-bytes",
+        "content_type": "audio/webm",
+    }
+
+    class DownloadBlob(FakeBlob):
+        def download_to_filename(self, filename):
+            Path(filename).write_bytes(self.store[self.key]["data"])
+
+    class DownloadBucket(FakeBucket):
+        def __init__(self, objects):
+            self.objects = objects
+
+        def blob(self, key):
+            return DownloadBlob(self.objects, key)
+
+    store = mod.FirebaseAudioStore(DownloadBucket(bucket.objects))
+    target = tmp_path / "source.webm"
+    returned = store.download("oral-grader/jobs/job-123/source", target)
+
+    assert returned == target
+    assert target.read_bytes() == b"audio-bytes"
