@@ -56,6 +56,17 @@ class FirebaseAudioStore:
         blob.upload_from_string(bytes(data), content_type=str(mime_type or "application/octet-stream"))
         return clean_key
 
+    def download(self, key, target):
+        from pathlib import Path
+
+        clean_key = str(key or "").strip()
+        if not clean_key:
+            raise ValueError("storage key is required")
+        target_path = Path(target)
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        self.bucket.blob(clean_key).download_to_filename(str(target_path))
+        return target_path
+
     def delete(self, key):
         clean_key = str(key or "").strip()
         if clean_key:
