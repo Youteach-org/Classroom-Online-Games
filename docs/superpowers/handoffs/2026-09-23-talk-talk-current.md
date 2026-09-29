@@ -664,3 +664,18 @@ On `feature/talk-talk-oral-grader-online-20260928`:
 - GREEN run: `36534266881`.
 
 Next: online job monitoring + real OG student result rendering.
+
+
+### Online student Oral Grader result implemented — 2026-09-29
+
+The student integration branch now:
+- monitors the server job after Califica;
+- renders real processing states;
+- renders literal OG transcript;
+- renders OG automatic result/feedback;
+- resumes monitoring after reload;
+- shows review-required without inventing a score.
+
+GREEN: `36534676945`.
+
+Next: replace the teacher's local-browser attempt source with shared online Oral Grader jobs/results.
