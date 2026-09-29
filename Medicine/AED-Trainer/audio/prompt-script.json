@@ -9,6 +9,12 @@
       "heygenVoiceId": "fWZozqyB99JyQDYA98eg",
       "style": "clear, calm, authoritative, slightly urgent, never panicked"
     },
+    "aed-continue-hybrid": {
+      "role": "AED device",
+      "gender": "female",
+      "locale": "es-MX",
+      "style": "original AED 'Continúe' plus approved Lucía 'ERRE CE PE' splice"
+    },
     "paramedic-male-latam": {
       "role": "Paramedic companion",
       "gender": "male",
@@ -111,7 +117,7 @@
       "id": "AED_CONTINUE_CPR",
       "role": "aed",
       "text": "Continúe RCP.",
-      "voiceProfile": "aed-female-latam",
+      "voiceProfile": "aed-continue-hybrid",
       "filename": "aed-continue-cpr.wav",
       "releaseReviewRequired": true,
       "ttsText": "Continúe erre ce pe."
