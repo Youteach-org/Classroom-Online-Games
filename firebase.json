@@ -1,5 +1,9 @@
 {
   "database": {
     "rules": "firebase.support-meter.rules.json"
+  },
+  "functions": {
+    "source": "Oral-Grader",
+    "runtime": "python312"
   }
 }
