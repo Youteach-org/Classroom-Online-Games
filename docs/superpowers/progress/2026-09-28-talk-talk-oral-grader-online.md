@@ -126,3 +126,33 @@ Implementation commit:
 
 Next:
 - Task 3: map a real Paul/Paulina Oral Grader fixture into Talk Talk without calling Gemini.
+
+
+## Task 3 — Real Oral Grader fixture mapping
+
+Status: COMPLETE.
+
+Files:
+- `Talk-Talk/tests/fixtures/paul-paulina-oral-grader-result.json`
+- `Talk-Talk/tests/oral-grader-mapper.test.mjs`
+- `Talk-Talk/evaluation/oral-grader-mapper.mjs`
+- `Talk-Talk/evaluation/oral-grader-adapter.mjs`
+
+Fixture sources are real versioned Oral Grader evidence/results:
+- Paul/Paulina Stage-1 transcript;
+- Stage-2 evidence including teacher-confirmed `fires -> fathers`;
+- calibrated rubric result: Paul 33/40, Paulina 32/40.
+
+Mapper rules:
+- preserve `heard_text` exactly;
+- preserve evidence;
+- preserve OG scores exactly;
+- expose five ordered Teacher Monitor rubric rows;
+- do not rescore or reinterpret.
+
+TDD:
+- RED: `36517709942` — mapper module missing.
+- GREEN: `36517769299` — complete integration-branch Talk Talk suite SUCCESS.
+
+Next:
+- Task 4: authenticated online grading-job boundary with audio upload, idempotency and server-side Oral Grader execution.
