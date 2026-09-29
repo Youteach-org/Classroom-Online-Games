@@ -134,7 +134,7 @@ jobs:
           cp "$FIRMWARE" dist/package/firmware.bin
 
           cp Medicine/AED-Trainer/firmware/FLASHING.md dist/package/FLASHING.md
-          cp Medicine/AED-Trainer/firmware/flash-windows.bat dist/package/INSTALAR-V11.bat
+          cp Medicine/AED-Trainer/firmware/flash-windows.bat dist/package/INSTALAR-V12.bat
           cp Medicine/AED-Trainer/firmware/flash-linux-macos.sh dist/package/flash-linux-macos.sh
           chmod +x dist/package/flash-linux-macos.sh
 
@@ -162,7 +162,7 @@ jobs:
       - name: Upload flashable package
         uses: actions/upload-artifact@v4
         with:
-          name: DEA-V11
+          name: DEA-V12
           path: dist/package/
           if-no-files-found: error
           retention-days: 30
