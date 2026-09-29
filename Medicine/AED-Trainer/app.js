@@ -11,6 +11,7 @@ const byId = (id) => document.getElementById(id);
 const ui = {
   connectTrainer: byId("connectTrainer"),
   connectionStatus: byId("connectionStatus"),
+  bleDiagnostic: byId("bleDiagnostic"),
   offlineStatus: byId("offlineStatus"),
   baseScenario: byId("baseScenario"),
   sceneTwist: byId("sceneTwist"),
@@ -158,6 +159,16 @@ function onBleEvent(event) {
     return;
   }
 
+  if (event.kind === "diagnostic") {
+    const labels = {
+      selected: `SELECCIONADO: ${event.message.device}`,
+      gatt: `CONECTANDO GATT: ${event.message.device}`,
+      service: "BUSCANDO SERVICIO DEL DEA"
+    };
+    ui.bleDiagnostic.textContent = labels[event.message.stage] ?? `BLE: ${event.message.stage}`;
+    return;
+  }
+
   if (event.kind === "status") {
     ui.deviceId.textContent = event.message.device ?? "—";
     ui.batteryLevel.textContent = event.message.battery ? `${event.message.battery}%` : "—";
@@ -192,8 +203,11 @@ function onBleEvent(event) {
 
 async function ensureBleClient() {
   if (bleClient) return bleClient;
+  if (!globalThis.isSecureContext) {
+    throw new Error("SECURE_CONTEXT_REQUIRED: abra el monitor desde HTTPS.");
+  }
   if (!globalThis.navigator?.bluetooth) {
-    throw new Error("Web Bluetooth no está disponible. En iPhone o iPad abra el monitor dentro de Bluefy.");
+    throw new Error("WEB_BLUETOOTH_UNAVAILABLE: use Chrome o Edge en Windows/Android. En iPhone/iPad use Bluefy.");
   }
   bleClient = createBleClient({ bluetooth: navigator.bluetooth });
   bleClient.subscribe(onBleEvent);
@@ -223,8 +237,11 @@ async function connectTrainer() {
     const client = await ensureBleClient();
     await client.scanAndConnect();
   } catch (error) {
+    const message = String(error?.message ?? error);
     ui.connectionStatus.textContent = "ERROR BLE";
-    appendTimeline(error.message, "bad");
+    ui.connectionStatus.dataset.state = "incompatible";
+    ui.bleDiagnostic.textContent = message;
+    appendTimeline(message, "bad");
   } finally {
     ui.connectTrainer.disabled = false;
     setRemoteAvailability();
