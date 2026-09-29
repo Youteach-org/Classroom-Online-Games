@@ -74,6 +74,19 @@ jobs:
                   )
           PY
 
+          cp dist/classroom-source/aed-continue-cpr.wav /tmp/aed-continue-original.wav
+          cp dist/classroom-source/aed-begin-cpr.wav /tmp/lucia-begin-cpr.wav
+
+          # Hybrid prompt requested for V11:
+          # keep "Continúe" from the original AED voice, then append the
+          # already-approved Lucía pronunciation of "ERRE CE PE".
+          ffmpeg -hide_banner -loglevel error -y \
+            -i /tmp/aed-continue-original.wav \
+            -i /tmp/lucia-begin-cpr.wav \
+            -filter_complex "[0:a]atrim=start=0.18:end=0.928,asetpts=PTS-STARTPTS,afade=t=in:st=0:d=0.01,afade=t=out:st=0.738:d=0.01[c];anullsrc=r=44100:cl=mono,atrim=duration=0.07[s];[1:a]atrim=start=0.985:end=2.016,asetpts=PTS-STARTPTS,afade=t=in:st=0:d=0.008,afade=t=out:st=1.021:d=0.008[r];[c][s][r]concat=n=3:v=0:a=1[out]" \
+            -map "[out]" -ar 44100 -ac 1 -c:a pcm_s16le \
+            dist/classroom-source/aed-continue-cpr.wav
+
           for src in dist/classroom-source/*.wav; do
             dst="dist/classroom-audio/$(basename "$src")"
             ffmpeg -hide_banner -loglevel error -y               -i "$src"               -af "highpass=f=140,lowpass=f=4500,acompressor=threshold=0.10:ratio=4:attack=5:release=100:makeup=2,loudnorm=I=-13:LRA=4:TP=-1.0,alimiter=limit=0.95"               -ac 1 -ar 10000 -c:a adpcm_ima_wav "$dst"
@@ -121,7 +134,7 @@ jobs:
           cp "$FIRMWARE" dist/package/firmware.bin
 
           cp Medicine/AED-Trainer/firmware/FLASHING.md dist/package/FLASHING.md
-          cp Medicine/AED-Trainer/firmware/flash-windows.bat dist/package/INSTALAR-V10.bat
+          cp Medicine/AED-Trainer/firmware/flash-windows.bat dist/package/INSTALAR-V11.bat
           cp Medicine/AED-Trainer/firmware/flash-linux-macos.sh dist/package/flash-linux-macos.sh
           chmod +x dist/package/flash-linux-macos.sh
 
@@ -149,7 +162,7 @@ jobs:
       - name: Upload flashable package
         uses: actions/upload-artifact@v4
         with:
-          name: DEA-V10
+          name: DEA-V11
           path: dist/package/
           if-no-files-found: error
           retention-days: 30
