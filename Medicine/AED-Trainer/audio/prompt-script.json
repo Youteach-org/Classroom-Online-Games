@@ -102,7 +102,7 @@
       "id": "AED_BEGIN_CPR",
       "role": "aed",
       "text": "Inicie RCP.",
-      "voiceProfile": "aed-female-latam",
+      "voiceProfile": "aed-cpr-lucia",
       "filename": "aed-begin-cpr.wav",
       "releaseReviewRequired": true,
       "ttsText": "Inicie erre ce pe."
