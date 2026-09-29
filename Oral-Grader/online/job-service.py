@@ -168,7 +168,7 @@ class JobService:
             },
         )
         storage_key = (row.get("audio") or {}).get("storageKey")
-        if storage_key:
+        if final_status == "completed" and storage_key:
             self.audio_store.delete(storage_key)
         return _copy(updated)
 
