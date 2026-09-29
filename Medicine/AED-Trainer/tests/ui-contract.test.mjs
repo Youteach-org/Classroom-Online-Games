@@ -12,7 +12,7 @@ const css = readFileSync(join(root, "styles.css"), "utf8");
 const sw = readFileSync(join(root, "service-worker.js"), "utf8");
 
 const requiredIds = [
-  "connectTrainer","connectionStatus","offlineStatus",
+  "connectTrainer","connectionStatus","browserBleStatus","bleDiagnostic",
   "baseScenario","sceneTwist","clinicalCondition","startCase",
   "giveHint","hintsUsed",
   "forceShock","forceNoShock","triggerRefib",
@@ -55,7 +55,7 @@ test("UI is touch-first and responsive", () => {
   assert.match(css, /grid-template-columns/);
 });
 
-test("offline shell includes the new UI assets", () => {
+test("legacy offline shell remains self-contained while runtime no longer registers it", () => {
   assert.match(sw, /"\.\/app\.js"/);
   assert.match(sw, /"\.\/styles\.css"/);
 });
