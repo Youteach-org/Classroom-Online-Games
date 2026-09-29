@@ -324,6 +324,7 @@ void serviceShockButton() {
   }
 
   Serial.println("SIMULATED_SHOCK");
+  audio.playShockBuzz();
   ble.notifyEvent("SHOCK_PRESS");
   syncStateView(true);
 }
