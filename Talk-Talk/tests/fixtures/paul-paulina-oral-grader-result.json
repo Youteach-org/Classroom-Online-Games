@@ -1,0 +1,145 @@
+{
+  "source": {
+    "stage1": "Oral-Grader/transcripts/paul-paulina-stage1.json",
+    "stage2": "Oral-Grader/analysis/paul-paulina-stage2.json",
+    "rubric": "Oral-Grader/rubrics/paul-paulina-rubric-draft.json"
+  },
+  "jobId": "fixture-paul-paulina",
+  "status": "completed",
+  "transcript": {
+    "heard_text": "Who helped you when you was staying a difficult moment? When I was a difficult moment I when I You. Um my sister because when I lost one year of secondary my my father didn't help me uh for stop for help me for studying more. But my sister talked with my father and my father appointment is decision.",
+    "speakers": [
+      "Teacher",
+      "Paul",
+      "Paulina"
+    ],
+    "segments": [
+      {
+        "speaker": "Paul",
+        "heard_text": "Who helped you when you was staying a difficult moment?",
+        "start_ms": 23200,
+        "end_ms": 29600
+      },
+      {
+        "speaker": "Paulina",
+        "heard_text": "When I was a difficult moment I when I You.",
+        "start_ms": 31400,
+        "end_ms": 42800
+      },
+      {
+        "speaker": "Paul",
+        "heard_text": "Um my sister because when I lost one year of secondary my my father didn't help me uh for stop for help me for studying more. But my sister talked with my father and my father appointment is decision.",
+        "start_ms": 102100,
+        "end_ms": 132400
+      }
+    ]
+  },
+  "analysis": {
+    "intended_text": [],
+    "pronunciation": [
+      {
+        "speaker": "Paul",
+        "heard": "fires",
+        "intended": "fathers",
+        "verdict": "incorrect",
+        "source": [
+          "teacher-confirmed",
+          "audio"
+        ]
+      }
+    ],
+    "grammar": [
+      {
+        "speaker": "Paul",
+        "note": "Subject-verb agreement error ('you was' instead of 'you were'); preposition usage ('staying a' instead of 'staying in a')."
+      },
+      {
+        "speaker": "Paulina",
+        "note": "Missing preposition ('When I was a difficult moment' instead of 'When I was in a difficult moment')."
+      }
+    ],
+    "vocabulary": [
+      {
+        "speaker": "Paul",
+        "note": "'arbit' used for referee/arbitrator."
+      },
+      {
+        "speaker": "Paulina",
+        "note": "'temperature' used instead of 'temper'."
+      }
+    ],
+    "fluency": [
+      {
+        "speaker": "Paul",
+        "note": "Speaks with moderate pace, occasional hesitations, self-corrections, and frequent grammatical restructuring."
+      },
+      {
+        "speaker": "Paulina",
+        "note": "Exhibits noticeable hesitation, frequent pauses, repetition, self-corrections, and difficulty retrieving vocabulary."
+      }
+    ],
+    "coherence": [],
+    "interaction": [
+      {
+        "speaker": "Paul",
+        "note": "Teacher clarification around 'father'."
+      },
+      {
+        "speaker": "Paulina",
+        "note": "Teacher clarification needed during difficult stretches."
+      }
+    ],
+    "evidence": [
+      {
+        "speaker": "Paul",
+        "type": "pronunciation",
+        "heard": "fires",
+        "intended": "fathers",
+        "source": [
+          "teacher-confirmed",
+          "audio"
+        ]
+      }
+    ]
+  },
+  "students": [
+    {
+      "studentId": "paul",
+      "name": "Paul",
+      "rubric_scores": {
+        "fluency": 7,
+        "coherence_and_organization": 6,
+        "grammar_and_vocabulary": 6,
+        "pronunciation_and_intelligibility": 7,
+        "communicative_interaction": 7
+      },
+      "total": 33,
+      "comments": [
+        "Maintains extended responses and the conversation with a relatively steady pace."
+      ],
+      "confidence": "high",
+      "review_required": false
+    },
+    {
+      "studentId": "paulina",
+      "name": "Paulina",
+      "rubric_scores": {
+        "fluency": 7,
+        "coherence_and_organization": 5,
+        "grammar_and_vocabulary": 6,
+        "pronunciation_and_intelligibility": 7,
+        "communicative_interaction": 7
+      },
+      "total": 32,
+      "comments": [
+        "Sustains long turns and keeps speaking even when searching for words."
+      ],
+      "confidence": "high",
+      "review_required": false
+    }
+  ],
+  "report": {
+    "status": "ready",
+    "source": "Oral-Grader/reports/paul-paulina-final-report.json"
+  }
+}
