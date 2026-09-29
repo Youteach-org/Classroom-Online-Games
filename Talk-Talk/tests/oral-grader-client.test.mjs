@@ -6,7 +6,10 @@ import { createOralGraderClient } from "../evaluation/oral-grader-client.mjs";
 const endpoints={
   login:"https://functions.example/talk_talk_preview_login",
   submit:"https://functions.example/oral_grader_submit",
-  status:"https://functions.example/oral_grader_job_status"
+  status:"https://functions.example/oral_grader_job_status",
+  list:"https://functions.example/oral_grader_job_list",
+  audio:"https://functions.example/oral_grader_audio",
+  review:"https://functions.example/oral_grader_teacher_review"
 };
 
 function metadata(){
@@ -188,4 +191,99 @@ test("server errors surface status and retryability",async()=>{
     ()=>client.submitAttempt(new Blob(["audio"],{type:"audio/webm"}),metadata(),"attempt-123:grade"),
     error=>error.status===503 && error.retryable===true
   );
+});
+
+
+test("teacher client lists shared jobs from the online backend",async()=>{
+  const client=createOralGraderClient({
+    endpoints,
+    token:"teacher-token",
+    fetchImpl:async(url,options)=>{
+      assert.equal(url,endpoints.list+"?limit=25");
+      assert.equal(options.headers.Authorization,"Bearer teacher-token");
+      return new Response(JSON.stringify({
+        ok:true,
+        jobs:[
+          {jobId:"job-2",status:"completed",createdAt:2},
+          {jobId:"job-1",status:"submitted",createdAt:1}
+        ]
+      }),{status:200,headers:{"Content-Type":"application/json"}});
+    }
+  });
+  const rows=await client.listJobs({limit:25});
+  assert.equal(rows.length,2);
+  assert.equal(rows[0].jobId,"job-2");
+});
+
+test("teacher client can read the full shared job record",async()=>{
+  const client=createOralGraderClient({
+    endpoints,
+    token:"teacher-token",
+    fetchImpl:async(url)=>new Response(JSON.stringify({
+      ok:true,
+      job:{
+        jobId:"job-123",
+        status:"completed",
+        teacherReview:{published:false},
+        result:{jobId:"job-123",status:"completed"}
+      }
+    }),{status:200,headers:{"Content-Type":"application/json"}})
+  });
+  const row=await client.getJobRecord("job-123");
+  assert.equal(row.teacherReview.published,false);
+  assert.equal(row.jobId,"job-123");
+});
+
+test("teacher client downloads authenticated source audio",async()=>{
+  const client=createOralGraderClient({
+    endpoints,
+    token:"teacher-token",
+    fetchImpl:async(url,options)=>{
+      assert.equal(url,endpoints.audio+"?jobId=job-123");
+      assert.equal(options.headers.Authorization,"Bearer teacher-token");
+      return new Response(new Blob(["source-audio"],{type:"audio/webm"}),{
+        status:200,
+        headers:{"Content-Type":"audio/webm"}
+      });
+    }
+  });
+  const blob=await client.getAudioBlob("job-123");
+  assert.equal(blob.type,"audio/webm");
+  assert.equal(await blob.text(),"source-audio");
+});
+
+test("teacher client stores override separately and can publish",async()=>{
+  const calls=[];
+  const client=createOralGraderClient({
+    endpoints,
+    token:"teacher-token",
+    fetchImpl:async(url,options)=>{
+      calls.push({url,options});
+      return new Response(JSON.stringify({
+        ok:true,
+        job:{
+          jobId:"job-123",
+          status:"completed",
+          teacherReview:{
+            scores:JSON.parse(options.body).scores,
+            comments:JSON.parse(options.body).comments,
+            published:JSON.parse(options.body).publish
+          }
+        }
+      }),{status:200,headers:{"Content-Type":"application/json"}});
+    }
+  });
+  const scores={
+    fluency:6,
+    coherence_and_organization:6,
+    grammar_and_vocabulary:6,
+    pronunciation_and_intelligibility:7,
+    communicative_interaction:7
+  };
+  const reviewed=await client.saveTeacherReview("job-123",{scores,comments:"Adjusted.",publish:false});
+  assert.equal(reviewed.teacherReview.published,false);
+  const published=await client.saveTeacherReview("job-123",{scores,comments:"Adjusted.",publish:true});
+  assert.equal(published.teacherReview.published,true);
+  assert.equal(calls[0].url,endpoints.review);
+  assert.equal(calls[0].options.headers.Authorization,"Bearer teacher-token");
 });
