@@ -108,14 +108,37 @@ export function createBleClient({ bluetooth }) {
     setConnectionState("connecting");
     try {
       const selected = await bluetooth.requestDevice({
-        filters: [{ namePrefix: "AED Trainer" }],
+        acceptAllDevices: true,
         optionalServices: [AED_SERVICE_UUID]
+      });
+      emit("diagnostic", {
+        stage: "selected",
+        device: selected.name || selected.id || "Dispositivo sin nombre"
       });
       bindDevice(selected);
 
-      const server = await selected.gatt.connect();
-      const service = await server.getPrimaryService(AED_SERVICE_UUID);
-      await resolveCharacteristics(service);
+      let server;
+      try {
+        emit("diagnostic", { stage: "gatt", device: selected.name || selected.id || "—" });
+        server = await selected.gatt.connect();
+      } catch (error) {
+        throw new Error(`GATT_CONNECT_FAILED: ${error?.message ?? error}`);
+      }
+
+      let service;
+      try {
+        emit("diagnostic", { stage: "service", device: selected.name || selected.id || "—" });
+        service = await server.getPrimaryService(AED_SERVICE_UUID);
+      } catch (error) {
+        throw new Error(`AED_SERVICE_NOT_FOUND: ${error?.message ?? error}`);
+      }
+
+      try {
+        await resolveCharacteristics(service);
+      } catch (error) {
+        throw new Error(`AED_CHARACTERISTICS_FAILED: ${error?.message ?? error}`);
+      }
+
       return await readAuthoritativeState();
     } catch (error) {
       if (/protocol version/i.test(String(error?.message ?? error))) {
