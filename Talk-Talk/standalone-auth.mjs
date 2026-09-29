@@ -20,7 +20,11 @@ export function routeForStandaloneRole(role){
 
 export function saveStandaloneSession(user,storage=globalThis.sessionStorage){
   if(!user?.role || !user?.username || !storage?.setItem) return null;
-  const session={role:String(user.role),username:String(user.username)};
+  const session={
+    role:String(user.role),
+    username:String(user.username),
+    onlineToken:String(user.onlineToken||"")
+  };
   storage.setItem(SESSION_KEY,JSON.stringify(session));
   return session;
 }
@@ -30,7 +34,11 @@ export function loadStandaloneSession(storage=globalThis.sessionStorage){
   try{
     const session=JSON.parse(storage.getItem(SESSION_KEY)||"null");
     if(!session || !["student","teacher"].includes(session.role)) return null;
-    return session;
+    return {
+      role:String(session.role),
+      username:String(session.username||""),
+      onlineToken:String(session.onlineToken||"")
+    };
   }catch{
     return null;
   }
