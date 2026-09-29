@@ -11,7 +11,7 @@
 
 namespace {
 constexpr const char* kDeviceId = "AED_TRAINER_001";
-constexpr const char* kFirmwareVersion = "0.11.0";
+constexpr const char* kFirmwareVersion = "0.12.0";
 
 const char* stateToken(TrainerState state) {
   switch (state) {
