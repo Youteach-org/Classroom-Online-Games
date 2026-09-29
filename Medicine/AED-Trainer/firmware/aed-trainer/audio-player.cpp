@@ -364,14 +364,17 @@ bool AudioPlayer::playStartupTone() {
 bool AudioPlayer::playShockBuzz() {
   constexpr std::uint32_t kRate = 16000;
   constexpr std::size_t kChunkFrames = 128;
-  constexpr std::int16_t kAmplitude = 14500;
-  constexpr std::uint32_t kDurationMs = 320;
+  constexpr std::uint32_t kDurationMs = 420;
 
   if (!startI2s(kRate)) return false;
 
   std::int16_t stereo[kChunkFrames * 2];
   const std::size_t totalFrames =
       static_cast<std::size_t>((kRate * kDurationMs) / 1000U);
+
+  // Deterministic pseudo-noise + high-frequency arc bursts:
+  // "BZZZT/CRACK" rather than a musical low tone.
+  std::uint32_t lfsr = 0xACE1u;
   std::size_t produced = 0;
 
   while (produced < totalFrames) {
@@ -380,18 +383,35 @@ bool AudioPlayer::playShockBuzz() {
 
     for (std::size_t i = 0; i < count; ++i) {
       const std::size_t frame = produced + i;
-      const std::uint32_t elapsedMs =
+      const std::uint32_t ms =
           static_cast<std::uint32_t>((frame * 1000U) / kRate);
 
-      // Two alternating low tones create an unmistakable simulated-discharge
-      // buzz without resembling a real therapeutic shock waveform.
-      const std::uint32_t frequency =
-          ((elapsedMs / 40U) % 2U) == 0U ? 190U : 145U;
-      const std::size_t halfPeriod =
-          std::max<std::size_t>(1, kRate / (frequency * 2U));
-      const bool high = (frame / halfPeriod) % 2U == 0U;
+      lfsr = (lfsr >> 1) ^ (-(static_cast<std::int32_t>(lfsr & 1U)) & 0xB400u);
+      const std::int16_t noise = static_cast<std::int16_t>(
+          (static_cast<std::int32_t>(lfsr & 0xFFFFu) - 32768) / 2);
 
-      const std::int16_t sample = high ? kAmplitude : -kAmplitude;
+      const bool arcWindow =
+          (ms < 90U) ||
+          (ms >= 120U && ms < 230U) ||
+          (ms >= 260U && ms < 390U);
+
+      const std::uint32_t arcFreq =
+          ms < 120U ? 2800U :
+          ms < 260U ? 2100U : 1450U;
+      const std::size_t halfPeriod =
+          std::max<std::size_t>(1, kRate / (arcFreq * 2U));
+      const std::int16_t arc =
+          ((frame / halfPeriod) % 2U == 0U) ? 17500 : -17500;
+
+      // Fast attack, slight decay; silent gaps make it feel like an electrical arc.
+      const float env = 1.0f - (0.45f * static_cast<float>(ms) / kDurationMs);
+      std::int32_t mixed = arcWindow
+          ? static_cast<std::int32_t>((arc * 0.78f + noise * 0.52f) * env)
+          : static_cast<std::int32_t>(noise * 0.10f);
+
+      mixed = std::clamp<std::int32_t>(mixed, -30000, 30000);
+      const std::int16_t sample = static_cast<std::int16_t>(mixed);
+
       stereo[i * 2] = sample;
       stereo[i * 2 + 1] = sample;
     }
