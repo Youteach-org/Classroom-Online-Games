@@ -39,3 +39,13 @@ test("teacher UI reads latest standalone attempt instead of hard-coded assessmen
   assert.match(teacherApp,/createStandaloneAttemptStore/);
   assert.match(teacherApp,/publishStandaloneAttempt/);
 });
+
+
+test("student can review audio or record again before finishing",()=>{
+  assert.match(student,/id="studentReviewAudioBtn"/);
+  assert.match(student,/id="studentRecordAgainBtn"/);
+  assert.match(student,/id="recordingReviewAudio"/);
+  assert.match(app,/studentReviewAudioBtn/);
+  assert.match(app,/studentRecordAgainBtn/);
+  assert.match(app,/startFreshRecording/);
+});
