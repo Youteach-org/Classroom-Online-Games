@@ -18,6 +18,10 @@
       "speed": 0.95,
       "language": "es",
       "usage": "AED_BEGIN_CPR only"
+    },
+    "aed-continue-hybrid": {
+      "description": "Original AED 'Continúe' + approved Lucía 'ERRE CE PE' splice",
+      "language": "es-MX"
     }
   },
   "clips": [
@@ -79,7 +83,24 @@
     {
       "filename": "aed-continue-cpr.wav",
       "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=16d575ba-e132-4949-a2ba-43d4769d7912.wav",
-      "duration": 1.8285714285714285
+      "duration": 2.295,
+      "composition": {
+        "segments": [
+          {
+            "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=16d575ba-e132-4949-a2ba-43d4769d7912.wav",
+            "start": 0.2,
+            "end": 0.94
+          },
+          {
+            "silence": 0.035
+          },
+          {
+            "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/7e5eebc368ab477a9175b7d2a2c3317e/id=8be30466-b0d4-4cd6-84fe-5c857eee5171.wav",
+            "start": 0.9,
+            "end": 2.42
+          }
+        ]
+      }
     },
     {
       "filename": "aed-reassess.wav",
