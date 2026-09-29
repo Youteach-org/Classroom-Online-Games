@@ -116,7 +116,7 @@ test("completed result requires all five 0-8 rubric dimensions and exact total",
   assert.throws(()=>normalizeOralGraderResult(payload),/0..8/);
 
   const payload2=completedResult();
-  delete payload2.students[0].rubric_scores.interaction;
+  delete payload2.students[0].rubric_scores.communicative_interaction;
   assert.throws(()=>normalizeOralGraderResult(payload2),/five/);
 
   const payload3=completedResult();
