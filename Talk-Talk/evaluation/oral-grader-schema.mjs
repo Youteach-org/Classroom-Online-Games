@@ -59,7 +59,6 @@ export function normalizeOralGraderJob(raw){
   }
 
   const out={
-    jobId:requireString(input.jobId,"jobId"),
     attemptId:requireString(input.attemptId,"attemptId"),
     sessionId:requireString(input.sessionId,"sessionId"),
     activityId:requireString(input.activityId,"activityId"),
@@ -75,6 +74,7 @@ export function normalizeOralGraderJob(raw){
     idempotencyKey:requireString(input.idempotencyKey,"idempotencyKey")
   };
 
+  if(input.jobId!=null && input.jobId!=="") out.jobId=requireString(input.jobId,"jobId");
   if(input.groupId!=null && input.groupId!=="") out.groupId=requireString(input.groupId,"groupId");
   if(input.teamId!=null && input.teamId!=="") out.teamId=requireString(input.teamId,"teamId");
   if(audio.reference!=null && audio.reference!=="") out.audio.reference=requireString(audio.reference,"audio.reference");
