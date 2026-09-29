@@ -1,13 +1,13 @@
-# DEA V12 — ESP32-WROOM-32
+# DEA V14 — ESP32-WROOM-32
 
-V12 incluye:
+V14 incluye:
 
 - arranque guiado por acciones del alumno mediante **PADS / OK**;
 - análisis automático sólo después de confirmar electrodos;
 - triángulos de advertencia parpadeantes durante la espera de descarga;
-- **buzz eléctrico de descarga simulada** al presionar SHOCK;
+- **efecto eléctrico real** tomado del inicio de la grabación `electricity.mp3` al presionar SHOCK;
 - RCP de 2 minutos completos: el conteo inicia sólo después de terminar la instrucción de voz;
-- **pulso rítmico de entrenamiento a 104/min** durante todo el ciclo de RCP, con patrón tipo beat/disco original para marcar la cadencia;
+- **beep claro de RCP a 104/min**, uno por compresión, desde el instante en que inicia 2:00;
 - `AED_BEGIN_CPR`: toma aprobada de Lucía para **“Inicie ERRE CE PE”**;
 - `AED_CONTINUE_CPR`: **“Continúe”** de la voz original del DEA + **“ERRE CE PE”** recortado de la misma toma aprobada de Lucía;
 - BLE activo al encender, anunciado como **AED Trainer**;
@@ -16,16 +16,16 @@ V12 incluye:
 
 ## Windows
 
-1. Descomprime todo `DEA-V12.zip`.
+1. Descomprime todo `DEA-V14.zip`.
 2. Conecta el ESP32.
 3. Cierra Arduino Serial Monitor.
-4. Ejecuta `INSTALAR-V12.bat`.
+4. Ejecuta `INSTALAR-V14.bat`.
 5. Escribe el puerto, por ejemplo `COM9`.
 6. Escribe `S` para instalar.
 
 ## Bluetooth / Teacher Monitor
 
-Al encender V12, el ESP32 anuncia automáticamente el servicio BLE con el nombre:
+Al encender V14, el ESP32 anuncia automáticamente el servicio BLE con el nombre:
 
 `AED Trainer`
 
@@ -45,6 +45,6 @@ El entrenador continúa funcionando localmente aunque se desconecte Bluetooth.
 
 Los pasos del alumno avanzan con **PADS / OK**. Si se recomienda descarga, el equipo espera el botón físico **SHOCK**.
 
-Después de la instrucción de RCP, el cronómetro comienza en **2:00 completos** y el beat de 104/min acompaña el ciclo hasta 0:00.
+Después de la instrucción de RCP, el cronómetro comienza en **2:00 completos** y el beep de 104/min acompaña el ciclo hasta 0:00.
 
 Este dispositivo es un entrenador educativo; no analiza ECG real ni produce descarga terapéutica.
