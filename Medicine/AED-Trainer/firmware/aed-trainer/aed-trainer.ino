@@ -168,7 +168,8 @@ void serviceOnePrompt() {
   }
 
   const auto state = trainer.state();
-  if (state == TrainerState::ANALYZING ||
+  if (state == TrainerState::STARTUP ||
+      state == TrainerState::ANALYZING ||
       state == TrainerState::SHOCK_ADVISED ||
       state == TrainerState::WAITING_SHOCK ||
       state == TrainerState::CPR) {
