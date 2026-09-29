@@ -29,6 +29,7 @@ jobs:
           node --test Talk-Talk/tests/oral-grader-client.test.mjs
           node --test Talk-Talk/tests/oral-grader-submission.test.mjs
           node --test Talk-Talk/tests/oral-grader-monitor.test.mjs
+          node --test Talk-Talk/tests/oral-grader-teacher.test.mjs
           node --test Talk-Talk/tests/standalone-functional.test.mjs
           node --test Talk-Talk/tests/standalone-ui-flow.test.mjs
           node --test Talk-Talk/tests/attempt-recorder.test.mjs
