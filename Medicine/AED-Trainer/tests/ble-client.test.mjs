@@ -141,7 +141,7 @@ test("reconnect remains syncing until authoritative reads complete", async () =>
   };
 
   const pending = client.scanAndConnect();
-  await new Promise((resolve) => setTimeout(resolve, 0));
+  await new Promise((resolve) => setTimeout(resolve, 220));
   assert.equal(client.getConnectionState(), "syncing");
   release();
   await pending;
