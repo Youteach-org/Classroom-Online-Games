@@ -94,3 +94,35 @@ Use Superpowers:
 - systematic-debugging for failures;
 - verification-before-completion before claims;
 - update this progress file and current handoff after each material task.
+
+
+## Task 2 — Talk Talk ↔ Oral Grader schemas
+
+Status: COMPLETE.
+
+Files:
+- `Talk-Talk/evaluation/oral-grader-schema.mjs`
+- `Talk-Talk/tests/oral-grader-schema.test.mjs`
+
+Contract locked:
+- submission job identity/session/activity fields;
+- student identities;
+- mode: practice | assessment | live_assessment;
+- rubric/language/prompt context;
+- audio MIME metadata;
+- idempotency key;
+- processing states without fabricated scores;
+- completed/review-required result with immutable literal `heard_text`;
+- exactly five 0–8 rubric dimensions;
+- total equals the five-score sum;
+- confidence and review-required flags.
+
+TDD:
+- RED: run `36517478346` — module missing as expected.
+- GREEN: run `36517589556` — full Talk Talk standalone/UI + schema suite SUCCESS.
+
+Implementation commit:
+- `27bbe0b5fd8a4ea07b8e0a837b9287cd64fe732b`
+
+Next:
+- Task 3: map a real Paul/Paulina Oral Grader fixture into Talk Talk without calling Gemini.
