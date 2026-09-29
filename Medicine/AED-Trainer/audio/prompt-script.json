@@ -21,6 +21,13 @@
       "locale": "es-MX",
       "heygenVoiceId": null,
       "style": "natural teammate, professional, conversational, alert, not panicked"
+    },
+    "aed-cpr-lucia": {
+      "role": "AED device CPR exception",
+      "gender": "female",
+      "locale": "es-MX",
+      "heygenVoiceId": "7e5eebc368ab477a9175b7d2a2c3317e",
+      "style": "approved intelligible ERRE CE PE take"
     }
   },
   "prompts": [
