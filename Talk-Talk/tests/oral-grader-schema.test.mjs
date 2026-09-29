@@ -133,3 +133,12 @@ test("review-required result may carry complete evidence and scores without pret
   assert.equal(out.students[0].review_required,true);
   assert.equal(out.students[0].total,33);
 });
+
+
+test("submission job does not require a client-assigned jobId",()=>{
+  const job=validJob();
+  delete job.jobId;
+  const out=normalizeOralGraderJob(job);
+  assert.equal(out.jobId,undefined);
+  assert.equal(out.attemptId,"attempt-123");
+});
