@@ -11,7 +11,6 @@
 #include "trainer-core.h"
 
 namespace {
-constexpr std::uint32_t kStartupSettleMs = 500;
 constexpr std::uint32_t kAnalysisSettleMs = 3000;
 constexpr std::uint32_t kShockArmDelayMs = 500;
 constexpr std::uint32_t kNoShockToCprMs = 500;
@@ -37,6 +36,7 @@ std::uint32_t pauseStartedAt = 0;
 std::uint32_t lastDynamicDisplayAt = 0;
 std::uint32_t analysisPhase = 0;
 bool lastPaused = false;
+bool cprCycleTimingActive = false;
 std::size_t localScenarioIndex = 0;
 
 const char* stateFallback(TrainerState state) {
@@ -72,17 +72,25 @@ void renderOperationalView() {
     return;
   }
 
+  if (snapshot.state == TrainerState::STARTUP) {
+    display.showStartupStep(trainer.startupStep());
+    return;
+  }
+
   if (snapshot.state == TrainerState::SHOCK_ADVISED ||
       snapshot.state == TrainerState::WAITING_SHOCK) {
-    display.showShockWarning();
+    const bool trianglesVisible = ((millis() / 500U) % 2U) == 0U;
+    display.showShockWarning(trianglesVisible);
     return;
   }
 
   if (snapshot.state == TrainerState::CPR) {
-    const std::uint32_t elapsedMs =
-        static_cast<std::uint32_t>(millis() - cprCycleStartedAt);
-    const std::uint32_t remainingMs =
-        elapsedMs >= kCprCycleMs ? 0 : kCprCycleMs - elapsedMs;
+    std::uint32_t remainingMs = kCprCycleMs;
+    if (cprCycleTimingActive) {
+      const std::uint32_t elapsedMs =
+          static_cast<std::uint32_t>(millis() - cprCycleStartedAt);
+      remainingMs = elapsedMs >= kCprCycleMs ? 0 : kCprCycleMs - elapsedMs;
+    }
     display.showCprCountdown(remainingMs, kMetronomeBpm);
     return;
   }
@@ -104,8 +112,11 @@ void syncStateView(bool force = false) {
     }
 
     if (current == TrainerState::CPR) {
+      cprCycleTimingActive = false;
       cprCycleStartedAt = stateEnteredAt;
       lastMetronomeAt = stateEnteredAt;
+    } else {
+      cprCycleTimingActive = false;
     }
   }
 
@@ -136,6 +147,15 @@ void serviceOnePrompt() {
 
   if (prompt.value().rfind("AED_", 0) == 0) {
     stateEnteredAt = millis();
+  }
+
+  if (trainer.state() == TrainerState::CPR &&
+      (prompt.value() == "AED_BEGIN_CPR" ||
+       prompt.value() == "AED_CONTINUE_CPR")) {
+    cprCycleStartedAt = millis();
+    lastMetronomeAt = cprCycleStartedAt;
+    cprCycleTimingActive = true;
+    renderOperationalView();
   }
 
   if (trainer.state() == TrainerState::APPLY_PADS &&
@@ -171,9 +191,7 @@ void advanceRuntime() {
       break;
 
     case TrainerState::STARTUP:
-      if (!trainer.hasPrompt() && elapsed(kStartupSettleMs)) {
-        changed = trainer.enterApplyPads();
-      }
+      // Learner-driven: wait for PADS/OK between each startup instruction.
       break;
 
     case TrainerState::APPLY_PADS:
@@ -206,9 +224,11 @@ void advanceRuntime() {
       break;
 
     case TrainerState::CPR:
-      // Never reassess before a complete two-minute CPR cycle.
-      if (!trainer.hasPrompt() &&
+      // The full two-minute cycle starts only after the CPR instruction audio ends.
+      if (cprCycleTimingActive &&
+          !trainer.hasPrompt() &&
           static_cast<std::uint32_t>(millis() - cprCycleStartedAt) >= kCprCycleMs) {
+        cprCycleTimingActive = false;
         changed = trainer.requestReassess();
       }
       break;
@@ -239,6 +259,9 @@ void syncPauseClock() {
     const std::uint32_t pausedFor = now - pauseStartedAt;
     stateEnteredAt += pausedFor;
     lastMetronomeAt += pausedFor;
+    if (cprCycleTimingActive) {
+      cprCycleStartedAt += pausedFor;
+    }
   }
   lastPaused = paused;
 }
@@ -257,6 +280,14 @@ void serviceDynamicDisplay() {
     return;
   }
 
+  if (snapshot.state == TrainerState::SHOCK_ADVISED ||
+      snapshot.state == TrainerState::WAITING_SHOCK) {
+    if (static_cast<std::uint32_t>(now - lastDynamicDisplayAt) < 500) return;
+    lastDynamicDisplayAt = now;
+    renderOperationalView();
+    return;
+  }
+
   if (snapshot.state == TrainerState::CPR) {
     if (static_cast<std::uint32_t>(now - lastDynamicDisplayAt) < 200) return;
     lastDynamicDisplayAt = now;
@@ -268,6 +299,7 @@ void serviceMetronome() {
   const auto snapshot = trainer.snapshot();
   if (snapshot.state != TrainerState::CPR ||
       snapshot.paused ||
+      !cprCycleTimingActive ||
       trainer.hasPrompt()) {
     return;
   }
@@ -299,6 +331,16 @@ void servicePadsButton() {
   if (!inputs.padsPressed()) return;
 
   const auto snapshot = trainer.snapshot();
+
+  if (snapshot.state == TrainerState::STARTUP) {
+    if (trainer.advanceStartupStep()) {
+      Serial.println("LOCAL_STEP_CONFIRMED");
+      ble.notifyEvent("LOCAL_STEP_CONFIRMED");
+      syncStateView(true);
+    }
+    return;
+  }
+
   if (snapshot.state != TrainerState::APPLY_PADS) {
     Serial.println("PADS_IGNORED");
     return;
@@ -383,6 +425,7 @@ void setup() {
   stateEnteredAt = millis();
   cprCycleStartedAt = stateEnteredAt;
   lastMetronomeAt = stateEnteredAt;
+  cprCycleTimingActive = false;
   lastPaused = false;
 
   showLocalReady();
