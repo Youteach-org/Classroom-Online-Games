@@ -67,14 +67,15 @@ function makeRig({ statusText, stateText } = {}) {
   return { bluetooth, device, chars };
 }
 
-test("scan filters by AED service, subscribes, syncs and becomes ready", async () => {
+test("scan finds AED Trainer by advertised name, requests service access, syncs and becomes ready", async () => {
   const rig = makeRig();
   const client = createBleClient({ bluetooth: rig.bluetooth });
   const events = [];
   client.subscribe((event) => events.push(event));
   await client.scanAndConnect();
 
-  assert.deepEqual(rig.bluetooth.requests[0].filters, [{ services: [AED_SERVICE_UUID] }]);
+  assert.deepEqual(rig.bluetooth.requests[0].filters, [{ namePrefix: "AED Trainer" }]);
+  assert.deepEqual(rig.bluetooth.requests[0].optionalServices, [AED_SERVICE_UUID]);
   assert.equal(client.getConnectionState(), "ready");
   assert.ok(events.some((e) => e.kind === "status" && e.message.device === "DEA01"));
   assert.ok(events.some((e) => e.kind === "state" && e.message.state === "CPR"));
