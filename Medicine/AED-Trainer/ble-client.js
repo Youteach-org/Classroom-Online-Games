@@ -104,6 +104,64 @@ export function createBleClient({ bluetooth }) {
     return { status: statusMessage, state: stateMessage };
   }
 
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  async function connectSelected(selected) {
+    bindDevice(selected);
+    const label = selected.name || selected.id || "Dispositivo sin nombre";
+    emit("diagnostic", { stage: "selected", device: label });
+
+    let lastError = null;
+
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      try {
+        characteristics = null;
+
+        emit("diagnostic", {
+          stage: "gatt",
+          device: label,
+          attempt
+        });
+
+        if (selected.gatt?.connected) {
+          selected.gatt.disconnect();
+          await sleep(120);
+        }
+
+        const server = await selected.gatt.connect();
+        await sleep(180);
+
+        emit("diagnostic", {
+          stage: "service",
+          device: label,
+          attempt
+        });
+
+        const service = await server.getPrimaryService(AED_SERVICE_UUID);
+        await resolveCharacteristics(service);
+        return await readAuthoritativeState();
+      } catch (error) {
+        lastError = error;
+        emit("diagnostic", {
+          stage: "retry",
+          device: label,
+          attempt,
+          error: String(error?.message ?? error)
+        });
+
+        try {
+          if (selected.gatt?.connected) selected.gatt.disconnect();
+        } catch (_) {}
+
+        if (attempt < 2) await sleep(350);
+      }
+    }
+
+    throw new Error(
+      `BLE_CONNECT_FAILED: ${String(lastError?.message ?? lastError ?? "sin detalle")}`
+    );
+  }
+
   async function scanAndConnect() {
     setConnectionState("connecting");
     try {
@@ -111,35 +169,7 @@ export function createBleClient({ bluetooth }) {
         acceptAllDevices: true,
         optionalServices: [AED_SERVICE_UUID]
       });
-      emit("diagnostic", {
-        stage: "selected",
-        device: selected.name || selected.id || "Dispositivo sin nombre"
-      });
-      bindDevice(selected);
-
-      let server;
-      try {
-        emit("diagnostic", { stage: "gatt", device: selected.name || selected.id || "—" });
-        server = await selected.gatt.connect();
-      } catch (error) {
-        throw new Error(`GATT_CONNECT_FAILED: ${error?.message ?? error}`);
-      }
-
-      let service;
-      try {
-        emit("diagnostic", { stage: "service", device: selected.name || selected.id || "—" });
-        service = await server.getPrimaryService(AED_SERVICE_UUID);
-      } catch (error) {
-        throw new Error(`AED_SERVICE_NOT_FOUND: ${error?.message ?? error}`);
-      }
-
-      try {
-        await resolveCharacteristics(service);
-      } catch (error) {
-        throw new Error(`AED_CHARACTERISTICS_FAILED: ${error?.message ?? error}`);
-      }
-
-      return await readAuthoritativeState();
+      return await connectSelected(selected);
     } catch (error) {
       if (/protocol version/i.test(String(error?.message ?? error))) {
         setConnectionState("incompatible");
@@ -159,6 +189,8 @@ export function createBleClient({ bluetooth }) {
       await characteristics.command.writeValueWithResponse(bytes);
     } else if (typeof characteristics.command.writeValue === "function") {
       await characteristics.command.writeValue(bytes);
+    } else if (typeof characteristics.command.writeValueWithoutResponse === "function") {
+      await characteristics.command.writeValueWithoutResponse(bytes);
     } else {
       throw new Error("BLE command characteristic is not writable");
     }
