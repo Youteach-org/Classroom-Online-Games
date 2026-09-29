@@ -547,3 +547,64 @@ Production-readiness note:
 - Full automatic oral grading is NOT connected yet. Local automatic evidence currently covers recorded duration/task completion and prosody/fluency only.
 - Literal transcription, pronunciation, grammar/vocabulary, coherence and interaction remain pending Oral-Grader.
 - Do not market/label this build as fully auto-grading until Oral-Grader is wired and end-to-end tested.
+
+
+## CANONICAL ARCHITECTURE OVERRIDE — 2026-09-28
+
+This section overrides any earlier wording in this handoff that could be read as making browser-local storage/scoring the intended production architecture.
+
+Required reading:
+- `docs/superpowers/decisions/2026-09-28-talk-talk-oral-grader-online-architecture.md`
+- `docs/superpowers/specs/2026-09-28-talk-talk-oral-grader-online-integration.md`
+- `docs/superpowers/plans/2026-09-28-talk-talk-oral-grader-online-integration.md`
+- `docs/superpowers/audits/2026-09-28-talk-talk-oral-grader-state.md`
+
+### Final product architecture
+
+Talk Talk:
+- UI/session/recording/submission/review layer.
+
+Oral Grader:
+- online transcription + oral evidence + rubric scoring + report engine.
+
+Required flow:
+1. record on the student's device;
+2. review audio or record again;
+3. accept take;
+4. press `Califica` / submit-for-grading;
+5. upload the accepted audio online;
+6. Oral Grader processes the original audio;
+7. Oral Grader returns literal transcript + evidence + five 0-8 rubric scores + total /40 + report payload;
+8. Teacher Monitor receives the same online result from a different browser/device;
+9. teacher override remains separate from immutable transcript evidence.
+
+Browser `localStorage` / `IndexedDB` are temporary recording/recovery tools only.
+They are not the authoritative production grading/result store.
+
+The current local prosody/duration score is preview diagnostic evidence only and must disappear from the production result path once Oral Grader is connected.
+
+### Oral Grader state verified 2026-09-28
+
+Existing:
+- Stage 1 Gemini transcription implementation/workflow/tests.
+- Stage 2 Gemini audio-analysis implementation/workflow/tests.
+- Real Paul/Paulina and Adrian Stage-1/Stage-2 artifacts.
+- Paul/Paulina Stage 2 accepted for rubric.
+- Existing final batch rubric scores and final report metadata.
+- Prior Talk Talk integration plan on `feature/talk-talk-oral-grader-integration-20260923`.
+
+Important discovered gap:
+- committed Stage 2 explicitly reports `evidence_only_not_final_rubric`;
+- no dedicated final scoring executable was found in the recursive `Oral-Grader/` tree;
+- therefore recover/formalize the existing final-scoring logic inside Oral Grader before claiming the one-click Talk Talk flow is fully automatic;
+- do NOT replace it with a new local Talk Talk scoring engine.
+
+### Documentation rule
+
+Every material Talk Talk / Oral Grader change must, in the same development sequence:
+- update the current handoff;
+- update/add a decision when behavior/architecture changes;
+- update the plan/progress state;
+- add/adjust regression tests when the decision is mechanically enforceable.
+
+Future sessions must read GitHub before proposing architecture.
