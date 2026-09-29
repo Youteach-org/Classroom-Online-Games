@@ -16,7 +16,7 @@ constexpr std::uint32_t kShockArmDelayMs = 500;
 constexpr std::uint32_t kNoShockToCprMs = 500;
 constexpr std::uint32_t kCprCycleMs = 120000;
 constexpr std::uint32_t kReassessDelayMs = 500;
-constexpr std::uint32_t kMetronomeBpm = 110;
+constexpr std::uint32_t kMetronomeBpm = 104;
 constexpr std::uint32_t kMetronomeIntervalMs = 60000 / kMetronomeBpm;
 
 constexpr std::array<const char*, 8> kLocalScenarios{
@@ -153,8 +153,9 @@ void serviceOnePrompt() {
       (prompt.value() == "AED_BEGIN_CPR" ||
        prompt.value() == "AED_CONTINUE_CPR")) {
     cprCycleStartedAt = millis();
-    lastMetronomeAt = cprCycleStartedAt;
     cprCycleTimingActive = true;
+    audio.playMetronomeClick();
+    lastMetronomeAt = millis();
     renderOperationalView();
   }
 
