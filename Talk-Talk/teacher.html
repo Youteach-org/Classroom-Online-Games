@@ -34,7 +34,8 @@
             <button id="sendTwistBtn" class="send-twist" type="button">Send Twist</button>
           </div>
 
-          <p id="sessionState" class="session-line">Standalone · waiting for a student attempt</p>
+          <p id="sessionState" class="session-line">Online Oral-Grader · loading submitted jobs</p>
+          <p id="teacherJobListStatus" class="session-line">Connecting to shared job state...</p>
 
           <div id="teamGrid" class="team-grid">
             <button class="team-card selected" data-target="teacherTeamView" type="button">
@@ -59,7 +60,7 @@
       <div class="team-detail-panel">
         <button class="teacher-back" data-target="teacherMonitorView" type="button">← Back to teams</button>
         <header class="detail-head">
-          <div><h1>Team 1</h1><p>Paul · Paulina</p></div>
+          <div><h1 id="teacherTeamTitle">Team 1</h1><p id="teacherTeamNames">Waiting for online job</p></div>
           <span id="teacherDetailStatus" class="finished-chip">● Waiting</span>
         </header>
 
@@ -80,12 +81,11 @@
 
         <h2 class="section-title">Participants</h2>
 
-        <article class="participant">
-          <img src="./assets/paul-head.webp" alt="Paul"><div><strong>Paul</strong><span id="teacherParticipantState">Waiting</span></div><time id="teacherParticipantDuration">00:00</time>
-        </article>
-        <article class="participant">
-          <img src="./assets/paulina-head.webp" alt="Paulina"><div><strong>Paulina</strong><span>Partner capture pending</span></div><time>—</time>
-        </article>
+        <div id="teacherParticipants">
+          <article class="participant">
+            <img src="./assets/paul-head.webp" alt="Paul"><div><strong>Waiting</strong><span id="teacherParticipantState">No online job selected</span></div><time id="teacherParticipantDuration">—</time>
+          </article>
+        </div>
 
         <button class="tt-btn tt-btn-primary tt-btn-wide detail-evaluation" data-target="teacherAssessmentView" type="button">View evaluation →</button>
       </div>
@@ -94,7 +94,7 @@
     <section id="teacherAssessmentView" class="teacher-view" hidden>
       <div class="oral-assessment-panel">
         <header class="assessment-head">
-          <div><h1>Oral Assessment</h1><p>Standalone attempt</p></div>
+          <div><h1>Oral Assessment</h1><p id="teacherAssessmentStudent">Online Oral-Grader result</p></div>
           <div class="assessment-side"><small>Team 1</small><button id="teacherAssessmentPlayButton" class="play-recording" type="button">▷ Play recording</button></div>
         </header>
 
@@ -124,18 +124,19 @@
           <button type="button" disabled>Comments</button>
         </nav>
 
-        <div class="evidence-thread">
+        <div id="teacherTranscriptThread" class="evidence-thread">
           <article class="evidence-message">
             <img src="./assets/paul-head.webp" alt="Paul">
-            <div><strong>Paul</strong><p id="teacherTranscriptStatus">Transcript pending — Oral-Grader is not connected yet.</p></div>
+            <div><strong>Oral-Grader</strong><p id="teacherTranscriptStatus">Select an online job to inspect the literal transcript.</p></div>
             <time id="teacherEvidenceTime">--:--</time>
           </article>
         </div>
 
-        <h2 class="issues-title">Available local evidence</h2>
-        <div class="issue-row"><span class="issue-tag interaction">Audio</span><p id="teacherAudioEvidence">No recording loaded.</p><time>local</time></div>
-        <div class="issue-row"><span class="issue-tag pronunciation">Fluency</span><p id="teacherFluencyEvidence">Pending a recorded attempt.</p><time>local</time></div>
-        <div class="issue-row"><span class="issue-tag grammar">Language</span><p>Pronunciation and grammar remain pending Oral-Grader.</p><time>pending</time></div>
+        <h2 class="issues-title">Oral-Grader evidence</h2>
+        <div id="teacherEvidenceList">
+          <div class="issue-row"><span class="issue-tag interaction">Status</span><p id="teacherAudioEvidence">Waiting for an online result.</p><time>online</time></div>
+          <div class="issue-row"><span class="issue-tag pronunciation">Evidence</span><p id="teacherFluencyEvidence">No result selected.</p><time>online</time></div>
+        </div>
 
         <button class="teacher-back evidence-back" data-target="teacherAssessmentView" type="button">← Back to evaluation</button>
       </div>
