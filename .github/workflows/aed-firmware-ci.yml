@@ -87,11 +87,76 @@ jobs:
             -map "[out]" -ar 44100 -ac 1 -c:a pcm_s16le \
             dist/classroom-source/aed-continue-cpr.wav
 
+          python3 - <<'PY'
+          import math, random, struct, wave
+          from pathlib import Path
+
+          root = Path("dist/classroom-source")
+          rate = 16000
+
+          def write_wav(path, samples):
+              peak = max(1.0, max(abs(x) for x in samples))
+              scale = 0.94 * 32767.0 / peak
+              pcm = bytearray()
+              for x in samples:
+                  s = int(max(-32767, min(32767, x * scale)))
+                  pcm += struct.pack("<h", s)
+              with wave.open(str(path), "wb") as wf:
+                  wf.setnchannels(1)
+                  wf.setsampwidth(2)
+                  wf.setframerate(rate)
+                  wf.writeframes(pcm)
+
+          # Electrical shock: sharp crack + sustained irregular BZZZT + decay.
+          dur = 0.46
+          n = int(rate * dur)
+          rng = random.Random(13013)
+          shock = []
+          for i in range(n):
+              t = i / rate
+              noise = rng.uniform(-1.0, 1.0)
+
+              crack_env = math.exp(-t * 85.0)
+              crack = noise * crack_env * 1.9
+
+              buzz_env = min(1.0, t / 0.012) * max(0.0, 1.0 - t / dur)
+              buzz = (
+                  0.95 * math.sin(2 * math.pi * 118 * t) +
+                  0.55 * math.sin(2 * math.pi * 236 * t) +
+                  0.30 * math.sin(2 * math.pi * 1770 * t)
+              )
+              arc_gate = 1.0 if (int(t * 1000) % 31) < 21 else 0.22
+              arc = (0.70 * noise + 0.30 * math.sin(2 * math.pi * (2500 - 1600*t/dur) * t))
+              sample = crack + buzz_env * (buzz * 0.95 + arc * arc_gate * 0.85)
+
+              # second hard arc around 180 ms
+              dt = abs(t - 0.18)
+              if dt < 0.018:
+                  sample += rng.uniform(-1.0, 1.0) * math.exp(-dt * 120) * 1.5
+
+              shock.append(sample)
+          write_wav(root / "fx-shock-electric.wav", shock)
+
+          # CPR beat: strong low thump + bright click, deliberately obvious on small speaker.
+          dur = 0.16
+          n = int(rate * dur)
+          beat = []
+          for i in range(n):
+              t = i / rate
+              env1 = math.exp(-t * 28.0)
+              env2 = math.exp(-t * 52.0)
+              thump = math.sin(2 * math.pi * 170 * t) * env1 * 1.25
+              click = math.sin(2 * math.pi * 1250 * t) * env2 * 0.70
+              attack = 1.0 if t < 0.010 else 0.0
+              beat.append(thump + click + attack * (0.45 if (i % 2 == 0) else -0.45))
+          write_wav(root / "fx-cpr-beat.wav", beat)
+          PY
+
           for src in dist/classroom-source/*.wav; do
             dst="dist/classroom-audio/$(basename "$src")"
             ffmpeg -hide_banner -loglevel error -y               -i "$src"               -af "highpass=f=140,lowpass=f=4500,acompressor=threshold=0.10:ratio=4:attack=5:release=100:makeup=2,loudnorm=I=-13:LRA=4:TP=-1.0,alimiter=limit=0.95"               -ac 1 -ar 10000 -c:a adpcm_ima_wav "$dst"
           done
-          test "$(find dist/classroom-audio -maxdepth 1 -name '*.wav' | wc -l)" -eq 61
+          test "$(find dist/classroom-audio -maxdepth 1 -name '*.wav' | wc -l)" -eq 63
 
       - name: Build LittleFS voice image
         run: |
@@ -134,7 +199,7 @@ jobs:
           cp "$FIRMWARE" dist/package/firmware.bin
 
           cp Medicine/AED-Trainer/firmware/FLASHING.md dist/package/FLASHING.md
-          cp Medicine/AED-Trainer/firmware/flash-windows.bat dist/package/INSTALAR-V12.bat
+          cp Medicine/AED-Trainer/firmware/flash-windows.bat dist/package/INSTALAR-V13.bat
           cp Medicine/AED-Trainer/firmware/flash-linux-macos.sh dist/package/flash-linux-macos.sh
           chmod +x dist/package/flash-linux-macos.sh
 
@@ -162,7 +227,7 @@ jobs:
       - name: Upload flashable package
         uses: actions/upload-artifact@v4
         with:
-          name: DEA-V12
+          name: DEA-V13
           path: dist/package/
           if-no-files-found: error
           retention-days: 30
