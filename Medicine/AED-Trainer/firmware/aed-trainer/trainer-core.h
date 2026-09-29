@@ -20,6 +20,13 @@ enum class TrainerState {
   REASSESS
 };
 
+enum class StartupStep {
+  CHECK_RESPONSE,
+  CALL_HELP,
+  CHECK_BREATHING,
+  EXPOSE_CHEST
+};
+
 enum class AnalysisOutcome {
   SHOCK,
   NO_SHOCK,
@@ -60,6 +67,7 @@ class TrainerCore {
 
   bool loadCase(const CaseConfig& config);
   bool startCase();
+  bool advanceStartupStep();
   bool enterApplyPads();
   bool beginAnalysis();
   bool resolveAnalysis();
@@ -85,6 +93,7 @@ class TrainerCore {
   bool bleConnected() const { return bleConnected_; }
 
   TrainerState state() const { return state_; }
+  StartupStep startupStep() const { return startupStep_; }
   std::size_t hintsUsed() const { return hintsUsed_; }
   std::uint32_t simulatedShockCount() const { return simulatedShockCount_; }
   const CaseConfig& config() const { return config_; }
@@ -110,6 +119,8 @@ class TrainerCore {
   bool padFault_{false};
   bool movement_{false};
   bool standClearViolation_{false};
+  bool cprStarted_{false};
+  StartupStep startupStep_{StartupStep::CHECK_RESPONSE};
   std::unordered_set<std::uint32_t> seenCommandSeqs_;
   std::deque<std::string> promptQueue_;
 };
