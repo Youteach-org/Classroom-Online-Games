@@ -4,7 +4,6 @@ import { CLINICAL_CASES } from "./clinical-cases.js";
 import { PROMPTS } from "./prompt-catalog.js";
 import { createSession } from "./trainer-engine.js";
 import { createBleClient } from "./ble-client.js";
-import { registerOfflineSupport, getOfflineReadiness } from "./offline.js";
 
 const byId = (id) => document.getElementById(id);
 
@@ -12,7 +11,7 @@ const ui = {
   connectTrainer: byId("connectTrainer"),
   connectionStatus: byId("connectionStatus"),
   bleDiagnostic: byId("bleDiagnostic"),
-  offlineStatus: byId("offlineStatus"),
+  browserBleStatus: byId("browserBleStatus"),
   baseScenario: byId("baseScenario"),
   sceneTwist: byId("sceneTwist"),
   clinicalCondition: byId("clinicalCondition"),
@@ -291,33 +290,40 @@ function bindCommand(button, commandFactory) {
   });
 }
 
-async function refreshOfflineStatus() {
-  const readiness = await getOfflineReadiness();
-  ui.offlineStatus.dataset.state = readiness;
-  ui.offlineStatus.textContent = {
-    ready: "OFFLINE READY",
-    installing: "PREPARANDO OFFLINE…",
-    incomplete: "OFFLINE INCOMPLETO",
-    unsupported: "OFFLINE NO DISPONIBLE"
-  }[readiness] ?? readiness.toUpperCase();
+async function clearLegacyOfflineSupport() {
+  try {
+    if (globalThis.navigator?.serviceWorker?.getRegistrations) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) {
+        if (registration.scope.includes("/Medicine/AED-Trainer/")) {
+          await registration.unregister();
+        }
+      }
+    }
+
+    if (globalThis.caches?.keys) {
+      const names = await caches.keys();
+      await Promise.all(
+        names
+          .filter((name) => name.startsWith("aed-teacher-monitor-"))
+          .map((name) => caches.delete(name))
+      );
+    }
+  } catch (error) {
+    appendTimeline(`Limpieza de caché previa: ${error.message}`, "warn");
+  }
 }
 
-async function initializeOffline() {
-  try {
-    const state = await registerOfflineSupport();
-    ui.offlineStatus.dataset.state = state;
-    ui.offlineStatus.textContent = state === "ready"
-      ? "OFFLINE READY"
-      : state === "installing"
-        ? "PREPARANDO OFFLINE…"
-        : state === "unsupported"
-          ? "OFFLINE NO DISPONIBLE"
-          : "OFFLINE INCOMPLETO";
-    navigator.serviceWorker?.addEventListener?.("controllerchange", refreshOfflineStatus);
-  } catch (error) {
-    ui.offlineStatus.textContent = "OFFLINE ERROR";
-    appendTimeline(`Caché offline: ${error.message}`, "bad");
+function updateBrowserBleStatus() {
+  if (!globalThis.isSecureContext) {
+    ui.browserBleStatus.textContent = "NAVEGADOR BLE: REQUIERE HTTPS";
+    return;
   }
+  if (!globalThis.navigator?.bluetooth) {
+    ui.browserBleStatus.textContent = "NAVEGADOR BLE: NO DISPONIBLE";
+    return;
+  }
+  ui.browserBleStatus.textContent = "NAVEGADOR BLE: LISTO";
 }
 
 fillSelect(ui.baseScenario, AED_SCENARIOS);
@@ -353,5 +359,6 @@ ui.endCase.addEventListener("click", async () => { try { await endCase(); } catc
 
 renderCaseSummary();
 setRemoteAvailability();
-initializeOffline();
-appendTimeline("Teacher Monitor preparado. Conecte el DEA por Bluetooth.");
+clearLegacyOfflineSupport();
+updateBrowserBleStatus();
+appendTimeline("Teacher Monitor preparado. Encienda el DEA y pulse CONECTAR / RECONECTAR DEA.");
