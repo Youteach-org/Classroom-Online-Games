@@ -1,0 +1,27 @@
+name: AED Audio Source Export
+
+on:
+  push:
+    branches:
+      - feature/aed-esp32-firmware-audio
+    paths:
+      - ".github/workflows/aed-audio-source-export.yml"
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download source clips
+        run: |
+          curl -L --fail --retry 3 'https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=16d575ba-e132-4949-a2ba-43d4769d7912.wav' -o continue-original.wav
+          curl -L --fail --retry 3 'https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/7e5eebc368ab477a9175b7d2a2c3317e/id=8be30466-b0d4-4cd6-84fe-5c857eee5171.wav' -o lucia-begin-cpr.wav
+      - name: Upload source clips
+        uses: actions/upload-artifact@v4
+        with:
+          name: aed-cpr-source-clips
+          path: |
+            continue-original.wav
+            lucia-begin-cpr.wav
+          if-no-files-found: error
+          retention-days: 1
