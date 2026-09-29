@@ -345,3 +345,12 @@ button:disabled{cursor:not-allowed;opacity:.48}
 .teacher-sidebar nav button:disabled{opacity:.42}
 .team-card.is-placeholder{background:#f7f9f8;color:#72807b}
 audio{max-width:100%}
+
+.recording-review-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:9px;
+}
+.recording-review-actions[hidden]{display:none!important}
+.recording-review-actions .tt-btn{font-size:.7rem;padding:10px 8px}
