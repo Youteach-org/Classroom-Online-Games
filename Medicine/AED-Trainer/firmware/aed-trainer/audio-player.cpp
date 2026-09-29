@@ -375,7 +375,7 @@ bool AudioPlayer::playShockBuzz() {
 
     for (std::size_t i = 0; i < count; ++i) {
       const std::int16_t sample =
-          static_cast<std::int16_t>(kShockSample[offset + i]) << 8;
+          static_cast<std::int16_t>(kShockSample[offset + i]) * 256;
       stereo[i * 2] = sample;
       stereo[i * 2 + 1] = sample;
     }
