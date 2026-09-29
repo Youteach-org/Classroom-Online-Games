@@ -229,3 +229,55 @@ def test_retryable_failure_keeps_audio_for_retry():
     assert out["status"] == "failed_retryable"
     assert submitted["audio"]["storageKey"] in audio.objects
     assert audio.delete_calls == []
+
+
+def test_concurrent_idempotency_claim_returns_winning_job_and_cleans_losing_audio():
+    mod = load(SERVICE_PATH, "og_online_service_race")
+
+    existing = {
+        **job_payload(),
+        "jobId": "job-winner",
+        "status": "submitted",
+        "createdAt": 1999,
+        "updatedAt": 1999,
+        "submittedBy": "student",
+        "audio": {
+            "mimeType": "audio/webm",
+            "storageKey": "oral-grader/jobs/job-winner/source",
+        },
+    }
+
+    class RaceJobStore(FakeJobStore):
+        def __init__(self):
+            super().__init__()
+            self.jobs["job-winner"] = dict(existing)
+            self.by_idempotency[existing["idempotencyKey"]] = "job-winner"
+            self.lookup_calls = 0
+
+        def get_by_idempotency(self, key):
+            self.lookup_calls += 1
+            if self.lookup_calls == 1:
+                return None
+            return super().get_by_idempotency(key)
+
+        def create(self, job):
+            raise mod.DuplicateIdempotencyError("job-winner")
+
+    jobs = RaceJobStore()
+    audio = FakeAudioStore()
+    service = mod.create_job_service(
+        job_store=jobs,
+        audio_store=audio,
+        now=lambda: 2000,
+        job_id_factory=lambda: "job-loser",
+    )
+
+    out = service.submit(
+        job_payload(),
+        b"losing-audio",
+        actor={"role": "student", "sub": "student"},
+    )
+
+    assert out["jobId"] == "job-winner"
+    assert "oral-grader/jobs/job-loser/source" in audio.delete_calls
+    assert len(audio.put_calls) == 1
