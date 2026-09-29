@@ -348,9 +348,19 @@ audio{max-width:100%}
 
 .recording-review-actions{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:9px;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
   margin-top:9px;
 }
 .recording-review-actions[hidden]{display:none!important}
 .recording-review-actions .tt-btn{font-size:.7rem;padding:10px 8px}
+
+.grading-status{
+  margin:8px 2px 0;
+  min-height:2.4em;
+  color:#66746f;
+  font-size:.69rem;
+  line-height:1.35;
+  text-align:center;
+}
+.recording-review-actions #studentGradeBtn{background:#0b5f4b;color:#fff}
