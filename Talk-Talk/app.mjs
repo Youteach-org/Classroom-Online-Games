@@ -15,6 +15,11 @@ import {
   markAttemptSubmissionError
 } from "./evaluation/oral-grader-submission.mjs";
 import {
+  monitorOralGraderJob,
+  applyOralGraderJobState
+} from "./evaluation/oral-grader-monitor.mjs";
+import { mapOralGraderResultToTalkTalk } from "./evaluation/oral-grader-mapper.mjs";
+import {
   ORAL_GRADER_ENDPOINTS,
   TALK_TALK_ONLINE_DEFAULTS
 } from "./evaluation/oral-grader-config.mjs";
@@ -49,6 +54,8 @@ let recorder=null;
 let isRecording=false;
 let recordingStartedAt=0;
 let timerId=null;
+let monitoringJobId="";
+let monitorTask=null;
 const MAX_RECORDING_MS=180000;
 
 function formatDuration(ms){
@@ -67,24 +74,37 @@ function gradingMessage(){
   const grading=attempt?.grading;
   if(!grading) return "Review the recording, record again, or send the accepted take to Oral-Grader.";
   if(grading.status==="uploading") return "Uploading the accepted recording to Oral-Grader...";
-  if(grading.status==="submitted" || grading.status==="transcribing" || grading.status==="analyzing" || grading.status==="scoring"){
-    return "Sent to Oral-Grader. Online job "+(grading.jobId||"")+" is processing.";
+  if(["submitted","transcribing","analyzing","scoring"].includes(grading.status)){
+    const labels={
+      submitted:"Submitted to Oral-Grader.",
+      transcribing:"Oral-Grader is creating the literal transcript.",
+      analyzing:"Oral-Grader is analyzing oral evidence.",
+      scoring:"Oral-Grader is calculating the five rubric scores."
+    };
+    return labels[grading.status]+" Job "+(grading.jobId||"")+" continues online.";
   }
-  if(grading.status==="failed_retryable") return "The upload did not finish. Your recording is still here; tap Reintentar Califica.";
-  if(grading.status==="failed_terminal") return "Oral-Grader rejected this submission. The local recording has been kept for review.";
-  if(grading.status==="completed") return "Oral-Grader completed this attempt.";
-  if(grading.status==="review_required") return "Oral-Grader needs teacher review for this attempt.";
+  if(grading.status==="failed_retryable"){
+    return grading.jobId
+      ? "Online processing stopped temporarily. The server job is preserved for retry/review."
+      : "The upload did not finish. Your recording is still here; tap Reintentar Califica.";
+  }
+  if(grading.status==="failed_terminal") return "Oral-Grader could not process this submission. The recording has been kept for review.";
+  if(grading.status==="completed") return "Oral-Grader completed the automatic evaluation.";
+  if(grading.status==="review_required") return "Oral-Grader needs teacher review before this result is final.";
   return "Review the recording, record again, or send the accepted take to Oral-Grader.";
 }
 
 function renderGradingState(){
   const status=attempt?.grading?.status||"";
+  const serverFailure=status==="failed_retryable" && Boolean(attempt?.grading?.jobId);
   setText("gradingStatus",gradingMessage());
   if(studentGradeBtn){
-    const unavailable=!audioBlob || isRecording || status==="uploading" || status==="submitted" ||
-      status==="transcribing" || status==="analyzing" || status==="scoring" || status==="completed";
+    const unavailable=!audioBlob || isRecording || serverFailure ||
+      ["uploading","submitted","transcribing","analyzing","scoring","completed","review_required","failed_terminal"].includes(status);
     studentGradeBtn.disabled=unavailable;
-    studentGradeBtn.textContent=status==="failed_retryable" ? "Reintentar Califica" : "Califica";
+    studentGradeBtn.textContent=status==="failed_retryable" && !attempt?.grading?.jobId
+      ? "Reintentar Califica"
+      : "Califica";
   }
 }
 
@@ -108,6 +128,111 @@ function setAudioBlob(blob){
   renderGradingState();
 }
 
+function avatarForSpeaker(name){
+  const clean=String(name||"").toLowerCase();
+  return clean.includes("paulina") ? "./assets/paulina-head.webp" : "./assets/paul-head.webp";
+}
+
+function renderTranscriptResult(mapped){
+  const thread=document.getElementById("studentTranscriptThread");
+  if(!thread || !mapped?.transcript?.segments?.length) return;
+  thread.replaceChildren();
+
+  for(const segment of mapped.transcript.segments){
+    const article=document.createElement("article");
+    article.className="chat-row is-oral-grader-result";
+
+    const img=document.createElement("img");
+    img.className="chat-avatar";
+    img.src=avatarForSpeaker(segment.speaker);
+    img.alt=segment.speaker||"Speaker";
+
+    const main=document.createElement("div");
+    main.className="chat-main";
+    const strong=document.createElement("strong");
+    strong.textContent=segment.speaker||"Speaker";
+    const p=document.createElement("p");
+    p.textContent=segment.heardText??segment.heard_text??"";
+    main.append(strong,p);
+
+    const time=document.createElement("time");
+    time.textContent=formatDuration(Number(segment.start_ms||0));
+
+    article.append(img,main,time);
+    thread.append(article);
+  }
+}
+
+function replaceList(id,items,fallback){
+  const list=document.getElementById(id);
+  if(!list) return;
+  list.replaceChildren();
+  const values=items?.length ? items : [fallback];
+  for(const value of values){
+    const li=document.createElement("li");
+    li.textContent=String(value);
+    list.append(li);
+  }
+}
+
+function renderOnlineResult(){
+  const result=attempt?.oralGraderResult;
+  const status=attempt?.grading?.status||"";
+
+  if(!result){
+    if(status==="review_required"){
+      setText("studentResultStatus","Teacher review is required before Oral-Grader can finalize this attempt.");
+      replaceList("studentFeedbackGood",[],"Your recording and online job were preserved.");
+      replaceList("studentFeedbackWork",[],"Wait for teacher review; no score has been invented.");
+    }else{
+      const processing={
+        submitted:"Submitted. Waiting for Oral-Grader.",
+        transcribing:"Creating literal transcript...",
+        analyzing:"Analyzing oral evidence...",
+        scoring:"Calculating the five rubric scores..."
+      };
+      setText("studentResultStatus",processing[status]||"Waiting for Oral-Grader.");
+    }
+    return;
+  }
+
+  const mapped=mapOralGraderResultToTalkTalk(result);
+  renderTranscriptResult(mapped);
+  const student=mapped.students.find(row=>
+    row.studentId===attempt.studentKey || row.name===attempt.studentName
+  ) || mapped.students[0];
+
+  if(!student){
+    setText("studentResultStatus","Oral-Grader returned a result that needs teacher review.");
+    return;
+  }
+
+  setText(
+    "studentResultStatus",
+    mapped.status==="review_required"
+      ? "Automatic evaluation completed, but teacher review is required."
+      : "Oral-Grader completed the automatic evaluation."
+  );
+  setText("studentFluencyValue","Fluency: "+student.rubricScores.fluency+"/8");
+  setText("studentTaskValue","Automatic total: "+student.total+"/40");
+
+  replaceList(
+    "studentFeedbackGood",
+    student.comments,
+    "Automatic rubric completed from the submitted recording."
+  );
+
+  const lowest=[...student.rubric]
+    .sort((a,b)=>a.score-b.score || a.label.localeCompare(b.label))
+    .slice(0,2)
+    .map(row=>row.label+": "+row.score+"/8");
+  replaceList(
+    "studentFeedbackWork",
+    lowest,
+    "No lower-scoring rubric dimension was returned."
+  );
+}
+
 function renderAttempt(){
   const duration=Number(attempt?.durationMs||0);
   setText("recordingDuration",formatDuration(duration));
@@ -122,23 +247,14 @@ function renderAttempt(){
     : "Transcript pending — submit the accepted take with Califica.";
   setText("transcriptStatus",transcript || transcriptPending);
 
-  const fluency=attempt?.evaluation?.dimensions?.fluency?.value;
-  const task=attempt?.evaluation?.dimensions?.taskCompletion?.value;
   setText(
     "recordingCapturedFeedback",
     attempt?.status==="recorded"
-      ? "Recording captured and kept locally until online submission is acknowledged."
+      ? "Recording captured and kept locally while the online job is pending."
       : "Record an attempt to create evidence."
   );
-  setText(
-    "studentFluencyValue",
-    fluency==null ? "Local diagnostic fluency: pending usable audio" : "Local diagnostic fluency: "+fluency+"%"
-  );
-  setText(
-    "studentTaskValue",
-    task==null ? "Recorded duration: pending" : "Local duration diagnostic: "+task+"%"
-  );
   renderGradingState();
+  renderOnlineResult();
 }
 
 function updateRecordingClock(){
@@ -258,6 +374,38 @@ async function startFreshRecording(){
   await startRecording();
 }
 
+async function startOnlineMonitoring(){
+  const jobId=String(attempt?.grading?.jobId||"").trim();
+  if(!jobId) return null;
+  if(monitorTask && monitoringJobId===jobId) return monitorTask;
+
+  monitoringJobId=jobId;
+  monitorTask=monitorOralGraderJob({
+    client:oralGrader,
+    jobId,
+    onUpdate:async job=>{
+      attempt=applyOralGraderJobState(attempt,job);
+      await store.save(attempt,{audioBlob});
+      renderAttempt();
+      if(job.status==="completed" || job.status==="review_required"){
+        showStudentView("studentPracticeResultView");
+      }
+    }
+  }).catch(async error=>{
+    attempt=markAttemptSubmissionError(attempt,{
+      message:error?.message||"Online grading monitor failed.",
+      retryable:true
+    });
+    await store.save(attempt,{audioBlob});
+    renderAttempt();
+    return null;
+  }).finally(()=>{
+    monitoringJobId="";
+    monitorTask=null;
+  });
+  return monitorTask;
+}
+
 async function submitForGrading(){
   if(isRecording || attempt?.status!=="recorded" || !audioBlob) return;
   const {metadata,idempotencyKey}=buildOralGraderSubmission(
@@ -276,6 +424,7 @@ async function submitForGrading(){
     await store.save(attempt,{audioBlob});
     renderAttempt();
     showStudentView("studentConversationView");
+    startOnlineMonitoring();
   }catch(error){
     attempt=markAttemptSubmissionError(attempt,{
       message:error?.message||"Online grading submission failed.",
@@ -382,6 +531,11 @@ async function bootstrap(){
   const initial=ids.includes(location.hash.slice(1))?location.hash.slice(1):ids[0];
   history.replaceState({talkTalkView:initial},"","#"+initial);
   showStudentView(initial,{push:false});
+
+  const status=attempt?.grading?.status;
+  if(attempt?.grading?.jobId && !["completed","review_required","failed_terminal"].includes(status)){
+    startOnlineMonitoring();
+  }
 }
 
 bootstrap().catch(()=>{
