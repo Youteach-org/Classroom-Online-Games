@@ -41,6 +41,14 @@ class FirebaseJobStore:
         ref.update(patch)
         return ref.get()
 
+    def list_recent(self, limit=50):
+        value = self.root.get()
+        if not isinstance(value, dict):
+            return []
+        rows = [row for row in value.values() if isinstance(row, dict)]
+        rows.sort(key=lambda row: row.get("createdAt", 0), reverse=True)
+        return rows[: max(1, min(100, int(limit)))]
+
 
 class FirebaseAudioStore:
     def __init__(self, bucket):
@@ -55,6 +63,12 @@ class FirebaseAudioStore:
         blob = self.bucket.blob(clean_key)
         blob.upload_from_string(bytes(data), content_type=str(mime_type or "application/octet-stream"))
         return clean_key
+
+    def read(self, key):
+        clean_key = str(key or "").strip()
+        if not clean_key:
+            raise ValueError("storage key is required")
+        return self.bucket.blob(clean_key).download_as_bytes()
 
     def download(self, key, target):
         from pathlib import Path
