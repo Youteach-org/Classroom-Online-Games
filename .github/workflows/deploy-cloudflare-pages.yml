@@ -20,6 +20,9 @@ jobs:
       - name: Run live COG verification tests
         run: |
           node --check Verb-Runner/prototype.js
+          node --check Medicine/AED-Trainer/app.js
+          node --check Medicine/AED-Trainer/ble-client.js
+          node --test Medicine/AED-Trainer/tests/*.test.mjs
           node --check 100-Students-Said/monitor.js
           node --check OSASCOMP/student.js
           node --check OSASCOMP/teacher/monitor.js
