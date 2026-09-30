@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111820">
+  <title>AED Teacher Monitor | Classroom Online Games</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="wrap">
+    <header class="topbar">
+      <div>
+        <h1>AED Teacher Monitor</h1>
+        <p class="subtitle">Control local del DEA educativo por Bluetooth. Sin Wi‑Fi durante la práctica.</p>
+      </div>
+      <button class="connect" id="connectTrainer">CONECTAR / RECONECTAR DEA</button>
+    </header>
+
+    <div class="safety">TRAINING / SIMULATION ONLY — sin descarga terapéutica ni diagnóstico automático.</div>
+
+    <div class="status-strip">
+      <span class="chip" id="browserBleStatus">NAVEGADOR BLE: COMPROBANDO…</span>
+      <span class="chip" id="connectionStatus" data-state="disconnected">DESCONECTADO</span>
+      <span class="chip" id="bleDiagnostic">BLE: LISTO PARA BUSCAR</span>
+      <span class="chip">DEA: <strong id="deviceId">—</strong></span>
+      <span class="chip">Batería: <strong id="batteryLevel">—</strong></span>
+    </div>
+
+    <div class="grid">
+      <section class="stack">
+        <article class="card">
+          <h2>Preparar caso</h2>
+          <div class="stack">
+            <div class="field">
+              <label for="baseScenario">Escenario DEA</label>
+              <select id="baseScenario"></select>
+            </div>
+            <div class="field">
+              <label for="sceneTwist">Twist de escena</label>
+              <select id="sceneTwist"></select>
+            </div>
+            <div class="field">
+              <label for="clinicalCondition">Condición clínica</label>
+              <select id="clinicalCondition"></select>
+            </div>
+            <div class="case-summary" id="caseSummary"></div>
+            <button class="primary" id="startCase" disabled>INICIAR CASO</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Compañero paramédico</h2>
+          <p class="small">La voz del compañero aporta contexto humano. La pista orienta sin resolver el caso.</p>
+          <div class="hint-row">
+            <button id="giveHint" disabled>DAR PISTA</button>
+            <div class="counter">Pistas usadas: <span id="hintsUsed">0</span></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Eventos en vivo</h2>
+          <div class="live-grid">
+            <div class="group-title">Ritmo / análisis</div>
+            <button class="red" id="forceShock" disabled>Próximo análisis: SHOCK</button>
+            <button class="green" id="forceNoShock" disabled>Próximo análisis: NO SHOCK</button>
+            <button id="triggerRefib" disabled>Refibrilación</button>
+
+            <div class="group-title">Electrodos / contacto</div>
+            <button id="padFault" disabled>Falla de contacto</button>
+            <button id="clearPadFault" disabled>Restaurar contacto</button>
+
+            <div class="group-title">Movimiento / seguridad</div>
+            <button id="movement" disabled>Movimiento / artefacto</button>
+            <button id="clearMovement" disabled>Quitar movimiento</button>
+            <button id="standClearViolation" disabled>Persona tocando</button>
+            <button id="clearStandClearViolation" disabled>Todos despejados</button>
+
+            <div class="group-title">Caso</div>
+            <button id="pauseCase" disabled>Pausar</button>
+            <button id="resumeCase" disabled>Reanudar</button>
+            <button class="warn" id="restartCase" disabled>Reiniciar caso</button>
+            <button class="danger" id="endCase" disabled>Finalizar caso</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="stack">
+        <article class="card">
+          <h2>Estado del DEA</h2>
+          <div class="monitor-grid">
+            <div class="metric"><span>Estado</span><strong id="trainerState">—</strong></div>
+            <div class="metric"><span>Dispositivo</span><strong id="deviceIdMirror">ver arriba</strong></div>
+            <div class="metric"><span>Sesión</span><strong>BLE local</strong></div>
+          </div>
+          <div class="command">Último comando: <span id="lastCommand">—</span></div>
+          <p class="small">Al reconectar, los controles permanecen bloqueados hasta leer el estado autoritativo del DEA.</p>
+        </article>
+
+        <article class="card">
+          <h2>Cronología</h2>
+          <ul class="timeline" id="eventTimeline" aria-live="polite"></ul>
+        </article>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
