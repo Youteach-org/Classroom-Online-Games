@@ -34,7 +34,7 @@ class FakeCharacteristic {
   }
 }
 
-function makeRig({ statusText, stateText } = {}) {
+function makeRig({ statusText, stateText, serviceFailures = 0 } = {}) {
   const chars = new Map([
     [DEVICE_STATUS_UUID, new FakeCharacteristic(statusText ?? "v=1;type=status;seq=1;device=DEA01;firmware=0.1.0;battery=90")],
     [TRAINER_STATE_UUID, new FakeCharacteristic(stateText ?? "v=1;type=state;seq=2;device=DEA01;state=CPR;scenario=A1;twist=T0;clinical=C0;analysis=1;shock=0;pads=1;hints=0")],
@@ -42,7 +42,17 @@ function makeRig({ statusText, stateText } = {}) {
     [EVENT_STREAM_UUID, new FakeCharacteristic()]
   ]);
   const service = { getCharacteristic: async (uuid) => chars.get(uuid) };
-  const server = { getPrimaryService: async (uuid) => { assert.equal(uuid, AED_SERVICE_UUID); return service; } };
+  let remainingServiceFailures = serviceFailures;
+  const server = {
+    getPrimaryService: async (uuid) => {
+      assert.equal(uuid, AED_SERVICE_UUID);
+      if (remainingServiceFailures > 0) {
+        remainingServiceFailures -= 1;
+        throw new Error("service not ready");
+      }
+      return service;
+    }
+  };
   const deviceListeners = new Map();
   const device = {
     id: "fake-device",
@@ -50,7 +60,8 @@ function makeRig({ statusText, stateText } = {}) {
     addEventListener: (name, handler) => deviceListeners.set(name, handler),
     gatt: {
       connected: false,
-      connect: async () => { device.gatt.connected = true; return server; }
+      connect: async () => { device.gatt.connected = true; return server; },
+      disconnect: () => { device.gatt.connected = false; }
     },
     disconnectNow() {
       device.gatt.connected = false;
@@ -67,17 +78,32 @@ function makeRig({ statusText, stateText } = {}) {
   return { bluetooth, device, chars };
 }
 
-test("scan filters by AED service, subscribes, syncs and becomes ready", async () => {
+test("scan shows all BLE devices, requests AED service access, syncs and becomes ready", async () => {
   const rig = makeRig();
   const client = createBleClient({ bluetooth: rig.bluetooth });
   const events = [];
   client.subscribe((event) => events.push(event));
   await client.scanAndConnect();
 
-  assert.deepEqual(rig.bluetooth.requests[0].filters, [{ services: [AED_SERVICE_UUID] }]);
+  assert.equal(rig.bluetooth.requests[0].acceptAllDevices, true);
+  assert.deepEqual(rig.bluetooth.requests[0].optionalServices, [AED_SERVICE_UUID]);
   assert.equal(client.getConnectionState(), "ready");
+  assert.ok(events.some((e) => e.kind === "diagnostic" && e.message.stage === "selected"));
   assert.ok(events.some((e) => e.kind === "status" && e.message.device === "DEA01"));
   assert.ok(events.some((e) => e.kind === "state" && e.message.state === "CPR"));
+});
+
+test("service discovery retries once when ESP32 GATT is not ready yet", async () => {
+  const rig = makeRig({ serviceFailures: 1 });
+  const client = createBleClient({ bluetooth: rig.bluetooth });
+  const events = [];
+  client.subscribe((event) => events.push(event));
+
+  await client.scanAndConnect();
+
+  assert.equal(client.getConnectionState(), "ready");
+  assert.ok(events.some((e) => e.kind === "diagnostic" && e.message.stage === "retry"));
+  assert.ok(events.some((e) => e.kind === "diagnostic" && e.message.attempt === 2));
 });
 
 test("sendCommand writes encoded data only while ready", async () => {
@@ -115,7 +141,7 @@ test("reconnect remains syncing until authoritative reads complete", async () =>
   };
 
   const pending = client.scanAndConnect();
-  await new Promise((resolve) => setTimeout(resolve, 0));
+  await new Promise((resolve) => setTimeout(resolve, 220));
   assert.equal(client.getConnectionState(), "syncing");
   release();
   await pending;

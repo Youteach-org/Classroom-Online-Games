@@ -6,6 +6,7 @@ on:
       - main
       - live-cog-20260922
       - medicine-aed
+      - feature/aed-esp32-firmware-audio
   workflow_dispatch:
 
 permissions:

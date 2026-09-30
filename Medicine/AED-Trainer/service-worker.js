@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "aed-teacher-monitor-";
-const CACHE_NAME = "aed-teacher-monitor-v3";
+const CACHE_NAME = "aed-teacher-monitor-v13";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -42,12 +42,17 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
 
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).catch(() => {
+    fetch(event.request)
+      .then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        return response;
+      })
+      .catch(async () => {
+        const cached = await caches.match(event.request);
+        if (cached) return cached;
         if (event.request.mode === "navigate") return caches.match("./index.html");
         throw new Error("Offline asset unavailable");
-      });
-    })
+      })
   );
 });

@@ -1,0 +1,233 @@
+name: AED Firmware CI
+
+on:
+  push:
+    branches:
+      - medicine-aed
+      - feature/aed-esp32-firmware-audio
+    paths:
+      - "Medicine/AED-Trainer/firmware/**"
+      - "Medicine/AED-Trainer/audio/assets/**"
+      - "Medicine/AED-Trainer/audio/audio-sources.generated.json"
+      - "Medicine/AED-Trainer/audio/prompt-script.json"
+      - "Medicine/AED-Trainer/audio/tools/**"
+      - "Medicine/AED-Trainer/audio/manifest.json"
+      - ".github/workflows/aed-firmware-ci.yml"
+  pull_request:
+    paths:
+      - "Medicine/AED-Trainer/firmware/**"
+      - "Medicine/AED-Trainer/audio/assets/**"
+      - "Medicine/AED-Trainer/audio/audio-sources.generated.json"
+      - "Medicine/AED-Trainer/audio/prompt-script.json"
+      - "Medicine/AED-Trainer/audio/tools/**"
+      - "Medicine/AED-Trainer/audio/manifest.json"
+      - ".github/workflows/aed-firmware-ci.yml"
+  workflow_dispatch:
+
+jobs:
+  compile-esp32:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: arduino/setup-arduino-cli@v2
+
+      - name: Install ESP32 core 3.3.12
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@3.3.12
+
+      - name: Install display libraries
+        run: |
+          arduino-cli lib install "Adafruit GFX Library"
+          arduino-cli lib install "Adafruit SSD1306"
+
+      - name: Install FFmpeg for classroom mastering
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Compile AED bench firmware
+        run: |
+          mkdir -p dist/build dist/package
+          arduino-cli compile             --fqbn esp32:esp32:esp32             --output-dir dist/build             Medicine/AED-Trainer/firmware/aed-trainer
+
+      - name: Prepare classroom voice pack
+        run: |
+          mkdir -p dist/classroom-source dist/classroom-audio
+          cp Medicine/AED-Trainer/audio/assets/*.wav dist/classroom-source/
+
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import urllib.request
+
+          data = json.loads(pathlib.Path("Medicine/AED-Trainer/audio/audio-sources.generated.json").read_text())
+          wanted = {"aed-begin-cpr.wav", "aed-continue-cpr.wav"}
+          for clip in data["clips"]:
+              if clip["filename"] in wanted:
+                  urllib.request.urlretrieve(
+                      clip["url"],
+                      pathlib.Path("dist/classroom-source") / clip["filename"],
+                  )
+          PY
+
+          cp dist/classroom-source/aed-continue-cpr.wav /tmp/aed-continue-original.wav
+          cp dist/classroom-source/aed-begin-cpr.wav /tmp/lucia-begin-cpr.wav
+
+          # Hybrid prompt requested for V11:
+          # keep "Continúe" from the original AED voice, then append the
+          # already-approved Lucía pronunciation of "ERRE CE PE".
+          ffmpeg -hide_banner -loglevel error -y \
+            -i /tmp/aed-continue-original.wav \
+            -i /tmp/lucia-begin-cpr.wav \
+            -filter_complex "[0:a]atrim=start=0.18:end=0.928,asetpts=PTS-STARTPTS,afade=t=in:st=0:d=0.01,afade=t=out:st=0.738:d=0.01[c];anullsrc=r=44100:cl=mono,atrim=duration=0.07[s];[1:a]atrim=start=0.985:end=2.016,asetpts=PTS-STARTPTS,afade=t=in:st=0:d=0.008,afade=t=out:st=1.021:d=0.008[r];[c][s][r]concat=n=3:v=0:a=1[out]" \
+            -map "[out]" -ar 44100 -ac 1 -c:a pcm_s16le \
+            dist/classroom-source/aed-continue-cpr.wav
+
+          python3 - <<'PY'
+          import math, random, struct, wave
+          from pathlib import Path
+
+          root = Path("dist/classroom-source")
+          rate = 16000
+
+          def write_wav(path, samples):
+              peak = max(1.0, max(abs(x) for x in samples))
+              scale = 0.94 * 32767.0 / peak
+              pcm = bytearray()
+              for x in samples:
+                  s = int(max(-32767, min(32767, x * scale)))
+                  pcm += struct.pack("<h", s)
+              with wave.open(str(path), "wb") as wf:
+                  wf.setnchannels(1)
+                  wf.setsampwidth(2)
+                  wf.setframerate(rate)
+                  wf.writeframes(pcm)
+
+          # Electrical shock: sharp crack + sustained irregular BZZZT + decay.
+          dur = 0.46
+          n = int(rate * dur)
+          rng = random.Random(13013)
+          shock = []
+          for i in range(n):
+              t = i / rate
+              noise = rng.uniform(-1.0, 1.0)
+
+              crack_env = math.exp(-t * 85.0)
+              crack = noise * crack_env * 1.9
+
+              buzz_env = min(1.0, t / 0.012) * max(0.0, 1.0 - t / dur)
+              buzz = (
+                  0.95 * math.sin(2 * math.pi * 118 * t) +
+                  0.55 * math.sin(2 * math.pi * 236 * t) +
+                  0.30 * math.sin(2 * math.pi * 1770 * t)
+              )
+              arc_gate = 1.0 if (int(t * 1000) % 31) < 21 else 0.22
+              arc = (0.70 * noise + 0.30 * math.sin(2 * math.pi * (2500 - 1600*t/dur) * t))
+              sample = crack + buzz_env * (buzz * 0.95 + arc * arc_gate * 0.85)
+
+              # second hard arc around 180 ms
+              dt = abs(t - 0.18)
+              if dt < 0.018:
+                  sample += rng.uniform(-1.0, 1.0) * math.exp(-dt * 120) * 1.5
+
+              shock.append(sample)
+          write_wav(root / "fx-shock-electric.wav", shock)
+
+          # CPR beat: strong low thump + bright click, deliberately obvious on small speaker.
+          dur = 0.16
+          n = int(rate * dur)
+          beat = []
+          for i in range(n):
+              t = i / rate
+              env1 = math.exp(-t * 28.0)
+              env2 = math.exp(-t * 52.0)
+              thump = math.sin(2 * math.pi * 170 * t) * env1 * 1.25
+              click = math.sin(2 * math.pi * 1250 * t) * env2 * 0.70
+              attack = 1.0 if t < 0.010 else 0.0
+              beat.append(thump + click + attack * (0.45 if (i % 2 == 0) else -0.45))
+          write_wav(root / "fx-cpr-beat.wav", beat)
+          PY
+
+          for src in dist/classroom-source/*.wav; do
+            dst="dist/classroom-audio/$(basename "$src")"
+            ffmpeg -hide_banner -loglevel error -y               -i "$src"               -af "highpass=f=140,lowpass=f=4500,acompressor=threshold=0.10:ratio=4:attack=5:release=100:makeup=2,loudnorm=I=-13:LRA=4:TP=-1.0,alimiter=limit=0.95"               -ac 1 -ar 10000 -c:a adpcm_ima_wav "$dst"
+          done
+          test "$(find dist/classroom-audio -maxdepth 1 -name '*.wav' | wc -l)" -eq 63
+
+      - name: Build LittleFS voice image
+        run: |
+          mkdir -p dist/littlefs-root/audio
+          cp dist/classroom-audio/*.wav dist/littlefs-root/audio/
+
+          MKLITTLEFS="$(find "$HOME/.arduino15/packages/esp32/tools" -type f -name mklittlefs | head -n 1)"
+          if [ -z "$MKLITTLEFS" ]; then
+            echo "mklittlefs was not found in ESP32 core tools"
+            find "$HOME/.arduino15/packages/esp32/tools" -maxdepth 3 -type f | sort
+            exit 1
+          fi
+
+          chmod +x "$MKLITTLEFS"
+          "$MKLITTLEFS"             -c dist/littlefs-root             -p 256             -b 4096             -s 0x1F0000             dist/package/littlefs.bin
+
+      - name: Bundle official Windows esptool
+        run: |
+          curl -L --fail             -o dist/esptool-windows.zip             https://github.com/espressif/esptool/releases/download/v5.3.1/esptool-v5.3.1-windows-amd64.zip
+          echo "2b4a73c45db27426685896f64ce3e557f63a64f43cc100cb65c0cc3486af96d3  dist/esptool-windows.zip" | sha256sum -c -
+          mkdir -p dist/esptool-windows
+          unzip -q dist/esptool-windows.zip -d dist/esptool-windows
+          ESPTOOL_WIN="$(find dist/esptool-windows -type f -iname 'esptool.exe' | head -n 1)"
+          test -n "$ESPTOOL_WIN"
+          cp "$ESPTOOL_WIN" dist/package/esptool.exe
+          test -s dist/package/esptool.exe
+
+      - name: Assemble flashable package
+        run: |
+          BOOTLOADER="$(find dist/build -maxdepth 1 -type f -name '*bootloader.bin' | head -n 1)"
+          PARTITIONS="$(find dist/build -maxdepth 1 -type f -name '*.partitions.bin' | head -n 1)"
+          FIRMWARE="$(find dist/build -maxdepth 1 -type f -name '*.bin'             ! -name '*bootloader*'             ! -name '*partitions*'             ! -name '*boot_app0*'             ! -name '*merged*' | head -n 1)"
+
+          test -n "$BOOTLOADER"
+          test -n "$PARTITIONS"
+          test -n "$FIRMWARE"
+
+          cp "$BOOTLOADER" dist/package/bootloader.bin
+          cp "$PARTITIONS" dist/package/partitions.bin
+          cp "$FIRMWARE" dist/package/firmware.bin
+
+          cp Medicine/AED-Trainer/firmware/FLASHING.md dist/package/FLASHING.md
+          cp Medicine/AED-Trainer/firmware/flash-windows.bat dist/package/INSTALAR-V14.bat
+          cp Medicine/AED-Trainer/firmware/flash-linux-macos.sh dist/package/flash-linux-macos.sh
+          chmod +x dist/package/flash-linux-macos.sh
+
+          cat > dist/package/flash-layout.txt <<'EOF'
+          ESP32-WROOM-32 / 4 MB flash layout
+          0x001000  bootloader.bin
+          0x008000  partitions.bin
+          0x010000  firmware.bin
+          0x210000  littlefs.bin
+          EOF
+
+          (
+            cd dist/package
+            sha256sum bootloader.bin partitions.bin firmware.bin littlefs.bin > SHA256SUMS.txt
+            ls -lh
+          )
+
+      - name: Validate package size against partitions
+        run: |
+          test "$(stat -c%s dist/package/firmware.bin)" -le $((0x200000))
+          test "$(stat -c%s dist/package/littlefs.bin)" -le $((0x1F0000))
+          test -s dist/package/bootloader.bin
+          test -s dist/package/partitions.bin
+
+      - name: Upload flashable package
+        uses: actions/upload-artifact@v4
+        with:
+          name: DEA-V14
+          path: dist/package/
+          if-no-files-found: error
+          retention-days: 30
