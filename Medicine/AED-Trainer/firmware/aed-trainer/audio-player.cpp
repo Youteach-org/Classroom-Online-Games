@@ -11,7 +11,6 @@
 #include "hardware-config.h"
 #include "ima-adpcm.h"
 #include "prompt-map.h"
-#include "shock-sample.h"
 
 namespace {
 
@@ -363,43 +362,49 @@ bool AudioPlayer::playStartupTone() {
 }
 
 bool AudioPlayer::playShockBuzz() {
-  if (!startI2s(kShockSampleRate)) return false;
+  const char* path = findPromptPath("FX_SHOCK_ELECTRIC");
+  if (!path) return false;
+  if (!fsReady_ && !begin()) return false;
 
-  constexpr std::size_t kChunkFrames = 128;
-  std::int16_t stereo[kChunkFrames * 2];
-  std::size_t offset = 0;
+  File file = LittleFS.open(path, "r");
+  if (!file) return false;
 
-  while (offset < kShockSampleCount) {
-    const std::size_t count =
-        std::min(kChunkFrames, kShockSampleCount - offset);
-
-    for (std::size_t i = 0; i < count; ++i) {
-      const std::int16_t sample =
-          static_cast<std::int16_t>(kShockSample[offset + i]) * 256;
-      stereo[i * 2] = sample;
-      stereo[i * 2 + 1] = sample;
-    }
-
-    const std::size_t bytes = count * 2 * sizeof(std::int16_t);
-    if (I2S.write(reinterpret_cast<std::uint8_t*>(stereo), bytes) != bytes) {
-      stop();
-      return false;
-    }
-    offset += count;
+  WavInfo wav;
+  if (!parseWavHeader(file, &wav) || !wavSupported(wav)) {
+    file.close();
+    return false;
   }
 
+  if (!startI2s(wav.sampleRate)) {
+    file.close();
+    return false;
+  }
+
+  const bool ok = wav.audioFormat == 1
+      ? playPcm16(file, wav)
+      : playImaAdpcm(file, wav);
+
+  file.close();
   stop();
+  return ok;
+}
+
+bool AudioPlayer::beginCprMetronome() {
+  constexpr std::uint32_t kRate = 16000;
+  stop();
+  if (!startI2s(kRate)) return false;
+  cprMetronomeActive_ = true;
   return true;
 }
 
 bool AudioPlayer::playMetronomeClick() {
   constexpr std::uint32_t kRate = 16000;
-  constexpr std::uint32_t kFrequency = 1400;
-  constexpr std::uint32_t kDurationMs = 85;
-  constexpr std::int16_t kAmplitude = 20000;
+  constexpr std::uint32_t kFrequency = 1000;
+  constexpr std::uint32_t kDurationMs = 110;
+  constexpr std::int16_t kAmplitude = 28000;
   constexpr std::size_t kChunkFrames = 128;
 
-  if (!startI2s(kRate)) return false;
+  if (!cprMetronomeActive_ && !beginCprMetronome()) return false;
 
   std::int16_t stereo[kChunkFrames * 2];
   const std::size_t totalFrames =
@@ -421,14 +426,26 @@ bool AudioPlayer::playMetronomeClick() {
 
     const std::size_t bytes = count * 2 * sizeof(std::int16_t);
     if (I2S.write(reinterpret_cast<std::uint8_t*>(stereo), bytes) != bytes) {
-      stop();
+      endCprMetronome();
       return false;
     }
     produced += count;
   }
 
-  stop();
+  std::int16_t silence[160 * 2]{};
+  if (I2S.write(reinterpret_cast<std::uint8_t*>(silence), sizeof(silence))
+      != sizeof(silence)) {
+    endCprMetronome();
+    return false;
+  }
+
   return true;
+}
+
+void AudioPlayer::endCprMetronome() {
+  if (cprMetronomeActive_ || i2sActive) {
+    stop();
+  }
 }
 
 void AudioPlayer::stop() {
@@ -436,4 +453,5 @@ void AudioPlayer::stop() {
     I2S.end();
     i2sActive = false;
   }
+  cprMetronomeActive_ = false;
 }
