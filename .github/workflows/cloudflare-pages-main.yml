@@ -48,7 +48,7 @@ jobs:
         run: |
           node --check Medicine/AED-Trainer/app.js
           node --check Medicine/AED-Trainer/ble-client.js
-          node --test Medicine/AED-Trainer/tests/*.test.mjs
+          node --test Medicine/AED-Trainer/tests/ble-client.test.mjs Medicine/AED-Trainer/tests/ble-protocol.test.mjs Medicine/AED-Trainer/tests/catalogs.test.mjs Medicine/AED-Trainer/tests/trainer-engine.test.mjs Medicine/AED-Trainer/tests/ui-contract.test.mjs
 
       - name: Prepare static site
         run: |
