@@ -207,3 +207,8 @@ test("movement artifact visibly pauses analysis and restarts settling when clear
   assert.match(protocol,/movement/);
   assert.match(server,/snapshot\.movement/);
 });
+
+test("firmware provides one approved fallback hint for T0/C0", () => {
+  const core=readFileSync(join(firmwareRoot,"trainer-core.cpp"),"utf8");
+  assert.match(core,/result\.empty\(\)[\s\S]*PARAMEDIC_HINT_ROSC_SIGNS/);
+});
