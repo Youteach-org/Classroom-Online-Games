@@ -172,6 +172,7 @@ std::string encodeTrainerState(std::uint32_t seq,
                                std::size_t analysisIndex,
                                bool shockEnabled,
                                bool padsReady,
+                               bool movementActive,
                                std::size_t hintsUsed) {
   std::string wire = beginRecord("state", seq);
   if (!appendField(&wire, "device", device) ||
@@ -182,6 +183,7 @@ std::string encodeTrainerState(std::uint32_t seq,
       !appendField(&wire, "analysis", std::to_string(analysisIndex)) ||
       !appendField(&wire, "shock", shockEnabled ? "1" : "0") ||
       !appendField(&wire, "pads", padsReady ? "1" : "0") ||
+      !appendField(&wire, "movement", movementActive ? "1" : "0") ||
       !appendField(&wire, "hints", std::to_string(hintsUsed))) return {};
   return wire;
 }
