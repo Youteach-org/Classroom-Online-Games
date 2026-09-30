@@ -188,3 +188,22 @@ test("firmware rejects loading a second case while one is already active", () =>
   assert.match(core,/bool TrainerCore::loadCase[\s\S]*state_\s*!=\s*TrainerState::OFF[\s\S]*return false/);
   assert.match(core,/bool TrainerCore::startCase[\s\S]*state_\s*!=\s*TrainerState::OFF[\s\S]*return false/);
 });
+
+test("movement artifact visibly pauses analysis and restarts settling when cleared", () => {
+  const sketch=readFileSync(join(firmwareRoot,"aed-trainer.ino"),"utf8");
+  const display=readFileSync(join(firmwareRoot,"display-adapter.cpp"),"utf8");
+  const protocol=readFileSync(join(firmwareRoot,"ble-protocol.cpp"),"utf8");
+  const server=readFileSync(join(firmwareRoot,"ble-server.cpp"),"utf8");
+
+  assert.match(sketch,/snapshot\.movement[\s\S]*showMovementWarning/);
+  assert.match(sketch,/syncMovementState/);
+  assert.match(sketch,/stateEnteredAt\s*=\s*millis\(\)/);
+  assert.match(sketch,/MOVEMENT_ACTIVE/);
+  assert.match(sketch,/MOVEMENT_CLEARED/);
+  assert.match(display,/showMovementWarning/);
+  assert.match(display,/DETENGA/);
+  assert.match(display,/MOVIMIENTO/);
+  assert.match(display,/ANALISIS PAUSADO/);
+  assert.match(protocol,/movement/);
+  assert.match(server,/snapshot\.movement/);
+});
