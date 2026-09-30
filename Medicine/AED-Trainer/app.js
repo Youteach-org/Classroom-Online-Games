@@ -83,16 +83,20 @@ function currentSelection() {
 function hintCapacity() {
   const twist = SCENE_TWISTS.find((x) => x.id === ui.sceneTwist.value);
   const clinical = CLINICAL_CASES.find((x) => x.id === ui.clinicalCondition.value);
-  return (twist?.hintPromptIds?.length ?? 0) + (clinical?.hintPromptIds?.length ?? 0);
+  const specificHints = new Set([
+    ...(twist?.hintPromptIds ?? []),
+    ...(clinical?.hintPromptIds ?? [])
+  ]);
+
+  // T0/C0 still has one approved general paramedic hint in firmware V15+.
+  return specificHints.size > 0 ? specificHints.size : 1;
 }
 
 function updateHintControl() {
   const capacity = hintCapacity();
   ui.hintsUsed.textContent = String(hintsUsed);
   ui.giveHint.disabled = !bleReady || !caseActive || capacity === 0 || hintsUsed >= capacity;
-  ui.giveHint.title = capacity === 0
-    ? "Este caso no tiene pistas."
-    : `Pistas usadas: ${hintsUsed} de ${capacity}`;
+  ui.giveHint.title = `Pistas usadas: ${hintsUsed} de ${capacity}`;
 }
 
 function setBuilderLocked(locked) {
