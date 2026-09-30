@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - live-cog-20260922
+      - feature/aed-cog-production
   workflow_dispatch:
 
 permissions:
@@ -40,7 +41,7 @@ jobs:
           rm -rf dist
           mkdir -p dist
           cp index.html dist/
-          cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Wordy Engineering teacher Talk-Talk dist/
+          cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Wordy Engineering Medicine teacher Talk-Talk dist/
           if [ -d shared ]; then cp -R shared dist/; fi
 
       - name: Deploy to Cloudflare Pages
