@@ -107,3 +107,12 @@ test("V15 shock playback uses the approved LittleFS effect instead of synthetic 
   assert.match(workflow, /Preserve the approved shock waveform exactly as committed/);
   assert.doesNotMatch(workflow, /Electrical shock: sharp crack/);
 });
+
+test("V15 includes the two approved startup voice assets", () => {
+  const responsePath=join(root,"audio","assets","aed-check-response.wav");
+  const breathingPath=join(root,"audio","assets","aed-check-breathing.wav");
+  assert.ok(readFileSync(responsePath).length > 1000);
+  assert.ok(readFileSync(breathingPath).length > 1000);
+  assert.match(promptMap,/AED_CHECK_RESPONSE/);
+  assert.match(promptMap,/AED_CHECK_BREATHING/);
+});
