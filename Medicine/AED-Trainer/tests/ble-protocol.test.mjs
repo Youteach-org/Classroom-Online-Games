@@ -59,8 +59,10 @@ test("encoder rejects missing sequence IDs and unsafe values", () => {
 });
 
 test("state validator accepts required fields and rejects malformed state", () => {
-  const good = decodeMessage("v=1;type=state;seq=5;device=DEA01;state=CPR;scenario=A1;twist=T0;clinical=C0;analysis=1;shock=0;pads=1;hints=0");
+  const good = decodeMessage("v=1;type=state;seq=5;device=DEA01;state=CPR;scenario=A1;twist=T0;clinical=C0;analysis=1;shock=0;pads=1;movement=0;hints=0");
   assert.equal(validateStateMessage(good), true);
+  assert.equal(validateStateMessage({ ...good, movement: "1" }), true);
+  assert.equal(validateStateMessage({ ...good, movement: "2" }), false);
   assert.equal(validateStateMessage({ ...good, type: "event" }), false);
   assert.equal(validateStateMessage({ ...good, state: "" }), false);
   const { device, ...withoutDevice } = good;
