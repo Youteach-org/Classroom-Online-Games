@@ -207,3 +207,23 @@ test("movement artifact visibly pauses analysis and restarts settling when clear
   assert.match(protocol,/movement/);
   assert.match(server,/snapshot\.movement/);
 });
+
+
+test("all yellow OLED headers are centered in V15", () => {
+  const display=readFileSync(join(firmwareRoot,"display-adapter.cpp"),"utf8");
+  assert.match(display,/every title is horizontally centered/);
+  assert.match(display,/getTextBounds/);
+  assert.match(display,/HardwareConfig::OLED_WIDTH\s*-\s*static_cast<int>\(width\)/);
+  assert.match(display,/drawHeader\("DESCARGA"\)/);
+  assert.match(display,/"RCP %lu\/min"/);
+  assert.doesNotMatch(display,/setCursor\(0,\s*3\)[\s\S]*print\("RCP /);
+});
+
+test("V15 reports CPR beat and shock audio success or failure over Serial", () => {
+  const sketch=readFileSync(join(firmwareRoot,"aed-trainer.ino"),"utf8");
+  assert.match(sketch,/RCP_METRONOME_READY/);
+  assert.match(sketch,/RCP_BEAT_OK/);
+  assert.match(sketch,/RCP_BEAT_FAIL/);
+  assert.match(sketch,/SHOCK_AUDIO_OK/);
+  assert.match(sketch,/SHOCK_AUDIO_FAIL/);
+});
