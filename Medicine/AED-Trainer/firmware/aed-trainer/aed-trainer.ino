@@ -42,6 +42,7 @@ std::uint32_t pauseStartedAt = 0;
 std::uint32_t lastDynamicDisplayAt = 0;
 std::uint32_t analysisPhase = 0;
 bool lastPaused = false;
+bool lastMovement = false;
 bool cprCycleTimingActive = false;
 std::size_t localScenarioIndex = 0;
 
@@ -72,10 +73,15 @@ const char* stateFallback(TrainerState state) {
 void renderOperationalView() {
   const auto snapshot = trainer.snapshot();
 
-  if (snapshot.state == TrainerState::ANALYZING &&
-      snapshot.pendingOutcome.has_value()) {
-    display.showAnalyzing(snapshot.pendingOutcome.value(), analysisPhase);
-    return;
+  if (snapshot.state == TrainerState::ANALYZING) {
+    if (snapshot.movement) {
+      display.showMovementWarning();
+      return;
+    }
+    if (snapshot.pendingOutcome.has_value()) {
+      display.showAnalyzing(snapshot.pendingOutcome.value(), analysisPhase);
+      return;
+    }
   }
 
   if (snapshot.state == TrainerState::STARTUP) {
@@ -281,6 +287,23 @@ void advanceRuntime() {
   }
 }
 
+void syncMovementState() {
+  const auto snapshot = trainer.snapshot();
+  if (snapshot.movement == lastMovement) return;
+
+  lastMovement = snapshot.movement;
+
+  if (snapshot.state == TrainerState::ANALYZING) {
+    // Motion artifact pauses the decision. Once cleared, restart the full
+    // analysis settle interval instead of immediately returning a result.
+    stateEnteredAt = millis();
+    analysisPhase = 0;
+    renderOperationalView();
+  }
+
+  ble.notifyEvent(snapshot.movement ? "MOVEMENT_ACTIVE" : "MOVEMENT_CLEARED");
+}
+
 void syncPauseClock() {
   const bool paused = trainer.snapshot().paused;
   if (paused == lastPaused) return;
@@ -476,6 +499,7 @@ void loop() {
   serviceLocalControls();
   servicePadsButton();
   syncPauseClock();
+  syncMovementState();
   syncStateView();
 
   serviceShockButton();
