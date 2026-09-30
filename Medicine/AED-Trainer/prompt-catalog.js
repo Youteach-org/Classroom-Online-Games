@@ -3,7 +3,9 @@ function prompt(id, role, text) {
 }
 export const PROMPTS = Object.freeze({
   AED_STARTUP: prompt("AED_STARTUP","aed","Mantenga la calma. Siga estas instrucciones."),
+  AED_CHECK_RESPONSE: prompt("AED_CHECK_RESPONSE","aed","Compruebe si el paciente responde."),
   AED_CALL_HELP: prompt("AED_CALL_HELP","aed","Solicite ayuda médica de emergencia."),
+  AED_CHECK_BREATHING: prompt("AED_CHECK_BREATHING","aed","Compruebe la respiración."),
   AED_EXPOSE_CHEST: prompt("AED_EXPOSE_CHEST","aed","Descubra el pecho del paciente."),
   AED_ATTACH_PADS: prompt("AED_ATTACH_PADS","aed","Coloque los electrodos como se muestra."),
   AED_CHECK_PADS: prompt("AED_CHECK_PADS","aed","Revise los electrodos."),
