@@ -11,7 +11,9 @@ struct PromptMapEntry {
 
 inline constexpr PromptMapEntry kPromptMap[] = {
   { "AED_STARTUP", "/audio/aed-startup.wav", "Mantenga la calma. Siga estas instrucciones." },
+  { "AED_CHECK_RESPONSE", "/audio/aed-check-response.wav", "Compruebe si el paciente responde." },
   { "AED_CALL_HELP", "/audio/aed-call-help.wav", "Solicite ayuda médica de emergencia." },
+  { "AED_CHECK_BREATHING", "/audio/aed-check-breathing.wav", "Compruebe la respiración." },
   { "AED_EXPOSE_CHEST", "/audio/aed-expose-chest.wav", "Descubra el pecho del paciente." },
   { "AED_ATTACH_PADS", "/audio/aed-attach-pads.wav", "Coloque los electrodos como se muestra." },
   { "AED_CHECK_PADS", "/audio/aed-check-pads.wav", "Revise los electrodos." },
