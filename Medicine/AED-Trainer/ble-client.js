@@ -20,6 +20,7 @@ export function createBleClient({ bluetooth }) {
   let characteristics = null;
   const listeners = new Set();
   const seenEventSeqs = new Set();
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   function emit(kind, message) {
     for (const listener of listeners) {
@@ -60,28 +61,37 @@ export function createBleClient({ bluetooth }) {
   }
 
   async function resolveCharacteristics(service) {
-    const [status, state, command, events] = await Promise.all([
-      service.getCharacteristic(DEVICE_STATUS_UUID),
-      service.getCharacteristic(TRAINER_STATE_UUID),
-      service.getCharacteristic(INSTRUCTOR_COMMAND_UUID),
-      service.getCharacteristic(EVENT_STREAM_UUID)
-    ]);
+    // Android's Web Bluetooth stack is sensitive to overlapping GATT operations.
+    // Resolve and subscribe strictly one operation at a time.
+    const status = await service.getCharacteristic(DEVICE_STATUS_UUID);
+    await sleep(40);
+    const state = await service.getCharacteristic(TRAINER_STATE_UUID);
+    await sleep(40);
+    const command = await service.getCharacteristic(INSTRUCTOR_COMMAND_UUID);
+    await sleep(40);
+    const events = await service.getCharacteristic(EVENT_STREAM_UUID);
     characteristics = { status, state, command, events };
 
+    await sleep(80);
     await state.startNotifications();
     state.addEventListener("characteristicvaluechanged", handleStateNotification);
+
+    await sleep(120);
     await events.startNotifications();
     events.addEventListener("characteristicvaluechanged", handleEventNotification);
+    await sleep(120);
   }
 
   async function readAuthoritativeState() {
     if (!characteristics) throw new Error("BLE characteristics are not ready");
 
     setConnectionState("syncing");
-    const [statusValue, stateValue] = await Promise.all([
-      characteristics.status.readValue(),
-      characteristics.state.readValue()
-    ]);
+
+    // Keep reads serialized as well. Parallel reads are a common source of
+    // "GATT operation failed for unknown reason" on Chromium/Android.
+    const statusValue = await characteristics.status.readValue();
+    await sleep(80);
+    const stateValue = await characteristics.state.readValue();
 
     const statusMessage = decodeMessage(statusValue);
     if (statusMessage.type !== "status" || !statusMessage.device) {
@@ -104,8 +114,6 @@ export function createBleClient({ bluetooth }) {
     return { status: statusMessage, state: stateMessage };
   }
 
-  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
   async function connectSelected(selected) {
     bindDevice(selected);
     const label = selected.name || selected.id || "Dispositivo sin nombre";
@@ -113,7 +121,7 @@ export function createBleClient({ bluetooth }) {
 
     let lastError = null;
 
-    for (let attempt = 1; attempt <= 2; attempt += 1) {
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
       try {
         characteristics = null;
 
@@ -125,11 +133,13 @@ export function createBleClient({ bluetooth }) {
 
         if (selected.gatt?.connected) {
           selected.gatt.disconnect();
-          await sleep(120);
+          await sleep(350);
         }
 
         const server = await selected.gatt.connect();
-        await sleep(180);
+        // Android often reports the transport connected before service
+        // discovery is actually ready.
+        await sleep(550);
 
         emit("diagnostic", {
           stage: "service",
@@ -138,6 +148,7 @@ export function createBleClient({ bluetooth }) {
         });
 
         const service = await server.getPrimaryService(AED_SERVICE_UUID);
+        await sleep(120);
         await resolveCharacteristics(service);
         return await readAuthoritativeState();
       } catch (error) {
@@ -153,12 +164,15 @@ export function createBleClient({ bluetooth }) {
           if (selected.gatt?.connected) selected.gatt.disconnect();
         } catch (_) {}
 
-        if (attempt < 2) await sleep(350);
+        if (attempt < 3) {
+          await sleep(attempt === 1 ? 900 : 1500);
+        }
       }
     }
 
     throw new Error(
-      `BLE_CONNECT_FAILED: ${String(lastError?.message ?? lastError ?? "sin detalle")}`
+      `BLE_CONNECT_FAILED: ${String(lastError?.message ?? lastError ?? "sin detalle")}. ` +
+      "Apague cualquier otro Teacher Monitor conectado al DEA, reinicie el DEA y vuelva a intentar."
     );
   }
 
