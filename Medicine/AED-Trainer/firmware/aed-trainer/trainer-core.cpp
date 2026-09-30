@@ -167,6 +167,7 @@ bool TrainerCore::loadCase(const CaseConfig& config) {
 
 void TrainerCore::queueStartupPrompts() {
   promptQueue_.push_back("AED_STARTUP");
+  promptQueue_.push_back("AED_CHECK_RESPONSE");
   const auto twist = twistContext(config_.twistId);
   const auto clinical = clinicalContext(config_.clinicalId);
   if (!twist.empty()) promptQueue_.push_back(twist);
@@ -192,6 +193,7 @@ bool TrainerCore::advanceStartupStep() {
 
     case StartupStep::CALL_HELP:
       startupStep_ = StartupStep::CHECK_BREATHING;
+      promptQueue_.push_back("AED_CHECK_BREATHING");
       return true;
 
     case StartupStep::CHECK_BREATHING:
