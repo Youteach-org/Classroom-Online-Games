@@ -45,7 +45,8 @@ test("runtime is local-only with no cloud/CDN dependencies", () => {
   assert.doesNotMatch(runtime, /https?:\/\//i);
   assert.doesNotMatch(runtime, /firebase|supabase|cdnjs|unpkg|jsdelivr/i);
   assert.doesNotMatch(html, /manifest\.webmanifest/);
-  assert.doesNotMatch(app, /registerOfflineSupport/);\n  assert.match(app, /clearLegacyOfflineSupport/);
+  assert.doesNotMatch(app, /registerOfflineSupport/);
+  assert.match(app, /clearLegacyOfflineSupport/);
   assert.match(app, /createBleClient/);
 });
 
