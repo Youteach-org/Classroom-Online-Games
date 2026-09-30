@@ -116,6 +116,12 @@ void syncStateView(bool force = false) {
   if (!force && !stateChanged) return;
 
   if (stateChanged) {
+    if (lastRenderedState == TrainerState::CPR &&
+        current != TrainerState::CPR) {
+      audio.endCprMetronome();
+      Serial.println("RCP_METRONOME_STOP");
+    }
+
     stateEnteredAt = millis();
     lastDynamicDisplayAt = 0;
 
@@ -191,7 +197,16 @@ void serviceOnePrompt() {
        prompt.value() == "AED_CONTINUE_CPR")) {
     cprCycleStartedAt = millis();
     cprCycleTimingActive = true;
-    audio.playMetronomeClick();
+
+    const bool metronomeReady = audio.beginCprMetronome();
+    Serial.println(metronomeReady ? "RCP_METRONOME_READY" : "RCP_METRONOME_INIT_FAIL");
+
+    const bool firstBeat = metronomeReady && audio.playMetronomeClick();
+    Serial.println(firstBeat ? "RCP_BEAT_OK" : "RCP_BEAT_FAIL");
+    if (!firstBeat) {
+      ble.notifyEvent("RCP_BEAT_FAIL");
+    }
+
     lastMetronomeAt = millis();
     renderOperationalView();
   }
@@ -366,7 +381,11 @@ void serviceMetronome() {
     return;
   }
 
-  audio.playMetronomeClick();
+  const bool beatOk = audio.playMetronomeClick();
+  Serial.println(beatOk ? "RCP_BEAT_OK" : "RCP_BEAT_FAIL");
+  if (!beatOk) {
+    ble.notifyEvent("RCP_BEAT_FAIL");
+  }
   lastMetronomeAt = millis();
 }
 
@@ -379,7 +398,11 @@ void serviceShockButton() {
   }
 
   Serial.println("SIMULATED_SHOCK");
-  audio.playShockBuzz();
+  const bool shockAudioOk = audio.playShockBuzz();
+  Serial.println(shockAudioOk ? "SHOCK_AUDIO_OK" : "SHOCK_AUDIO_FAIL");
+  if (!shockAudioOk) {
+    ble.notifyEvent("SHOCK_AUDIO_FAIL");
+  }
   ble.notifyEvent("SHOCK_PRESS");
   syncStateView(true);
 }
