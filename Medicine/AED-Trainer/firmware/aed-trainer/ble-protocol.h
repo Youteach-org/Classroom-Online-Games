@@ -42,6 +42,7 @@ std::string encodeTrainerState(std::uint32_t seq,
                                std::size_t analysisIndex,
                                bool shockEnabled,
                                bool padsReady,
+                               bool movementActive,
                                std::size_t hintsUsed);
 
 std::string encodeCommandResult(std::uint32_t seq,
