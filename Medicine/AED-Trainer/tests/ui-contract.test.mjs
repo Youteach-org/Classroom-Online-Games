@@ -74,3 +74,10 @@ test("Brave setup exposes the official Web Bluetooth flag and detection path", (
   assert.match(app, /BRAVE_WEB_BLUETOOTH_DISABLED/);
   assert.match(app, /BRAVE BLE: LISTO/);
 });
+
+test("STARTUP is treated as an active case and start is guarded against double trigger", () => {
+  assert.match(app, /INACTIVE_TRAINER_STATES\s*=\s*new Set\(\["OFF",\s*"IDLE",\s*"ENDED",\s*"COMPLETE"\]\)/);
+  assert.doesNotMatch(app, /INACTIVE_TRAINER_STATES[^\n]*STARTUP/);
+  assert.match(app, /if \(caseActive\)[\s\S]*Inicio ignorado: ya hay un caso activo/);
+  assert.match(app, /ui\.startCase\.disabled\s*=\s*true/);
+});
