@@ -58,7 +58,7 @@ let commandSeq = 1;
 let activeCase = null;
 let hintsUsed = 0;
 let caseActive = false;
-const INACTIVE_TRAINER_STATES = new Set(["OFF", "STARTUP", "IDLE", "ENDED", "COMPLETE"]);
+const INACTIVE_TRAINER_STATES = new Set(["OFF", "IDLE", "ENDED", "COMPLETE"]);
 
 function fillSelect(select, entries) {
   select.replaceChildren();
@@ -280,19 +280,34 @@ async function connectTrainer() {
 }
 
 async function startCase() {
+  if (caseActive) {
+    appendTimeline("Inicio ignorado: ya hay un caso activo.", "warn");
+    setRemoteAvailability();
+    return;
+  }
+
+  caseActive = true;
+  ui.startCase.disabled = true;
+  setBuilderLocked(true);
+
   activeCase = createSession(currentSelection());
   hintsUsed = 0;
-  await sendCommand({
+  try {
+    await sendCommand({
     cmd: "load",
     scenario: activeCase.scenarioId,
     twist: activeCase.twistId,
     clinical: activeCase.clinicalId
   });
-  await sendCommand({ cmd: "start" });
-  caseActive = true;
-  setBuilderLocked(true);
-  appendTimeline(`Caso iniciado: ${activeCase.scenarioId} + ${activeCase.twistId} + ${activeCase.clinicalId}`, "good");
-  setRemoteAvailability();
+    await sendCommand({ cmd: "start" });
+    appendTimeline(`Caso iniciado: ${activeCase.scenarioId} + ${activeCase.twistId} + ${activeCase.clinicalId}`, "good");
+  } catch (error) {
+    caseActive = false;
+    setBuilderLocked(false);
+    throw error;
+  } finally {
+    setRemoteAvailability();
+  }
 }
 
 async function endCase() {
@@ -387,7 +402,10 @@ ui.copyBraveFlag?.addEventListener("click", async () => {
   }
 });
 ui.startCase.addEventListener("click", async () => {
-  try { await startCase(); } catch (_) { setBuilderLocked(false); }
+  if (ui.startCase.disabled || caseActive) return;
+  ui.startCase.disabled = true;
+  try { await startCase(); } catch (_) {}
+  finally { setRemoteAvailability(); }
 });
 ui.giveHint.addEventListener("click", async () => {
   try { await sendCommand({ cmd: "hint" }); } catch (_) {}
