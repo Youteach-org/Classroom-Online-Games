@@ -34,11 +34,21 @@ const char* stateLabel(TrainerState state) {
 }
 
 void drawHeader(const char* text) {
-  // Yellow physical band: keep the current small header exactly here.
+  // Yellow physical band: every title is horizontally centered.
   display.setTextSize(1);
   display.setTextWrap(false);
-  display.setCursor(0, 3);
-  display.print(text);
+
+  int16_t x1 = 0;
+  int16_t y1 = 0;
+  uint16_t width = 0;
+  uint16_t height = 0;
+  display.getTextBounds(text ? text : "", 0, 0, &x1, &y1, &width, &height);
+  const int x = width < HardwareConfig::OLED_WIDTH
+      ? (HardwareConfig::OLED_WIDTH - static_cast<int>(width)) / 2
+      : 0;
+
+  display.setCursor(x, 3);
+  display.print(text ? text : "");
   display.drawFastHLine(
       0,
       HardwareConfig::OLED_YELLOW_BAND_HEIGHT - 1,
@@ -299,19 +309,11 @@ void DisplayAdapter::showShockWarning(bool trianglesVisible) {
   display.setTextColor(SSD1306_WHITE);
   display.setTextWrap(false);
 
-  // Yellow band remains compact, as requested.
   if (trianglesVisible) {
     drawWarningTriangle(0, 2);
     drawWarningTriangle(115, 2);
   }
-  display.setTextSize(1);
-  display.setCursor(29, 3);
-  display.print("DESCARGA");
-  display.drawFastHLine(
-      0,
-      HardwareConfig::OLED_YELLOW_BAND_HEIGHT - 1,
-      HardwareConfig::OLED_WIDTH,
-      SSD1306_WHITE);
+  drawHeader("DESCARGA");
 
   // Blue area: complete instruction, mixed sizes only where needed to fit.
   printCenteredLarge("TODOS", 17, 2);
@@ -334,17 +336,13 @@ void DisplayAdapter::showCprCountdown(
   display.setTextColor(SSD1306_WHITE);
   display.setTextWrap(false);
 
-  // Yellow band unchanged in scale.
-  display.setTextSize(1);
-  display.setCursor(0, 3);
-  display.print("RCP ");
-  display.print(bpm);
-  display.print("/min");
-  display.drawFastHLine(
-      0,
-      HardwareConfig::OLED_YELLOW_BAND_HEIGHT - 1,
-      HardwareConfig::OLED_WIDTH,
-      SSD1306_WHITE);
+  char headerText[16];
+  std::snprintf(
+      headerText,
+      sizeof(headerText),
+      "RCP %lu/min",
+      static_cast<unsigned long>(bpm));
+  drawHeader(headerText);
 
   // Blue area uses the space without clipping: full instruction plus timer.
   printCenteredLarge("CONTINUE RCP", 17, 1);
