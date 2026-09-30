@@ -20,6 +20,7 @@ export function createBleClient({ bluetooth, timings = {} }) {
   let characteristics = null;
   const listeners = new Set();
   const seenEventSeqs = new Set();
+  const pendingAcks = new Map();
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const gattTiming = {
     characteristicGapMs: timings.characteristicGapMs ?? 40,
@@ -46,6 +47,10 @@ export function createBleClient({ bluetooth, timings = {} }) {
 
   function handleDisconnect() {
     characteristics = null;
+    for (const pending of pendingAcks.values()) {
+      pending.reject(new Error("DEA_DISCONNECTED_BEFORE_ACK"));
+    }
+    pendingAcks.clear();
     setConnectionState("disconnected");
   }
 
@@ -68,6 +73,20 @@ export function createBleClient({ bluetooth, timings = {} }) {
     if (message.type !== "event" || !Number.isInteger(message.seq)) return;
     if (seenEventSeqs.has(message.seq)) return;
     seenEventSeqs.add(message.seq);
+
+    if (message.event === "ACK" && Number.isInteger(message.ack)) {
+      const pending = pendingAcks.get(message.ack);
+      if (pending) {
+        pendingAcks.delete(message.ack);
+        clearTimeout(pending.timer);
+        if (message.result === "OK") {
+          pending.resolve(message);
+        } else {
+          pending.reject(new Error(`DEA_REJECTED_COMMAND: ${message.reason ?? "unknown"}`));
+        }
+      }
+    }
+
     emit("event", message);
   }
 
@@ -211,15 +230,37 @@ export function createBleClient({ bluetooth, timings = {} }) {
     if (connectionState !== "ready" || !characteristics?.command) {
       throw new Error("BLE client is not ready");
     }
-    const bytes = encodeCommand(command);
-    if (typeof characteristics.command.writeValueWithResponse === "function") {
-      await characteristics.command.writeValueWithResponse(bytes);
-    } else if (typeof characteristics.command.writeValue === "function") {
-      await characteristics.command.writeValue(bytes);
-    } else if (typeof characteristics.command.writeValueWithoutResponse === "function") {
-      await characteristics.command.writeValueWithoutResponse(bytes);
-    } else {
-      throw new Error("BLE command characteristic is not writable");
+    if (!Number.isInteger(command?.seq)) {
+      throw new Error("Command seq is required");
+    }
+
+    const ackPromise = new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        pendingAcks.delete(command.seq);
+        reject(new Error("DEA_ACK_TIMEOUT"));
+      }, 2500);
+      pendingAcks.set(command.seq, { resolve, reject, timer });
+    });
+
+    try {
+      const bytes = encodeCommand(command);
+      if (typeof characteristics.command.writeValueWithResponse === "function") {
+        await characteristics.command.writeValueWithResponse(bytes);
+      } else if (typeof characteristics.command.writeValue === "function") {
+        await characteristics.command.writeValue(bytes);
+      } else if (typeof characteristics.command.writeValueWithoutResponse === "function") {
+        await characteristics.command.writeValueWithoutResponse(bytes);
+      } else {
+        throw new Error("BLE command characteristic is not writable");
+      }
+      return await ackPromise;
+    } catch (error) {
+      const pending = pendingAcks.get(command.seq);
+      if (pending) {
+        clearTimeout(pending.timer);
+        pendingAcks.delete(command.seq);
+      }
+      throw error;
     }
   }
 
