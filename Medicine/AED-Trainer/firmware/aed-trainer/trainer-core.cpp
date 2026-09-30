@@ -314,8 +314,19 @@ std::vector<std::string> TrainerCore::availableHintIds() const {
   std::vector<std::string> result;
   const auto t = twistHint(config_.twistId);
   const auto c = clinicalHint(config_.clinicalId);
+
   if (!t.empty()) result.push_back(t);
-  if (!c.empty()) result.push_back(c);
+  if (!c.empty() && std::find(result.begin(), result.end(), c) == result.end()) {
+    result.push_back(c);
+  }
+
+  // A pure base case (T0/C0) must still offer one useful paramedic hint.
+  // Reuse the already-approved generic re-evaluation prompt and voice rather
+  // than introducing a new voice or silently disabling DAR PISTA.
+  if (result.empty()) {
+    result.push_back("PARAMEDIC_HINT_ROSC_SIGNS");
+  }
+
   return result;
 }
 
