@@ -1,4 +1,4 @@
-# DEA V15 — ESP32-WROOM-32
+# V15 — ESP32-WROOM-32
 
 V15 incluye:
 
