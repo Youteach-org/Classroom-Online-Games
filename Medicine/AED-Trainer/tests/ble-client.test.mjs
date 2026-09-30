@@ -127,7 +127,9 @@ test("sendCommand writes encoded data only while ready", async () => {
   const client = makeClient(rig.bluetooth);
   await assert.rejects(() => client.sendCommand({ seq: 1, cmd: "pause" }), /ready/i);
   await client.scanAndConnect();
-  await client.sendCommand({ seq: 3, cmd: "pause" });
+  const pending = client.sendCommand({ seq: 3, cmd: "pause" });
+  rig.chars.get(EVENT_STREAM_UUID).emit("v=1;type=event;seq=77;event=ACK;ack=3;result=OK");
+  await pending;
   const writes = rig.chars.get(INSTRUCTOR_COMMAND_UUID).writes;
   assert.equal(writes.length, 1);
   assert.match(new TextDecoder().decode(writes[0]), /cmd=pause/);
@@ -202,4 +204,15 @@ test("event sequence namespace is reset after authoritative reconnect", async ()
 
   assert.equal(events.filter((e) => e.kind === "event" && e.message.seq === 1).length, 2);
   assert.ok(events.some((e) => e.kind === "event" && e.message.event === "AFTER_REBOOT"));
+});
+
+test("sendCommand rejects when DEA returns a negative ACK", async () => {
+  const rig = makeRig();
+  const client = makeClient(rig.bluetooth);
+  await client.scanAndConnect();
+
+  const pending = client.sendCommand({ seq: 9, cmd: "event", event: "MOVEMENT" });
+  rig.chars.get(EVENT_STREAM_UUID).emit("v=1;type=event;seq=78;event=ACK;ack=9;result=REJECT;reason=invalid_state");
+
+  await assert.rejects(() => pending, /DEA_REJECTED_COMMAND: invalid_state/);
 });
