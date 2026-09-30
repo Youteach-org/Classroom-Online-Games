@@ -9,7 +9,7 @@ import {
   validateStateMessage
 } from "./ble-protocol.js";
 
-export function createBleClient({ bluetooth }) {
+export function createBleClient({ bluetooth, timings = {} }) {
   if (!bluetooth || typeof bluetooth.requestDevice !== "function") {
     throw new Error("Web Bluetooth is unavailable");
   }
@@ -21,6 +21,17 @@ export function createBleClient({ bluetooth }) {
   const listeners = new Set();
   const seenEventSeqs = new Set();
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const gattTiming = {
+    characteristicGapMs: timings.characteristicGapMs ?? 40,
+    beforeNotificationsMs: timings.beforeNotificationsMs ?? 80,
+    notificationGapMs: timings.notificationGapMs ?? 120,
+    readGapMs: timings.readGapMs ?? 80,
+    disconnectGapMs: timings.disconnectGapMs ?? 350,
+    connectSettleMs: timings.connectSettleMs ?? 550,
+    serviceSettleMs: timings.serviceSettleMs ?? 120,
+    firstRetryMs: timings.firstRetryMs ?? 900,
+    secondRetryMs: timings.secondRetryMs ?? 1500
+  };
 
   function emit(kind, message) {
     for (const listener of listeners) {
@@ -64,22 +75,22 @@ export function createBleClient({ bluetooth }) {
     // Android's Web Bluetooth stack is sensitive to overlapping GATT operations.
     // Resolve and subscribe strictly one operation at a time.
     const status = await service.getCharacteristic(DEVICE_STATUS_UUID);
-    await sleep(40);
+    await sleep(gattTiming.characteristicGapMs);
     const state = await service.getCharacteristic(TRAINER_STATE_UUID);
-    await sleep(40);
+    await sleep(gattTiming.characteristicGapMs);
     const command = await service.getCharacteristic(INSTRUCTOR_COMMAND_UUID);
-    await sleep(40);
+    await sleep(gattTiming.characteristicGapMs);
     const events = await service.getCharacteristic(EVENT_STREAM_UUID);
     characteristics = { status, state, command, events };
 
-    await sleep(80);
+    await sleep(gattTiming.beforeNotificationsMs);
     await state.startNotifications();
     state.addEventListener("characteristicvaluechanged", handleStateNotification);
 
-    await sleep(120);
+    await sleep(gattTiming.notificationGapMs);
     await events.startNotifications();
     events.addEventListener("characteristicvaluechanged", handleEventNotification);
-    await sleep(120);
+    await sleep(gattTiming.notificationGapMs);
   }
 
   async function readAuthoritativeState() {
@@ -90,7 +101,7 @@ export function createBleClient({ bluetooth }) {
     // Keep reads serialized as well. Parallel reads are a common source of
     // "GATT operation failed for unknown reason" on Chromium/Android.
     const statusValue = await characteristics.status.readValue();
-    await sleep(80);
+    await sleep(gattTiming.readGapMs);
     const stateValue = await characteristics.state.readValue();
 
     const statusMessage = decodeMessage(statusValue);
@@ -133,13 +144,13 @@ export function createBleClient({ bluetooth }) {
 
         if (selected.gatt?.connected) {
           selected.gatt.disconnect();
-          await sleep(350);
+          await sleep(gattTiming.disconnectGapMs);
         }
 
         const server = await selected.gatt.connect();
         // Android often reports the transport connected before service
         // discovery is actually ready.
-        await sleep(550);
+        await sleep(gattTiming.connectSettleMs);
 
         emit("diagnostic", {
           stage: "service",
@@ -148,7 +159,7 @@ export function createBleClient({ bluetooth }) {
         });
 
         const service = await server.getPrimaryService(AED_SERVICE_UUID);
-        await sleep(120);
+        await sleep(gattTiming.serviceSettleMs);
         await resolveCharacteristics(service);
         return await readAuthoritativeState();
       } catch (error) {
@@ -165,7 +176,9 @@ export function createBleClient({ bluetooth }) {
         } catch (_) {}
 
         if (attempt < 3) {
-          await sleep(attempt === 1 ? 900 : 1500);
+          await sleep(attempt === 1
+            ? gattTiming.firstRetryMs
+            : gattTiming.secondRetryMs);
         }
       }
     }
