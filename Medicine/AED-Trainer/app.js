@@ -95,7 +95,7 @@ function hintCapacity() {
 function updateHintControl() {
   const capacity = hintCapacity();
   ui.hintsUsed.textContent = String(hintsUsed);
-  ui.giveHint.disabled = !bleReady || !caseActive || capacity === 0 || hintsUsed >= capacity;
+  ui.giveHint.disabled = !bleReady || !caseActive || hintsUsed >= capacity;
   ui.giveHint.title = `Pistas usadas: ${hintsUsed} de ${capacity}`;
 }
 
