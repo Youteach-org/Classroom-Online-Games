@@ -1,11 +1,11 @@
 @echo off
 setlocal EnableExtensions
-title DEA V15
+title V15
 
 cd /d "%~dp0"
 
 echo ============================================================
-echo   DEA V15
+echo   V15
 echo ============================================================
 echo.
 echo Cierra Arduino Serial Monitor antes de continuar.
@@ -14,7 +14,7 @@ echo.
 for %%F in (esptool.exe bootloader.bin partitions.bin firmware.bin littlefs.bin) do (
   if not exist "%%F" (
     echo ERROR: Falta %%F.
-    echo Descomprime TODO DEA-V15.zip en una carpeta.
+    echo Descomprime TODO V15.zip en una carpeta.
     pause
     exit /b 1
   )
