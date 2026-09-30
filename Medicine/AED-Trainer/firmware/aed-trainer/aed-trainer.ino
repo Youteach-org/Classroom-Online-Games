@@ -1,7 +1,11 @@
 #include <Arduino.h>
 
 #include <array>
+#include <atomic>
 #include <string>
+
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
 #include "audio-player.h"
 #include "ble-server.h"
@@ -27,6 +31,8 @@ InputAdapter inputs;
 AudioPlayer audio;
 TrainerCore trainer;
 BleServer ble(trainer);
+std::atomic<bool> bleInitReady{false};
+std::atomic<bool> bleInitStarted{false};
 
 TrainerState lastRenderedState = TrainerState::OFF;
 std::uint32_t stateEnteredAt = 0;
@@ -127,6 +133,31 @@ void syncStateView(bool force = false) {
 
 void showLocalReady() {
   display.showReadyCase(kLocalScenarios[localScenarioIndex]);
+}
+
+void bleInitTask(void*) {
+  Serial.println("BLE_ASYNC_BEGIN");
+  ble.begin();
+  bleInitReady.store(true, std::memory_order_release);
+  Serial.println("BLE_ASYNC_READY");
+  vTaskDelete(nullptr);
+}
+
+void startBleAsync() {
+  if (bleInitStarted.exchange(true, std::memory_order_acq_rel)) return;
+
+  BaseType_t created = xTaskCreatePinnedToCore(
+      bleInitTask,
+      "aed-ble-init",
+      8192,
+      nullptr,
+      1,
+      nullptr,
+      0);
+
+  if (created != pdPASS) {
+    Serial.println("BLE_ASYNC_TASK_FAIL");
+  }
 }
 
 void serviceOnePrompt() {
@@ -422,8 +453,6 @@ void setup() {
   // Standalone default. Teacher Monitor may optionally load a richer case later.
   trainer.loadCase({"A1", "T0", "C0"});
 
-  ble.begin();
-
   lastRenderedState = trainer.state();
   stateEnteredAt = millis();
   cprCycleStartedAt = stateEnteredAt;
@@ -431,12 +460,17 @@ void setup() {
   cprCycleTimingActive = false;
   lastPaused = false;
 
+  // Local operation must never depend on Bluetooth initialization.
   showLocalReady();
+  startBleAsync();
 }
 
 void loop() {
-  // Teacher Monitor is optional. BLE never owns the local life cycle.
-  ble.poll();
+  // Teacher Monitor is optional. BLE initialization runs on its own task so
+  // a stalled Bluetooth stack can never freeze the local AED trainer.
+  if (bleInitReady.load(std::memory_order_acquire)) {
+    ble.poll();
+  }
 
   // Physical controls always remain available.
   serviceLocalControls();
