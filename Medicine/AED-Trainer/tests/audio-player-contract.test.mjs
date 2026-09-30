@@ -89,3 +89,21 @@ test("classroom voice image is mastered before LittleFS packaging", () => {
   assert.match(workflow, /alimiter=limit=0\.95/);
   assert.match(workflow, /dist\/classroom-audio/);
 });
+
+
+test("V15 keeps CPR I2S open across beats and reports explicit lifecycle methods", () => {
+  assert.match(header, /beginCprMetronome/);
+  assert.match(header, /endCprMetronome/);
+  assert.match(cpp, /cprMetronomeActive_/);
+  assert.match(cpp, /if \(!cprMetronomeActive_ && !beginCprMetronome\(\)\)/);
+  const metronomeBody = cpp.match(/bool AudioPlayer::playMetronomeClick\(\)[\s\S]*?\n}/)?.[0] ?? "";
+  assert.doesNotMatch(metronomeBody, /stop\(\);\s*return true/);
+});
+
+test("V15 shock playback uses the approved LittleFS effect instead of synthetic embedded shock code", () => {
+  assert.match(cpp, /findPromptPath\("FX_SHOCK_ELECTRIC"\)/);
+  assert.doesNotMatch(cpp, /shock-sample\.h/);
+  const workflow = readFileSync(join(root, "..", "..", ".github", "workflows", "aed-firmware-ci.yml"), "utf8");
+  assert.match(workflow, /Preserve the approved shock waveform exactly as committed/);
+  assert.doesNotMatch(workflow, /Electrical shock: sharp crack/);
+});
