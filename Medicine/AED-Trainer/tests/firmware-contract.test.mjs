@@ -227,3 +227,17 @@ test("V15 reports CPR beat and shock audio success or failure over Serial", () =
   assert.match(sketch,/SHOCK_AUDIO_OK/);
   assert.match(sketch,/SHOCK_AUDIO_FAIL/);
 });
+
+test("V15 speaks both response and breathing startup steps", () => {
+  const core=readFileSync(join(firmwareRoot,"trainer-core.cpp"),"utf8");
+  const prompts=readFileSync(join(firmwareRoot,"prompt-map.h"),"utf8");
+  assert.match(core,/queueStartupPrompts[\s\S]*AED_CHECK_RESPONSE/);
+  assert.match(core,/StartupStep::CALL_HELP[\s\S]*AED_CHECK_BREATHING/);
+  assert.match(prompts,/AED_CHECK_RESPONSE[\s\S]*aed-check-response\.wav/);
+  assert.match(prompts,/AED_CHECK_BREATHING[\s\S]*aed-check-breathing\.wav/);
+});
+
+test("V15 keeps one approved fallback hint available in T0/C0", () => {
+  const core=readFileSync(join(firmwareRoot,"trainer-core.cpp"),"utf8");
+  assert.match(core,/result\.empty\(\)[\s\S]*PARAMEDIC_HINT_ROSC_SIGNS/);
+});
