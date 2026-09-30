@@ -182,3 +182,9 @@ test("blue OLED keeps complete words and only reduces size where needed",()=>{
   assert.doesNotMatch(display,/ELECTROD\./);
   assert.doesNotMatch(display,/INDIC\./);
 });
+
+test("firmware rejects loading a second case while one is already active", () => {
+  const core=readFileSync(join(firmwareRoot,"trainer-core.cpp"),"utf8");
+  assert.match(core,/bool TrainerCore::loadCase[\s\S]*state_\s*!=\s*TrainerState::OFF[\s\S]*return false/);
+  assert.match(core,/bool TrainerCore::startCase[\s\S]*state_\s*!=\s*TrainerState::OFF[\s\S]*return false/);
+});
