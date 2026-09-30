@@ -40,11 +40,27 @@
       "releaseReviewRequired": true
     },
     {
+      "id": "AED_CHECK_RESPONSE",
+      "role": "aed",
+      "text": "Compruebe si el paciente responde.",
+      "voiceProfile": "aed-female-latam",
+      "filename": "aed-check-response.wav",
+      "releaseReviewRequired": true
+    },
+    {
       "id": "AED_CALL_HELP",
       "role": "aed",
       "text": "Solicite ayuda médica de emergencia.",
       "voiceProfile": "aed-female-latam",
       "filename": "aed-call-help.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "AED_CHECK_BREATHING",
+      "role": "aed",
+      "text": "Compruebe la respiración.",
+      "voiceProfile": "aed-female-latam",
+      "filename": "aed-check-breathing.wav",
       "releaseReviewRequired": true
     },
     {
