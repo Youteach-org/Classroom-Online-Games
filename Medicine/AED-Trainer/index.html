@@ -27,6 +27,14 @@
       <span class="chip">Batería: <strong id="batteryLevel">—</strong></span>
     </div>
 
+    <section class="brave-help" id="braveHelp" hidden>
+      <strong>Brave detectado: Web Bluetooth está desactivado.</strong>
+      <span>Abra esta dirección en una pestaña nueva de Brave:</span>
+      <code id="braveFlag">brave://flags/#brave-web-bluetooth-api</code>
+      <span>Cambie <b>Web Bluetooth API</b> a <b>Enabled</b>, reinicie Brave y vuelva a abrir este monitor.</span>
+      <button type="button" id="copyBraveFlag">COPIAR DIRECCIÓN</button>
+    </section>
+
     <div class="grid">
       <section class="stack">
         <article class="card">
