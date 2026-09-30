@@ -12,6 +12,9 @@ const ui = {
   connectionStatus: byId("connectionStatus"),
   bleDiagnostic: byId("bleDiagnostic"),
   browserBleStatus: byId("browserBleStatus"),
+  braveHelp: byId("braveHelp"),
+  braveFlag: byId("braveFlag"),
+  copyBraveFlag: byId("copyBraveFlag"),
   baseScenario: byId("baseScenario"),
   sceneTwist: byId("sceneTwist"),
   clinicalCondition: byId("clinicalCondition"),
@@ -46,8 +49,11 @@ const remoteButtons = [
   ui.pauseCase, ui.resumeCase, ui.restartCase, ui.endCase
 ];
 
+const BRAVE_BLUETOOTH_FLAG = "brave://flags/#brave-web-bluetooth-api";
+
 let bleClient = null;
 let bleReady = false;
+let braveBrowser = false;
 let commandSeq = 1;
 let activeCase = null;
 let hintsUsed = 0;
@@ -201,14 +207,35 @@ function onBleEvent(event) {
   }
 }
 
+async function detectBrave() {
+  try {
+    braveBrowser = Boolean(await globalThis.navigator?.brave?.isBrave?.());
+  } catch (_) {
+    braveBrowser = false;
+  }
+  return braveBrowser;
+}
+
+function setBraveHelp(visible) {
+  if (ui.braveHelp) ui.braveHelp.hidden = !visible;
+}
+
 async function ensureBleClient() {
   if (bleClient) return bleClient;
   if (!globalThis.isSecureContext) {
     throw new Error("SECURE_CONTEXT_REQUIRED: abra el monitor desde HTTPS.");
   }
+
+  const isBrave = braveBrowser || await detectBrave();
   if (!globalThis.navigator?.bluetooth) {
-    throw new Error("WEB_BLUETOOTH_UNAVAILABLE: use Chrome o Edge en Windows/Android. En iPhone/iPad use Bluefy.");
+    if (isBrave) {
+      setBraveHelp(true);
+      throw new Error(`BRAVE_WEB_BLUETOOTH_DISABLED: active Web Bluetooth API en ${BRAVE_BLUETOOTH_FLAG} y reinicie Brave.`);
+    }
+    throw new Error("WEB_BLUETOOTH_UNAVAILABLE: use un navegador con Web Bluetooth habilitado.");
   }
+
+  setBraveHelp(false);
   bleClient = createBleClient({ bluetooth: navigator.bluetooth });
   bleClient.subscribe(onBleEvent);
   return bleClient;
@@ -238,8 +265,9 @@ async function connectTrainer() {
     await client.scanAndConnect();
   } catch (error) {
     let message = String(error?.message ?? error);
-    if (/Web Bluetooth API globally disabled/i.test(message)) {
-      message = "BRAVE BLOQUEA WEB BLUETOOTH. ABRA ESTA MISMA PAGINA EN CHROME O EDGE.";
+    if (/Web Bluetooth API globally disabled|BRAVE_WEB_BLUETOOTH_DISABLED/i.test(message)) {
+      setBraveHelp(true);
+      message = `BRAVE: active Web Bluetooth API en ${BRAVE_BLUETOOTH_FLAG}, reinicie Brave y vuelva a conectar.`;
     }
     ui.connectionStatus.textContent = "ERROR BLE";
     ui.connectionStatus.dataset.state = "incompatible";
@@ -315,16 +343,28 @@ async function clearLegacyOfflineSupport() {
   }
 }
 
-function updateBrowserBleStatus() {
+async function updateBrowserBleStatus() {
+  const isBrave = await detectBrave();
+
   if (!globalThis.isSecureContext) {
     ui.browserBleStatus.textContent = "NAVEGADOR BLE: REQUIERE HTTPS";
+    setBraveHelp(false);
     return;
   }
+
   if (!globalThis.navigator?.bluetooth) {
-    ui.browserBleStatus.textContent = "NAVEGADOR BLE: NO DISPONIBLE";
+    if (isBrave) {
+      ui.browserBleStatus.textContent = "BRAVE BLE: ACTIVE WEB BLUETOOTH";
+      setBraveHelp(true);
+    } else {
+      ui.browserBleStatus.textContent = "NAVEGADOR BLE: NO DISPONIBLE";
+      setBraveHelp(false);
+    }
     return;
   }
-  ui.browserBleStatus.textContent = "NAVEGADOR BLE: LISTO";
+
+  ui.browserBleStatus.textContent = isBrave ? "BRAVE BLE: LISTO" : "NAVEGADOR BLE: LISTO";
+  setBraveHelp(false);
 }
 
 fillSelect(ui.baseScenario, AED_SCENARIOS);
@@ -336,6 +376,16 @@ for (const select of [ui.baseScenario, ui.sceneTwist, ui.clinicalCondition]) {
 }
 
 ui.connectTrainer.addEventListener("click", connectTrainer);
+
+ui.copyBraveFlag?.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(BRAVE_BLUETOOTH_FLAG);
+    ui.copyBraveFlag.textContent = "COPIADO";
+    setTimeout(() => { ui.copyBraveFlag.textContent = "COPIAR DIRECCIÓN"; }, 1400);
+  } catch (_) {
+    ui.bleDiagnostic.textContent = BRAVE_BLUETOOTH_FLAG;
+  }
+});
 ui.startCase.addEventListener("click", async () => {
   try { await startCase(); } catch (_) { setBuilderLocked(false); }
 });

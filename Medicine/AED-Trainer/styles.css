@@ -62,3 +62,9 @@ h1{font-size:clamp(28px,5vw,44px);margin:0 0 4px}
 @media(max-width:520px){
   .live-grid{grid-template-columns:1fr}.monitor-grid{grid-template-columns:1fr 1fr}.hint-row{grid-template-columns:1fr}
 }
+
+.brave-help{display:grid;gap:8px;background:#211a08;border:2px solid var(--yellow);border-radius:14px;padding:13px 14px;margin:-4px 0 16px;line-height:1.4}
+.brave-help[hidden]{display:none}
+.brave-help strong{color:var(--yellow);font-size:16px}
+.brave-help code{display:block;overflow-wrap:anywhere;background:#0f1215;border:1px solid var(--line);border-radius:9px;padding:9px 10px;font-family:ui-monospace,Consolas,monospace;color:var(--text)}
+.brave-help button{justify-self:start;background:var(--yellow);color:#201800;padding:9px 13px;min-height:42px}
