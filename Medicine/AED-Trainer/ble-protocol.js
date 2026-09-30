@@ -97,6 +97,7 @@ export function validateStateMessage(message) {
   if (!/^\d+$/.test(String(message.analysis ?? ""))) return false;
   if (!/^[01]$/.test(String(message.shock ?? ""))) return false;
   if (!/^[01]$/.test(String(message.pads ?? ""))) return false;
+  if (message.movement !== undefined && !/^[01]$/.test(String(message.movement))) return false;
   if (!/^\d+$/.test(String(message.hints ?? ""))) return false;
   return true;
 }
