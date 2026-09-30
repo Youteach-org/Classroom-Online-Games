@@ -44,6 +44,12 @@ jobs:
           node --test Verb-Runner/tests/*.test.mjs
           node --test Verb-Runner/sentence-run.test.js
 
+      - name: Run AED Teacher Monitor tests
+        run: |
+          node --check Medicine/AED-Trainer/app.js
+          node --check Medicine/AED-Trainer/ble-client.js
+          node --test Medicine/AED-Trainer/tests/*.test.mjs
+
       - name: Prepare static site
         run: |
           rm -rf dist
