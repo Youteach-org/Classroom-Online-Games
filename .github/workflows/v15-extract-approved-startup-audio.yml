@@ -1,0 +1,53 @@
+name: V15 approved startup audio extraction
+
+on:
+  push:
+    branches:
+      - release/dea-v15
+    paths:
+      - ".github/workflows/v15-extract-approved-startup-audio.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release/dea-v15
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Download approved-voice source
+        env:
+          SOURCE_URL: 'https://files2.heygen.ai/aws_pacific/avatar_tmp/b505f10a8b464157abe20e0d0efc668d/937abfd07e3448849296d46ca3833a90.mp4?Expires=1791345902&Signature=IvTWNiL6IjCwgJ~b43VIQnT~2pRFxyBcT9oGkdMY2S-6ZlJB-cfvuxM7~7XR3qumOMlaMhggTXn5u8LRzvuWMYiy1xcWzWUZZTCYeUEFAnLLeQlYGvQ81sMKic62jJMEWFieQo-NbPa~URYkZJZu~G7oWTmNebrCDKkcOWUqKLNGtw7BDK6ICUCdfkLLznsgTF7bIm~q1DhzuMj8BIq9sh2i2OGqONYMX7TkYoVhc0qNF3usZ1gSzBSmVDosODL47oroDvPoDAqQVqHQFSZq~flrndNonofrqgqLYpB8iy44Equ-MGMb2XjZTuezfbKDg2IZgK94lSNOEH-xkKm3rw__&Key-Pair-Id=K38HBHX5LX3X2H'
+        run: |
+          curl -L --fail --retry 3 "$SOURCE_URL" -o /tmp/v15-startup.mp4
+          test -s /tmp/v15-startup.mp4
+          ffprobe -v error -show_entries format=duration -of default=nw=1 /tmp/v15-startup.mp4
+
+      - name: Extract exact approved voice clips
+        run: |
+          mkdir -p Medicine/AED-Trainer/audio/assets
+          ffmpeg -hide_banner -loglevel error -y             -i /tmp/v15-startup.mp4 -ss 0 -to 1.95918 -vn             -ac 1 -ar 44100 -c:a pcm_s16le             Medicine/AED-Trainer/audio/assets/aed-check-response.wav
+          ffmpeg -hide_banner -loglevel error -y             -i /tmp/v15-startup.mp4 -ss 1.95918 -vn             -ac 1 -ar 44100 -c:a pcm_s16le             Medicine/AED-Trainer/audio/assets/aed-check-breathing.wav
+
+          for f in             Medicine/AED-Trainer/audio/assets/aed-check-response.wav             Medicine/AED-Trainer/audio/assets/aed-check-breathing.wav; do
+            test -s "$f"
+            ffprobe -v error -show_entries stream=codec_name,sample_rate,channels -show_entries format=duration -of default=nw=1 "$f"
+          done
+
+      - name: Commit approved startup audio
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add             Medicine/AED-Trainer/audio/assets/aed-check-response.wav             Medicine/AED-Trainer/audio/assets/aed-check-breathing.wav
+          git diff --cached --quiet && exit 0
+          git commit -m "feat(aed-audio): add approved response and breathing prompts"
+          git push origin HEAD:release/dea-v15
