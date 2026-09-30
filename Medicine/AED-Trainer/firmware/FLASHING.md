@@ -2,6 +2,8 @@
 
 V15 incluye:
 
+- audio de **“Compruebe si el paciente responde.”** con la misma voz principal aprobada del DEA;
+- audio de **“Compruebe la respiración.”** con la misma voz principal aprobada del DEA;
 - arranque guiado por acciones del alumno mediante **PADS / OK**;
 - análisis automático sólo después de confirmar electrodos;
 - triángulos de advertencia parpadeantes durante la espera de descarga;
@@ -14,6 +16,7 @@ V15 incluye:
 - movimiento/artefacto visible durante análisis y bloqueo del resultado hasta retirarlo;
 - BLE activo al encender, anunciado como **AED Trainer**;
 - Teacher Monitor opcional por Bluetooth LE;
+- **DAR PISTA** disponible también en casos base T0/C0 mediante una pista general con voz paramédica ya aprobada;
 - instalador de Windows con `esptool.exe` incluido.
 
 ## Windows
