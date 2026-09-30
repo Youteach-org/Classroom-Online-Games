@@ -91,3 +91,8 @@ test("movement controls expose active state and clear path", () => {
   assert.match(app, /event:\s*"CLEAR_MOVEMENT"/);
   assert.match(app, /el análisis queda bloqueado/);
 });
+
+test("DAR PISTA remains available for a pure base case", () => {
+  assert.match(app, /specificHints\.size\s*>\s*0\s*\?\s*specificHints\.size\s*:\s*1/);
+  assert.doesNotMatch(app, /capacity\s*===\s*0/);
+});
