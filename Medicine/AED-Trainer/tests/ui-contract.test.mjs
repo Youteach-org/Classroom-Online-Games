@@ -13,13 +13,14 @@ const sw = readFileSync(join(root, "service-worker.js"), "utf8");
 
 const requiredIds = [
   "connectTrainer","connectionStatus","browserBleStatus","bleDiagnostic",
+  "braveHelp","braveFlag","copyBraveFlag",
   "baseScenario","sceneTwist","clinicalCondition","startCase",
   "giveHint","hintsUsed",
   "forceShock","forceNoShock","triggerRefib",
   "padFault","clearPadFault","movement","clearMovement",
   "standClearViolation","clearStandClearViolation",
   "pauseCase","resumeCase","restartCase","endCase",
-  "trainerState","deviceId","batteryLevel","eventTimeline","lastCommand"
+  "trainerState","deviceId","batteryLevel","movementStatus","eventTimeline","lastCommand"
 ];
 
 test("Teacher Monitor exposes every required instructor control", () => {
@@ -65,4 +66,28 @@ test("authoritative trainer state can deactivate a stale local case after reconn
   assert.match(app, /INACTIVE_TRAINER_STATES/);
   assert.match(app, /caseActive\s*=\s*!INACTIVE_TRAINER_STATES\.has\(event\.message\.state/);
   assert.match(app, /setBuilderLocked\(caseActive\)/);
+});
+
+test("Brave setup exposes the official Web Bluetooth flag and detection path", () => {
+  assert.match(html, /brave:\/\/flags\/#brave-web-bluetooth-api/);
+  assert.match(app, /navigator\?\.brave\?\.isBrave/);
+  assert.match(app, /BRAVE_WEB_BLUETOOTH_DISABLED/);
+  assert.match(app, /BRAVE BLE: LISTO/);
+});
+
+test("STARTUP is treated as an active case and start is guarded against double trigger", () => {
+  assert.match(app, /INACTIVE_TRAINER_STATES\s*=\s*new Set\(\["OFF",\s*"IDLE",\s*"ENDED",\s*"COMPLETE"\]\)/);
+  assert.doesNotMatch(app, /INACTIVE_TRAINER_STATES[^\n]*STARTUP/);
+  assert.match(app, /if \(caseActive\)[\s\S]*Inicio ignorado: ya hay un caso activo/);
+  assert.match(app, /ui\.startCase\.disabled\s*=\s*true/);
+});
+
+test("movement controls expose active state and clear path", () => {
+  assert.match(html, /id=["']movementStatus["']/);
+  assert.match(app, /movementActive/);
+  assert.match(app, /MOVIMIENTO: ACTIVO/);
+  assert.match(app, /MOVIMIENTO: NO/);
+  assert.match(app, /event:\s*"MOVEMENT"/);
+  assert.match(app, /event:\s*"CLEAR_MOVEMENT"/);
+  assert.match(app, /el análisis queda bloqueado/);
 });
