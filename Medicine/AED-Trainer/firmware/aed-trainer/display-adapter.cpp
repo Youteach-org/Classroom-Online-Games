@@ -277,6 +277,21 @@ void DisplayAdapter::showAnalyzing(
   display.display();
 }
 
+void DisplayAdapter::showMovementWarning() {
+  if (!displayReady) return;
+
+  display.clearDisplay();
+  display.setTextColor(SSD1306_WHITE);
+  display.setTextWrap(false);
+
+  drawHeader("MOVIMIENTO");
+  printCenteredLarge("DETENGA", 18, 2);
+  printCenteredLarge("MOVIMIENTO", 37, 2);
+  printCenteredLarge("ANALISIS PAUSADO", 57, 1);
+
+  display.display();
+}
+
 void DisplayAdapter::showShockWarning(bool trianglesVisible) {
   if (!displayReady) return;
 
