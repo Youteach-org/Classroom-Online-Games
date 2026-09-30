@@ -74,10 +74,11 @@ export function createBleClient({ bluetooth, timings = {} }) {
     if (seenEventSeqs.has(message.seq)) return;
     seenEventSeqs.add(message.seq);
 
-    if (message.event === "ACK" && Number.isInteger(message.ack)) {
-      const pending = pendingAcks.get(message.ack);
+    const ackSeq = /^\d+$/.test(String(message.ack ?? "")) ? Number(message.ack) : null;
+    if (message.event === "ACK" && Number.isInteger(ackSeq)) {
+      const pending = pendingAcks.get(ackSeq);
       if (pending) {
-        pendingAcks.delete(message.ack);
+        pendingAcks.delete(ackSeq);
         clearTimeout(pending.timer);
         if (message.result === "OK") {
           pending.resolve(message);
