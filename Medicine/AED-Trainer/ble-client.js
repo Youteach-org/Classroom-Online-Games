@@ -9,7 +9,7 @@ import {
   validateStateMessage
 } from "./ble-protocol.js";
 
-export function createBleClient({ bluetooth }) {
+export function createBleClient({ bluetooth, timings = {} }) {
   if (!bluetooth || typeof bluetooth.requestDevice !== "function") {
     throw new Error("Web Bluetooth is unavailable");
   }
@@ -20,6 +20,18 @@ export function createBleClient({ bluetooth }) {
   let characteristics = null;
   const listeners = new Set();
   const seenEventSeqs = new Set();
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const gattTiming = {
+    characteristicGapMs: timings.characteristicGapMs ?? 40,
+    beforeNotificationsMs: timings.beforeNotificationsMs ?? 80,
+    notificationGapMs: timings.notificationGapMs ?? 120,
+    readGapMs: timings.readGapMs ?? 80,
+    disconnectGapMs: timings.disconnectGapMs ?? 350,
+    connectSettleMs: timings.connectSettleMs ?? 550,
+    serviceSettleMs: timings.serviceSettleMs ?? 120,
+    firstRetryMs: timings.firstRetryMs ?? 900,
+    secondRetryMs: timings.secondRetryMs ?? 1500
+  };
 
   function emit(kind, message) {
     for (const listener of listeners) {
@@ -60,28 +72,37 @@ export function createBleClient({ bluetooth }) {
   }
 
   async function resolveCharacteristics(service) {
-    const [status, state, command, events] = await Promise.all([
-      service.getCharacteristic(DEVICE_STATUS_UUID),
-      service.getCharacteristic(TRAINER_STATE_UUID),
-      service.getCharacteristic(INSTRUCTOR_COMMAND_UUID),
-      service.getCharacteristic(EVENT_STREAM_UUID)
-    ]);
+    // Android's Web Bluetooth stack is sensitive to overlapping GATT operations.
+    // Resolve and subscribe strictly one operation at a time.
+    const status = await service.getCharacteristic(DEVICE_STATUS_UUID);
+    await sleep(gattTiming.characteristicGapMs);
+    const state = await service.getCharacteristic(TRAINER_STATE_UUID);
+    await sleep(gattTiming.characteristicGapMs);
+    const command = await service.getCharacteristic(INSTRUCTOR_COMMAND_UUID);
+    await sleep(gattTiming.characteristicGapMs);
+    const events = await service.getCharacteristic(EVENT_STREAM_UUID);
     characteristics = { status, state, command, events };
 
+    await sleep(gattTiming.beforeNotificationsMs);
     await state.startNotifications();
     state.addEventListener("characteristicvaluechanged", handleStateNotification);
+
+    await sleep(gattTiming.notificationGapMs);
     await events.startNotifications();
     events.addEventListener("characteristicvaluechanged", handleEventNotification);
+    await sleep(gattTiming.notificationGapMs);
   }
 
   async function readAuthoritativeState() {
     if (!characteristics) throw new Error("BLE characteristics are not ready");
 
     setConnectionState("syncing");
-    const [statusValue, stateValue] = await Promise.all([
-      characteristics.status.readValue(),
-      characteristics.state.readValue()
-    ]);
+
+    // Keep reads serialized as well. Parallel reads are a common source of
+    // "GATT operation failed for unknown reason" on Chromium/Android.
+    const statusValue = await characteristics.status.readValue();
+    await sleep(gattTiming.readGapMs);
+    const stateValue = await characteristics.state.readValue();
 
     const statusMessage = decodeMessage(statusValue);
     if (statusMessage.type !== "status" || !statusMessage.device) {
@@ -104,8 +125,6 @@ export function createBleClient({ bluetooth }) {
     return { status: statusMessage, state: stateMessage };
   }
 
-  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
   async function connectSelected(selected) {
     bindDevice(selected);
     const label = selected.name || selected.id || "Dispositivo sin nombre";
@@ -113,7 +132,7 @@ export function createBleClient({ bluetooth }) {
 
     let lastError = null;
 
-    for (let attempt = 1; attempt <= 2; attempt += 1) {
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
       try {
         characteristics = null;
 
@@ -125,11 +144,13 @@ export function createBleClient({ bluetooth }) {
 
         if (selected.gatt?.connected) {
           selected.gatt.disconnect();
-          await sleep(120);
+          await sleep(gattTiming.disconnectGapMs);
         }
 
         const server = await selected.gatt.connect();
-        await sleep(180);
+        // Android often reports the transport connected before service
+        // discovery is actually ready.
+        await sleep(gattTiming.connectSettleMs);
 
         emit("diagnostic", {
           stage: "service",
@@ -138,6 +159,7 @@ export function createBleClient({ bluetooth }) {
         });
 
         const service = await server.getPrimaryService(AED_SERVICE_UUID);
+        await sleep(gattTiming.serviceSettleMs);
         await resolveCharacteristics(service);
         return await readAuthoritativeState();
       } catch (error) {
@@ -153,12 +175,17 @@ export function createBleClient({ bluetooth }) {
           if (selected.gatt?.connected) selected.gatt.disconnect();
         } catch (_) {}
 
-        if (attempt < 2) await sleep(350);
+        if (attempt < 3) {
+          await sleep(attempt === 1
+            ? gattTiming.firstRetryMs
+            : gattTiming.secondRetryMs);
+        }
       }
     }
 
     throw new Error(
-      `BLE_CONNECT_FAILED: ${String(lastError?.message ?? lastError ?? "sin detalle")}`
+      `BLE_CONNECT_FAILED: ${String(lastError?.message ?? lastError ?? "sin detalle")}. ` +
+      "Apague cualquier otro Teacher Monitor conectado al DEA, reinicie el DEA y vuelva a intentar."
     );
   }
 

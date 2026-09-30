@@ -12,6 +12,22 @@ import { createBleClient } from "../ble-client.js";
 
 const enc = new TextEncoder();
 
+const TEST_TIMINGS = {
+  characteristicGapMs: 0,
+  beforeNotificationsMs: 0,
+  notificationGapMs: 0,
+  readGapMs: 0,
+  disconnectGapMs: 0,
+  connectSettleMs: 0,
+  serviceSettleMs: 0,
+  firstRetryMs: 0,
+  secondRetryMs: 0
+};
+
+function makeClient(bluetooth) {
+  return createBleClient({ bluetooth, timings: TEST_TIMINGS });
+}
+
 class FakeCharacteristic {
   constructor(text = "") {
     this.text = text;
@@ -80,7 +96,7 @@ function makeRig({ statusText, stateText, serviceFailures = 0 } = {}) {
 
 test("scan shows all BLE devices, requests AED service access, syncs and becomes ready", async () => {
   const rig = makeRig();
-  const client = createBleClient({ bluetooth: rig.bluetooth });
+  const client = makeClient(rig.bluetooth);
   const events = [];
   client.subscribe((event) => events.push(event));
   await client.scanAndConnect();
@@ -95,7 +111,7 @@ test("scan shows all BLE devices, requests AED service access, syncs and becomes
 
 test("service discovery retries once when ESP32 GATT is not ready yet", async () => {
   const rig = makeRig({ serviceFailures: 1 });
-  const client = createBleClient({ bluetooth: rig.bluetooth });
+  const client = makeClient(rig.bluetooth);
   const events = [];
   client.subscribe((event) => events.push(event));
 
@@ -108,7 +124,7 @@ test("service discovery retries once when ESP32 GATT is not ready yet", async ()
 
 test("sendCommand writes encoded data only while ready", async () => {
   const rig = makeRig();
-  const client = createBleClient({ bluetooth: rig.bluetooth });
+  const client = makeClient(rig.bluetooth);
   await assert.rejects(() => client.sendCommand({ seq: 1, cmd: "pause" }), /ready/i);
   await client.scanAndConnect();
   await client.sendCommand({ seq: 3, cmd: "pause" });
@@ -119,7 +135,7 @@ test("sendCommand writes encoded data only while ready", async () => {
 
 test("disconnect marks client disconnected", async () => {
   const rig = makeRig();
-  const client = createBleClient({ bluetooth: rig.bluetooth });
+  const client = makeClient(rig.bluetooth);
   await client.scanAndConnect();
   rig.device.disconnectNow();
   assert.equal(client.getConnectionState(), "disconnected");
@@ -127,7 +143,7 @@ test("disconnect marks client disconnected", async () => {
 
 test("reconnect remains syncing until authoritative reads complete", async () => {
   const rig = makeRig();
-  const client = createBleClient({ bluetooth: rig.bluetooth });
+  const client = makeClient(rig.bluetooth);
   await client.scanAndConnect();
   rig.device.disconnectNow();
 
@@ -150,7 +166,7 @@ test("reconnect remains syncing until authoritative reads complete", async () =>
 
 test("incompatible protocol blocks remote commands", async () => {
   const rig = makeRig({ statusText: "v=2;type=status;seq=1;device=DEA01;firmware=2.0;battery=90" });
-  const client = createBleClient({ bluetooth: rig.bluetooth });
+  const client = makeClient(rig.bluetooth);
   await client.scanAndConnect();
   assert.equal(client.getConnectionState(), "incompatible");
   await assert.rejects(() => client.sendCommand({ seq: 2, cmd: "pause" }), /ready/i);
@@ -158,7 +174,7 @@ test("incompatible protocol blocks remote commands", async () => {
 
 test("duplicate event sequence IDs do not emit duplicate timeline events", async () => {
   const rig = makeRig();
-  const client = createBleClient({ bluetooth: rig.bluetooth });
+  const client = makeClient(rig.bluetooth);
   const events = [];
   client.subscribe((event) => events.push(event));
   await client.scanAndConnect();
@@ -172,7 +188,7 @@ test("duplicate event sequence IDs do not emit duplicate timeline events", async
 
 test("event sequence namespace is reset after authoritative reconnect", async () => {
   const rig = makeRig();
-  const client = createBleClient({ bluetooth: rig.bluetooth });
+  const client = makeClient(rig.bluetooth);
   const events = [];
   client.subscribe((event) => events.push(event));
   await client.scanAndConnect();
