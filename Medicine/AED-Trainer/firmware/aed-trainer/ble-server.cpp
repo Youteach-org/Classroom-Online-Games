@@ -213,7 +213,7 @@ void BleServer::publishTrainerState() {
   const auto wire = BleProtocol::encodeTrainerState(
       stateSeq_++, kDeviceId, stateToken(snapshot.state),
       snapshot.config.scenarioId, snapshot.config.twistId, snapshot.config.clinicalId,
-      snapshot.analysisIndex, shockEnabled, padsReady, snapshot.hintsUsed);
+      snapshot.analysisIndex, shockEnabled, padsReady, snapshot.movement, snapshot.hintsUsed);
 
   stateCharacteristic_->setValue(wire.c_str());
   if (transportConnected_.load(std::memory_order_acquire)) {

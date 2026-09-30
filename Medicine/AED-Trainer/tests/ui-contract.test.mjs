@@ -20,7 +20,7 @@ const requiredIds = [
   "padFault","clearPadFault","movement","clearMovement",
   "standClearViolation","clearStandClearViolation",
   "pauseCase","resumeCase","restartCase","endCase",
-  "trainerState","deviceId","batteryLevel","eventTimeline","lastCommand"
+  "trainerState","deviceId","batteryLevel","movementStatus","eventTimeline","lastCommand"
 ];
 
 test("Teacher Monitor exposes every required instructor control", () => {
@@ -80,4 +80,14 @@ test("STARTUP is treated as an active case and start is guarded against double t
   assert.doesNotMatch(app, /INACTIVE_TRAINER_STATES[^\n]*STARTUP/);
   assert.match(app, /if \(caseActive\)[\s\S]*Inicio ignorado: ya hay un caso activo/);
   assert.match(app, /ui\.startCase\.disabled\s*=\s*true/);
+});
+
+test("movement controls expose active state and clear path", () => {
+  assert.match(html, /id=["']movementStatus["']/);
+  assert.match(app, /movementActive/);
+  assert.match(app, /MOVIMIENTO: ACTIVO/);
+  assert.match(app, /MOVIMIENTO: NO/);
+  assert.match(app, /event:\s*"MOVEMENT"/);
+  assert.match(app, /event:\s*"CLEAR_MOVEMENT"/);
+  assert.match(app, /el análisis queda bloqueado/);
 });

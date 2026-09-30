@@ -21,6 +21,8 @@ h1{font-size:clamp(28px,5vw,44px);margin:0 0 4px}
 .chip[data-state="ready"]{border-color:var(--green);color:var(--green)}
 .chip[data-state="connecting"],.chip[data-state="syncing"],.chip[data-state="installing"]{border-color:var(--yellow);color:var(--yellow)}
 .chip[data-state="incompatible"],.chip[data-state="unsupported"],.chip[data-state="incomplete"]{border-color:var(--red);color:var(--red)}
+.chip[data-state="active"]{border-color:var(--orange);color:var(--orange)}
+.chip[data-state="clear"]{border-color:var(--green);color:var(--green)}
 .grid{display:grid;grid-template-columns:minmax(320px,.9fr) minmax(360px,1.1fr);gap:16px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 12px 30px var(--shadow)}
 .card h2{font-size:18px;margin:0 0 14px}

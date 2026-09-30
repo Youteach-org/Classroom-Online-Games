@@ -38,6 +38,7 @@ const ui = {
   trainerState: byId("trainerState"),
   deviceId: byId("deviceId"),
   batteryLevel: byId("batteryLevel"),
+  movementStatus: byId("movementStatus"),
   eventTimeline: byId("eventTimeline"),
   lastCommand: byId("lastCommand")
 };
@@ -58,6 +59,7 @@ let commandSeq = 1;
 let activeCase = null;
 let hintsUsed = 0;
 let caseActive = false;
+let movementActive = false;
 const INACTIVE_TRAINER_STATES = new Set(["OFF", "IDLE", "ENDED", "COMPLETE"]);
 
 function fillSelect(select, entries) {
@@ -99,12 +101,20 @@ function setBuilderLocked(locked) {
   ui.clinicalCondition.disabled = locked;
 }
 
+function updateMovementControl() {
+  ui.movementStatus.textContent = movementActive ? "MOVIMIENTO: ACTIVO" : "MOVIMIENTO: NO";
+  ui.movementStatus.dataset.state = movementActive ? "active" : "clear";
+  ui.movement.disabled = !bleReady || !caseActive || movementActive;
+  ui.clearMovement.disabled = !bleReady || !caseActive || !movementActive;
+}
+
 function setRemoteAvailability() {
   for (const button of remoteButtons) button.disabled = !bleReady;
   if (!caseActive) {
     for (const button of remoteButtons.filter((button) => button !== ui.startCase)) button.disabled = true;
   }
   ui.startCase.disabled = !bleReady || caseActive;
+  updateMovementControl();
   updateHintControl();
 }
 
@@ -186,6 +196,9 @@ function onBleEvent(event) {
     caseActive = !INACTIVE_TRAINER_STATES.has(event.message.state);
     setBuilderLocked(caseActive);
     hintsUsed = Number.parseInt(event.message.hints ?? "0", 10) || 0;
+    if (event.message.movement === "0" || event.message.movement === "1") {
+      movementActive = event.message.movement === "1";
+    }
     setRemoteAvailability();
     appendTimeline(
       `Estado: ${event.message.state} · análisis ${event.message.analysis} · shock ${event.message.shock === "1" ? "habilitado" : "bloqueado"}`
@@ -417,8 +430,26 @@ bindCommand(ui.forceNoShock, () => ({ cmd: "event", event: "FORCE_NO_SHOCK" }));
 bindCommand(ui.triggerRefib, () => ({ cmd: "event", event: "REFIBRILLATION" }));
 bindCommand(ui.padFault, () => ({ cmd: "event", event: "PAD_FAULT" }));
 bindCommand(ui.clearPadFault, () => ({ cmd: "event", event: "CLEAR_PAD_FAULT" }));
-bindCommand(ui.movement, () => ({ cmd: "event", event: "MOVEMENT" }));
-bindCommand(ui.clearMovement, () => ({ cmd: "event", event: "CLEAR_MOVEMENT" }));
+
+ui.movement.addEventListener("click", async () => {
+  ui.movement.disabled = true;
+  try {
+    await sendCommand({ cmd: "event", event: "MOVEMENT" });
+    movementActive = true;
+    appendTimeline("Movimiento / artefacto ACTIVADO: el análisis queda bloqueado.", "warn");
+  } catch (_) {}
+  finally { setRemoteAvailability(); }
+});
+
+ui.clearMovement.addEventListener("click", async () => {
+  ui.clearMovement.disabled = true;
+  try {
+    await sendCommand({ cmd: "event", event: "CLEAR_MOVEMENT" });
+    movementActive = false;
+    appendTimeline("Movimiento retirado: el DEA puede reanudar el análisis.", "good");
+  } catch (_) {}
+  finally { setRemoteAvailability(); }
+});
 bindCommand(ui.standClearViolation, () => ({ cmd: "event", event: "STAND_CLEAR_VIOLATION" }));
 bindCommand(ui.clearStandClearViolation, () => ({ cmd: "event", event: "CLEAR_STAND_CLEAR_VIOLATION" }));
 bindCommand(ui.pauseCase, () => ({ cmd: "pause" }));
