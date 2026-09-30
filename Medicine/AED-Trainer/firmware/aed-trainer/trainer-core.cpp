@@ -153,6 +153,9 @@ void TrainerCore::resetProgress() {
 }
 
 bool TrainerCore::loadCase(const CaseConfig& config) {
+  // Do not allow a remote reload to reset a case that is already running.
+  if (state_ != TrainerState::OFF) return false;
+
   if (!scenarioSequence(config.scenarioId) || !validTwist(config.twistId) || !validClinical(config.clinicalId)) {
     return false;
   }
