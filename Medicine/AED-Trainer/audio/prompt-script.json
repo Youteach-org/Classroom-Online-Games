@@ -1,0 +1,525 @@
+{
+  "schemaVersion": 1,
+  "locale": "es-MX",
+  "voiceProfiles": {
+    "aed-female-latam": {
+      "role": "AED device",
+      "gender": "female",
+      "locale": "es-MX",
+      "heygenVoiceId": "fWZozqyB99JyQDYA98eg",
+      "style": "clear, calm, authoritative, slightly urgent, never panicked"
+    },
+    "aed-continue-hybrid": {
+      "role": "AED device",
+      "gender": "female",
+      "locale": "es-MX",
+      "style": "original AED 'Continúe' plus approved Lucía 'ERRE CE PE' splice"
+    },
+    "paramedic-male-latam": {
+      "role": "Paramedic companion",
+      "gender": "male",
+      "locale": "es-MX",
+      "heygenVoiceId": null,
+      "style": "natural teammate, professional, conversational, alert, not panicked"
+    },
+    "aed-cpr-lucia": {
+      "role": "AED device CPR exception",
+      "gender": "female",
+      "locale": "es-MX",
+      "heygenVoiceId": "7e5eebc368ab477a9175b7d2a2c3317e",
+      "style": "approved intelligible ERRE CE PE take"
+    }
+  },
+  "prompts": [
+    {
+      "id": "AED_STARTUP",
+      "role": "aed",
+      "text": "Mantenga la calma. Siga estas instrucciones.",
+      "voiceProfile": "aed-female-latam",
+      "filename": "aed-startup.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "AED_CALL_HELP",
+      "role": "aed",
+      "text": "Solicite ayuda médica de emergencia.",
+      "voiceProfile": "aed-female-latam",
+      "filename": "aed-call-help.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "AED_EXPOSE_CHEST",
+      "role": "aed",
+      "text": "Descubra el pecho del paciente.",
+      "voiceProfile": "aed-female-latam",
+      "filename": "aed-expose-chest.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "AED_ATTACH_PADS",
+      "role": "aed",
+      "text": "Coloque los electrodos como se muestra.",
+      "voiceProfile": "aed-female-latam",
+      "filename": "aed-attach-pads.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "AED_CHECK_PADS",
+      "role": "aed",
+      "text": "Revise los electrodos.",
+      "voiceProfile": "aed-female-latam",
+      "filename": "aed-check-pads.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "AED_ANALYZING",
+      "role": "aed",
+      "text": "No toque al paciente. Analizando ritmo cardíaco.",
+      "voiceProfile": "aed-female-latam",
+      "filename": "aed-analyzing.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "AED_SHOCK_ADVISED",
+      "role": "aed",
+      "text": "Se recomienda una descarga. No toque al paciente.",
+      "voiceProfile": "aed-female-latam",
+      "filename": "aed-shock-advised.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "AED_PRESS_SHOCK",
+      "role": "aed",
+      "text": "Presione el botón de descarga.",
+      "voiceProfile": "aed-female-latam",
+      "filename": "aed-press-shock.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "AED_SHOCK_DELIVERED",
+      "role": "aed",
+      "text": "Descarga aplicada.",
+      "voiceProfile": "aed-female-latam",
+      "filename": "aed-shock-delivered.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "AED_NO_SHOCK",
+      "role": "aed",
+      "text": "No se recomienda una descarga.",
+      "voiceProfile": "aed-female-latam",
+      "filename": "aed-no-shock.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "AED_BEGIN_CPR",
+      "role": "aed",
+      "text": "Inicie RCP.",
+      "voiceProfile": "aed-cpr-lucia",
+      "filename": "aed-begin-cpr.wav",
+      "releaseReviewRequired": true,
+      "ttsText": "Inicie erre ce pe."
+    },
+    {
+      "id": "AED_CONTINUE_CPR",
+      "role": "aed",
+      "text": "Continúe RCP.",
+      "voiceProfile": "aed-continue-hybrid",
+      "filename": "aed-continue-cpr.wav",
+      "releaseReviewRequired": true,
+      "ttsText": "Continúe erre ce pe."
+    },
+    {
+      "id": "AED_REASSESS",
+      "role": "aed",
+      "text": "Prepárese para un nuevo análisis.",
+      "voiceProfile": "aed-female-latam",
+      "filename": "aed-reassess.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_WET_CHEST",
+      "role": "paramedic",
+      "text": "Compañero, acabamos de sacar al paciente del agua. Tiene el tórax mojado.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-wet-chest.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_WET_CHEST",
+      "role": "paramedic",
+      "text": "Compañero, revisa si las condiciones permiten colocar correctamente los electrodos.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-wet-chest.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_MEDICATION_PATCH",
+      "role": "paramedic",
+      "text": "Compañero, veo un parche adherido justo donde iría uno de los electrodos.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-medication-patch.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_MEDICATION_PATCH",
+      "role": "paramedic",
+      "text": "Compañero, revisa qué hay sobre la piel antes de colocar ese electrodo.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-medication-patch.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_IMPLANTED_DEVICE",
+      "role": "paramedic",
+      "text": "Compañero, noto un dispositivo implantado debajo de la piel del pecho.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-implanted-device.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_IMPLANTED_DEVICE",
+      "role": "paramedic",
+      "text": "Compañero, observa con cuidado la zona antes de decidir dónde colocar el electrodo.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-implanted-device.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_CHEST_HAIR",
+      "role": "paramedic",
+      "text": "Compañero, el vello del tórax está impidiendo que el electrodo se adhiera bien.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-chest-hair.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_CHEST_HAIR",
+      "role": "paramedic",
+      "text": "Compañero, revisa por qué el electrodo no está haciendo buen contacto.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-chest-hair.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_PEDIATRIC",
+      "role": "paramedic",
+      "text": "Compañero, nuestro paciente es un niño.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-pediatric.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_PEDIATRIC",
+      "role": "paramedic",
+      "text": "Compañero, confirma que el equipo y la colocación sean apropiados para el tamaño del paciente.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-pediatric.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_PERSON_TOUCHING",
+      "role": "paramedic",
+      "text": "Compañero, hay una persona tocando al paciente.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-person-touching.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_PERSON_TOUCHING",
+      "role": "paramedic",
+      "text": "Compañero, mira quién está en contacto con el paciente antes de continuar.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-person-touching.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_MOVEMENT",
+      "role": "paramedic",
+      "text": "Compañero, están moviendo al paciente durante el análisis.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-movement.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_MOVEMENT",
+      "role": "paramedic",
+      "text": "Compañero, piensa qué puede alterar un análisis confiable del ritmo.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-movement.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_ELECTRICAL_HAZARD",
+      "role": "paramedic",
+      "text": "Compañero, la fuente eléctrica de la escena sigue energizada.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-electrical-hazard.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_ELECTRICAL_HAZARD",
+      "role": "paramedic",
+      "text": "Compañero, revisa primero si la escena es segura para acercarnos.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-electrical-hazard.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_PREGNANCY",
+      "role": "paramedic",
+      "text": "Compañero, observo que la paciente parece estar embarazada.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-pregnancy.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_PREGNANCY",
+      "role": "paramedic",
+      "text": "Compañero, considera esta condición mientras continúas el algoritmo de reanimación.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-pregnancy.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_OPIOID_ARREST",
+      "role": "paramedic",
+      "text": "Compañero, encontramos indicios de consumo de opioides junto al paciente y no presenta signos de circulación.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-opioid-arrest.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_OPIOID_ARREST",
+      "role": "paramedic",
+      "text": "Compañero, no pierdas de vista qué intervención tiene prioridad cuando ya hay paro.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-opioid-arrest.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_OPIOID_PULSE",
+      "role": "paramedic",
+      "text": "Compañero, respira de forma muy lenta, pero todavía tiene pulso.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-opioid-pulse.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_OPIOID_PULSE",
+      "role": "paramedic",
+      "text": "Compañero, confirma si realmente estamos ante un paro antes de tratarlo como uno.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-opioid-pulse.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_DROWNING",
+      "role": "paramedic",
+      "text": "Compañero, el colapso ocurrió después de un episodio de ahogamiento.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-drowning.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_DROWNING",
+      "role": "paramedic",
+      "text": "Compañero, recuerda que en este mecanismo la falta de oxígeno es una parte central del problema.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-drowning.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_HYPOTHERMIA",
+      "role": "paramedic",
+      "text": "Compañero, estuvo expuesto al frío durante mucho tiempo y está muy frío al tacto.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-hypothermia.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_HYPOTHERMIA",
+      "role": "paramedic",
+      "text": "Compañero, ten presente que el frío intenso puede hacer muy difíciles de valorar los signos de vida.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-hypothermia.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_HYPERTHERMIA",
+      "role": "paramedic",
+      "text": "Compañero, estuvo expuesto a calor extremo antes del colapso.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-hyperthermia.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_HYPERTHERMIA",
+      "role": "paramedic",
+      "text": "Compañero, además del paro, busca la causa reversible que nos está mostrando la escena.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-hyperthermia.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_ELECTROCUTION",
+      "role": "paramedic",
+      "text": "Compañero, el colapso ocurrió tras una descarga eléctrica.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-electrocution.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_ELECTROCUTION",
+      "role": "paramedic",
+      "text": "Compañero, antes de tocar al paciente confirma que el peligro eléctrico ya fue eliminado.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-electrocution.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_ANAPHYLAXIS",
+      "role": "paramedic",
+      "text": "Compañero, antes del colapso presentó una reacción alérgica grave y dificultad para respirar.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-anaphylaxis.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_ANAPHYLAXIS",
+      "role": "paramedic",
+      "text": "Compañero, relaciona los hallazgos previos con una posible causa reversible del paro.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-anaphylaxis.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_ASTHMA",
+      "role": "paramedic",
+      "text": "Compañero, tenía una crisis asmática intensa antes de deteriorarse.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-asthma.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_ASTHMA",
+      "role": "paramedic",
+      "text": "Compañero, piensa qué problema respiratorio pudo llevar a este deterioro.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-asthma.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_POISONING",
+      "role": "paramedic",
+      "text": "Compañero, hay evidencia de una posible exposición a una sustancia tóxica.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-poisoning.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_POISONING",
+      "role": "paramedic",
+      "text": "Compañero, usa las pistas de la escena para buscar una causa tratable además del algoritmo del paro.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-poisoning.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_PE",
+      "role": "paramedic",
+      "text": "Compañero, el cuadro previo hace sospechar un evento tromboembólico.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-pe.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_PE",
+      "role": "paramedic",
+      "text": "Compañero, considera si una causa obstructiva puede explicar el deterioro.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-pe.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_LVAD",
+      "role": "paramedic",
+      "text": "Compañero, el paciente tiene un dispositivo de asistencia ventricular implantado.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-lvad.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_LVAD",
+      "role": "paramedic",
+      "text": "Compañero, no te bases en un solo signo para decidir si hay circulación.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-lvad.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_ELECTROLYTES",
+      "role": "paramedic",
+      "text": "Compañero, el paciente tiene antecedentes que hacen pensar en una alteración grave de electrolitos.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-electrolytes.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_ELECTROLYTES",
+      "role": "paramedic",
+      "text": "Compañero, busca una causa reversible relacionada con sus antecedentes.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-electrolytes.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_AIRWAY_OBSTRUCTION",
+      "role": "paramedic",
+      "text": "Compañero, el paciente se estaba atragantando antes de perder la respuesta.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-airway-obstruction.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_AIRWAY_OBSTRUCTION",
+      "role": "paramedic",
+      "text": "Compañero, reconstruye qué ocurrió antes del paro y qué problema pudo iniciarlo.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-airway-obstruction.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_ROSC_SIGNS",
+      "role": "paramedic",
+      "text": "Compañero, noto que el paciente empieza a moverse y aparecen signos de vida.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-rosc-signs.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_ROSC_SIGNS",
+      "role": "paramedic",
+      "text": "Compañero, reevalúa al paciente antes de seguir actuando de forma automática.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-rosc-signs.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_CONTEXT_REARREST",
+      "role": "paramedic",
+      "text": "Compañero, el paciente que había recuperado signos de vida vuelve a quedar sin respuesta.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-context-rearrest.wav",
+      "releaseReviewRequired": true
+    },
+    {
+      "id": "PARAMEDIC_HINT_REARREST",
+      "role": "paramedic",
+      "text": "Compañero, vuelve a valorar desde el principio qué estado tiene ahora.",
+      "voiceProfile": "paramedic-male-latam",
+      "filename": "paramedic-hint-rearrest.wav",
+      "releaseReviewRequired": true
+    }
+  ]
+}

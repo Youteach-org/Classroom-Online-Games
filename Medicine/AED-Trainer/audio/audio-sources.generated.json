@@ -1,0 +1,353 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "HeyGen create_speech",
+  "totalDurationSeconds": 287.8375714285714,
+  "voiceProfiles": {
+    "aed-female-latam": {
+      "voiceId": "fWZozqyB99JyQDYA98eg",
+      "speed": 1.05,
+      "locale": "es-MX"
+    },
+    "paramedic-male-latam": {
+      "voiceId": "050c403a43e047c796f8a6257ed2533e",
+      "speed": 1.02,
+      "language": "es"
+    },
+    "aed-cpr-lucia": {
+      "voiceId": "7e5eebc368ab477a9175b7d2a2c3317e",
+      "speed": 0.95,
+      "language": "es",
+      "usage": "AED_BEGIN_CPR only"
+    },
+    "aed-continue-hybrid": {
+      "description": "Original AED 'Continúe' + approved Lucía 'ERRE CE PE' splice",
+      "language": "es-MX"
+    }
+  },
+  "clips": [
+    {
+      "filename": "aed-startup.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=bc698f6b-66c9-4d6b-988c-7c26e03ad6d2.wav",
+      "duration": 3.8922448979591837
+    },
+    {
+      "filename": "aed-call-help.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=fa2bc713-73a7-4718-adc2-057cb822ae2f.wav",
+      "duration": 2.6644897959183673
+    },
+    {
+      "filename": "aed-expose-chest.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=05e9e937-0c42-4d7c-b054-b67999ed8548.wav",
+      "duration": 2.1681632653061222
+    },
+    {
+      "filename": "aed-attach-pads.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=a9bb0008-7161-4fb3-a5c8-1298ee5e7318.wav",
+      "duration": 2.5338775510204083
+    },
+    {
+      "filename": "aed-check-pads.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=38176026-ab5f-4231-a7fd-df718bc08487.wav",
+      "duration": 2.0114285714285716
+    },
+    {
+      "filename": "aed-analyzing.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=cbb0523c-84a5-49d9-b487-a1dc5b883f2a.wav",
+      "duration": 4.12734693877551
+    },
+    {
+      "filename": "aed-shock-advised.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=6cce5544-652d-4403-a834-e4b5cc0ec2f8.wav",
+      "duration": 4.440816326530612
+    },
+    {
+      "filename": "aed-press-shock.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=a2741a19-5640-4cd4-a4af-b75a8f8918ec.wav",
+      "duration": 2.1420408163265305
+    },
+    {
+      "filename": "aed-shock-delivered.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=db26110c-cb58-4e95-a755-b7efb3c40f5b.wav",
+      "duration": 1.933061224489796
+    },
+    {
+      "filename": "aed-no-shock.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=98dc8bf9-6ceb-40c4-9841-c4fbeff31685.wav",
+      "duration": 2.1681632653061222
+    },
+    {
+      "filename": "aed-begin-cpr.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/7e5eebc368ab477a9175b7d2a2c3317e/id=8be30466-b0d4-4cd6-84fe-5c857eee5171.wav",
+      "duration": 2.5338775510204083
+    },
+    {
+      "filename": "aed-continue-cpr.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=16d575ba-e132-4949-a2ba-43d4769d7912.wav",
+      "duration": 1.849,
+      "composition": {
+        "segments": [
+          {
+            "source": "original-aed-continue",
+            "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=16d575ba-e132-4949-a2ba-43d4769d7912.wav",
+            "start": 0.18,
+            "end": 0.928
+          },
+          {
+            "silence": 0.07
+          },
+          {
+            "source": "approved-lucia-rcp",
+            "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/7e5eebc368ab477a9175b7d2a2c3317e/id=8be30466-b0d4-4cd6-84fe-5c857eee5171.wav",
+            "start": 0.985,
+            "end": 2.016
+          }
+        ]
+      }
+    },
+    {
+      "filename": "aed-reassess.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=daa479bc-32f9-40f7-8e41-5edcfba112a4.wav",
+      "duration": 2.507755102040816
+    },
+    {
+      "filename": "paramedic-context-wet-chest.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=a6636bf9-a7ac-455a-a26e-488ce558fefa.wav",
+      "duration": 5.40734693877551
+    },
+    {
+      "filename": "paramedic-hint-wet-chest.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=8e82ae05-5881-4db2-b0ec-f185531b84e0.wav",
+      "duration": 4.83265306122449
+    },
+    {
+      "filename": "paramedic-context-medication-patch.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=1ce8b108-edfb-4fe8-9a80-416a1efa8459.wav",
+      "duration": 5.146122448979592
+    },
+    {
+      "filename": "paramedic-hint-medication-patch.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=c8870948-ce15-40e0-a4b8-ed7dcb4e4fac.wav",
+      "duration": 5.328979591836735
+    },
+    {
+      "filename": "paramedic-context-implanted-device.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=51914683-565c-4d94-a54a-8417f929425c.wav",
+      "duration": 4.440816326530612
+    },
+    {
+      "filename": "paramedic-hint-implanted-device.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=5e7d97c1-ca63-4147-a355-0fdd462e9ddf.wav",
+      "duration": 6.0081632653061225
+    },
+    {
+      "filename": "paramedic-context-chest-hair.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=75a9a9da-32c6-45b4-bc46-290f10eb216b.wav",
+      "duration": 5.12
+    },
+    {
+      "filename": "paramedic-hint-chest-hair.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=1c05ebab-6fc4-4da7-9972-202e20c28e1d.wav",
+      "duration": 4.649795918367347
+    },
+    {
+      "filename": "paramedic-context-pediatric.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=e0ff7fa3-9e46-4654-ace4-02be2115cdb4.wav",
+      "duration": 3.369795918367347
+    },
+    {
+      "filename": "paramedic-hint-pediatric.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=7cdf024a-1f5e-4a41-83ee-2b4805026613.wav",
+      "duration": 5.877551020408164
+    },
+    {
+      "filename": "paramedic-context-person-touching.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=3c223e97-a6de-426b-a941-555668f6fd70.wav",
+      "duration": 4.153469387755102
+    },
+    {
+      "filename": "paramedic-hint-person-touching.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=c78fa51c-5fff-4188-b5de-e719b9d58236.wav",
+      "duration": 4.6236734693877555
+    },
+    {
+      "filename": "paramedic-context-movement.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=f9ec85ba-82d9-4b3b-8d4a-e0de5d0a8760.wav",
+      "duration": 4.12734693877551
+    },
+    {
+      "filename": "paramedic-hint-movement.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=98de4a9f-ec17-42ad-b92f-5427d2ad5dd1.wav",
+      "duration": 5.5902040816326535
+    },
+    {
+      "filename": "paramedic-context-electrical-hazard.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=cc17a4ef-d427-493e-ace9-31aec49c8432.wav",
+      "duration": 4.41469387755102
+    },
+    {
+      "filename": "paramedic-hint-electrical-hazard.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=504e86fe-58fe-4d92-bb44-6048061359d7.wav",
+      "duration": 4.493061224489796
+    },
+    {
+      "filename": "paramedic-context-pregnancy.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=cf3cc600-3977-4bdf-96fc-dedc079d298f.wav",
+      "duration": 4.12734693877551
+    },
+    {
+      "filename": "paramedic-hint-pregnancy.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=c39f2c22-2036-47ad-96c0-bcdebebbe7b5.wav",
+      "duration": 5.459591836734694
+    },
+    {
+      "filename": "paramedic-context-opioid-arrest.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=788b4ea8-a82b-456e-9ec6-f1e9b9740da8.wav",
+      "duration": 6.922448979591837
+    },
+    {
+      "filename": "paramedic-hint-opioid-arrest.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=e5045e9c-8085-42d2-a5b5-9fc7adcb89f3.wav",
+      "duration": 5.616326530612245
+    },
+    {
+      "filename": "paramedic-context-opioid-pulse.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=bbc3d3c4-647c-4dcb-84b6-da2985f6ac6c.wav",
+      "duration": 5.067755102040817
+    },
+    {
+      "filename": "paramedic-hint-opioid-pulse.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=23b3614d-544b-4ba3-aaab-c390a4a30cf0.wav",
+      "duration": 5.328979591836735
+    },
+    {
+      "filename": "paramedic-context-drowning.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=24c7a45e-d514-486f-b448-2cbb93168ea9.wav",
+      "duration": 4.6236734693877555
+    },
+    {
+      "filename": "paramedic-hint-drowning.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=50a1d1d2-6423-4138-ab8b-da19686db218.wav",
+      "duration": 6.086530612244898
+    },
+    {
+      "filename": "paramedic-context-hypothermia.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=b3b863a7-308c-42f9-a8cc-b81f50c79bbb.wav",
+      "duration": 5.773061224489796
+    },
+    {
+      "filename": "paramedic-hint-hypothermia.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=3564f882-c57f-424f-a629-3341268d6855.wav",
+      "duration": 6.164897959183674
+    },
+    {
+      "filename": "paramedic-context-hyperthermia.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=8601d12b-0403-44b5-b595-c049a17d3a9f.wav",
+      "duration": 4.493061224489796
+    },
+    {
+      "filename": "paramedic-hint-hyperthermia.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=74e6b159-04fc-4ac6-beb5-cdfe6c032bd0.wav",
+      "duration": 6.112653061224489
+    },
+    {
+      "filename": "paramedic-context-electrocution.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=bcc24cb2-4d2d-496a-a8d2-27f51fc93863.wav",
+      "duration": 4.12734693877551
+    },
+    {
+      "filename": "paramedic-hint-electrocution.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=ebff82dc-02a3-404e-8c3c-500aae785707.wav",
+      "duration": 6.661224489795918
+    },
+    {
+      "filename": "paramedic-context-anaphylaxis.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=3b552dba-07df-4143-bdbc-2f6aa16fda4c.wav",
+      "duration": 6.373877551020408
+    },
+    {
+      "filename": "paramedic-hint-anaphylaxis.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=9d32db1e-0058-40bc-a83f-5e0f45f1c49e.wav",
+      "duration": 6.217142857142857
+    },
+    {
+      "filename": "paramedic-context-asthma.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=a90a5287-6413-4026-b592-41d209160d86.wav",
+      "duration": 5.198367346938776
+    },
+    {
+      "filename": "paramedic-hint-asthma.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=ec01d017-95fd-4f36-be28-3660dc981c6c.wav",
+      "duration": 5.0416326530612245
+    },
+    {
+      "filename": "paramedic-context-poisoning.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=821c98b2-d291-4d43-bbea-06babb8dafc3.wav",
+      "duration": 5.877551020408164
+    },
+    {
+      "filename": "paramedic-hint-poisoning.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=d713f677-c700-4338-bcfd-8aaa2a7003a8.wav",
+      "duration": 6.373877551020408
+    },
+    {
+      "filename": "paramedic-context-pe.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=1bbaff4c-6dd7-4d81-8f03-d3b7ce5e5191.wav",
+      "duration": 5.198367346938776
+    },
+    {
+      "filename": "paramedic-hint-pe.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=77f9d23b-e439-4e7e-a847-3c2ca2fb2a93.wav",
+      "duration": 5.328979591836735
+    },
+    {
+      "filename": "paramedic-context-lvad.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=c4e98ebc-b1fb-4820-995f-b61a42d618d8.wav",
+      "duration": 5.746938775510204
+    },
+    {
+      "filename": "paramedic-hint-lvad.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=5c1ff17f-2329-4d86-b06c-b93449196d81.wav",
+      "duration": 4.0751020408163265
+    },
+    {
+      "filename": "paramedic-context-electrolytes.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=190a6309-71b1-4bda-a706-2945379bdf11.wav",
+      "duration": 6.034285714285715
+    },
+    {
+      "filename": "paramedic-hint-electrolytes.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=b35424a9-5ed8-424e-84fe-801fd13a0b76.wav",
+      "duration": 4.493061224489796
+    },
+    {
+      "filename": "paramedic-context-airway-obstruction.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=bac22723-385e-4808-b647-5de0961e5ef9.wav",
+      "duration": 4.858775510204081
+    },
+    {
+      "filename": "paramedic-hint-airway-obstruction.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=93256795-0e65-433a-b9cd-2c89b4778b58.wav",
+      "duration": 6.0081632653061225
+    },
+    {
+      "filename": "paramedic-context-rosc-signs.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=cf313dff-950e-41ce-88cf-3a765a9810c9.wav",
+      "duration": 5.0416326530612245
+    },
+    {
+      "filename": "paramedic-hint-rosc-signs.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=df5e75b5-64a1-4894-9b28-64f0fb1890ff.wav",
+      "duration": 5.955918367346939
+    },
+    {
+      "filename": "paramedic-context-rearrest.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=9138e561-5e16-4e2f-bbf3-8a8f7ab1432f.wav",
+      "duration": 5.955918367346939
+    },
+    {
+      "filename": "paramedic-hint-rearrest.wav",
+      "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/050c403a43e047c796f8a6257ed2533e/id=05967547-c23d-4ef9-9767-b6d5a52cec85.wav",
+      "duration": 4.937142857142857
+    }
+  ]
+}
