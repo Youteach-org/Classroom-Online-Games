@@ -1,0 +1,99 @@
+{
+  "project": "Oral-Grader",
+  "stage": 2,
+  "pair_slug": "jean-paulina-2",
+  "model": "gemini-3.5-flash-lite",
+  "stage1_source": "Oral-Grader/transcripts/jean-paulina-2-stage1.json",
+  "stage1_review": "Oral-Grader/reviews/jean-paulina-2-stage1-review.json",
+  "speaker_mapping": {
+    "spk:0": "Jean",
+    "spk:1": "Paulina",
+    "spk:teacher": "Teacher"
+  },
+  "students": {
+    "Jean": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 0,
+      "uncertain_count": 0,
+      "grammar_patterns": [
+        "Missing relative pronoun 'that'."
+      ],
+      "vocabulary_patterns": [],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Jean: Spoke with a generally smooth and natural delivery."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    },
+    "Paulina": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 0,
+      "uncertain_count": 0,
+      "grammar_patterns": [
+        "Confused subject/object structure ('Mani made me laugh' vs 'that made me laugh')."
+      ],
+      "vocabulary_patterns": [
+        "Misused 'left and his house' (possibly intended 'left in his house' or 'drove')."
+      ],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Paulina: Spoke with some hesitation and pausing, particularly when constructing the sentence about the TikTok video."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    }
+  },
+  "evidence": [
+    {
+      "speaker": "Jean",
+      "start_offset": "15.000s",
+      "end_offset": "16.500s",
+      "stage1_heard": "The last thing made me laugh",
+      "reviewed_heard": "The last thing made me laugh",
+      "intended": "The last thing that made me laugh",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Missing relative pronoun 'that'.",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paulina",
+      "start_offset": "31.400s",
+      "end_offset": "40.400s",
+      "stage1_heard": "I saw a funny video of TikTok TikTok that Mani made me laugh because the dog left and his house.",
+      "reviewed_heard": "I saw a funny video of TikTok TikTok that Mani made me laugh because the dog left and his house.",
+      "intended": "I saw a funny TikTok video that made me laugh because the dog left and drove his house.",
+      "intent_confidence": "medium",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Confused subject/object structure ('Mani made me laugh' vs 'that made me laugh').",
+      "vocabulary_note": "Misused 'left and his house' (possibly intended 'left in his house' or 'drove').",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    }
+  ],
+  "fluency_observations": [
+    "Jean: Spoke with a generally smooth and natural delivery.",
+    "Paulina: Spoke with some hesitation and pausing, particularly when constructing the sentence about the TikTok video."
+  ],
+  "teacher_interventions": [],
+  "scoring_status": "evidence_only_not_final_rubric"
+}
