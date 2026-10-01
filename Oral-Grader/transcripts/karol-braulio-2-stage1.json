@@ -1,0 +1,201 @@
+{
+  "project": "Oral-Grader",
+  "stage": 1,
+  "pair_slug": "karol-braulio-2",
+  "model": "gemini-3.5-transcribe",
+  "mode": "verbatim",
+  "speaker_diarization": true,
+  "word_timestamps": true,
+  "source_file": "oral-grader-source.ogg",
+  "full_text": "My jokes were do chaos go dates movies. That cracks me up. Well, the joke that I found was why was a computer cold? Because it left its windows open.",
+  "turns": [
+    {
+      "speaker": "spk:0",
+      "start_offset": "0.100s",
+      "end_offset": "19.800s",
+      "heard": "My jokes were do chaos go dates movies. That cracks me up. Well, the joke that I found was why was a computer cold? Because it left its windows open."
+    }
+  ],
+  "words": [
+    {
+      "text": "My",
+      "speaker": "spk:0",
+      "start_offset": "0.100s",
+      "end_offset": "0.900s"
+    },
+    {
+      "text": "jokes",
+      "speaker": "spk:0",
+      "start_offset": "0.900s",
+      "end_offset": "2.400s"
+    },
+    {
+      "text": "were",
+      "speaker": "spk:0",
+      "start_offset": "2.400s",
+      "end_offset": "2.500s"
+    },
+    {
+      "text": "do",
+      "speaker": "spk:0",
+      "start_offset": "2.500s",
+      "end_offset": "3s"
+    },
+    {
+      "text": "chaos",
+      "speaker": "spk:0",
+      "start_offset": "3s",
+      "end_offset": "3.400s"
+    },
+    {
+      "text": "go",
+      "speaker": "spk:0",
+      "start_offset": "4.100s",
+      "end_offset": "4.500s"
+    },
+    {
+      "text": "dates",
+      "speaker": "spk:0",
+      "start_offset": "4.500s",
+      "end_offset": "5s"
+    },
+    {
+      "text": "movies.",
+      "speaker": "spk:0",
+      "start_offset": "6.200s",
+      "end_offset": "7.600s"
+    },
+    {
+      "text": "That",
+      "speaker": "spk:0",
+      "start_offset": "10.600s",
+      "end_offset": "10.800s"
+    },
+    {
+      "text": "cracks",
+      "speaker": "spk:0",
+      "start_offset": "10.800s",
+      "end_offset": "11.200s"
+    },
+    {
+      "text": "me",
+      "speaker": "spk:0",
+      "start_offset": "11.200s",
+      "end_offset": "11.400s"
+    },
+    {
+      "text": "up.",
+      "speaker": "spk:0",
+      "start_offset": "11.400s",
+      "end_offset": "11.800s"
+    },
+    {
+      "text": "Well,",
+      "speaker": "spk:0",
+      "start_offset": "12.100s",
+      "end_offset": "12.700s"
+    },
+    {
+      "text": "the",
+      "speaker": "spk:0",
+      "start_offset": "12.800s",
+      "end_offset": "13s"
+    },
+    {
+      "text": "joke",
+      "speaker": "spk:0",
+      "start_offset": "13s",
+      "end_offset": "13.400s"
+    },
+    {
+      "text": "that",
+      "speaker": "spk:0",
+      "start_offset": "13.400s",
+      "end_offset": "13.500s"
+    },
+    {
+      "text": "I",
+      "speaker": "spk:0",
+      "start_offset": "13.500s",
+      "end_offset": "13.700s"
+    },
+    {
+      "text": "found",
+      "speaker": "spk:0",
+      "start_offset": "13.700s",
+      "end_offset": "14.200s"
+    },
+    {
+      "text": "was",
+      "speaker": "spk:0",
+      "start_offset": "14.200s",
+      "end_offset": "14.800s"
+    },
+    {
+      "text": "why",
+      "speaker": "spk:0",
+      "start_offset": "15s",
+      "end_offset": "15.300s"
+    },
+    {
+      "text": "was",
+      "speaker": "spk:0",
+      "start_offset": "15.300s",
+      "end_offset": "15.500s"
+    },
+    {
+      "text": "a",
+      "speaker": "spk:0",
+      "start_offset": "15.500s",
+      "end_offset": "15.600s"
+    },
+    {
+      "text": "computer",
+      "speaker": "spk:0",
+      "start_offset": "15.600s",
+      "end_offset": "16.200s"
+    },
+    {
+      "text": "cold?",
+      "speaker": "spk:0",
+      "start_offset": "16.200s",
+      "end_offset": "16.600s"
+    },
+    {
+      "text": "Because",
+      "speaker": "spk:0",
+      "start_offset": "17.500s",
+      "end_offset": "18.100s"
+    },
+    {
+      "text": "it",
+      "speaker": "spk:0",
+      "start_offset": "18.100s",
+      "end_offset": "18.300s"
+    },
+    {
+      "text": "left",
+      "speaker": "spk:0",
+      "start_offset": "18.300s",
+      "end_offset": "18.600s"
+    },
+    {
+      "text": "its",
+      "speaker": "spk:0",
+      "start_offset": "18.600s",
+      "end_offset": "18.900s"
+    },
+    {
+      "text": "windows",
+      "speaker": "spk:0",
+      "start_offset": "18.900s",
+      "end_offset": "19.400s"
+    },
+    {
+      "text": "open.",
+      "speaker": "spk:0",
+      "start_offset": "19.400s",
+      "end_offset": "19.800s"
+    }
+  ]
+}
