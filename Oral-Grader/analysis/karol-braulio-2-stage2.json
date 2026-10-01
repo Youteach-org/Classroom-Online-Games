@@ -1,0 +1,124 @@
+{
+  "project": "Oral-Grader",
+  "stage": 2,
+  "pair_slug": "karol-braulio-2",
+  "model": "gemini-3.5-flash-lite",
+  "stage1_source": "Oral-Grader/transcripts/karol-braulio-2-stage1.json",
+  "stage1_review": "Oral-Grader/reviews/karol-braulio-2-stage1-review.json",
+  "speaker_mapping": {
+    "spk:0": "Unidentified Karol/Braulio",
+    "spk:teacher": "Teacher"
+  },
+  "students": {
+    "Unidentified Karol/Braulio": {
+      "incorrect_pronunciation_count": 1,
+      "acceptable_sample_count": 3,
+      "uncertain_count": 0,
+      "grammar_patterns": [
+        "Incorrect structure for expressing alternatives ('were do chaos go dates movies').",
+        "Minor omission/slight error in possessive pronoun ('left it' instead of 'left its')."
+      ],
+      "vocabulary_patterns": [
+        "Misuse of vocabulary items ('chaos' instead of 'choices', 'go dates' instead of 'go on dates')."
+      ],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Unidentified Karol/Braulio: Spoke with noticeable hesitation, pauses, and laughter between phrases, affecting overall delivery and pacing."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    }
+  },
+  "evidence": [
+    {
+      "speaker": "Unidentified Karol/Braulio",
+      "start_offset": "0.100s",
+      "end_offset": "4.900s",
+      "stage1_heard": "My jokes were do chaos go dates movies.",
+      "reviewed_heard": "My jokes were do chaos go dates movies.",
+      "intended": "My choices were to go on dates or watch movies.",
+      "intent_confidence": "medium",
+      "pronunciation": "incorrect",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": "Unclear articulation and heavily non-standard phrasing interfere with intelligibility, though the intended meaning can be reconstructed from context.",
+      "grammar_note": "Incorrect structure for expressing alternatives ('were do chaos go dates movies').",
+      "vocabulary_note": "Misuse of vocabulary items ('chaos' instead of 'choices', 'go dates' instead of 'go on dates').",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Unidentified Karol/Braulio",
+      "start_offset": "10.000s",
+      "end_offset": "11.500s",
+      "stage1_heard": "That cracks me up.",
+      "reviewed_heard": "That cracks me up.",
+      "intended": "That cracks me up.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Unidentified Karol/Braulio",
+      "start_offset": "12.000s",
+      "end_offset": "16.800s",
+      "stage1_heard": "Well, the joke that I found was why was a computer cold?",
+      "reviewed_heard": "Well, the joke that I found was why was a computer cold?",
+      "intended": "Well, the joke that I found was: why was a computer cold?",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Unidentified Karol/Braulio",
+      "start_offset": "17.000s",
+      "end_offset": "19.800s",
+      "stage1_heard": "Because it left it windows open.",
+      "reviewed_heard": "Because it left it windows open.",
+      "intended": "Because it left its Windows open.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Minor omission/slight error in possessive pronoun ('left it' instead of 'left its').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    }
+  ],
+  "fluency_observations": [
+    "Unidentified Karol/Braulio: Spoke with noticeable hesitation, pauses, and laughter between phrases, affecting overall delivery and pacing."
+  ],
+  "teacher_interventions": [],
+  "scoring_status": "evidence_only_not_final_rubric"
+}
