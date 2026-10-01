@@ -1,0 +1,18 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "vicky-sandra-1",
+  "stage": 1,
+  "review_status": "accepted_with_notes",
+  "accepted_for_stage2": true,
+  "speaker_mapping": {
+    "spk:0": "Vicky",
+    "spk:1": "Sandra",
+    "spk:teacher": "Teacher"
+  },
+  "fidelity_notes": [
+    "Speaker identities are explicit at the beginning and end: spk:0 = Vicky and spk:1 = Sandra.",
+    "This is a student-to-student exchange; no distinct teacher speech appears in Stage 1.",
+    "Raw Stage-1 wording remains unchanged."
+  ],
+  "teacher_confirmed_pronunciation_evidence": []
+}
