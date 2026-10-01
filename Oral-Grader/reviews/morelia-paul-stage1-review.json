@@ -1,0 +1,18 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "morelia-paul",
+  "stage": 1,
+  "review_status": "accepted_with_notes",
+  "accepted_for_stage2": true,
+  "speaker_mapping": {
+    "spk:0": "Paul",
+    "spk:1": "Morelia",
+    "spk:teacher": "Teacher"
+  },
+  "fidelity_notes": [
+    "spk:0 self-identifies as Paul.",
+    "spk:1 is Morelia; Stage 1 renders her name as 'Mirella', treated as a transcription error rather than a student language error.",
+    "This is a student-to-student joke exchange; no distinct teacher speech appears in Stage 1."
+  ],
+  "teacher_confirmed_pronunciation_evidence": []
+}
