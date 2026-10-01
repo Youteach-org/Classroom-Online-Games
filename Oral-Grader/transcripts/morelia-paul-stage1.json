@@ -1,0 +1,393 @@
+{
+  "project": "Oral-Grader",
+  "stage": 1,
+  "pair_slug": "morelia-paul",
+  "model": "gemini-3.5-transcribe",
+  "mode": "verbatim",
+  "speaker_diarization": true,
+  "word_timestamps": true,
+  "source_file": "oral-grader-source.ogg",
+  "full_text": "What is your name?Mirella.What did zero say to eight?I don't know.Nice bet.Hilarious. Hilarious. Do you know What is your name?Paul.Do you know why the math book looks sad? Why did the math book looks sad?What?Because it has so many problems.That's so hilarious.",
+  "turns": [
+    {
+      "speaker": "spk:0",
+      "start_offset": "2.600s",
+      "end_offset": "3.200s",
+      "heard": "What is your name?"
+    },
+    {
+      "speaker": "spk:1",
+      "start_offset": "4s",
+      "end_offset": "4.400s",
+      "heard": "Mirella."
+    },
+    {
+      "speaker": "spk:0",
+      "start_offset": "7.800s",
+      "end_offset": "10s",
+      "heard": "What did zero say to eight?"
+    },
+    {
+      "speaker": "spk:1",
+      "start_offset": "15.200s",
+      "end_offset": "15.500s",
+      "heard": "I don't know."
+    },
+    {
+      "speaker": "spk:0",
+      "start_offset": "16.900s",
+      "end_offset": "17.400s",
+      "heard": "Nice bet."
+    },
+    {
+      "speaker": "spk:1",
+      "start_offset": "25.900s",
+      "end_offset": "34s",
+      "heard": "Hilarious. Hilarious. Do you know What is your name?"
+    },
+    {
+      "speaker": "spk:0",
+      "start_offset": "34.600s",
+      "end_offset": "34.900s",
+      "heard": "Paul."
+    },
+    {
+      "speaker": "spk:1",
+      "start_offset": "36.300s",
+      "end_offset": "44s",
+      "heard": "Do you know why the math book looks sad? Why did the math book looks sad?"
+    },
+    {
+      "speaker": "spk:0",
+      "start_offset": "45.100s",
+      "end_offset": "45.300s",
+      "heard": "What?"
+    },
+    {
+      "speaker": "spk:1",
+      "start_offset": "46s",
+      "end_offset": "49.700s",
+      "heard": "Because it has so many problems."
+    },
+    {
+      "speaker": "spk:0",
+      "start_offset": "52.700s",
+      "end_offset": "54.800s",
+      "heard": "That's so hilarious."
+    }
+  ],
+  "words": [
+    {
+      "text": "What",
+      "speaker": "spk:0",
+      "start_offset": "2.600s",
+      "end_offset": "2.800s"
+    },
+    {
+      "text": "is",
+      "speaker": "spk:0",
+      "start_offset": "2.800s",
+      "end_offset": "2.900s"
+    },
+    {
+      "text": "your",
+      "speaker": "spk:0",
+      "start_offset": "2.900s",
+      "end_offset": "3s"
+    },
+    {
+      "text": "name?",
+      "speaker": "spk:0",
+      "start_offset": "3s",
+      "end_offset": "3.200s"
+    },
+    {
+      "text": "Mirella.",
+      "speaker": "spk:1",
+      "start_offset": "4s",
+      "end_offset": "4.400s"
+    },
+    {
+      "text": "What",
+      "speaker": "spk:0",
+      "start_offset": "7.800s",
+      "end_offset": "7.900s"
+    },
+    {
+      "text": "did",
+      "speaker": "spk:0",
+      "start_offset": "7.900s",
+      "end_offset": "8.200s"
+    },
+    {
+      "text": "zero",
+      "speaker": "spk:0",
+      "start_offset": "8.200s",
+      "end_offset": "8.800s"
+    },
+    {
+      "text": "say",
+      "speaker": "spk:0",
+      "start_offset": "9s",
+      "end_offset": "9.300s"
+    },
+    {
+      "text": "to",
+      "speaker": "spk:0",
+      "start_offset": "9.300s",
+      "end_offset": "9.600s"
+    },
+    {
+      "text": "eight?",
+      "speaker": "spk:0",
+      "start_offset": "9.600s",
+      "end_offset": "10s"
+    },
+    {
+      "text": "I",
+      "speaker": "spk:1",
+      "start_offset": "15.200s",
+      "end_offset": "15.300s"
+    },
+    {
+      "text": "don't",
+      "speaker": "spk:1",
+      "start_offset": "15.300s",
+      "end_offset": "15.400s"
+    },
+    {
+      "text": "know.",
+      "speaker": "spk:1",
+      "start_offset": "15.400s",
+      "end_offset": "15.500s"
+    },
+    {
+      "text": "Nice",
+      "speaker": "spk:0",
+      "start_offset": "16.900s",
+      "end_offset": "17.100s"
+    },
+    {
+      "text": "bet.",
+      "speaker": "spk:0",
+      "start_offset": "17.100s",
+      "end_offset": "17.400s"
+    },
+    {
+      "text": "Hilarious.",
+      "speaker": "spk:1",
+      "start_offset": "25.900s",
+      "end_offset": "26.200s"
+    },
+    {
+      "text": "Hilarious.",
+      "speaker": "spk:1",
+      "start_offset": "26.600s",
+      "end_offset": "27.100s"
+    },
+    {
+      "text": "Do",
+      "speaker": "spk:1",
+      "start_offset": "32.100s",
+      "end_offset": "32.300s"
+    },
+    {
+      "text": "you",
+      "speaker": "spk:1",
+      "start_offset": "32.300s",
+      "end_offset": "32.500s"
+    },
+    {
+      "text": "know",
+      "speaker": "spk:1",
+      "start_offset": "32.500s",
+      "end_offset": "33.200s"
+    },
+    {
+      "text": "What",
+      "speaker": "spk:1",
+      "start_offset": "33.400s",
+      "end_offset": "33.600s"
+    },
+    {
+      "text": "is",
+      "speaker": "spk:1",
+      "start_offset": "33.600s",
+      "end_offset": "33.700s"
+    },
+    {
+      "text": "your",
+      "speaker": "spk:1",
+      "start_offset": "33.700s",
+      "end_offset": "33.800s"
+    },
+    {
+      "text": "name?",
+      "speaker": "spk:1",
+      "start_offset": "33.800s",
+      "end_offset": "34s"
+    },
+    {
+      "text": "Paul.",
+      "speaker": "spk:0",
+      "start_offset": "34.600s",
+      "end_offset": "34.900s"
+    },
+    {
+      "text": "Do",
+      "speaker": "spk:1",
+      "start_offset": "36.300s",
+      "end_offset": "36.400s"
+    },
+    {
+      "text": "you",
+      "speaker": "spk:1",
+      "start_offset": "36.400s",
+      "end_offset": "36.600s"
+    },
+    {
+      "text": "know",
+      "speaker": "spk:1",
+      "start_offset": "36.600s",
+      "end_offset": "37.300s"
+    },
+    {
+      "text": "why",
+      "speaker": "spk:1",
+      "start_offset": "38.100s",
+      "end_offset": "38.500s"
+    },
+    {
+      "text": "the",
+      "speaker": "spk:1",
+      "start_offset": "38.700s",
+      "end_offset": "38.800s"
+    },
+    {
+      "text": "math",
+      "speaker": "spk:1",
+      "start_offset": "38.800s",
+      "end_offset": "39.200s"
+    },
+    {
+      "text": "book",
+      "speaker": "spk:1",
+      "start_offset": "39.800s",
+      "end_offset": "40s"
+    },
+    {
+      "text": "looks",
+      "speaker": "spk:1",
+      "start_offset": "40s",
+      "end_offset": "40.100s"
+    },
+    {
+      "text": "sad?",
+      "speaker": "spk:1",
+      "start_offset": "40.100s",
+      "end_offset": "40.300s"
+    },
+    {
+      "text": "Why",
+      "speaker": "spk:1",
+      "start_offset": "41.600s",
+      "end_offset": "42.100s"
+    },
+    {
+      "text": "did",
+      "speaker": "spk:1",
+      "start_offset": "42.100s",
+      "end_offset": "42.400s"
+    },
+    {
+      "text": "the",
+      "speaker": "spk:1",
+      "start_offset": "42.400s",
+      "end_offset": "42.900s"
+    },
+    {
+      "text": "math",
+      "speaker": "spk:1",
+      "start_offset": "43s",
+      "end_offset": "43.200s"
+    },
+    {
+      "text": "book",
+      "speaker": "spk:1",
+      "start_offset": "43.200s",
+      "end_offset": "43.500s"
+    },
+    {
+      "text": "looks",
+      "speaker": "spk:1",
+      "start_offset": "43.500s",
+      "end_offset": "43.800s"
+    },
+    {
+      "text": "sad?",
+      "speaker": "spk:1",
+      "start_offset": "43.800s",
+      "end_offset": "44s"
+    },
+    {
+      "text": "What?",
+      "speaker": "spk:0",
+      "start_offset": "45.100s",
+      "end_offset": "45.300s"
+    },
+    {
+      "text": "Because",
+      "speaker": "spk:1",
+      "start_offset": "46s",
+      "end_offset": "46.600s"
+    },
+    {
+      "text": "it",
+      "speaker": "spk:1",
+      "start_offset": "46.700s",
+      "end_offset": "46.800s"
+    },
+    {
+      "text": "has",
+      "speaker": "spk:1",
+      "start_offset": "46.800s",
+      "end_offset": "47.400s"
+    },
+    {
+      "text": "so",
+      "speaker": "spk:1",
+      "start_offset": "48.500s",
+      "end_offset": "48.800s"
+    },
+    {
+      "text": "many",
+      "speaker": "spk:1",
+      "start_offset": "48.800s",
+      "end_offset": "49s"
+    },
+    {
+      "text": "problems.",
+      "speaker": "spk:1",
+      "start_offset": "49s",
+      "end_offset": "49.700s"
+    },
+    {
+      "text": "That's",
+      "speaker": "spk:0",
+      "start_offset": "52.700s",
+      "end_offset": "53s"
+    },
+    {
+      "text": "so",
+      "speaker": "spk:0",
+      "start_offset": "53s",
+      "end_offset": "53.800s"
+    },
+    {
+      "text": "hilarious.",
+      "speaker": "spk:0",
+      "start_offset": "54.300s",
+      "end_offset": "54.800s"
+    }
+  ]
+}
