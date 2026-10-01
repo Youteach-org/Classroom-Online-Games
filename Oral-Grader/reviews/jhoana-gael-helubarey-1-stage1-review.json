@@ -1,0 +1,19 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "jhoana-gael-helubarey-1",
+  "stage": 1,
+  "review_status": "accepted_with_notes",
+  "accepted_for_stage2": true,
+  "speaker_mapping": {
+    "spk:0": "Jhoana",
+    "spk:1": "Gael Helubarey",
+    "spk:2": "Gael Helubarey",
+    "spk:teacher": "Teacher"
+  },
+  "fidelity_notes": [
+    "Speaker identities are confirmed by self-identification at the end: spk:0 = Jhoana and spk:1/spk:2 = Gael Helubarey.",
+    "The final Gael identification is split into a separate diarization label and is merged to the same student.",
+    "No distinct teacher speech appears in Stage 1; raw transcript remains unchanged."
+  ],
+  "teacher_confirmed_pronunciation_evidence": []
+}
