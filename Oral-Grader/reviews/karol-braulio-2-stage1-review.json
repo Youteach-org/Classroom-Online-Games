@@ -1,0 +1,17 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "karol-braulio-2",
+  "stage": 1,
+  "review_status": "accepted_with_identity_unresolved",
+  "accepted_for_stage2": true,
+  "speaker_mapping": {
+    "spk:0": "Unidentified Karol/Braulio",
+    "spk:teacher": "Teacher"
+  },
+  "fidelity_notes": [
+    "Stage 1 contains only one diarized student voice in this ~22-second clip.",
+    "The speaker does not self-identify and the recording provides no grounded basis to assign the voice to Karol or Braulio.",
+    "Do not convert this clip into an individual Karol or Braulio score until identity is resolved."
+  ],
+  "teacher_confirmed_pronunciation_evidence": []
+}
