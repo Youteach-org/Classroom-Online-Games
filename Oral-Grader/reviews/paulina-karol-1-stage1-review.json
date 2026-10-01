@@ -1,0 +1,18 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "paulina-karol-1",
+  "stage": 1,
+  "review_status": "accepted_with_notes",
+  "accepted_for_stage2": true,
+  "speaker_mapping": {
+    "spk:0": "Paulina",
+    "spk:1": "Karol",
+    "spk:teacher": "Teacher"
+  },
+  "fidelity_notes": [
+    "This is a two-student exchange with no self-identification or distinct teacher speech in Stage 1.",
+    "Speaker names follow the recording filename order for this run: spk:0 = Paulina, spk:1 = Karol.",
+    "Raw Stage-1 wording remains unchanged."
+  ],
+  "teacher_confirmed_pronunciation_evidence": []
+}
