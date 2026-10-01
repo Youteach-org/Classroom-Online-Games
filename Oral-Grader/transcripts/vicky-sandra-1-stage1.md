@@ -1,0 +1,87 @@
+# Oral Grader literal transcript — vicky-sandra-1
+
+Model: `gemini-3.5-transcribe`
+Mode: `verbatim` · speaker diarization · word timestamps
+
+> Stage 1 evidence only. Do not correct grammar, vocabulary, or pronunciation here.
+
+- **spk:0** `1.200s–4.300s`: Okay. What is your name? I'm Vicky. And your name?
+- **spk:1** `4.600s–7.800s`: My name is Sandra. And how did your week?
+- **spk:0** `10.300s–21.900s`: Good. It was good. I don't have classes because here in the Tec was the InnovaTec. So I don't have classes all the week.
+- **spk:1** `22.800s–23.200s`: And you?
+- **spk:0** `23.800s–28.500s`: Your week was lazy.
+- **spk:1** `30s–35.600s`: My week was hard because I had a lot of work.
+- **spk:0** `36.400s–37.100s`: Another what?
+- **spk:1** `37.400s–38.100s`: A lot of work.
+- **spk:0** `38.500s–43.700s`: Oh. What's your work? What's about?
+- **spk:1** `44.200s–44.900s`: I am a teacher.
+- **spk:0** `45.600s–46.500s`: Oh, you are a teacher.
+- **spk:1** `46.700s–46.900s`: Yes.
+- **spk:0** `47.200s–48s`: About what?
+- **spk:1** `49s–51s`: I am a teacher in Morelia.
+- **spk:0** `51.900s–53.800s`: Oh. In Spanish?
+- **spk:1** `56s–80.900s`: Yes, in Spanish. I work in Exa Quiroga. I I had worked in my students five grades.
+- **spk:0** `81.400s–82s`: Uh-huh, grades.
+- **spk:1** `82.900s–83.300s`: Yes.
+- **spk:0** `83.500s–98.700s`: And how did your week how did you do week? How how did you do week?
+- **spk:1** `99.100s–102.300s`: Ah, okay. What I do in my week?
+- **spk:0** `102.500s–102.800s`: Uh-huh.
+- **spk:1** `103.200s–114.200s`: Oh. I do for example, I went to I went to both how comprar.
+- **spk:0** `114.400s–115.300s`: Ah, well.
+- **spk:1** `115.500s–135.300s`: Uh-huh. I went to a food for my house because I live alone with well, I live only with my sister. So yes, and I do some projects and some homeworks.
+- **spk:0** `136.700s–149.700s`: What did you I I don't remember What did you do place? Your birth place. Birth place?
+- **spk:1** `149.700s–157.800s`: Uh-huh. Birth place is a what is your place your birth?
+- **spk:0** `158.700s–159.800s`: My safe like
+- **spk:1** `162.500s–171.600s`: It's a what did your place a birth place?
+- **spk:0** `171.700s–177.400s`: Uh-huh. Maybe the sofa?
+- **spk:1** `178.300s–189.900s`: No, birth place is a Ah, ah, okay. I am from Querétaro.
+- **spk:0** `190.300s–193.300s`: Querétaro? Oh, you are from Querétaro?
+- **spk:1** `193.400s–193.900s`: Yes.
+- **spk:0** `194.400s–194.800s`: Oh.
+- **spk:1** `194.800s–198.600s`: And the next semester I moved to Querétaro.
+- **spk:0** `198.900s–199.200s`: Yes.
+- **spk:1** `199.600s–200.400s`: Yes, because
+- **spk:0** `200.300s–202.300s`: Does your family live in Querétaro?
+- **spk:1** `202.500s–210.800s`: Yes. This is my last semester. So the next semester I have my professional residency.
+- **spk:0** `211.800s–215.100s`: How do you feel when you move at Morelia?
+- **spk:1** `215.700s–232.100s`: Uh-huh, sad because I love Morelia and I I think here uh about six six uh primaria.
+- **spk:0** `233.100s–233.400s`: Uh-huh.
+- **spk:1** `234.100s–234.400s`: Yes.
+- **spk:0** `234.900s–235.800s`: Elementary school.
+- **spk:1** `235.700s–251.600s`: Elementary school, yes. So yes, uh it's sad. Uh what are your plans for the future? You want to to live here?
+- **spk:0** `251.600s–270.900s`: My birth place is Pátzcuaro. I I had live in Morelia for 10 years. And when I uh
+- **spk:1** `272.500s–273.600s`: And you miss Pátzcuaro?
+- **spk:0** `274.400s–274.800s`: Yes.
+- **spk:1** `275s–275.400s`: No.
+- **spk:0** `275.500s–275.800s`: No?
+- **spk:1** `276.200s–288.400s`: I I visit Pátzcuaro in for for example, in my week and today uh I go to the Pátzcuaro.
+- **spk:0** `285s–289.200s`: You go to Oh, okay.
+- **spk:1** `289.400s–292s`: Yes. But I
+- **spk:0** `291.400s–293s`: And you have family there?
+- **spk:1** `293.300s–296.800s`: Yes, my father and my mother live in Pátzcuaro.
+- **spk:0** `297s–299s`: Do you have brothers and sisters?
+- **spk:1** `299.200s–299.500s`: Yes.
+- **spk:0** `299.600s–300s`: Yes?
+- **spk:1** `300.200s–304.100s`: But my brother and my sister live in Morelia.
+- **spk:0** `304.200s–305s`: Ah, yes?
+- **spk:1** `305.300s–316s`: Yes. Uh when I visit Pátzcuaro but I visit my family, my father and my and my mother.
+- **spk:0** `316.400s–316.800s`: Oh.
+- **spk:1** `317.900s–330.800s`: But my father and my sister uh visit here uh my sister, my brother, and me.
+- **spk:0** `331.200s–331.300s`: Oh.
+- **spk:1** `333.100s–346.100s`: And for example, in my week I I go to I go to the work and I study English. And you?
+- **spk:0** `346.900s–371.400s`: My week uh well, right now? No, no, no, no. The next week I I will working in a in a industry, a food industry here in the here in Morelia for a project for yes, for my specialty.
+- **spk:1** `371.800s–375.800s`: Oh, do you study industry? Do you study industry?
+- **spk:0** `376.100s–393.500s`: Uh industrial engineer. Yes. So uh one teacher put me me put me and other classmates to work in a in a industry, in a food industry.
+- **spk:1** `394.900s–395.100s`: Yes.
+- **spk:0** `396.500s–423.300s`: So the next week I will going to start working on that. And I don't know nothing about industry. But I suppose we need to to learn and start. It's like uh residential like a professional residencies, but not my professional residencies.
+- **spk:1** `423.300s–431.100s`: Ah, okay. When when will you visit Querétaro?
+- **spk:0** `432.300s–436s`: Uh only in the vacations.
+- **spk:1** `436.400s–437.500s`: Only in the vacation?
+- **spk:0** `437.600s–438s`: Yes.
+- **spk:1** `440.400s–440.500s`: Yes.
+- **spk:0** `443.800s–447.400s`: Maybe for an important uh vacation?
+- **spk:1** `447.700s–448.100s`: Uh huh.
+- **spk:0** `448.500s–449.700s`: An important event?
+- **spk:1** `450s–450.400s`: Uh huh.
+- **spk:0** `450.900s–461s`: It's more common. Vicky.
+- **spk:1** `462.500s–463.200s`: Sandra.
