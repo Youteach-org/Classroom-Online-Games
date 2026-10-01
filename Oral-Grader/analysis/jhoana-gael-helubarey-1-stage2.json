@@ -1,0 +1,320 @@
+{
+  "project": "Oral-Grader",
+  "stage": 2,
+  "pair_slug": "jhoana-gael-helubarey-1",
+  "model": "gemini-3.5-flash-lite",
+  "stage1_source": "Oral-Grader/transcripts/jhoana-gael-helubarey-1-stage1.json",
+  "stage1_review": "Oral-Grader/reviews/jhoana-gael-helubarey-1-stage1-review.json",
+  "speaker_mapping": {
+    "spk:0": "Jhoana",
+    "spk:1": "Gael Helubarey",
+    "spk:2": "Gael Helubarey",
+    "spk:teacher": "Teacher"
+  },
+  "students": {
+    "Jhoana": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 0,
+      "uncertain_count": 0,
+      "grammar_patterns": [],
+      "vocabulary_patterns": [],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Jhoana: Maintains a steady conversational pace and prompts the student naturally with follow-up questions."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    },
+    "Gael Helubarey": {
+      "incorrect_pronunciation_count": 3,
+      "acceptable_sample_count": 2,
+      "uncertain_count": 0,
+      "grammar_patterns": [
+        "Prepositions: 'in the school' -> 'at school', 'in my house' -> 'at home', 'in work' -> 'at work'.",
+        "Incorrect preposition usage ('in the with').",
+        "Disjointed phrasing and article misuse ('in my the building').",
+        "Incorrect verb form ('I am study' instead of 'I am studying') and infinitive vs gerund ('like much listen' instead of 'like listening').",
+        "Redundant and incorrect phrasing ('from part of the one group' instead of 'part of a group').",
+        "Preposition 'in' -> 'at school'.",
+        "Missing article ('an auxiliary')."
+      ],
+      "vocabulary_patterns": [
+        "'Occupations' is a literal translation of 'ocupaciones' (meaning busy-ness/responsibilities); 'responsibilities' or 'duties' is more natural.",
+        "Misnamed 'Universidad Michoacana' as 'Mr. Nursing'.",
+        "'Career' is a false friend in this context; 'major' or 'program of study' is appropriate.",
+        "'New career' used instead of 'new major'.",
+        "Likely dropped the word 'music' in conversation."
+      ],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Gael Helubarey: Speaks with noticeable pauses and hesitation when formulating complex ideas, such as describing his major or band participation.",
+        "Gael Helubarey: Self-corrects frequently and uses fillers like 'uh' and 'for example' to bridge thoughts."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    }
+  },
+  "evidence": [
+    {
+      "speaker": "Gael Helubarey",
+      "start_offset": "3.100s",
+      "end_offset": "3.800s",
+      "stage1_heard": "I'm very hungry",
+      "reviewed_heard": "I'm very tired",
+      "intended": "I'm very tired",
+      "intent_confidence": "high",
+      "pronunciation": "incorrect",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": "The vowel sound in tired was mispronounced as hungry.",
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Gael Helubarey",
+      "start_offset": "4.200s",
+      "end_offset": "5.600s",
+      "stage1_heard": "I'm very stress",
+      "reviewed_heard": "I'm very stress",
+      "intended": "I'm very stressed",
+      "intent_confidence": "high",
+      "pronunciation": "incorrect",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": "Missing the final 'ed' sound in stressed.",
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Gael Helubarey",
+      "start_offset": "7.300s",
+      "end_offset": "10.800s",
+      "stage1_heard": "I have more occupations in the school, in my house and in work",
+      "reviewed_heard": "I have more occupations in the school, in my house and in work",
+      "intended": "I have more responsibilities/preoccupations at school, at home, and at work",
+      "intent_confidence": "medium",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Prepositions: 'in the school' -> 'at school', 'in my house' -> 'at home', 'in work' -> 'at work'.",
+      "vocabulary_note": "'Occupations' is a literal translation of 'ocupaciones' (meaning busy-ness/responsibilities); 'responsibilities' or 'duties' is more natural.",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Gael Helubarey",
+      "start_offset": "30.600s",
+      "end_offset": "41.900s",
+      "stage1_heard": "Uh no, I'm not in the Tech. No. I'm in another another university. I'm in the with Mr. Nursing.",
+      "reviewed_heard": "Uh no, I'm not in the Tech. No. I'm in another another university. I'm in the with Mr. Nursing.",
+      "intended": null,
+      "intent_confidence": "uncertain",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Incorrect preposition usage ('in the with').",
+      "vocabulary_note": "Misnamed 'Universidad Michoacana' as 'Mr. Nursing'.",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Gael Helubarey",
+      "start_offset": "121.800s",
+      "end_offset": "124.500s",
+      "stage1_heard": "For me my career in this university is a new career.",
+      "reviewed_heard": "For me my career in this university is a new career.",
+      "intended": "For me, my major at this university is new.",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": "'Career' is a false friend in this context; 'major' or 'program of study' is appropriate.",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Gael Helubarey",
+      "start_offset": "125.300s",
+      "end_offset": "141.700s",
+      "stage1_heard": "Yes. But for example in the in the university or uh Uh in my the building of the new career is in construction.",
+      "reviewed_heard": "Yes. But for example in the in the university or uh Uh in my the building of the new career is in construction.",
+      "intended": "Yes. But for example, the building for my new major is under construction.",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Disjointed phrasing and article misuse ('in my the building').",
+      "vocabulary_note": "'New career' used instead of 'new major'.",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Gael Helubarey",
+      "start_offset": "176.700s",
+      "end_offset": "177.500s",
+      "stage1_heard": "I don't have much money",
+      "reviewed_heard": "I don't have much money",
+      "intended": "I don't have much money",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Gael Helubarey",
+      "start_offset": "285.500s",
+      "end_offset": "292.100s",
+      "stage1_heard": "Yes, I am study and I like much listen to music.",
+      "reviewed_heard": "Yes, I am study and I like much listen to music.",
+      "intended": "Yes, I am studying and I really like listening to music.",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Incorrect verb form ('I am study' instead of 'I am studying') and infinitive vs gerund ('like much listen' instead of 'like listening').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Gael Helubarey",
+      "start_offset": "365.700s",
+      "end_offset": "369.700s",
+      "stage1_heard": "Yes, but it's not my group. I'm from part of the one group.",
+      "reviewed_heard": "Yes, but it's not my group. I'm from part of the one group.",
+      "intended": "Yes, but it's not my group. I'm part of a group.",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Redundant and incorrect phrasing ('from part of the one group' instead of 'part of a group').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Gael Helubarey",
+      "start_offset": "410.500s",
+      "end_offset": "413.900s",
+      "stage1_heard": "I have a further presentation right in the school",
+      "reviewed_heard": "I have a further presentation right in the school",
+      "intended": "I have a future presentation at school",
+      "intent_confidence": "medium",
+      "pronunciation": "incorrect",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": "Mispronounced 'future' as 'further'.",
+      "grammar_note": "Preposition 'in' -> 'at school'.",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Gael Helubarey",
+      "start_offset": "439.500s",
+      "end_offset": "440.800s",
+      "stage1_heard": "I'm auxiliary",
+      "reviewed_heard": "I'm auxiliary",
+      "intended": "I'm an auxiliary/backup player",
+      "intent_confidence": "medium",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Missing article ('an auxiliary').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Gael Helubarey",
+      "start_offset": "479.000s",
+      "end_offset": "483.000s",
+      "stage1_heard": "No. Uh no I don't like English.",
+      "reviewed_heard": "No. Uh no I don't like English.",
+      "intended": "No. I don't like English music.",
+      "intent_confidence": "medium",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": "Likely dropped the word 'music' in conversation.",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    }
+  ],
+  "fluency_observations": [
+    "Gael Helubarey: Speaks with noticeable pauses and hesitation when formulating complex ideas, such as describing his major or band participation.",
+    "Gael Helubarey: Self-corrects frequently and uses fillers like 'uh' and 'for example' to bridge thoughts.",
+    "Jhoana: Maintains a steady conversational pace and prompts the student naturally with follow-up questions."
+  ],
+  "teacher_interventions": [],
+  "scoring_status": "evidence_only_not_final_rubric"
+}
