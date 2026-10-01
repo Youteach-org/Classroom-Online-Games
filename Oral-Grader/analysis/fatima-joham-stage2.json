@@ -1,0 +1,187 @@
+{
+  "project": "Oral-Grader",
+  "stage": 2,
+  "pair_slug": "fatima-joham",
+  "model": "gemini-3.5-flash-lite",
+  "stage1_source": "Oral-Grader/transcripts/fatima-joham-stage1.json",
+  "stage1_review": "Oral-Grader/reviews/fatima-joham-stage1-review.json",
+  "speaker_mapping": {
+    "spk:0": "Joham",
+    "spk:1": "Fátima",
+    "spk:teacher": "Teacher"
+  },
+  "students": {
+    "Joham": {
+      "incorrect_pronunciation_count": 1,
+      "acceptable_sample_count": 2,
+      "uncertain_count": 0,
+      "grammar_patterns": [
+        "tense inconsistency (\"feel\" instead of \"felt\"), preposition error (\"in all week\" instead of \"all week\")",
+        "agreement error (\"projects need\" should be \"project needs\" or \"projects need\"), modal tangle (\"I will can... I could do it\"), fragment / incoherent relative clause (\"if I will never use during that something\")"
+      ],
+      "vocabulary_patterns": [
+        "word form error: used 'worry' (noun/verb) instead of the adjective 'worrying'"
+      ],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Joham: Speaks with noticeable pausing and false starts, particularly when formulating complex sentences (e.g., modal verb tangles around 3:30)."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    },
+    "Fátima": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 3,
+      "uncertain_count": 0,
+      "grammar_patterns": [
+        "preposition error (\"in this weekend\" instead of \"this weekend\"), tense inconsistency (\"teacher say\" instead of \"teacher said\")",
+        "determiner-adjective agreement error (\"others careers\" instead of \"other careers\")"
+      ],
+      "vocabulary_patterns": [
+        "false friend: used 'assist to' (from Spanish 'asistir a') instead of 'attend'"
+      ],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Fátima: Demonstrates generally smooth delivery with occasional hesitations and self-corrections (e.g., switching between 'careers' and 'majors')."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    }
+  },
+  "evidence": [
+    {
+      "speaker": "Joham",
+      "start_offset": "11.200s",
+      "end_offset": "31.300s",
+      "stage1_heard": "Mm, I feel tired in all week because mm, my university give me online classes for because they had um I don't know what, something.",
+      "reviewed_heard": "Mm, I feel tired in all week because mm, my university give me online classes for because they had um I don't know what, something.",
+      "intended": "Mm, I felt tired all week because, um, my university gave me online classes because they had, um, I don't know what, something.",
+      "intent_confidence": "high",
+      "pronunciation": "incorrect",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": "mispronunciation of 'university'",
+      "grammar_note": "tense inconsistency (\"feel\" instead of \"felt\"), preposition error (\"in all week\" instead of \"all week\")",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Joham",
+      "start_offset": "73s",
+      "end_offset": "79s",
+      "stage1_heard": "Mm, more than difficult, it was worry.",
+      "reviewed_heard": "Mm, more than difficult, it was worry.",
+      "intended": "Mm, more than difficult, it was worrying.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": "word form error: used 'worry' (noun/verb) instead of the adjective 'worrying'",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Joham",
+      "start_offset": "329.200s",
+      "end_offset": "345.200s",
+      "stage1_heard": "Uh, me neither, me neither. Because I think the uh that that kind of uh projects need a lot of time, a lot of money, and a lot of study and I can I will uh I will can No, I will can. No, I I could do it, but um but I don't have the time and I don't And I don't care if I if I will never use during that something. I don't I don't really care. How about you?",
+      "reviewed_heard": "Uh, me neither, me neither. Because I think the uh that that kind of uh projects need a lot of time, a lot of money, and a lot of study and I can I will uh I will can No, I will can. No, I I could do it, but um but I don't have the time and I don't And I don't care if I if I will never use during that something. I don't I don't really care. How about you?",
+      "intended": "Uh, me neither, me neither. Because I think that kind of project needs a lot of time, a lot of money, and a lot of study, and I could do it, but I don't have the time, and I don't care if I will never use it. I don't really care. How about you?",
+      "intent_confidence": "medium",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "agreement error (\"projects need\" should be \"project needs\" or \"projects need\"), modal tangle (\"I will can... I could do it\"), fragment / incoherent relative clause (\"if I will never use during that something\")",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Fátima",
+      "start_offset": "166.400s",
+      "end_offset": "183.900s",
+      "stage1_heard": "Yes, in in this weekend uh I'm going to do like uh 10 10 page page or essay because one one teacher say I'm going to give you a a little homework, but it's like",
+      "reviewed_heard": "Yes, in in this weekend uh I'm going to do like uh 10 10 page page or essay because one one teacher say I'm going to give you a a little homework, but it's like",
+      "intended": "Yes, this weekend I'm going to do like a 10-page essay because one teacher said, \"I'm going to give you a little homework,\" but it's like...",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "preposition error (\"in this weekend\" instead of \"this weekend\"), tense inconsistency (\"teacher say\" instead of \"teacher said\")",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Fátima",
+      "start_offset": "373.900s",
+      "end_offset": "380.800s",
+      "stage1_heard": "And he he didn't uh assist to any class for like one week.",
+      "reviewed_heard": "And he he didn't uh assist to any class for like one week.",
+      "intended": "And he didn't attend any class for, like, one week.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": "false friend: used 'assist to' (from Spanish 'asistir a') instead of 'attend'",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Fátima",
+      "start_offset": "249s",
+      "end_offset": "261.100s",
+      "stage1_heard": "Maybe the others careers Maybe the others uh majors or careers uh could could be angry about the the progress of the study program.",
+      "reviewed_heard": "Maybe the others careers Maybe the others uh majors or careers uh could could be angry about the the progress of the study program.",
+      "intended": "Maybe the other careers—maybe the other majors or careers—could be angry about the progress of the study program.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "determiner-adjective agreement error (\"others careers\" instead of \"other careers\")",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    }
+  ],
+  "fluency_observations": [
+    "Joham: Speaks with noticeable pausing and false starts, particularly when formulating complex sentences (e.g., modal verb tangles around 3:30).",
+    "Fátima: Demonstrates generally smooth delivery with occasional hesitations and self-corrections (e.g., switching between 'careers' and 'majors')."
+  ],
+  "teacher_interventions": [],
+  "scoring_status": "evidence_only_not_final_rubric"
+}
