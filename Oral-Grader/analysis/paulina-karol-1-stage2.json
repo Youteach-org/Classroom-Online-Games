@@ -1,0 +1,200 @@
+{
+  "project": "Oral-Grader",
+  "stage": 2,
+  "pair_slug": "paulina-karol-1",
+  "model": "gemini-3.5-flash-lite",
+  "stage1_source": "Oral-Grader/transcripts/paulina-karol-1-stage1.json",
+  "stage1_review": "Oral-Grader/reviews/paulina-karol-1-stage1-review.json",
+  "speaker_mapping": {
+    "spk:0": "Paulina",
+    "spk:1": "Karol",
+    "spk:teacher": "Teacher"
+  },
+  "students": {
+    "Paulina": {
+      "incorrect_pronunciation_count": 1,
+      "acceptable_sample_count": 3,
+      "uncertain_count": 1,
+      "grammar_patterns": [],
+      "vocabulary_patterns": [],
+      "malformed_form_patterns": [],
+      "transcription_notes": [
+        "Audio unclear and fragmented"
+      ],
+      "fluency_observations": [
+        "Paulina: Spoke with some hesitation, pausing and repeating words."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    },
+    "Karol": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 2,
+      "uncertain_count": 0,
+      "grammar_patterns": [],
+      "vocabulary_patterns": [],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Karol: Spoke fluently with good pace, despite minor structural errors."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    }
+  },
+  "evidence": [
+    {
+      "speaker": "Paulina",
+      "start_offset": "1.100s",
+      "end_offset": "2.300s",
+      "stage1_heard": "Hi, how are you with?",
+      "reviewed_heard": "Hi, how are you with?",
+      "intended": "Hi, how are you?",
+      "intent_confidence": "medium",
+      "pronunciation": "incorrect",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": "Added extra word 'with'",
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Karol",
+      "start_offset": "2.900s",
+      "end_offset": "4.500s",
+      "stage1_heard": "My week was very well.",
+      "reviewed_heard": "My week was very well.",
+      "intended": "My week went very well.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Karol",
+      "start_offset": "4.500s",
+      "end_offset": "24.500s",
+      "stage1_heard": "I but a little bit stressful because in my high school I need to sign some documents and they give me this a lot of news and it's a lot of information in my mind now.",
+      "reviewed_heard": "I but a little bit stressful because in my high school I need to sign some documents and they give me this a lot of news and it's a lot of information in my mind now.",
+      "intended": "I was a little bit stressed because in my high school I needed to sign some documents and they gave me a lot of news, and it's a lot of information in my mind now.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paulina",
+      "start_offset": "27.100s",
+      "end_offset": "31.500s",
+      "stage1_heard": "My week was very tiring because",
+      "reviewed_heard": "My week was very tiring because",
+      "intended": "My week was very tiring because",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paulina",
+      "start_offset": "31.500s",
+      "end_offset": "41.500s",
+      "stage1_heard": "in this week I have a lot of homework and my in my high school",
+      "reviewed_heard": "in this week I have a lot of homework and my in my high school",
+      "intended": "this week I had a lot of homework, and in my high school",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paulina",
+      "start_offset": "41.500s",
+      "end_offset": "52.000s",
+      "stage1_heard": "I I had a on my class",
+      "reviewed_heard": "I I had a on my class",
+      "intended": null,
+      "intent_confidence": "uncertain",
+      "pronunciation": "uncertain",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": "Audio unclear and fragmented",
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paulina",
+      "start_offset": "52.000s",
+      "end_offset": "59.800s",
+      "stage1_heard": "and from Monday up to to Friday I went to my work.",
+      "reviewed_heard": "and from Monday up to to Friday I went to my work.",
+      "intended": "and from Monday to Friday I went to work.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    }
+  ],
+  "fluency_observations": [
+    "Paulina: Spoke with some hesitation, pausing and repeating words.",
+    "Karol: Spoke fluently with good pace, despite minor structural errors."
+  ],
+  "teacher_interventions": [],
+  "scoring_status": "evidence_only_not_final_rubric"
+}
