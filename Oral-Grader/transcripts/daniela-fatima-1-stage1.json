@@ -1,0 +1,891 @@
+{
+  "project": "Oral-Grader",
+  "stage": 1,
+  "pair_slug": "daniela-fatima-1",
+  "model": "gemini-3.5-transcribe",
+  "mode": "verbatim",
+  "speaker_diarization": true,
+  "word_timestamps": true,
+  "source_file": "oral-grader-source.ogg",
+  "full_text": "Can you tell me your joke?I don't know.Yes, yes, yes.The first the first movie. In one part of the movie What's the name of the guy? The Johnny Johnny it's a a person who have internet and technology. And they say and said and Dracula says okay all that how me that you're pathetic and Johnny says yeah got it. Maybe you should just get a Bluetooth. And Dracula says okay Bluetooth come over here.I I didn't understand that joke in the movie in Spanish Uh maybeThat was not so funny but in English is is more more is more funny. No, teacher.Oh. Well. Do you know why English people say British? Do you know why English people say the word British? Because they eat the tea.That's so funny.Okay.",
+  "turns": [
+    {
+      "speaker": "spk:0",
+      "start_offset": "5.700s",
+      "end_offset": "7.200s",
+      "heard": "Can you tell me your joke?"
+    },
+    {
+      "speaker": "spk:1",
+      "start_offset": "17.500s",
+      "end_offset": "18.100s",
+      "heard": "I don't know."
+    },
+    {
+      "speaker": "spk:0",
+      "start_offset": "21s",
+      "end_offset": "21.400s",
+      "heard": "Yes, yes, yes."
+    },
+    {
+      "speaker": "spk:1",
+      "start_offset": "21s",
+      "end_offset": "74.100s",
+      "heard": "The first the first movie. In one part of the movie What's the name of the guy? The Johnny Johnny it's a a person who have internet and technology. And they say and said and Dracula says okay all that how me that you're pathetic and Johnny says yeah got it. Maybe you should just get a Bluetooth. And Dracula says okay Bluetooth come over here."
+    },
+    {
+      "speaker": "spk:0",
+      "start_offset": "78.200s",
+      "end_offset": "84.700s",
+      "heard": "I I didn't understand that joke in the movie in Spanish Uh maybe"
+    },
+    {
+      "speaker": "spk:1",
+      "start_offset": "86.400s",
+      "end_offset": "95s",
+      "heard": "That was not so funny but in English is is more more is more funny. No, teacher."
+    },
+    {
+      "speaker": "spk:0",
+      "start_offset": "95.300s",
+      "end_offset": "111s",
+      "heard": "Oh. Well. Do you know why English people say British? Do you know why English people say the word British? Because they eat the tea."
+    },
+    {
+      "speaker": "spk:1",
+      "start_offset": "116.400s",
+      "end_offset": "117.300s",
+      "heard": "That's so funny."
+    },
+    {
+      "speaker": "spk:0",
+      "start_offset": "117.800s",
+      "end_offset": "118.400s",
+      "heard": "Okay."
+    }
+  ],
+  "words": [
+    {
+      "text": "Can",
+      "speaker": "spk:0",
+      "start_offset": "5.700s",
+      "end_offset": "5.700s"
+    },
+    {
+      "text": "you",
+      "speaker": "spk:0",
+      "start_offset": "5.700s",
+      "end_offset": "5.900s"
+    },
+    {
+      "text": "tell",
+      "speaker": "spk:0",
+      "start_offset": "5.900s",
+      "end_offset": "6.200s"
+    },
+    {
+      "text": "me",
+      "speaker": "spk:0",
+      "start_offset": "6.200s",
+      "end_offset": "6.500s"
+    },
+    {
+      "text": "your",
+      "speaker": "spk:0",
+      "start_offset": "6.600s",
+      "end_offset": "6.800s"
+    },
+    {
+      "text": "joke?",
+      "speaker": "spk:0",
+      "start_offset": "6.800s",
+      "end_offset": "7.200s"
+    },
+    {
+      "text": "I",
+      "speaker": "spk:1",
+      "start_offset": "17.500s",
+      "end_offset": "17.600s"
+    },
+    {
+      "text": "don't",
+      "speaker": "spk:1",
+      "start_offset": "17.600s",
+      "end_offset": "17.800s"
+    },
+    {
+      "text": "know.",
+      "speaker": "spk:1",
+      "start_offset": "17.800s",
+      "end_offset": "18.100s"
+    },
+    {
+      "text": "Yes,",
+      "speaker": "spk:0",
+      "start_offset": "21s",
+      "end_offset": "21.200s"
+    },
+    {
+      "text": "yes,",
+      "speaker": "spk:0",
+      "start_offset": "21.200s",
+      "end_offset": "21.300s"
+    },
+    {
+      "text": "yes.",
+      "speaker": "spk:0",
+      "start_offset": "21.300s",
+      "end_offset": "21.400s"
+    },
+    {
+      "text": "The",
+      "speaker": "spk:1",
+      "start_offset": "21s",
+      "end_offset": "21.100s"
+    },
+    {
+      "text": "first",
+      "speaker": "spk:1",
+      "start_offset": "21.100s",
+      "end_offset": "21.200s"
+    },
+    {
+      "text": "the",
+      "speaker": "spk:1",
+      "start_offset": "22s",
+      "end_offset": "22.200s"
+    },
+    {
+      "text": "first",
+      "speaker": "spk:1",
+      "start_offset": "22.200s",
+      "end_offset": "22.500s"
+    },
+    {
+      "text": "movie.",
+      "speaker": "spk:1",
+      "start_offset": "22.500s",
+      "end_offset": "22.800s"
+    },
+    {
+      "text": "In",
+      "speaker": "spk:1",
+      "start_offset": "24s",
+      "end_offset": "24.400s"
+    },
+    {
+      "text": "one",
+      "speaker": "spk:1",
+      "start_offset": "24.400s",
+      "end_offset": "24.700s"
+    },
+    {
+      "text": "part",
+      "speaker": "spk:1",
+      "start_offset": "24.700s",
+      "end_offset": "25s"
+    },
+    {
+      "text": "of",
+      "speaker": "spk:1",
+      "start_offset": "25s",
+      "end_offset": "25.100s"
+    },
+    {
+      "text": "the",
+      "speaker": "spk:1",
+      "start_offset": "25.100s",
+      "end_offset": "25.200s"
+    },
+    {
+      "text": "movie",
+      "speaker": "spk:1",
+      "start_offset": "25.200s",
+      "end_offset": "25.600s"
+    },
+    {
+      "text": "What's",
+      "speaker": "spk:1",
+      "start_offset": "28.600s",
+      "end_offset": "28.800s"
+    },
+    {
+      "text": "the",
+      "speaker": "spk:1",
+      "start_offset": "28.800s",
+      "end_offset": "28.900s"
+    },
+    {
+      "text": "name",
+      "speaker": "spk:1",
+      "start_offset": "28.900s",
+      "end_offset": "29.300s"
+    },
+    {
+      "text": "of",
+      "speaker": "spk:1",
+      "start_offset": "29.300s",
+      "end_offset": "29.600s"
+    },
+    {
+      "text": "the",
+      "speaker": "spk:1",
+      "start_offset": "29.600s",
+      "end_offset": "29.700s"
+    },
+    {
+      "text": "guy?",
+      "speaker": "spk:1",
+      "start_offset": "29.700s",
+      "end_offset": "30.100s"
+    },
+    {
+      "text": "The",
+      "speaker": "spk:1",
+      "start_offset": "31.400s",
+      "end_offset": "32.200s"
+    },
+    {
+      "text": "Johnny",
+      "speaker": "spk:1",
+      "start_offset": "34.500s",
+      "end_offset": "35s"
+    },
+    {
+      "text": "Johnny",
+      "speaker": "spk:1",
+      "start_offset": "37.100s",
+      "end_offset": "37.800s"
+    },
+    {
+      "text": "it's",
+      "speaker": "spk:1",
+      "start_offset": "37.900s",
+      "end_offset": "38.100s"
+    },
+    {
+      "text": "a",
+      "speaker": "spk:1",
+      "start_offset": "38.100s",
+      "end_offset": "38.700s"
+    },
+    {
+      "text": "a",
+      "speaker": "spk:1",
+      "start_offset": "40.700s",
+      "end_offset": "40.900s"
+    },
+    {
+      "text": "person",
+      "speaker": "spk:1",
+      "start_offset": "41.300s",
+      "end_offset": "42.100s"
+    },
+    {
+      "text": "who",
+      "speaker": "spk:1",
+      "start_offset": "43.200s",
+      "end_offset": "43.600s"
+    },
+    {
+      "text": "have",
+      "speaker": "spk:1",
+      "start_offset": "43.600s",
+      "end_offset": "44s"
+    },
+    {
+      "text": "internet",
+      "speaker": "spk:1",
+      "start_offset": "44.300s",
+      "end_offset": "44.900s"
+    },
+    {
+      "text": "and",
+      "speaker": "spk:1",
+      "start_offset": "44.900s",
+      "end_offset": "45.200s"
+    },
+    {
+      "text": "technology.",
+      "speaker": "spk:1",
+      "start_offset": "46.900s",
+      "end_offset": "47.600s"
+    },
+    {
+      "text": "And",
+      "speaker": "spk:1",
+      "start_offset": "49s",
+      "end_offset": "49.600s"
+    },
+    {
+      "text": "they",
+      "speaker": "spk:1",
+      "start_offset": "49.600s",
+      "end_offset": "49.800s"
+    },
+    {
+      "text": "say",
+      "speaker": "spk:1",
+      "start_offset": "49.800s",
+      "end_offset": "50.100s"
+    },
+    {
+      "text": "and",
+      "speaker": "spk:1",
+      "start_offset": "50.600s",
+      "end_offset": "50.900s"
+    },
+    {
+      "text": "said",
+      "speaker": "spk:1",
+      "start_offset": "50.900s",
+      "end_offset": "51.200s"
+    },
+    {
+      "text": "and",
+      "speaker": "spk:1",
+      "start_offset": "51.900s",
+      "end_offset": "52.500s"
+    },
+    {
+      "text": "Dracula",
+      "speaker": "spk:1",
+      "start_offset": "52.600s",
+      "end_offset": "53.200s"
+    },
+    {
+      "text": "says",
+      "speaker": "spk:1",
+      "start_offset": "53.200s",
+      "end_offset": "53.600s"
+    },
+    {
+      "text": "okay",
+      "speaker": "spk:1",
+      "start_offset": "53.900s",
+      "end_offset": "54.300s"
+    },
+    {
+      "text": "all",
+      "speaker": "spk:1",
+      "start_offset": "54.900s",
+      "end_offset": "55.100s"
+    },
+    {
+      "text": "that",
+      "speaker": "spk:1",
+      "start_offset": "55.100s",
+      "end_offset": "55.400s"
+    },
+    {
+      "text": "how",
+      "speaker": "spk:1",
+      "start_offset": "55.400s",
+      "end_offset": "55.800s"
+    },
+    {
+      "text": "me",
+      "speaker": "spk:1",
+      "start_offset": "56.300s",
+      "end_offset": "56.800s"
+    },
+    {
+      "text": "that",
+      "speaker": "spk:1",
+      "start_offset": "57.200s",
+      "end_offset": "57.400s"
+    },
+    {
+      "text": "you're",
+      "speaker": "spk:1",
+      "start_offset": "57.400s",
+      "end_offset": "57.800s"
+    },
+    {
+      "text": "pathetic",
+      "speaker": "spk:1",
+      "start_offset": "57.800s",
+      "end_offset": "58.800s"
+    },
+    {
+      "text": "and",
+      "speaker": "spk:1",
+      "start_offset": "60.400s",
+      "end_offset": "61s"
+    },
+    {
+      "text": "Johnny",
+      "speaker": "spk:1",
+      "start_offset": "61.900s",
+      "end_offset": "62.300s"
+    },
+    {
+      "text": "says",
+      "speaker": "spk:1",
+      "start_offset": "62.300s",
+      "end_offset": "62.700s"
+    },
+    {
+      "text": "yeah",
+      "speaker": "spk:1",
+      "start_offset": "62.800s",
+      "end_offset": "63.200s"
+    },
+    {
+      "text": "got",
+      "speaker": "spk:1",
+      "start_offset": "63.500s",
+      "end_offset": "63.700s"
+    },
+    {
+      "text": "it.",
+      "speaker": "spk:1",
+      "start_offset": "63.700s",
+      "end_offset": "64s"
+    },
+    {
+      "text": "Maybe",
+      "speaker": "spk:1",
+      "start_offset": "64.300s",
+      "end_offset": "64.600s"
+    },
+    {
+      "text": "you",
+      "speaker": "spk:1",
+      "start_offset": "64.600s",
+      "end_offset": "65s"
+    },
+    {
+      "text": "should",
+      "speaker": "spk:1",
+      "start_offset": "65.100s",
+      "end_offset": "65.400s"
+    },
+    {
+      "text": "just",
+      "speaker": "spk:1",
+      "start_offset": "65.400s",
+      "end_offset": "65.800s"
+    },
+    {
+      "text": "get",
+      "speaker": "spk:1",
+      "start_offset": "66.200s",
+      "end_offset": "66.600s"
+    },
+    {
+      "text": "a",
+      "speaker": "spk:1",
+      "start_offset": "66.700s",
+      "end_offset": "67.200s"
+    },
+    {
+      "text": "Bluetooth.",
+      "speaker": "spk:1",
+      "start_offset": "67.200s",
+      "end_offset": "67.800s"
+    },
+    {
+      "text": "And",
+      "speaker": "spk:1",
+      "start_offset": "70s",
+      "end_offset": "70.200s"
+    },
+    {
+      "text": "Dracula",
+      "speaker": "spk:1",
+      "start_offset": "70.200s",
+      "end_offset": "70.600s"
+    },
+    {
+      "text": "says",
+      "speaker": "spk:1",
+      "start_offset": "70.600s",
+      "end_offset": "70.800s"
+    },
+    {
+      "text": "okay",
+      "speaker": "spk:1",
+      "start_offset": "71s",
+      "end_offset": "71.500s"
+    },
+    {
+      "text": "Bluetooth",
+      "speaker": "spk:1",
+      "start_offset": "72.100s",
+      "end_offset": "73.300s"
+    },
+    {
+      "text": "come",
+      "speaker": "spk:1",
+      "start_offset": "73.300s",
+      "end_offset": "73.600s"
+    },
+    {
+      "text": "over",
+      "speaker": "spk:1",
+      "start_offset": "73.600s",
+      "end_offset": "73.800s"
+    },
+    {
+      "text": "here.",
+      "speaker": "spk:1",
+      "start_offset": "73.800s",
+      "end_offset": "74.100s"
+    },
+    {
+      "text": "I",
+      "speaker": "spk:0",
+      "start_offset": "78.200s",
+      "end_offset": "78.500s"
+    },
+    {
+      "text": "I",
+      "speaker": "spk:0",
+      "start_offset": "78.500s",
+      "end_offset": "78.600s"
+    },
+    {
+      "text": "didn't",
+      "speaker": "spk:0",
+      "start_offset": "78.600s",
+      "end_offset": "78.900s"
+    },
+    {
+      "text": "understand",
+      "speaker": "spk:0",
+      "start_offset": "78.900s",
+      "end_offset": "79.700s"
+    },
+    {
+      "text": "that",
+      "speaker": "spk:0",
+      "start_offset": "79.700s",
+      "end_offset": "80s"
+    },
+    {
+      "text": "joke",
+      "speaker": "spk:0",
+      "start_offset": "80s",
+      "end_offset": "80.300s"
+    },
+    {
+      "text": "in",
+      "speaker": "spk:0",
+      "start_offset": "80.300s",
+      "end_offset": "80.400s"
+    },
+    {
+      "text": "the",
+      "speaker": "spk:0",
+      "start_offset": "80.400s",
+      "end_offset": "80.500s"
+    },
+    {
+      "text": "movie",
+      "speaker": "spk:0",
+      "start_offset": "80.500s",
+      "end_offset": "81.100s"
+    },
+    {
+      "text": "in",
+      "speaker": "spk:0",
+      "start_offset": "81.300s",
+      "end_offset": "81.400s"
+    },
+    {
+      "text": "Spanish",
+      "speaker": "spk:0",
+      "start_offset": "81.400s",
+      "end_offset": "82s"
+    },
+    {
+      "text": "Uh",
+      "speaker": "spk:0",
+      "start_offset": "84s",
+      "end_offset": "84.400s"
+    },
+    {
+      "text": "maybe",
+      "speaker": "spk:0",
+      "start_offset": "84.500s",
+      "end_offset": "84.700s"
+    },
+    {
+      "text": "That",
+      "speaker": "spk:1",
+      "start_offset": "86.400s",
+      "end_offset": "86.600s"
+    },
+    {
+      "text": "was",
+      "speaker": "spk:1",
+      "start_offset": "86.600s",
+      "end_offset": "86.900s"
+    },
+    {
+      "text": "not",
+      "speaker": "spk:1",
+      "start_offset": "86.900s",
+      "end_offset": "87.200s"
+    },
+    {
+      "text": "so",
+      "speaker": "spk:1",
+      "start_offset": "87.200s",
+      "end_offset": "87.400s"
+    },
+    {
+      "text": "funny",
+      "speaker": "spk:1",
+      "start_offset": "87.400s",
+      "end_offset": "87.800s"
+    },
+    {
+      "text": "but",
+      "speaker": "spk:1",
+      "start_offset": "87.900s",
+      "end_offset": "88s"
+    },
+    {
+      "text": "in",
+      "speaker": "spk:1",
+      "start_offset": "88s",
+      "end_offset": "88.200s"
+    },
+    {
+      "text": "English",
+      "speaker": "spk:1",
+      "start_offset": "88.200s",
+      "end_offset": "88.500s"
+    },
+    {
+      "text": "is",
+      "speaker": "spk:1",
+      "start_offset": "88.500s",
+      "end_offset": "88.800s"
+    },
+    {
+      "text": "is",
+      "speaker": "spk:1",
+      "start_offset": "88.900s",
+      "end_offset": "89s"
+    },
+    {
+      "text": "more",
+      "speaker": "spk:1",
+      "start_offset": "89s",
+      "end_offset": "89.400s"
+    },
+    {
+      "text": "more",
+      "speaker": "spk:1",
+      "start_offset": "90.200s",
+      "end_offset": "90.300s"
+    },
+    {
+      "text": "is",
+      "speaker": "spk:1",
+      "start_offset": "90.300s",
+      "end_offset": "90.400s"
+    },
+    {
+      "text": "more",
+      "speaker": "spk:1",
+      "start_offset": "90.400s",
+      "end_offset": "90.600s"
+    },
+    {
+      "text": "funny.",
+      "speaker": "spk:1",
+      "start_offset": "90.600s",
+      "end_offset": "91s"
+    },
+    {
+      "text": "No,",
+      "speaker": "spk:1",
+      "start_offset": "94s",
+      "end_offset": "94.400s"
+    },
+    {
+      "text": "teacher.",
+      "speaker": "spk:1",
+      "start_offset": "94.400s",
+      "end_offset": "95s"
+    },
+    {
+      "text": "Oh.",
+      "speaker": "spk:0",
+      "start_offset": "95.300s",
+      "end_offset": "95.900s"
+    },
+    {
+      "text": "Well.",
+      "speaker": "spk:0",
+      "start_offset": "96.500s",
+      "end_offset": "96.800s"
+    },
+    {
+      "text": "Do",
+      "speaker": "spk:0",
+      "start_offset": "98.200s",
+      "end_offset": "98.300s"
+    },
+    {
+      "text": "you",
+      "speaker": "spk:0",
+      "start_offset": "98.300s",
+      "end_offset": "98.500s"
+    },
+    {
+      "text": "know",
+      "speaker": "spk:0",
+      "start_offset": "98.500s",
+      "end_offset": "99s"
+    },
+    {
+      "text": "why",
+      "speaker": "spk:0",
+      "start_offset": "99.100s",
+      "end_offset": "99.600s"
+    },
+    {
+      "text": "English",
+      "speaker": "spk:0",
+      "start_offset": "99.600s",
+      "end_offset": "100s"
+    },
+    {
+      "text": "people",
+      "speaker": "spk:0",
+      "start_offset": "100s",
+      "end_offset": "100.600s"
+    },
+    {
+      "text": "say",
+      "speaker": "spk:0",
+      "start_offset": "101.200s",
+      "end_offset": "102s"
+    },
+    {
+      "text": "British?",
+      "speaker": "spk:0",
+      "start_offset": "102.100s",
+      "end_offset": "102.700s"
+    },
+    {
+      "text": "Do",
+      "speaker": "spk:0",
+      "start_offset": "103.600s",
+      "end_offset": "103.800s"
+    },
+    {
+      "text": "you",
+      "speaker": "spk:0",
+      "start_offset": "103.800s",
+      "end_offset": "103.900s"
+    },
+    {
+      "text": "know",
+      "speaker": "spk:0",
+      "start_offset": "103.900s",
+      "end_offset": "104.200s"
+    },
+    {
+      "text": "why",
+      "speaker": "spk:0",
+      "start_offset": "104.200s",
+      "end_offset": "104.600s"
+    },
+    {
+      "text": "English",
+      "speaker": "spk:0",
+      "start_offset": "104.600s",
+      "end_offset": "105.100s"
+    },
+    {
+      "text": "people",
+      "speaker": "spk:0",
+      "start_offset": "105.100s",
+      "end_offset": "105.700s"
+    },
+    {
+      "text": "say",
+      "speaker": "spk:0",
+      "start_offset": "106.200s",
+      "end_offset": "106.700s"
+    },
+    {
+      "text": "the",
+      "speaker": "spk:0",
+      "start_offset": "106.800s",
+      "end_offset": "106.900s"
+    },
+    {
+      "text": "word",
+      "speaker": "spk:0",
+      "start_offset": "106.900s",
+      "end_offset": "107.400s"
+    },
+    {
+      "text": "British?",
+      "speaker": "spk:0",
+      "start_offset": "107.500s",
+      "end_offset": "108.200s"
+    },
+    {
+      "text": "Because",
+      "speaker": "spk:0",
+      "start_offset": "109.300s",
+      "end_offset": "109.700s"
+    },
+    {
+      "text": "they",
+      "speaker": "spk:0",
+      "start_offset": "109.700s",
+      "end_offset": "110.100s"
+    },
+    {
+      "text": "eat",
+      "speaker": "spk:0",
+      "start_offset": "110.100s",
+      "end_offset": "110.500s"
+    },
+    {
+      "text": "the",
+      "speaker": "spk:0",
+      "start_offset": "110.500s",
+      "end_offset": "110.700s"
+    },
+    {
+      "text": "tea.",
+      "speaker": "spk:0",
+      "start_offset": "110.700s",
+      "end_offset": "111s"
+    },
+    {
+      "text": "That's",
+      "speaker": "spk:1",
+      "start_offset": "116.400s",
+      "end_offset": "116.700s"
+    },
+    {
+      "text": "so",
+      "speaker": "spk:1",
+      "start_offset": "116.700s",
+      "end_offset": "117s"
+    },
+    {
+      "text": "funny.",
+      "speaker": "spk:1",
+      "start_offset": "117s",
+      "end_offset": "117.300s"
+    },
+    {
+      "text": "Okay.",
+      "speaker": "spk:0",
+      "start_offset": "117.800s",
+      "end_offset": "118.400s"
+    }
+  ]
+}
