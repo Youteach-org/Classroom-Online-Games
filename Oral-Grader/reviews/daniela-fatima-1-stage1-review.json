@@ -1,0 +1,18 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "daniela-fatima-1",
+  "stage": 1,
+  "review_status": "accepted_with_notes",
+  "accepted_for_stage2": true,
+  "speaker_mapping": {
+    "spk:0": "Daniela",
+    "spk:1": "Fátima",
+    "spk:teacher": "Teacher"
+  },
+  "fidelity_notes": [
+    "The recording is a student-to-student exchange; no distinct teacher speech is represented in the Stage-1 diarization.",
+    "Speaker names follow the recording filename order for this run.",
+    "Raw Gemini Stage-1 transcript remains unchanged; interpretation and correction belong downstream."
+  ],
+  "teacher_confirmed_pronunciation_evidence": []
+}
