@@ -1,0 +1,18 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "fatima-joham",
+  "stage": 1,
+  "review_status": "accepted_with_notes",
+  "accepted_for_stage2": true,
+  "speaker_mapping": {
+    "spk:0": "Joham",
+    "spk:1": "Fátima",
+    "spk:teacher": "Teacher"
+  },
+  "fidelity_notes": [
+    "Speaker identities are confirmed by self-identification at the end of the recording: spk:1 = Fátima and spk:0 = Joham.",
+    "This is a student-to-student exchange; no distinct teacher speech appears in Stage 1.",
+    "Raw Stage-1 wording remains unchanged."
+  ],
+  "teacher_confirmed_pronunciation_evidence": []
+}
