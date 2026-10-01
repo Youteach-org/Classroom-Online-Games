@@ -1,0 +1,204 @@
+{
+  "project": "Oral-Grader",
+  "stage": 2,
+  "pair_slug": "jean-paul-2",
+  "model": "gemini-3.5-flash-lite",
+  "stage1_source": "Oral-Grader/transcripts/jean-paul-2-stage1.json",
+  "stage1_review": "Oral-Grader/reviews/jean-paul-2-stage1-review.json",
+  "speaker_mapping": {
+    "spk:0": "Jean",
+    "spk:1": "Paul",
+    "spk:2": "Teacher",
+    "spk:3": "Teacher"
+  },
+  "students": {
+    "Jean": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 0,
+      "uncertain_count": 0,
+      "grammar_patterns": [],
+      "vocabulary_patterns": [],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Jean: Maintains good conversational flow but occasionally struggles with translating specific terms from Spanish (e.g., \"temporada\", \"aniversario\")."
+      ],
+      "teacher_interventions": [
+        {
+          "student": "Jean",
+          "start_offset": "281.700s",
+          "end_offset": "283.400s",
+          "kind": "word_supply",
+          "description": "Paul supplies the English word \"Season\" when Jean asks how to say \"temporada\"."
+        }
+      ],
+      "notes_for_rubric": []
+    },
+    "Paul": {
+      "incorrect_pronunciation_count": 5,
+      "acceptable_sample_count": 1,
+      "uncertain_count": 0,
+      "grammar_patterns": [
+        "Missing past be-verb (\"was a little stressed\") and incorrect adjective form.",
+        "Missing subject pronoun and tense inconsistency (\"I say\").",
+        "\"want continue\" missing \"to\", \"they was\" subject-verb agreement error.",
+        "Unnatural prepositional phrasing for repeating a school year.",
+        "Tense inconsistency (\"don't want died\")."
+      ],
+      "vocabulary_patterns": [
+        "\"story\" instead of \"history\".",
+        "\"reproved\" is an incorrect translation of \"reprobé\" (failed).",
+        "\"both this movie\" instead of \"this movie\"."
+      ],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Paul: Exhibits frequent pauses, repetitions, and hesitation markers (e.g., \"um\", \"uh\") while searching for vocabulary."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    }
+  },
+  "evidence": [
+    {
+      "speaker": "Paul",
+      "start_offset": "22.400s",
+      "end_offset": "27.000s",
+      "stage1_heard": "Um a little stress because I had a a story exam",
+      "reviewed_heard": "Um a little stress because I had a a story exam",
+      "intended": "I was a little stressed because I had a history exam,",
+      "intent_confidence": "high",
+      "pronunciation": "incorrect",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": "\"stress\" pronounced as adjective instead of \"stressed\", \"story\" used for \"history\".",
+      "grammar_note": "Missing past be-verb (\"was a little stressed\") and incorrect adjective form.",
+      "vocabulary_note": "\"story\" instead of \"history\".",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "141.300s",
+      "end_offset": "144.5s",
+      "stage1_heard": "Um um very angry with me. Uh uh yo I say that my parents parents",
+      "reviewed_heard": "Um um very angry with me. Uh uh yo I say that my parents parents",
+      "intended": "They were very angry with me. I told my parents",
+      "intent_confidence": "medium",
+      "pronunciation": "incorrect",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": "Includes Spanish filler \"yo\".",
+      "grammar_note": "Missing subject pronoun and tense inconsistency (\"I say\").",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "164.0s",
+      "end_offset": "168.5s",
+      "stage1_heard": "I want continue with my studies and they was a big support for me.",
+      "reviewed_heard": "I want continue with my studies and they was a big support for me.",
+      "intended": "I wanted to continue with my studies and they were a big support for me.",
+      "intent_confidence": "high",
+      "pronunciation": "incorrect",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": "Grammatical mismatch with past tense context (\"they was\").",
+      "grammar_note": "\"want continue\" missing \"to\", \"they was\" subject-verb agreement error.",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "207.0s",
+      "end_offset": "211.5s",
+      "stage1_heard": "I I reproved one year high school.",
+      "reviewed_heard": "I I reproved one year high school.",
+      "intended": "I failed a year of high school.",
+      "intent_confidence": "high",
+      "pronunciation": "incorrect",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": "\"reproved\" used via false friend translation from Spanish \"reprobé\".",
+      "grammar_note": "Unnatural prepositional phrasing for repeating a school year.",
+      "vocabulary_note": "\"reproved\" is an incorrect translation of \"reprobé\" (failed).",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "254.0s",
+      "end_offset": "260.0s",
+      "stage1_heard": "And both this movie is very very sad because I don't want died in the movie.",
+      "reviewed_heard": "And both this movie is very very sad because I don't want died in the movie.",
+      "intended": "And this movie is very sad because I didn't want anyone to die in the movie.",
+      "intent_confidence": "medium",
+      "pronunciation": "incorrect",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": "Incorrect verb form \"died\" instead of infinitive/verb phrase after auxiliary.",
+      "grammar_note": "Tense inconsistency (\"don't want died\").",
+      "vocabulary_note": "\"both this movie\" instead of \"this movie\".",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "418.0s",
+      "end_offset": "419.0s",
+      "stage1_heard": "Nice to meet you.",
+      "reviewed_heard": "Nice to meet you.",
+      "intended": "Nice to meet you.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    }
+  ],
+  "fluency_observations": [
+    "Paul: Exhibits frequent pauses, repetitions, and hesitation markers (e.g., \"um\", \"uh\") while searching for vocabulary.",
+    "Jean: Maintains good conversational flow but occasionally struggles with translating specific terms from Spanish (e.g., \"temporada\", \"aniversario\")."
+  ],
+  "teacher_interventions": [
+    {
+      "student": "Jean",
+      "start_offset": "281.700s",
+      "end_offset": "283.400s",
+      "kind": "word_supply",
+      "description": "Paul supplies the English word \"Season\" when Jean asks how to say \"temporada\"."
+    }
+  ],
+  "scoring_status": "evidence_only_not_final_rubric"
+}
