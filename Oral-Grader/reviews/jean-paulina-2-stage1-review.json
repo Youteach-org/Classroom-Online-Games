@@ -1,0 +1,18 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "jean-paulina-2",
+  "stage": 1,
+  "review_status": "accepted_with_notes",
+  "accepted_for_stage2": true,
+  "speaker_mapping": {
+    "spk:0": "Jean",
+    "spk:1": "Paulina",
+    "spk:teacher": "Teacher"
+  },
+  "fidelity_notes": [
+    "Speaker identities are explicit in the opening exchange: spk:0 = Jean and spk:1 = Paulina.",
+    "This is a short student-to-student exchange; no distinct teacher speech appears in Stage 1.",
+    "Limited evidence volume must not be converted into unsupported pronunciation penalties."
+  ],
+  "teacher_confirmed_pronunciation_evidence": []
+}
