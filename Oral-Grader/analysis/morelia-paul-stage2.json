@@ -1,0 +1,307 @@
+{
+  "project": "Oral-Grader",
+  "stage": 2,
+  "pair_slug": "morelia-paul",
+  "model": "gemini-3.5-flash-lite",
+  "stage1_source": "Oral-Grader/transcripts/morelia-paul-stage1.json",
+  "stage1_review": "Oral-Grader/reviews/morelia-paul-stage1-review.json",
+  "speaker_mapping": {
+    "spk:0": "Paul",
+    "spk:1": "Morelia",
+    "spk:teacher": "Teacher"
+  },
+  "students": {
+    "Paul": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 6,
+      "uncertain_count": 0,
+      "grammar_patterns": [],
+      "vocabulary_patterns": [
+        "Unusual collocation; likely intended a joke reaction or meant 'Nice try', but phonetically says 'Nice bet'."
+      ],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Paul: Speaks with clear articulation and natural pacing when delivering jokes."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    },
+    "Morelia": {
+      "incorrect_pronunciation_count": 1,
+      "acceptable_sample_count": 5,
+      "uncertain_count": 0,
+      "grammar_patterns": [
+        "Used 'looks' instead of 'look' after auxiliary 'did' in the self-correction."
+      ],
+      "vocabulary_patterns": [],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Morelia: Shows some hesitation and laughing fits, but generally maintains conversational flow and self-corrects effectively."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    }
+  },
+  "evidence": [
+    {
+      "speaker": "Paul",
+      "start_offset": "2.600s",
+      "end_offset": "3.200s",
+      "stage1_heard": "What is your name?",
+      "reviewed_heard": "What is your name?",
+      "intended": "What is your name?",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Morelia",
+      "start_offset": "4s",
+      "end_offset": "4.400s",
+      "stage1_heard": "Mirella.",
+      "reviewed_heard": "Mirella.",
+      "intended": "Morelia.",
+      "intent_confidence": "high",
+      "pronunciation": "incorrect",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": "Pronounced her own name with Spanish vowel sounds instead of English ones.",
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "7.800s",
+      "end_offset": "10s",
+      "stage1_heard": "What did zero say to eight?",
+      "reviewed_heard": "What did zero say to eight?",
+      "intended": "What did zero say to eight?",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Morelia",
+      "start_offset": "15.200s",
+      "end_offset": "15.500s",
+      "stage1_heard": "I don't know.",
+      "reviewed_heard": "I don't know.",
+      "intended": "I don't know.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "16.900s",
+      "end_offset": "17.400s",
+      "stage1_heard": "Nice bet.",
+      "reviewed_heard": "Nice bet.",
+      "intended": "Nice bet.",
+      "intent_confidence": "medium",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": "Unusual collocation; likely intended a joke reaction or meant 'Nice try', but phonetically says 'Nice bet'.",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Morelia",
+      "start_offset": "25.900s",
+      "end_offset": "27.500s",
+      "stage1_heard": "Hilarious. Hilarious.",
+      "reviewed_heard": "Hilarious. Hilarious.",
+      "intended": "Hilarious. Hilarious.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Morelia",
+      "start_offset": "31.900s",
+      "end_offset": "34s",
+      "stage1_heard": "Do you know What is your name?",
+      "reviewed_heard": "Do you know What is your name?",
+      "intended": "Do you know... what is your name?",
+      "intent_confidence": "medium",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "34.600s",
+      "end_offset": "34.900s",
+      "stage1_heard": "Paul.",
+      "reviewed_heard": "Paul.",
+      "intended": "Paul.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Morelia",
+      "start_offset": "36.300s",
+      "end_offset": "40s",
+      "stage1_heard": "Do you know why the math book looks sad? Why did the math book looks sad?",
+      "reviewed_heard": "Do you know why the math book looks sad? Why did the math book looks sad?",
+      "intended": "Do you know why the math book looks sad? Why did the math book look sad?",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Used 'looks' instead of 'look' after auxiliary 'did' in the self-correction.",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "45.100s",
+      "end_offset": "45.300s",
+      "stage1_heard": "What?",
+      "reviewed_heard": "What?",
+      "intended": "What?",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Morelia",
+      "start_offset": "46s",
+      "end_offset": "49.700s",
+      "stage1_heard": "Because it has so many problems.",
+      "reviewed_heard": "Because it has so many problems.",
+      "intended": "Because it has so many problems.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Paul",
+      "start_offset": "52.700s",
+      "end_offset": "54.800s",
+      "stage1_heard": "That's so hilarious.",
+      "reviewed_heard": "That's so hilarious.",
+      "intended": "That's so hilarious.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    }
+  ],
+  "fluency_observations": [
+    "Paul: Speaks with clear articulation and natural pacing when delivering jokes.",
+    "Morelia: Shows some hesitation and laughing fits, but generally maintains conversational flow and self-corrects effectively."
+  ],
+  "teacher_interventions": [],
+  "scoring_status": "evidence_only_not_final_rubric"
+}
