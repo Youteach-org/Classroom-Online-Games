@@ -1,0 +1,304 @@
+name: Deploy Verb Runner 2.5 Development Preview
+
+on:
+  push:
+    branches:
+      - development/verb-runner-2-5
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify Verb Runner JavaScript
+        run: |
+          node --check Verb-Runner/coastal-scene-config.mjs
+          node --check Verb-Runner/coastal-world.mjs
+          node --check Verb-Runner/sentence-runner-world.mjs
+          node --check Verb-Runner/sentence-runner-layout.js
+          node --check Verb-Runner/visual-lab.js
+          node --check Verb-Runner/character-lab.js
+          node --check Verb-Runner/prototype.js
+
+      - name: Run Verb Runner regression tests
+        run: |
+          node --test Verb-Runner/tests/*.test.mjs
+          node --test Verb-Runner/sentence-run.test.js
+
+      - name: Prepare development preview
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          cp index.html dist/
+          cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Engineering teacher dist/
+
+      - name: Deploy development preview to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID_RAW: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          CLEAN_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID_RAW" | tr -d '[:space:]')"
+          export CLOUDFLARE_ACCOUNT_ID="$CLEAN_ACCOUNT_ID"
+          DEPLOY_OUTPUT="$(npx wrangler@4 pages deploy dist \
+            --project-name=classroom-online-games \
+            --branch=verb-runner-2-5-dev \
+            --commit-hash=${{ github.sha }})"
+          printf '%s\n' "$DEPLOY_OUTPUT"
+          DEPLOY_URL="$(printf '%s\n' "$DEPLOY_OUTPUT" | grep -oE 'https://[0-9a-f]+\.classroom-online-games\.pages\.dev' | head -1)"
+          test -n "$DEPLOY_URL"
+          printf 'SENTENCE_PREVIEW_URL=%s\n' "$DEPLOY_URL" >> "$GITHUB_ENV"
+
+
+      - name: Wait for exact preview route
+        timeout-minutes: 2
+        run: |
+          READY=0
+          for ATTEMPT in $(seq 1 24); do
+            if curl -fsSL "$SENTENCE_PREVIEW_URL/Verb-Runner/" | grep -q 'data-level="2"'; then
+              READY=1
+              break
+            fi
+            sleep 3
+          done
+          test "$READY" = "1"
+          curl -fsSL "$SENTENCE_PREVIEW_URL/Verb-Runner/" | grep -q 'id="sentenceChoices"'
+
+      - name: Browser smoke test Sentence Runner 2.5
+        timeout-minutes: 3
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$BROWSER"
+          cat > sentence-runner-smoke.cjs <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const errors=[];
+            const browser=await chromium.launch({
+              headless:true,
+              executablePath:process.env.BROWSER,
+              args:['--no-sandbox','--disable-gpu']
+            });
+            const page=await browser.newPage({viewport:{width:1536,height:864}});
+            page.on('pageerror',err=>errors.push(String(err)));
+            const previewUrl=process.env.SENTENCE_PREVIEW_URL;
+            if(!previewUrl)throw new Error('Missing SENTENCE_PREVIEW_URL');
+            const response=await page.goto(previewUrl+'/Verb-Runner/',{
+              waitUntil:'domcontentloaded',
+              timeout:30000
+            });
+            await page.waitForTimeout(1200);
+            const receivedHtml=await page.content();
+            const preDiag=await page.evaluate(()=>({
+              url:location.href,
+              title:document.title,
+              readyState:document.readyState,
+              bodyText:(document.body?.innerText||'').slice(0,1200),
+              bodyHtml:(document.body?.innerHTML||'').slice(0,1600),
+              translationBlocked:document.documentElement.classList.contains('translation-blocked')
+            }));
+            console.log('RESPONSE_DIAG '+JSON.stringify({
+              status:response?.status()??null,
+              responseUrl:response?.url()??null,
+              finalUrl:preDiag.url,
+              title:preDiag.title,
+              readyState:preDiag.readyState,
+              htmlLength:receivedHtml.length,
+              hasLevel2:receivedHtml.includes('data-level="2"'),
+              hasSentenceChoices:receivedHtml.includes('id="sentenceChoices"'),
+              translationBlocked:preDiag.translationBlocked,
+              bodyText:preDiag.bodyText,
+              bodyHtml:preDiag.bodyHtml
+            }));
+            await page.screenshot({path:'sentence-runner-v25-debug.png'});
+            const level2Attached=await page.locator('[data-level="2"]').count();
+            if(level2Attached<1){
+              throw new Error('Chromium response does not contain Level 2 after navigation');
+            }
+            const initialDiag=await page.evaluate(()=>{
+              const el=document.querySelector('[data-level="2"]');
+              const picker=document.querySelector('#picker');
+              const rect=el?.getBoundingClientRect();
+              const pickerRect=picker?.getBoundingClientRect();
+              const style=el?getComputedStyle(el):null;
+              const pickerStyle=picker?getComputedStyle(picker):null;
+              return {
+                url:location.href,
+                readyState:document.readyState,
+                level2Exists:Boolean(el),
+                level2Rect:rect?{x:rect.x,y:rect.y,width:rect.width,height:rect.height}:null,
+                level2Display:style?.display||null,
+                level2Visibility:style?.visibility||null,
+                level2Opacity:style?.opacity||null,
+                pickerClass:picker?.className||null,
+                pickerHidden:picker?.hidden??null,
+                pickerRect:pickerRect?{x:pickerRect.x,y:pickerRect.y,width:pickerRect.width,height:pickerRect.height}:null,
+                pickerDisplay:pickerStyle?.display||null,
+                pickerVisibility:pickerStyle?.visibility||null,
+                pickerOpacity:pickerStyle?.opacity||null,
+                translationBlocked:document.documentElement.classList.contains('translation-blocked'),
+                bodyText:(document.body?.innerText||'').slice(0,900)
+              };
+            });
+            console.log('INITIAL_DIAG '+JSON.stringify(initialDiag));
+            await page.screenshot({path:'sentence-runner-v25-debug.png'});
+            if(!initialDiag.level2Rect || initialDiag.level2Rect.width<1 || initialDiag.level2Rect.height<1){
+              throw new Error('Level 2 exists but is not visible: '+JSON.stringify(initialDiag));
+            }
+            await page.click('[data-level="2"]');
+            await page.waitForFunction(()=>{
+              const button=document.querySelector('#startButton');
+              return button && !button.disabled;
+            },{timeout:30000});
+            await page.click('#startButton');
+            await page.waitForFunction(()=>{
+              const choices=document.querySelector('#sentenceChoices');
+              return choices && !choices.hidden &&
+                [...choices.querySelectorAll('.sentence-choice b')].every(el=>el.textContent.trim() && el.textContent.trim()!=='—');
+            },{timeout:20000});
+            const state=await page.evaluate(()=>({
+              title:document.querySelector('#levelTitle')?.textContent,
+              sentence:document.querySelector('#sentenceText')?.textContent,
+              choices:[...document.querySelectorAll('.sentence-choice b')].map(el=>el.textContent),
+              choiceRects:[...document.querySelectorAll('.sentence-choice')].map(el=>{
+                const r=el.getBoundingClientRect();
+                return {width:r.width,height:r.height};
+              })
+            }));
+            if(!/MARKET STREETS/.test(state.title||''))throw new Error('Level 2 did not enter Market Streets zone');
+            if(state.choices.length!==3)throw new Error('Expected exactly three readable choices');
+            if(state.choiceRects.some(r=>r.width<220||r.height<65))throw new Error('Sentence choices are too small');
+            if(errors.length)throw new Error('Browser page errors: '+errors.join(' | '));
+            console.log(JSON.stringify(state));
+            await page.screenshot({path:'sentence-runner-v25-market.png'});
+            await browser.close();
+          })().catch(err=>{console.error(err);process.exit(1);});
+          NODE
+          npm install --no-save --no-package-lock playwright
+          SENTENCE_PREVIEW_URL="$SENTENCE_PREVIEW_URL" BROWSER="$BROWSER" node sentence-runner-smoke.cjs
+
+      - name: Browser capture 3D Visual Lab
+        timeout-minutes: 3
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$BROWSER"
+          cat > visual-lab-smoke.cjs <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({
+              headless:true,
+              executablePath:process.env.BROWSER,
+              args:['--no-sandbox','--disable-gpu']
+            });
+            const page=await browser.newPage({viewport:{width:1600,height:900}});
+            const errors=[];
+            page.on('pageerror',err=>errors.push(String(err)));
+            const base=process.env.SENTENCE_PREVIEW_URL;
+            const response=await page.goto(base+'/Verb-Runner/visual-lab.html',{
+              waitUntil:'domcontentloaded',
+              timeout:30000
+            });
+            if(!response||response.status()!==200)throw new Error('Visual Lab HTTP '+(response?.status()??'none'));
+            await page.waitForFunction(()=>document.body.dataset.visualReady==='true',{timeout:30000});
+            await page.waitForTimeout(1800);
+            if(errors.length)throw new Error('Visual Lab page errors: '+errors.join(' | '));
+            const state=await page.evaluate(()=>({
+              ready:document.body.dataset.visualReady,
+              title:document.title,
+              canvas:[document.querySelector('canvas')?.width,document.querySelector('canvas')?.height],
+              prompt:document.querySelector('.prompt strong')?.textContent
+            }));
+            console.log('VISUAL_LAB '+JSON.stringify(state));
+            await page.screenshot({path:'sentence-runner-3d-visual-lab.png'});
+            await browser.close();
+          })().catch(err=>{console.error(err);process.exit(1);});
+          NODE
+          SENTENCE_PREVIEW_URL="$SENTENCE_PREVIEW_URL" BROWSER="$BROWSER" node visual-lab-smoke.cjs
+
+
+      - name: Browser capture Character Lab
+        timeout-minutes: 3
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$BROWSER"
+          cat > character-lab-smoke.cjs <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({
+              headless:true,
+              executablePath:process.env.BROWSER,
+              args:['--no-sandbox','--disable-gpu']
+            });
+            const page=await browser.newPage({viewport:{width:1400,height:900}});
+            const errors=[];
+            page.on('pageerror',err=>errors.push(String(err)));
+            const base=process.env.SENTENCE_PREVIEW_URL;
+            const response=await page.goto(base+'/Verb-Runner/character-lab.html',{
+              waitUntil:'domcontentloaded',
+              timeout:30000
+            });
+            if(!response||response.status()!==200)throw new Error('Character Lab HTTP '+(response?.status()??'none'));
+            await page.waitForFunction(()=>document.body.dataset.characterReady==='true',{timeout:30000});
+            await page.waitForTimeout(1200);
+            if(errors.length)throw new Error('Character Lab page errors: '+errors.join(' | '));
+
+            await page.click('[data-view="front"]');
+            await page.waitForTimeout(500);
+            await page.screenshot({path:'verb-runner-character-front.png'});
+
+            await page.click('[data-view="back"]');
+            await page.waitForTimeout(500);
+            await page.screenshot({path:'verb-runner-character-back.png'});
+
+            const state=await page.evaluate(()=>({
+              ready:document.body.dataset.characterReady,
+              title:document.title,
+              canvas:[document.querySelector('canvas')?.width,document.querySelector('canvas')?.height],
+              hasSelector:Boolean(document.querySelector('.selector')),
+              text:(document.body?.innerText||'').slice(0,500),
+              materials:window.__characterMaterialDump||[],
+              bones:window.__characterBoneDump||[]
+            }));
+            console.log('CHARACTER_LAB '+JSON.stringify(state));
+            if(state.hasSelector)throw new Error('Old multi-character selector is still present');
+            if(/backpack/i.test(state.text))throw new Error('Backpack UI copy still present');
+
+            await browser.close();
+          })().catch(err=>{console.error(err);process.exit(1);});
+          NODE
+          SENTENCE_PREVIEW_URL="$SENTENCE_PREVIEW_URL" BROWSER="$BROWSER" node character-lab-smoke.cjs
+
+      - name: Upload Verb Runner Character Lab
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verb-runner-character-lab
+          path: |
+            verb-runner-character-front.png
+            verb-runner-character-back.png
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload Sentence Runner 3D Visual Lab
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentence-runner-3d-visual-lab
+          path: sentence-runner-3d-visual-lab.png
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload Sentence Runner preview screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentence-runner-v25-screenshots
+          path: |
+            sentence-runner-v25-debug.png
+            sentence-runner-v25-market.png
+          if-no-files-found: ignore
+          retention-days: 7
