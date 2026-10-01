@@ -1,0 +1,362 @@
+{
+  "project": "Oral-Grader",
+  "stage": 2,
+  "pair_slug": "vicky-sandra-1",
+  "model": "gemini-3.5-flash-lite",
+  "stage1_source": "Oral-Grader/transcripts/vicky-sandra-1-stage1.json",
+  "stage1_review": "Oral-Grader/reviews/vicky-sandra-1-stage1-review.json",
+  "speaker_mapping": {
+    "spk:0": "Vicky",
+    "spk:1": "Sandra",
+    "spk:teacher": "Teacher"
+  },
+  "students": {
+    "Vicky": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 0,
+      "uncertain_count": 0,
+      "grammar_patterns": [
+        "Incorrect auxiliary verb structure (\"how did your week\" instead of \"how was your week\").",
+        "Self-correction and code-switching into Spanish (\"comprar\").",
+        "Pluralization error on \"homeworks\" and tense inconsistency (\"do\" instead of \"did\").",
+        "Incorrect preposition (\"at\" instead of \"to\") and tense (\"do\" instead of \"did\").",
+        "Unnecessary article before \"Pátzcuaro\" and preposition usage."
+      ],
+      "vocabulary_patterns": [
+        "Awkward collocation (\"study industry\" instead of \"study industrial engineering\")."
+      ],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Vicky: Maintains a conversational pace with some hesitation and occasional grammatical restructuring while responding to prompts."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    },
+    "Sandra": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 0,
+      "uncertain_count": 0,
+      "grammar_patterns": [
+        "Intonation or phrasing intended as a question.",
+        "Non-standard phrasing for asking about job details.",
+        "Incorrect tense usage (\"had worked\") and preposition (\"in\").",
+        "Repetition and non-standard phrasing (\"how did you do week\").",
+        "Word order confusion when asking about birthplace.",
+        "Incorrect modal verb form (\"will working\" instead of \"will be working\").",
+        "L1 interference with verb choice (\"put me\" instead of \"assigned me\" or \"had me work\").",
+        "Double negative (\"don't know nothing\") and incorrect future structure (\"will going to\")."
+      ],
+      "vocabulary_patterns": [],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Sandra: Speaks with frequent self-corrections, pauses, and repetition, particularly when searching for vocabulary or formulating questions."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    }
+  },
+  "evidence": [
+    {
+      "speaker": "Vicky",
+      "start_offset": "4.600s",
+      "end_offset": "7.800s",
+      "stage1_heard": "My name is Sandra. And how did your week?",
+      "reviewed_heard": "My name is Sandra. And how did your week?",
+      "intended": "How was your week?",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Incorrect auxiliary verb structure (\"how did your week\" instead of \"how was your week\").",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Sandra",
+      "start_offset": "23.800s",
+      "end_offset": "28.500s",
+      "stage1_heard": "Your week was lazy.",
+      "reviewed_heard": "Your week was lazy.",
+      "intended": "Your week was lazy?",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Intonation or phrasing intended as a question.",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Sandra",
+      "start_offset": "38.500s",
+      "end_offset": "43.700s",
+      "stage1_heard": "Oh. What's your work? What's about?",
+      "reviewed_heard": "Oh. What's your work? What's about?",
+      "intended": "What is your job? What is it about?",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Non-standard phrasing for asking about job details.",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Sandra",
+      "start_offset": "56s",
+      "end_offset": "80.900s",
+      "stage1_heard": "Yes, in Spanish. I work in Exa Quiroga. I I had worked in my students five grades.",
+      "reviewed_heard": "Yes, in Spanish. I work in Exa Quiroga. I I had worked in my students five grades.",
+      "intended": "Yes, in Spanish. I work at Exa Quiroga. I have taught five grade levels.",
+      "intent_confidence": "medium",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Incorrect tense usage (\"had worked\") and preposition (\"in\").",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Sandra",
+      "start_offset": "83.500s",
+      "end_offset": "98.700s",
+      "stage1_heard": "And how did your week how did you do week? How how did you do week?",
+      "reviewed_heard": "And how did your week how did you do week? How how did you do week?",
+      "intended": "And how was your week? What did you do this week?",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Repetition and non-standard phrasing (\"how did you do week\").",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Vicky",
+      "start_offset": "103.200s",
+      "end_offset": "114.200s",
+      "stage1_heard": "Oh. I do for example, I went to I went to both how comprar.",
+      "reviewed_heard": "Oh. I do for example, I went to I went to both how comprar.",
+      "intended": "Oh, what I did, for example, I went shopping.",
+      "intent_confidence": "medium",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Self-correction and code-switching into Spanish (\"comprar\").",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Vicky",
+      "start_offset": "115.500s",
+      "end_offset": "135.300s",
+      "stage1_heard": "Uh-huh. I went to a food for my house because I live alone with well, I live only with my sister. So yes, and I do some projects and some homeworks.",
+      "reviewed_heard": "Uh-huh. I went to a food for my house because I live alone with well, I live only with my sister. So yes, and I do some projects and some homeworks.",
+      "intended": "I bought food for my house because I live only with my sister. And I did some projects and some homework.",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Pluralization error on \"homeworks\" and tense inconsistency (\"do\" instead of \"did\").",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Sandra",
+      "start_offset": "149.700s",
+      "end_offset": "157.800s",
+      "stage1_heard": "Uh-huh. Birth place is a what is your place your birth?",
+      "reviewed_heard": "Uh-huh. Birth place is a what is your place your birth?",
+      "intended": "What is your birthplace?",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Word order confusion when asking about birthplace.",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Vicky",
+      "start_offset": "211.800s",
+      "end_offset": "215.100s",
+      "stage1_heard": "How do you feel when you move at Morelia?",
+      "reviewed_heard": "How do you feel when you move at Morelia?",
+      "intended": "How did you feel when you moved to Morelia?",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Incorrect preposition (\"at\" instead of \"to\") and tense (\"do\" instead of \"did\").",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Vicky",
+      "start_offset": "276.200s",
+      "end_offset": "288.400s",
+      "stage1_heard": "I I visit Pátzcuaro in for for example, in my week and today uh I go to the Pátzcuaro.",
+      "reviewed_heard": "I I visit Pátzcuaro in for for example, in my week and today uh I go to the Pátzcuaro.",
+      "intended": "I visit Pátzcuaro, for example, during the week, and today I am going to Pátzcuaro.",
+      "intent_confidence": "medium",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Unnecessary article before \"Pátzcuaro\" and preposition usage.",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Sandra",
+      "start_offset": "364.900s",
+      "end_offset": "371.400s",
+      "stage1_heard": "My week uh well, right now? No, no, no, no. The next week I I will working in a in a industry, a food industry here in the here in Morelia for a project for yes, for my specialty.",
+      "reviewed_heard": "My week uh well, right now? No, no, no, no. The next week I I will working in a in a industry, a food industry here in the here in Morelia for a project for yes, for my specialty.",
+      "intended": "Next week I will be working in a food industry here in Morelia for a project for my specialty.",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Incorrect modal verb form (\"will working\" instead of \"will be working\").",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Vicky",
+      "start_offset": "371.800s",
+      "end_offset": "375.800s",
+      "stage1_heard": "Oh, do you study industry? Do you study industry?",
+      "reviewed_heard": "Oh, do you study industry? Do you study industry?",
+      "intended": "Do you study industry?",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": "Awkward collocation (\"study industry\" instead of \"study industrial engineering\").",
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Sandra",
+      "start_offset": "376.100s",
+      "end_offset": "393.500s",
+      "stage1_heard": "Uh industrial engineer. Yes. So uh one teacher put me me put me and other classmates to work in a in a industry, in a food industry.",
+      "reviewed_heard": "Uh industrial engineer. Yes. So uh one teacher put me me put me and other classmates to work in a in a industry, in a food industry.",
+      "intended": "Industrial engineering. Yes. So a teacher assigned me and other classmates to work in a food industry.",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "L1 interference with verb choice (\"put me\" instead of \"assigned me\" or \"had me work\").",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Sandra",
+      "start_offset": "396.500s",
+      "end_offset": "423.300s",
+      "stage1_heard": "So the next week I will going to start working on that. And I don't know nothing about industry. But I suppose we need to to learn and start. It's like uh residential like a professional residencies, but not my professional residencies.",
+      "reviewed_heard": "So the next week I will going to start working on that. And I don't know nothing about industry. But I suppose we need to to learn and start. It's like uh residential like a professional residencies, but not my professional residencies.",
+      "intended": "So next week I am going to start working on that. And I don't know anything about industry, but I suppose we need to learn and start. It's like professional residencies, but not my official professional residencies.",
+      "intent_confidence": "high",
+      "pronunciation": "not_scored",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": "Double negative (\"don't know nothing\") and incorrect future structure (\"will going to\").",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    }
+  ],
+  "fluency_observations": [
+    "Sandra: Speaks with frequent self-corrections, pauses, and repetition, particularly when searching for vocabulary or formulating questions.",
+    "Vicky: Maintains a conversational pace with some hesitation and occasional grammatical restructuring while responding to prompts."
+  ],
+  "teacher_interventions": [],
+  "scoring_status": "evidence_only_not_final_rubric"
+}
