@@ -1,0 +1,18 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "getsemani-jhoana-2",
+  "stage": 1,
+  "review_status": "accepted_with_notes",
+  "accepted_for_stage2": true,
+  "speaker_mapping": {
+    "spk:0": "Jetsemany",
+    "spk:1": "Jhoana",
+    "spk:teacher": "Teacher"
+  },
+  "fidelity_notes": [
+    "This is a student-to-student exchange; no distinct teacher speech appears in Stage 1.",
+    "Speaker names follow the recording filename order for this run.",
+    "Raw Stage-1 wording remains unchanged."
+  ],
+  "teacher_confirmed_pronunciation_evidence": []
+}
