@@ -1,0 +1,97 @@
+# Oral Grader literal transcript — jhoana-gael-helubarey-1
+
+Model: `gemini-3.5-transcribe`
+Mode: `verbatim` · speaker diarization · word timestamps
+
+> Stage 1 evidence only. Do not correct grammar, vocabulary, or pronunciation here.
+
+- **spk:0** `1.400s–2.300s`: How was your week?
+- **spk:1** `12.900s–15.800s`: I'm feeling good. Now more preoccupations.
+- **spk:0** `17.700s–30s`: Okay, okay. In this week you took a class online? Or you came to the Innova Tech?
+- **spk:1** `30.600s–41.900s`: Uh no, I'm not in the Tech. No. I'm in another another university. I'm in the with Mr. Nursing.
+- **spk:0** `44.400s–47.600s`: Okay. And which grade you
+- **spk:1** `48.200s–49.700s`: I'm in my first semester.
+- **spk:0** `50s–51.800s`: Oh, it's your first semester? How old are you?
+- **spk:1** `52.300s–53.100s`: Uh 18.
+- **spk:0** `56.200s–64.600s`: I think that you that you are maybe 20 years or something like that.
+- **spk:1** `64.400s–66.100s`: No, I'm 19.
+- **spk:0** `67s–69.800s`: Oh, okay, okay. I feel old.
+- **spk:1** `72.600s–75.700s`: No, I'm young. I'm I am a kid.
+- **spk:0** `76.800s–77.600s`: Yeah, yes.
+- **spk:1** `80.600s–82.500s`: And you? What do you study?
+- **spk:0** `83.200s–85.400s`: I am study veterinary.
+- **spk:1** `85.800s–86.500s`: Oh.
+- **spk:0** `89s–95.400s`: Yes. Yes, yes, yes. I'm in the fifth semester.
+- **spk:1** `95.900s–102.700s`: No, no, but my friends three of my friends study veterinary but the first semester.
+- **spk:0** `102.900s–108.500s`: Oh, okay, okay. For the first semester change the
+- **spk:1** `111.200s–112.800s`: The model educativo.
+- **spk:0** `113.800s–117.700s`: Something like that. Yes. And
+- **spk:1** `121.800s–124.500s`: For me my career in this university is a new career.
+- **spk:0** `124.800s–125s`: Yes?
+- **spk:1** `125.300s–141.700s`: Yes. But for example in the in the university or uh Uh in my the building of the new career is in construction.
+- **spk:0** `142.400s–142.600s`: Oh, okay.
+- **spk:1** `142.800s–146.300s`: I have a new building, a new teachers.
+- **spk:0** `146.500s–147.200s`: New things.
+- **spk:1** `147.600s–149.100s`: New things all new things.
+- **spk:0** `149.200s–158.200s`: Oh, okay, okay. And you you took um a exam university Michoacana University?
+- **spk:1** `158.400s–162.500s`: Yes, I applied I applied for medicine but I don't
+- **spk:0** `163.200s–165s`: I me too.
+- **spk:1** `167.600s–177.500s`: Yes, I uh search other universities with the but no, very expensive and I don't have much money.
+- **spk:0** `177.900s–180.600s`: Oh, yes. For example the Uvaq is
+- **spk:1** `180.400s–184.400s`: The Uvaq expensive of the very expensive.
+- **spk:0** `184.400s–190.500s`: Yes, the My my second option of
+- **spk:1** `191.500s–194.300s`: Yes, yes, yes. My second option was veterinary.
+- **spk:0** `195.200s–205.600s`: Yes, because when when I when I took a exam my first option was medicine and I don't know.
+- **spk:1** `206s–213.300s`: But this exam for medicine is is a is a I I don't know.
+- **spk:0** `213.800s–219.500s`: Yes. And for me the exam of medicine was was easy.
+- **spk:1** `219.900s–220.100s`: It was
+- **spk:0** `220.400s–221s`: Yes.
+- **spk:1** `220.800s–221.300s`: Yes.
+- **spk:0** `221.800s–229.900s`: But uh my other option for example the Tech and the veterinary the exam for me was very very hard.
+- **spk:1** `230.100s–249.400s`: No, this exam of the medicine for me is very easy. I paid the course but in in the moment of the exam it's very easy. I answered all but the results no. I don't know. These days I'm very stressed.
+- **spk:0** `250s–255.800s`: Yes. For all the persons that want to take a that exam.
+- **spk:1** `256.100s–264.400s`: Yes. And this What's your hobbies?
+- **spk:0** `265.600s–269.800s`: My hobbies what all listen to music.
+- **spk:1** `271s–278.800s`: Uh for me I am musician I I play three instruments uh bass guitar, accordion and bass.
+- **spk:0** `280s–280.700s`: Wow.
+- **spk:1** `281.900s–287.200s`: Uh I am an artist. I am drawing the style of graffiti.
+- **spk:0** `287.900s–288.300s`: Uh uh-huh.
+- **spk:1** `288.500s–292.100s`: Yes, I am study and I like much listen to music.
+- **spk:0** `292.800s–298s`: And do you have some some Uh yes.
+- **spk:1** `298.100s–298.300s`: Yes?
+- **spk:0** `298.600s–299.500s`: Can I
+- **spk:1** `300.100s–305.600s`: Yes, but I don't have much but for example this drawing is for my girlfriend.
+- **spk:0** `306.800s–308.400s`: Oh, so cute.
+- **spk:1** `309.100s–315.200s`: This um I have another one uh
+- **spk:0** `315.300s–315.400s`: Wow.
+- **spk:1** `318s–333.100s`: I'm drawing in a paper but I prefer in the digital. It's more comfortable but the right I am feeling good in paper. And in the the buildings but with permission. Not illegal but
+- **spk:0** `333.500s–334.100s`: Okay, okay.
+- **spk:1** `334s–335.400s`: I don't I don't get problems.
+- **spk:0** `337.500s–350.400s`: Okay. Okay. And how many times uh do you take a a instrument play a instrument?
+- **spk:1** `350.500s–363.400s`: Uh well, depend of the day of the week. For example this week I'm practice more accordion but the next week I will have a presentation with my in the group.
+- **spk:0** `364.100s–365.400s`: Oh, do you have a group?
+- **spk:1** `365.700s–369.700s`: Yes, but it's not my group. I'm from part of the one group.
+- **spk:0** `369.800s–372.700s`: Oh, okay, okay. And how many children?
+- **spk:1** `373.200s–380.500s`: Uh some five with the guitar, accordion and the singer.
+- **spk:0** `381.300s–385.500s`: Oh, okay. And you sing or no?
+- **spk:1** `386.400s–392s`: A little bit but I don't like too much sing. I I prefer like
+- **spk:0** `392.800s–395.900s`: Nice like Norteño group or something like that?
+- **spk:1** `395.100s–396.600s`: Yes. Yes.
+- **spk:0** `397.500s–399.300s`: Oh, okay, okay.
+- **spk:1** `401s–413.900s`: And the next week I with uh I have a further presentation right in the school. Uh many times I need to review or write the accordion a little.
+- **spk:0** `414.700s–423.300s`: Oh, okay, okay. How many times do you and because I sing.
+- **spk:1** `424.700s–440.800s`: Depend of the day and the flight what uh one hour or five hours or depend. For me I don't know the accordion it's principal. I'm auxiliary.
+- **spk:0** `441.400s–441.600s`: Okay.
+- **spk:1** `442.600s–449.400s`: But for me is I play five five songs or 10 but no more but I'm paid.
+- **spk:0** `450.100s–452.400s`: Okay, okay. And what is your favorite song?
+- **spk:1** `452.800s–456.100s`: Uh it's uh Sueño Guajiro of Los Niños.
+- **spk:0** `456.600s–457.600s`: Oh, okay, okay.
+- **spk:1** `457.700s–461.400s`: And El Menos es un Minuto de la Tercera Edad.
+- **spk:0** `462s–462.800s`: Uh okay.
+- **spk:1** `462.800s–465.600s`: It's my song that I like much for me.
+- **spk:0** `466.200s–468.800s`: And your favorite singer or group or
+- **spk:1** `469.300s–474.800s`: Singer or group I much Uh the
+- **spk:0** `475.900s–479.900s`: Uh Luis Herrero con Ricketts I never heard about him. No?
+- **spk:1** `479s–483s`: No. Uh no I don't like English.
+- **spk:2** `490.500s–493.300s`: Uh my name is Gael Eduardo Rivera Morales.
+- **spk:0** `493.800s–496.300s`: And my name is Joanna Milagros Rosas Pineda.
