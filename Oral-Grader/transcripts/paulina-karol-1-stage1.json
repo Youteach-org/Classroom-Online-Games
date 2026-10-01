@@ -1,0 +1,585 @@
+{
+  "project": "Oral-Grader",
+  "stage": 1,
+  "pair_slug": "paulina-karol-1",
+  "model": "gemini-3.5-transcribe",
+  "mode": "verbatim",
+  "speaker_diarization": true,
+  "word_timestamps": true,
+  "source_file": "oral-grader-source.ogg",
+  "full_text": "Hi, how are you with?My week was very well. I but a little bit stressful because in my high school I need to sign some documents and they give me this a lot of news and it's a lot of information in my mind now. And you? How was your week?My week was very tiring because in this week I have a lot of homework and my in my high school I I had a on my class and from Monday up to to Friday I went to my work.",
+  "turns": [
+    {
+      "speaker": "spk:0",
+      "start_offset": "1.100s",
+      "end_offset": "2.300s",
+      "heard": "Hi, how are you with?"
+    },
+    {
+      "speaker": "spk:1",
+      "start_offset": "2.900s",
+      "end_offset": "26.300s",
+      "heard": "My week was very well. I but a little bit stressful because in my high school I need to sign some documents and they give me this a lot of news and it's a lot of information in my mind now. And you? How was your week?"
+    },
+    {
+      "speaker": "spk:0",
+      "start_offset": "27.100s",
+      "end_offset": "59.800s",
+      "heard": "My week was very tiring because in this week I have a lot of homework and my in my high school I I had a on my class and from Monday up to to Friday I went to my work."
+    }
+  ],
+  "words": [
+    {
+      "text": "Hi,",
+      "speaker": "spk:0",
+      "start_offset": "1.100s",
+      "end_offset": "1.400s"
+    },
+    {
+      "text": "how",
+      "speaker": "spk:0",
+      "start_offset": "1.400s",
+      "end_offset": "1.700s"
+    },
+    {
+      "text": "are",
+      "speaker": "spk:0",
+      "start_offset": "1.700s",
+      "end_offset": "1.800s"
+    },
+    {
+      "text": "you",
+      "speaker": "spk:0",
+      "start_offset": "1.800s",
+      "end_offset": "2s"
+    },
+    {
+      "text": "with?",
+      "speaker": "spk:0",
+      "start_offset": "2s",
+      "end_offset": "2.300s"
+    },
+    {
+      "text": "My",
+      "speaker": "spk:1",
+      "start_offset": "2.900s",
+      "end_offset": "3.100s"
+    },
+    {
+      "text": "week",
+      "speaker": "spk:1",
+      "start_offset": "3.100s",
+      "end_offset": "3.400s"
+    },
+    {
+      "text": "was",
+      "speaker": "spk:1",
+      "start_offset": "3.400s",
+      "end_offset": "4.200s"
+    },
+    {
+      "text": "very",
+      "speaker": "spk:1",
+      "start_offset": "4.300s",
+      "end_offset": "4.500s"
+    },
+    {
+      "text": "well.",
+      "speaker": "spk:1",
+      "start_offset": "4.500s",
+      "end_offset": "5.100s"
+    },
+    {
+      "text": "I",
+      "speaker": "spk:1",
+      "start_offset": "5.300s",
+      "end_offset": "6.100s"
+    },
+    {
+      "text": "but",
+      "speaker": "spk:1",
+      "start_offset": "9.300s",
+      "end_offset": "9.600s"
+    },
+    {
+      "text": "a",
+      "speaker": "spk:1",
+      "start_offset": "9.600s",
+      "end_offset": "9.800s"
+    },
+    {
+      "text": "little",
+      "speaker": "spk:1",
+      "start_offset": "9.800s",
+      "end_offset": "10.100s"
+    },
+    {
+      "text": "bit",
+      "speaker": "spk:1",
+      "start_offset": "10.100s",
+      "end_offset": "10.400s"
+    },
+    {
+      "text": "stressful",
+      "speaker": "spk:1",
+      "start_offset": "10.400s",
+      "end_offset": "10.900s"
+    },
+    {
+      "text": "because",
+      "speaker": "spk:1",
+      "start_offset": "10.900s",
+      "end_offset": "11.300s"
+    },
+    {
+      "text": "in",
+      "speaker": "spk:1",
+      "start_offset": "11.300s",
+      "end_offset": "11.400s"
+    },
+    {
+      "text": "my",
+      "speaker": "spk:1",
+      "start_offset": "11.400s",
+      "end_offset": "12s"
+    },
+    {
+      "text": "high",
+      "speaker": "spk:1",
+      "start_offset": "12s",
+      "end_offset": "12.200s"
+    },
+    {
+      "text": "school",
+      "speaker": "spk:1",
+      "start_offset": "12.200s",
+      "end_offset": "12.600s"
+    },
+    {
+      "text": "I",
+      "speaker": "spk:1",
+      "start_offset": "12.600s",
+      "end_offset": "12.700s"
+    },
+    {
+      "text": "need",
+      "speaker": "spk:1",
+      "start_offset": "12.700s",
+      "end_offset": "13s"
+    },
+    {
+      "text": "to",
+      "speaker": "spk:1",
+      "start_offset": "13s",
+      "end_offset": "13.500s"
+    },
+    {
+      "text": "sign",
+      "speaker": "spk:1",
+      "start_offset": "13.900s",
+      "end_offset": "14.300s"
+    },
+    {
+      "text": "some",
+      "speaker": "spk:1",
+      "start_offset": "14.300s",
+      "end_offset": "14.500s"
+    },
+    {
+      "text": "documents",
+      "speaker": "spk:1",
+      "start_offset": "14.500s",
+      "end_offset": "15.100s"
+    },
+    {
+      "text": "and",
+      "speaker": "spk:1",
+      "start_offset": "15.100s",
+      "end_offset": "15.700s"
+    },
+    {
+      "text": "they",
+      "speaker": "spk:1",
+      "start_offset": "16.800s",
+      "end_offset": "17.300s"
+    },
+    {
+      "text": "give",
+      "speaker": "spk:1",
+      "start_offset": "17.300s",
+      "end_offset": "17.500s"
+    },
+    {
+      "text": "me",
+      "speaker": "spk:1",
+      "start_offset": "17.500s",
+      "end_offset": "17.800s"
+    },
+    {
+      "text": "this",
+      "speaker": "spk:1",
+      "start_offset": "17.800s",
+      "end_offset": "18.400s"
+    },
+    {
+      "text": "a",
+      "speaker": "spk:1",
+      "start_offset": "18.900s",
+      "end_offset": "19s"
+    },
+    {
+      "text": "lot",
+      "speaker": "spk:1",
+      "start_offset": "19s",
+      "end_offset": "19.300s"
+    },
+    {
+      "text": "of",
+      "speaker": "spk:1",
+      "start_offset": "19.300s",
+      "end_offset": "19.800s"
+    },
+    {
+      "text": "news",
+      "speaker": "spk:1",
+      "start_offset": "19.800s",
+      "end_offset": "20.300s"
+    },
+    {
+      "text": "and",
+      "speaker": "spk:1",
+      "start_offset": "20.300s",
+      "end_offset": "20.700s"
+    },
+    {
+      "text": "it's",
+      "speaker": "spk:1",
+      "start_offset": "21.500s",
+      "end_offset": "21.700s"
+    },
+    {
+      "text": "a",
+      "speaker": "spk:1",
+      "start_offset": "21.700s",
+      "end_offset": "21.800s"
+    },
+    {
+      "text": "lot",
+      "speaker": "spk:1",
+      "start_offset": "21.800s",
+      "end_offset": "22s"
+    },
+    {
+      "text": "of",
+      "speaker": "spk:1",
+      "start_offset": "22s",
+      "end_offset": "22.200s"
+    },
+    {
+      "text": "information",
+      "speaker": "spk:1",
+      "start_offset": "22.200s",
+      "end_offset": "22.900s"
+    },
+    {
+      "text": "in",
+      "speaker": "spk:1",
+      "start_offset": "22.900s",
+      "end_offset": "23.300s"
+    },
+    {
+      "text": "my",
+      "speaker": "spk:1",
+      "start_offset": "23.300s",
+      "end_offset": "23.500s"
+    },
+    {
+      "text": "mind",
+      "speaker": "spk:1",
+      "start_offset": "23.500s",
+      "end_offset": "24s"
+    },
+    {
+      "text": "now.",
+      "speaker": "spk:1",
+      "start_offset": "24s",
+      "end_offset": "24.300s"
+    },
+    {
+      "text": "And",
+      "speaker": "spk:1",
+      "start_offset": "24.900s",
+      "end_offset": "25.100s"
+    },
+    {
+      "text": "you?",
+      "speaker": "spk:1",
+      "start_offset": "25.100s",
+      "end_offset": "25.500s"
+    },
+    {
+      "text": "How",
+      "speaker": "spk:1",
+      "start_offset": "25.600s",
+      "end_offset": "25.700s"
+    },
+    {
+      "text": "was",
+      "speaker": "spk:1",
+      "start_offset": "25.700s",
+      "end_offset": "25.900s"
+    },
+    {
+      "text": "your",
+      "speaker": "spk:1",
+      "start_offset": "25.900s",
+      "end_offset": "26s"
+    },
+    {
+      "text": "week?",
+      "speaker": "spk:1",
+      "start_offset": "26s",
+      "end_offset": "26.300s"
+    },
+    {
+      "text": "My",
+      "speaker": "spk:0",
+      "start_offset": "27.100s",
+      "end_offset": "27.300s"
+    },
+    {
+      "text": "week",
+      "speaker": "spk:0",
+      "start_offset": "27.300s",
+      "end_offset": "27.900s"
+    },
+    {
+      "text": "was",
+      "speaker": "spk:0",
+      "start_offset": "27.900s",
+      "end_offset": "28.300s"
+    },
+    {
+      "text": "very",
+      "speaker": "spk:0",
+      "start_offset": "28.300s",
+      "end_offset": "28.600s"
+    },
+    {
+      "text": "tiring",
+      "speaker": "spk:0",
+      "start_offset": "28.600s",
+      "end_offset": "29.400s"
+    },
+    {
+      "text": "because",
+      "speaker": "spk:0",
+      "start_offset": "29.800s",
+      "end_offset": "30.500s"
+    },
+    {
+      "text": "in",
+      "speaker": "spk:0",
+      "start_offset": "31.400s",
+      "end_offset": "32s"
+    },
+    {
+      "text": "this",
+      "speaker": "spk:0",
+      "start_offset": "32s",
+      "end_offset": "32.200s"
+    },
+    {
+      "text": "week",
+      "speaker": "spk:0",
+      "start_offset": "32.200s",
+      "end_offset": "32.700s"
+    },
+    {
+      "text": "I",
+      "speaker": "spk:0",
+      "start_offset": "32.700s",
+      "end_offset": "34s"
+    },
+    {
+      "text": "have",
+      "speaker": "spk:0",
+      "start_offset": "34.600s",
+      "end_offset": "35.400s"
+    },
+    {
+      "text": "a",
+      "speaker": "spk:0",
+      "start_offset": "35.500s",
+      "end_offset": "35.600s"
+    },
+    {
+      "text": "lot",
+      "speaker": "spk:0",
+      "start_offset": "35.600s",
+      "end_offset": "36.300s"
+    },
+    {
+      "text": "of",
+      "speaker": "spk:0",
+      "start_offset": "36.300s",
+      "end_offset": "36.400s"
+    },
+    {
+      "text": "homework",
+      "speaker": "spk:0",
+      "start_offset": "36.400s",
+      "end_offset": "37.500s"
+    },
+    {
+      "text": "and",
+      "speaker": "spk:0",
+      "start_offset": "37.600s",
+      "end_offset": "38.500s"
+    },
+    {
+      "text": "my",
+      "speaker": "spk:0",
+      "start_offset": "38.600s",
+      "end_offset": "39.900s"
+    },
+    {
+      "text": "in",
+      "speaker": "spk:0",
+      "start_offset": "40s",
+      "end_offset": "40.100s"
+    },
+    {
+      "text": "my",
+      "speaker": "spk:0",
+      "start_offset": "40.100s",
+      "end_offset": "40.500s"
+    },
+    {
+      "text": "high",
+      "speaker": "spk:0",
+      "start_offset": "40.500s",
+      "end_offset": "40.800s"
+    },
+    {
+      "text": "school",
+      "speaker": "spk:0",
+      "start_offset": "40.800s",
+      "end_offset": "41.300s"
+    },
+    {
+      "text": "I",
+      "speaker": "spk:0",
+      "start_offset": "42.100s",
+      "end_offset": "43.100s"
+    },
+    {
+      "text": "I",
+      "speaker": "spk:0",
+      "start_offset": "45.700s",
+      "end_offset": "45.900s"
+    },
+    {
+      "text": "had",
+      "speaker": "spk:0",
+      "start_offset": "45.900s",
+      "end_offset": "46.400s"
+    },
+    {
+      "text": "a",
+      "speaker": "spk:0",
+      "start_offset": "46.400s",
+      "end_offset": "47.600s"
+    },
+    {
+      "text": "on",
+      "speaker": "spk:0",
+      "start_offset": "48.100s",
+      "end_offset": "48.400s"
+    },
+    {
+      "text": "my",
+      "speaker": "spk:0",
+      "start_offset": "48.400s",
+      "end_offset": "48.600s"
+    },
+    {
+      "text": "class",
+      "speaker": "spk:0",
+      "start_offset": "48.600s",
+      "end_offset": "49.200s"
+    },
+    {
+      "text": "and",
+      "speaker": "spk:0",
+      "start_offset": "52.600s",
+      "end_offset": "53.500s"
+    },
+    {
+      "text": "from",
+      "speaker": "spk:0",
+      "start_offset": "53.600s",
+      "end_offset": "54.100s"
+    },
+    {
+      "text": "Monday",
+      "speaker": "spk:0",
+      "start_offset": "54.300s",
+      "end_offset": "54.900s"
+    },
+    {
+      "text": "up",
+      "speaker": "spk:0",
+      "start_offset": "55s",
+      "end_offset": "55.200s"
+    },
+    {
+      "text": "to",
+      "speaker": "spk:0",
+      "start_offset": "55.200s",
+      "end_offset": "55.400s"
+    },
+    {
+      "text": "to",
+      "speaker": "spk:0",
+      "start_offset": "56s",
+      "end_offset": "56.200s"
+    },
+    {
+      "text": "Friday",
+      "speaker": "spk:0",
+      "start_offset": "56.200s",
+      "end_offset": "56.900s"
+    },
+    {
+      "text": "I",
+      "speaker": "spk:0",
+      "start_offset": "57.700s",
+      "end_offset": "57.900s"
+    },
+    {
+      "text": "went",
+      "speaker": "spk:0",
+      "start_offset": "57.900s",
+      "end_offset": "58.900s"
+    },
+    {
+      "text": "to",
+      "speaker": "spk:0",
+      "start_offset": "59s",
+      "end_offset": "59.100s"
+    },
+    {
+      "text": "my",
+      "speaker": "spk:0",
+      "start_offset": "59.100s",
+      "end_offset": "59.300s"
+    },
+    {
+      "text": "work.",
+      "speaker": "spk:0",
+      "start_offset": "59.300s",
+      "end_offset": "59.800s"
+    }
+  ]
+}
