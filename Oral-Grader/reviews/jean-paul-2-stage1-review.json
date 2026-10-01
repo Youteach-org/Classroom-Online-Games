@@ -1,0 +1,19 @@
+{
+  "project": "Oral-Grader",
+  "pair_slug": "jean-paul-2",
+  "stage": 1,
+  "review_status": "accepted_with_notes",
+  "accepted_for_stage2": true,
+  "speaker_mapping": {
+    "spk:0": "Jean",
+    "spk:1": "Paul",
+    "spk:2": "Teacher",
+    "spk:3": "Teacher"
+  },
+  "fidelity_notes": [
+    "Speaker identities are explicitly established in the dialogue: spk:0 = Jean and spk:1 = Paul.",
+    "The brief auxiliary voices spk:2 and spk:3 are mapped as Teacher/non-student prompts.",
+    "Raw Stage-1 wording remains unchanged."
+  ],
+  "teacher_confirmed_pronunciation_evidence": []
+}
