@@ -1,0 +1,159 @@
+{
+  "project": "Oral-Grader",
+  "stage": 2,
+  "pair_slug": "getsemani-jhoana-2",
+  "model": "gemini-3.5-flash-lite",
+  "stage1_source": "Oral-Grader/transcripts/getsemani-jhoana-2-stage1.json",
+  "stage1_review": "Oral-Grader/reviews/getsemani-jhoana-2-stage1-review.json",
+  "speaker_mapping": {
+    "spk:0": "Jetsemany",
+    "spk:1": "Jhoana",
+    "spk:teacher": "Teacher"
+  },
+  "students": {
+    "Jetsemany": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 3,
+      "uncertain_count": 0,
+      "grammar_patterns": [],
+      "vocabulary_patterns": [],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Jetsemany: Speaks at a moderate pace with some pausing for formulation."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    },
+    "Jhoana": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 2,
+      "uncertain_count": 0,
+      "grammar_patterns": [
+        "Confused 'laugh' with 'love' and used preposition 'with' instead of 'at'.",
+        "Used 'in front me' instead of 'for me'. Used 'may' instead of 'do'."
+      ],
+      "vocabulary_patterns": [],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Jhoana: Exhibits conversational flow with some hesitation and self-correction."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    }
+  },
+  "evidence": [
+    {
+      "speaker": "Jetsemany",
+      "start_offset": "1.600s",
+      "end_offset": "36.200s",
+      "stage1_heard": "For you, what is a funny, a on internet we see a lot of videos. Do you remember the video of Edgar se cae? I think no, I don't know, maybe but I think it was very funny because it's a kid try to cross a river.",
+      "reviewed_heard": "For you, what is a funny, a on internet we see a lot of videos. Do you remember the video of Edgar se cae? I think no, I don't know, maybe but I think it was very funny because it's a kid try to cross a river.",
+      "intended": "For you, what is a funny... on the internet, we see a lot of videos. Do you remember the video of Edgar se cae? I think... no, I don't know, maybe, but I think it was very funny because it's a kid trying to cross a river.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Jetsemany",
+      "start_offset": "37.400s",
+      "end_offset": "44.600s",
+      "stage1_heard": "And and her no, his friend it's moving",
+      "reviewed_heard": "And and her no, his friend it's moving",
+      "intended": "And her... no, his friend is moving.",
+      "intent_confidence": "medium",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Jhoana",
+      "start_offset": "45.700s",
+      "end_offset": "51.600s",
+      "stage1_heard": "Ah, yes, yes, yes. I remember that I love a lot with that video.",
+      "reviewed_heard": "Ah, yes, yes, yes. I remember that I love a lot with that video.",
+      "intended": "Ah yes, yes, yes. I remember that. I laughed a lot at that video.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Confused 'laugh' with 'love' and used preposition 'with' instead of 'at'.",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Jetsemany",
+      "start_offset": "52.100s",
+      "end_offset": "58.600s",
+      "stage1_heard": "Yes, yes, yes, I remember that video. And tell me for you.",
+      "reviewed_heard": "Yes, yes, yes, I remember that video. And tell me for you.",
+      "intended": "Yes, yes, yes, I remember that video. And tell me, for you?",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Jhoana",
+      "start_offset": "58.700s",
+      "end_offset": "84.600s",
+      "stage1_heard": "In front me all videos that that are, for example, dogs or or some pets that may some funny activities, for example, when the dogs with some with something or I don't know. Only that?",
+      "reviewed_heard": "In front me all videos that that are, for example, dogs or or some pets that may some funny activities, for example, when the dogs with some with something or I don't know. Only that?",
+      "intended": "For me, all videos that are, for example, of dogs or some pets that do some funny activities, for example, when the dogs... with something or I don't know. Only that?",
+      "intent_confidence": "medium",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Used 'in front me' instead of 'for me'. Used 'may' instead of 'do'.",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    }
+  ],
+  "fluency_observations": [
+    "Jetsemany: Speaks at a moderate pace with some pausing for formulation.",
+    "Jhoana: Exhibits conversational flow with some hesitation and self-correction."
+  ],
+  "teacher_interventions": [],
+  "scoring_status": "evidence_only_not_final_rubric"
+}
