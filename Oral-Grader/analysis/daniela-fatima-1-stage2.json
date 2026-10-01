@@ -1,0 +1,309 @@
+{
+  "project": "Oral-Grader",
+  "stage": 2,
+  "pair_slug": "daniela-fatima-1",
+  "model": "gemini-3.5-flash-lite",
+  "stage1_source": "Oral-Grader/transcripts/daniela-fatima-1-stage1.json",
+  "stage1_review": "Oral-Grader/reviews/daniela-fatima-1-stage1-review.json",
+  "speaker_mapping": {
+    "spk:0": "Daniela",
+    "spk:1": "Fátima",
+    "spk:teacher": "Teacher"
+  },
+  "students": {
+    "Daniela": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 1,
+      "uncertain_count": 0,
+      "grammar_patterns": [],
+      "vocabulary_patterns": [],
+      "malformed_form_patterns": [],
+      "transcription_notes": [],
+      "fluency_observations": [
+        "Daniela: Speaks fluently and naturally prompts the student with clear questions."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    },
+    "Fátima": {
+      "incorrect_pronunciation_count": 0,
+      "acceptable_sample_count": 10,
+      "uncertain_count": 1,
+      "grammar_patterns": [
+        "Subject-verb agreement: 'who have' instead of 'who has'.",
+        "Tense inconsistency ('say and said').",
+        "Missing subject ('it's') and redundant comparative forms ('more more is more funny')."
+      ],
+      "vocabulary_patterns": [],
+      "malformed_form_patterns": [],
+      "transcription_notes": [
+        "Audio is unclear and phrasing is slightly mangled."
+      ],
+      "fluency_observations": [
+        "Fátima: Speaks with pauses, self-corrections, and some hesitation when constructing narrative sentences."
+      ],
+      "teacher_interventions": [],
+      "notes_for_rubric": []
+    }
+  },
+  "evidence": [
+    {
+      "speaker": "Daniela",
+      "start_offset": "5.700s",
+      "end_offset": "7.200s",
+      "stage1_heard": "Can you tell me your joke?",
+      "reviewed_heard": "Can you tell me your joke?",
+      "intended": "Can you tell me your joke?",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Fátima",
+      "start_offset": "17.500s",
+      "end_offset": "18.100s",
+      "stage1_heard": "I don't know.",
+      "reviewed_heard": "I don't know.",
+      "intended": "I don't know.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Fátima",
+      "start_offset": "21s",
+      "end_offset": "22.500s",
+      "stage1_heard": "The first the first movie.",
+      "reviewed_heard": "The first the first movie.",
+      "intended": "The first movie.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Fátima",
+      "start_offset": "24.100s",
+      "end_offset": "25.700s",
+      "stage1_heard": "In one part of the movie",
+      "reviewed_heard": "In one part of the movie,",
+      "intended": "In one part of the movie,",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Fátima",
+      "start_offset": "28.300s",
+      "end_offset": "31.400s",
+      "stage1_heard": "What's the name of the guy?",
+      "reviewed_heard": "What's the name of the guy?",
+      "intended": "What's the name of the guy?",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Fátima",
+      "start_offset": "34.100s",
+      "end_offset": "39s",
+      "stage1_heard": "Johnny? Johnny. Johnny, it's a",
+      "reviewed_heard": "Johnny? Johnny, Johnny, it's a",
+      "intended": "Johnny? Johnny, it's a",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Fátima",
+      "start_offset": "41s",
+      "end_offset": "47.700s",
+      "stage1_heard": "person who have internet and technology.",
+      "reviewed_heard": "person who have internet and technology.",
+      "intended": "person who has internet and technology.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Subject-verb agreement: 'who have' instead of 'who has'.",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Fátima",
+      "start_offset": "49.100s",
+      "end_offset": "53.300s",
+      "stage1_heard": "And they say and said and Dracula says",
+      "reviewed_heard": "And they say and said and Dracula says",
+      "intended": "And Dracula says",
+      "intent_confidence": "medium",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Tense inconsistency ('say and said').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Fátima",
+      "start_offset": "54.100s",
+      "end_offset": "59.200s",
+      "stage1_heard": "okay all that how me that you're pathetic",
+      "reviewed_heard": "okay all that how me that you're pathetic",
+      "intended": null,
+      "intent_confidence": "uncertain",
+      "pronunciation": "uncertain",
+      "counts_toward_pronunciation": false,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": "Audio is unclear and phrasing is slightly mangled.",
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Fátima",
+      "start_offset": "118.100s",
+      "end_offset": "123.100s",
+      "stage1_heard": "I I didn't understand that joke in the movie in Spanish like pendiente",
+      "reviewed_heard": "I I didn't understand that joke in the movie in Spanish like pendiente",
+      "intended": "I didn't understand that joke in the movie in Spanish; like, 'pendiente'.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Fátima",
+      "start_offset": "126.100s",
+      "end_offset": "127.700s",
+      "stage1_heard": "That was not so funny.",
+      "reviewed_heard": "That was not so funny.",
+      "intended": "That was not so funny.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": null,
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    },
+    {
+      "speaker": "Fátima",
+      "start_offset": "128.200s",
+      "end_offset": "131s",
+      "stage1_heard": "but in English is is more more is more funny.",
+      "reviewed_heard": "but in English is is more more is more funny.",
+      "intended": "but in English it's more funny.",
+      "intent_confidence": "high",
+      "pronunciation": "acceptable",
+      "counts_toward_pronunciation": true,
+      "pronunciation_note": null,
+      "grammar_note": "Missing subject ('it's') and redundant comparative forms ('more more is more funny').",
+      "vocabulary_note": null,
+      "malformed_form_note": null,
+      "transcription_note": null,
+      "evidence_source": [
+        "audio",
+        "stage1"
+      ],
+      "model_origin": true
+    }
+  ],
+  "fluency_observations": [
+    "Fátima: Speaks with pauses, self-corrections, and some hesitation when constructing narrative sentences.",
+    "Daniela: Speaks fluently and naturally prompts the student with clear questions."
+  ],
+  "teacher_interventions": [],
+  "scoring_status": "evidence_only_not_final_rubric"
+}
