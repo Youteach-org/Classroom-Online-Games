@@ -1,0 +1,483 @@
+{
+  "project": "Oral-Grader",
+  "stage": 1,
+  "pair_slug": "jean-paulina-2",
+  "model": "gemini-3.5-transcribe",
+  "mode": "verbatim",
+  "speaker_diarization": true,
+  "word_timestamps": true,
+  "source_file": "oral-grader-source.ogg",
+  "full_text": "Listening in conversation and understand. Conversation one. Hello Paulina, how are you?I'm fine, and you?Fine, Paulina. I tell you a joke. The last thing made me laugh was a TikTok of Paulina dancing She was so crazy. I blocked her.Yeah.And you?I saw a funny video of TikTok TikTok that Mani made me laugh because the dog left and his house.That's so funny. Thank you. Bye.",
+  "turns": [
+    {
+      "speaker": "spk:0",
+      "start_offset": "0.400s",
+      "end_offset": "8.500s",
+      "heard": "Listening in conversation and understand. Conversation one. Hello Paulina, how are you?"
+    },
+    {
+      "speaker": "spk:1",
+      "start_offset": "9.500s",
+      "end_offset": "10.700s",
+      "heard": "I'm fine, and you?"
+    },
+    {
+      "speaker": "spk:0",
+      "start_offset": "11.900s",
+      "end_offset": "21.700s",
+      "heard": "Fine, Paulina. I tell you a joke. The last thing made me laugh was a TikTok of Paulina dancing She was so crazy. I blocked her."
+    },
+    {
+      "speaker": "spk:1",
+      "start_offset": "27.800s",
+      "end_offset": "28s",
+      "heard": "Yeah."
+    },
+    {
+      "speaker": "spk:0",
+      "start_offset": "29.600s",
+      "end_offset": "30.200s",
+      "heard": "And you?"
+    },
+    {
+      "speaker": "spk:1",
+      "start_offset": "31.400s",
+      "end_offset": "40.400s",
+      "heard": "I saw a funny video of TikTok TikTok that Mani made me laugh because the dog left and his house."
+    },
+    {
+      "speaker": "spk:0",
+      "start_offset": "42.100s",
+      "end_offset": "45.400s",
+      "heard": "That's so funny. Thank you. Bye."
+    }
+  ],
+  "words": [
+    {
+      "text": "Listening",
+      "speaker": "spk:0",
+      "start_offset": "0.400s",
+      "end_offset": "1s"
+    },
+    {
+      "text": "in",
+      "speaker": "spk:0",
+      "start_offset": "1s",
+      "end_offset": "1.100s"
+    },
+    {
+      "text": "conversation",
+      "speaker": "spk:0",
+      "start_offset": "1.100s",
+      "end_offset": "2.200s"
+    },
+    {
+      "text": "and",
+      "speaker": "spk:0",
+      "start_offset": "2.300s",
+      "end_offset": "2.700s"
+    },
+    {
+      "text": "understand.",
+      "speaker": "spk:0",
+      "start_offset": "2.800s",
+      "end_offset": "3.600s"
+    },
+    {
+      "text": "Conversation",
+      "speaker": "spk:0",
+      "start_offset": "4.900s",
+      "end_offset": "5.500s"
+    },
+    {
+      "text": "one.",
+      "speaker": "spk:0",
+      "start_offset": "5.500s",
+      "end_offset": "5.900s"
+    },
+    {
+      "text": "Hello",
+      "speaker": "spk:0",
+      "start_offset": "6.900s",
+      "end_offset": "7.100s"
+    },
+    {
+      "text": "Paulina,",
+      "speaker": "spk:0",
+      "start_offset": "7.100s",
+      "end_offset": "7.700s"
+    },
+    {
+      "text": "how",
+      "speaker": "spk:0",
+      "start_offset": "7.800s",
+      "end_offset": "8s"
+    },
+    {
+      "text": "are",
+      "speaker": "spk:0",
+      "start_offset": "8s",
+      "end_offset": "8.100s"
+    },
+    {
+      "text": "you?",
+      "speaker": "spk:0",
+      "start_offset": "8.100s",
+      "end_offset": "8.500s"
+    },
+    {
+      "text": "I'm",
+      "speaker": "spk:1",
+      "start_offset": "9.500s",
+      "end_offset": "9.700s"
+    },
+    {
+      "text": "fine,",
+      "speaker": "spk:1",
+      "start_offset": "9.700s",
+      "end_offset": "10.200s"
+    },
+    {
+      "text": "and",
+      "speaker": "spk:1",
+      "start_offset": "10.200s",
+      "end_offset": "10.400s"
+    },
+    {
+      "text": "you?",
+      "speaker": "spk:1",
+      "start_offset": "10.400s",
+      "end_offset": "10.700s"
+    },
+    {
+      "text": "Fine,",
+      "speaker": "spk:0",
+      "start_offset": "11.900s",
+      "end_offset": "12.300s"
+    },
+    {
+      "text": "Paulina.",
+      "speaker": "spk:0",
+      "start_offset": "12.300s",
+      "end_offset": "13s"
+    },
+    {
+      "text": "I",
+      "speaker": "spk:0",
+      "start_offset": "13.400s",
+      "end_offset": "13.600s"
+    },
+    {
+      "text": "tell",
+      "speaker": "spk:0",
+      "start_offset": "13.600s",
+      "end_offset": "13.800s"
+    },
+    {
+      "text": "you",
+      "speaker": "spk:0",
+      "start_offset": "13.800s",
+      "end_offset": "14s"
+    },
+    {
+      "text": "a",
+      "speaker": "spk:0",
+      "start_offset": "14s",
+      "end_offset": "14s"
+    },
+    {
+      "text": "joke.",
+      "speaker": "spk:0",
+      "start_offset": "14s",
+      "end_offset": "14.600s"
+    },
+    {
+      "text": "The",
+      "speaker": "spk:0",
+      "start_offset": "15.300s",
+      "end_offset": "15.400s"
+    },
+    {
+      "text": "last",
+      "speaker": "spk:0",
+      "start_offset": "15.400s",
+      "end_offset": "15.700s"
+    },
+    {
+      "text": "thing",
+      "speaker": "spk:0",
+      "start_offset": "15.700s",
+      "end_offset": "16s"
+    },
+    {
+      "text": "made",
+      "speaker": "spk:0",
+      "start_offset": "16s",
+      "end_offset": "16.200s"
+    },
+    {
+      "text": "me",
+      "speaker": "spk:0",
+      "start_offset": "16.200s",
+      "end_offset": "16.300s"
+    },
+    {
+      "text": "laugh",
+      "speaker": "spk:0",
+      "start_offset": "16.300s",
+      "end_offset": "16.700s"
+    },
+    {
+      "text": "was",
+      "speaker": "spk:0",
+      "start_offset": "16.700s",
+      "end_offset": "17s"
+    },
+    {
+      "text": "a",
+      "speaker": "spk:0",
+      "start_offset": "17s",
+      "end_offset": "17.100s"
+    },
+    {
+      "text": "TikTok",
+      "speaker": "spk:0",
+      "start_offset": "17.100s",
+      "end_offset": "17.600s"
+    },
+    {
+      "text": "of",
+      "speaker": "spk:0",
+      "start_offset": "17.600s",
+      "end_offset": "17.700s"
+    },
+    {
+      "text": "Paulina",
+      "speaker": "spk:0",
+      "start_offset": "17.700s",
+      "end_offset": "18.200s"
+    },
+    {
+      "text": "dancing",
+      "speaker": "spk:0",
+      "start_offset": "18.200s",
+      "end_offset": "18.600s"
+    },
+    {
+      "text": "She",
+      "speaker": "spk:0",
+      "start_offset": "19.900s",
+      "end_offset": "20s"
+    },
+    {
+      "text": "was",
+      "speaker": "spk:0",
+      "start_offset": "20s",
+      "end_offset": "20.300s"
+    },
+    {
+      "text": "so",
+      "speaker": "spk:0",
+      "start_offset": "20.300s",
+      "end_offset": "20.400s"
+    },
+    {
+      "text": "crazy.",
+      "speaker": "spk:0",
+      "start_offset": "20.400s",
+      "end_offset": "21s"
+    },
+    {
+      "text": "I",
+      "speaker": "spk:0",
+      "start_offset": "21s",
+      "end_offset": "21.100s"
+    },
+    {
+      "text": "blocked",
+      "speaker": "spk:0",
+      "start_offset": "21.100s",
+      "end_offset": "21.400s"
+    },
+    {
+      "text": "her.",
+      "speaker": "spk:0",
+      "start_offset": "21.400s",
+      "end_offset": "21.700s"
+    },
+    {
+      "text": "Yeah.",
+      "speaker": "spk:1",
+      "start_offset": "27.800s",
+      "end_offset": "28s"
+    },
+    {
+      "text": "And",
+      "speaker": "spk:0",
+      "start_offset": "29.600s",
+      "end_offset": "29.800s"
+    },
+    {
+      "text": "you?",
+      "speaker": "spk:0",
+      "start_offset": "29.800s",
+      "end_offset": "30.200s"
+    },
+    {
+      "text": "I",
+      "speaker": "spk:1",
+      "start_offset": "31.400s",
+      "end_offset": "31.600s"
+    },
+    {
+      "text": "saw",
+      "speaker": "spk:1",
+      "start_offset": "31.600s",
+      "end_offset": "31.800s"
+    },
+    {
+      "text": "a",
+      "speaker": "spk:1",
+      "start_offset": "31.800s",
+      "end_offset": "31.900s"
+    },
+    {
+      "text": "funny",
+      "speaker": "spk:1",
+      "start_offset": "31.900s",
+      "end_offset": "32.300s"
+    },
+    {
+      "text": "video",
+      "speaker": "spk:1",
+      "start_offset": "32.300s",
+      "end_offset": "32.700s"
+    },
+    {
+      "text": "of",
+      "speaker": "spk:1",
+      "start_offset": "32.700s",
+      "end_offset": "32.900s"
+    },
+    {
+      "text": "TikTok",
+      "speaker": "spk:1",
+      "start_offset": "32.900s",
+      "end_offset": "33.400s"
+    },
+    {
+      "text": "TikTok",
+      "speaker": "spk:1",
+      "start_offset": "33.600s",
+      "end_offset": "34.200s"
+    },
+    {
+      "text": "that",
+      "speaker": "spk:1",
+      "start_offset": "34.200s",
+      "end_offset": "34.500s"
+    },
+    {
+      "text": "Mani",
+      "speaker": "spk:1",
+      "start_offset": "34.500s",
+      "end_offset": "35.200s"
+    },
+    {
+      "text": "made",
+      "speaker": "spk:1",
+      "start_offset": "35.400s",
+      "end_offset": "36s"
+    },
+    {
+      "text": "me",
+      "speaker": "spk:1",
+      "start_offset": "36.100s",
+      "end_offset": "36.300s"
+    },
+    {
+      "text": "laugh",
+      "speaker": "spk:1",
+      "start_offset": "36.300s",
+      "end_offset": "36.800s"
+    },
+    {
+      "text": "because",
+      "speaker": "spk:1",
+      "start_offset": "36.800s",
+      "end_offset": "37.400s"
+    },
+    {
+      "text": "the",
+      "speaker": "spk:1",
+      "start_offset": "37.400s",
+      "end_offset": "37.500s"
+    },
+    {
+      "text": "dog",
+      "speaker": "spk:1",
+      "start_offset": "37.500s",
+      "end_offset": "37.800s"
+    },
+    {
+      "text": "left",
+      "speaker": "spk:1",
+      "start_offset": "37.800s",
+      "end_offset": "38.200s"
+    },
+    {
+      "text": "and",
+      "speaker": "spk:1",
+      "start_offset": "38.300s",
+      "end_offset": "38.700s"
+    },
+    {
+      "text": "his",
+      "speaker": "spk:1",
+      "start_offset": "39.800s",
+      "end_offset": "40s"
+    },
+    {
+      "text": "house.",
+      "speaker": "spk:1",
+      "start_offset": "40s",
+      "end_offset": "40.400s"
+    },
+    {
+      "text": "That's",
+      "speaker": "spk:0",
+      "start_offset": "42.100s",
+      "end_offset": "42.300s"
+    },
+    {
+      "text": "so",
+      "speaker": "spk:0",
+      "start_offset": "42.300s",
+      "end_offset": "42.400s"
+    },
+    {
+      "text": "funny.",
+      "speaker": "spk:0",
+      "start_offset": "42.400s",
+      "end_offset": "42.900s"
+    },
+    {
+      "text": "Thank",
+      "speaker": "spk:0",
+      "start_offset": "44.400s",
+      "end_offset": "44.600s"
+    },
+    {
+      "text": "you.",
+      "speaker": "spk:0",
+      "start_offset": "44.600s",
+      "end_offset": "44.900s"
+    },
+    {
+      "text": "Bye.",
+      "speaker": "spk:0",
+      "start_offset": "44.900s",
+      "end_offset": "45.400s"
+    }
+  ]
+}
