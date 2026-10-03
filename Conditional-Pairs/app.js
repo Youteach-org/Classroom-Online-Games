@@ -58,6 +58,7 @@ const sentences=pairs.flat();
 const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
 const sessionId=params.get('session');
+const teacherMode=params.get('teacher')==='1';
 
 function randomCode(){
   const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -297,7 +298,7 @@ if(sessionId){
   const normalizedSession=sessionId.trim().toUpperCase();
   assignStudent(normalizedSession);
   watchRoundStatus(normalizedSession);
-}else{
+}else if(teacherMode){
   $('teacherView').classList.remove('hidden');
   const last=localStorage.getItem('conditional-pairs-teacher-session');
   if(last){
@@ -308,4 +309,6 @@ if(sessionId){
       }
     }).catch(()=>{});
   }
+}else{
+  location.replace('/teacher/');
 }
