@@ -268,6 +268,11 @@ $('copyLinkBtn')?.addEventListener('click',async()=>{
   }
 });
 
+$('closeSessionBtn')?.addEventListener('click',()=>{
+  localStorage.removeItem('conditional-pairs-teacher-session');
+  location.href='/teacher/';
+});
+
 $('closeRoundBtn')?.addEventListener('click',async()=>{
   const id=localStorage.getItem('conditional-pairs-teacher-session');
   if(!id)return;
