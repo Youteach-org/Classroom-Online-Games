@@ -15,27 +15,46 @@ const app=initializeApp(firebaseConfig);
 const db=getDatabase(app);
 const root='classroomGames/supportMeter/conditionalPairs';
 
-const sentences=[
-  "If people don't get enough sleep during the week and stay up using their phones,",
-  "they usually feel exhausted in class and have trouble paying attention to what the teacher says.",
-  "If we leave early tomorrow and the traffic doesn't get backed up on the main road,",
-  "we'll get there on time and we won't have to make a big deal out of being late again.",
-  "If my log-on credentials were stronger and I used a different password for every account,",
-  "I would feel more secure online and wouldn't worry so much about someone getting into my accounts.",
-  "If she were using a password manager and two-factor authentication on all her accounts,",
-  "she wouldn't be worrying about identity theft every time she receives a strange security alert.",
-  "If they had checked the hotel Wi-Fi before sending personal information over the Internet,",
-  "they would have realized the network wasn't secure and wouldn't have taken such an unnecessary risk.",
-  "If I hadn't been downloading files from a source I didn't trust yesterday afternoon,",
-  "I wouldn't have been dealing with malware on my laptop for the rest of the evening.",
-  "If we had taken the earlier bus instead of waiting around at the station yesterday,",
-  "we wouldn't be stuck in this traffic now trying to figure out how to get there on time.",
-  "If he weren't always shrugging problems off instead of dealing with them when they happen,",
-  "he wouldn't have gotten so frustrated yesterday and lost his temper with everyone in the group.",
-  "If you should receive a fraud alert while you are using public Wi-Fi somewhere,",
-  "take it seriously and check your account before deciding that the warning is a little over the top."
+const pairs=[
+  [
+    "If people don't get enough sleep during the week and stay up using their phones,",
+    "they usually feel exhausted in class and have trouble paying attention to what the teacher says."
+  ],
+  [
+    "If we leave early tomorrow and the traffic doesn't get backed up on the main road,",
+    "we'll get there on time and we won't have to make a big deal out of being late again."
+  ],
+  [
+    "If my log-on credentials were stronger and I used a different password for every account,",
+    "I would feel more secure online and wouldn't worry so much about someone getting into my accounts."
+  ],
+  [
+    "If she were using a password manager and two-factor authentication on all her accounts,",
+    "she wouldn't be worrying about identity theft every time she receives a strange security alert."
+  ],
+  [
+    "If they had checked the hotel Wi-Fi before sending personal information over the Internet,",
+    "they would have realized the network wasn't secure and wouldn't have taken such an unnecessary risk."
+  ],
+  [
+    "If I hadn't been downloading files from a source I didn't trust yesterday afternoon,",
+    "I wouldn't have been dealing with malware on my laptop for the rest of the evening."
+  ],
+  [
+    "If we had taken the earlier bus instead of waiting around at the station yesterday,",
+    "we wouldn't be stuck in this traffic now trying to figure out how to get there on time."
+  ],
+  [
+    "If he weren't always shrugging problems off instead of dealing with them when they happen,",
+    "he wouldn't have gotten so frustrated yesterday and lost his temper with everyone in the group."
+  ],
+  [
+    "If you should receive a fraud alert while you are using public Wi-Fi somewhere,",
+    "take it seriously and check your account before deciding that the warning is a little over the top."
+  ]
 ];
 
+const sentences=pairs.flat();
 const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
 const sessionId=params.get('session');
@@ -71,8 +90,11 @@ function assignmentCacheKey(id){
 
 async function createRound(){
   const btn=$('createRoundBtn');
+  const total=Number($('cardCount')?.value||18);
+  const pairCount=Math.max(1,Math.min(pairs.length,total/2));
   btn.disabled=true;
   $('teacherStatus').textContent='Creating round...';
+
   try{
     let id;
     for(let attempts=0;attempts<8;attempts++){
@@ -83,10 +105,18 @@ async function createRound(){
     }
     if(!id)throw new Error('Could not create a unique round code.');
 
-    const order=shuffle([...Array(sentences.length).keys()]);
+    const chosenPairs=shuffle([...Array(pairs.length).keys()]).slice(0,pairCount);
+    const chosenSentenceIndexes=[];
+    for(const pairIndex of chosenPairs){
+      chosenSentenceIndexes.push(pairIndex*2,pairIndex*2+1);
+    }
+    const order=shuffle(chosenSentenceIndexes);
+
     await set(ref(db,root+'/sessions/'+id),{
       status:'open',
       createdAt:Date.now(),
+      totalCards:order.length,
+      selectedPairs:chosenPairs,
       nextIndex:0,
       order,
       assignments:{}
@@ -117,7 +147,9 @@ function showTeacherRound(id){
   onValue(sessionRef,snap=>{
     const data=snap.val()||{};
     const count=data.assignments?Object.keys(data.assignments).length:0;
-    $('assignedCount').textContent=String(Math.min(count,18));
+    const total=Number(data.totalCards||18);
+    $('assignedCount').textContent=String(Math.min(count,total));
+    if($('roundTotal'))$('roundTotal').textContent=String(total);
   });
 }
 
@@ -136,21 +168,29 @@ async function assignStudent(id){
   }
 
   const sessionRef=ref(db,root+'/sessions/'+id);
-  let assignedIndex=null;
 
   try{
-    const result=await runTransaction(sessionRef,current=>{
-      if(!current||current.status!=='open')return;
-      current.assignments=current.assignments||{};
+    // Important: fetch the session before starting a transaction.
+    // A fresh RTDB client may otherwise invoke the transaction callback with null
+    // before server state has been loaded and abort a valid round.
+    const initialSnap=await get(sessionRef);
+    if(!initialSnap.exists()||initialSnap.val()?.status!=='open'){
+      throw new Error('This round is no longer available.');
+    }
 
+    const result=await runTransaction(sessionRef,current=>{
+      if(!current||current.status!=='open')return current;
+
+      current.assignments=current.assignments||{};
       if(current.assignments[clientId]!==undefined){
         return current;
       }
 
       const next=Number(current.nextIndex||0);
       const order=Array.isArray(current.order)?current.order:Object.values(current.order||{});
+      const total=Number(current.totalCards||order.length||18);
 
-      if(next>=sentences.length){
+      if(next>=total||next>=order.length){
         return current;
       }
 
@@ -165,15 +205,18 @@ async function assignStudent(id){
     }
 
     if(data.assignments&&data.assignments[clientId]!==undefined){
-      assignedIndex=Number(data.assignments[clientId]);
-    }else if(Number(data.nextIndex||0)>=sentences.length){
-      throw new Error('All 18 sentences have already been assigned.');
-    }else{
-      throw new Error('Could not assign a sentence.');
+      const assignedIndex=Number(data.assignments[clientId]);
+      localStorage.setItem(localKey,String(assignedIndex));
+      showSentence(assignedIndex);
+      return;
     }
 
-    localStorage.setItem(localKey,String(assignedIndex));
-    showSentence(assignedIndex);
+    const total=Number(data.totalCards||18);
+    if(Number(data.nextIndex||0)>=total){
+      throw new Error('All cards for this round have already been assigned.');
+    }
+
+    throw new Error('Could not assign a sentence. Please reload once.');
   }catch(err){
     console.error(err);
     showStudentError(err.message||'Could not get your sentence.');
@@ -194,8 +237,8 @@ function showStudentError(message){
   $('studentError').classList.remove('hidden');
 }
 
-$('createRoundBtn').addEventListener('click',createRound);
-$('copyLinkBtn').addEventListener('click',async()=>{
+$('createRoundBtn')?.addEventListener('click',createRound);
+$('copyLinkBtn')?.addEventListener('click',async()=>{
   try{
     await navigator.clipboard.writeText($('studentLink').textContent);
     $('teacherStatus').textContent='Student link copied.';
