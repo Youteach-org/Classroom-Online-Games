@@ -42,7 +42,7 @@ jobs:
         run: |
           rm -rf dist
           mkdir -p dist
-          cp index.html dist/
+          cp index.html _headers dist/
           cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Wordy Engineering Medicine teacher Talk-Talk Conditional-Pairs dist/
           if [ -d shared ]; then cp -R shared dist/; fi
 
