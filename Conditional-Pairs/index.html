@@ -13,6 +13,8 @@
     h1{font-size:clamp(34px,7vw,64px);margin:0 0 14px;line-height:1}
     p{font-size:clamp(18px,3.4vw,25px);line-height:1.35}
     .muted{color:#555}
+    label{display:block;font-weight:800;font-size:18px;margin:22px 0 8px}
+    select{width:100%;max-width:320px;border:3px solid #111;border-radius:14px;background:#fff;color:#111;padding:13px 14px;font-size:18px;font-weight:800}
     button,.btn{border:3px solid #111;background:#111;color:#fff;border-radius:14px;padding:15px 20px;font-weight:800;font-size:18px;cursor:pointer}
     button.secondary{background:#fff;color:#111}
     .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
@@ -21,7 +23,6 @@
     .badge{display:inline-block;border:2px solid #111;border-radius:999px;padding:7px 12px;font-weight:800;font-size:14px}
     .status{margin-top:16px;font-size:16px}
     .hidden{display:none!important}
-    .error{border-color:#a40000;color:#a40000}
     .count{font-size:clamp(42px,8vw,72px);font-weight:900;margin:8px 0}
     .small{font-size:14px}
   </style>
@@ -32,6 +33,21 @@
       <span class="badge">TEACHER</span>
       <h1>Find Your Match</h1>
       <p>Create one round, send the link once, and each student will receive only one sentence half.</p>
+
+      <label for="cardCount">How many cards do you need?</label>
+      <select id="cardCount">
+        <option value="18" selected>18 cards · 9 pairs</option>
+        <option value="16">16 cards · 8 pairs</option>
+        <option value="14">14 cards · 7 pairs</option>
+        <option value="12">12 cards · 6 pairs</option>
+        <option value="10">10 cards · 5 pairs</option>
+        <option value="8">8 cards · 4 pairs</option>
+        <option value="6">6 cards · 3 pairs</option>
+        <option value="4">4 cards · 2 pairs</option>
+        <option value="2">2 cards · 1 pair</option>
+      </select>
+      <p class="small muted">The activity always keeps complete pairs, so no student is left without a match.</p>
+
       <div class="actions">
         <button id="createRoundBtn">Create new round</button>
         <button id="copyLinkBtn" class="secondary hidden">Copy student link</button>
@@ -39,7 +55,7 @@
       <div id="teacherRound" class="hidden">
         <div class="linkbox" id="studentLink"></div>
         <p class="muted">Assigned students</p>
-        <div class="count"><span id="assignedCount">0</span>/18</div>
+        <div class="count"><span id="assignedCount">0</span>/<span id="roundTotal">18</span></div>
         <p class="small">Reloading a student's page keeps the same sentence on that browser.</p>
       </div>
       <p id="teacherStatus" class="status muted"></p>
