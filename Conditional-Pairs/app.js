@@ -1,5 +1,5 @@
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import {getDatabase,ref,set,get,onValue,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+import {getDatabase,ref,set,get,onValue,runTransaction,update} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
 const firebaseConfig={
   apiKey:'AIzaSyCpKL-4eHrqFiUntViiUB2BPs60XumC1K4',
@@ -142,6 +142,7 @@ function showTeacherRound(id){
   $('studentLink').textContent=url.toString();
   $('teacherRound').classList.remove('hidden');
   $('copyLinkBtn').classList.remove('hidden');
+  $('closeRoundBtn')?.classList.remove('hidden');
 
   const sessionRef=ref(db,root+'/sessions/'+id);
   onValue(sessionRef,snap=>{
@@ -150,6 +151,12 @@ function showTeacherRound(id){
     const total=Number(data.totalCards||18);
     $('assignedCount').textContent=String(Math.min(count,total));
     if($('roundTotal'))$('roundTotal').textContent=String(total);
+
+    if(data.status==='closed'){
+      $('teacherStatus').textContent='Round closed.';
+      $('closeRoundBtn')?.classList.add('hidden');
+      $('copyLinkBtn')?.classList.add('hidden');
+    }
   });
 }
 
@@ -226,8 +233,22 @@ async function assignStudent(id){
 function showSentence(index){
   $('loadingText').classList.add('hidden');
   $('studentError').classList.add('hidden');
+  $('studentClosed')?.classList.add('hidden');
   $('sentenceText').textContent=sentences[index];
   $('assignment').classList.remove('hidden');
+}
+
+function watchRoundStatus(id){
+  const sessionRef=ref(db,root+'/sessions/'+id);
+  onValue(sessionRef,snap=>{
+    const data=snap.val();
+    if(!data||data.status==='closed'){
+      $('loadingText').classList.add('hidden');
+      $('assignment').classList.add('hidden');
+      $('studentError').classList.add('hidden');
+      $('studentClosed')?.classList.remove('hidden');
+    }
+  });
 }
 
 function showStudentError(message){
@@ -247,8 +268,30 @@ $('copyLinkBtn')?.addEventListener('click',async()=>{
   }
 });
 
+$('closeRoundBtn')?.addEventListener('click',async()=>{
+  const id=localStorage.getItem('conditional-pairs-teacher-session');
+  if(!id)return;
+  $('closeRoundBtn').disabled=true;
+  $('teacherStatus').textContent='Closing round...';
+  try{
+    await update(ref(db,root+'/sessions/'+id),{
+      status:'closed',
+      closedAt:Date.now()
+    });
+    $('teacherStatus').textContent='Round closed.';
+    $('closeRoundBtn').classList.add('hidden');
+    $('copyLinkBtn').classList.add('hidden');
+  }catch(err){
+    console.error(err);
+    $('teacherStatus').textContent='Could not close the round. Try again.';
+    $('closeRoundBtn').disabled=false;
+  }
+});
+
 if(sessionId){
-  assignStudent(sessionId.trim().toUpperCase());
+  const normalizedSession=sessionId.trim().toUpperCase();
+  assignStudent(normalizedSession);
+  watchRoundStatus(normalizedSession);
 }else{
   $('teacherView').classList.remove('hidden');
   const last=localStorage.getItem('conditional-pairs-teacher-session');
