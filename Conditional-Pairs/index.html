@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111111">
+  <title>Find Your Match</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:#f5f5f2;color:#111;display:flex;align-items:center;justify-content:center;padding:18px}
+    .shell{width:min(900px,100%)}
+    .panel{background:#fff;border:3px solid #111;border-radius:22px;padding:clamp(22px,5vw,48px);box-shadow:10px 10px 0 #111}
+    h1{font-size:clamp(34px,7vw,64px);margin:0 0 14px;line-height:1}
+    p{font-size:clamp(18px,3.4vw,25px);line-height:1.35}
+    .muted{color:#555}
+    button,.btn{border:3px solid #111;background:#111;color:#fff;border-radius:14px;padding:15px 20px;font-weight:800;font-size:18px;cursor:pointer}
+    button.secondary{background:#fff;color:#111}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+    .linkbox{margin-top:20px;padding:14px;border:2px solid #111;border-radius:12px;overflow-wrap:anywhere;font-size:16px}
+    .sentence{font-weight:800;font-size:clamp(30px,7vw,62px);line-height:1.12;text-align:center;margin:28px 0}
+    .badge{display:inline-block;border:2px solid #111;border-radius:999px;padding:7px 12px;font-weight:800;font-size:14px}
+    .status{margin-top:16px;font-size:16px}
+    .hidden{display:none!important}
+    .error{border-color:#a40000;color:#a40000}
+    .count{font-size:clamp(42px,8vw,72px);font-weight:900;margin:8px 0}
+    .small{font-size:14px}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section id="teacherView" class="panel hidden">
+      <span class="badge">TEACHER</span>
+      <h1>Find Your Match</h1>
+      <p>Create one round, send the link once, and each student will receive only one sentence half.</p>
+      <div class="actions">
+        <button id="createRoundBtn">Create new round</button>
+        <button id="copyLinkBtn" class="secondary hidden">Copy student link</button>
+      </div>
+      <div id="teacherRound" class="hidden">
+        <div class="linkbox" id="studentLink"></div>
+        <p class="muted">Assigned students</p>
+        <div class="count"><span id="assignedCount">0</span>/18</div>
+        <p class="small">Reloading a student's page keeps the same sentence on that browser.</p>
+      </div>
+      <p id="teacherStatus" class="status muted"></p>
+    </section>
+
+    <section id="studentView" class="panel hidden">
+      <span class="badge">YOUR SENTENCE</span>
+      <div id="loadingText">
+        <h1>Getting your sentence...</h1>
+        <p class="muted">Do not close this page.</p>
+      </div>
+      <div id="assignment" class="hidden">
+        <div class="sentence" id="sentenceText"></div>
+        <p><strong>Find the person whose sentence completes yours.</strong></p>
+        <p class="muted">Read it aloud. Do not show your screen.</p>
+      </div>
+      <div id="studentError" class="hidden">
+        <h1>Round unavailable</h1>
+        <p id="studentErrorText"></p>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
