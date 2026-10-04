@@ -175,6 +175,18 @@
 
     <div id="gameNotice" class="game-notice" aria-live="assertive"></div>
 
+    <section id="sentenceChoices" class="sentence-choices" hidden aria-label="Sentence answer choices">
+      <button class="sentence-choice" type="button" data-lane="0">
+        <span>LEFT</span><b>—</b>
+      </button>
+      <button class="sentence-choice" type="button" data-lane="1">
+        <span>CENTER</span><b>—</b>
+      </button>
+      <button class="sentence-choice" type="button" data-lane="2">
+        <span>RIGHT</span><b>—</b>
+      </button>
+    </section>
+
     <div id="modelStatus" class="model-status-hidden" aria-live="polite">Loading robot…</div>
 
     <section id="picker" class="picker" aria-label="Choose runner">
@@ -401,6 +413,7 @@
   <script src="./time-clues-bank.js"></script>
   <script src="./perfect-race-bank.js"></script>
   <script src="./final-race-bank.js"></script>
+  <script src="./sentence-runner-layout.js?v=zones-20260920-1"></script>
   <script src="./pronunciation-manifest.js?v=ambiguous-verbs-20260915-1"></script>
   <script src="./pronunciation.js"></script>
   <script type="module" src="./prototype.js?v=free-mode-presence-20260915-1&live-cog-student=20260920"></script>
