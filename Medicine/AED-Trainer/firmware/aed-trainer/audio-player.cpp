@@ -3,6 +3,8 @@
 #include <Arduino.h>
 #include <ESP_I2S.h>
 #include <LittleFS.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
 #include <algorithm>
 #include <cstdint>
@@ -18,7 +20,11 @@ namespace {
 I2SClass I2S;
 bool i2sActive = false;
 
-constexpr std::int32_t kVoiceGainNumerator = 11;
+TaskHandle_t cprMusicTaskHandle = nullptr;
+volatile bool cprMusicStopRequested = false;
+volatile bool cprMusicActive = false;
+
+constexpr std::int32_t kVoiceGainNumerator = 10;
 constexpr std::int32_t kVoiceGainDenominator = 10;
 
 std::uint16_t readLe16(const std::uint8_t* p) {
@@ -143,7 +149,7 @@ bool startI2s(std::uint32_t sampleRate) {
 }
 
 bool writeMonoAsStereo(const std::int16_t* mono, std::size_t samples) {
-  constexpr std::size_t kChunk = 256;
+  constexpr std::size_t kChunk = 768;
   std::int16_t stereo[kChunk * 2];
 
   std::size_t offset = 0;
@@ -187,9 +193,9 @@ bool playPcm16(File& file, const WavInfo& wav) {
   return true;
 }
 
-bool playImaAdpcm(File& file, const WavInfo& wav) {
+bool playImaAdpcm(File& file, const WavInfo& wav, const volatile bool* stopFlag = nullptr) {
   constexpr std::size_t kMaxBlockBytes = 1024;
-  constexpr std::size_t kMonoBufferSamples = 256;
+  constexpr std::size_t kMonoBufferSamples = 768;
 
   if (wav.blockAlign < 4 || wav.blockAlign > kMaxBlockBytes) return false;
   if (wav.samplesPerBlock == 0) return false;
@@ -201,6 +207,8 @@ bool playImaAdpcm(File& file, const WavInfo& wav) {
   const bool boundedByFact = samplesRemaining > 0;
 
   while (dataRemaining > 0 && (!boundedByFact || samplesRemaining > 0)) {
+    if (stopFlag && *stopFlag) return true;
+
     const std::size_t blockBytes =
         std::min<std::size_t>(wav.blockAlign, dataRemaining);
 
@@ -268,6 +276,34 @@ bool wavSupported(const WavInfo& wav) {
   }
 
   return false;
+}
+
+void cprMusicTask(void*) {
+  bool ok = false;
+  File file = LittleFS.open("/audio/rcp-music.wav", "r");
+
+  if (file) {
+    WavInfo wav;
+    if (parseWavHeader(file, &wav) &&
+        wavSupported(wav) &&
+        wav.audioFormat == 0x11 &&
+        startI2s(wav.sampleRate)) {
+      cprMusicActive = true;
+      ok = playImaAdpcm(file, wav, &cprMusicStopRequested);
+    }
+    file.close();
+  }
+
+  if (i2sActive) {
+    I2S.end();
+    i2sActive = false;
+  }
+
+  Serial.println(ok ? "RCP_MUSIC_FINISHED" : "RCP_MUSIC_STREAM_FAIL");
+  cprMusicActive = false;
+  cprMusicStopRequested = false;
+  cprMusicTaskHandle = nullptr;
+  vTaskDelete(nullptr);
 }
 
 }  // namespace
@@ -388,6 +424,66 @@ bool AudioPlayer::playShockBuzz() {
   file.close();
   stop();
   return ok;
+}
+
+bool AudioPlayer::beginCprMusic() {
+  if (!fsReady_ && !begin()) return false;
+
+  endCprMusic();
+  cprMusicStopRequested = false;
+  cprMusicActive = false;
+
+  BaseType_t created = xTaskCreatePinnedToCore(
+      cprMusicTask,
+      "aed-cpr-music",
+      7168,
+      nullptr,
+      3,
+      &cprMusicTaskHandle,
+      0);
+
+  if (created != pdPASS) {
+    cprMusicTaskHandle = nullptr;
+    return false;
+  }
+
+  const std::uint32_t startedAt = millis();
+  while (!cprMusicActive &&
+         cprMusicTaskHandle != nullptr &&
+         static_cast<std::uint32_t>(millis() - startedAt) < 1000U) {
+    delay(2);
+  }
+
+  return cprMusicActive;
+}
+
+void AudioPlayer::endCprMusic() {
+  if (cprMusicTaskHandle == nullptr && !cprMusicActive) return;
+
+  cprMusicStopRequested = true;
+
+  const std::uint32_t stopStartedAt = millis();
+  while (cprMusicTaskHandle != nullptr &&
+         static_cast<std::uint32_t>(millis() - stopStartedAt) < 900U) {
+    delay(5);
+  }
+
+  if (cprMusicTaskHandle != nullptr) {
+    vTaskDelete(cprMusicTaskHandle);
+    cprMusicTaskHandle = nullptr;
+  }
+
+  if (i2sActive) {
+    I2S.end();
+    i2sActive = false;
+  }
+
+  cprMusicActive = false;
+  cprMusicStopRequested = false;
+}
+
+bool AudioPlayer::cprMusicPlaying() const {
+  return cprMusicActive;
 }
 
 bool AudioPlayer::beginCprMetronome() {

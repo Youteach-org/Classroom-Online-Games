@@ -20,7 +20,8 @@ class DisplayAdapter {
       bool compression = false);
   void showPadError();
   void showPromptVisual(const std::string& promptId);
+  bool prepareCprFrames();
 
  private:
-  void showAsset(std::uint16_t index);
+  void showAsset(std::uint16_t index, bool force = false);
 };

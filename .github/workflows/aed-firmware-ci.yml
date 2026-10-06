@@ -143,7 +143,9 @@ jobs:
           mkdir -p dist/littlefs-root/audio
           cp dist/classroom-audio/*.wav dist/littlefs-root/audio/
           cp Medicine/AED-Trainer/firmware/display-assets.dat dist/littlefs-root/display-assets.dat
+          cp Medicine/AED-Trainer/firmware/rcp-music.wav dist/littlefs-root/audio/rcp-music.wav
           test -s dist/littlefs-root/display-assets.dat
+          test -s dist/littlefs-root/audio/rcp-music.wav
 
           MKLITTLEFS="$(find "$HOME/.arduino15/packages/esp32/tools" -type f -name mklittlefs | head -n 1)"
           if [ -z "$MKLITTLEFS" ]; then
@@ -153,7 +155,7 @@ jobs:
           fi
 
           chmod +x "$MKLITTLEFS"
-          "$MKLITTLEFS"             -c dist/littlefs-root             -p 256             -b 4096             -s 0x1F0000             dist/package/littlefs.bin
+          "$MKLITTLEFS"             -c dist/littlefs-root             -p 256             -b 4096             -s 0x280000             dist/package/littlefs.bin
 
       - name: Bundle official Windows esptool
         run: |
@@ -190,7 +192,7 @@ jobs:
           0x001000  bootloader.bin
           0x008000  partitions.bin
           0x010000  firmware.bin
-          0x210000  littlefs.bin
+          0x180000  littlefs.bin
           EOF
 
           (
@@ -201,8 +203,8 @@ jobs:
 
       - name: Validate package size against partitions
         run: |
-          test "$(stat -c%s dist/package/firmware.bin)" -le $((0x200000))
-          test "$(stat -c%s dist/package/littlefs.bin)" -le $((0x1F0000))
+          test "$(stat -c%s dist/package/firmware.bin)" -le $((0x170000))
+          test "$(stat -c%s dist/package/littlefs.bin)" -le $((0x280000))
           test -s dist/package/bootloader.bin
           test -s dist/package/partitions.bin
 

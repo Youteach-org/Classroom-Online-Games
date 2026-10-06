@@ -9,10 +9,10 @@ V15 incluye:
 - triángulos de advertencia parpadeantes durante la espera de descarga;
 - **efecto de descarga tomado exclusivamente del sonido aprobado del usuario**, sin sustituirlo por un efecto sintético;
 - RCP de 2 minutos completos: el conteo inicia sólo después de terminar la instrucción de voz;
-- **ritmo audible de RCP a 104/min** con sesión I2S persistente; el ESP32 registra `RCP_BEAT_OK` / `RCP_BEAT_FAIL` por Serial;
+- **música de RCP de 2:00** tomada del archivo proporcionado por el usuario: se eliminan los primeros 6.5 s y se conservan exactamente 120 s; la animación sigue su pulso medido de ~107.7/min;
 - `AED_BEGIN_CPR`: toma aprobada de Lucía para **“Inicie ERRE CE PE”**;
 - `AED_CONTINUE_CPR`: **“Continúe”** de la voz original del DEA + **“ERRE CE PE”** recortado de la misma toma aprobada de Lucía;
-- títulos de la franja amarilla del OLED centrados horizontalmente;
+- TFT ST7735 160×128 a pantalla completa, con imágenes específicas para A1–A8, ECG animado y cronómetro grande superpuesto durante RCP;
 - movimiento/artefacto visible durante análisis y bloqueo del resultado hasta retirarlo;
 - BLE activo al encender, anunciado como **AED Trainer**;
 - Teacher Monitor opcional por Bluetooth LE;
@@ -50,6 +50,6 @@ El entrenador continúa funcionando localmente aunque se desconecte Bluetooth.
 
 Los pasos del alumno avanzan con **PADS / OK**. Si se recomienda descarga, el equipo espera el botón físico **SHOCK**.
 
-Después de la instrucción de RCP, el cronómetro comienza en **2:00 completos** y el beep de 104/min acompaña el ciclo hasta 0:00.
+Después de la instrucción de RCP, el cronómetro comienza en **2:00 completos**. La música recortada a 120 s acompaña el ciclo y la animación de compresiones sigue su pulso (~108/min) hasta 0:00.
 
 Este dispositivo es un entrenador educativo; no analiza ECG real ni produce descarga terapéutica.

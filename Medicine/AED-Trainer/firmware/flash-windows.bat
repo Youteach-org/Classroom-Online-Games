@@ -63,7 +63,7 @@ echo [2/2] Instalando V15...
   0x1000 bootloader.bin ^
   0x8000 partitions.bin ^
   0x10000 firmware.bin ^
-  0x210000 littlefs.bin
+  0x180000 littlefs.bin
 
 if errorlevel 1 (
   echo.

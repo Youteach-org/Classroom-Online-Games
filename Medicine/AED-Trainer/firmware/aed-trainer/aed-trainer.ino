@@ -20,8 +20,13 @@ constexpr std::uint32_t kShockArmDelayMs = 500;
 constexpr std::uint32_t kNoShockToCprMs = 500;
 constexpr std::uint32_t kCprCycleMs = 120000;
 constexpr std::uint32_t kReassessDelayMs = 500;
-constexpr std::uint32_t kMetronomeBpm = 110;
-constexpr std::uint32_t kMetronomeIntervalMs = 60000 / kMetronomeBpm;
+// The uploaded CPR song was measured after the requested 6.5 s trim.
+// Beat grid: 107.666 BPM, first grid beat about 46 ms after the trim.
+constexpr std::uint32_t kCprDisplayBpm = 108;
+constexpr std::uint32_t kCprBeatIntervalUs = 557279;
+constexpr std::uint32_t kCprBeatPhaseUs = 46440;
+constexpr std::uint32_t kCprCompressionWindowUs = 185000;
+constexpr std::uint32_t kFallbackMetronomeIntervalMs = 557;
 
 constexpr std::array<const char*, 8> kLocalScenarios{
     "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"};
@@ -44,6 +49,7 @@ std::uint32_t analysisPhase = 0;
 bool lastPaused = false;
 bool lastMovement = false;
 bool cprCycleTimingActive = false;
+bool cprMusicActive = false;
 std::size_t localScenarioIndex = 0;
 
 const char* stateFallback(TrainerState state) {
@@ -68,6 +74,18 @@ const char* stateFallback(TrainerState state) {
       return "Preparando nuevo analisis.";
   }
   return "DEA educativo";
+}
+
+bool cprCompressionAt(std::uint32_t elapsedMs) {
+  const std::uint64_t elapsedUs =
+      static_cast<std::uint64_t>(elapsedMs) * 1000ULL;
+
+  if (elapsedUs < kCprBeatPhaseUs) return false;
+
+  const std::uint64_t beatPhase =
+      (elapsedUs - kCprBeatPhaseUs) % kCprBeatIntervalUs;
+
+  return beatPhase < kCprCompressionWindowUs;
 }
 
 void renderOperationalView() {
@@ -97,13 +115,22 @@ void renderOperationalView() {
   }
 
   if (snapshot.state == TrainerState::CPR) {
+    std::uint32_t elapsedMs = 0;
     std::uint32_t remainingMs = kCprCycleMs;
+
     if (cprCycleTimingActive) {
-      const std::uint32_t elapsedMs =
+      elapsedMs =
           static_cast<std::uint32_t>(millis() - cprCycleStartedAt);
       remainingMs = elapsedMs >= kCprCycleMs ? 0 : kCprCycleMs - elapsedMs;
     }
-    display.showCprCountdown(remainingMs, kMetronomeBpm);
+
+    const bool compression =
+        cprCycleTimingActive && cprCompressionAt(elapsedMs);
+
+    display.showCprCountdown(
+        remainingMs,
+        kCprDisplayBpm,
+        compression);
     return;
   }
 
@@ -118,8 +145,10 @@ void syncStateView(bool force = false) {
   if (stateChanged) {
     if (lastRenderedState == TrainerState::CPR &&
         current != TrainerState::CPR) {
+      audio.endCprMusic();
       audio.endCprMetronome();
-      Serial.println("RCP_METRONOME_STOP");
+      cprMusicActive = false;
+      Serial.println("RCP_AUDIO_STOP");
     }
 
     stateEnteredAt = millis();
@@ -193,25 +222,29 @@ void serviceOnePrompt() {
   if (trainer.state() == TrainerState::CPR &&
       (prompt.value() == "AED_BEGIN_CPR" ||
        prompt.value() == "AED_CONTINUE_CPR")) {
-    cprCycleStartedAt = millis();
-    cprCycleTimingActive = true;
+    // Cache both full-screen CPR frames before the song starts. During the
+    // two-minute cycle the TFT no longer reads those frames from LittleFS,
+    // preventing display I/O from interrupting the music stream.
+    const bool framesReady = display.prepareCprFrames();
+    Serial.println(framesReady ? "RCP_FRAMES_READY" : "RCP_FRAMES_CACHE_FAIL");
 
-    const std::uint32_t firstBeatAt = millis();
-    const bool metronomeReady = audio.beginCprMetronome();
-    Serial.println(metronomeReady ? "RCP_METRONOME_READY" : "RCP_METRONOME_INIT_FAIL");
+    const bool musicReady = audio.beginCprMusic();
+    cprMusicActive = musicReady;
+    Serial.println(musicReady ? "RCP_MUSIC_READY" : "RCP_MUSIC_FAIL");
 
-    display.showCprCountdown(kCprCycleMs, kMetronomeBpm, true);
-    const bool firstBeat = metronomeReady && audio.playMetronomeClick();
-    display.showCprCountdown(kCprCycleMs, kMetronomeBpm, false);
-
-    Serial.println(firstBeat ? "RCP_BEAT_OK" : "RCP_BEAT_FAIL");
-    if (!firstBeat) {
-      ble.notifyEvent("RCP_BEAT_FAIL");
+    // Fallback only if the two-minute music file cannot start.
+    if (!musicReady) {
+      const bool metronomeReady = audio.beginCprMetronome();
+      Serial.println(
+          metronomeReady
+              ? "RCP_FALLBACK_METRONOME_READY"
+              : "RCP_FALLBACK_METRONOME_FAIL");
     }
 
-    // Anchor the cadence to the START of the beat, not to the end of the
-    // blocking sound. This keeps the actual rate at 110/min.
-    lastMetronomeAt = firstBeatAt;
+    cprCycleStartedAt = millis();
+    cprCycleTimingActive = true;
+    lastMetronomeAt = cprCycleStartedAt;
+
     renderOperationalView();
   }
 
@@ -352,7 +385,7 @@ void serviceDynamicDisplay() {
   const std::uint32_t now = millis();
 
   if (snapshot.state == TrainerState::ANALYZING) {
-    if (static_cast<std::uint32_t>(now - lastDynamicDisplayAt) < 60) return;
+    if (static_cast<std::uint32_t>(now - lastDynamicDisplayAt) < 40) return;
     lastDynamicDisplayAt = now;
     analysisPhase += 2;
     renderOperationalView();
@@ -368,7 +401,7 @@ void serviceDynamicDisplay() {
   }
 
   if (snapshot.state == TrainerState::CPR) {
-    if (static_cast<std::uint32_t>(now - lastDynamicDisplayAt) < 200) return;
+    if (static_cast<std::uint32_t>(now - lastDynamicDisplayAt) < 40) return;
     lastDynamicDisplayAt = now;
     renderOperationalView();
   }
@@ -379,33 +412,24 @@ void serviceMetronome() {
   if (snapshot.state != TrainerState::CPR ||
       snapshot.paused ||
       !cprCycleTimingActive ||
-      trainer.hasPrompt()) {
+      trainer.hasPrompt() ||
+      cprMusicActive) {
     return;
   }
 
   const std::uint32_t now = millis();
   if (static_cast<std::uint32_t>(now - lastMetronomeAt) <
-      kMetronomeIntervalMs) {
+      kFallbackMetronomeIntervalMs) {
     return;
   }
 
-  const std::uint32_t elapsedMs =
-      static_cast<std::uint32_t>(now - cprCycleStartedAt);
-  const std::uint32_t remainingMs =
-      elapsedMs >= kCprCycleMs ? 0 : kCprCycleMs - elapsedMs;
-
-  display.showCprCountdown(remainingMs, kMetronomeBpm, true);
   const bool beatOk = audio.playMetronomeClick();
-  display.showCprCountdown(remainingMs, kMetronomeBpm, false);
-
   Serial.println(beatOk ? "RCP_BEAT_OK" : "RCP_BEAT_FAIL");
   if (!beatOk) {
     ble.notifyEvent("RCP_BEAT_FAIL");
   }
 
-  // Preserve an absolute cadence. Do not start a new 545 ms interval after
-  // the sound ends, because that made previous versions audibly too slow.
-  lastMetronomeAt += kMetronomeIntervalMs;
+  lastMetronomeAt += kFallbackMetronomeIntervalMs;
 }
 
 void serviceShockButton() {
