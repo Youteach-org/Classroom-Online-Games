@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 #include "trainer-core.h"
 
@@ -13,5 +14,13 @@ class DisplayAdapter {
   void showAnalyzing(AnalysisOutcome outcome, std::uint32_t phase);
   void showMovementWarning();
   void showShockWarning(bool trianglesVisible);
-  void showCprCountdown(std::uint32_t remainingMs, std::uint32_t bpm);
+  void showCprCountdown(
+      std::uint32_t remainingMs,
+      std::uint32_t bpm,
+      bool compression = false);
+  void showPadError();
+  void showPromptVisual(const std::string& promptId);
+
+ private:
+  void showAsset(std::uint16_t index);
 };

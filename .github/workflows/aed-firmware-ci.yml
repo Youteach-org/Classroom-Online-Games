@@ -43,7 +43,7 @@ jobs:
       - name: Install display libraries
         run: |
           arduino-cli lib install "Adafruit GFX Library"
-          arduino-cli lib install "Adafruit SSD1306"
+          arduino-cli lib install "Adafruit ST7735 and ST7789 Library"
 
       - name: Install FFmpeg for classroom mastering
         run: |
@@ -142,6 +142,8 @@ jobs:
         run: |
           mkdir -p dist/littlefs-root/audio
           cp dist/classroom-audio/*.wav dist/littlefs-root/audio/
+          cp Medicine/AED-Trainer/firmware/display-assets.dat dist/littlefs-root/display-assets.dat
+          test -s dist/littlefs-root/display-assets.dat
 
           MKLITTLEFS="$(find "$HOME/.arduino15/packages/esp32/tools" -type f -name mklittlefs | head -n 1)"
           if [ -z "$MKLITTLEFS" ]; then

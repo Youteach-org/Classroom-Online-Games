@@ -20,7 +20,7 @@ constexpr std::uint32_t kShockArmDelayMs = 500;
 constexpr std::uint32_t kNoShockToCprMs = 500;
 constexpr std::uint32_t kCprCycleMs = 120000;
 constexpr std::uint32_t kReassessDelayMs = 500;
-constexpr std::uint32_t kMetronomeBpm = 104;
+constexpr std::uint32_t kMetronomeBpm = 110;
 constexpr std::uint32_t kMetronomeIntervalMs = 60000 / kMetronomeBpm;
 
 constexpr std::array<const char*, 8> kLocalScenarios{
@@ -177,9 +177,7 @@ void serviceOnePrompt() {
   if (!prompt.has_value()) return;
 
   const char* text = findPromptText(prompt.value());
-  display.showState(
-      trainer.state(),
-      text ? text : prompt.value().c_str());
+  display.showPromptVisual(prompt.value());
 
   const bool played = audio.playPrompt(prompt.value());
   if (!played) {
@@ -198,25 +196,35 @@ void serviceOnePrompt() {
     cprCycleStartedAt = millis();
     cprCycleTimingActive = true;
 
+    const std::uint32_t firstBeatAt = millis();
     const bool metronomeReady = audio.beginCprMetronome();
     Serial.println(metronomeReady ? "RCP_METRONOME_READY" : "RCP_METRONOME_INIT_FAIL");
 
+    display.showCprCountdown(kCprCycleMs, kMetronomeBpm, true);
     const bool firstBeat = metronomeReady && audio.playMetronomeClick();
+    display.showCprCountdown(kCprCycleMs, kMetronomeBpm, false);
+
     Serial.println(firstBeat ? "RCP_BEAT_OK" : "RCP_BEAT_FAIL");
     if (!firstBeat) {
       ble.notifyEvent("RCP_BEAT_FAIL");
     }
 
-    lastMetronomeAt = millis();
+    // Anchor the cadence to the START of the beat, not to the end of the
+    // blocking sound. This keeps the actual rate at 110/min.
+    lastMetronomeAt = firstBeatAt;
     renderOperationalView();
   }
 
   if (trainer.state() == TrainerState::APPLY_PADS &&
       (prompt.value() == "AED_ATTACH_PADS" ||
        prompt.value() == "AED_CHECK_PADS")) {
-    display.showState(
-        TrainerState::APPLY_PADS,
-        "Coloque electrodos. Pulse PADS/OK al terminar.");
+    if (prompt.value() == "AED_CHECK_PADS") {
+      display.showPadError();
+    } else {
+      display.showState(
+          TrainerState::APPLY_PADS,
+          "Coloque electrodos. Pulse PADS/OK al terminar.");
+    }
     return;
   }
 
@@ -381,12 +389,23 @@ void serviceMetronome() {
     return;
   }
 
+  const std::uint32_t elapsedMs =
+      static_cast<std::uint32_t>(now - cprCycleStartedAt);
+  const std::uint32_t remainingMs =
+      elapsedMs >= kCprCycleMs ? 0 : kCprCycleMs - elapsedMs;
+
+  display.showCprCountdown(remainingMs, kMetronomeBpm, true);
   const bool beatOk = audio.playMetronomeClick();
+  display.showCprCountdown(remainingMs, kMetronomeBpm, false);
+
   Serial.println(beatOk ? "RCP_BEAT_OK" : "RCP_BEAT_FAIL");
   if (!beatOk) {
     ble.notifyEvent("RCP_BEAT_FAIL");
   }
-  lastMetronomeAt = millis();
+
+  // Preserve an absolute cadence. Do not start a new 545 ms interval after
+  // the sound ends, because that made previous versions audibly too slow.
+  lastMetronomeAt += kMetronomeIntervalMs;
 }
 
 void serviceShockButton() {
@@ -428,9 +447,7 @@ void servicePadsButton() {
 
   if (snapshot.padFault) {
     Serial.println("PADS_BLOCKED_CONTACT_FAULT");
-    display.showState(
-        TrainerState::APPLY_PADS,
-        "Revise electrodos. Corrija contacto antes de continuar.");
+    display.showPadError();
     return;
   }
 

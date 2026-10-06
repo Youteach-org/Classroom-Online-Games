@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
+#include <cmath>
 
 #include "hardware-config.h"
 #include "ima-adpcm.h"
@@ -399,18 +400,15 @@ bool AudioPlayer::beginCprMetronome() {
 
 bool AudioPlayer::playMetronomeClick() {
   constexpr std::uint32_t kRate = 16000;
-  constexpr std::uint32_t kFrequency = 1000;
-  constexpr std::uint32_t kDurationMs = 110;
-  constexpr std::int16_t kAmplitude = 28000;
+  constexpr std::uint32_t kDurationMs = 90;
   constexpr std::size_t kChunkFrames = 128;
+  constexpr float kTwoPi = 6.28318530718f;
 
   if (!cprMetronomeActive_ && !beginCprMetronome()) return false;
 
   std::int16_t stereo[kChunkFrames * 2];
   const std::size_t totalFrames =
       static_cast<std::size_t>((kRate * kDurationMs) / 1000U);
-  const std::size_t halfPeriod =
-      std::max<std::size_t>(1, kRate / (kFrequency * 2U));
 
   std::size_t produced = 0;
   while (produced < totalFrames) {
@@ -418,8 +416,23 @@ bool AudioPlayer::playMetronomeClick() {
         std::min(kChunkFrames, totalFrames - produced);
 
     for (std::size_t i = 0; i < count; ++i) {
-      const bool high = ((produced + i) / halfPeriod) % 2U == 0U;
-      const std::int16_t sample = high ? kAmplitude : -kAmplitude;
+      const float t =
+          static_cast<float>(produced + i) / static_cast<float>(kRate);
+
+      const float lowEnv = std::exp(-t * 30.0f);
+      const float clickEnv = std::exp(-t * 62.0f);
+
+      const float thump =
+          std::sin(kTwoPi * 175.0f * t) * 20500.0f * lowEnv;
+      const float click =
+          std::sin(kTwoPi * 1180.0f * t) * 9500.0f * clickEnv;
+
+      const std::int32_t mixed =
+          static_cast<std::int32_t>(thump + click);
+      const std::int16_t sample =
+          static_cast<std::int16_t>(
+              std::clamp<std::int32_t>(mixed, -30000, 30000));
+
       stereo[i * 2] = sample;
       stereo[i * 2 + 1] = sample;
     }
@@ -432,7 +445,9 @@ bool AudioPlayer::playMetronomeClick() {
     produced += count;
   }
 
-  std::int16_t silence[160 * 2]{};
+  // Short release tail: keeps the compression sound percussive rather than
+  // turning it into a continuous electronic beep.
+  std::int16_t silence[96 * 2]{};
   if (I2S.write(reinterpret_cast<std::uint8_t*>(silence), sizeof(silence))
       != sizeof(silence)) {
     endCprMetronome();

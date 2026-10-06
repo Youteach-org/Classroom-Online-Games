@@ -3,12 +3,14 @@
 #include <cstdint>
 
 namespace HardwareConfig {
-constexpr int OLED_SDA = 21;
-constexpr int OLED_SCL = 22;
-constexpr std::uint8_t OLED_ADDRESS = 0x3C;
-constexpr int OLED_WIDTH = 128;
-constexpr int OLED_HEIGHT = 64;
-constexpr int OLED_YELLOW_BAND_HEIGHT = 16;
+// TFT ST7735 1.8" 160x128 (landscape)
+constexpr int TFT_RST  = 4;
+constexpr int TFT_CS   = 5;
+constexpr int TFT_DC   = 2;
+constexpr int TFT_MOSI = 23;
+constexpr int TFT_SCLK = 18;
+constexpr int TFT_WIDTH = 160;
+constexpr int TFT_HEIGHT = 128;
 
 // All physical buttons are momentary switches wired GPIO -> GND.
 // Internal pull-ups are enabled by InputAdapter.
@@ -18,6 +20,7 @@ constexpr int MODE_BUTTON = 14;
 constexpr int PADS_BUTTON = 13;
 constexpr int RESET_BUTTON = 17;
 
+// MAX98357A
 constexpr int I2S_DOUT = 25;
 constexpr int I2S_LRC = 26;
 constexpr int I2S_BCLK = 27;
