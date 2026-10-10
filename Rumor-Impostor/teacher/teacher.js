@@ -10,6 +10,62 @@ let currentSession=(params.get('session')||'').trim().toUpperCase()||null;
 let teacherToken=params.get('token')||null;
 let unsubscribe=null;
 
+
+function populateStudentOptions(){
+  const select=$('studentCount');
+  select.innerHTML='';
+  for(let n=4;n<=60;n++){
+    const option=document.createElement('option');
+    option.value=String(n);
+    option.textContent=String(n);
+    if(n===18)option.selected=true;
+    select.appendChild(option);
+  }
+}
+
+function populateTeamOptions(){
+  const students=Number($('studentCount').value)||18;
+  const previous=Number($('teamCount').value)||3;
+  const maxTeams=Math.max(1,Math.min(10,Math.floor(students/3)));
+  const select=$('teamCount');
+  select.innerHTML='';
+
+  for(let n=1;n<=maxTeams;n++){
+    const option=document.createElement('option');
+    option.value=String(n);
+    option.textContent=String(n);
+    if(n===Math.min(previous,maxTeams))option.selected=true;
+    select.appendChild(option);
+  }
+
+  if(!select.value){
+    select.value=String(Math.min(3,maxTeams));
+  }
+
+  updateTeamSizePreview();
+}
+
+function updateTeamSizePreview(){
+  const students=Number($('studentCount').value)||18;
+  const teams=Number($('teamCount').value)||1;
+  const base=Math.floor(students/teams);
+  const extra=students%teams;
+
+  let text='';
+  if(extra===0){
+    text=teams+' team'+(teams===1?'':'s')+' · '+base+' student'+(base===1?'':'s')+' per team';
+  }else{
+    const larger=extra;
+    const smaller=teams-extra;
+    const parts=[];
+    if(larger)parts.push(larger+' team'+(larger===1?'':'s')+' of '+(base+1));
+    if(smaller)parts.push(smaller+' team'+(smaller===1?'':'s')+' of '+base);
+    text=parts.join(' · ');
+  }
+
+  $('teamSizePreview').textContent=text;
+}
+
 function showStatus(message,tone='good'){
   const node=$('status');
   node.textContent=message;
@@ -296,6 +352,11 @@ async function restoreTeacher(){
     subscribe(sessionId);
   }
 }
+
+$('studentCount').addEventListener('change',populateTeamOptions);
+$('teamCount').addEventListener('change',updateTeamSizePreview);
+populateStudentOptions();
+populateTeamOptions();
 
 $('createGameBtn').addEventListener('click',createSession);
 $('formTeamsBtn').addEventListener('click',()=>formTeams(true));
