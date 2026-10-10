@@ -99,8 +99,6 @@ async function createSession(){
 
     currentSession=sessionId;
     teacherToken=token;
-    localStorage.setItem('rumor-impostor-teacher-session',sessionId);
-    localStorage.setItem('rumor-impostor-teacher-token',token);
     history.replaceState({},'',teacherUrl(sessionId,token));
     subscribe(sessionId);
     showStatus('Game ready.');
@@ -321,10 +319,16 @@ function subscribe(sessionId){
 }
 
 async function restoreTeacher(){
-  const sessionId=(currentSession||localStorage.getItem('rumor-impostor-teacher-session')||'').trim().toUpperCase();
-  const token=teacherToken||localStorage.getItem('rumor-impostor-teacher-token');
+  const sessionId=(params.get('session')||'').trim().toUpperCase();
+  const token=params.get('token')||'';
 
-  if(!sessionId||!token)return;
+  if(!sessionId||!token){
+    currentSession=null;
+    teacherToken=null;
+    $('setupView').classList.remove('hidden');
+    $('roomView').classList.add('hidden');
+    return;
+  }
 
   const snap=await get(ref(db,root+'/sessions/'+sessionId));
   const data=snap.val();
@@ -333,7 +337,14 @@ async function restoreTeacher(){
     currentSession=sessionId;
     teacherToken=token;
     subscribe(sessionId);
+    return;
   }
+
+  currentSession=null;
+  teacherToken=null;
+  $('setupView').classList.remove('hidden');
+  $('roomView').classList.add('hidden');
+  showStatus('That previous game is no longer active. Create a new one.','warn');
 }
 
 $('studentCount').addEventListener('input',updateTeamSizePreview);
