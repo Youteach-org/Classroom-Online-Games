@@ -12,8 +12,13 @@ let unsubscribe=null;
 
 
 function updateTeamSizePreview(){
-  const students=Math.max(1,Number($('studentCount').value)||1);
-  const teams=Math.max(1,Number($('teamCount').value)||1);
+  const students=Number($('studentCount').value);
+  const teams=Number($('teamCount').value);
+
+  if(!Number.isInteger(students)||!Number.isInteger(teams)||students<1||teams<1){
+    $('teamSizePreview').textContent='Enter the number of students and teams.';
+    return;
+  }
 
   if(teams>students){
     $('teamSizePreview').textContent='Teams cannot be greater than students.';
@@ -52,8 +57,18 @@ async function uniqueCode(){
 }
 
 async function createSession(){
-  const target=Math.max(1,Math.min(60,Number($('studentCount').value)||18));
-  const teamCount=Math.max(1,Math.min(60,Number($('teamCount').value)||3));
+  const target=Number($('studentCount').value);
+  const teamCount=Number($('teamCount').value);
+
+  if(!Number.isInteger(target)||target<1||target>60){
+    showStatus('Enter how many students you have.','warn');
+    return;
+  }
+
+  if(!Number.isInteger(teamCount)||teamCount<1||teamCount>60){
+    showStatus('Enter how many teams you want.','warn');
+    return;
+  }
 
   if(teamCount>target){
     showStatus('The number of teams cannot be greater than the number of students.','warn');
