@@ -61,17 +61,11 @@ function bindHoldReveal(buttonId,cardId){
   window.addEventListener('blur',hide,{once:true});
 }
 
-let demoRole='crew';
-let demoPhase='teams';
-
 function renderDemo(){
   $('joinView').classList.add('hidden');
   $('gameView').classList.remove('hidden');
 
-  const crewScenario=scenarioById('phobias','elevator');
-  const impostorScenario=scenarioById('phobias','plane');
-  const own=demoRole==='impostor'?impostorScenario:crewScenario;
-  const ideas=demoPhase==='clue2'?own.specific:own.general;
+  const own=scenarioById('phobias','elevator');
 
   $('teamView').innerHTML=
     '<div class="team"><h3>Team Neon</h3>'+
@@ -80,82 +74,28 @@ function renderDemo(){
     '<div class="member">Leo</div>'+
     '<div class="member">Sofia</div></div>';
 
-  const controls=
-    '<div class="phase" style="margin-bottom:12px">'+
-    '<strong>Student experience preview</strong>'+
-    '<div class="actions">'+
-      '<button class="btn '+(demoRole==='crew'?'teal':'')+'" data-demo-role="crew">Crew view</button>'+
-      '<button class="btn '+(demoRole==='impostor'?'danger':'')+'" data-demo-role="impostor">Impostor view</button>'+
-    '</div>'+
-    '<div class="actions">'+
-      '<button class="btn" data-demo-phase="teams">Card</button>'+
-      '<button class="btn" data-demo-phase="clue1">General clue</button>'+
-      '<button class="btn" data-demo-phase="clue2">Specific clue</button>'+
-      '<button class="btn" data-demo-phase="vote">Vote</button>'+
-      '<button class="btn" data-demo-phase="reveal">Reveal</button>'+
+  $('gameView').innerHTML=
+    '<div class="studentCard">'+
+    '<span class="badge">Team Neon</span>'+
+    '<p class="note">Keep your card private.</p>'+
+    '<button id="demoRevealBtn" class="btn primary holdReveal">PRESS AND HOLD TO REVEAL</button>'+
+    '<div id="demoSecretCard" class="secret">'+
+      '<div class="role crew">CREW MEMBER</div>'+
+      '<div class="category">PHOBIAS</div>'+
+      '<div class="situation">'+esc(own.situation)+'</div>'+
+      '<div class="ideas"><strong>Ideas you may use</strong><ul>'+
+        own.general.map(idea=>'<li>'+esc(idea)+'</li>').join('')+
+      '</ul></div>'+
+      '<p><strong>Start with one:</strong></p>'+
+      '<div class="starters">'+
+        '<span class="starter">It is said that...</span>'+
+        '<span class="starter">It is believed that...</span>'+
+        '<span class="starter">It is thought that...</span>'+
+        '<span class="starter">It is claimed that...</span>'+
+      '</div>'+
     '</div></div>';
 
-  if(demoPhase==='vote'){
-    $('gameView').innerHTML=controls+
-      '<div class="studentCard"><span class="badge">Team Neon</span>'+
-      '<h2 style="margin-top:14px">Who is the impostor?</h2>'+
-      '<div class="vote"><button>Mia</button><button>Leo</button><button>Sofia</button></div></div>';
-  }else if(demoPhase==='reveal'){
-    $('gameView').innerHTML=controls+
-      '<div class="reveal"><span class="badge">Team Neon</span>'+
-      '<h2 style="margin-top:14px">Reveal</h2>'+
-      '<p><strong>Impostor</strong></p><div class="answer">Leo</div>'+
-      '<p><strong>Crew situation</strong></p><div class="answer">'+esc(crewScenario.situation)+'</div>'+
-      '<span class="vocab">'+esc(crewScenario.vocabulary)+'</span>'+
-      '<p style="margin-top:16px"><strong>Impostor situation</strong></p><div class="answer">'+esc(impostorScenario.situation)+'</div>'+
-      '<span class="vocab">'+esc(impostorScenario.vocabulary)+'</span></div>';
-  }else{
-    const instruction=demoPhase==='teams'
-      ? 'Keep your card private.'
-      : demoPhase==='clue2'
-        ? 'Give one more specific clue.'
-        : 'Give one general clue.';
-
-    $('gameView').innerHTML=controls+
-      '<div class="studentCard">'+
-      '<span class="badge">Team Neon</span>'+
-      '<p class="note">'+instruction+'</p>'+
-      '<button id="demoRevealBtn" class="btn primary holdReveal">PRESS AND HOLD TO REVEAL</button>'+
-      '<div id="demoSecretCard" class="secret">'+
-        '<div class="role '+(demoRole==='impostor'?'impostor':'crew')+'">'+(demoRole==='impostor'?'YOU ARE THE IMPOSTOR':'CREW MEMBER')+'</div>'+
-        '<div class="category">PHOBIAS</div>'+
-        '<div class="situation">'+esc(own.situation)+'</div>'+
-        (demoRole==='impostor'?'<div class="warning">Defend this situation. The crew has a different situation, but you are not told what it is.</div>':'')+
-        '<div class="ideas"><strong>'+(demoPhase==='clue2'?'More specific ideas':'Ideas you may use')+'</strong><ul>'+
-          ideas.map(idea=>'<li>'+esc(idea)+'</li>').join('')+
-        '</ul></div>'+
-        '<p><strong>Start with one:</strong></p>'+
-        '<div class="starters">'+
-          '<span class="starter">It is said that...</span>'+
-          '<span class="starter">It is believed that...</span>'+
-          '<span class="starter">It is thought that...</span>'+
-          '<span class="starter">It is claimed that...</span>'+
-        '</div>'+
-      '</div></div>';
-  }
-
-  if(demoPhase!=='vote'&&demoPhase!=='reveal'){
-    bindHoldReveal('demoRevealBtn','demoSecretCard');
-  }
-
-  document.querySelectorAll('[data-demo-role]').forEach(button=>{
-    button.addEventListener('click',()=>{
-      demoRole=button.dataset.demoRole;
-      renderDemo();
-    });
-  });
-
-  document.querySelectorAll('[data-demo-phase]').forEach(button=>{
-    button.addEventListener('click',()=>{
-      demoPhase=button.dataset.demoPhase;
-      renderDemo();
-    });
-  });
+  bindHoldReveal('demoRevealBtn','demoSecretCard');
 }
 
 async function joinSession(){
