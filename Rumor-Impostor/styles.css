@@ -13,3 +13,5 @@ label{display:block;font-weight:900}input,select{width:100%;margin-top:6px;borde
 @media(max-width:850px){.grid{grid-template-columns:1fr}.form{grid-template-columns:1fr}.wide{grid-column:auto}.vote{grid-template-columns:1fr}}
 .holdReveal{width:100%;margin-top:10px;touch-action:none;user-select:none;-webkit-user-select:none}
 .holdReveal.holding{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink);background:var(--yellow);color:var(--ink)}
+
+.startGameButton{width:100%;margin-top:14px;padding:18px 20px;font-size:24px;letter-spacing:.5px}
