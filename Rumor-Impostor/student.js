@@ -211,6 +211,17 @@ function renderStudent(data){
   }
 
   const own=scenarioById(assignment.category,assignment.scenarioId);
+  const teamMembers=Object.entries(data.participants||{})
+    .filter(([,p])=>Number(p.teamIndex)===Number(me.teamIndex));
+
+  const teamBanner=
+    '<div class="yourTeamBanner">'+
+      '<div class="yourTeamLabel">YOUR TEAM</div>'+
+      '<div class="yourTeamName">'+esc(team.name)+'</div>'+
+      '<div class="yourTeamMembers">'+
+        teamMembers.map(([id,p])=>'<span>'+esc(p.name)+(id===clientId?' (you)':'')+'</span>').join('')+
+      '</div>'+
+    '</div>';
 
   if(data.phase==='vote'){
     const teammates=Object.entries(data.participants||{})
@@ -218,6 +229,7 @@ function renderStudent(data){
     const selected=data.votes?.[clientId]?.targetId||'';
 
     $('gameView').innerHTML=
+      teamBanner+
       '<div class="studentCard">'+
       '<span class="badge">'+esc(team.name)+'</span>'+
       '<h2 style="margin-top:14px">Who is the impostor?</h2>'+
@@ -247,6 +259,7 @@ function renderStudent(data){
     const caught=top&&top[0]===team.impostorId;
 
     $('gameView').innerHTML=
+      teamBanner+
       '<div class="reveal">'+
       '<span class="badge">'+esc(team.name)+'</span>'+
       '<h2 style="margin-top:14px">Reveal</h2>'+
@@ -270,6 +283,7 @@ function renderStudent(data){
       : 'Give one general clue.';
 
   $('gameView').innerHTML=
+    teamBanner+
     '<div class="studentCard">'+
     '<span class="badge">'+esc(team.name)+'</span>'+
     '<p class="note">'+instruction+'</p>'+
