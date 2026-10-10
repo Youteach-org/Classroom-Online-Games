@@ -27,6 +27,40 @@ function showStatus(message,tone='good'){
 }
 
 
+
+function bindHoldReveal(buttonId,cardId){
+  const button=$(buttonId);
+  const card=$(cardId);
+  if(!button||!card)return;
+
+  const show=event=>{
+    event?.preventDefault?.();
+    card.classList.add('show');
+    button.classList.add('holding');
+  };
+
+  const hide=event=>{
+    event?.preventDefault?.();
+    card.classList.remove('show');
+    button.classList.remove('holding');
+  };
+
+  button.addEventListener('pointerdown',show);
+  button.addEventListener('pointerup',hide);
+  button.addEventListener('pointercancel',hide);
+  button.addEventListener('pointerleave',hide);
+  button.addEventListener('contextmenu',event=>event.preventDefault());
+
+  button.addEventListener('keydown',event=>{
+    if(event.code==='Space'||event.code==='Enter')show(event);
+  });
+  button.addEventListener('keyup',event=>{
+    if(event.code==='Space'||event.code==='Enter')hide(event);
+  });
+
+  window.addEventListener('blur',hide,{once:true});
+}
+
 let demoRole='crew';
 let demoPhase='teams';
 
@@ -85,9 +119,10 @@ function renderDemo(){
     $('gameView').innerHTML=controls+
       '<div class="studentCard">'+
       '<span class="badge">Team Neon</span>'+
-      '<div class="role '+(demoRole==='impostor'?'impostor':'crew')+'">'+(demoRole==='impostor'?'YOU ARE THE IMPOSTOR':'CREW MEMBER')+'</div>'+
       '<p class="note">'+instruction+'</p>'+
-      '<div class="secret show">'+
+      '<button id="demoRevealBtn" class="btn primary holdReveal">PRESS AND HOLD TO REVEAL</button>'+
+      '<div id="demoSecretCard" class="secret">'+
+        '<div class="role '+(demoRole==='impostor'?'impostor':'crew')+'">'+(demoRole==='impostor'?'YOU ARE THE IMPOSTOR':'CREW MEMBER')+'</div>'+
         '<div class="category">PHOBIAS</div>'+
         '<div class="situation">'+esc(own.situation)+'</div>'+
         (demoRole==='impostor'?'<div class="warning">Defend this situation. The crew has a different situation, but you are not told what it is.</div>':'')+
@@ -102,6 +137,10 @@ function renderDemo(){
           '<span class="starter">It is claimed that...</span>'+
         '</div>'+
       '</div></div>';
+  }
+
+  if(demoPhase!=='vote'&&demoPhase!=='reveal'){
+    bindHoldReveal('demoRevealBtn','demoSecretCard');
   }
 
   document.querySelectorAll('[data-demo-role]').forEach(button=>{
@@ -293,10 +332,10 @@ function renderStudent(data){
   $('gameView').innerHTML=
     '<div class="studentCard">'+
     '<span class="badge">'+esc(team.name)+'</span>'+
-    '<div class="role '+(assignment.role==='impostor'?'impostor':'crew')+'">'+(assignment.role==='impostor'?'YOU ARE THE IMPOSTOR':'CREW MEMBER')+'</div>'+
     '<p class="note">'+instruction+'</p>'+
-    '<button id="revealCardBtn" class="btn '+(assignment.role==='impostor'?'danger':'teal')+'">Reveal secret card</button>'+
+    '<button id="revealCardBtn" class="btn primary holdReveal">PRESS AND HOLD TO REVEAL</button>'+
     '<div id="secretCard" class="secret">'+
+      '<div class="role '+(assignment.role==='impostor'?'impostor':'crew')+'">'+(assignment.role==='impostor'?'YOU ARE THE IMPOSTOR':'CREW MEMBER')+'</div>'+
       '<div class="category">'+esc(assignment.category.toUpperCase())+'</div>'+
       '<div class="situation">'+esc(own.situation)+'</div>'+
       (assignment.role==='impostor'
@@ -312,18 +351,9 @@ function renderStudent(data){
         '<span class="starter">It is thought that...</span>'+
         '<span class="starter">It is claimed that...</span>'+
       '</div>'+
-      '<button id="hideCardBtn" class="btn" style="margin-top:10px">Hide card</button>'+
     '</div></div>';
 
-  $('revealCardBtn')?.addEventListener('click',()=>{
-    $('secretCard').classList.add('show');
-    $('revealCardBtn').classList.add('hidden');
-  });
-
-  $('hideCardBtn')?.addEventListener('click',()=>{
-    $('secretCard').classList.remove('show');
-    $('revealCardBtn').classList.remove('hidden');
-  });
+  bindHoldReveal('revealCardBtn','secretCard');
 }
 
 function subscribe(sessionId){
