@@ -99,7 +99,7 @@ function renderDemo(){
 }
 
 async function joinSession(){
-  const sessionId=($('roomCode').value||'').trim().toUpperCase();
+  const sessionId=(initialSession||$('roomCode').value||'').trim().toUpperCase();
   const name=($('studentName').value||'').trim();
   const label=($('studentLabel').value||'').trim();
 
@@ -315,16 +315,40 @@ $('joinBtn').addEventListener('click',joinSession);
 
 $('studentName').value=localStorage.getItem('rumor-impostor-student-name')||'';
 $('studentLabel').value=localStorage.getItem('rumor-impostor-student-label')||'';
-if(initialSession)$('roomCode').value=initialSession;
+
+if(initialSession){
+  $('roomCode').value=initialSession;
+  $('roomCodeLabel')?.classList.add('hidden');
+}
+
+$('studentName').addEventListener('keydown',event=>{
+  if(event.key==='Enter'){
+    event.preventDefault();
+    joinSession();
+  }
+});
+
+$('studentLabel').addEventListener('keydown',event=>{
+  if(event.key==='Enter'){
+    event.preventDefault();
+    joinSession();
+  }
+});
 
 if(demoMode){
   renderDemo();
 }else if(currentSession){
-  get(ref(db,root+'/sessions/'+currentSession)).then(snap=>{
+  get(ref(db,root+'/sessions/'+currentSession)).then(async snap=>{
     const data=snap.val();
 
     if(data?.participants?.[clientId]&&data.status==='open'){
       subscribe(currentSession);
+      return;
+    }
+
+    const savedName=(localStorage.getItem('rumor-impostor-student-name')||'').trim();
+    if(initialSession&&savedName&&data?.status==='open'&&data?.joinOpen&&data?.phase==='lobby'){
+      await joinSession();
     }
   }).catch(console.error);
 }
