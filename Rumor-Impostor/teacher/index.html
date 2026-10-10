@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7efe2">
+  <title>Rumor Impostor · Teacher</title>
+  <link rel="stylesheet" href="../styles.css?v=start-game-2">
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <div class="brand">
+        <div class="mark">?</div>
+        <div>
+          <h1>Rumor Impostor</h1>
+          <p class="sub">Teacher control · Unit 7</p>
+        </div>
+      </div>
+      <a class="back" href="/teacher/">← Teacher Monitors</a>
+    </header>
+
+    <div id="status" class="status"></div>
+
+    <div class="grid">
+      <section class="panel">
+        <div id="setupView">
+          <h2>Create a game</h2>
+          <div class="form">
+            <label class="wide">Activity name
+              <input id="activityName" value="Unit 7 · Rumor Impostor">
+            </label>
+            <label>How many students?
+              <input id="studentCount" type="number" min="1" max="60" placeholder="e.g. 17" required>
+            </label>
+            <label>How many teams?
+              <input id="teamCount" type="number" min="1" max="60" placeholder="e.g. 4" required>
+            </label>
+            <div id="teamSizePreview" class="wide note"></div>
+          </div>
+          <p class="note">Teams are random and balanced. Each team gets exactly one impostor.</p>
+          <div class="actions">
+            <button id="createGameBtn" class="btn primary">Create game</button>
+            <a class="btn" href="../?demo=1" target="_blank" rel="noopener">Preview student experience</a>
+          </div>
+        </div>
+
+        <div id="roomView" class="hidden">
+          <span class="badge">ROOM CODE</span>
+          <div id="roomCode" class="code">------</div>
+
+          <button id="formTeamsBtn" class="btn green startGameButton">START GAME</button>
+
+          <div class="pills">
+            <span id="joinedPill" class="pill"></span>
+            <span id="teamsPill" class="pill"></span>
+            <span id="phasePill" class="pill"></span>
+          </div>
+
+          <div class="progress"><div id="joinProgress"></div></div>
+
+          <div class="actions">
+            <button id="toggleJoiningBtn" class="btn yellow">Close joining</button>
+          </div>
+
+          <div id="phaseControls" class="phase hidden">
+            <div id="phaseTitle" class="phaseTitle"></div>
+            <p id="phaseDescription" class="note"></p>
+            <div class="actions">
+              <button id="nextPhaseBtn" class="btn purple"></button>
+              <button id="newRoundBtn" class="btn green hidden">New round</button>
+            </div>
+          </div>
+
+          <img id="qrImage" class="qr" alt="QR code for students">
+          <div id="studentLink" class="note" style="overflow-wrap:anywhere;text-align:center"></div>
+
+          <div class="actions">
+            <button id="copyLinkBtn" class="btn">Copy student link</button>
+            <button id="closeGameBtn" class="btn danger">Close game</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Teams</h2>
+        <div id="teacherTeams" class="teams"><p class="note">Students will appear here.</p></div>
+      </section>
+    </div>
+  </main>
+  <script type="module" src="./teacher.js?v=teams-visible-1"></script>
+</body>
+</html>
