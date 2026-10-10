@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - live-cog-20260922
+      - rumor-impostor-preview
   workflow_dispatch:
 
 permissions:
@@ -30,6 +31,7 @@ jobs:
           node --check Support-Meter/game.js
           node --check Support-Meter/teacher.js
           node --check Support-Meter/live-session.js
+          node --check Rumor-Impostor/app.js
           if [ -d shared ]; then find shared -name '*.mjs' -print0 | xargs -0 -r -n1 node --check; fi
           if compgen -G "tests/*.test.mjs" > /dev/null; then node --test tests/*.test.mjs; fi
           node --test Verb-Runner/tests/*.test.mjs
@@ -43,7 +45,7 @@ jobs:
           rm -rf dist
           mkdir -p dist
           cp index.html _headers dist/
-          cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Wordy Engineering Medicine teacher Talk-Talk Conditional-Pairs dist/
+          cp -R 100-Students-Said OSASCOMP Support-Meter Verb-Runner Wordy Engineering Medicine teacher Talk-Talk Conditional-Pairs Rumor-Impostor dist/
           if [ -d shared ]; then cp -R shared dist/; fi
 
       - name: Deploy to Cloudflare Pages
