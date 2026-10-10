@@ -275,7 +275,10 @@ function renderTeacher(data){
   $('phasePill').textContent=data.phase;
   $('joinProgress').style.width=Math.min(100,(joined/Number(data.target))*100)+'%';
 
-  $('formTeamsBtn').disabled=data.phase!=='lobby'||joined!==Number(data.target);
+  $('formTeamsBtn').disabled=data.phase!=='lobby';
+  $('formTeamsBtn').textContent=joined===Number(data.target)
+    ? 'START GAME'
+    : 'START GAME · '+joined+'/'+data.target;
   $('toggleJoiningBtn').textContent=data.joinOpen?'Close joining':'Open joining';
   $('toggleJoiningBtn').disabled=data.phase!=='lobby';
 
