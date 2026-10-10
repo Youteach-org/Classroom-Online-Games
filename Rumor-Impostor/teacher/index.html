@@ -30,12 +30,13 @@
             <label class="wide">Activity name
               <input id="activityName" value="Unit 7 · Rumor Impostor">
             </label>
-            <label>Students
-              <input id="studentCount" type="number" min="4" max="60" value="18">
+            <label>How many students?
+              <select id="studentCount"></select>
             </label>
-            <label>Teams
-              <input id="teamCount" type="number" min="1" max="10" value="3">
+            <label>How many teams?
+              <select id="teamCount"></select>
             </label>
+            <div id="teamSizePreview" class="wide note"></div>
           </div>
           <p class="note">Teams are random and balanced. Each team gets exactly one impostor.</p>
           <button id="createGameBtn" class="btn primary">Create game</button>
