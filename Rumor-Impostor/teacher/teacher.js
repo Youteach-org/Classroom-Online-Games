@@ -134,8 +134,8 @@ async function formTeams(firstRound=true){
 
   const ids=Object.keys(data.participants||{});
 
-  if(firstRound&&ids.length!==Number(data.target)){
-    showStatus('Wait until all '+data.target+' students have joined.','warn');
+  if(firstRound&&ids.length<Number(data.teamCount)){
+    showStatus('At least one student must be connected for each team.','warn');
     return;
   }
 
@@ -240,12 +240,32 @@ function renderTeams(data){
 
   if(data.phase==='lobby'){
     const waiting=Object.values(participants);
+    const teamCount=Number(data.teamCount)||1;
+    const target=Number(data.target)||0;
+    const base=Math.floor(target/teamCount);
+    const extra=target%teamCount;
 
-    $('teacherTeams').innerHTML=waiting.length
-      ? '<div class="team" style="grid-column:1/-1"><h3>Waiting room · '+waiting.length+'</h3>'+
-        waiting.map(p=>'<div class="member">'+esc(p.name)+(p.label?'<small>'+esc(p.label)+'</small>':'')+'</div>').join('')+
+    const teamCards=[];
+    for(let teamIndex=1;teamIndex<=teamCount;teamIndex++){
+      const plannedSize=base+(teamIndex<=extra?1:0);
+      const teamName='Team '+teamNames[(teamIndex-1)%teamNames.length];
+      teamCards.push(
+        '<div class="team">'+
+          '<h3>'+esc(teamName)+' · '+plannedSize+'</h3>'+
+          '<div class="member"><small>Students will be assigned randomly when you press START GAME.</small></div>'+
         '</div>'
-      : '<p class="note">Waiting for students.</p>';
+      );
+    }
+
+    const waitingBlock=
+      '<div class="team" style="grid-column:1/-1;background:#fff">'+
+        '<h3>Joined students · '+waiting.length+'/'+target+'</h3>'+
+        (waiting.length
+          ? waiting.map(p=>'<div class="member">'+esc(p.name)+(p.label?'<small>'+esc(p.label)+'</small>':'')+'</div>').join('')
+          : '<div class="member"><small>Waiting for students to join from the QR/link.</small></div>')+
+      '</div>';
+
+    $('teacherTeams').innerHTML=teamCards.join('')+waitingBlock;
     return;
   }
 
@@ -276,9 +296,7 @@ function renderTeacher(data){
   $('joinProgress').style.width=Math.min(100,(joined/Number(data.target))*100)+'%';
 
   $('formTeamsBtn').disabled=data.phase!=='lobby';
-  $('formTeamsBtn').textContent=joined===Number(data.target)
-    ? 'START GAME'
-    : 'START GAME · '+joined+'/'+data.target;
+  $('formTeamsBtn').textContent='START GAME · '+joined+'/'+data.target;
   $('toggleJoiningBtn').textContent=data.joinOpen?'Close joining':'Open joining';
   $('toggleJoiningBtn').disabled=data.phase!=='lobby';
 
