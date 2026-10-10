@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7efe2">
+  <title>Rumor Impostor</title>
+  <style>
+    *{box-sizing:border-box}
+    :root{
+      --cream:#f7efe2;--paper:#fffdf8;--ink:#171717;--coral:#ef5d4f;
+      --teal:#168f8a;--purple:#7447ad;--green:#45924f;--yellow:#f2c94c;
+      --red:#ba2e2e;--muted:#6d665f
+    }
+    body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:
+      radial-gradient(circle at 12% 8%,#ffcf4d 0 3px,transparent 4px),
+      radial-gradient(circle at 90% 20%,#ef5d4f 0 3px,transparent 4px),
+      var(--cream);color:var(--ink);padding:18px}
+    .shell{width:min(1120px,100%);margin:0 auto}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .mark{width:56px;height:56px;border:3px solid var(--ink);border-radius:50%;display:grid;place-items:center;background:var(--yellow);font-size:30px;font-weight:900;box-shadow:5px 5px 0 var(--ink)}
+    h1{font-size:clamp(34px,5vw,54px);margin:0;line-height:.95}
+    h2{margin:0 0 14px;font-size:28px}
+    h3{margin:0 0 8px}
+    .sub{margin:6px 0 0;color:var(--muted);font-weight:700}
+    .mode{display:flex;gap:8px}
+    .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:16px}
+    .panel{background:var(--paper);border:3px solid var(--ink);border-radius:20px;padding:18px;box-shadow:8px 8px 0 rgba(23,23,23,.16)}
+    .btn{border:3px solid var(--ink);background:#fff;color:var(--ink);border-radius:13px;padding:12px 15px;font-size:16px;font-weight:900;cursor:pointer;box-shadow:4px 4px 0 var(--ink)}
+    .btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+    .btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+    .primary{background:var(--coral);color:#fff}.teal{background:var(--teal);color:#fff}
+    .purple{background:var(--purple);color:#fff}.green{background:var(--green);color:#fff}
+    .yellow{background:var(--yellow)}.danger{background:var(--red);color:#fff}
+    label{display:block;font-weight:900}
+    input,select{width:100%;margin-top:6px;border:3px solid var(--ink);border-radius:12px;background:#fff;padding:12px 13px;font-size:17px}
+    .form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .wide{grid-column:1/-1}
+    .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+    .actions .btn{flex:1;min-width:140px}
+    .note{color:var(--muted);font-weight:700;line-height:1.4}
+    .status{display:none;margin-bottom:14px;border:3px solid var(--ink);border-radius:12px;padding:10px 12px;font-weight:900}
+    .status.show{display:block}.status.good{background:#d9f0db}.status.warn{background:#fff0b4}.status.bad{background:#ffd7d2}
+    .code{font-size:clamp(32px,7vw,52px);font-weight:900;letter-spacing:7px;text-align:center;border:3px dashed var(--ink);border-radius:16px;padding:12px;background:var(--yellow)}
+    .pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+    .pill,.badge{display:inline-block;border:2px solid var(--ink);border-radius:999px;padding:6px 10px;background:#fff;font-size:13px;font-weight:900}
+    .progress{height:16px;border:3px solid var(--ink);border-radius:999px;overflow:hidden;margin-top:12px;background:#fff}
+    .progress>div{height:100%;width:0;background:var(--teal);transition:width .2s}
+    .qr{width:170px;height:170px;display:block;margin:14px auto 4px;border:3px solid var(--ink);border-radius:10px;padding:5px;background:#fff}
+    .teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+    .team{border:3px solid var(--ink);border-radius:15px;padding:11px;background:#ffe3db}
+    .team:nth-child(4n+2){background:#d8efeb}.team:nth-child(4n+3){background:#eee0ff}.team:nth-child(4n){background:#fff0b5}
+    .member{background:rgba(255,255,255,.78);border:2px solid rgba(0,0,0,.18);border-radius:10px;padding:8px 9px;margin-top:7px;font-weight:800}
+    .member small{display:block;color:var(--muted);margin-top:2px}
+    .phase{margin-top:14px;border:3px solid var(--ink);border-radius:15px;padding:13px;background:#fff}
+    .phaseTitle{font-size:26px;font-weight:900;margin:0 0 5px}
+    .studentCard{border:3px solid var(--ink);border-radius:18px;padding:16px;background:#fff}
+    .role{font-size:clamp(26px,7vw,38px);font-weight:900;margin:10px 0}
+    .crew{color:var(--teal)}.impostor{color:var(--red)}
+    .secret{display:none;margin-top:12px;border:3px solid var(--ink);border-radius:15px;padding:14px;background:#fff7d9}
+    .secret.show{display:block}
+    .category{font-size:13px;font-weight:900;letter-spacing:1.5px;color:var(--muted)}
+    .situation{font-size:clamp(24px,5vw,34px);font-weight:900;line-height:1.12;margin:8px 0 13px}
+    .warning{border:3px solid var(--ink);border-radius:10px;padding:10px;background:#ffd9d4;font-weight:900;margin-bottom:12px}
+    .ideas{border-left:8px solid var(--purple);border-radius:10px;background:#efe5fb;padding:10px 12px}
+    .ideas li{margin:6px 0;font-weight:800}
+    .starters{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0}
+    .starter{border:2px solid var(--ink);border-radius:999px;padding:7px 10px;background:#fff;font-weight:900}
+    .vote{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .vote button{border:3px solid var(--ink);border-radius:12px;background:#fff;padding:12px;font-weight:900;font-size:17px}
+    .vote button.selected{background:var(--purple);color:#fff}
+    .reveal{border:3px solid var(--ink);border-radius:15px;padding:14px;background:#fff}
+    .answer{font-size:22px;font-weight:900;line-height:1.25}
+    .vocab{display:inline-block;border:2px solid var(--ink);border-radius:999px;padding:6px 10px;background:var(--yellow);font-weight:900;margin-top:6px}
+    .waiting{text-align:center;padding:20px 8px}
+    .hidden{display:none!important}
+    #teacherView,#studentView{display:none}
+    @media(max-width:850px){.grid{grid-template-columns:1fr}.form{grid-template-columns:1fr}.wide{grid-column:auto}.mode{width:100%}.mode .btn{flex:1}.vote{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <div class="brand">
+        <div class="mark">?</div>
+        <div>
+          <h1>Rumor Impostor</h1>
+          <p class="sub">Unit 7 · Phobias, superstitions & reporting beliefs</p>
+        </div>
+      </div>
+      <div class="mode">
+        <button id="teacherModeBtn" class="btn primary">Teacher</button>
+        <button id="studentModeBtn" class="btn">Student</button>
+      </div>
+    </header>
+
+    <div id="status" class="status"></div>
+
+    <section id="teacherView">
+      <div class="grid">
+        <div class="panel">
+          <div id="teacherSetup">
+            <h2>Create a game</h2>
+            <div class="form">
+              <label class="wide">Activity name
+                <input id="activityName" value="Unit 7 · Rumor Impostor">
+              </label>
+              <label>Students
+                <input id="studentCount" type="number" min="4" max="60" value="18">
+              </label>
+              <label>Teams
+                <input id="teamCount" type="number" min="1" max="10" value="3">
+              </label>
+            </div>
+            <p class="note">Teams are random and balanced. Each team gets exactly one impostor.</p>
+            <button id="createGameBtn" class="btn primary">Create game</button>
+          </div>
+
+          <div id="teacherRoom" class="hidden">
+            <span class="badge">ROOM CODE</span>
+            <div id="roomCode" class="code">------</div>
+            <div class="pills">
+              <span id="joinedPill" class="pill"></span>
+              <span id="teamsPill" class="pill"></span>
+              <span id="phasePill" class="pill"></span>
+            </div>
+            <div class="progress"><div id="joinProgress"></div></div>
+            <div class="actions">
+              <button id="formTeamsBtn" class="btn teal" disabled>Form random teams</button>
+              <button id="toggleJoiningBtn" class="btn yellow">Close joining</button>
+            </div>
+
+            <div id="phaseControls" class="phase hidden">
+              <div id="phaseTitle" class="phaseTitle"></div>
+              <p id="phaseDescription" class="note"></p>
+              <div class="actions">
+                <button id="nextPhaseBtn" class="btn purple"></button>
+                <button id="newRoundBtn" class="btn green hidden">New round</button>
+              </div>
+            </div>
+
+            <img id="qrImage" class="qr" alt="QR code for students">
+            <div id="studentLink" class="note" style="overflow-wrap:anywhere;text-align:center"></div>
+            <div class="actions">
+              <button id="copyLinkBtn" class="btn">Copy student link</button>
+              <button id="closeGameBtn" class="btn danger">Close game</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Teams</h2>
+          <div id="teacherTeams" class="teams"><p class="note">Students will appear here.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="studentView">
+      <div class="grid">
+        <div class="panel">
+          <div id="studentJoin">
+            <h2>Join the game</h2>
+            <div class="form">
+              <label class="wide">Your name
+                <input id="studentName" autocomplete="name" placeholder="Name">
+              </label>
+              <label>Nickname / ID
+                <input id="studentLabel" placeholder="Optional">
+              </label>
+              <label>Room code
+                <input id="studentRoomCode" maxlength="6" placeholder="ABC123">
+              </label>
+            </div>
+            <button id="joinGameBtn" class="btn primary" style="margin-top:12px">Join</button>
+          </div>
+          <div id="studentGame" class="hidden"></div>
+        </div>
+        <div class="panel">
+          <h2>Your team</h2>
+          <div id="studentTeam"><p class="note">Your team will appear after the teacher forms teams.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
