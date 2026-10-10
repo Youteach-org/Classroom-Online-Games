@@ -31,7 +31,9 @@ jobs:
           node --check Support-Meter/game.js
           node --check Support-Meter/teacher.js
           node --check Support-Meter/live-session.js
-          node --check Rumor-Impostor/app.js
+          node --check Rumor-Impostor/core.js
+          node --check Rumor-Impostor/student.js
+          node --check Rumor-Impostor/teacher/teacher.js
           if [ -d shared ]; then find shared -name '*.mjs' -print0 | xargs -0 -r -n1 node --check; fi
           if compgen -G "tests/*.test.mjs" > /dev/null; then node --test tests/*.test.mjs; fi
           node --test Verb-Runner/tests/*.test.mjs
