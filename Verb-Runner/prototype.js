@@ -1,6 +1,7 @@
 import * as THREE from 'three'; // renderer
 import { COASTAL_SCENE } from './coastal-scene-config.mjs?v=coastal-production-20260915-1';
 import { buildCoastalWorld } from './coastal-world.mjs?v=coastal-production-20260915-1';
+import { buildSentenceRunnerWorld } from './sentence-runner-world.mjs?v=zones-20260920-1';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import {
@@ -111,6 +112,8 @@ const pauseReadingCard=document.querySelector('#pauseReadingCard');
 const pauseReadingMode=document.querySelector('#pauseReadingMode');
 const pauseSentenceText=document.querySelector('#pauseSentenceText');
 const pauseHintText=document.querySelector('#pauseHintText');
+const sentenceChoices=document.querySelector('#sentenceChoices');
+const sentenceChoiceButtons=[...document.querySelectorAll('.sentence-choice')];
 
 const TOTAL_CHALLENGES=20;
 const difficultyPresets={
@@ -598,6 +601,13 @@ const coastalWorld=buildCoastalWorld({
 });
 const laneMarkers=coastalWorld.laneMarkers;
 
+const sentenceRunnerWorld=buildSentenceRunnerWorld({
+  scene,
+  isMobile:IS_MOBILE,
+  registerMover:addMover
+});
+sentenceRunnerWorld.setVisible(false);
+
 const runnerRoot=new THREE.Group();
 runnerRoot.position.set(0,0,2);
 scene.add(runnerRoot);
@@ -644,6 +654,9 @@ let lastCorrectAnswerIndex=-1;
 let recentCorrectPositions=[];
 let blankUsage=[0,0,0];
 const lastBlankByVerb=new Map();
+let sentenceZone=null;
+let routeBaseY=0;
+let sentenceDecisionLead=3;
 
 function updateStartButtonState(){
   if(!startButton)return;
@@ -715,6 +728,12 @@ function setDifficultyCopy(){
       medium:'3 options · recognize the grammar · −1',
       hard:'3 options · advanced time clues · −2'
     };
+  }else if(currentLevel===2){
+    copy={
+      easy:'3 large choices · verb hint · no advance loss',
+      medium:'3 large choices · context focus · −1',
+      hard:'3 large choices · close distractors · −2'
+    };
   }else{
     copy={
       easy:'2 distractors · basic tenses · no advance loss',
@@ -748,6 +767,7 @@ function setLevelUI(){
 
   if(principalParts)principalParts.hidden=textMode;
   if(sentenceChallenge)sentenceChallenge.hidden=!textMode;
+  if(sentenceChoices&&currentLevel!==2)sentenceChoices.hidden=true;
   if(sentenceCueLabel)sentenceCueLabel.textContent=(perfectMode||finalMode)?'FOCUS':(timeMode?'GRAMMAR':'VERB');
   const cueBadge=sentenceCue?.closest('small');
   if(cueBadge)cueBadge.hidden=!textMode||difficulty.name!=='easy';
@@ -873,6 +893,7 @@ function selectRace(level){
     ?raceLabel()+' selected · choose runner and difficulty'
     :raceLabel()+' selected · loading runner…';
   updateStartButtonState();
+  setSentenceRunnerZone(true);
 }
 
 function applySessionSettings(settings={}){
@@ -1564,6 +1585,113 @@ function makeAnswerTexture(word){
   return tex;
 }
 
+function renderSentenceLaneChoices(sequence,choiceLanes){
+  if(!sentenceChoices||currentLevel!==2){
+    if(sentenceChoices)sentenceChoices.hidden=true;
+    return;
+  }
+
+  const byLane=[null,null,null];
+  sequence.forEach((item,index)=>{
+    const laneIndex=Number.isInteger(choiceLanes?.[index])?choiceLanes[index]:index;
+    if(laneIndex>=0&&laneIndex<3)byLane[laneIndex]=item;
+  });
+
+  sentenceChoiceButtons.forEach((button,laneIndex)=>{
+    const item=byLane[laneIndex];
+    const label=button.querySelector('b');
+    if(label)label.textContent=item?String(item.value).toUpperCase():'—';
+    button.dataset.value=item?String(item.value):'';
+    button.classList.toggle('active',laneIndex===lane);
+  });
+  sentenceChoices.hidden=false;
+}
+
+function updateSentenceChoiceLaneHighlight(){
+  if(!sentenceChoices||sentenceChoices.hidden)return;
+  sentenceChoiceButtons.forEach((button,laneIndex)=>{
+    button.classList.toggle('active',laneIndex===lane);
+  });
+}
+
+function spawnSentenceLaneBeacon(item,forcedLane=null,forceSpawn=false,lockLane=false){
+  if(!gameStarted||gamePaused||victoryMode)return false;
+
+  let laneIndex=Number.isInteger(forcedLane)?forcedLane:Math.floor(Math.random()*3);
+  laneIndex=Math.max(0,Math.min(2,laneIndex));
+
+  const lead=Math.max(2.4,Number(sentenceDecisionLead)||3);
+  const spawnDistance=Math.max(IS_MOBILE?44:50,speed*lead+15);
+  const spawnZ=runnerRoot.position.z-spawnDistance;
+
+  clearAnswerLaneAtSpawn(laneIndex,spawnZ);
+
+  const group=new THREE.Group();
+  const laneColors=[0x63d8ff,0xffdf63,0xff77a8];
+  const color=laneColors[laneIndex];
+
+  const ring=new THREE.Mesh(
+    new THREE.TorusGeometry(1.28,.11,10,36),
+    new THREE.MeshBasicMaterial({color,transparent:true,opacity:.82,toneMapped:false})
+  );
+  ring.rotation.x=Math.PI/2;
+  ring.position.y=.08;
+  group.add(ring);
+
+  const pad=new THREE.Mesh(
+    new THREE.CircleGeometry(1.08,32),
+    new THREE.MeshBasicMaterial({color,transparent:true,opacity:.18,depthWrite:false,toneMapped:false})
+  );
+  pad.rotation.x=-Math.PI/2;
+  pad.position.y=.035;
+  group.add(pad);
+
+  const arrowShape=new THREE.Shape();
+  arrowShape.moveTo(0,1.05);
+  arrowShape.lineTo(.72,.10);
+  arrowShape.lineTo(.30,.10);
+  arrowShape.lineTo(.30,-.82);
+  arrowShape.lineTo(-.30,-.82);
+  arrowShape.lineTo(-.30,.10);
+  arrowShape.lineTo(-.72,.10);
+  arrowShape.closePath();
+  const arrow=new THREE.Mesh(
+    new THREE.ShapeGeometry(arrowShape),
+    new THREE.MeshBasicMaterial({color,transparent:true,opacity:.95,side:THREE.DoubleSide,toneMapped:false})
+  );
+  arrow.rotation.x=-Math.PI/2;
+  arrow.rotation.z=Math.PI;
+  arrow.position.y=.055;
+  group.add(arrow);
+
+  const beam=new THREE.Mesh(
+    new THREE.CylinderGeometry(.58,.58,3.6,18,1,true),
+    new THREE.MeshBasicMaterial({
+      color,
+      transparent:true,
+      opacity:.09,
+      side:THREE.DoubleSide,
+      depthWrite:false,
+      toneMapped:false
+    })
+  );
+  beam.position.y=1.8;
+  group.add(beam);
+
+  group.position.set(activeLanes[laneIndex],routeBaseY,spawnZ);
+  scene.add(group);
+  if(item.correct)lastCorrectLane=laneIndex;
+  answers.push({
+    mesh:group,
+    laneIndex,
+    item,
+    resolved:false,
+    heightMode:'lane-choice',
+    presentation:'sentence-lane'
+  });
+  return true;
+}
+
 const answers=[];
 let lastCorrectLane=-1;
 
@@ -1574,7 +1702,7 @@ function clearAnswerLaneAtSpawn(laneIndex,spawnZ){
     if(!obstacle?.mesh)continue;
     const closeZ=Math.abs(obstacle.mesh.position.z-spawnZ)<18;
     const closeLane=obstacle.kind==='pedestrian'
-      ?Math.abs(obstacle.mesh.position.x-lanes[laneIndex])<1.8
+      ?Math.abs(obstacle.mesh.position.x-activeLanes[laneIndex])<1.8
       :obstacle.laneIndex===laneIndex;
     if(!closeZ||!closeLane)continue;
     obstacle.mixer?.stopAllAction?.();
@@ -1585,6 +1713,7 @@ function clearAnswerLaneAtSpawn(laneIndex,spawnZ){
 
 function spawnAnswer(item,forcedLane=null,forceSpawn=false,lockLane=false){
   if(!gameStarted||gamePaused||victoryMode)return false;
+  if(currentLevel===2)return spawnSentenceLaneBeacon(item,forcedLane,forceSpawn,lockLane);
 
   const spawnZ=isPrincipalPartsChallenge()?ANSWER_SPAWN_Z:(currentLevel===3?(IS_MOBILE?-62:-84):((currentLevel===4||currentLevel===5)?(IS_MOBILE?-58:-80):ANSWER_SPAWN_Z));
   if(lockLane&&Number.isInteger(forcedLane)){
@@ -1666,7 +1795,7 @@ function spawnAnswer(item,forcedLane=null,forceSpawn=false,lockLane=false){
   group.add(panel);
 
   const answerY=heightMode==='low'?1.15:(IS_MOBILE?2.78:3.15);
-  group.position.set(lanes[laneIndex],answerY,spawnZ);
+  group.position.set(activeLanes[laneIndex],answerY+routeBaseY,spawnZ);
   scene.add(group);
   answers.push({mesh:group,laneIndex,item,resolved:false,heightMode});
   return true;
@@ -1684,6 +1813,7 @@ function clearAnswers(){
   answers.length=0;
   pendingAnswers=[];
   answerSpawnClock=0;
+  if(sentenceChoices)sentenceChoices.hidden=true;
 }
 
 function launchChallengeChain(initialDelay=.42){
@@ -1692,7 +1822,7 @@ function launchChallengeChain(initialDelay=.42){
   if(!currentChallenge)return;
 
   initialDelay=sentenceInitialDelay(initialDelay);
-  const sequence=currentLevel===5
+  let sequence=currentLevel===5
     ?window.VerbRunnerFinalRaceBank.buildAnswerSequence(currentChallenge)
     :currentLevel===4
       ?window.VerbRunnerPerfectRaceBank.buildAnswerSequence(currentChallenge,{
@@ -1728,6 +1858,19 @@ function launchChallengeChain(initialDelay=.42){
     },350);
     return;
   }
+
+  if(currentLevel===2){
+    const laneSequence=window.VerbRunnerSentenceLayout?.buildLaneChoices(sequence,Math.random)||[];
+    if(laneSequence.length===3){
+      sequence=laneSequence;
+      correctIndex=sequence.findIndex(item=>item.correct);
+      sentenceDecisionLead=window.VerbRunnerSentenceLayout.readingLeadSeconds(
+        sequence.map(item=>item.value),
+        difficulty.name
+      );
+    }
+  }
+
   const lastIndex=sequence.length-1;
   const recentLastCount=recentCorrectPositions.filter(i=>i===lastIndex).length;
 
@@ -1771,10 +1914,14 @@ function launchChallengeChain(initialDelay=.42){
     item,
     forcedLane:choiceLanes?.[index]??null,
     lockLane:lockOnePerLane,
-    at:initialDelay+index*gameSettings.answerSpacing,
+    at:currentLevel===2?.12:initialDelay+index*gameSettings.answerSpacing,
     blockedFor:0
   }));
   answerSpawnClock=0;
+
+  if(currentLevel===2&&sequence.length===3){
+    renderSentenceLaneChoices(sequence,choiceLanes);
+  }
 
   if(gameSettings.preview){
     showNotice('LOOK FOR: '+String(currentChallenge.correctAnswer).toUpperCase(),'info');
@@ -2132,19 +2279,31 @@ async function collectAnswer(answer){
     }
 
     ensureChallengeAvailable();
+    setSentenceRunnerZone();
     renderChallenge();
     launchChallengeChain(.55);
     answerResolutionActive=false;
   }else{
     recordMistake({type:'wrong',chosen:item.value});
+    const sentenceDecision=currentLevel===2;
     const startPoint=answerScreenPoint(answer);
     const selectedCopy={mesh:answer.mesh,item:answer.item};
-    disposeAnswer(answer);
+    if(sentenceDecision)clearAnswers();
+    else disposeAnswer(answer);
     await animateAnswerToBlank(selectedCopy,false,startPoint);
     applyRunEvent('grammar-error');
     playSfx('wrong');
     showNotice(String(item.value).toUpperCase()+' — WRONG · −'+gameSettings.penalty+' ADVANCE','wrong');
     answerResolutionActive=false;
+
+    if(sentenceDecision){
+      setTimeout(()=>{
+        if(gameStarted&&!gamePaused&&!victoryMode&&!answerResolutionActive){
+          renderChallenge();
+          launchChallengeChain(.2);
+        }
+      },360);
+    }
   }
 }
 
@@ -2542,6 +2701,7 @@ function resetRun(){
   currentChallenge=null;
   applySentenceRunTuning();
   setLevelUI();
+  setSentenceRunnerZone(true);
   buildChallenges();
   renderChallenge();
   updateHud();
@@ -2889,8 +3049,9 @@ window.addEventListener('blur',()=>autoPauseForFocusChange('blur'));
 window.addEventListener('pagehide',()=>autoPauseForFocusChange('pagehide'));
 
 const lanes=[-3,0,3];
+let activeLanes=[...lanes];
 let lane=1;
-let targetX=lanes[lane];
+let targetX=activeLanes[lane];
 let jumpTime=0;
 const jumpDuration=.78;
 let distance=0;
@@ -2898,10 +3059,61 @@ let speed=12;
 let nextSpawn=26;
 let hitCooldown=0;
 
+function clearObstacleField(){
+  if(typeof obstacles==='undefined')return;
+  for(const obstacle of obstacles.splice(0)){
+    obstacle.mixer?.stopAllAction?.();
+    scene.remove(obstacle.mesh);
+  }
+}
+
+function setSentenceRunnerZone(force=false){
+  if(currentLevel!==2){
+    world.visible=true;
+    sentenceRunnerWorld.setVisible(false);
+    activeLanes=[...lanes];
+    routeBaseY=0;
+    sentenceZone=null;
+    targetX=activeLanes[lane];
+    laneMarkers.forEach(marker=>{marker.visible=true;});
+    if(sentenceChoices)sentenceChoices.hidden=true;
+    return;
+  }
+
+  const progress=totalChallenges>1
+    ?THREE.MathUtils.clamp((runState?.completed||0)/(totalChallenges-1),0,1)
+    :0;
+  const next=window.VerbRunnerSentenceLayout.zoneForProgress(progress);
+  const changed=force||!sentenceZone||sentenceZone.id!==next.id;
+
+  sentenceZone=next;
+  routeBaseY=next.elevation;
+  activeLanes=[...next.lanes];
+  targetX=activeLanes[lane];
+
+  world.visible=false;
+  sentenceRunnerWorld.setVisible(true);
+  sentenceRunnerWorld.setZone(next.id);
+  sentenceRunnerWorld.setElevation(routeBaseY);
+  laneMarkers.forEach(marker=>{marker.visible=false;});
+
+  if(changed){
+    clearObstacleField();
+    if(levelTitle)levelTitle.textContent='SENTENCE RUNNER · '+next.label;
+    showNotice(next.label,'info');
+  }
+}
+
+function moveToLane(nextLane){
+  if(!gameStarted||gamePaused||victoryMode)return;
+  lane=THREE.MathUtils.clamp(Number(nextLane)||0,0,2);
+  targetX=activeLanes[lane];
+  updateSentenceChoiceLaneHighlight();
+}
+
 function moveLane(dir){
   if(!gameStarted||gamePaused||victoryMode)return;
-  lane=THREE.MathUtils.clamp(lane+dir,0,2);
-  targetX=lanes[lane];
+  moveToLane(lane+dir);
 }
 
 function jump(){
@@ -2952,6 +3164,13 @@ canvas.addEventListener('pointerup',e=>{
   }
 });
 canvas.addEventListener('pointercancel',()=>{touchStart=null;});
+
+sentenceChoiceButtons.forEach((button,laneIndex)=>{
+  button.addEventListener('click',event=>{
+    event.preventDefault();
+    moveToLane(laneIndex);
+  });
+});
 
 const obstacles=[];
 
@@ -3314,9 +3533,10 @@ function spawnObstacle(){
   }
 
   if(kind==='pedestrian'){
-    mesh.position.set(mesh.userData.startSide*5.25,0,OBSTACLE_SPAWN_Z);
+    const crossEdge=Math.max(5.25,Math.abs(activeLanes[2])+2.0);
+    mesh.position.set(mesh.userData.startSide*crossEdge,routeBaseY,OBSTACLE_SPAWN_Z);
   }else{
-    mesh.position.set(lanes[laneIndex],0,OBSTACLE_SPAWN_Z);
+    mesh.position.set(activeLanes[laneIndex],routeBaseY,OBSTACLE_SPAWN_Z);
   }
 
   scene.add(mesh);
@@ -3410,7 +3630,7 @@ function updateRunner(dt){
 
 
 
-  runnerRoot.position.y=y;
+  runnerRoot.position.y=routeBaseY+y;
   shadow.scale.setScalar(THREE.MathUtils.lerp(1,.62,Math.min(1,y/2.45)));
   shadow.material.opacity=THREE.MathUtils.lerp(.34,.1,Math.min(1,y/2.45));
 }
@@ -3441,9 +3661,12 @@ function updateWorld(dt){
     a.mesh.position.z+=travel;
     const closeToRunner=Math.abs(a.mesh.position.z-runnerRoot.position.z)<1.25;
     const sameLane=a.laneIndex===lane&&Math.abs(a.mesh.position.x-runnerRoot.position.x)<1.3;
-    const verticalHit=a.heightMode==='low'
-      ? runnerRoot.position.y<.82
-      : runnerRoot.position.y>1.18;
+    const runnerLocalY=runnerRoot.position.y-routeBaseY;
+    const verticalHit=a.heightMode==='lane-choice'
+      ?true
+      :(a.heightMode==='low'
+        ?runnerLocalY<.82
+        :runnerLocalY>1.18);
 
     if(!a.resolved&&closeToRunner&&sameLane&&verticalHit){
       collectAnswer(a);
@@ -3496,9 +3719,10 @@ function updateWorld(dt){
       o.passed=true;
       const sameLane=o.laneIndex===lane&&Math.abs(o.mesh.position.x-runnerRoot.position.x)<1.25;
       if(sameLane){
+        const runnerLocalY=runnerRoot.position.y-routeBaseY;
         const safe=o.type==='jump'
-          ? runnerRoot.position.y>.92
-          : (o.type==='car'?runnerRoot.position.y>1.28:false);
+          ? runnerLocalY>.92
+          : (o.type==='car'?runnerLocalY>1.28:false);
         if(!safe)hit();
       }
     }
@@ -3622,6 +3846,28 @@ function animate(){
   }
 
   camera.position.x=THREE.MathUtils.damp(camera.position.x,runnerRoot.position.x*.15,3.5,dt);
+
+  if(currentLevel===2&&sentenceZone){
+    const cfg=sentenceZone.camera;
+    camera.position.y=THREE.MathUtils.damp(camera.position.y,routeBaseY+cfg.y,3.2,dt);
+    camera.position.z=THREE.MathUtils.damp(camera.position.z,cfg.z,3.2,dt);
+    const nextFov=THREE.MathUtils.damp(camera.fov,cfg.fov,3.2,dt);
+    if(Math.abs(nextFov-camera.fov)>.01){
+      camera.fov=nextFov;
+      camera.updateProjectionMatrix();
+    }
+    camera.lookAt(runnerRoot.position.x*.06,routeBaseY+cfg.lookY,cfg.lookZ);
+  }else{
+    camera.position.y=THREE.MathUtils.damp(camera.position.y,cameraConfig.position[1],3.2,dt);
+    camera.position.z=THREE.MathUtils.damp(camera.position.z,cameraConfig.position[2],3.2,dt);
+    const baseFov=THREE.MathUtils.damp(camera.fov,cameraConfig.fov,3.2,dt);
+    if(Math.abs(baseFov-camera.fov)>.01){
+      camera.fov=baseFov;
+      camera.updateProjectionMatrix();
+    }
+    camera.lookAt(...cameraConfig.lookAt);
+  }
+
   renderer.render(scene,camera);
 }
 
