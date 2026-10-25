@@ -12,6 +12,7 @@ import json
 import os
 import pathlib
 import secrets
+import signal
 import tempfile
 import time
 import urllib.error
@@ -301,7 +302,7 @@ def _grade_one(client, model, audio_file, entry):
             pass
 
 
-def _process(payload):
+def _process(payload, on_progress=None):
     from google import genai
 
     entries = payload['audios']
@@ -321,8 +322,13 @@ def _process(payload):
             sources.append(path)
         client = genai.Client(api_key=os.environ['GEMINI_API_KEY'])
         model = os.environ.get('ORAL_GRADER_BATCH_MODEL', 'gemini-3-flash-preview')
+        def _deadline(signum, frame):
+            raise TimeoutError('Recording exceeded its six-minute analysis limit')
+
+        previous_handler = signal.signal(signal.SIGALRM, _deadline)
         for entry, audio_file in zip(entries, sources):
             try:
+                signal.setitimer(signal.ITIMER_REAL, 360)
                 results.append(_grade_one(client, model, audio_file, entry))
             except Exception as exc:
                 # Do not leak private signed URLs or audio/transcript through logs.
@@ -330,7 +336,14 @@ def _process(payload):
                                 'error_type': type(exc).__name__,
                                 'error_code': getattr(exc, 'code', None),
                                 'grade': None})
+            finally:
+                signal.setitimer(signal.ITIMER_REAL, 0)
+            if on_progress is not None:
+                on_progress({'project': 'Oral-Grader', 'rubric_maximum': 40,
+                             'status': 'partial' if len(results) < len(entries) else 'complete',
+                             'results': list(results)})
             print('Completed evaluation step', len(results), 'of', len(entries), flush=True)
+        signal.signal(signal.SIGALRM, previous_handler)
         try:
             client.close()
         except Exception:
@@ -356,9 +369,19 @@ def main():
     output_key = base64.b64decode(payload['output_key_b64'], validate=True)
     if len(output_key) != 32:
         raise ValueError('Invalid output key')
+    checkpointed = False
+
+    def _checkpoint(partial):
+        nonlocal checkpointed
+        _put_content(RESULT_PATH, encrypt_response(output_key, challenge, partial),
+                     'oral grader: checkpoint encrypted private scores')
+        checkpointed = True
+
     try:
-        answer = _process(payload)
+        answer = _process(payload, on_progress=_checkpoint)
     except Exception as exc:
+        if checkpointed:
+            raise  # Preserve the latest encrypted partial result.
         answer = {'project': 'Oral-Grader', 'fatal_error': type(exc).__name__}
     _put_content(RESULT_PATH, encrypt_response(output_key, challenge, answer),
                  'oral grader: store encrypted private scores')
