@@ -17,3 +17,9 @@ jobs:
             Medicine/AED-Trainer/firmware/tests/three-button-contract-test.cpp \
             -o /tmp/dea-three-button
           /tmp/dea-three-button
+      - name: Test ESP32-S3 wiring
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror \
+            Medicine/AED-Trainer/firmware/tests/s3-hardware-contract-test.cpp \
+            -o /tmp/dea-s3-wiring
+          /tmp/dea-s3-wiring
