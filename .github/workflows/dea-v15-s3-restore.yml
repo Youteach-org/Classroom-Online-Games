@@ -31,6 +31,8 @@ jobs:
           /tmp/dea-volume
       - name: Test Teacher Monitor BLE client
         run: node --test Medicine/AED-Trainer/tests/ble-client.test.mjs
+      - name: Run complete V15 Teacher Monitor regression suite
+        run: node --test Medicine/AED-Trainer/tests/*.test.mjs
 
   compile-s3:
     needs: input-tests
@@ -54,6 +56,130 @@ jobs:
             --build-path "$GITHUB_WORKSPACE/dist/build" \
             Medicine/AED-Trainer/firmware/aed-trainer
           find dist/build -maxdepth 1 -name '*.bin' -print
+      - name: Install FFmpeg on GitHub runner
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: Prepare classroom voice pack
+        run: |
+          mkdir -p dist/classroom-source dist/classroom-audio
+          cp Medicine/AED-Trainer/audio/assets/*.wav dist/classroom-source/
+
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import urllib.request
+
+          data = json.loads(pathlib.Path("Medicine/AED-Trainer/audio/audio-sources.generated.json").read_text())
+          wanted = {"aed-begin-cpr.wav", "aed-continue-cpr.wav"}
+          for clip in data["clips"]:
+              if clip["filename"] in wanted:
+                  urllib.request.urlretrieve(
+                      clip["url"],
+                      pathlib.Path("dist/classroom-source") / clip["filename"],
+                  )
+          PY
+
+          cp dist/classroom-source/aed-continue-cpr.wav /tmp/aed-continue-original.wav
+          cp dist/classroom-source/aed-begin-cpr.wav /tmp/lucia-begin-cpr.wav
+
+          # Hybrid prompt requested for V11:
+          # keep "Continúe" from the original AED voice, then append the
+          # already-approved Lucía pronunciation of "ERRE CE PE".
+          ffmpeg -hide_banner -loglevel error -y \
+            -i /tmp/aed-continue-original.wav \
+            -i /tmp/lucia-begin-cpr.wav \
+            -filter_complex "[0:a]atrim=start=0.18:end=0.928,asetpts=PTS-STARTPTS,afade=t=in:st=0:d=0.01,afade=t=out:st=0.738:d=0.01[c];anullsrc=r=44100:cl=mono,atrim=duration=0.07[s];[1:a]atrim=start=0.985:end=2.016,asetpts=PTS-STARTPTS,afade=t=in:st=0:d=0.008,afade=t=out:st=1.021:d=0.008[r];[c][s][r]concat=n=3:v=0:a=1[out]" \
+            -map "[out]" -ar 44100 -ac 1 -c:a pcm_s16le \
+            dist/classroom-source/aed-continue-cpr.wav
+
+          python3 - <<'PY'
+          import math, random, struct, wave
+          from pathlib import Path
+
+          root = Path("dist/classroom-source")
+          rate = 16000
+
+          def write_wav(path, samples):
+              peak = max(1.0, max(abs(x) for x in samples))
+              scale = 0.94 * 32767.0 / peak
+              pcm = bytearray()
+              for x in samples:
+                  s = int(max(-32767, min(32767, x * scale)))
+                  pcm += struct.pack("<h", s)
+              with wave.open(str(path), "wb") as wf:
+                  wf.setnchannels(1)
+                  wf.setsampwidth(2)
+                  wf.setframerate(rate)
+                  wf.writeframes(pcm)
+
+          # Shock effect comes from the user-approved source file committed at
+          # Medicine/AED-Trainer/audio/assets/fx-shock-electric.wav.
+          # Do not synthesize or replace it here.
+
+          # CPR beat: strong low thump + bright click, deliberately obvious on small speaker.
+          dur = 0.16
+          n = int(rate * dur)
+          beat = []
+          for i in range(n):
+              t = i / rate
+              env1 = math.exp(-t * 28.0)
+              env2 = math.exp(-t * 52.0)
+              thump = math.sin(2 * math.pi * 170 * t) * env1 * 1.25
+              click = math.sin(2 * math.pi * 1250 * t) * env2 * 0.70
+              attack = 1.0 if t < 0.010 else 0.0
+              beat.append(thump + click + attack * (0.45 if (i % 2 == 0) else -0.45))
+          write_wav(root / "fx-cpr-beat.wav", beat)
+          PY
+
+          for src in dist/classroom-source/*.wav; do
+            dst="dist/classroom-audio/$(basename "$src")"
+            if [ "$(basename "$src")" = "fx-shock-electric.wav" ]; then
+              # Preserve the approved shock waveform exactly as committed.
+              cp "$src" "$dst"
+              continue
+            fi
+            ffmpeg -hide_banner -loglevel error -y               -i "$src"               -af "highpass=f=140,lowpass=f=4500,acompressor=threshold=0.10:ratio=4:attack=5:release=100:makeup=2,loudnorm=I=-13:LRA=4:TP=-1.0,alimiter=limit=0.95"               -ac 1 -ar 10000 -c:a adpcm_ima_wav "$dst"
+          done
+          test "$(find dist/classroom-audio -maxdepth 1 -name '*.wav' | wc -l)" -eq 65
+
+      - name: Build LittleFS voice image
+        run: |
+          mkdir -p dist/littlefs-root/audio
+          cp dist/classroom-audio/*.wav dist/littlefs-root/audio/
+          cp Medicine/AED-Trainer/firmware/display-assets.dat dist/littlefs-root/display-assets.dat
+          cp Medicine/AED-Trainer/firmware/rcp-music.wav dist/littlefs-root/audio/rcp-music.wav
+          test -s dist/littlefs-root/display-assets.dat
+          test -s dist/littlefs-root/audio/rcp-music.wav
+
+          MKLITTLEFS="$(find "$HOME/.arduino15/packages/esp32/tools" -type f -name mklittlefs | head -n 1)"
+          if [ -z "$MKLITTLEFS" ]; then
+            echo "mklittlefs was not found in ESP32 core tools"
+            find "$HOME/.arduino15/packages/esp32/tools" -maxdepth 3 -type f | sort
+            exit 1
+          fi
+
+          chmod +x "$MKLITTLEFS"
+          "$MKLITTLEFS"             -c dist/littlefs-root             -p 256             -b 4096             -s 0x280000             dist/build/littlefs.bin
+
+
+      - name: Merge V15 assets and firmware into ESP32-S3 flash image
+        run: |
+          python3 -m venv "$RUNNER_TEMP/dea-esptool"
+          "$RUNNER_TEMP/dea-esptool/bin/pip" install esptool==5.6.0
+          test -s dist/build/aed-trainer.ino.bootloader.bin
+          test -s dist/build/aed-trainer.ino.partitions.bin
+          test -s dist/build/aed-trainer.ino.bin
+          test "$(stat -c%s dist/build/littlefs.bin)" -eq $((0x280000))
+          test "$(stat -c%s dist/build/aed-trainer.ino.bin)" -le $((0x170000))
+          "$RUNNER_TEMP/dea-esptool/bin/python" -m esptool --chip esp32s3 merge-bin \
+            --flash-mode dio --flash-size 8MB \
+            --output dist/build/firmware.merged.bin \
+            0x0000 dist/build/aed-trainer.ino.bootloader.bin \
+            0x8000 dist/build/aed-trainer.ino.partitions.bin \
+            0x10000 dist/build/aed-trainer.ino.bin \
+            0x180000 dist/build/littlefs.bin
+          test -s dist/build/firmware.merged.bin
       - name: Verify whole V15 payload is in flash image
         run: |
           test -s dist/build/littlefs.bin
@@ -66,3 +192,94 @@ jobs:
           name: dea-v15-s3-compiled
           path: dist/build/*.bin
           if-no-files-found: error
+
+  package-windows-offline:
+    needs: compile-s3
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dea-v15-s3-compiled
+          path: compiled
+      - name: Embed V15 flash image and official USB flasher in EXE
+        run: |
+          set -eu
+          mkdir -p DEA/offline/payload/tools
+          cp compiled/firmware.merged.bin DEA/offline/payload/firmware.merged.bin
+          test "$(stat -c%s DEA/offline/payload/firmware.merged.bin)" -gt 3000000
+          curl --fail --location --retry 3 \
+            https://github.com/espressif/esptool/releases/download/v5.6.0/esptool-v5.6.0-windows-amd64.zip \
+            --output "$RUNNER_TEMP/esptool.zip"
+          unzip -q "$RUNNER_TEMP/esptool.zip" -d DEA/offline/payload/tools
+          test -n "$(find DEA/offline/payload/tools -iname 'esptool.exe' -print -quit)"
+          cd DEA/offline/payload
+          zip -qr ../payload.zip .
+          cd ..
+          ls -lh payload.zip
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.0"
+      - name: Build permanent offline Windows GUI
+        run: |
+          set -eu
+          cd DEA/offline
+          go mod init deaoffline
+          go get github.com/lxn/walk@latest
+          go mod tidy
+          go install github.com/akavel/rsrc@latest
+          "$(go env GOPATH)/bin/rsrc" -manifest main.manifest -o rsrc.syso
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath \
+            -ldflags="-s -w -H=windowsgui" \
+            -o "$GITHUB_WORKSPACE/dist/DEA_Actualizador_Permanente.exe" .
+          test -s "$GITHUB_WORKSPACE/dist/DEA_Actualizador_Permanente.exe"
+          sha256sum "$GITHUB_WORKSPACE/dist/DEA_Actualizador_Permanente.exe"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dea-v15-s3-offline-exe
+          path: dist/DEA_Actualizador_Permanente.exe
+          if-no-files-found: error
+
+  smoke-test-windows:
+    needs: package-windows-offline
+    runs-on: windows-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dea-v15-s3-offline-exe
+          path: dist
+      - name: Verify V15 EXE and embedded flasher work on Windows
+        shell: pwsh
+        run: |
+          $exe = Join-Path $PWD "dist/DEA_Actualizador_Permanente.exe"
+          $process = Start-Process -FilePath $exe -ArgumentList "--self-test" -Wait -PassThru
+          Write-Host "DEA V15 self-test exit code: $($process.ExitCode)"
+          if ($process.ExitCode -ne 0) {
+            $log = Join-Path $env:LOCALAPPDATA "DEA-Actualizador/selftest-error.txt"
+            if (Test-Path $log) { Get-Content $log }
+            throw "Falló la prueba autónoma del instalador V15"
+          }
+
+  publish-corrected-stable:
+    needs: smoke-test-windows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dea-v15-s3-offline-exe
+          path: dist
+      - name: Replace incorrect stable EXE only after all tests passed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release view dea-updater-stable >/dev/null
+          gh release upload dea-updater-stable dist/DEA_Actualizador_Permanente.exe --clobber
+          gh release edit dea-updater-stable \
+            --title "DEA V15 ESP32-S3 — Instalador permanente offline" \
+            --notes "Restauración desde release/dea-v15: 32 pantallas, voces y música originales, casos clínicos y Teacher Monitor. Adaptado a ESP32-S3 N8R2, 3 botones y volumen 100% inicial. Compilación y pruebas de Windows completadas; pantalla/audio deben comprobarse en el equipo físico. No requiere descargas ni Arduino en la computadora del usuario."
