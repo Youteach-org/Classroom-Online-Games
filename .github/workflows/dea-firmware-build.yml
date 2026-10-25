@@ -1,0 +1,48 @@
+name: DEA firmware - compile in GitHub
+on:
+  push:
+    branches: [medicine-aed]
+    paths:
+      - "DEA/firmware/**"
+      - ".github/workflows/dea-firmware-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile-esp32s3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Install ESP32 build dependencies on GitHub runner only
+        run: |
+          arduino-cli config init
+          arduino-cli config set board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@3.2.1
+          arduino-cli lib install "Adafruit GFX Library@1.12.1"
+          arduino-cli lib install "Adafruit ST7735 and ST7789 Library@1.11.0"
+      - name: Stage sketch and compile
+        run: |
+          mkdir -p "$RUNNER_TEMP/DEA_Programa_Completo"
+          cp DEA/firmware/DEA_Programa_Completo.ino "$RUNNER_TEMP/DEA_Programa_Completo/"
+          cp DEA/firmware/Voz_*.h "$RUNNER_TEMP/DEA_Programa_Completo/"
+          mkdir -p "$GITHUB_WORKSPACE/dea-build"
+          arduino-cli compile --fqbn esp32:esp32:esp32s3:FlashSize=8M,PartitionScheme=huge_app \
+            --build-path "$GITHUB_WORKSPACE/dea-build" \
+            "$RUNNER_TEMP/DEA_Programa_Completo"
+      - name: Show firmware flash assets
+        if: success()
+        run: |
+          find dea-build -maxdepth 2 -type f \( -name '*.bin' -o -name '*flash*arg*' \) -print
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: dea-esp32s3-compiled
+          path: |
+            dea-build/*.bin
+            dea-build/*flash*arg*
+          if-no-files-found: error
+          retention-days: 14
