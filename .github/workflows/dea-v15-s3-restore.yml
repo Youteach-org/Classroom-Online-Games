@@ -23,3 +23,31 @@ jobs:
             Medicine/AED-Trainer/firmware/tests/s3-hardware-contract-test.cpp \
             -o /tmp/dea-s3-wiring
           /tmp/dea-s3-wiring
+
+  compile-s3:
+    needs: input-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Set up ESP32-S3 compiler on GitHub runner
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@3.3.12
+          arduino-cli lib install "Adafruit GFX Library"
+          arduino-cli lib install "Adafruit ST7735 and ST7789 Library"
+      - name: Compile restored V15 for ESP32-S3
+        run: |
+          mkdir -p dist/build
+          arduino-cli compile \
+            --fqbn esp32:esp32:esp32s3:FlashSize=8M \
+            --build-path "$GITHUB_WORKSPACE/dist/build" \
+            Medicine/AED-Trainer/firmware/aed-trainer
+          find dist/build -maxdepth 1 -name '*.bin' -print
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dea-v15-s3-compiled
+          path: dist/build/*.bin
+          if-no-files-found: error
