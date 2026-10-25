@@ -6,6 +6,7 @@ export const TRAINER_STATE_UUID = "7e57a002-6f73-4f67-9a2c-0b8d1f2e3a40";
 export const INSTRUCTOR_COMMAND_UUID = "7e57a003-6f73-4f67-9a2c-0b8d1f2e3a40";
 export const EVENT_STREAM_UUID = "7e57a004-6f73-4f67-9a2c-0b8d1f2e3a40";
 export const ECG_STREAM_UUID = "7e57a005-6f73-4f67-9a2c-0b8d1f2e3a40";
+export const VOLUME_UUID = "7e57a006-6f73-4f67-9a2c-0b8d1f2e3a40";
 
 const TOKEN_RE = /^[A-Za-z0-9_.:-]+$/;
 
