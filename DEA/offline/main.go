@@ -236,7 +236,13 @@ func selfTest() error {
 
 func main() {
  if len(os.Args)>1 && os.Args[1]=="--self-test" {
-  if err:=selfTest(); err!=nil {os.Exit(1)}
+  if err:=selfTest(); err!=nil {
+   if dir,e:=appDirectory(); e==nil {
+    _=os.MkdirAll(dir,0755)
+    _=os.WriteFile(filepath.Join(dir,"selftest-error.txt"),[]byte(err.Error()),0600)
+   }
+   os.Exit(1)
+  }
   return
  }
  if len(os.Args)==1 {
