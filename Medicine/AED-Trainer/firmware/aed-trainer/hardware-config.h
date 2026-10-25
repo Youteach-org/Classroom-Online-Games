@@ -17,8 +17,9 @@ constexpr int MENU_BUTTON = 4;
 constexpr int OK_BUTTON = 5;
 constexpr int SHOCK_BUTTON = 18;
 
-// MAX98357A I2S, SD to 3V3 and GAIN to GND.
-constexpr int I2S_BCLK = 15;
-constexpr int I2S_LRC = 16;
-constexpr int I2S_DOUT = 17;
+// MAX98357A I2S: three signals on right header P2; TFT and buttons remain P1.
+// SD to 3V3, GAIN to GND, common GND; VIN 5V per existing hardware.
+constexpr int I2S_BCLK = 42;
+constexpr int I2S_LRC = 41;
+constexpr int I2S_DOUT = 40;
 }
