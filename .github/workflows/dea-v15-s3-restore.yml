@@ -23,6 +23,12 @@ jobs:
             Medicine/AED-Trainer/firmware/tests/s3-hardware-contract-test.cpp \
             -o /tmp/dea-s3-wiring
           /tmp/dea-s3-wiring
+      - name: Test full-volume startup and volume scaling
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror \
+            Medicine/AED-Trainer/firmware/tests/volume-control-test.cpp \
+            -o /tmp/dea-volume
+          /tmp/dea-volume
 
   compile-s3:
     needs: input-tests
