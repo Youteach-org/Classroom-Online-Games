@@ -46,6 +46,8 @@ class ThreeButtonController {
   Button shock_;
   bool comboActive_{false};
   bool comboConsumed_{false};
+  bool suppressMenu_{false};
+  bool suppressOk_{false};
   std::uint32_t comboStartedAt_{0};
   bool pendingMenu_{false};
   bool pendingOk_{false};
