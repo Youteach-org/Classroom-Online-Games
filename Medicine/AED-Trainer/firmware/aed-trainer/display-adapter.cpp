@@ -454,13 +454,13 @@ void DisplayAdapter::showReadyCase(const char* scenarioId) {
   display.setTextSize(1);
   display.setTextColor(ST77XX_YELLOW);
   display.setCursor(9, 113);
-  display.print("MODE");
+  display.print("MENU");
 
   display.fillRoundRect(111, 108, 46, 17, 4, ST77XX_BLACK);
   display.drawRoundRect(111, 108, 46, 17, 4, ST77XX_GREEN);
   display.setTextColor(ST77XX_GREEN);
   display.setCursor(119, 113);
-  display.print("START");
+  display.print("OK");
 }
 
 void DisplayAdapter::showAnalyzing(
