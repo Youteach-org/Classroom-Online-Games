@@ -1,0 +1,19 @@
+name: Restore DEA V15 S3
+on:
+  push:
+    branches:
+      - fix/dea-v15-s3-restore-20261025
+  workflow_dispatch:
+
+jobs:
+  input-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test three-button contract
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror \
+            Medicine/AED-Trainer/firmware/aed-trainer/input-adapter.cpp \
+            Medicine/AED-Trainer/firmware/tests/three-button-contract-test.cpp \
+            -o /tmp/dea-three-button
+          /tmp/dea-three-button
