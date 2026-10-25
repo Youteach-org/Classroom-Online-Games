@@ -41,7 +41,7 @@ jobs:
             ! -name 'audio-player-contract.test.mjs' \
             ! -name 'firmware-contract.test.mjs' | sort)
           printf 'Running %s compatible JS suites\n' "${#tests[@]}"
-          node --test "${tests[@}"
+          node --test "${tests[@]}"
 
   compile-s3:
     needs: input-tests
