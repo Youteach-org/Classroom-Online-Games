@@ -308,6 +308,9 @@ uint8_t menuOpcion=0; // 0 paciente, 1 ritmo, 2 iniciar
 
 enum Estado {LISTO, ESPERA_PARCHES, ANALIZANDO, AVISO_DESCARGA, ESPERA_SHOCK,
              DESCARGA_APLICADA, SIN_DESCARGA, RCP};
+// Declaraciones explícitas: Arduino no debe generar prototipos antes de estos tipos.
+void entrar(Estado nuevo);
+bool leerPulsador(Button &b, uint32_t ahora);
 Estado estado=LISTO;
 uint32_t estadoDesde=0, rcpDesde=0, ultimoBeat=0, dibujadoEn=0;
 uint8_t paciente=0; // adulto, niño, lactante
