@@ -110,8 +110,9 @@ jobs:
         shell: pwsh
         run: |
           $file = Join-Path $PWD "dist/DEA_Actualizador_Permanente.exe"
-          & $file --self-test
-          if ($LASTEXITCODE -ne 0) {
+          $process = Start-Process -FilePath $file -ArgumentList "--self-test" -Wait -PassThru
+          Write-Host "DEA self-test exit code: $($process.ExitCode)"
+          if ($process.ExitCode -ne 0) {
             $log = Join-Path $env:LOCALAPPDATA "DEA-Actualizador/selftest-error.txt"
             if (Test-Path $log) { Get-Content $log }
             throw "Falló la prueba autónoma del instalador"
