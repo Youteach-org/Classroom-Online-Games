@@ -54,6 +54,13 @@ jobs:
             --build-path "$GITHUB_WORKSPACE/dist/build" \
             Medicine/AED-Trainer/firmware/aed-trainer
           find dist/build -maxdepth 1 -name '*.bin' -print
+      - name: Verify whole V15 payload is in flash image
+        run: |
+          test -s dist/build/littlefs.bin
+          test -s dist/build/firmware.merged.bin
+          test "$(stat -c%s Medicine/AED-Trainer/firmware/display-assets.dat)" -eq 328718
+          test "$(find dist/classroom-audio -maxdepth 1 -name '*.wav' | wc -l)" -eq 65
+          test -s dist/littlefs-root/audio/rcp-music.wav
       - uses: actions/upload-artifact@v4
         with:
           name: dea-v15-s3-compiled
