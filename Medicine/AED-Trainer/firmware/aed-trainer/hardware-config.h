@@ -3,25 +3,22 @@
 #include <cstdint>
 
 namespace HardwareConfig {
-// TFT ST7735 1.8" 160x128 (landscape)
-constexpr int TFT_RST  = 4;
-constexpr int TFT_CS   = 5;
-constexpr int TFT_DC   = 2;
-constexpr int TFT_MOSI = 23;
-constexpr int TFT_SCLK = 18;
+// ESP32-S3 N8R2, TFT ST7735 1.8-inch 160x128 (landscape).
+constexpr int TFT_RST = 8;
+constexpr int TFT_DC = 9;
+constexpr int TFT_CS = 10;
+constexpr int TFT_MOSI = 11;
+constexpr int TFT_SCLK = 12;
 constexpr int TFT_WIDTH = 160;
 constexpr int TFT_HEIGHT = 128;
 
-// All physical buttons are momentary switches wired GPIO -> GND.
-// Internal pull-ups are enabled by InputAdapter.
-constexpr int SHOCK_BUTTON = 32;
-constexpr int START_BUTTON = 33;
-constexpr int MODE_BUTTON = 14;
-constexpr int PADS_BUTTON = 13;
-constexpr int RESET_BUTTON = 17;
+// Exactly three momentary switches connected GPIO -> GND.
+constexpr int MENU_BUTTON = 4;
+constexpr int OK_BUTTON = 5;
+constexpr int SHOCK_BUTTON = 18;
 
-// MAX98357A
-constexpr int I2S_DOUT = 25;
-constexpr int I2S_LRC = 26;
-constexpr int I2S_BCLK = 27;
+// MAX98357A I2S, SD to 3V3 and GAIN to GND.
+constexpr int I2S_BCLK = 15;
+constexpr int I2S_LRC = 16;
+constexpr int I2S_DOUT = 17;
 }
