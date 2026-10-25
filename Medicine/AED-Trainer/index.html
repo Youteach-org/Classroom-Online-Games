@@ -97,6 +97,10 @@
       <section class="stack">
         <article class="card">
           <h2>Estado del DEA</h2>
+          <div class="field">
+            <label for="deaVolume">Volumen del DEA: <output id="deaVolumeValue">100%</output></label>
+            <input type="range" id="deaVolume" min="0" max="100" step="1" value="100" disabled>
+          </div>
           <div class="monitor-grid">
             <div class="metric"><span>Estado</span><strong id="trainerState">—</strong></div>
             <div class="metric"><span>Dispositivo</span><strong id="deviceIdMirror">ver arriba</strong></div>
