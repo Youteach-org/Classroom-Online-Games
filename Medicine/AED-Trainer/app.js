@@ -40,7 +40,9 @@ const ui = {
   batteryLevel: byId("batteryLevel"),
   movementStatus: byId("movementStatus"),
   eventTimeline: byId("eventTimeline"),
-  lastCommand: byId("lastCommand")
+  lastCommand: byId("lastCommand"),
+  deaVolume: byId("deaVolume"),
+  deaVolumeValue: byId("deaVolumeValue")
 };
 
 const remoteButtons = [
@@ -109,6 +111,7 @@ function updateMovementControl() {
 }
 
 function setRemoteAvailability() {
+  ui.deaVolume.disabled = !bleReady;
   for (const button of remoteButtons) button.disabled = !bleReady;
   if (!caseActive) {
     for (const button of remoteButtons.filter((button) => button !== ui.startCase)) button.disabled = true;
@@ -161,6 +164,11 @@ function connectionLabel(state) {
 }
 
 function onBleEvent(event) {
+  if (event.kind === "volume") {
+    ui.deaVolume.value = String(event.message.percent);
+    ui.deaVolumeValue.textContent = `${event.message.percent}%`;
+    return;
+  }
   if (event.kind === "connection") {
     const state = event.message.state;
     bleReady = state === "ready";
@@ -404,6 +412,18 @@ for (const select of [ui.baseScenario, ui.sceneTwist, ui.clinicalCondition]) {
 }
 
 ui.connectTrainer.addEventListener("click", connectTrainer);
+ui.deaVolume.addEventListener("input", () => {
+  ui.deaVolumeValue.textContent = `${ui.deaVolume.value}%`;
+});
+ui.deaVolume.addEventListener("change", async () => {
+  try {
+    if (!bleClient || !bleReady) return;
+    await bleClient.setVolume(Number(ui.deaVolume.value));
+    appendTimeline(`Volumen DEA: ${ui.deaVolume.value}%`, "good");
+  } catch (error) {
+    appendTimeline(`No se pudo cambiar el volumen: ${error.message}`, "bad");
+  }
+});
 
 ui.copyBraveFlag?.addEventListener("click", async () => {
   try {
