@@ -1,0 +1,40 @@
+name: Build and publish DEA Windows updater
+
+on:
+  push:
+    branches: [medicine-aed]
+    paths:
+      - "DEA/actualizador/**"
+      - ".github/workflows/dea-updater-release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release-windows-updater:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.2"
+      - name: Restore Go source
+        run: |
+          python3 -c "import zlib,pathlib; p=pathlib.Path('DEA/actualizador'); (p/'main.go').write_bytes(zlib.decompress((p/'main.go.zlib').read_bytes()))"
+      - name: Build EXE (Windows x64)
+        env:
+          GOOS: windows
+          GOARCH: amd64
+          CGO_ENABLED: "0"
+        run: |
+          mkdir -p dist
+          go build -trimpath -ldflags="-s -w" -o dist/DEA_Actualizador_Permanente.exe DEA/actualizador/main.go
+          file dist/DEA_Actualizador_Permanente.exe
+          sha256sum dist/DEA_Actualizador_Permanente.exe
+      - name: Publish fixed download in GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view dea-updater-stable >/dev/null 2>&1 || gh release create dea-updater-stable --target "${GITHUB_SHA}" --title "DEA - Actualizador permanente Windows" --notes "Instalar una vez; después iniciar desde DEA - Actualizar. Fuente: rama medicine-aed/DEA/actualizador."
+          gh release upload dea-updater-stable dist/DEA_Actualizador_Permanente.exe --clobber
