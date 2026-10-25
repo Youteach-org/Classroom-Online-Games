@@ -77,7 +77,7 @@ jobs:
           ls -lh payload.zip
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.23.2"
+          go-version: "1.26.0"
       - name: Build self-contained Windows GUI EXE
         run: |
           set -eu
@@ -98,7 +98,32 @@ jobs:
           name: dea-offline-windows
           path: dist/DEA_Actualizador_Permanente.exe
           if-no-files-found: error
-      - name: Replace old network-downloading installer only after successful build
+  smoke-test-windows:
+    needs: package-windows-offline
+    runs-on: windows-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dea-offline-windows
+          path: dist
+      - name: Verify standalone EXE and bundled flasher on Windows
+        shell: pwsh
+        run: |
+          $file = Join-Path $PWD "dist/DEA_Actualizador_Permanente.exe"
+          & $file --self-test
+          if ($LASTEXITCODE -ne 0) { throw "Falló la prueba autónoma del instalador" }
+
+  release-offline:
+    needs: smoke-test-windows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dea-offline-windows
+          path: dist
+      - name: Publish only after successful Windows smoke test
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
