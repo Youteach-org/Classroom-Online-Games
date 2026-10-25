@@ -51,6 +51,7 @@ bool lastMovement = false;
 bool cprCycleTimingActive = false;
 bool cprMusicActive = false;
 std::size_t localScenarioIndex = 0;
+std::string lastSpokenPromptId;
 
 const char* stateFallback(TrainerState state) {
   switch (state) {
@@ -206,6 +207,7 @@ void serviceOnePrompt() {
   if (!prompt.has_value()) return;
 
   const char* text = findPromptText(prompt.value());
+  if (prompt.value().rfind("AED_", 0) == 0) lastSpokenPromptId = prompt.value();
   display.showPromptVisual(prompt.value());
 
   const bool played = audio.playPrompt(prompt.value());
@@ -495,7 +497,11 @@ void serviceLocalControls() {
 
   if (inputs.modePressed()) {
     if (trainer.state() != TrainerState::OFF) {
-      Serial.println("MODE_IGNORED_ACTIVE_CASE");
+      if (!lastSpokenPromptId.empty() &&
+          trainer.state() != TrainerState::CPR) {
+        audio.playPrompt(lastSpokenPromptId);
+        Serial.println("LOCAL_REPEAT_PROMPT");
+      }
       return;
     }
 
@@ -508,6 +514,9 @@ void serviceLocalControls() {
     return;
   }
 
+  // OK is also the PADS/step-confirm button while a case is active.
+  // Do not consume its event here; servicePadsButton() owns that event.
+  if (trainer.state() != TrainerState::OFF) return;
   if (!inputs.startPressed()) return;
 
   if (trainer.state() != TrainerState::OFF) {
@@ -559,6 +568,8 @@ void loop() {
     ble.poll();
   }
 
+  // Sample GPIOs only once each cycle so MENU/OK share one event.
+  inputs.poll();
   // Physical controls always remain available.
   serviceLocalControls();
   servicePadsButton();
