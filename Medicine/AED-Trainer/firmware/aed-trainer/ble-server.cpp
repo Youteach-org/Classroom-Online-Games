@@ -8,6 +8,7 @@
 #include <BLEServer.h>
 
 #include "ble-protocol.h"
+#include "audio-player.h"
 
 namespace {
 constexpr const char* kDeviceId = "AED_TRAINER_001";
@@ -51,6 +52,23 @@ class TrainerCommandCallbacks final : public BLECharacteristicCallbacks {
  private:
   BleServer* owner_;
 };
+// Volume writes affect the output PCM level only, not the scenario flow.
+class TrainerVolumeCallbacks final : public BLECharacteristicCallbacks {
+ public:
+  void onWrite(BLECharacteristic* characteristic) override {
+    const std::string raw = characteristic->getValue().c_str();
+    if (raw.empty() || raw.size() > 3) return;
+    int percent = 0;
+    for (char ch : raw) {
+      if (ch < '0' || ch > '9') return;
+      percent = percent * 10 + (ch - '0');
+    }
+    if (percent > 100) return;
+    AudioPlayer::setVolume(percent);
+    const std::string accepted = std::to_string(percent);
+    characteristic->setValue(accepted.c_str());
+  }
+};
 }  // namespace
 
 BleServer::BleServer(TrainerCore& core) : core_(core) {}
@@ -87,6 +105,11 @@ void BleServer::begin() {
   ecgCharacteristic_ = service->createCharacteristic(
       BleProtocol::kEcgStreamUuid,
       BLECharacteristic::PROPERTY_NOTIFY);
+  volumeCharacteristic_ = service->createCharacteristic(
+      BleProtocol::kVolumeUuid,
+      BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  volumeCharacteristic_->setValue("100");
+  volumeCharacteristic_->setCallbacks(new TrainerVolumeCallbacks());
 
   statusCharacteristic_->addDescriptor(new BLE2902());
   stateCharacteristic_->addDescriptor(new BLE2902());
