@@ -7,11 +7,13 @@
 #include <freertos/task.h>
 
 #include <algorithm>
+#include <atomic>
 #include <cstdint>
 #include <cstring>
 #include <cmath>
 
 #include "hardware-config.h"
+#include "audio-volume.h"
 #include "ima-adpcm.h"
 #include "prompt-map.h"
 
@@ -19,6 +21,7 @@ namespace {
 
 I2SClass I2S;
 bool i2sActive = false;
+std::atomic<int> volumePercent{kDefaultVolumePercent};
 
 TaskHandle_t cprMusicTaskHandle = nullptr;
 volatile bool cprMusicStopRequested = false;
@@ -161,8 +164,9 @@ bool writeMonoAsStereo(const std::int16_t* mono, std::size_t samples) {
           kVoiceGainDenominator;
       const auto sample = static_cast<std::int16_t>(
           std::clamp<std::int32_t>(boosted, -32768, 32767));
-      stereo[i * 2] = sample;
-      stereo[i * 2 + 1] = sample;
+      const auto level = scaleAudioSample(sample, volumePercent.load(std::memory_order_relaxed));
+      stereo[i * 2] = level;
+      stereo[i * 2 + 1] = level;
     }
 
     const std::size_t bytes = count * 2 * sizeof(std::int16_t);
@@ -308,6 +312,14 @@ void cprMusicTask(void*) {
 
 }  // namespace
 
+void AudioPlayer::setVolume(int percent) {
+  volumePercent.store(clampVolumePercent(percent), std::memory_order_relaxed);
+}
+
+int AudioPlayer::volume() {
+  return volumePercent.load(std::memory_order_relaxed);
+}
+
 bool AudioPlayer::begin() {
   I2S.setPins(
       HardwareConfig::I2S_BCLK,
@@ -373,8 +385,9 @@ bool AudioPlayer::playStartupTone() {
       for (std::size_t i = 0; i < count; ++i) {
         const bool high = ((produced + i) / halfPeriod) % 2U == 0U;
         const std::int16_t sample = high ? kAmplitude : -kAmplitude;
-        stereo[i * 2] = sample;
-        stereo[i * 2 + 1] = sample;
+        const auto level = scaleAudioSample(sample, volumePercent.load(std::memory_order_relaxed));
+        stereo[i * 2] = level;
+        stereo[i * 2 + 1] = level;
       }
 
       const std::size_t bytes = count * 2 * sizeof(std::int16_t);
@@ -529,8 +542,9 @@ bool AudioPlayer::playMetronomeClick() {
           static_cast<std::int16_t>(
               std::clamp<std::int32_t>(mixed, -30000, 30000));
 
-      stereo[i * 2] = sample;
-      stereo[i * 2 + 1] = sample;
+      const auto level = scaleAudioSample(sample, volumePercent.load(std::memory_order_relaxed));
+      stereo[i * 2] = level;
+      stereo[i * 2 + 1] = level;
     }
 
     const std::size_t bytes = count * 2 * sizeof(std::int16_t);
