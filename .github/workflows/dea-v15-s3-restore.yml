@@ -31,8 +31,17 @@ jobs:
           /tmp/dea-volume
       - name: Test Teacher Monitor BLE client
         run: node --test Medicine/AED-Trainer/tests/ble-client.test.mjs
-      - name: Run complete V15 Teacher Monitor regression suite
-        run: node --test Medicine/AED-Trainer/tests/*.test.mjs
+      - name: Run V15 Teacher Monitor regressions compatible with ESP32-S3 TFT hardware
+        shell: bash
+        run: |
+          # These two historical source-text suites assert the retired OLED/five-button
+          # ESP32-WROOM wiring. S3 functionality is covered by native contract tests,
+          # firmware compilation, BLE tests and complete LittleFS image verification.
+          mapfile -t tests < <(find Medicine/AED-Trainer/tests -maxdepth 1 -name '*.test.mjs' \
+            ! -name 'audio-player-contract.test.mjs' \
+            ! -name 'firmware-contract.test.mjs' | sort)
+          printf 'Running %s compatible JS suites\n' "${#tests[@]}"
+          node --test "${tests[@}"
 
   compile-s3:
     needs: input-tests
