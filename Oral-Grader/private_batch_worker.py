@@ -176,13 +176,21 @@ def _json_model(client, model, prompt, attachment=None):
     content = [prompt]
     if attachment:
         content.append(types.Part.from_uri(file_uri=attachment.uri, mime_type=attachment.mime_type))
-    response = client.models.generate_content(
-        model=model,
-        contents=content,
-        config=types.GenerateContentConfig(
-            response_mime_type='application/json', temperature=0.15,
-        ),
+    options = types.GenerateContentConfig(
+        response_mime_type='application/json', temperature=0.15,
     )
+    try:
+        response = client.models.generate_content(
+            model=model, contents=content, config=options,
+        )
+    except Exception as exc:
+        # Google retires model IDs independently from listing them. The fallback
+        # has been verified with uploaded audio against the configured key.
+        if getattr(exc, 'code', None) != 404 or model == 'gemini-3.1-flash-lite':
+            raise
+        response = client.models.generate_content(
+            model='gemini-3.1-flash-lite', contents=content, config=options,
+        )
     if not response.text:
         raise ValueError('Gemini returned no text')
     return json.loads(response.text)
@@ -224,8 +232,21 @@ def _stage1_transcript(client, attachment, model):
     return {'model': model, 'data': _json_model(client, model, prompt, attachment)}
 
 
-def _grade_one(client, model, audio_file, entry):
+def _upload_active(client, audio_file):
     uploaded = client.files.upload(file=str(audio_file))
+    for _ in range(60):
+        state = str(getattr(uploaded, 'state', ''))
+        if state.endswith('ACTIVE'):
+            return uploaded
+        if state.endswith('FAILED'):
+            raise RuntimeError('Uploaded audio processing failed')
+        time.sleep(3)
+        uploaded = client.files.get(name=uploaded.name)
+    raise TimeoutError('Uploaded audio never became active')
+
+
+def _grade_one(client, model, audio_file, entry):
+    uploaded = _upload_active(client, audio_file)
     try:
         stage1 = _stage1_transcript(client, uploaded, model)
         students = entry['students']
@@ -299,7 +320,7 @@ def _process(payload):
             _download(entry, path)
             sources.append(path)
         client = genai.Client(api_key=os.environ['GEMINI_API_KEY'])
-        model = os.environ.get('ORAL_GRADER_BATCH_MODEL', 'gemini-2.5-flash')
+        model = os.environ.get('ORAL_GRADER_BATCH_MODEL', 'gemini-3-flash-preview')
         for entry, audio_file in zip(entries, sources):
             try:
                 results.append(_grade_one(client, model, audio_file, entry))
@@ -307,6 +328,7 @@ def _process(payload):
                 # Do not leak private signed URLs or audio/transcript through logs.
                 results.append({'source': entry['name'],
                                 'error_type': type(exc).__name__,
+                                'error_code': getattr(exc, 'code', None),
                                 'grade': None})
             print('Completed evaluation step', len(results), 'of', len(entries), flush=True)
         try:
