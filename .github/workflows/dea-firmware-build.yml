@@ -4,6 +4,7 @@ on:
     branches: [medicine-aed]
     paths:
       - "DEA/firmware/**"
+      - "DEA/offline/**"
       - ".github/workflows/dea-firmware-build.yml"
   workflow_dispatch:
 
@@ -46,3 +47,61 @@ jobs:
             dea-build/*flash*arg*
           if-no-files-found: error
           retention-days: 14
+
+  package-windows-offline:
+    needs: compile-esp32s3
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dea-esp32s3-compiled
+          path: compiled
+      - name: Bundle precompiled firmware and official esptool on GitHub runner
+        run: |
+          set -eu
+          mkdir -p DEA/offline/payload/tools
+          firmware="$(find compiled -type f -name '*.merged.bin' -print -quit)"
+          test -s "$firmware"
+          cp "$firmware" DEA/offline/payload/firmware.merged.bin
+          curl --fail --location --retry 3 \
+            https://github.com/espressif/esptool/releases/download/v5.6.0/esptool-v5.6.0-windows-amd64.zip \
+            --output "$RUNNER_TEMP/esptool.zip"
+          unzip -q "$RUNNER_TEMP/esptool.zip" -d DEA/offline/payload/tools
+          test -n "$(find DEA/offline/payload/tools -iname 'esptool.exe' -print -quit)"
+          cd DEA/offline/payload
+          zip -qr ../payload.zip .
+          cd ..
+          ls -lh payload.zip
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.2"
+      - name: Build self-contained Windows GUI EXE
+        run: |
+          set -eu
+          cd DEA/offline
+          go mod init deaoffline
+          go get github.com/lxn/walk@latest
+          go mod tidy
+          go install github.com/akavel/rsrc@latest
+          "$(go env GOPATH)/bin/rsrc" -manifest main.manifest -o rsrc.syso
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath \
+            -ldflags="-s -w -H=windowsgui" \
+            -o "$GITHUB_WORKSPACE/dist/DEA_Actualizador_Permanente.exe" .
+          file "$GITHUB_WORKSPACE/dist/DEA_Actualizador_Permanente.exe"
+          sha256sum "$GITHUB_WORKSPACE/dist/DEA_Actualizador_Permanente.exe"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dea-offline-windows
+          path: dist/DEA_Actualizador_Permanente.exe
+          if-no-files-found: error
+      - name: Replace old network-downloading installer only after successful build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view dea-updater-stable >/dev/null 2>&1 || gh release create dea-updater-stable --target "$GITHUB_SHA" --title "DEA - instalador offline"
+          gh release upload dea-updater-stable dist/DEA_Actualizador_Permanente.exe --clobber
+          gh release edit dea-updater-stable --title "DEA - instalador offline para ESP32-S3" --notes "EXE único con firmware compilado y esptool incluidos; no descarga Arduino ni bibliotecas en Windows. El usuario confirma puerto COM y grabación. Pantalla/audio pendientes de validación física."
