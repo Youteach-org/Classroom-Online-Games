@@ -217,7 +217,28 @@ func launch() error {
  return err
 }
 
+// La CI de Windows usa esta opción para comprobar el EXE sin conectar una placa.
+func selfTest() error {
+ tool, firmware, err := ensurePayload()
+ if err != nil { return err }
+ if stat, err := os.Stat(firmware); err != nil || stat.Size() < 100000 {
+  return errors.New("El firmware incorporado no es válido")
+ }
+ cmd := exec.Command(tool, "--version")
+ cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow:true}
+ output, err := cmd.CombinedOutput()
+ if err != nil { return fmt.Errorf("Esptool incorporado no se ejecuta: %w: %s", err, string(output)) }
+ if !strings.Contains(strings.ToLower(string(output)), "esptool") {
+  return fmt.Errorf("Versión inesperada de flasher: %s", string(output))
+ }
+ return nil
+}
+
 func main() {
+ if len(os.Args)>1 && os.Args[1]=="--self-test" {
+  if err:=selfTest(); err!=nil {os.Exit(1)}
+  return
+ }
  if len(os.Args)==1 {
   started,err:=installIfNeeded()
   if err!=nil { walk.MsgBox(nil,"DEA — Instalación",err.Error(),walk.MsgBoxIconError);return }
