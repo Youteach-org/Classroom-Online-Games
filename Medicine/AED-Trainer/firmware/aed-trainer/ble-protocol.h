@@ -15,6 +15,7 @@ constexpr const char* kTrainerStateUuid = "7e57a002-6f73-4f67-9a2c-0b8d1f2e3a40"
 constexpr const char* kInstructorCommandUuid = "7e57a003-6f73-4f67-9a2c-0b8d1f2e3a40";
 constexpr const char* kEventStreamUuid = "7e57a004-6f73-4f67-9a2c-0b8d1f2e3a40";
 constexpr const char* kEcgStreamUuid = "7e57a005-6f73-4f67-9a2c-0b8d1f2e3a40";
+constexpr const char* kVolumeUuid = "7e57a006-6f73-4f67-9a2c-0b8d1f2e3a40";
 
 struct ParsedCommand {
   std::uint32_t seq{0};
