@@ -47,6 +47,7 @@ class BleServer {
   BLECharacteristic* commandCharacteristic_{nullptr};
   BLECharacteristic* eventCharacteristic_{nullptr};
   BLECharacteristic* ecgCharacteristic_{nullptr};
+  BLECharacteristic* volumeCharacteristic_{nullptr};
 
   QueueHandle_t commandQueue_{nullptr};
   std::atomic<bool> transportConnected_{false};
