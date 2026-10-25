@@ -4,6 +4,7 @@ import {
   TRAINER_STATE_UUID,
   INSTRUCTOR_COMMAND_UUID,
   EVENT_STREAM_UUID,
+  VOLUME_UUID,
   encodeCommand,
   decodeMessage,
   validateStateMessage
@@ -66,7 +67,10 @@ export function createBleClient({ bluetooth }) {
       service.getCharacteristic(INSTRUCTOR_COMMAND_UUID),
       service.getCharacteristic(EVENT_STREAM_UUID)
     ]);
-    characteristics = { status, state, command, events };
+    // Optional extension: older firmware still supports all V15 controls.
+    let volume = null;
+    try { volume = await service.getCharacteristic(VOLUME_UUID); } catch (_) {}
+    characteristics = { status, state, command, events, volume };
 
     await state.startNotifications();
     state.addEventListener("characteristicvaluechanged", handleStateNotification);
@@ -101,6 +105,17 @@ export function createBleClient({ bluetooth }) {
     emit("status", statusMessage);
     emit("state", stateMessage);
     setConnectionState("ready");
+    if (characteristics.volume) {
+      try {
+        const data = await characteristics.volume.readValue();
+        const raw = new TextDecoder().decode(
+          new Uint8Array(data.buffer, data.byteOffset, data.byteLength));
+        if (/^\\d{1,3}$/.test(raw)) {
+          const percent = Number(raw);
+          if (percent <= 100) emit("volume", { percent });
+        }
+      } catch (_) { /* Keep all original controls even if volume is unavailable. */ }
+    }
     return { status: statusMessage, state: stateMessage };
   }
 
@@ -196,6 +211,25 @@ export function createBleClient({ bluetooth }) {
     }
   }
 
+  async function setVolume(percent) {
+    if (!Number.isInteger(percent) || percent < 0 || percent > 100) {
+      throw new Error("Volume must be from 0 to 100");
+    }
+    if (connectionState !== "ready" || !characteristics?.volume) {
+      throw new Error("Volume control is not ready");
+    }
+    const bytes = new TextEncoder().encode(String(percent));
+    const characteristic = characteristics.volume;
+    if (typeof characteristic.writeValueWithResponse === "function") {
+      await characteristic.writeValueWithResponse(bytes);
+    } else if (typeof characteristic.writeValue === "function") {
+      await characteristic.writeValue(bytes);
+    } else {
+      throw new Error("Volume characteristic is not writable");
+    }
+    emit("volume", { percent });
+  }
+
   function disconnect() {
     if (device?.gatt?.connected && typeof device.gatt.disconnect === "function") {
       device.gatt.disconnect();
@@ -217,6 +251,7 @@ export function createBleClient({ bluetooth }) {
     scanAndConnect,
     disconnect,
     sendCommand,
+    setVolume,
     readAuthoritativeState,
     subscribe,
     getConnectionState
