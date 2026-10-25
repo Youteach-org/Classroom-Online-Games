@@ -1,11 +1,8 @@
-name: Build and publish DEA Windows updater
+name: RETIRED - legacy DEA updater (do not publish)
 
+# Superseded by dea-firmware-build.yml. This version downloaded
+# Arduino cores and libraries onto the user's PC against requirements.
 on:
-  push:
-    branches: [medicine-aed]
-    paths:
-      - "DEA/actualizador/**"
-      - ".github/workflows/dea-updater-release.yml"
   workflow_dispatch:
 
 permissions:
@@ -13,6 +10,7 @@ permissions:
 
 jobs:
   release-windows-updater:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
