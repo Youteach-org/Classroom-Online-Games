@@ -5,6 +5,8 @@
 class AudioPlayer {
  public:
   bool begin();
+  static void setVolume(int percent);
+  static int volume();
   bool playPrompt(const std::string& promptId);
   bool playStartupTone();
   bool playShockBuzz();
