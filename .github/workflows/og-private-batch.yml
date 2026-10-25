@@ -25,5 +25,5 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GH_TOKEN: ${{ github.token }}
-          ORAL_GRADER_BATCH_MODEL: gemini-2.5-flash
+          ORAL_GRADER_BATCH_MODEL: gemini-3-flash-preview
         run: python Oral-Grader/private_batch_worker.py
