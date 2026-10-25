@@ -224,7 +224,7 @@ func selfTest() error {
  if stat, err := os.Stat(firmware); err != nil || stat.Size() < 100000 {
   return errors.New("El firmware incorporado no es válido")
  }
- cmd := exec.Command(tool, "--version")
+ cmd := exec.Command(tool, "--help")
  cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow:true}
  output, err := cmd.CombinedOutput()
  if err != nil { return fmt.Errorf("Esptool incorporado no se ejecuta: %w: %s", err, string(output)) }
