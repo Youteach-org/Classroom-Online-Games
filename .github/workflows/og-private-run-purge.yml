@@ -1,0 +1,55 @@
+name: OG Privacy - Purge historical Action runs
+"on":
+  push:
+    branches:
+      - feature/oral-grader-v1-20260922
+    paths:
+      - .github/workflows/og-private-run-purge.yml
+permissions:
+  actions: write
+  contents: read
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Erase prior Oral Grader job logs and run artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          CURRENT_RUN: ${{ github.run_id }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,os,time,urllib.request,urllib.error,urllib.parse
+          repo=os.environ["GITHUB_REPOSITORY"]
+          token=os.environ["GH_TOKEN"]
+          current=int(os.environ["CURRENT_RUN"])
+          branches=["feature/oral-grader-v1-20260922","feature/oral-grader-talk-talk-online-20260928"]
+          headers={"Authorization":"Bearer "+token,"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"}
+          def api(path,method="GET"):
+              req=urllib.request.Request("https://api.github.com"+path,method=method,headers=headers)
+              with urllib.request.urlopen(req,timeout=45) as res:
+                  return json.loads(res.read()) if method=="GET" else True
+          total=0
+          for branch in branches:
+              erased=0
+              for sweep in range(6):
+                  runs=api("/repos/"+repo+"/actions/runs?branch="+urllib.parse.quote(branch,safe="")+"&per_page=100")["workflow_runs"]
+                  eligible=[r for r in runs if r["id"]!=current and
+                            ("oral grader" in (r.get("name") or "").lower() or
+                             "oral-grader" in (r.get("path") or "").lower())]
+                  if not eligible:break
+                  for r in eligible:
+                      try:
+                          api("/repos/"+repo+"/actions/runs/"+str(r["id"]),method="DELETE")
+                          erased+=1
+                      except urllib.error.HTTPError as exc:
+                          if exc.code!=404:raise
+                  time.sleep(1)
+              else:
+                  raise RuntimeError("Unfinished removal for "+branch)
+              total+=erased
+              print("Purged OG workflow runs for",branch,erased,flush=True)
+          print("Privacy cleanup: old workflow runs deleted",total,flush=True)
+          PY
