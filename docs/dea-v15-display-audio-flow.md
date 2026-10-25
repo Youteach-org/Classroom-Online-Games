@@ -78,3 +78,9 @@ Los modificadores `T0–T8` y clínicos `C0–C16` se pueden asignar en Teacher 
 - GitHub Actions del commit `a2c9145`: test de hardware y lógica **GREEN**, compilación ESP32-S3 **GREEN**, paquete Windows **GREEN**, smoke test Windows **GREEN**, **publicación estable omitida deliberadamente**.
 - Mantener una sola ruta permanente del actualizador; no instalar dependencias ni descargar versiones intermedias al ordenador.
 - No reemplazar EXE estable hasta: gráficos correctos/visibles aprobados; flujo autónomo de dos controles implementado; prueba de audio físico con MAX en P2; paquete integrado construido y validado.
+
+## Borrador de flujo visual para revisión (NO APROBADO)
+
+![Borrador 12 pantallas 160×128](assets/dea-flow-preview-draft.webp)
+
+El collage muestra doce fotogramas con interfaz diseñada sobre un lienzo real de 160×128 y ampliada por nearest-neighbor solo para revisión en computadora. Los escenarios y voces permanecen descritos arriba. **Las fotografías generadas y los iconos son borradores, no imágenes autorizadas para el EXE**. Cualquier discrepancia clínica, de encuadre o composición debe corregirse antes de ensamblar los 32 recursos finales.
