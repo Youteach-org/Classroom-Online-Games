@@ -5,26 +5,13 @@ function qs(root,selector){
 function readyUsage(matches){
   const usage=new Map();
   for(const match of matches??[]){
-    for(const tileId of match.tileIds??[]){
-      if(!usage.has(tileId))usage.set(tileId,[]);
-      usage.get(tileId).push(match);
+    for(const cell of match.cells??[]){
+      const key=`${cell.row}:${cell.col}`;
+      if(!usage.has(key))usage.set(key,[]);
+      usage.get(key).push(match);
     }
   }
   return usage;
-}
-
-function readySurfaceWord(tile,matches){
-  if(tile?.word!=='A'||!matches?.length)return tile?.word??'';
-  const forms=new Set();
-  for(const match of matches){
-    const index=(match.tileIds??[]).indexOf(tile.id);
-    if(index<0)continue;
-    const token=match.tokens?.[index];
-    if(token==='A'||token==='AN')forms.add(token);
-  }
-  if(forms.has('A')&&forms.has('AN'))return 'A/AN';
-  if(forms.has('AN'))return 'AN';
-  return 'A';
 }
 
 function create(root,tag){
@@ -37,58 +24,13 @@ function setText(root,selector,value){
   if(node)node.textContent=String(value??'');
 }
 
-function typographyClass(word){
-  const length=String(word??'').length;
-  if(length>=9)return 'text-xlong';
-  if(length>=8)return 'text-long';
-  if(length>=6)return 'text-medium';
-  return '';
-}
-
-function applyTilePosition(node,tile){
-  node.dataset.tileId=tile.id;
-  node.dataset.row=String(tile.row);
-  node.dataset.column=String(tile.column);
-  if(!node.style)node.style={};
-  node.style.gridRow=String(tile.row+1);
-  node.style.gridColumn=String(tile.column+1);
-}
-
-export function renderBoardSnapshot(root,board,{matches=[],disabled=true}={}){
-  if(!board?.tiles)throw new Error('board.tiles is required');
-  const boardNode=qs(root,'#wordyBoard');
-  if(!boardNode)return null;
-  const usage=readyUsage(matches);
-  const tiles=board.tiles
-    .slice()
-    .sort((a,b)=>a.row-b.row||a.column-b.column||a.id.localeCompare(b.id))
-    .map(tile=>{
-      const button=create(root,'button');
-      button.className='wordy-tile';
-      button.classList?.add?.('wordy-tile');
-      const tileMatches=usage.get(tile.id)??[];
-      const surfaceWord=readySurfaceWord(tile,tileMatches);
-      const textClass=typographyClass(surfaceWord);
-      if(textClass)button.classList?.add?.(textClass);
-      button.setAttribute?.('type','button');
-      button.setAttribute?.('role','gridcell');
-      applyTilePosition(button,tile);
-      button.textContent=surfaceWord;
-      button.disabled=!!disabled;
-      if(tileMatches.length)button.classList?.add?.('is-ready');
-      const orientations=new Set(tileMatches.map(match=>match.orientation));
-      if(orientations.has('horizontal')&&orientations.has('vertical'))button.classList?.add?.('is-cross');
-      return button;
-    });
-  boardNode.replaceChildren?.(...tiles);
-  return boardNode;
-}
-
 export function renderGame(root,state){
-  if(!state?.board?.tiles)throw new Error('state.board.tiles is required');
+  if(!state?.board)throw new Error('state.board is required');
+  const boardNode=qs(root,'#wordyBoard');
   const popButton=qs(root,'#popButton');
   const readyCount=qs(root,'#readyCount');
   const matches=state.readyMatches??[];
+  const usage=readyUsage(matches);
 
   setText(root,'#levelLabel',`${state.levelId??''}${state.levelTitle?` · ${state.levelTitle}`:''}`);
   setText(root,'#scoreValue',state.score??0);
@@ -96,10 +38,47 @@ export function renderGame(root,state){
   setText(root,'#objectiveText',state.instruction??'');
   setText(root,'#eventLabel',state.eventLabel??'');
 
-  renderBoardSnapshot(root,state.board,{
-    matches,
-    disabled:state.phase!=='playing'||Number(state.movesLeft??0)<=0
-  });
+  if(boardNode){
+    const rows=[];
+    state.board.forEach((row,rowIndex)=>{
+      const rowNode=create(root,'div');
+      rowNode.className='wordy-row';
+      rowNode.classList?.add?.('wordy-row');
+      rowNode.setAttribute?.('role','row');
+      const tiles=[];
+
+      row.forEach((tile,colIndex)=>{
+        const button=create(root,'button');
+        button.className='wordy-tile';
+        button.classList?.add?.('wordy-tile');
+        button.setAttribute?.('type','button');
+        button.setAttribute?.('role','gridcell');
+        button.dataset.row=String(rowIndex);
+        button.dataset.col=String(colIndex);
+        button.dataset.tileId=tile?.id??'';
+
+        const word=tile?.word??'';
+        button.textContent=word;
+        const length=word.length;
+        if(length<=2)button.classList?.add?.('size-xs');
+        else if(length<=5)button.classList?.add?.('size-sm');
+        else if(length<=7)button.classList?.add?.('size-md');
+        else if(length<=10)button.classList?.add?.('size-lg');
+        else button.classList?.add?.('size-xl');
+
+        button.disabled=state.phase!=='playing'||!tile;
+        const cellMatches=usage.get(`${rowIndex}:${colIndex}`)??[];
+        if(cellMatches.length>0)button.classList?.add?.('is-ready');
+        const orientations=new Set(cellMatches.map(match=>match.orientation));
+        if(orientations.has('horizontal')&&orientations.has('vertical'))button.classList?.add?.('is-cross');
+        tiles.push(button);
+      });
+
+      rowNode.append?.(...tiles);
+      rows.push(rowNode);
+    });
+    boardNode.replaceChildren?.(...rows);
+  }
 
   if(readyCount)readyCount.textContent=matches.length===1?'1 ready':`${matches.length} ready`;
   if(popButton){
@@ -120,33 +99,33 @@ function reviewCard(root,title,detail){
   return card;
 }
 
+
+function sameCell(a,b){
+  return a?.row===b?.row&&a?.col===b?.col;
+}
+
 function renderMissedReplay(root,item){
   const replay=qs(root,'#replayBoard');
   if(!replay)return;
-  const board=item?.boardSnapshot;
-  if(!board?.tiles){
+  const rows=item?.boardRows;
+  if(!Array.isArray(rows)||rows.length===0){
     replay.replaceChildren?.();
     return;
   }
-  const suggested=new Set([
-    String(item?.suggestedSwap?.fromTileId??''),
-    String(item?.suggestedSwap?.toTileId??'')
-  ].filter(Boolean));
-  const tiles=board.tiles
-    .slice()
-    .sort((a,b)=>a.row-b.row||a.column-b.column||a.id.localeCompare(b.id))
-    .map(source=>{
-      const tile=create(root,'div');
-      tile.className='replay-tile';
-      tile.classList?.add?.('replay-tile');
-      const textClass=typographyClass(source.word);
-      if(textClass)tile.classList?.add?.(textClass);
-      applyTilePosition(tile,source);
-      tile.textContent=source.word??'';
-      if(suggested.has(source.id))tile.classList?.add?.('is-suggested');
-      return tile;
-    });
-  replay.replaceChildren?.(...tiles);
+  const suggested=item?.suggestedSwap;
+  const cells=[];
+  rows.forEach((row,rowIndex)=>row.forEach((word,colIndex)=>{
+    const tile=create(root,'div');
+    tile.className='replay-tile';
+    tile.classList?.add?.('replay-tile');
+    tile.textContent=word??'';
+    const cell={row:rowIndex,col:colIndex};
+    if(sameCell(cell,suggested?.from)||sameCell(cell,suggested?.to)){
+      tile.classList?.add?.('is-suggested');
+    }
+    cells.push(tile);
+  }));
+  replay.replaceChildren?.(...cells);
 }
 
 export function renderResult(root,review={newLearning:[],missed:[]}){

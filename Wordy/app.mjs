@@ -1,11 +1,9 @@
 import { RELATIONSHIPS } from './data/relationships.mjs';
 import { LEVELS } from './data/levels.mjs';
-import { areSwapNeighbors, neighborForDirection } from './engine/board.mjs';
 import { createRelationshipBank } from './engine/relationship-bank.mjs';
 import { createGameController } from './engine/controller.mjs';
 import { bindBoardInput } from './ui/input.mjs';
 import { renderGame, renderResult, hideResult } from './ui/render.mjs';
-import { captureTileRects, animateAcceptedSwap, animateRejectedSwap } from './ui/swap-animation.mjs';
 import { playResolutionTimeline } from './ui/timeline.mjs';
 
 const searchParams=new URLSearchParams(window.location.search);
@@ -29,7 +27,6 @@ const popButton=document.querySelector('#popButton');
 const replayButton=document.querySelector('#replayButton');
 const nextButton=document.querySelector('#nextButton');
 let timelinePlaying=false;
-let inputLocked=false;
 
 function mountLocalDevbar(){
   if(!isLocalPreview)return;
@@ -67,30 +64,14 @@ function mountLocalDevbar(){
 
 mountLocalDevbar();
 
-async function handleSwap(fromTileId,toTileId){
-  if(inputLocked||timelinePlaying)return;
-  inputLocked=true;
-  try{
-    const before=captureTileRects(boardElement,[fromTileId,toTileId]);
-    const result=controller.attemptSwap(fromTileId,toTileId);
-    if(result.status==='accepted'){
-      await animateAcceptedSwap(boardElement,before,[fromTileId,toTileId]);
-    }else if(result.status==='rebound'){
-      await animateRejectedSwap(boardElement,[fromTileId,toTileId]);
-    }
-  }finally{
-    inputLocked=false;
-  }
-}
-
 bindBoardInput(boardElement,{
-  getNeighbor:(tileId,direction)=>neighborForDirection(controller.state().board,tileId,direction),
-  areNeighbors:(aId,bId)=>areSwapNeighbors(controller.state().board,aId,bId),
-  onSwap:(from,to)=>{ void handleSwap(from,to); }
+  onSwap:(from,to)=>{
+    if(!timelinePlaying)controller.swap(from,to);
+  }
 });
 
 popButton?.addEventListener('click',async()=>{
-  if(inputLocked||timelinePlaying||controller.state().readyMatches.length===0)return;
+  if(timelinePlaying||controller.state().readyMatches.length===0)return;
   timelinePlaying=true;
   try{
     if(!controller.pop())return;
@@ -111,7 +92,7 @@ nextButton?.addEventListener('click',()=>{
 });
 
 controller.subscribe(state=>{
-  if(!timelinePlaying)renderGame(document,state);
+  renderGame(document,state);
   if(state.phase==='result'&&!timelinePlaying){
     renderResult(document,state.review??{newLearning:[],missed:[]});
   }else{

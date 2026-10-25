@@ -11,8 +11,8 @@ Canonical design:
 - `docs/superpowers/specs/2026-09-20-live-cog-session-bridge.md`
 
 Repositories:
-- `Youteach-org/YouTeach`
-- `Youteach-org/Classroom-Online-Games`
+- `youteachtk/YouTeach`
+- `youteachtk/Classroom-Online-Games`
 
 ## Required constraints
 
@@ -109,7 +109,7 @@ The server must recompute or validate any value that is authoritative for YouTea
 
 ## Task 1: Land the hardened session primitives on current YouTeach main
 
-**Repository:** `Youteach-org/YouTeach`
+**Repository:** `youteachtk/YouTeach`
 
 **Source reference already implemented on:** `feature/cog-youteach-secure-integrated-20260919`
 
@@ -170,7 +170,7 @@ Commit message:
 
 ## Task 2: Add pure live-game lifecycle policy
 
-**Repository:** `Youteach-org/YouTeach`
+**Repository:** `youteachtk/YouTeach`
 
 **Create:**
 - `cog-live-session-policy.mjs`
@@ -224,7 +224,7 @@ Commit message:
 
 ## Task 3: Add server-issued teacher live launch
 
-**Repository:** `Youteach-org/YouTeach`
+**Repository:** `youteachtk/YouTeach`
 
 **Create:**
 - `functions/_shared/cog-live-token.js`
@@ -298,7 +298,7 @@ Commit message:
 
 ## Task 4: Add reusable COG live bridge module
 
-**Repository:** `Youteach-org/Classroom-Online-Games`
+**Repository:** `youteachtk/Classroom-Online-Games`
 
 **Create:**
 - `shared/youteach-live-bridge.mjs`
@@ -351,7 +351,7 @@ Commit message:
 
 ## Task 5: Resolve teacher context at COG teacher menu and propagate it to game monitors
 
-**Repository:** `Youteach-org/Classroom-Online-Games`
+**Repository:** `youteachtk/Classroom-Online-Games`
 
 **Modify:**
 - `teacher/index.html`
@@ -380,7 +380,7 @@ Commit message:
 
 ## Task 6: Activate YouTeach connected game only when Verb Runner session is created
 
-**Repository:** `Youteach-org/Classroom-Online-Games`
+**Repository:** `youteachtk/Classroom-Online-Games`
 
 **Modify:**
 - `Verb-Runner/session-sync.js`
@@ -441,7 +441,7 @@ Commit message:
 
 ## Task 7: Remove permanent Verb Runner menu item and add group-scoped live-game card
 
-**Repository:** `Youteach-org/YouTeach`
+**Repository:** `youteachtk/YouTeach`
 
 **Modify:**
 - `student-buzzer.html`
@@ -481,7 +481,7 @@ Commit message:
 
 ## Task 8: Issue and resolve student credentials for a specific live session
 
-**Repository:** `Youteach-org/YouTeach`
+**Repository:** `youteachtk/YouTeach`
 
 **Create:**
 - `functions/api/cog-live-student-launch.js`
@@ -521,7 +521,7 @@ Commit message:
 
 ## Task 9: Resolve live student identity in Verb Runner
 
-**Repository:** `Youteach-org/Classroom-Online-Games`
+**Repository:** `youteachtk/Classroom-Online-Games`
 
 **Modify:**
 - `Verb-Runner/session-sync.js`
@@ -627,7 +627,7 @@ Commit messages:
 
 ## Task 12: Migrate 100 Students Said to the shared live-session lifecycle
 
-**Repository:** `Youteach-org/Classroom-Online-Games`
+**Repository:** `youteachtk/Classroom-Online-Games`
 
 **Modify:**
 - `teacher/teacher-menu.js` — remove current early `connectedGame` activation
@@ -650,7 +650,7 @@ Commit messages:
 
 ## Task 13: Migrate Support Meter
 
-**Repository:** `Youteach-org/Classroom-Online-Games`
+**Repository:** `youteachtk/Classroom-Online-Games`
 
 **Create:**
 - `Support-Meter/live-session.js`
@@ -714,7 +714,7 @@ Commit message:
 
 ## Task 14: Migrate OSASCOMP
 
-**Repository:** `Youteach-org/Classroom-Online-Games`
+**Repository:** `youteachtk/Classroom-Online-Games`
 
 The current OSASCOMP student and teacher logic is inline in HTML. Extract it before adding the bridge so the integration is testable instead of growing the inline scripts.
 
@@ -785,37 +785,26 @@ Commit message:
 
 **Repository:** both
 
-**Created in YouTeach:**
+**Create in YouTeach:**
 - `tests/cog-live-contract.test.mjs`
 
-**Created in COG:**
+**Create in COG:**
 - `tests/youteach-live-contract.test.mjs`
 
-Both tests pin exact values for:
+Both tests must assert exact values for:
 - token purposes `cog-live-teacher`, `cog-live-student`;
 - `launchMode: "live-buzzer"`;
 - descriptor fields;
 - result envelope fields;
 - 60-minute TTL constant;
-- allowed production/Pages preview origins;
-- matching contract version `schemaVersion: 1`.
+- allowed production origins.
 
-- [x] write contract tests.
-- [x] deliberately change one fixture/value to verify RED, then restore.
-- [x] run all tests.
-- [x] commit matching contract version `schemaVersion: 1`.
-
-**TDD evidence — 2026-09-21:**
-- YouTeach RED: `b88b0a743323c38916f3c4c0114d45a025d8807d`, run `35568075925`: **133/134** tests, exactly one intentional schema-version failure.
-- COG RED: `733de01472f4d5f8e19389cd8d217688c66e261b`, run `35568079733`: shared-bridge **9/10**, exactly one intentional schema-version failure; game suites stayed green.
-- YouTeach GREEN: `5c2cc2f5b16042441581f6685f14c9c095cd9a5f`, run `35568127333`: **134/134**, syntax and Pages build GREEN.
-- COG GREEN: `d2fc95a22a243f803aa0e0afbbffb03434f31d16`, run `35568129792`: runner-probe, syntax, shared-bridge **10/10**, Verb Runner, 100 Students Said, Support Meter, OSASCOMP and build all GREEN.
+- [ ] write contract tests.
+- [ ] deliberately change one fixture/value to verify RED, then restore.
+- [ ] run all tests.
+- [ ] commit matching contract version `schemaVersion: 1`.
 
 ## Task 16: Browser smoke test the complete story
-
-**Status: COMPLETE — 2026-09-23.**
-
-Verified cross-repository browser run: YouTeach Actions `35828301497` using the matching `live-cog-20260922` previews. The browser covered the complete Verb Runner teacher/student/result/end path. Support Meter, OSASCOMP, and 100 Students Said remain covered by their dedicated automated suites plus the shared bridge contract; expiry remains covered by automated policy tests.
 
 **Precondition:** deploy preview branches for both repositories.
 
@@ -841,14 +830,6 @@ Verify in browser:
 18. Use automated policy tests for the 60-minute expiry rather than waiting an hour in browser.
 
 ## Task 17: Production verification and documentation
-
-**Status: COMPLETE — 2026-09-23.**
-
-Current verification evidence:
-- YouTeach browser E2E `35828301497`: GREEN.
-- YouTeach verify `35828301309`: 230/230 GREEN + syntax + Pages build.
-- COG verify `35828254105`: runner-probe, syntax, shared-bridge, Verb Runner, 100 Students Said, Support Meter, OSASCOMP and build all GREEN.
-- COG preview deploy `35828254080`: GREEN.
 
 **Repository:** both
 
@@ -899,10 +880,3 @@ Student:
 
 Expiration:
 `explicit teacher end OR 60 continuous minutes with zero teacher and zero student presence`.
-
-
-### Production completion — 2026-09-23
-
-- COG PR #47 merged as `7ee3af882ccebbec0514d2cc29ed58b224c9ae46`; production workflows `35942782489` and `35942782493` GREEN.
-- YouTeach PR #15 merged as `f11d83cc7d2a49bdbfee576c8b202c5f669672b2`; production workflow `35942862101` GREEN.
-- Task 17 is complete.
