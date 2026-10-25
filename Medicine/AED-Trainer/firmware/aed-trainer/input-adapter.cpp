@@ -37,57 +37,105 @@ bool ShockButtonDebouncer::consumePress() {
   return pending;
 }
 
+
+void ThreeButtonController::settle(
+    Button& button, bool pressed, std::uint32_t nowMs) {
+  if (!button.initialized) {
+    button.initialized = true;
+    button.raw = pressed;
+    button.stable = pressed;
+    button.changedAt = nowMs;
+    return;
+  }
+  if (button.raw != pressed) {
+    button.raw = pressed;
+    button.changedAt = nowMs;
+  }
+  if (button.stable != button.raw &&
+      (nowMs - button.changedAt) >= 35U) {
+    button.stable = button.raw;
+  }
+}
+
+void ThreeButtonController::update(
+    bool menuPressed, bool okPressed, bool shockPressed,
+    std::uint32_t nowMs) {
+  const bool wasMenu = menu_.stable;
+  const bool wasOk = ok_.stable;
+  const bool wasShock = shock_.stable;
+  settle(menu_, menuPressed, nowMs);
+  settle(ok_, okPressed, nowMs);
+  settle(shock_, shockPressed, nowMs);
+
+  if (!wasShock && shock_.stable) pendingShock_ = true;
+
+  if (menu_.stable && ok_.stable) {
+    suppressMenu_ = true;
+    suppressOk_ = true;
+    if (!comboActive_) {
+      comboActive_ = true;
+      comboConsumed_ = false;
+      comboStartedAt_ = nowMs;
+    } else if (!comboConsumed_ &&
+               (nowMs - comboStartedAt_) >= 3000U) {
+      pendingReset_ = true;
+      comboConsumed_ = true;
+    }
+  } else {
+    comboActive_ = false;
+  }
+
+  if (wasMenu && !menu_.stable) {
+    if (!suppressMenu_) pendingMenu_ = true;
+    suppressMenu_ = false;
+  }
+  if (wasOk && !ok_.stable) {
+    if (!suppressOk_) pendingOk_ = true;
+    suppressOk_ = false;
+  }
+}
+
+bool ThreeButtonController::takeMenu() {
+  const bool yes = pendingMenu_;
+  pendingMenu_ = false;
+  return yes;
+}
+bool ThreeButtonController::takeOk() {
+  const bool yes = pendingOk_;
+  pendingOk_ = false;
+  return yes;
+}
+bool ThreeButtonController::takeShock() {
+  const bool yes = pendingShock_;
+  pendingShock_ = false;
+  return yes;
+}
+bool ThreeButtonController::takeReset() {
+  const bool yes = pendingReset_;
+  pendingReset_ = false;
+  return yes;
+}
+
 void InputAdapter::begin() {
 #ifdef ARDUINO
+  pinMode(HardwareConfig::MENU_BUTTON, INPUT_PULLUP);
+  pinMode(HardwareConfig::OK_BUTTON, INPUT_PULLUP);
   pinMode(HardwareConfig::SHOCK_BUTTON, INPUT_PULLUP);
-  pinMode(HardwareConfig::START_BUTTON, INPUT_PULLUP);
-  pinMode(HardwareConfig::MODE_BUTTON, INPUT_PULLUP);
-  pinMode(HardwareConfig::PADS_BUTTON, INPUT_PULLUP);
-  pinMode(HardwareConfig::RESET_BUTTON, INPUT_PULLUP);
 #endif
 }
 
-bool InputAdapter::shockPressed() {
+void InputAdapter::poll() {
 #ifdef ARDUINO
-  return shockDebouncer_.update(
-      digitalRead(HardwareConfig::SHOCK_BUTTON) == LOW, millis());
-#else
-  return false;
+  buttons_.update(
+      digitalRead(HardwareConfig::MENU_BUTTON) == LOW,
+      digitalRead(HardwareConfig::OK_BUTTON) == LOW,
+      digitalRead(HardwareConfig::SHOCK_BUTTON) == LOW,
+      millis());
 #endif
 }
 
-bool InputAdapter::startPressed() {
-#ifdef ARDUINO
-  return startDebouncer_.update(
-      digitalRead(HardwareConfig::START_BUTTON) == LOW, millis());
-#else
-  return false;
-#endif
-}
-
-bool InputAdapter::modePressed() {
-#ifdef ARDUINO
-  return modeDebouncer_.update(
-      digitalRead(HardwareConfig::MODE_BUTTON) == LOW, millis());
-#else
-  return false;
-#endif
-}
-
-bool InputAdapter::padsPressed() {
-#ifdef ARDUINO
-  return padsDebouncer_.update(
-      digitalRead(HardwareConfig::PADS_BUTTON) == LOW, millis());
-#else
-  return false;
-#endif
-}
-
-bool InputAdapter::resetPressed() {
-#ifdef ARDUINO
-  return resetDebouncer_.update(
-      digitalRead(HardwareConfig::RESET_BUTTON) == LOW, millis());
-#else
-  return false;
-#endif
-}
+bool InputAdapter::shockPressed() { return buttons_.takeShock(); }
+bool InputAdapter::startPressed() { return buttons_.takeOk(); }
+bool InputAdapter::modePressed() { return buttons_.takeMenu(); }
+bool InputAdapter::padsPressed() { return buttons_.takeOk(); }
+bool InputAdapter::resetPressed() { return buttons_.takeReset(); }
