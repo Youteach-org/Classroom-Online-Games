@@ -1,0 +1,63 @@
+name: Oral Grader Gemini audio diagnostic
+
+on:
+  push:
+    branches:
+      - feature/oral-grader-v1-20260922
+    paths:
+      - .github/workflows/og-api-diagnostic.yml
+
+permissions:
+  contents: read
+
+jobs:
+  gemini-audio-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'google-genai>=1.30'
+      - name: Diagnose model and audio API without student audio
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os, time, wave
+          from google import genai
+          from google.genai import types
+          client=genai.Client(api_key=os.environ['GEMINI_API_KEY'])
+          try:
+              models=[m.name for m in client.models.list() if 'generateContent' in (m.supported_actions or [])]
+              print('MODELS', models[:30], flush=True)
+          except Exception as e:
+              print('LIST_ERROR',type(e).__name__,getattr(e,'code',None),flush=True)
+          try:
+              r=client.models.generate_content(model='gemini-2.5-flash', contents='Reply with the word OK.')
+              print('TEXT_OK',bool(r.text),flush=True)
+          except Exception as e:
+              print('TEXT_ERROR',type(e).__name__,getattr(e,'code',None),flush=True)
+          with wave.open('/tmp/oral-diagnostic.wav','wb') as w:
+              w.setnchannels(1);w.setsampwidth(2);w.setframerate(16000)
+              w.writeframes(b'\x00\x00'*16000*3)
+          try:
+              uploaded=client.files.upload(file='/tmp/oral-diagnostic.wav')
+              print('UPLOAD',str(uploaded.state),flush=True)
+              for _ in range(30):
+                  if str(uploaded.state).endswith('ACTIVE'):break
+                  time.sleep(2)
+                  uploaded=client.files.get(name=uploaded.name)
+              print('FINAL_FILE_STATE',str(uploaded.state),flush=True)
+              try:
+                  r=client.models.generate_content(model='gemini-2.5-flash',contents=['Reply OK.',types.Part.from_uri(file_uri=uploaded.uri,mime_type=uploaded.mime_type)])
+                  print('AUDIO_OK',bool(r.text),flush=True)
+              except Exception as e:
+                  print('AUDIO_ERROR',type(e).__name__,getattr(e,'code',None),flush=True)
+              finally:
+                  client.files.delete(name=uploaded.name)
+          except Exception as e:
+              print('UPLOAD_ERROR',type(e).__name__,getattr(e,'code',None),flush=True)
+          client.close()
+          PY
