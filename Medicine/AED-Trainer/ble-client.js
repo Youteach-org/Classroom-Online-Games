@@ -110,7 +110,7 @@ export function createBleClient({ bluetooth }) {
         const data = await characteristics.volume.readValue();
         const raw = new TextDecoder().decode(
           new Uint8Array(data.buffer, data.byteOffset, data.byteLength));
-        if (/^\\d{1,3}$/.test(raw)) {
+        if (/^\d{1,3}$/.test(raw)) {
           const percent = Number(raw);
           if (percent <= 100) emit("volume", { percent });
         }
