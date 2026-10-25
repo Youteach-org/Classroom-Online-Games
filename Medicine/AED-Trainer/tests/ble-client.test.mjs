@@ -6,7 +6,8 @@ import {
   DEVICE_STATUS_UUID,
   TRAINER_STATE_UUID,
   INSTRUCTOR_COMMAND_UUID,
-  EVENT_STREAM_UUID
+  EVENT_STREAM_UUID,
+  VOLUME_UUID
 } from "../ble-protocol.js";
 import { createBleClient } from "../ble-client.js";
 
@@ -186,4 +187,24 @@ test("event sequence namespace is reset after authoritative reconnect", async ()
 
   assert.equal(events.filter((e) => e.kind === "event" && e.message.seq === 1).length, 2);
   assert.ok(events.some((e) => e.kind === "event" && e.message.event === "AFTER_REBOOT"));
+});
+
+test("teacher volume reads 100% and writes only values from 0 to 100", async () => {
+  const rig = makeRig();
+  rig.chars.set(VOLUME_UUID, new FakeCharacteristic("100"));
+  const client = createBleClient({ bluetooth: rig.bluetooth });
+  const events = [];
+  client.subscribe((event) => events.push(event));
+  await client.scanAndConnect();
+
+  assert.ok(events.some((event) => event.kind === "volume" && event.message.percent === 100));
+  await client.setVolume(38);
+  assert.equal(
+    new TextDecoder().decode(rig.chars.get(VOLUME_UUID).writes[0]),
+    "38"
+  );
+  await assert.rejects(() => client.setVolume(101), /volume|volumen|range/i);
+  await assert.rejects(() => client.setVolume(-1), /volume|volumen|range/i);
+  rig.device.disconnectNow();
+  await assert.rejects(() => client.setVolume(50), /ready|conectado/i);
 });
