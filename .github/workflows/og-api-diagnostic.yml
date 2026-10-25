@@ -34,11 +34,14 @@ jobs:
               print('MODELS', models[:30], flush=True)
           except Exception as e:
               print('LIST_ERROR',type(e).__name__,getattr(e,'code',None),flush=True)
-          try:
-              r=client.models.generate_content(model='gemini-2.5-flash', contents='Reply with the word OK.')
-              print('TEXT_OK',bool(r.text),flush=True)
-          except Exception as e:
-              print('TEXT_ERROR',type(e).__name__,getattr(e,'code',None),flush=True)
+          model=None
+          for candidate in ['gemini-3.1-flash-lite','gemini-3-flash-preview','gemini-flash-latest','gemini-2.5-flash-lite','gemini-2.5-flash']:
+              try:
+                  r=client.models.generate_content(model=candidate, contents='Reply with the word OK.')
+                  print('TEXT_OK',candidate,bool(r.text),flush=True)
+                  if model is None:model=candidate
+              except Exception as e:
+                  print('TEXT_ERROR',candidate,type(e).__name__,getattr(e,'code',None),str(e)[:180],flush=True)
           with wave.open('/tmp/oral-diagnostic.wav','wb') as w:
               w.setnchannels(1);w.setsampwidth(2);w.setframerate(16000)
               w.writeframes(b'\x00\x00'*16000*3)
@@ -51,10 +54,10 @@ jobs:
                   uploaded=client.files.get(name=uploaded.name)
               print('FINAL_FILE_STATE',str(uploaded.state),flush=True)
               try:
-                  r=client.models.generate_content(model='gemini-2.5-flash',contents=['Reply OK.',types.Part.from_uri(file_uri=uploaded.uri,mime_type=uploaded.mime_type)])
-                  print('AUDIO_OK',bool(r.text),flush=True)
+                  r=client.models.generate_content(model=model or 'gemini-3.1-flash-lite',contents=['Reply OK.',types.Part.from_uri(file_uri=uploaded.uri,mime_type=uploaded.mime_type)])
+                  print('AUDIO_OK',model,bool(r.text),flush=True)
               except Exception as e:
-                  print('AUDIO_ERROR',type(e).__name__,getattr(e,'code',None),flush=True)
+                  print('AUDIO_ERROR',model,type(e).__name__,getattr(e,'code',None),str(e)[:180],flush=True)
               finally:
                   client.files.delete(name=uploaded.name)
           except Exception as e:
