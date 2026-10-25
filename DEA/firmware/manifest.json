@@ -1,0 +1,85 @@
+{
+  "version": "2026.10.24-three-buttons-1",
+  "files": [
+    {
+      "path": "DEA_Programa_Completo.ino",
+      "sha256": "f171860e85548e333b912c057db9c0682402129a2fed9db3e886cda08d467aed"
+    },
+    {
+      "path": "Voz_0.h",
+      "sha256": "d3c118ad6ca012b9751de52fa9d1a2a295fbd39c8e67eb7e36b2396f76c73eae"
+    },
+    {
+      "path": "Voz_1.h",
+      "sha256": "c8237e44a0c9f79a23339ed72e0e96cbb4be22462be0f8d03be72f1e00f2de4d"
+    },
+    {
+      "path": "Voz_2.h",
+      "sha256": "08187b2b003b524f4c24c31c5eff08ee668ea7bff8382c1b446f42c21db01bac"
+    },
+    {
+      "path": "Voz_3.h",
+      "sha256": "648091955cec737463a067fef8c4899ed6f9b3ee1105f3b70e65694a56f7eb74"
+    },
+    {
+      "path": "Voz_4.h",
+      "sha256": "14d8f9661d94312bb70f01a9fda54cd88f653fd09cc13036b4a581b57592c9ae"
+    },
+    {
+      "path": "Voz_5.h",
+      "sha256": "3781073bfdb2344ed9ede0ec2268e9f333029f857cff832ab231af45c4a8f952"
+    },
+    {
+      "path": "Voz_6.h",
+      "sha256": "a6a6218dd1922406227e4ae6213c656a60683fb037d95d87f738cada782"
+    },
+    {
+      "path": "Voz_7.h",
+      "sha256": "438cebf795b00f065cd232f61c14cdcc0cce24a85a5f6f94835f9d5902cd8260"
+    },
+    {
+      "path": "Voz_8.h",
+      "sha256": "6eb5a661f0cebe5193be0f27e135b51bee6b27bd03cf9a638591d69b756f0ac3"
+    },
+    {
+      "path": "Voz_9.h",
+      "sha256": "981b449fa62e5e57449f0a80101d1b206af5c9dd757a8180affae8818f804e34"
+    },
+    {
+      "path": "Voz_10.h",
+      "sha256": "bd309673ac7f68618f3bdf162d39e187b9f8f4d88fc75787c8a55002b826f27c"
+    },
+    {
+      "path": "Voz_11.h",
+      "sha256": "e760d240ca4b0d850eeee1408054a6dbdc1d1eefbbd1046561e4b7e9a77e22ff"
+    },
+    {
+      "path": "Voz_12.h",
+      "sha256": "42c30ea63448b8742d6121da4183924592c0861b8520f529c3efe1b95e29c10c"
+    },
+    {
+      "path": "Voz_13.h",
+      "sha256": "f65333785532d94f5b9c3e91e3b3e12947e4ae23dbb1738bf39ff17082f98f23"
+    },
+    {
+      "path": "Voz_14.h",
+      "sha256": "c7a23b2b86e4b52d47c16789e6ecea7be334b6050412b8c64f3feff95696933e"
+    },
+    {
+      "path": "Voz_15.h",
+      "sha256": "4fa04d991bda1d2a0aaa4aaa599985c69a0fa9268b7a85e6e769f2f612129a72"
+    },
+    {
+      "path": "Voz_16.h",
+      "sha256": "53b8b1b14b16df4665b0f030542d261ae35794f42838a49cd0aa63baea629283"
+    },
+    {
+      "path": "Voz_17.h",
+      "sha256": "41a843c04fcff6c3f7f6180c79725529624f7a063edbbd8bd01d7520353c9b15"
+    },
+    {
+      "path": "Voz_18.h",
+      "sha256": "195d920ec2e9b4ab2da54f0baa2709077e38b67de62b8a9d49e9405ba7d373d9"
+    }
+  ]
+}
