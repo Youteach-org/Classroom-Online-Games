@@ -1,4 +1,4 @@
-# DEA V15 — placa real, pinout y planificación de soldadura
+# DEA V15 — placa real, pinout de firmware corregido y soldadura
 
 Fecha: 2026-10-25. Proyecto educativo, ESP32-S3 + TFT ST7735 + MAX98357A.
 
@@ -37,7 +37,7 @@ P2, de arriba hacia abajo con USB-C abajo:
 
 **Reservas para esta placa:** no usar GPIO35/36/37 en módulos que usan la interfaz octal interna; evitar GPIO0, GPIO45 y GPIO46 en diseño de nuevos botones/funciones (arranque/strapping, GPIO46 con limitaciones); reservar 19/20 para USB nativo, 43/44 para UART y 48 para LED RGB. GPIO39–42 también tienen función JTAG: al reasignarlos como GPIO periféricos no podrá utilizarse JTAG externo simultáneamente.
 
-## Pinout ACTIVO y probado parcialmente — V15 compilada 2026-10-25
+## Pinout comprobado en pantalla (EXE anterior) — no confundir con corrección pendiente
 
 Este es el que **ya hace funcionar la pantalla física del usuario** y coincide con `firmware/aed-trainer/hardware-config.h` en la rama de restauración. **No cambiar la pantalla sin necesidad.**
 
@@ -59,9 +59,9 @@ Este es el que **ya hace funcionar la pantalla física del usuario** y coincide 
 
 Alimentación: todas las tierras deben ser comunes. Las notas históricas registran TFT VCC=5 V y BL=3V3, mientras una respuesta posterior sugería VCC=3V3; la pantalla *ya funciona* y no se comprobó aquí el VCC exacto. **Conservar la alimentación que está funcionando y verificar la serigrafía del módulo antes de soldar definitivamente; no presumir VCC.** Históricamente el MAX98357A se conectó VIN=5V, SD=3V3, GAIN=GND, GND común y SPK± a la bocina; su DIN GPIO17 se desconectó accidentalmente en una prueba y al reconectarlo el audio funcionó.
 
-## Propuesta de distribución para soldadura — aún NO activa
+## Pinout corregido en GitHub — MAX a P2; EXE aún pendiente de validación visual
 
-Objetivo: mantener intactas las cinco señales TFT funcionales en P1 y trasladar MAX98357A y botones a P2. Se eligieron GPIO expuestos, lejos de las líneas de flash/PSRAM y del USB nativo.
+Decisión explícita: mantener los **cinco GPIO de pantalla** y los **tres botones** en P1, sin alterar cables. **Mover solo BCLK/LRC/DIN del MAX98357A** a P2. El `hardware-config.h` de esta rama ya usa GPIO42/41/40, mientras el EXE estable anterior todavía usa 15/16/17. La prueba de sonido en la placa física todavía no se ha realizado.
 
 | Señal | GPIO actual | GPIO propuesto | Posición en hilera |
 |---|---:|---:|---|
@@ -73,16 +73,18 @@ Objetivo: mantener intactas las cinco señales TFT funcionales en P1 y trasladar
 | MAX BCLK | 15 | **42** | P2-6 |
 | MAX LRC | 16 | **41** | P2-7 |
 | MAX DIN | 17 | **40** | P2-8 |
-| Botón MENU | 4 | **1** | P2-4 |
-| Botón OK | 5 | **2** | P2-5 |
-| Botón SHOCK | 18 | **21** | P2-18 |
+| Botón MENU | 4 | **4** | P1-4 |
+| Botón OK | 5 | **5** | P1-5 |
+| Botón SHOCK | 18 | **18** | P1-11 |
 
-**Estado:** este segundo cuadro es un **plan físico**, no el pinout del EXE publicado. No soldar los cambios de P2 ni grabar firmware que espere P2 hasta aprobar la distribución y actualizar/compilar/verificar `hardware-config.h`. Cambiar GPIO en el hardware sin actualizar el software haría dejar de funcionar audio y botones; modificar software sin mover cables, lo mismo.
+**Estado:** corrección realizada en código fuente, aún no desplegada al EXE estable. Se requieren tres cables de señal MAX BCLK→GPIO42 (P2-6), LRC/WS→GPIO41 (P2-7), DIN→GPIO40 (P2-8); alimentación MAX VIN=5V, SD=3V3, GAIN=GND y tierra común conservadas. **Revisar que SPK+ y SPK− se conecten a los terminales reales de la bocina.** Si se mueve el cable antes de grabar firmware con pinout P2, no habrá audio.
+
+**Diagnóstico sin sonido:** el firmware anterior ejecuta tono de autoprueba al arrancar incluso cuando no logra montar LittleFS. `SPEAKER_SELF_TEST_OK` solo confirma escritura digital I2S, no demuestra sonido físicamente audible. Comprobar continuidad de DIN/WS/BCLK, alimentación MAX y conexiones de SPK±; los registros `AUDIO_FS_READY` y `AUDIO_MISSING` permiten distinguir archivos de cableado. No declarar el sonido corregido hasta oírlo en la placa.
 
 ## Reglas del proyecto
 
 1. Antes de cada cambio, consultar este documento y el `hardware-config.h` efectivo de la misma versión.
-2. Preservar la TFT ya funcional, los 32 gráficos, las 65 pistas, la música de RCP y el volumen inicial de audio de 100 %.
+2. Preservar la TFT ya funcional y el volumen inicial de audio de 100 %; **no considerar aprobados los 32 gráficos de la compilación previa**: requieren revisión de contenido/encuadre y calidad visible antes de publicación. Conservar las 65 pistas y música de RCP mientras se comprueba su funcionamiento.
 3. Toda propuesta debe distinguir explícitamente pines **ACTIVOS** de pines **PROPUESTOS** y el costado físico P1/P2.
-4. Registrar cambios en GitHub **antes de reemplazar el EXE estable**; verificar compilación e imagen LittleFS y luego la ejecución en Windows.
+4. Registrar cambios en GitHub **antes de reemplazar el EXE estable**; verificar compilación, imagen LittleFS y vista previa de todas las pantallas. La publicación estable requiere paso manual separado para evitar desplegar imágenes rechazadas.
 5. Evitar nuevas descargas de componentes en la computadora del usuario; empaquetar en GitHub Actions. Mantener EXE permanente con acceso directo.
