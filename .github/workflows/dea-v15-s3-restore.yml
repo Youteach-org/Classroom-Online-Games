@@ -273,6 +273,8 @@ jobs:
           }
 
   publish-corrected-stable:
+    # La rama de trabajo solo compila y prueba. Publicacion tras revision visual.
+    if: github.event_name == 'workflow_dispatch'
     needs: smoke-test-windows
     runs-on: ubuntu-latest
     permissions:
