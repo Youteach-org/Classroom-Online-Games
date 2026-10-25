@@ -43,9 +43,7 @@ const PHRASAL=[
   ['COME BACK',1,'return to a place'],
   ['GO OUT',1,'leave home or stop burning/shining'],
   ['GROW UP',1,'develop from a child into an adult'],
-  ['CARRY ON',2,'continue doing something'],
-  ['KEEP UP',1,'continue at the same pace or maintain a level'],
-  ['KEEP IN',2,'make someone stay indoors or remain inside']
+  ['CARRY ON',2,'continue doing something']
 ];
 
 const COLLOCATIONS=[
@@ -65,7 +63,6 @@ const COLLOCATIONS=[
   ['HAVE BREAKFAST',1,'eat the morning meal'],
   ['HAVE FUN',1,'enjoy an activity'],
   ['HAVE A LOOK',1,'look at something briefly'],
-  ['HAVE AN OPINION',1,'hold or express a personal view'],
   ['HEAVY RAIN',1,'rain that falls strongly'],
   ['STRONG COFFEE',1,'coffee with an intense flavor or effect'],
   ['FAST FOOD',1,'quickly prepared commercial food'],

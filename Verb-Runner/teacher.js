@@ -1,10 +1,4 @@
-import {createSession,subscribeSessions,subscribeFreeRunners,closeSession} from './session-sync.js?v=live-cog-session-20260920';
-import {
-  loadTeacherContext,
-  registerLiveGameSession,
-  endLiveGameSession,
-  heartbeatTeacher
-} from '../shared/youteach-live-bridge.mjs';
+import {createSession,subscribeSessions,subscribeFreeRunners,closeSession} from './session-sync.js?v=youteach-credentials-20260915-1';
 
 const $=id=>document.getElementById(id);
 const esc=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
@@ -15,58 +9,6 @@ let freeRunners={};
 let active='all';
 let focusId=null;
 let hideOffline=false;
-
-function currentYouTeachContext(){
-  return loadTeacherContext();
-}
-
-function sessionMatchesCurrentYouTeachContext(session,teacherContext=currentYouTeachContext()){
-  const integration=session?.integration||{};
-  const liveContext=teacherContext?.liveContext||{};
-  return Boolean(
-    teacherContext &&
-    session?.status==='active' &&
-    integration.source==='youteach-buzzer' &&
-    String(integration.groupName||'')===String(liveContext.groupName||'') &&
-    String(integration.youTeachSessionId||'')===String(liveContext.youTeachSessionId||'') &&
-    String(integration.assignmentId||'')===String(liveContext.assignmentId||'')
-  );
-}
-
-function matchingYouTeachSessionCode(){
-  const teacherContext=currentYouTeachContext();
-  if(!teacherContext)return '';
-  return Object.entries(sessions)
-    .filter(([,session])=>sessionMatchesCurrentYouTeachContext(session,teacherContext))
-    .sort((a,b)=>Number(b[1]?.createdAt||0)-Number(a[1]?.createdAt||0))[0]?.[0]||'';
-}
-
-let teacherHeartbeatBusy=false;
-async function sendYouTeachTeacherHeartbeat(){
-  const teacherContext=currentYouTeachContext();
-  const session=sessions[active];
-  if(
-    teacherHeartbeatBusy||
-    !teacherContext||
-    active==='all'||
-    active==='free'||
-    !sessionMatchesCurrentYouTeachContext(session,teacherContext)
-  )return;
-
-  teacherHeartbeatBusy=true;
-  try{
-    await heartbeatTeacher({teacherContext,cogSessionId:active});
-  }catch(error){
-    console.error('YouTeach teacher heartbeat failed',error);
-    if(Number(error?.status)===410){
-      $('teacherNotice').textContent='This YouTeach activity expired after 60 minutes with no teacher or students present.';
-      active='all';
-      refresh();
-    }
-  }finally{
-    teacherHeartbeatBusy=false;
-  }
-}
 
 function difficulty(){
   return document.querySelector('input[name="difficulty"]:checked')?.value||'medium';
@@ -323,36 +265,15 @@ $('sessionList').addEventListener('click',event=>{
 $('createSession').addEventListener('click',async()=>{
   $('teacherNotice').textContent='';
   $('createSession').disabled=true;
-  let code='';
   try{
-    const teacherContext=currentYouTeachContext();
-    code=await createSession(readSettings(),teacherContext);
-
-    if(teacherContext){
-      try{
-        await registerLiveGameSession({
-          teacherContext,
-          gameId:'verb-runner',
-          gameName:'Verb Runner',
-          cogSessionId:code
-        });
-        active=code;
-        await heartbeatTeacher({teacherContext,cogSessionId:code});
-      }catch(error){
-        await closeSession(code).catch(()=>{});
-        throw error;
-      }
-    }
-
+    const code=await createSession(readSettings());
     active=code;
     focusId=null;
     openSettings(false);
-    $('teacherNotice').textContent=teacherContext
-      ?'Session '+code+' created for YouTeach group '+teacherContext.liveContext.groupName+'.'
-      :'Session '+code+' created in standalone mode.';
+    $('teacherNotice').textContent='Session '+code+' created.';
   }catch(err){
     console.error(err);
-    $('teacherNotice').textContent=err?.message||'Could not create the session.';
+    $('teacherNotice').textContent='Could not create the session. Firebase rejected or could not reach the request.';
   }finally{
     $('createSession').disabled=false;
   }
@@ -361,30 +282,14 @@ $('createSession').addEventListener('click',async()=>{
 $('closeSession').addEventListener('click',async()=>{
   if(active==='all'||active==='free'||!sessions[active])return;
   const code=active;
-  const session=sessions[code]||{};
-  const isYouTeachLive=session?.integration?.source==='youteach-buzzer';
-
-  if(isYouTeachLive){
-    const confirmed=confirm('End this activity for the group? Students will no longer be able to enter.');
-    if(!confirmed)return;
-  }
-
   try{
-    if(isYouTeachLive){
-      const teacherContext=currentYouTeachContext();
-      if(!teacherContext){
-        throw new Error('Reopen Classroom Online Games from YouTeach Buzzer before ending this group activity.');
-      }
-      await endLiveGameSession({teacherContext,cogSessionId:code});
-    }
-
     await closeSession(code);
     active='all';
     focusId=null;
     $('teacherNotice').textContent='Session '+code+' ended.';
   }catch(err){
     console.error(err);
-    $('teacherNotice').textContent=err?.message||'Could not end the selected session.';
+    $('teacherNotice').textContent='Could not end the selected session.';
   }
 });
 
@@ -401,8 +306,6 @@ $('copyLink').addEventListener('click',async()=>{
 subscribeSessions(
   data=>{
     sessions=data||{};
-    const matchingCode=matchingYouTeachSessionCode();
-    if(matchingCode&&(active==='all'||active==='free'))active=matchingCode;
     $('monitorDot').classList.add('live');
     $('connectionState').textContent='Firebase Live';
     refresh();
@@ -431,5 +334,4 @@ subscribeFreeRunners(
 );
 
 setInterval(()=>renderStudents(),15000);
-setInterval(()=>{sendYouTeachTeacherHeartbeat().catch(()=>{});},25000);
 refresh();

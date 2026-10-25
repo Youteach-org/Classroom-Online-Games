@@ -1,34 +1,44 @@
-import { areSwapNeighbors, cloneBoard, createBoard } from './board.mjs';
-import { canonicalTileToken, createRelationshipBank } from './relationship-bank.mjs';
+import { createBoard, areAdjacent } from './board.mjs';
 import { findMatches, findCrossings } from './matcher.mjs';
 import { resolvePlayerActivation, CascadeLimitError } from './resolution.mjs';
 import {
   findImmediateScoringMoves,
-  createControlledBoard,
   recoverDeadBoard,
-  selectRelationshipNeighborhood
+  createControlledBoard
 } from './generator.mjs';
 import { captureMissedOpportunity, buildRoundReview } from './review.mjs';
 import { createTelemetryStore } from './telemetry.mjs';
 import { buildResolutionEvents } from './resolution-events.mjs';
-import { buildRelationshipBag, chooseRefillWord, DEFAULT_REFILL_PROFILE } from './refill.mjs';
 
 const DISCOVERED_KEY='wordy.prototype.discovered.v1';
 
-function cloneMatch(match){
-  return {...match,tileIds:[...(match.tileIds??[])],tokens:[...(match.tokens??[])]};
+function cloneBoard(board){
+  return board.map(row=>row.map(tile=>tile==null?null:{...tile}));
 }
+
+function cloneMatch(match){
+  return {
+    ...match,
+    cells:(match.cells??[]).map(cell=>({...cell})),
+    tokens:[...(match.tokens??[])]
+  };
+}
+
 function readDiscovered(storage){
   if(!storage?.getItem)return new Set();
-  try{const value=JSON.parse(storage.getItem(DISCOVERED_KEY)||'[]');return new Set(Array.isArray(value)?value:[]);}catch{return new Set();}
+  try{
+    const value=JSON.parse(storage.getItem(DISCOVERED_KEY)||'[]');
+    return new Set(Array.isArray(value)?value:[]);
+  }catch{
+    return new Set();
+  }
 }
-function persistDiscovered(storage,ids){if(!storage?.setItem)return;try{storage.setItem(DISCOVERED_KEY,JSON.stringify([...ids]));}catch{}}
-function sameSwap(a,b){
-  return !!a&&!!b&&(
-    (a.fromTileId===b.fromTileId&&a.toTileId===b.toTileId)||
-    (a.fromTileId===b.toTileId&&a.toTileId===b.fromTileId)
-  );
+
+function persistDiscovered(storage,ids){
+  if(!storage?.setItem)return;
+  try{ storage.setItem(DISCOVERED_KEY,JSON.stringify([...ids])); }catch{ /* non-fatal */ }
 }
+
 function objectiveComplete(level,state){
   switch(level.goal?.type){
     case 'score': return state.score>=level.goal.target;
@@ -36,87 +46,106 @@ function objectiveComplete(level,state){
     case 'cascade': return state.bestCascade>=level.goal.target;
     case 'long-relation': return state.longestRelation>=level.goal.target;
     case 'cross': return state.crossCount>=level.goal.target;
-    default:return false;
+    default: return false;
   }
 }
 
-export function createGameController({bank,levels,initialLevelId,rng=Math.random,storage=null,refillWord=null}={}){
+function inside(board,cell){
+  return Number.isInteger(cell?.row)&&Number.isInteger(cell?.col)&&
+    cell.row>=0&&cell.row<board.length&&cell.col>=0&&cell.col<board[0].length;
+}
+
+function sameCell(a,b){
+  return a?.row===b?.row&&a?.col===b?.col;
+}
+
+function sameSwap(a,b){
+  if(!a||!b)return false;
+  return (sameCell(a.from,b.from)&&sameCell(a.to,b.to))||
+    (sameCell(a.from,b.to)&&sameCell(a.to,b.from));
+}
+
+function boardWords(board){
+  return new Set(board.flatMap(row=>row.map(tile=>tile?.word).filter(Boolean)));
+}
+
+function contextualWords(board,bank){
+  const present=boardWords(board);
+  const connected=[];
+  const fallback=[];
+  for(const relation of bank.byId.values()){
+    fallback.push(...relation.tokens);
+    if(relation.tokens.some(token=>present.has(token)))connected.push(...relation.tokens);
+  }
+  return connected.length?connected:fallback;
+}
+
+export function createGameController({
+  bank,
+  levels,
+  initialLevelId,
+  rng=Math.random,
+  storage=null,
+  refillWord=null
+}){
   if(!bank?.byId)throw new Error('relationship bank is required');
   if(!Array.isArray(levels)||levels.length===0)throw new Error('levels are required');
-
   const telemetry=createTelemetryStore({storage});
   const listeners=new Set();
   const discoveredIds=readDiscovered(storage);
   let refillCounter=0;
   let levelIndex=Math.max(0,levels.findIndex(level=>level.id===initialLevelId));
+  if(levelIndex<0)levelIndex=0;
   let currentLevel=null;
   let state=null;
   let roundNewIds=new Set();
-  let activeRelationshipIds=[];
-  let roundBank=bank;
-  let refillBag=[];
 
   function snapshot(){
     return {
       ...state,
       board:cloneBoard(state.board),
       readyMatches:state.readyMatches.map(cloneMatch),
-      activeRelationshipIds:[...(state.activeRelationshipIds??[])],
       discoveredIds:new Set(state.discoveredIds),
-      missedOpportunities:state.missedOpportunities.map(item=>({
-        ...item,
-        boardSnapshot:item.boardSnapshot?cloneBoard(item.boardSnapshot):undefined,
-        suggestedSwap:item.suggestedSwap?{...item.suggestedSwap}:undefined
-      })),
-      review:state.review?{newLearning:[...(state.review.newLearning??[])],missed:[...(state.review.missed??[])]}:null
+      missedOpportunities:state.missedOpportunities.map(item=>({...item})),
+      review:state.review?{
+        newLearning:[...(state.review.newLearning??[])],
+        missed:[...(state.review.missed??[])]
+      }:null
     };
   }
 
-  function emit(){const view=snapshot();for(const listener of listeners)listener(view);}
-
-  function chooseActiveRelationships(level){
-    if(Array.isArray(level.relationshipIds)&&level.relationshipIds.length){
-      return [...new Set(level.relationshipIds)];
-    }
-    if(!level.generated)return [...bank.byId.keys()];
-    return selectRelationshipNeighborhood({
-      bank,
-      rng,
-      size:level.relationshipPoolSize??16,
-      requiredRelationshipIds:level.requiredRelationshipIds??[],
-      categoryWeights:level.categoryWeights??{}
-    });
+  function emit(){
+    const view=snapshot();
+    for(const listener of listeners)listener(view);
   }
 
-  function generatedBoard(level){
-    return createControlledBoard({
-      bank,
-      rows:level.rows??7,
-      columns:level.columns??7,
-      rng,
-      minScoringMoves:level.minScoringMoves??8,
-      minProductiveRows:level.minProductiveRows??4,
-      minProductiveColumns:level.minProductiveColumns??4,
-      minRelationshipCoverage:level.minRelationshipCoverage??0.85,
-      minUniqueWords:level.minUniqueWords??0,
-      maxTokenCopies:level.maxTokenCopies??2,
-      relationshipIds:activeRelationshipIds,
-      allowStartingMatches:false
-    });
+  function fallbackBoard(){
+    const current=createBoard(currentLevel.boardRows);
+    if(findImmediateScoringMoves(current,bank).length>=2)return current;
+    for(const level of levels){
+      const candidate=createBoard(level.boardRows);
+      if(findImmediateScoringMoves(candidate,bank).length>=2)return candidate;
+    }
+    return current;
   }
 
   function initialBoard(level){
-    if(level.generated)return generatedBoard(level);
-    if(!Array.isArray(level.boardRows))throw new Error('authored level requires boardRows');
-    return createBoard(level.boardRows);
+    const authored=createBoard(level.boardRows);
+    if(!level.generated)return authored;
+    return createControlledBoard({
+      bank,
+      rows:authored.length,
+      cols:authored[0].length,
+      rng,
+      minScoringMoves:2,
+      fallbackBoard:authored
+    });
   }
 
-  function authoredFallback(){
-    if(!Array.isArray(currentLevel?.boardRows))return null;
-    return createBoard(currentLevel.boardRows);
+  function refreshReady(){
+    state.readyMatches=findMatches(state.board,bank);
   }
 
-  function refreshReady(){state.readyMatches=findMatches(state.board,bank);}
   function logReady(){
     telemetry.record('ready-change',{
       count:state.readyMatches.length,
@@ -127,45 +156,16 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
 
   function loadLevel(index,{preserveDiscoveries=true}={}){
     levelIndex=index;
-    currentLevel=levels[index];
+    currentLevel=levels[levelIndex];
     roundNewIds=new Set();
-
-    let board=null;
-    if(currentLevel.generated){
-      let lastError=null;
-      for(let attempt=0;attempt<12&&!board;attempt++){
-        activeRelationshipIds=chooseActiveRelationships(currentLevel);
-        roundBank=createRelationshipBank(activeRelationshipIds.map(id=>bank.byId.get(id)));
-        refillBag=buildRelationshipBag(roundBank,{
-          relationshipIds:activeRelationshipIds,
-          categoryWeights:currentLevel.categoryWeights??{}
-        });
-        try{
-          board=generatedBoard(currentLevel);
-        }catch(error){
-          lastError=error;
-        }
-      }
-      if(!board)throw lastError??new Error('unable to prepare generated level');
-    }else{
-      activeRelationshipIds=chooseActiveRelationships(currentLevel);
-      roundBank=createRelationshipBank(activeRelationshipIds.map(id=>bank.byId.get(id)));
-      refillBag=buildRelationshipBag(roundBank,{
-        relationshipIds:activeRelationshipIds,
-        categoryWeights:currentLevel.categoryWeights??{}
-      });
-      board=initialBoard(currentLevel);
-    }
-
     state={
       levelId:currentLevel.id,
       levelTitle:currentLevel.title,
       instruction:currentLevel.instruction,
-      board,
+      board:initialBoard(currentLevel),
       movesLeft:currentLevel.moves,
       score:0,
       readyMatches:[],
-      activeRelationshipIds:[...activeRelationshipIds],
       discoveredIds:preserveDiscoveries?new Set(discoveredIds):new Set(),
       bestBatch:0,
       bestCascade:0,
@@ -179,11 +179,8 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
       review:null
     };
     refreshReady();
-    telemetry.record('level-start',{
-      levelId:currentLevel.id,
-      moves:currentLevel.moves,
-      activeRelationshipIds:[...activeRelationshipIds]
-    });
+    telemetry.record('level-start',{levelId:currentLevel.id,moves:currentLevel.moves});
+    return state;
   }
 
   function finishRound(success){
@@ -203,25 +200,64 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     });
   }
 
-  function attemptSwap(fromTileId,toTileId){
-    const resultBase={fromTileId:String(fromTileId??''),toTileId:String(toTileId??'')};
-    if(state.phase!=='playing'||state.movesLeft<=0||!areSwapNeighbors(state.board,resultBase.fromTileId,resultBase.toTileId)){
-      return {status:'invalid',...resultBase};
-    }
+  function chooseRefillWord(){
+    if(typeof refillWord==='function')return String(refillWord({state:snapshot(),bank,rng})).trim().toUpperCase();
+    const words=contextualWords(state.board,bank);
+    if(words.length===0)return 'WORD';
+    return words[Math.floor(rng()*words.length)];
+  }
 
-    const scoringMoves=findImmediateScoringMoves(state.board,bank);
-    const chosenMove=scoringMoves.find(move=>sameSwap(move.swap,resultBase));
-    if(!chosenMove){
-      state.eventLabel='NO MATCH';
-      telemetry.record('swap-rebound',{...resultBase,movesLeft:state.movesLeft});
-      emit();
-      return {status:'rebound',...resultBase};
+  function refillTile(){
+    const word=chooseRefillWord();
+    return {id:'refill-'+(++refillCounter),word:word||'WORD'};
+  }
+
+  function recoverIfDead(){
+    const recovered=recoverDeadBoard({
+      board:state.board,
+      bank,
+      rng,
+      fallbackBoard:fallbackBoard()
+    });
+    if(recovered.reset){
+      state.board=recovered.board;
+      refreshReady();
+      telemetry.record('dead-board-reset',{levelId:state.levelId});
+      logReady();
     }
+  }
+
+  function safeCascadeRecovery(){
+    state.board=createControlledBoard({
+      bank,
+      rows:state.board.length,
+      cols:state.board[0].length,
+      rng,
+      minScoringMoves:2,
+      fallbackBoard:fallbackBoard()
+    });
+    refreshReady();
+    telemetry.record('dead-board-reset',{levelId:state.levelId,reason:'cascade-limit'});
+    logReady();
+  }
+
+  function swap(from,to){
+    if(state.phase!=='playing')return false;
+    if(!inside(state.board,from)||!inside(state.board,to)||!areAdjacent(from,to))return false;
 
     state.resolutionEvents=[];
     const previousReadyIds=new Set(state.readyMatches.map(match=>match.relationshipId));
     const previousCrossCount=findCrossings(state.readyMatches).length;
-    const missed=captureMissedOpportunity({board:state.board,scoringMoves,chosenSwap:resultBase,bank});
+    const scoringMoves=findImmediateScoringMoves(state.board,bank);
+    const chosenMove=scoringMoves.find(move=>sameSwap(move.swap,{from,to}));
+    if(!chosenMove)return false;
+
+    const missed=captureMissedOpportunity({
+      board:state.board,
+      scoringMoves,
+      chosenSwap:{from,to},
+      bank
+    });
     if(missed){
       state.missedOpportunities.push(missed);
       telemetry.record('missed-opportunity',{
@@ -242,102 +278,27 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
       ?(state.readyMatches.length>1?`READY ×${state.readyMatches.length}`:'READY')
       :'';
     telemetry.record('swap',{
-      ...resultBase,
-      movesLeft:state.movesLeft,
+      from:{...from},to:{...to},movesLeft:state.movesLeft,
       createdRelationshipIds,
       immediatelyCreatedRelationship:createdRelationshipIds.length>0
     });
-    if(createdRelationshipIds.length)telemetry.record('relationship-formed',{relationshipIds:createdRelationshipIds});
-    if(brokenRelationshipIds.length)telemetry.record('relationship-broken',{relationshipIds:brokenRelationshipIds});
-    if(nextCrossCount>previousCrossCount)telemetry.record('cross-created',{crossCount:nextCrossCount,relationshipIds:[...nextReadyIds]});
-    logReady();
-    if(state.movesLeft<=0&&state.readyMatches.length===0){
-      finishRound(objectiveComplete(currentLevel,state));
+    if(createdRelationshipIds.length){
+      telemetry.record('relationship-formed',{relationshipIds:createdRelationshipIds});
     }
+    if(brokenRelationshipIds.length){
+      telemetry.record('relationship-broken',{relationshipIds:brokenRelationshipIds});
+    }
+    if(nextCrossCount>previousCrossCount){
+      telemetry.record('cross-created',{
+        crossCount:nextCrossCount,
+        relationshipIds:[...nextReadyIds]
+      });
+    }
+    logReady();
+
+    if(state.movesLeft<=0&&state.readyMatches.length===0)finishRound(false);
     emit();
-    return {status:'accepted',...resultBase};
-  }
-
-  function refillTile({row,column,board,cascadeDepth}){
-    let word='';
-    if(typeof refillWord==='function'){
-      word=canonicalTileToken(refillWord({row,column,board,state:snapshot(),bank,rng,cascadeDepth}));
-    }
-    if(!word){
-      word=chooseRefillWord({
-        row,column,board,bank,bag:refillBag,rng,
-        profile:DEFAULT_REFILL_PROFILE,
-        maxTokenCopies:currentLevel.maxTokenCopies??2
-      });
-    }
-    return {id:'refill-'+(++refillCounter),word};
-  }
-
-  function recoverSparseGeneratedBoard(){
-    if(!currentLevel.generated)return false;
-    if(state.readyMatches.length>0)return false;
-    const moves=findImmediateScoringMoves(state.board,bank);
-    const configured=currentLevel.minScoringMoves??8;
-    const floor=Math.max(2,Math.ceil(configured/2));
-    if(moves.length>=floor)return false;
-
-    const previousCount=moves.length;
-    state.board=generatedBoard(currentLevel);
-    refreshReady();
-    telemetry.record('sparse-board-reset',{
-      levelId:state.levelId,
-      productiveMovesBefore:previousCount,
-      targetFloor:floor,
-      activeRelationshipIds:[...activeRelationshipIds]
-    });
-    logReady();
     return true;
-  }
-
-  function recoverAuthoredDeadBoard(){
-    if(currentLevel.generated)return false;
-    const fallback=authoredFallback();
-    const recovered=recoverDeadBoard({
-      board:state.board,
-      bank,
-      rng,
-      fallbackBoard:fallback,
-      minScoringMoves:4,
-      minProductiveRows:3,
-      minProductiveColumns:3
-    });
-    if(!recovered.reset)return false;
-    state.board=recovered.board;
-    refreshReady();
-    telemetry.record('dead-board-reset',{levelId:state.levelId});
-    logReady();
-    return true;
-  }
-
-  function recoverPlayableBoard(){
-    if(currentLevel.generated)return recoverSparseGeneratedBoard();
-    return recoverAuthoredDeadBoard();
-  }
-
-  function safeCascadeRecovery(){
-    if(currentLevel.generated){
-      state.board=generatedBoard(currentLevel);
-    }else{
-      state.board=createControlledBoard({
-        bank,
-        rows:state.board.rows,
-        columns:state.board.columns,
-        rng,
-        minScoringMoves:4,
-        minProductiveRows:3,
-        minProductiveColumns:3,
-        allowStartingMatches:false,
-        fallbackBoard:authoredFallback()
-      });
-    }
-    refreshReady();
-    telemetry.record('dead-board-reset',{levelId:state.levelId,reason:'cascade-limit'});
-    logReady();
   }
 
   function applyResolutionStats(result){
@@ -348,7 +309,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
       state.bestCascade=Math.max(state.bestCascade,generation.cascadeDepth??0);
       state.crossCount+=generation.score?.crossCount??0;
       for(const match of generation.matches??[]){
-        state.longestRelation=Math.max(state.longestRelation,match.tileIds?.length??0);
+        state.longestRelation=Math.max(state.longestRelation,match.cells?.length??0);
       }
       if((generation.cascadeDepth??0)>0){
         telemetry.record('cascade',{
@@ -357,6 +318,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
         });
       }
     }
+
     for(const id of result.newlyDiscoveredIds){
       discoveredIds.add(id);
       state.discoveredIds.add(id);
@@ -384,9 +346,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
       state.resolutionEvents=buildResolutionEvents(result);
       state.eventLabel=result.generations.length>1
         ?`COMBO ×${result.generations.length}`
-        :(result.generations[0]?.score?.crossCount>0
-          ?'CROSS!'
-          :(result.newlyDiscoveredIds.length?'NEW!':''));
+        :(result.generations[0]?.score?.crossCount>0?'CROSS!':(result.newlyDiscoveredIds.length?'NEW!':''));
       refreshReady();
     }catch(error){
       if(!(error instanceof CascadeLimitError)){
@@ -400,11 +360,13 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
       state.eventLabel='BOARD RESET';
     }
 
-    if(state.movesLeft<=0){
-      finishRound(objectiveComplete(currentLevel,state));
+    if(objectiveComplete(currentLevel,state)){
+      finishRound(true);
+    }else if(state.movesLeft<=0){
+      finishRound(false);
     }else{
       state.phase='playing';
-      recoverPlayableBoard();
+      recoverIfDead();
     }
     emit();
     return true;
@@ -416,6 +378,7 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     emit();
     return true;
   }
+
   function abandon(){
     if(state.phase==='result')return false;
     telemetry.record('level-abandon',{
@@ -426,12 +389,14 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
     });
     return true;
   }
+
   function next(){
     if(levelIndex>=levels.length-1)return false;
     loadLevel(levelIndex+1);
     emit();
     return true;
   }
+
   function subscribe(listener){
     if(typeof listener!=='function')throw new Error('listener must be a function');
     listeners.add(listener);
@@ -440,9 +405,10 @@ export function createGameController({bank,levels,initialLevelId,rng=Math.random
   }
 
   loadLevel(levelIndex);
+
   return {
     state:snapshot,
-    attemptSwap,
+    swap,
     pop,
     replay,
     next,
