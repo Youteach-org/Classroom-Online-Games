@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - feature/oral-grader-v1-20260922
+      - feature/oral-grader-october-retry-20261025
     paths:
       - .github/workflows/og-private-batch.yml
 
