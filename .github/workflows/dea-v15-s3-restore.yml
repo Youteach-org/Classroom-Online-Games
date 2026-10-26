@@ -293,6 +293,36 @@ jobs:
             throw "Falló la prueba autónoma del instalador V15"
           }
 
+  publish-direct-exe-preview:
+    # User-requested standalone EXE, without touching the approved stable release.
+    if: github.event_name == 'push'
+    needs: smoke-test-windows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dea-v15-s3-offline-exe
+          path: dist
+      - name: Publish preview EXE as direct download, not ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -eu
+          test -s dist/DEA_Actualizador_Permanente.exe
+          tag=dea-s3-gpio15-17-preview
+          notes="Vista preliminar ESP32-S3 con MAX98357A: BCLK GPIO15, LRC GPIO16, DIN GPIO17; TFT conserva GPIO8-12. Firmware y voz/música empaquetados. Las fotografías nuevas permanecen en revisión, no son assets autorizados. Compilación/EXE verificados por CI; el sonido y la TFT requieren prueba real en la placa. Commit: $GITHUB_SHA."
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" dist/DEA_Actualizador_Permanente.exe --clobber
+            gh release edit "$tag" --title "DEA ESP32-S3 — prueba GPIO 15/16/17" --notes "$notes" --prerelease
+          else
+            gh release create "$tag" dist/DEA_Actualizador_Permanente.exe \
+              --target "$GITHUB_SHA" --prerelease \
+              --title "DEA ESP32-S3 — prueba GPIO 15/16/17" --notes "$notes"
+          fi
+
   publish-corrected-stable:
     # La rama de trabajo solo compila y prueba. Publicacion tras revision visual.
     if: github.event_name == 'workflow_dispatch'
