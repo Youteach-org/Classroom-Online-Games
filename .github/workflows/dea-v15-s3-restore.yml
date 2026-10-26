@@ -39,7 +39,7 @@ jobs:
           python3 -m pip install Pillow
           python3 -m unittest discover \
             -s Medicine/AED-Trainer/firmware/tests \
-            -p 'test_display_jpeg_pack.py'
+            -p 'test_*.py'
       - name: Run V15 Teacher Monitor regressions compatible with ESP32-S3 TFT hardware
         shell: bash
         run: |

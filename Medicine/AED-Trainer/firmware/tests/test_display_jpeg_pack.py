@@ -11,7 +11,7 @@ from pathlib import Path
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from build_display_jpeg_pack import ASSET_KEYS, build_pack, parse_pack, build_photo_pack
+from build_display_jpeg_pack import ASSET_KEYS, PHOTO_SOURCE_BY_KEY, build_pack, parse_pack, build_photo_pack
 
 
 class DisplayJpegPackTests(unittest.TestCase):
@@ -116,15 +116,32 @@ class DisplayJpegPackTests(unittest.TestCase):
     def test_photo_pack_never_falls_back_to_old_source_or_rejected_frames(self):
         with tempfile.TemporaryDirectory() as directory:
             self.create_fixture_photos(Path(directory))
-            (Path(directory) / '05_electrodos_vista_anterior_propuesta.jpg').unlink()
-            with self.assertRaisesRegex(FileNotFoundError, '05_electrodos_vista_anterior'):
+            (Path(directory) / '05_electrodos_corregidos_nuevo.jpg').unlink()
+            with self.assertRaisesRegex(FileNotFoundError, '05_electrodos_corregidos_nuevo'):
                 build_photo_pack(Path(directory))
+
+    def test_cpr_motion_uses_distinct_source_photographs(self):
+        self.assertNotEqual(
+            PHOTO_SOURCE_BY_KEY['14_rcp_arriba.jpg'],
+            PHOTO_SOURCE_BY_KEY['15_rcp_compresion.jpg'],
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            self.create_fixture_photos(Path(directory))
+            frames = parse_pack(build_photo_pack(Path(directory)))
+            self.assertNotEqual(frames[12], frames[13], 'CPR animation must change frames')
+
+    def test_adult_pads_use_corrected_lateral_placement_photo(self):
+        self.assertEqual(PHOTO_SOURCE_BY_KEY['04_parches_adulto.jpg'],
+                         '05_electrodos_corregidos_nuevo.jpg')
+        self.assertEqual(PHOTO_SOURCE_BY_KEY['07_parches_conectados.jpg'],
+                         '05_electrodos_corregidos_nuevo.jpg')
 
     @staticmethod
     def create_fixture_photos(root):
         by_name = {
             '00_inicio.jpg': (15, 30, 180),
             '05_electrodos_vista_anterior_propuesta.jpg': (180, 20, 20),
+            '05_electrodos_corregidos_nuevo.jpg': (180, 20, 20),
             '05_parches_nino_nuevo.jpg': (20, 180, 20),
             '06_parches_lactante_nuevo.jpg': (200, 180, 20),
         }
@@ -132,6 +149,7 @@ class DisplayJpegPackTests(unittest.TestCase):
             '01_respuesta_corregida_propuesta.jpg', '02_llamar_emergencias.jpg',
             '03_comprobar_respiracion.jpg', '04_exponer_pecho.jpg',
             '06_compresiones_rcp.jpg', '07_todos_despejados_corregida_propuesta.jpg',
+            '06_rcp_retroceso_nuevo.jpg',
             '08_pulsar_descarga.jpg', '09_ventilaciones.jpg',
             '10_error_conexion.jpg', '11_ahogamiento.jpg',
         ]

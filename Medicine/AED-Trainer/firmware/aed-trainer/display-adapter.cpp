@@ -242,6 +242,32 @@ std::uint16_t caseAsset(const char* scenarioId) {
   return ASSET_CASE_A1;
 }
 
+struct LocalCaseName {
+  const char* id;
+  const char* line1;
+  const char* line2;
+};
+
+constexpr LocalCaseName kLocalCaseNames[] = {
+    { "A1", "CONVERSION CON", "UNA DESCARGA" },
+    { "A2", "RITMO DESFIBRILABLE", "PERSISTENTE" },
+    { "A3", "PROBLEMA DE CONTACTO", "ANTES DEL ANALISIS" },
+    { "A4", "REFIBRILACION", "" },
+    { "A5", "RITMO NO", "DESFIBRILABLE" },
+    { "A6", "DOS DESCARGAS", "REQUERIDAS" },
+    { "A7", "PARO RECURRENTE", "COMPLEJO" },
+    { "A8", "CONTACTO DEFICIENTE", "Y RITMO PERSISTENTE" },
+};
+
+const LocalCaseName* findLocalCaseName(const char* id) {
+  if (id) {
+    for (const auto& item : kLocalCaseNames) {
+      if (std::strcmp(id, item.id) == 0) return &item;
+    }
+  }
+  return &kLocalCaseNames[0];
+}
+
 int organizedWave(std::uint32_t n) {
   const int phase = static_cast<int>(n % 72U);
   if (phase < 7) return 0;
@@ -463,8 +489,12 @@ void DisplayAdapter::showReadyCase(const char* scenarioId) {
   std::snprintf(title, sizeof(title), "CASO %.2s", scenarioId ? scenarioId : "A1");
   display.fillRect(0, 0, kAssetWidth, 23, ST77XX_BLACK);
   textCentered(title, 4, 2, ST77XX_YELLOW);
-  display.fillRect(0, 111, kAssetWidth, 17, ST77XX_BLACK);
-  textCentered("DEA EDUCATIVO", 114, 1, ST77XX_WHITE);
+  const LocalCaseName* caseTitle = findLocalCaseName(scenarioId);
+  display.fillRect(0, 89, kAssetWidth, 39, ST77XX_BLACK);
+  textCentered(caseTitle->line1, 94, 1, ST77XX_WHITE);
+  if (caseTitle->line2[0] != '\0') {
+    textCentered(caseTitle->line2, 111, 1, ST77XX_YELLOW);
+  }
 }
 
 void DisplayAdapter::showAnalyzing(
