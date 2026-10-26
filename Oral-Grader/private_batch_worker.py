@@ -220,7 +220,9 @@ def _stage1_transcript(client, attachment, model):
                                       'start': str(getattr(ann, 'start_offset', ''))})
             if words:
                 return {'model': 'gemini-3.5-transcribe', 'words': words}
-        except Exception:
+        except Exception as exc:
+            if isinstance(exc, TimeoutError):
+                raise
             # Retry via a general audio-capable model, still marking method.
             pass
     prompt = (
@@ -306,8 +308,8 @@ def _process(payload, on_progress=None):
     from google import genai
 
     entries = payload['audios']
-    if len(entries) != 8:
-        raise ValueError('Exactly eight October recordings are required')
+    if len(entries) != 3:
+        raise ValueError('Exactly three pending October recordings are required')
     for item in entries:
         if not (item['name'] and item['sha256'] and item['students']):
             raise ValueError('Incomplete entry')
@@ -328,7 +330,7 @@ def _process(payload, on_progress=None):
         previous_handler = signal.signal(signal.SIGALRM, _deadline)
         for entry, audio_file in zip(entries, sources):
             try:
-                signal.setitimer(signal.ITIMER_REAL, 360)
+                signal.setitimer(signal.ITIMER_REAL, 240)
                 results.append(_grade_one(client, model, audio_file, entry))
             except Exception as exc:
                 # Do not leak private signed URLs or audio/transcript through logs.
