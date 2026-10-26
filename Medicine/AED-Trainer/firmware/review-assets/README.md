@@ -10,6 +10,7 @@ física ST7735 de 160 × 128 píxeles.
 
 | Archivo | Pantalla candidata | Estado de revisión |
 | --- | --- | --- |
+| `00_inicio.jpg` | Presentación del DEA de entrenamiento | Pendiente de aprobación |
 | `01_respuesta.jpg` | Comprobar respuesta (intento anterior) | **Rechazado:** una mano estaba demasiado cerca del rostro |
 | `01_respuesta_corregida_propuesta.jpg` | Comprobar respuesta con ambas manos sobre los hombros | Pendiente de aprobación |
 | `02_llamar_emergencias.jpg` | Pedir ayuda | Pendiente de aprobación |
@@ -21,6 +22,8 @@ física ST7735 de 160 × 128 píxeles.
 | `07_todos_despejados_revisar.jpg` | Apartarse para análisis/descarga (intento anterior) | **Rechazado:** segundo electrodo demasiado bajo/anterior |
 | `08_pulsar_descarga.jpg` | Pulsar el botón de descarga en DEA de entrenamiento | Pendiente de aprobación |
 | `09_ventilaciones.jpg` | Ventilación en maniquí con mascarilla de bolsillo | Pendiente de aprobación |
+| `10_error_conexion.jpg` | Error: conector del cable de los parches separado del equipo | Pendiente de aprobación |
+| `11_ahogamiento.jpg` | Caso especial: maniquí de entrenamiento fuera del agua | Pendiente de aprobación |
 
 Los dos archivos con `_revisar` permanecen para trazabilidad, pero están
 **rechazados y no deben convertirse a imágenes de firmware**. La nueva foto
