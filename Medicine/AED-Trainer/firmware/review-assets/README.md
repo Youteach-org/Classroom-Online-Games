@@ -10,7 +10,8 @@ física ST7735 de 160 × 128 píxeles.
 
 | Archivo | Pantalla candidata | Estado de revisión |
 | --- | --- | --- |
-| `01_respuesta.jpg` | Comprobar respuesta | Revisar pose y contacto de las manos |
+| `01_respuesta.jpg` | Comprobar respuesta (intento anterior) | **Rechazado:** una mano estaba demasiado cerca del rostro |
+| `01_respuesta_corregida_propuesta.jpg` | Comprobar respuesta con ambas manos sobre los hombros | Pendiente de aprobación |
 | `02_llamar_emergencias.jpg` | Pedir ayuda | Pendiente de aprobación |
 | `03_comprobar_respiracion.jpg` | Comprobar respiración | Pendiente de aprobación |
 | `04_exponer_pecho.jpg` | Exponer pecho del maniquí | Pendiente de aprobación |
