@@ -6,6 +6,7 @@ on:
     branches:
       - feature/oral-grader-v1-20260922
       - feature/oral-grader-october-retry-20261025
+      - feature/oral-grader-october-gemini-fallback
     paths:
       - .github/workflows/og-private-batch.yml
 
@@ -28,4 +29,5 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GH_TOKEN: ${{ github.token }}
           ORAL_GRADER_BATCH_MODEL: gemini-3-flash-preview
+          ORAL_GRADER_STAGE1_METHOD: generate_content
         run: python Oral-Grader/private_batch_worker.py
