@@ -87,10 +87,14 @@ jobs:
             --build-path "$GITHUB_WORKSPACE/dist/build" \
             Medicine/AED-Trainer/firmware/aed-trainer
           find dist/build -maxdepth 1 -name '*.bin' -print
-      - name: Install FFmpeg on GitHub runner
+      - name: Ensure FFmpeg is available on GitHub runner
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          if command -v ffmpeg >/dev/null 2>&1; then
+            ffmpeg -version | head -n 1
+          else
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
       - name: Prepare classroom voice pack
         run: |
           mkdir -p dist/classroom-source dist/classroom-audio
