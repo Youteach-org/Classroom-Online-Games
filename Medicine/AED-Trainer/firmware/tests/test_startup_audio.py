@@ -21,7 +21,7 @@ class StartupVoiceTests(unittest.TestCase):
         for filename in ("aed-check-response.wav", "aed-check-breathing.wav"):
             with self.subTest(filename=filename):
                 pcm = samples(filename)
-                self.assertTrue(3.4 < len(pcm) / 44100 < 5.0)
+                self.assertTrue(3.7 < len(pcm) / 44100 < 5.0)
                 # Never send a clipped first consonant while I2S starts.
                 self.assertLess(max(map(abs, pcm[:round(1.7 * 44100)])), 20)
                 self.assertGreater(max(map(abs, pcm[round(2.0 * 44100):])), 6000)
@@ -45,8 +45,10 @@ class StartupVoiceTests(unittest.TestCase):
     def test_breathing_reuses_real_approved_compruebe_voice_samples(self):
         response = samples("aed-check-response.wav")
         breathing = samples("aed-check-breathing.wav")
-        a = round(2.05 * 44100)
-        b = round(2.12 * 44100)
+        # Compare samples from the latter half of the full word, not only
+        # the first syllable; earlier bad repair clipped after 0.385s.
+        a = round(2.28 * 44100)
+        b = round(2.50 * 44100)
         self.assertEqual(response[a:b], breathing[a:b])
 
 
