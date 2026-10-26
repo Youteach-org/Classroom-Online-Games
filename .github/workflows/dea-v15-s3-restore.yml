@@ -87,14 +87,15 @@ jobs:
             --build-path "$GITHUB_WORKSPACE/dist/build" \
             Medicine/AED-Trainer/firmware/aed-trainer
           find dist/build -maxdepth 1 -name '*.bin' -print
-      - name: Ensure FFmpeg is available on GitHub runner
+      - name: Provide bundled FFmpeg without OS package-manager waits
         run: |
-          if command -v ffmpeg >/dev/null 2>&1; then
-            ffmpeg -version | head -n 1
-          else
-            sudo apt-get update
-            sudo apt-get install -y ffmpeg
-          fi
+          python3 -m pip install --no-cache-dir imageio-ffmpeg==0.6.0
+          mkdir -p "$RUNNER_TEMP/dea-ffmpeg"
+          FFMPEG_BIN="$(python3 -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')"
+          test -x "$FFMPEG_BIN"
+          ln -s "$FFMPEG_BIN" "$RUNNER_TEMP/dea-ffmpeg/ffmpeg"
+          echo "$RUNNER_TEMP/dea-ffmpeg" >> "$GITHUB_PATH"
+          "$FFMPEG_BIN" -version | head -n 1
       - name: Prepare classroom voice pack
         run: |
           mkdir -p dist/classroom-source dist/classroom-audio
