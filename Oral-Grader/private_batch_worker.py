@@ -306,8 +306,8 @@ def _process(payload, on_progress=None):
     from google import genai
 
     entries = payload['audios']
-    if len(entries) != 9:
-        raise ValueError('Exactly nine recordings are required')
+    if len(entries) != 7:
+        raise ValueError('Exactly seven pending recordings are required')
     for item in entries:
         if not (item['name'] and item['sha256'] and item['students']):
             raise ValueError('Incomplete entry')
