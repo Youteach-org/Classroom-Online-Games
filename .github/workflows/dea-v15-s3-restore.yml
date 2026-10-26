@@ -313,7 +313,7 @@ jobs:
           set -eu
           test -s dist/DEA_Actualizador_Permanente.exe
           tag=dea-s3-gpio15-17-preview
-          notes="Vista preliminar ESP32-S3 con MAX98357A: BCLK GPIO15, LRC GPIO16, DIN GPIO17; TFT GPIO8-12. Reemplazadas las 32 posiciones visuales por fotografías médicas de revisión, sin dibujos. Audio y música conservados sin cambios por esta corrección. Aún requiere aprobación visual y prueba física de pantalla/audio. Commit: $GITHUB_SHA."
+          notes="Vista preliminar ESP32-S3 con MAX98357A: BCLK GPIO15, LRC GPIO16, DIN GPIO17; TFT GPIO8-12. Electrodos adultos en posición anterolateral corregida; RCP con dos cuadros fotográficos diferentes; selección A1–A8 con descripción. Restaurados únicamente los audios iniciales de comprobar respuesta y respiración mediante segmentos de la misma voz aprobada; demás audios y música sin cambios. Aún requiere escuchar los audios y verificar imagen/animación en el equipo físico. Commit: $GITHUB_SHA."
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" dist/DEA_Actualizador_Permanente.exe --clobber
             gh release edit "$tag" --title "DEA ESP32-S3 — prueba fotos clínicas" --notes "$notes" --prerelease

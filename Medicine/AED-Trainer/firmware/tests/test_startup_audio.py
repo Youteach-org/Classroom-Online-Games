@@ -21,10 +21,10 @@ class StartupVoiceTests(unittest.TestCase):
         for filename in ("aed-check-response.wav", "aed-check-breathing.wav"):
             with self.subTest(filename=filename):
                 pcm = samples(filename)
-                self.assertTrue(2.4 < len(pcm) / 44100 < 4.0)
+                self.assertTrue(3.4 < len(pcm) / 44100 < 5.0)
                 # Never send a clipped first consonant while I2S starts.
-                self.assertLess(max(map(abs, pcm[:round(0.6 * 44100)])), 20)
-                self.assertGreater(max(map(abs, pcm[round(0.8 * 44100):])), 6000)
+                self.assertLess(max(map(abs, pcm[:round(1.7 * 44100)])), 20)
+                self.assertGreater(max(map(abs, pcm[round(2.0 * 44100):])), 6000)
 
     def test_breathing_has_no_two_second_hole_in_the_middle(self):
         pcm = samples("aed-check-breathing.wav")
@@ -32,7 +32,7 @@ class StartupVoiceTests(unittest.TestCase):
         # clipped syllable. Inspect 0.1s segments after initial pre-roll.
         rate = 44100
         active = []
-        for a in range(round(0.7 * rate), len(pcm), round(0.1 * rate)):
+        for a in range(round(1.9 * rate), len(pcm), round(0.1 * rate)):
             chunk = pcm[a:a + round(0.1 * rate)]
             active.append(max(map(abs, chunk), default=0) > 300)
         longest_silence = 0
@@ -45,8 +45,8 @@ class StartupVoiceTests(unittest.TestCase):
     def test_breathing_reuses_real_approved_compruebe_voice_samples(self):
         response = samples("aed-check-response.wav")
         breathing = samples("aed-check-breathing.wav")
-        a = round(0.83 * 44100)
-        b = round(0.90 * 44100)
+        a = round(2.05 * 44100)
+        b = round(2.12 * 44100)
         self.assertEqual(response[a:b], breathing[a:b])
 
 
