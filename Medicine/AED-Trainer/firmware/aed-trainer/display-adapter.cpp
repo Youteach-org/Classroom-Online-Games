@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
+#include <JPEGDEC.h>
 #include <LittleFS.h>
 #include <SPI.h>
 
@@ -22,9 +23,8 @@ Adafruit_ST7735 display(
 constexpr int kAssetWidth = 160;
 constexpr int kAssetHeight = 128;
 constexpr std::uint32_t kFileHeaderBytes = 14;
-constexpr std::uint32_t kPaletteBytes = 32;
-constexpr std::uint32_t kPackedPixelBytes = (kAssetWidth * kAssetHeight) / 2;
-constexpr std::uint32_t kRecordBytes = kPaletteBytes + kPackedPixelBytes;
+constexpr std::size_t kFramePixels = kAssetWidth * kAssetHeight;
+constexpr std::size_t kFrameBytes = kFramePixels * sizeof(std::uint16_t);
 constexpr const char* kAssetsPath = "/display-assets.dat";
 
 enum Asset : std::uint16_t {
@@ -69,11 +69,14 @@ std::int32_t currentAsset = -1;
 // Full-frame buffer: decode first, then push in one burst.
 // This removes the visible row-by-row "rayado" from the previous build.
 std::uint16_t frameBuffer[kAssetWidth * kAssetHeight];
+JPEGDEC jpegDecoder;
 
 // CPR frames are cached before the music begins so animation never competes
 // with the background song for LittleFS reads.
-std::uint8_t* cprUpRecord = nullptr;
-std::uint8_t* cprDownRecord = nullptr;
+std::uint16_t* cprUpFrame = nullptr;
+std::uint16_t* cprDownFrame = nullptr;
+bool cprCacheReady = false;
+bool cprCacheAttempted = false;
 
 void textCentered(const char* text, int y, int size, std::uint16_t color) {
   if (!text) return;
@@ -104,7 +107,7 @@ bool readPackHeader(File& file, std::uint16_t* count) {
   std::uint8_t header[kFileHeaderBytes]{};
   if (file.read(header, sizeof(header)) != sizeof(header)) return false;
 
-  if (std::memcmp(header, "DEAV15F2", 8) != 0) return false;
+  if (std::memcmp(header, "DEAV15J1", 8) != 0) return false;
 
   const std::uint16_t width =
       static_cast<std::uint16_t>(header[8]) |
@@ -119,84 +122,80 @@ bool readPackHeader(File& file, std::uint16_t* count) {
   return width == kAssetWidth && height == kAssetHeight;
 }
 
-bool seekAsset(File& file, std::uint16_t index) {
+bool seekAsset(File& file, std::uint16_t index, std::uint32_t* length) {
   std::uint16_t count = 0;
   if (!readPackHeader(file, &count) || index >= count) return false;
 
+  const std::uint32_t entryOffset =
+      kFileHeaderBytes + static_cast<std::uint32_t>(index) * 8U;
+  if (!file.seek(entryOffset)) return false;
+  std::uint8_t entry[8]{};
+  if (file.read(entry, sizeof(entry)) != sizeof(entry)) return false;
   const std::uint32_t offset =
-      kFileHeaderBytes + static_cast<std::uint32_t>(index) * kRecordBytes;
+      static_cast<std::uint32_t>(entry[0]) |
+      (static_cast<std::uint32_t>(entry[1]) << 8) |
+      (static_cast<std::uint32_t>(entry[2]) << 16) |
+      (static_cast<std::uint32_t>(entry[3]) << 24);
+  *length =
+      static_cast<std::uint32_t>(entry[4]) |
+      (static_cast<std::uint32_t>(entry[5]) << 8) |
+      (static_cast<std::uint32_t>(entry[6]) << 16) |
+      (static_cast<std::uint32_t>(entry[7]) << 24);
+  if (offset < kFileHeaderBytes + count * 8U ||
+      *length < 4 || *length > 200000U ||
+      static_cast<std::uint64_t>(offset) + *length > file.size()) return false;
   return file.seek(offset);
 }
 
-void decodeRecordMemory(const std::uint8_t* record) {
-  std::uint16_t palette[16]{};
-  for (int i = 0; i < 16; ++i) {
-    palette[i] =
-        static_cast<std::uint16_t>(record[i * 2]) |
-        (static_cast<std::uint16_t>(record[i * 2 + 1]) << 8);
+int decodeJpegBlock(JPEGDRAW* block) {
+  if (!block || block->x < 0 || block->y < 0 ||
+      block->x + block->iWidth > kAssetWidth ||
+      block->y + block->iHeight > kAssetHeight) return 0;
+  for (int row = 0; row < block->iHeight; ++row) {
+    std::memcpy(
+        frameBuffer + (block->y + row) * kAssetWidth + block->x,
+        block->pPixels + row * block->iWidth,
+        static_cast<std::size_t>(block->iWidth) * sizeof(std::uint16_t));
   }
-
-  const std::uint8_t* packed = record + kPaletteBytes;
-  std::size_t out = 0;
-  for (std::uint32_t i = 0; i < kPackedPixelBytes; ++i) {
-    const std::uint8_t value = packed[i];
-    frameBuffer[out++] = palette[(value >> 4) & 0x0F];
-    frameBuffer[out++] = palette[value & 0x0F];
-  }
+  return 1;
 }
 
 bool decodeAssetFromFile(std::uint16_t index) {
   if (!ensureFs()) return false;
 
   File file = LittleFS.open(kAssetsPath, "r");
-  if (!file || !seekAsset(file, index)) {
+  std::uint32_t jpegBytes = 0;
+  if (!file || !seekAsset(file, index, &jpegBytes)) {
     if (file) file.close();
     return false;
   }
 
-  std::uint16_t palette[16]{};
-  for (int i = 0; i < 16; ++i) {
-    const int lo = file.read();
-    const int hi = file.read();
-    if (lo < 0 || hi < 0) {
-      file.close();
-      return false;
-    }
-    palette[i] =
-        static_cast<std::uint16_t>(lo) |
-        (static_cast<std::uint16_t>(hi) << 8);
-  }
-
-  std::uint8_t packedRow[kAssetWidth / 2];
-  std::size_t out = 0;
-
-  for (int y = 0; y < kAssetHeight; ++y) {
-    if (file.read(packedRow, sizeof(packedRow)) != sizeof(packedRow)) {
-      file.close();
-      return false;
-    }
-
-    for (std::uint8_t value : packedRow) {
-      frameBuffer[out++] = palette[(value >> 4) & 0x0F];
-      frameBuffer[out++] = palette[value & 0x0F];
-    }
-  }
-
-  file.close();
-  return true;
-}
-
-bool readAssetRecord(std::uint16_t index, std::uint8_t* destination) {
-  if (!destination || !ensureFs()) return false;
-
-  File file = LittleFS.open(kAssetsPath, "r");
-  if (!file || !seekAsset(file, index)) {
-    if (file) file.close();
+  auto* jpegBytesInRam = static_cast<std::uint8_t*>(std::malloc(jpegBytes));
+  if (!jpegBytesInRam) {
+    file.close();
     return false;
   }
-
-  const bool ok = file.read(destination, kRecordBytes) == kRecordBytes;
+  const bool readOk =
+      file.read(jpegBytesInRam, jpegBytes) == jpegBytes;
   file.close();
+  if (!readOk) {
+    std::free(jpegBytesInRam);
+    return false;
+  }
+  // Decode the original JPEG colors directly to 16-bit RGB565, not a
+  // 16-color indexed palette. Decode before transferring the full frame.
+  const bool opened = jpegDecoder.openRAM(
+      jpegBytesInRam, static_cast<int>(jpegBytes), decodeJpegBlock);
+  const bool correctDimensions = opened &&
+      jpegDecoder.getWidth() == kAssetWidth &&
+      jpegDecoder.getHeight() == kAssetHeight;
+  bool ok = false;
+  if (correctDimensions) {
+    jpegDecoder.setPixelType(RGB565_LITTLE_ENDIAN);
+    ok = jpegDecoder.decode(0, 0, 0) == 1;
+  }
+  if (opened) jpegDecoder.close();
+  std::free(jpegBytesInRam);
   return ok;
 }
 
@@ -211,10 +210,10 @@ bool renderAsset(std::uint16_t index, bool force = false) {
   if (!displayReady) return false;
   if (!force && currentAsset == static_cast<std::int32_t>(index)) return true;
 
-  if (index == ASSET_RCP_ARRIBA && cprUpRecord) {
-    decodeRecordMemory(cprUpRecord);
-  } else if (index == ASSET_RCP_COMPRESION && cprDownRecord) {
-    decodeRecordMemory(cprDownRecord);
+  if (index == ASSET_RCP_ARRIBA && cprCacheReady) {
+    std::memcpy(frameBuffer, cprUpFrame, kFrameBytes);
+  } else if (index == ASSET_RCP_COMPRESION && cprCacheReady) {
+    std::memcpy(frameBuffer, cprDownFrame, kFrameBytes);
   } else if (!decodeAssetFromFile(index)) {
     return false;
   }
@@ -379,20 +378,31 @@ void DisplayAdapter::showAsset(std::uint16_t index, bool force) {
 }
 
 bool DisplayAdapter::prepareCprFrames() {
-  if (cprUpRecord && cprDownRecord) return true;
+  if (cprCacheReady) return true;
+  if (cprCacheAttempted) return false;
+  cprCacheAttempted = true;
 
-  if (!cprUpRecord) {
-    cprUpRecord = static_cast<std::uint8_t*>(std::malloc(kRecordBytes));
+  if (!cprUpFrame) {
+    cprUpFrame = static_cast<std::uint16_t*>(std::malloc(kFrameBytes));
   }
-  if (!cprDownRecord) {
-    cprDownRecord = static_cast<std::uint8_t*>(std::malloc(kRecordBytes));
+  if (!cprDownFrame) {
+    cprDownFrame = static_cast<std::uint16_t*>(std::malloc(kFrameBytes));
   }
 
-  if (!cprUpRecord || !cprDownRecord) return false;
-
-  const bool upOk = readAssetRecord(ASSET_RCP_ARRIBA, cprUpRecord);
-  const bool downOk = readAssetRecord(ASSET_RCP_COMPRESION, cprDownRecord);
-  return upOk && downOk;
+  if (cprUpFrame && cprDownFrame) {
+    const bool upOk = decodeAssetFromFile(ASSET_RCP_ARRIBA);
+    if (upOk) std::memcpy(cprUpFrame, frameBuffer, kFrameBytes);
+    const bool downOk = upOk && decodeAssetFromFile(ASSET_RCP_COMPRESION);
+    if (downOk) std::memcpy(cprDownFrame, frameBuffer, kFrameBytes);
+    cprCacheReady = upOk && downOk;
+  }
+  if (!cprCacheReady) {
+    std::free(cprUpFrame);
+    std::free(cprDownFrame);
+    cprUpFrame = nullptr;
+    cprDownFrame = nullptr;
+  }
+  return cprCacheReady;
 }
 
 void DisplayAdapter::showState(TrainerState state, const char* message) {
@@ -449,18 +459,12 @@ void DisplayAdapter::showStartupStep(StartupStep step) {
 void DisplayAdapter::showReadyCase(const char* scenarioId) {
   showAsset(caseAsset(scenarioId), true);
 
-  display.fillRoundRect(3, 108, 42, 17, 4, ST77XX_BLACK);
-  display.drawRoundRect(3, 108, 42, 17, 4, ST77XX_YELLOW);
-  display.setTextSize(1);
-  display.setTextColor(ST77XX_YELLOW);
-  display.setCursor(9, 113);
-  display.print("MENU");
-
-  display.fillRoundRect(111, 108, 46, 17, 4, ST77XX_BLACK);
-  display.drawRoundRect(111, 108, 46, 17, 4, ST77XX_GREEN);
-  display.setTextColor(ST77XX_GREEN);
-  display.setCursor(119, 113);
-  display.print("OK");
+  char title[12];
+  std::snprintf(title, sizeof(title), "CASO %.2s", scenarioId ? scenarioId : "A1");
+  display.fillRect(0, 0, kAssetWidth, 23, ST77XX_BLACK);
+  textCentered(title, 4, 2, ST77XX_YELLOW);
+  display.fillRect(0, 111, kAssetWidth, 17, ST77XX_BLACK);
+  textCentered("DEA EDUCATIVO", 114, 1, ST77XX_WHITE);
 }
 
 void DisplayAdapter::showAnalyzing(
