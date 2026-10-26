@@ -4,13 +4,14 @@ import base64
 import io
 import struct
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from build_display_jpeg_pack import ASSET_KEYS, build_pack, parse_pack
+from build_display_jpeg_pack import ASSET_KEYS, build_pack, parse_pack, build_photo_pack
 
 
 class DisplayJpegPackTests(unittest.TestCase):
@@ -92,6 +93,52 @@ class DisplayJpegPackTests(unittest.TestCase):
                 })
                 with self.assertRaisesRegex(ValueError, "160x128"):
                     build_pack(source)
+
+    def test_photo_pack_replaces_every_old_frame_with_real_photo(self):
+        # An absent photo must fail the build instead of silently displaying
+        # the old stick figures. All 32 screen slots must receive a photo.
+        with tempfile.TemporaryDirectory() as directory:
+            self.create_fixture_photos(Path(directory))
+            payload = build_photo_pack(Path(directory))
+            records = parse_pack(payload)
+            self.assertEqual(len(records), 32)
+            self.assertLess(len(payload), 300_000)
+            self.assertEqual(Image.open(io.BytesIO(records[0])).size, (160, 128))
+            # First screen = blue training AED, adult pads = red model chest,
+            # child pads = green pediatric mannequin, infant = yellow infant.
+            colors = [Image.open(io.BytesIO(records[index])).getpixel((80, 64))
+                      for index in (0, 2, 3, 4)]
+            for result, expected in zip(colors, [(15, 30, 180), (180, 20, 20),
+                                                 (20, 180, 20), (200, 180, 20)]):
+                self.assertTrue(all(abs(a - b) < 25 for a, b in zip(result, expected)))
+            self.assertGreaterEqual(len(set(records)), 12)
+
+    def test_photo_pack_never_falls_back_to_old_source_or_rejected_frames(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.create_fixture_photos(Path(directory))
+            (Path(directory) / '05_electrodos_vista_anterior_propuesta.jpg').unlink()
+            with self.assertRaisesRegex(FileNotFoundError, '05_electrodos_vista_anterior'):
+                build_photo_pack(Path(directory))
+
+    @staticmethod
+    def create_fixture_photos(root):
+        by_name = {
+            '00_inicio.jpg': (15, 30, 180),
+            '05_electrodos_vista_anterior_propuesta.jpg': (180, 20, 20),
+            '05_parches_nino_nuevo.jpg': (20, 180, 20),
+            '06_parches_lactante_nuevo.jpg': (200, 180, 20),
+        }
+        names = [
+            '01_respuesta_corregida_propuesta.jpg', '02_llamar_emergencias.jpg',
+            '03_comprobar_respiracion.jpg', '04_exponer_pecho.jpg',
+            '06_compresiones_rcp.jpg', '07_todos_despejados_corregida_propuesta.jpg',
+            '08_pulsar_descarga.jpg', '09_ventilaciones.jpg',
+            '10_error_conexion.jpg', '11_ahogamiento.jpg',
+        ]
+        for index, name in enumerate(names):
+            by_name[name] = (20 + index * 10, 30 + index * 10, 35)
+        for name, color in by_name.items():
+            Image.new('RGB', (640, 512), color).save(root / name)
 
 
 if __name__ == "__main__":

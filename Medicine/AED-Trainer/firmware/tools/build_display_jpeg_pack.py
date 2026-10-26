@@ -42,6 +42,35 @@ ASSET_KEYS = [
     "08_analizando_ritmo.jpg", "07_parches_conectados.jpg",
 ]
 
+# Only reviewed photographic proposals are eligible for the new PREVIEW pack.
+# The refused _revisar images, pixel-art JPGs and historical JSON are excluded.
+PHOTO_SOURCE_BY_KEY = {
+    "01_inicio.jpg": "00_inicio.jpg",
+    "03_seleccion_variante.jpg": "01_respuesta_corregida_propuesta.jpg",
+    "04_parches_adulto.jpg": "05_electrodos_vista_anterior_propuesta.jpg",
+    "05_parches_nino.jpg": "05_parches_nino_nuevo.jpg",
+    "06_parches_lactante.jpg": "06_parches_lactante_nuevo.jpg",
+    "07_parches_conectados.jpg": "05_electrodos_vista_anterior_propuesta.jpg",
+    "08_analizando_ritmo.jpg": "07_todos_despejados_corregida_propuesta.jpg",
+    "09_descarga_recomendada.jpg": "07_todos_despejados_corregida_propuesta.jpg",
+    "10_todos_despejados.jpg": "07_todos_despejados_corregida_propuesta.jpg",
+    "11_aplicando_descarga.jpg": "08_pulsar_descarga.jpg",
+    "12_descarga_aplicada.jpg": "08_pulsar_descarga.jpg",
+    "13_inicia_rcp.jpg": "06_compresiones_rcp.jpg",
+    "14_rcp_arriba.jpg": "06_compresiones_rcp.jpg",
+    "15_rcp_compresion.jpg": "06_compresiones_rcp.jpg",
+    "16_dos_ventilaciones.jpg": "09_ventilaciones.jpg",
+    "17_continua_rcp.jpg": "06_compresiones_rcp.jpg",
+    "18_reevaluando_ritmo.jpg": "07_todos_despejados_corregida_propuesta.jpg",
+    "19_no_descarga.jpg": "07_todos_despejados_corregida_propuesta.jpg",
+    "20_error_parches.jpg": "10_error_conexion.jpg",
+    "startup-breathing.jpg": "03_comprobar_respiracion.jpg",
+    "startup-chest.jpg": "04_exponer_pecho.jpg",
+    "startup-help.jpg": "02_llamar_emergencias.jpg",
+    "startup-response.jpg": "01_respuesta_corregida_propuesta.jpg",
+    "variant-drowning.jpg": "11_ahogamiento.jpg",
+}
+
 
 def build_pack(assets: dict[str, str]) -> bytes:
     encoded = []
@@ -107,13 +136,57 @@ def parse_pack(payload: bytes) -> list[bytes]:
     return result
 
 
+def build_photo_pack(photo_dir: Path) -> bytes:
+    """Build every screen from independent high-resolution clinical photos.
+
+    Fail closed if any photograph is missing; NEVER fall back to the
+    rejected illustrations or the base64 thumbnails in display-source.json.
+    """
+    if set(ASSET_KEYS) != set(PHOTO_SOURCE_BY_KEY):
+        raise ValueError("The 32 display slots lack a complete photo mapping")
+
+    photo_cache: dict[str, bytes] = {}
+    encoded: list[bytes] = []
+    for key in ASSET_KEYS:
+        filename = PHOTO_SOURCE_BY_KEY[key]
+        if filename not in photo_cache:
+            path = photo_dir / filename
+            if not path.is_file():
+                raise FileNotFoundError(f"Missing clinical photograph: {path}")
+            with Image.open(path) as image:
+                w, h = image.size
+                if w < WIDTH or h < HEIGHT or abs(w * HEIGHT - h * WIDTH) > max(w * HEIGHT, h * WIDTH) * 0.01:
+                    raise ValueError(f"{filename}: expected large 5:4 photograph, found {w}x{h}")
+                output = io.BytesIO()
+                image.convert("RGB").resize(
+                    (WIDTH, HEIGHT), Image.Resampling.LANCZOS, reducing_gap=3.0
+                ).save(output, format="JPEG", quality=86, subsampling=0)
+                photo_cache[filename] = output.getvalue()
+        encoded.append(photo_cache[filename])
+
+    header = MAGIC + struct.pack("<HHH", WIDTH, HEIGHT, len(encoded))
+    offset = len(header) + len(encoded) * 8
+    directory = bytearray()
+    for record in encoded:
+        directory.extend(struct.pack("<II", offset, len(record)))
+        offset += len(record)
+    payload = header + directory + b"".join(encoded)
+    parse_pack(payload)
+    return payload
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, required=True)
+    inputs = parser.add_mutually_exclusive_group(required=True)
+    inputs.add_argument("--source", type=Path)
+    inputs.add_argument("--photo-dir", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    source = json.loads(args.source.read_text(encoding="utf-8"))["assets"]
-    payload = build_pack(source)
+    if args.photo_dir:
+        payload = build_photo_pack(args.photo_dir)
+    else:
+        source = json.loads(args.source.read_text(encoding="utf-8"))["assets"]
+        payload = build_pack(source)
     parse_pack(payload)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(payload)
