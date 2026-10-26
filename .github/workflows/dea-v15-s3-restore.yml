@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Test three-button contract
         run: |
           g++ -std=c++17 -Wall -Wextra -Werror \
@@ -31,6 +34,12 @@ jobs:
           /tmp/dea-volume
       - name: Test Teacher Monitor BLE client
         run: node --test Medicine/AED-Trainer/tests/ble-client.test.mjs
+      - name: Verify original-color JPEG screen container
+        run: |
+          python3 -m pip install Pillow
+          python3 -m unittest discover \
+            -s Medicine/AED-Trainer/firmware/tests \
+            -p 'test_display_jpeg_pack.py'
       - name: Run V15 Teacher Monitor regressions compatible with ESP32-S3 TFT hardware
         shell: bash
         run: |
@@ -48,6 +57,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - uses: arduino/setup-arduino-cli@v2
       - name: Set up ESP32-S3 compiler on GitHub runner
         run: |
@@ -57,6 +69,7 @@ jobs:
           arduino-cli core install esp32:esp32@3.3.12
           arduino-cli lib install "Adafruit GFX Library"
           arduino-cli lib install "Adafruit ST7735 and ST7789 Library"
+          arduino-cli lib install "JPEGDEC"
       - name: Compile restored V15 for ESP32-S3
         run: |
           mkdir -p dist/build
@@ -152,11 +165,19 @@ jobs:
           done
           test "$(find dist/classroom-audio -maxdepth 1 -name '*.wav' | wc -l)" -eq 65
 
+      - name: Build true-color JPEG display image for review
+        run: |
+          python3 -m pip install Pillow
+          python3 Medicine/AED-Trainer/firmware/tools/build_display_jpeg_pack.py \
+            --source Medicine/AED-Trainer/firmware/display-source.json \
+            --output dist/display-assets.dat
+          test -s dist/display-assets.dat
+          test "$(stat -c%s dist/display-assets.dat)" -lt 300000
       - name: Build LittleFS voice image
         run: |
           mkdir -p dist/littlefs-root/audio
           cp dist/classroom-audio/*.wav dist/littlefs-root/audio/
-          cp Medicine/AED-Trainer/firmware/display-assets.dat dist/littlefs-root/display-assets.dat
+          cp dist/display-assets.dat dist/littlefs-root/display-assets.dat
           cp Medicine/AED-Trainer/firmware/rcp-music.wav dist/littlefs-root/audio/rcp-music.wav
           test -s dist/littlefs-root/display-assets.dat
           test -s dist/littlefs-root/audio/rcp-music.wav
@@ -193,7 +214,7 @@ jobs:
         run: |
           test -s dist/build/littlefs.bin
           test -s dist/build/firmware.merged.bin
-          test "$(stat -c%s Medicine/AED-Trainer/firmware/display-assets.dat)" -eq 328718
+          test "$(stat -c%s dist/display-assets.dat)" -lt 300000
           test "$(find dist/classroom-audio -maxdepth 1 -name '*.wav' | wc -l)" -eq 65
           test -s dist/littlefs-root/audio/rcp-music.wav
       - uses: actions/upload-artifact@v4
