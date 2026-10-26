@@ -1,4 +1,5 @@
 name: Oral Grader encrypted one-shot batch
+# October 2026 original eight-recording evaluation, encrypted inputs only.
 
 on:
   push:
