@@ -1,5 +1,6 @@
 #include "display-adapter.h"
 #include "hardware-config.h"
+#include "shock-caution.h"
 
 #include <Arduino.h>
 #include <Adafruit_GFX.h>
@@ -455,6 +456,7 @@ void DisplayAdapter::showState(TrainerState state, const char* message) {
       break;
     case TrainerState::WAITING_SHOCK:
       showAsset(ASSET_DESPEJADOS);
+      ShockCaution::draw(display, ST77XX_YELLOW, ST77XX_BLACK);
       break;
     case TrainerState::CPR:
       showAsset(ASSET_INICIA_RCP);
@@ -517,6 +519,7 @@ void DisplayAdapter::showMovementWarning() {
 
 void DisplayAdapter::showShockWarning(bool trianglesVisible) {
   showAsset(trianglesVisible ? ASSET_DESPEJADOS : ASSET_SHOCK_RECOMENDADO);
+  ShockCaution::draw(display, ST77XX_YELLOW, ST77XX_BLACK);
 }
 
 void DisplayAdapter::showCprCountdown(
@@ -555,6 +558,7 @@ void DisplayAdapter::showPromptVisual(const std::string& promptId) {
     showAsset(ASSET_SHOCK_RECOMENDADO);
   } else if (promptId == "AED_PRESS_SHOCK") {
     showAsset(ASSET_DESPEJADOS);
+    ShockCaution::draw(display, ST77XX_YELLOW, ST77XX_BLACK);
   } else if (promptId == "AED_SHOCK_DELIVERED") {
     showAsset(ASSET_SHOCK_APLICADO);
   } else if (promptId == "AED_NO_SHOCK") {
