@@ -26,6 +26,15 @@ jobs:
             Medicine/AED-Trainer/firmware/tests/s3-hardware-contract-test.cpp \
             -o /tmp/dea-s3-wiring
           /tmp/dea-s3-wiring
+      - name: Test SHOCK LED throughout the simulated recommendation cycle
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror \
+            Medicine/AED-Trainer/firmware/aed-trainer/trainer-core.cpp \
+            Medicine/AED-Trainer/firmware/tests/shock-led-test.cpp \
+            -o /tmp/dea-shock-led
+          /tmp/dea-shock-led
+      - name: Ensure approved CPR audio sources cannot be overwritten by downloads
+        run: python3 -m unittest discover -s Medicine/AED-Trainer/audio/tools -p 'test_*.py'
       - name: Test full-volume startup and volume scaling
         run: |
           g++ -std=c++17 -Wall -Wextra -Werror \
@@ -88,34 +97,6 @@ jobs:
           cp Medicine/AED-Trainer/audio/assets/*.wav dist/classroom-source/
 
           python3 - <<'PY'
-          import json
-          import pathlib
-          import urllib.request
-
-          data = json.loads(pathlib.Path("Medicine/AED-Trainer/audio/audio-sources.generated.json").read_text())
-          wanted = {"aed-begin-cpr.wav", "aed-continue-cpr.wav"}
-          for clip in data["clips"]:
-              if clip["filename"] in wanted:
-                  urllib.request.urlretrieve(
-                      clip["url"],
-                      pathlib.Path("dist/classroom-source") / clip["filename"],
-                  )
-          PY
-
-          cp dist/classroom-source/aed-continue-cpr.wav /tmp/aed-continue-original.wav
-          cp dist/classroom-source/aed-begin-cpr.wav /tmp/lucia-begin-cpr.wav
-
-          # Hybrid prompt requested for V11:
-          # keep "Continúe" from the original AED voice, then append the
-          # already-approved Lucía pronunciation of "ERRE CE PE".
-          ffmpeg -hide_banner -loglevel error -y \
-            -i /tmp/aed-continue-original.wav \
-            -i /tmp/lucia-begin-cpr.wav \
-            -filter_complex "[0:a]atrim=start=0.18:end=0.928,asetpts=PTS-STARTPTS,afade=t=in:st=0:d=0.01,afade=t=out:st=0.738:d=0.01[c];anullsrc=r=44100:cl=mono,atrim=duration=0.07[s];[1:a]atrim=start=0.985:end=2.016,asetpts=PTS-STARTPTS,afade=t=in:st=0:d=0.008,afade=t=out:st=1.021:d=0.008[r];[c][s][r]concat=n=3:v=0:a=1[out]" \
-            -map "[out]" -ar 44100 -ac 1 -c:a pcm_s16le \
-            dist/classroom-source/aed-continue-cpr.wav
-
-          python3 - <<'PY'
           import math, random, struct, wave
           from pathlib import Path
 
@@ -156,13 +137,17 @@ jobs:
 
           for src in dist/classroom-source/*.wav; do
             dst="dist/classroom-audio/$(basename "$src")"
-            if [ "$(basename "$src")" = "fx-shock-electric.wav" ]; then
-              # Preserve the approved shock waveform exactly as committed.
+            case "$(basename "$src")" in
+              fx-shock-electric.wav|aed-begin-cpr.wav|aed-continue-cpr.wav)
+              # Preserve approved effects and CPR speech byte-for-byte.
               cp "$src" "$dst"
               continue
-            fi
+              ;;
+            esac
             ffmpeg -hide_banner -loglevel error -y               -i "$src"               -af "highpass=f=140,lowpass=f=4500,acompressor=threshold=0.10:ratio=4:attack=5:release=100:makeup=2,loudnorm=I=-13:LRA=4:TP=-1.0,alimiter=limit=0.95"               -ac 1 -ar 10000 -c:a adpcm_ima_wav "$dst"
           done
+          cmp dist/classroom-audio/aed-begin-cpr.wav Medicine/AED-Trainer/audio/assets/aed-begin-cpr.wav
+          cmp dist/classroom-audio/aed-continue-cpr.wav Medicine/AED-Trainer/audio/assets/aed-continue-cpr.wav
           test "$(find dist/classroom-audio -maxdepth 1 -name '*.wav' | wc -l)" -eq 65
 
       - name: Build true-color JPEG display image for review
@@ -313,7 +298,7 @@ jobs:
           set -eu
           test -s dist/DEA_Actualizador_Permanente.exe
           tag=dea-s3-gpio15-17-preview
-          notes="Vista preliminar ESP32-S3 con MAX98357A: BCLK GPIO15, LRC GPIO16, DIN GPIO17; TFT GPIO8-12. Electrodos adultos en posición anterolateral corregida; RCP con dos cuadros fotográficos diferentes; selección A1–A8 con descripción. Restaurados únicamente los audios iniciales de comprobar respuesta y respiración mediante segmentos de la misma voz aprobada; demás audios y música sin cambios. Aún requiere escuchar los audios y verificar imagen/animación en el equipo físico. Commit: $GITHUB_SHA."
+          notes="Vista preliminar ESP32-S3 con MAX98357A: BCLK GPIO15, LRC GPIO16, DIN GPIO17; TFT GPIO8-12 intacta. Se integraron las dos locuciones RCP aprobadas (13 Lucía y 14 Continúe RCP) byte por byte en el paquete LittleFS, sin descargarlas ni reconstruirlas durante el instalador. GPIO21 controla el LED del botón SHOCK cuando la descarga es recomendada, con GPIO18 dedicado al pulsador. Los demás audios, música e imágenes continúan sin modificación. Pantalla y audio en hardware requieren comprobación física. Commit: $GITHUB_SHA."
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" dist/DEA_Actualizador_Permanente.exe --clobber
             gh release edit "$tag" --title "DEA ESP32-S3 — prueba fotos clínicas" --notes "$notes" --prerelease
