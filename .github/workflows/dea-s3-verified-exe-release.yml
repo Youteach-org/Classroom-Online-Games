@@ -1,0 +1,41 @@
+name: Publish already verified DEA S3 GPIO15-17 EXE
+on:
+  push:
+    branches:
+      - fix/dea-v15-s3-restore-20261025
+    paths:
+      - .github/workflows/dea-s3-verified-exe-release.yml
+
+jobs:
+  direct-exe-from-verified-run:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Download exactly the already Windows-tested GPIO15-17 EXE
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -eu
+          mkdir -p dist
+          gh run download 40261305828 --name dea-v15-s3-offline-exe --dir dist
+          test -s dist/DEA_Actualizador_Permanente.exe
+          sha256sum dist/DEA_Actualizador_Permanente.exe
+      - name: Publish a standalone direct download without changing stable
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -eu
+          tag=dea-s3-gpio15-17-preview
+          notes="Compilacion ESP32-S3 GPIO15/16/17 verificada en la ejecucion GitHub Actions 40261305828. TFT GPIO8-12 intacta. Voz, musica, escenarios y firmware empaquetados en el EXE. Version de prueba: las nuevas fotos aun no estan aprobadas. Sonido real y pantalla fisica pendientes de prueba. Release estable anterior no modificado."
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" dist/DEA_Actualizador_Permanente.exe --clobber
+            gh release edit "$tag" --title "DEA ESP32-S3 — prueba GPIO 15/16/17" --notes "$notes" --prerelease
+          else
+            gh release create "$tag" dist/DEA_Actualizador_Permanente.exe \
+              --target 8beedd27c012be2fe296beeb06efe6c3dcd9d513 --prerelease \
+              --title "DEA ESP32-S3 — prueba GPIO 15/16/17" --notes "$notes"
+          fi
