@@ -199,7 +199,7 @@ def _json_model(client, model, prompt, attachment=None):
 
 def _stage1_transcript(client, attachment, model):
     # Matches the original Oral Grader Stage 1 literal diarized transcript.
-    if hasattr(client, 'interactions'):
+    if hasattr(client, 'interactions') and os.environ.get('ORAL_GRADER_STAGE1_METHOD') != 'generate_content':
         try:
             call = client.interactions.create(
                 model='gemini-3.5-transcribe',
