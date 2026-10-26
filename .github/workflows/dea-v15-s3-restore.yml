@@ -309,8 +309,11 @@ jobs:
           fi
 
   publish-corrected-stable:
-    # La rama de trabajo solo compila y prueba. Publicacion tras revision visual.
-    if: github.event_name == 'workflow_dispatch'
+    # Publicación estable solo por ejecución manual o por commit explícito [DEA-STABLE].
+    # Ambas rutas requieren compilar, probar y aprobar el self-test de Windows.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[DEA-STABLE]'))
     needs: smoke-test-windows
     runs-on: ubuntu-latest
     permissions:
