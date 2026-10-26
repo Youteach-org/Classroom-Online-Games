@@ -20,6 +20,7 @@ física ST7735 de 160 × 128 píxeles.
 | `05_electrodos_vista_anterior_propuesta.jpg` | Colocar parches adulto (nueva vista frontal orientada) | Pendiente de aprobación: superior en pecho derecho del maniquí; lateral en costillas izquierdas bajo axila |
 | `06_compresiones_rcp.jpg` | Iniciar compresiones | Pendiente de aprobación |
 | `07_todos_despejados_revisar.jpg` | Apartarse para análisis/descarga (intento anterior) | **Rechazado:** segundo electrodo demasiado bajo/anterior |
+| `07_todos_despejados_corregida_propuesta.jpg` | Apartarse para análisis/descarga; mujer sin tocar maniquí ni cables | Pendiente de aprobación: conserva electrodo superior a la derecha del paciente y lateral bajo axila izquierda |
 | `08_pulsar_descarga.jpg` | Pulsar el botón de descarga en DEA de entrenamiento | Pendiente de aprobación |
 | `09_ventilaciones.jpg` | Ventilación en maniquí con mascarilla de bolsillo | Pendiente de aprobación |
 | `10_error_conexion.jpg` | Error: conector del cable de los parches separado del equipo | Pendiente de aprobación |
