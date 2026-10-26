@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedBy": "HeyGen create_speech",
-  "totalDurationSeconds": 287.8375714285714,
+  "totalDurationSeconds": 287.8845714285714,
   "voiceProfiles": {
     "aed-female-latam": {
       "voiceId": "fWZozqyB99JyQDYA98eg",
@@ -17,7 +17,7 @@
       "voiceId": "7e5eebc368ab477a9175b7d2a2c3317e",
       "speed": 0.95,
       "language": "es",
-      "usage": "AED_BEGIN_CPR only"
+      "usage": "AED_BEGIN_CPR plus the RCP suffix of AED_CONTINUE_CPR"
     },
     "aed-continue-hybrid": {
       "description": "Original AED 'Continúe' + approved Lucía 'ERRE CE PE' splice",
@@ -78,12 +78,14 @@
     {
       "filename": "aed-begin-cpr.wav",
       "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/7e5eebc368ab477a9175b7d2a2c3317e/id=8be30466-b0d4-4cd6-84fe-5c857eee5171.wav",
+      "approvedSource": "approved/13-lucia-inicie-rcp.mp3",
       "duration": 2.5338775510204083
     },
     {
       "filename": "aed-continue-cpr.wav",
       "url": "https://resource2.heygen.ai/text_to_speech/b505f10a8b464157abe20e0d0efc668d/fWZozqyB99JyQDYA98eg/id=16d575ba-e132-4949-a2ba-43d4769d7912.wav",
-      "duration": 1.849,
+      "approvedSource": "approved/14-continue-rcp-lucia.mp3",
+      "duration": 1.896,
       "composition": {
         "segments": [
           {

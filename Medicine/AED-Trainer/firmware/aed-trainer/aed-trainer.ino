@@ -10,8 +10,10 @@
 #include "audio-player.h"
 #include "ble-server.h"
 #include "display-adapter.h"
+#include "hardware-config.h"
 #include "input-adapter.h"
 #include "prompt-map.h"
+#include "shock-led.h"
 #include "trainer-core.h"
 
 namespace {
@@ -138,7 +140,15 @@ void renderOperationalView() {
   display.showState(snapshot.state, stateFallback(snapshot.state));
 }
 
+void syncShockLed() {
+  digitalWrite(
+      HardwareConfig::SHOCK_LED,
+      shouldLightShockLed(trainer.state()) ? HIGH : LOW);
+}
+
 void syncStateView(bool force = false) {
+  // A recommendation can change through local controls or BLE.
+  syncShockLed();
   const TrainerState current = trainer.state();
   const bool stateChanged = current != lastRenderedState;
   if (!force && !stateChanged) return;
@@ -442,6 +452,8 @@ void serviceShockButton() {
     return;
   }
 
+  // Extinguish immediately, before playing the blocking discharge sound.
+  syncShockLed();
   Serial.println("SIMULATED_SHOCK");
   const bool shockAudioOk = audio.playShockBuzz();
   Serial.println(shockAudioOk ? "SHOCK_AUDIO_OK" : "SHOCK_AUDIO_FAIL");
@@ -537,6 +549,8 @@ void setup() {
   Serial.begin(115200);
   delay(250);
 
+  pinMode(HardwareConfig::SHOCK_LED, OUTPUT);
+  digitalWrite(HardwareConfig::SHOCK_LED, LOW);
   display.begin();
   inputs.begin();
 

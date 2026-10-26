@@ -16,6 +16,8 @@ constexpr int TFT_HEIGHT = 128;
 constexpr int MENU_BUTTON = 4;
 constexpr int OK_BUTTON = 5;
 constexpr int SHOCK_BUTTON = 18;
+// Active-high indicator for the illuminated SHOCK pushbutton (3.3 V LED).
+constexpr int SHOCK_LED = 21;
 
 // MAX98357A I2S: restored original GPIO 15/16/17; TFT pins unchanged.
 // SD to 3V3, GAIN to GND, common GND; VIN 5V per existing hardware.

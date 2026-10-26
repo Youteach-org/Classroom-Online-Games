@@ -4,8 +4,8 @@
   "format": "WAV IMA-ADPCM mono",
   "sampleRate": 10000,
   "budgetBytes": 1750000,
-  "totalBytes": 1480294,
-  "sourceDurationSeconds": 287.0857142857143,
+  "totalBytes": 1484390,
+  "sourceDurationSeconds": 287.8845714285714,
   "clips": [
     {
       "filename": "aed-startup.wav",
@@ -99,12 +99,12 @@
     },
     {
       "filename": "aed-begin-cpr.wav",
-      "bytes": 9310,
+      "bytes": 13406,
       "codec": "adpcm_ima_wav",
       "sampleRate": 10000,
       "channels": 1,
       "bitsPerSample": 4,
-      "sourceDurationSeconds": 1.6979591836734693
+      "sourceDurationSeconds": 2.5338775510204083
     },
     {
       "filename": "aed-continue-cpr.wav",
@@ -113,7 +113,7 @@
       "sampleRate": 10000,
       "channels": 1,
       "bitsPerSample": 4,
-      "sourceDurationSeconds": 1.933061224489796
+      "sourceDurationSeconds": 1.896
     },
     {
       "filename": "aed-reassess.wav",

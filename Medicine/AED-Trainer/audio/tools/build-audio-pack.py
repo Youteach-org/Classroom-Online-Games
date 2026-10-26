@@ -27,6 +27,21 @@ def ffprobe(path):
     return json.loads(out)["streams"][0]
 
 
+def prepare_source(clip, destination):
+    # The two expressly approved CPR masters must never be replaced by a
+    # remote original during a routine full-pack rebuild.
+    approved = clip.get("approvedSource")
+    if approved:
+        source = (ROOT / approved).resolve()
+        if not source.is_relative_to(ROOT.resolve()):
+            raise ValueError(f"approved source escapes audio directory: {approved}")
+        if not source.is_file():
+            raise FileNotFoundError(f"missing approved recording: {source}")
+        shutil.copyfile(source, destination)
+    else:
+        urllib.request.urlretrieve(clip["url"], destination)
+
+
 def main():
     data = json.loads(SOURCES.read_text())
     clips = data["clips"]
@@ -44,7 +59,7 @@ def main():
             src = tmp / f"{index:03d}-source.wav"
             dst = ASSETS / clip["filename"]
             print(f"[{index:02d}/{len(clips)}] {clip['filename']}")
-            urllib.request.urlretrieve(clip["url"], src)
+            prepare_source(clip, src)
             # Classroom profile: remove low-frequency energy that the small
             # speaker cannot use efficiently, compress speech dynamics, keep
             # average loudness high and hard-limit peaks before ADPCM.
