@@ -58,6 +58,41 @@ class DisplayJpegPackTests(unittest.TestCase):
         self.assertEqual(offset, 14 + 32 * 8)
         self.assertEqual(length, len(self.jpg))
 
+    def test_high_resolution_photograph_is_downsampled_without_palette_or_warp(self):
+        # Catches rejecting a high-resolution source instead of preparing it
+        # for the actual 160x128 display. Expected dimensions are physical.
+        image = Image.new("RGB", (640, 512))
+        image.putdata([(x * 255 // 639, y * 255 // 511, 100)
+                       for y in range(512) for x in range(640)])
+        output = io.BytesIO()
+        image.save(output, format="JPEG", quality=95, subsampling=0)
+        key = ASSET_KEYS[0]
+        source = dict(self.source, **{
+            key: base64.b64encode(output.getvalue()).decode("ascii")
+        })
+
+        jpeg = parse_pack(build_pack(source))[0]
+        downsized = Image.open(io.BytesIO(jpeg))
+        self.assertEqual(downsized.size, (160, 128))
+        # Full color depth and both image axes must survive the resize.
+        self.assertGreater(len(set(downsized.get_flattened_data())), 1000)
+        r, g, _ = downsized.getpixel((80, 64))
+        self.assertTrue(110 <= r <= 145)
+        self.assertTrue(110 <= g <= 145)
+
+    def test_rejects_upscale_and_mismatched_aspect_ratio(self):
+        key = ASSET_KEYS[0]
+        for size in [(80, 64), (640, 480)]:
+            with self.subTest(size=size):
+                image = Image.new("RGB", size, "blue")
+                output = io.BytesIO()
+                image.save(output, format="JPEG")
+                source = dict(self.source, **{
+                    key: base64.b64encode(output.getvalue()).decode("ascii")
+                })
+                with self.assertRaisesRegex(ValueError, "160x128"):
+                    build_pack(source)
+
 
 if __name__ == "__main__":
     unittest.main()

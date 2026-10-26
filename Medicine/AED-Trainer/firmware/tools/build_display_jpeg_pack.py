@@ -1,4 +1,4 @@
-"""Stage V15 TFT JPEG assets in their original full-color encoding.
+"""Stage V15 TFT JPEG assets with full color and careful source resizing.
 
 Container DEAV15J1: magic[8], width/height/count uint16-le, then 32 pairs
 of (absolute offset, JPEG length) uint32-le, followed by JPEG bytes.
@@ -55,8 +55,23 @@ def build_pack(assets: dict[str, str]) -> bytes:
             with Image.open(io.BytesIO(raw)) as image:
                 image.verify()
             with Image.open(io.BytesIO(raw)) as image:
+                width, height = image.size
+                # Never enlarge a thumbnail or silently crop a photo; both
+                # create the distorted/blurry output the TFT review rejected.
+                if (width < WIDTH or height < HEIGHT or
+                    abs(width * HEIGHT - height * WIDTH) >
+                        max(width * HEIGHT, height * WIDTH) * 0.01):
+                    raise ValueError(
+                        f"{key} must be 160x128 or larger 5:4 JPEG, "
+                        f"got {image.size}"
+                    )
                 if image.size != (WIDTH, HEIGHT):
-                    raise ValueError(f"{key} must be 160x128, got {image.size}")
+                    out = io.BytesIO()
+                    image.convert("RGB").resize(
+                        (WIDTH, HEIGHT), Image.Resampling.LANCZOS,
+                        reducing_gap=3.0
+                    ).save(out, format="JPEG", quality=90, subsampling=0)
+                    raw = out.getvalue()
         except OSError as err:
             raise ValueError(f"Invalid JPEG: {key}") from err
         encoded.append(raw)
