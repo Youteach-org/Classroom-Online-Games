@@ -84,3 +84,13 @@ Los modificadores `T0–T8` y clínicos `C0–C16` se pueden asignar en Teacher 
 ![Borrador 12 pantallas 160×128](assets/dea-flow-preview-draft.webp)
 
 El collage muestra doce fotogramas con interfaz diseñada sobre un lienzo real de 160×128 y ampliada por nearest-neighbor solo para revisión en computadora. Los escenarios y voces permanecen descritos arriba. **Las fotografías generadas y los iconos son borradores, no imágenes autorizadas para el EXE**. Cualquier discrepancia clínica, de encuadre o composición debe corregirse antes de ensamblar los 32 recursos finales.
+
+## Restricción visual explícita del 25-oct-2026
+
+**RECHAZADO por el usuario:** las ilustraciones de figuras de palitos, pictogramas geométricos simplificados, monigotes, iconos clínicos hechos con líneas rudimentarias y los borradores de las 12 pantallas que los incorporan. No presentarlos nuevamente como diseño propuesto ni integrarlos en el EXE.
+
+**RECHAZADO:** degradar fotografías e ilustraciones a una paleta de solo **16 colores** y ampliar recursos de baja calidad. La TFT ST7735 es físicamente **160×128 píxeles (20,480 píxeles)**, pero admite **RGB565 (hasta 65,536 colores)**; la resolución física no se mejora por software, mientras que el color, antialiasing antes de la conversión, composición y selección de elementos sí pueden mejorar el resultado visual.
+
+**REQUERIDO:** partir de las imágenes realistas y anatómicamente correctas que fueron aprobadas previamente (identificar y verificar primero su fuente; las 25 JPG recuperadas aún carecen de prueba de autorización); encuadrar cada escena específicamente para la TFT horizontal sin bandas negras, recortes anatómicos, distorsión ni textos superpuestos. Mantener ECG y RCP animados con controles y audio correspondientes. Presentar vistas reales a tamaño de pantalla y vistas ampliadas solo para inspección, y someterlas a revisión visual antes de empaquetar. No tocar pines de la TFT ni modificar el esquema del amplificador por corregir arte.
+
+**Inventario NO equivalente a aprobación:** 32 pantallas comprimidas en 16 colores de V15-R2; 25 JPG fuentes históricas; 12 borradores de interfaz con pictogramas rechazados; 2 fotografías nuevas sin aprobación. Ninguna de estas categorías debe confundirse con un conjunto visual autorizado para publicación.
