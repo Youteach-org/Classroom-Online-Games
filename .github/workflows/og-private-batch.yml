@@ -29,3 +29,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           ORAL_GRADER_BATCH_MODEL: gemini-3-flash-preview
         run: python Oral-Grader/private_batch_worker.py
+
+# Fresh original retry batch for transient Gemini 503, requested 2026-10-27.
