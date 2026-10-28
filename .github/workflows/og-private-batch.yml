@@ -26,7 +26,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GH_TOKEN: ${{ github.token }}
-          ORAL_GRADER_BATCH_MODEL: gemini-3.1-flash-lite
+          ORAL_GRADER_BATCH_MODEL: gemini-3-flash-preview
         run: python Oral-Grader/private_batch_worker.py
 
 # Fresh eight-audio evaluation requested 2026-10-27; retain all stage reports.
@@ -34,3 +34,5 @@ jobs:
 # Re-evaluate all eight original audios with teacher-calibrated unit scope, 2026-10-28.
 
 # Renew expired transport session at 2026-10-28T15:40Z.
+
+# Retry calibrated batch with original primary model after fallback 503 responses.
