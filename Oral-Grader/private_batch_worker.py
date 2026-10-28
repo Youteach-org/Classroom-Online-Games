@@ -25,6 +25,8 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from secure_envelope import decrypt_audio, encrypt_response, unwrap_request
 
 
+TEACHER_CALIBRATION = "TEACHER CALIBRATION FOR THIS EXAM (overrides generic proficiency expectations):\nPassing is 32/40, not a target or quota. Keep the original five criteria with equal integer 0..8 scores, but apply a flexible classroom communicative standard, not native-like speech or a general B2 certification standard. The assessed linguistic syllabus is ONLY Connectivity 4 units 5-7, verified against the teacher's local Student Book:\nUnit 5 Community: inconsiderate behavior (cut in line, jaywalk, take too long, make noise, blast loud music, spit gum), expressions of annoyance; negative-prefix adjectives; neighborhood improvements and infrastructure. Grammar: possessive gerunds and paired conjunctions either/or, neither/nor, not only/but. Optional grammar expander is not required.\nUnit 6 The World's Creatures: pets and animals; traits affectionate, gentle/good-natured, low-maintenance, loyal/devoted, playful, protective, aggressive, costly, destructive, filthy, high-maintenance, excitable; physical features/social groups. Grammar: passive modals and modal-like expressions including questions.\nUnit 7 Shopping and Advertising: window shopping, browsing, comparison shopping, bargain hunting; persuasive verbs endorse, prove, promote, imply; advertising and shopping behavior. Grammar: passive gerunds and infinitives.\nEvaluate vocabulary actually used appropriately in context and target grammar only where the teacher's actual question elicited it. Do not require every unit, topic, vocabulary list, or structure to appear. If target grammar was not elicited, explicitly say not assessed and do not deduct for its absence or invent evidence of mastery.\nBe forgiving of general grammar slips outside the target syllabus; these may be feedback but must not be independent grounds for deductions. Be forgiving of pronunciation errors and accent; only sustained, audibly verified breakdowns of intelligibility matter. Never convert an uncertain transcription spelling into a pronunciation penalty.\nJudge fluency, coherence and interaction through successful communication of the relevant unit task. Ordinary hesitation, self-correction, simple language, accent, asking for repetition or brief vocabulary help do not prevent a high score when the message succeeds. Do not deduct twice across criteria for the same issue without distinct demonstrated consequences. Do not treat unequal talk time by itself as failure.\nScore anchors within each criterion: 8 fully accomplishes the relevant classroom task, minor errors allowed; 7 accomplishes it with small lapses; 6 partial but meaningful accomplishment with some gaps; 5 substantial gaps; 3-4 limited evidence or repeated communication failure; 1-2 minimal evidence; 0 no assessable performance. Do not automatically give everyone a pass or add a fixed bonus. Base each score on specific evidence.\nFor each criterion give a Spanish rationale with exact short transcript quotations and valid timestamps (seconds are fine). Explain what the student successfully communicated, any actual limitation, and how the flexible policy was applied. Include Spanish feedback. Flag uncertain voice mapping; never assign one voice's work to two students as certain. Do not expose or use previous scores.\n"
+
 RUBRIC_KEYS = (
     'fluency',
     'coherence_and_organization',
@@ -252,6 +254,7 @@ def _grade_one(client, model, audio_file, entry):
         stage1 = _stage1_transcript(client, uploaded, model)
         students = entry['students']
         stage2_prompt = (
+            TEACHER_CALIBRATION + '\n' +
             'You are Oral Grader Stage 2. Review the original audio and the literal '
             'speaker-labelled transcript. Students: ' + json.dumps(students) + '. '
             'Exclude the teacher from scoring. Map each voice to the named student '
@@ -266,6 +269,7 @@ def _grade_one(client, model, audio_file, entry):
         )
         stage2 = _json_model(client, model, stage2_prompt, uploaded)
         stage3_prompt = (
+            TEACHER_CALIBRATION + '\n' +
             'You are the Oral Grader Stage 3 summative assessor. '
             'Using Stage 1 literal evidence and Stage 2 voice/audio analysis, score '
             'each student independently in FIVE criteria, each integer 0..8: '
