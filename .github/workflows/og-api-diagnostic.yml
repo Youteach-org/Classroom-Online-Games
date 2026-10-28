@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install 'google-genai>=1.30'
-      - name: Check the original Gemini fallback quota without student data
+      - name: Check original primary Gemini quota without student data
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         shell: bash
@@ -27,7 +27,7 @@ jobs:
           key = os.environ['GEMINI_API_KEY']
           client = genai.Client(api_key=key)
           try:
-              response = client.models.generate_content(model='gemini-3.1-flash-lite', contents='Reply OK.')
+              response = client.models.generate_content(model='gemini-3-flash-preview', contents='Reply OK.')
               print('GEMINI_QUOTA_PROBE_OK', bool(response.text), flush=True)
           except Exception as error:
               print('GEMINI_QUOTA_PROBE_ERROR', type(error).__name__, getattr(error, 'code', None), flush=True)
