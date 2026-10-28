@@ -15,6 +15,7 @@ import secrets
 import signal
 import tempfile
 import time
+import traceback
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -339,6 +340,7 @@ def _process(payload, on_progress=None):
                 results.append({'source': entry['name'],
                                 'error_type': type(exc).__name__,
                                 'error_code': getattr(exc, 'code', None),
+                                'error_frames': [{'file': pathlib.Path(f.filename).name, 'function': f.name, 'line': f.lineno} for f in traceback.extract_tb(exc.__traceback__)],
                                 'grade': None})
             finally:
                 signal.setitimer(signal.ITIMER_REAL, 0)
