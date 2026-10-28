@@ -295,6 +295,8 @@ def _grade_one(client, model, audio_file, entry):
             'model': model,
             'stage1_model': stage1['model'],
             'stages': ['literal_transcription', 'audio_evidence', 'rubric'],
+            'stage1': stage1,
+            'stage2': stage2,
             'grade': validate_scores(scores, students),
         }
     finally:
