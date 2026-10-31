@@ -28,7 +28,7 @@ test('real browser: teacher creates room and student submits 10 answers',{timeou
  GAME='http://127.0.0.1:'+webServer.address().port+'/';
  const dir=mkdtempSync(path.join(os.tmpdir(),'ssc-chrome-'));
  const child=spawn(binary,['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--remote-debugging-port=0','--user-data-dir='+dir,'about:blank'],{stdio:'ignore'});
- let code='',teacher,student;
+ let code='',teacher,student,others=[];
  try{
   const port=await until(()=>{const f=path.join(dir,'DevToolsActivePort');return existsSync(f)&&Number(readFileSync(f,'utf8').split('\n')[0]);},12000);
   async function open(url){const res=await fetch('http://127.0.0.1:'+port+'/json/new?'+encodeURIComponent(url),{method:'PUT'});assert.equal(res.status,200);const tab=await res.json();const page=new Page(tab.webSocketDebuggerUrl);await page.ready;await page.send('Runtime.enable');await page.send('Page.enable');return page;}
@@ -46,12 +46,34 @@ test('real browser: teacher creates room and student submits 10 answers',{timeou
   await until(()=>student.eval('!document.getElementById("studentPanel").classList.contains("hidden") && !!document.getElementById("submitAnswers")'),14000);
   await student.eval('document.querySelectorAll(\'[data-answer="yes"]\').forEach(b=>b.click());document.getElementById("submitAnswers").click()');
   await until(()=>teacher.eval('document.getElementById("readyCount")?.textContent==="1"'),14000);
+  for(let n=2;n<=4;n++){
+   const peer=await open(GAME+'?code='+code);
+   others.push(peer);
+   await until(()=>peer.eval('document.readyState==="complete" && !!document.getElementById("joinBtn")'),8000);
+   await peer.eval('document.getElementById("studentName").value="Sample Investigator '+n+'";document.getElementById("joinBtn").click()');
+   await until(()=>peer.eval('!!document.getElementById("submitAnswers")'),9000);
+   await peer.eval('document.querySelectorAll(\'[data-answer="yes"]\').forEach(b=>b.click());document.getElementById("submitAnswers").click()');
+  }
+  await until(()=>teacher.eval('document.getElementById("readyCount")?.textContent==="4"'),12000);
+  await teacher.eval('document.getElementById("startBtn").click()');
+  await until(()=>teacher.eval('document.getElementById("teacherTeams")?.textContent?.includes("TEAM MIDNIGHT")'),12000);
+  await until(()=>student.eval('!!document.getElementById("guessBadge")'),12000);
+  const id=await student.eval('localStorage.getItem("ssc:player:"+new URLSearchParams(location.search).get("code"))');
+  assert.ok(id);
+  const live=await (await fetch('https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/supportMeter/secretSkills/rooms/'+code+'.json')).json();
+  assert.equal(Object.keys(live.players).length,4);
+  const target=live.players[live.players[id].target];
+  assert.ok(target?.badge);
+  await student.eval('document.getElementById("guessBadge").value='+JSON.stringify(target.badge)+';document.getElementById("verifyBtn").click()');
+  await until(()=>student.eval('!!document.getElementById("witnessDone")'),12000);
+  await student.eval('document.getElementById("witnessDone").click()');
+  await until(()=>student.eval('document.getElementById("studentTitle")?.textContent==="WAIT FOR YOUR TEAM"'),12000);
   const teacherUrl=await teacher.eval('document.getElementById("copyTeacher")!==null && document.getElementById("qr")?.src.includes("create-qr-code")');
   assert.equal(teacherUrl,true);
   const studentUrl=await teacher.eval('document.getElementById("shareLink")?.textContent');
   assert.ok(studentUrl.startsWith(GAME+'?code='+code),'Student QR points at wrong page: '+studentUrl);
  } finally{
-   if(student)student.close();if(teacher)teacher.close();
+   for(const peer of others)peer.close();if(student)student.close();if(teacher)teacher.close();
    if(code){try{await fetch('https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/supportMeter/secretSkills/rooms/'+code+'.json',{method:'DELETE',signal:AbortSignal.timeout(6500)});}catch{}}
    child.kill('SIGTERM');try{rmSync(dir,{recursive:true,force:true,maxRetries:8,retryDelay:200});}catch{}webServer.close();
  }
