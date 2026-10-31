@@ -26,7 +26,7 @@ const params=new URLSearchParams(location.search);
 let state={role:"",code:"",teacherKey:"",playerId:"",playerName:"",data:null,off:null,lastView:"",draft:Array(10).fill(null),busy:false};
 const feedback=(id,message)=>{$(id).textContent=message||"";};
 function show(role){$("landing").classList.toggle("hidden",!!role);$("teacherPanel").classList.toggle("hidden",role!=="teacher");$("studentPanel").classList.toggle("hidden",role!=="student");state.role=role;}
-function shareUrl(code,teacherKey=""){const url=new URL(location.pathname,location.origin);url.searchParams.set("code",code);if(teacherKey)url.searchParams.set("teacher",teacherKey);return url.toString();}
+const gamePath=location.pathname.replace(/\/teacher(?:\/index\.html)?\/?$/i,"/").replace(/\/index\.html$/i,"/");\nfunction shareUrl(code,teacherKey=""){const url=new URL(gamePath+(teacherKey?"teacher/":""),location.origin);url.searchParams.set("code",code);if(teacherKey)url.searchParams.set("teacher",teacherKey);return url.toString();}
 function setupRoomListener(){
  if(state.off)state.off();
  state.off=onValue(roomRef(state.code),snap=>{
@@ -114,7 +114,7 @@ function renderTeacher(){
  $("totalCount").textContent=players.length;$("readyCount").textContent=ready;$("matchCount").textContent=matched;
  $("teacherProgress").style.width=(players.length?100*ready/players.length:0)+"%";
  const studentLink=shareUrl(state.code);$("shareLink").textContent=studentLink;
- $("qr").src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data="+encodeURIComponent(studentLink);
+ $("qr").src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data="+encodeURIComponent(studentLink);\n const monitorOpen=$("openTeacher");if(monitorOpen){monitorOpen.href=shareUrl(state.code,state.teacherKey);monitorOpen.style.display=location.pathname.includes("/teacher/")?"none":"inline-flex";}
  $("teacherStudents").innerHTML=players.length?players.map(p=>'<span class="chip '+(submitted(p)?"done":"pending")+'">'+esc(p.name)+' '+(p.found?"★":submitted(p)?"✓":"·")+'</span>').join(""):'<span class="small">Waiting for students to join…</span>';
  const eligible=room.status==="lobby"&&players.length>=4&&players.length%4===0&&ready===players.length;
  $("startBtn").disabled=!eligible;$("startBtn").classList.toggle("hidden",room.status!=="lobby");
@@ -214,7 +214,7 @@ function renderWitness(p){
  const target=roomPlayer(p.target);if(!target)return;
  const id=[0,1,2,3,4].find(i=>target.answers[i]===true)??0,q=questions[id],yes=target.answers[id],name=target.name;
  const claim=yes?name+" doesn't "+(q.verb.startsWith("have ")?"have "+q.verb.slice(5):q.verb)+".":name+" "+q.third+".";
- const correction=name+" "+(yes?"DOES ":"DOESN’T ")+q.verb+".";
+ const thirdPersonBase=q.verb.replace("your hands","their hands");\n const correction=name+" "+(yes?"DOES ":"DOESN’T ")+thirdPersonBase+".";
  $("studentStage").textContent="PHASE 3 / WITNESS STATEMENT";
  $("studentTitle").textContent="MATCH CONFIRMED!";
  $("studentIntro").textContent="You found "+name+". Now speak about this student to a THIRD classmate using emphatic DOES.";
