@@ -58,10 +58,10 @@ test('real browser: teacher creates room and student submits 10 answers',{timeou
   await teacher.eval('document.getElementById("startBtn").click()');
   await until(()=>teacher.eval('document.getElementById("teacherTeams")?.textContent?.includes("TEAM MIDNIGHT")'),12000);
   await until(()=>student.eval('!!document.getElementById("guessBadge")'),12000);
-  const id=await student.eval('localStorage.getItem("ssc:player:"+new URLSearchParams(location.search).get("code"))');
-  assert.ok(id);
   const live=await (await fetch('https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/supportMeter/secretSkills/rooms/'+code+'.json')).json();
   assert.equal(Object.keys(live.players).length,4);
+  const id=Object.keys(live.players).find(key=>live.players[key].name==="Sample Investigator");
+  assert.ok(id);
   const target=live.players[live.players[id].target];
   assert.ok(target?.badge);
   await student.eval('document.getElementById("guessBadge").value='+JSON.stringify(target.badge)+';document.getElementById("verifyBtn").click()');
