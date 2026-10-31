@@ -42,6 +42,6 @@ test('real browser: teacher creates room and student submits 10 answers',{timeou
  } finally{
    if(student)student.close();if(teacher)teacher.close();
    if(code){try{await fetch('https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/supportMeter/secretSkills/rooms/'+code+'.json',{method:'DELETE',signal:AbortSignal.timeout(6500)});}catch{}}
-   child.kill('SIGTERM');rmSync(dir,{recursive:true,force:true});
+   child.kill('SIGTERM');try{rmSync(dir,{recursive:true,force:true,maxRetries:8,retryDelay:200});}catch{}
  }
 });
