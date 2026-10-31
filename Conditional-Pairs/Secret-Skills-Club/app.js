@@ -1,9 +1,51 @@
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getDatabase,ref,get,set,update,onValue,runTransaction} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-const firebaseConfig={apiKey:"AIzaSyCpKL-4eHrqFiUntViiUB2BPs60XumC1K4",authDomain:"youteach-d9a79.firebaseapp.com",databaseURL:"https://youteach-d9a79-default-rtdb.firebaseio.com",projectId:"youteach-d9a79",storageBucket:"youteach-d9a79.firebasestorage.app",messagingSenderId:"302548732789",appId:"1:302548732789:web:b230b7f74366488d45a13c"};
-const db=getDatabase(initializeApp(firebaseConfig,"secret-skills-club"));
+// Use the existing Firebase Realtime Database REST interface directly.
+// This avoids third-party module loading failures on school browsers.
 const root="classroomGames/supportMeter/secretSkills/rooms";
+const db={};
+const ref=(_db,path)=>path;
+const endpoint=path=>"https://youteach-d9a79-default-rtdb.firebaseio.com/"+path+".json";
+const snapshot=value=>({val:()=>value,exists:()=>value!==null&&value!==undefined});
+async function request(path,method="GET",data,headers={}){
+ const response=await fetch(endpoint(path),{
+  method,headers:{...(data!==undefined?{"Content-Type":"application/json"}:{}),...headers},
+  ...(data!==undefined?{body:JSON.stringify(data)}:{}),
+  signal:AbortSignal.timeout(12000),cache:"no-store"
+ });
+ const body=await response.text();
+ if(!response.ok){
+  const detail=body.slice(0,250);
+  throw Error("Database "+method+" failed ("+response.status+"): "+detail);
+ }
+ if(!body)return null;
+ try{return JSON.parse(body);}catch{return null;}
+}
+const get=async path=>snapshot(await request(path));
+const set=(path,value)=>request(path,"PUT",value);
+const update=(path,changes)=>request(path,"PATCH",changes);
+async function runTransaction(path,apply){
+ // The randomly generated six-hex-digit room code is checked before writing.
+ // Existing sessions are never overwritten.
+ const existing=(await get(path)).val();
+ const next=apply(existing);
+ if(next===undefined)return {committed:false};
+ await set(path,next);
+ return {committed:true};
+}
+function onValue(path,callback,onError){
+ let cancelled=false,inFlight=false;
+ const poll=async()=>{
+  if(cancelled||inFlight)return;
+  inFlight=true;
+  try{
+   const value=await get(path);
+   if(!cancelled)callback(value);
+  }catch(error){if(!cancelled&&onError)onError(error);}
+  finally{inFlight=false;}
+ };
+ poll();
+ const interval=setInterval(poll,1250);
+ return ()=>{cancelled=true;clearInterval(interval);};
+}
 const $=id=>document.getElementById(id);
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const random=(n=16)=>Array.from(crypto.getRandomValues(new Uint8Array(n))).map(v=>v.toString(16).padStart(2,"0")).join("");
