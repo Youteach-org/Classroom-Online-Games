@@ -26,7 +26,8 @@ test('real browser: teacher creates room and student submits 10 answers',{timeou
   await until(()=>teacher.eval('document.readyState==="complete" && !!document.getElementById("createBtn")'),15000);
   await sleep(1700);
   await teacher.eval('document.getElementById("createBtn").click()');
-  code=await until(()=>teacher.eval('document.getElementById("teacherCode")?.textContent?.match(/^[A-F0-9]{6}$/)?.[0]'),18000);
+  try { code=await until(()=>teacher.eval('document.getElementById("teacherCode")?.textContent?.match(/^[A-F0-9]{6}$/)?.[0]'),13000); }
+  catch(err){const diagnostic=await teacher.eval('JSON.stringify({feedback:document.getElementById("createFeedback")?.textContent,teacherFeedback:document.getElementById("teacherFeedback")?.textContent,createDisabled:document.getElementById("createBtn")?.disabled,createText:document.getElementById("createBtn")?.textContent,loaded:document.readyState,resources:performance.getEntriesByType("resource").filter(e=>e.name.includes("firebase")).map(e=>e.name),path:location.pathname})');throw Error("Teacher room creation failed: "+diagnostic+"; "+err.message);}
   assert.match(code,/^[A-F0-9]{6}$/);
   student=await open(GAME+'?code='+code);
   await until(()=>student.eval('document.readyState==="complete" && !!document.getElementById("joinBtn")'),15000);
