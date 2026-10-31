@@ -6,6 +6,6 @@ const path='Conditional-Pairs/Secret-Skills-Club/app.js';
 test('Secret Skills Club app JavaScript parses',()=>{execFileSync(process.execPath,['--check',path],{stdio:'pipe'});});
 test('Secret Skills Club deploy has essential gameplay',()=>{
  const code=readFileSync(path,'utf8');
- for(const fragment of ['createRoom','joinRoom','renderQuiz','renderClues','renderWitness','createTeams','DOES','DID','DO ','firebase-database.js'])assert.ok(code.includes(fragment),fragment);
+ for(const fragment of ['createRoom','joinRoom','renderQuiz','renderClues','renderWitness','createTeams','DOES','DID','DO ','youteach-d9a79-default-rtdb.firebaseio.com'])assert.ok(code.includes(fragment),fragment);
  assert.ok(!code.toLowerCase().includes('supabase'));
 });
