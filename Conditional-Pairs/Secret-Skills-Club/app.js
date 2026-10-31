@@ -118,6 +118,13 @@ function renderTeacher(){
  $("qr").src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data="+encodeURIComponent(studentLink);
  const monitorOpen=$("openTeacher");if(monitorOpen){monitorOpen.href=shareUrl(state.code,state.teacherKey);monitorOpen.style.display=location.pathname.includes("/teacher/")?"none":"inline-flex";}
  $("teacherStudents").innerHTML=players.length?players.map(p=>'<span class="chip '+(submitted(p)?"done":"pending")+'">'+esc(p.name)+' '+(p.found?"★":submitted(p)?"✓":"·")+'</span>').join(""):'<span class="small">Waiting for students to join…</span>';
+
+ const roster=$("teacherRoster");
+ if(roster) roster.innerHTML=players.length?players.map(p=>{
+   const status=room.status==="closed"?"SESSION CLOSED":!submitted(p)?"QUESTIONNAIRE PENDING":room.status==="lobby"?"READY — WAITING":!p.found?"SEARCHING FOR MATCH":!p.witnessDone?"DOES STATEMENT PENDING":"MISSION COMPLETED";
+   const answers=Array.isArray(p.answers)?questions.map((q,i)=>'<div class="small" style="padding:4px 0;border-bottom:1px solid #ffffff16">'+(i+1)+'. '+esc(q.q)+' <b style="color:var(--gold)">'+(p.answers[i]?"YES":"NO")+'</b></div>').join(""):"No answers submitted yet.";
+   return '<article class="team"><div class="statusline" style="justify-content:space-between"><b>'+esc(p.name)+'</b><span class="badge">'+esc(status)+'</span></div><p class="small" style="margin:6px 0">Badge: '+esc(p.badge)+' · Team: '+(p.team||"Not assigned")+' · Match attempts: '+(p.attempts||0)+'</p><details><summary style="cursor:pointer;color:var(--ice)">Review questionnaire</summary>'+answers+'</details></article>';
+ }).join(""):'<p class="small">Waiting for players.</p>';
  const eligible=room.status==="lobby"&&players.length>=4&&players.length%4===0&&ready===players.length;
  $("startBtn").disabled=!eligible;$("startBtn").classList.toggle("hidden",room.status!=="lobby");
  $("endBtn").disabled=room.status==="closed";
