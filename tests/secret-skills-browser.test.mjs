@@ -2,9 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawn,execFileSync} from 'node:child_process';
 import {mkdtempSync,readFileSync,existsSync,rmSync} from 'node:fs';
+import {createServer} from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
-const GAME='https://classroom-online-games.pages.dev/Conditional-Pairs/Secret-Skills-Club/';
+let GAME='';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function until(f,timeout=20000){const start=Date.now();let last;while(Date.now()-start<timeout){try{const v=await f();if(v)return v;}catch(e){last=e;}await sleep(220);}throw Error('Timed out: '+String(last||''));}
 function chromeBinary(){for(const bin of ['google-chrome','google-chrome-stable','chromium','chromium-browser'])try{return execFileSync('which',[bin],{encoding:'utf8'}).trim();}catch{}return null;}
@@ -16,6 +17,15 @@ class Page {
 }
 test('real browser: teacher creates room and student submits 10 answers',{timeout:65000},async t=>{
  const binary=chromeBinary();if(!binary){t.skip('Chrome not installed in CI runner');return;}
+ const htmlRoot='Conditional-Pairs/Secret-Skills-Club/';
+ const webServer=createServer((req,res)=>{
+  const file=req.url.startsWith('/teacher/')?'teacher/index.html':req.url.startsWith('/app.js')?'app.js':'index.html';
+  const content=readFileSync(htmlRoot+file);
+  res.writeHead(200,{'Content-Type':file.endsWith('.js')?'text/javascript; charset=utf-8':'text/html; charset=utf-8','Cache-Control':'no-store'});
+  res.end(content);
+ });
+ await new Promise(resolve=>webServer.listen(0,'127.0.0.1',resolve));
+ GAME='http://127.0.0.1:'+webServer.address().port+'/';
  const dir=mkdtempSync(path.join(os.tmpdir(),'ssc-chrome-'));
  const child=spawn(binary,['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--remote-debugging-port=0','--user-data-dir='+dir,'about:blank'],{stdio:'ignore'});
  let code='',teacher,student;
@@ -43,6 +53,6 @@ test('real browser: teacher creates room and student submits 10 answers',{timeou
  } finally{
    if(student)student.close();if(teacher)teacher.close();
    if(code){try{await fetch('https://youteach-d9a79-default-rtdb.firebaseio.com/classroomGames/supportMeter/secretSkills/rooms/'+code+'.json',{method:'DELETE',signal:AbortSignal.timeout(6500)});}catch{}}
-   child.kill('SIGTERM');try{rmSync(dir,{recursive:true,force:true,maxRetries:8,retryDelay:200});}catch{}
+   child.kill('SIGTERM');try{rmSync(dir,{recursive:true,force:true,maxRetries:8,retryDelay:200});}catch{}webServer.close();
  }
 });
