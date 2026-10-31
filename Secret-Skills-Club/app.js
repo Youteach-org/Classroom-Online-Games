@@ -52,7 +52,7 @@ const submitted=p=>Array.isArray(p.answers)&&p.answers.length===10&&p.answers.ev
 function chooseClues(target,others){
  let ids=[0,1,2,3,4,5,6,7,8,9],chosen=[],remaining=[...others].filter(p=>p.id!==target.id);
  while(chosen.length<7&&ids.length){
-   ids.sort((a,b)=>remaining.filter(p=>p.answers?.[a]!==target.answers?.[a]).length-remaining.filter(p=>p.answers?.[b]!==target.answers?.[b]).length||((a<5)-(b<5)));
+   ids.sort((a,b)=>remaining.filter(p=>p.answers?.[a]!==target.answers?.[a]).length-remaining.filter(p=>p.answers?.[b]!==target.answers?.[b]).length||b-a);
    const pick=ids.pop();chosen.push(pick);
    remaining=remaining.filter(p=>p.answers?.[pick]===target.answers?.[pick]);
  }
@@ -146,9 +146,9 @@ function renderStudent(){
  const view=room.status==="closed"?"closed":!submitted(p)?"quiz":room.status==="lobby"?"waiting":!p.found?"clues":!p.witnessDone?"witness":"finished";
  $("studentCode").textContent="Room "+state.code+" · "+p.name;
  if(state.lastView===view&&view==="quiz")return;
- if(state.lastView===view&&view==="clues")return;
+ if(state.lastView===view&&view==="clues"&&state.lastAttempts===(p.attempts||0))return;
  if(state.lastView===view&&view==="witness")return;
- state.lastView=view;feedback("studentFeedback","");
+ state.lastView=view;state.lastAttempts=p.attempts||0;feedback("studentFeedback","");
  if(view==="quiz")renderQuiz(p);
  if(view==="waiting"){
  $("studentStage").textContent="READY FOR MISSION";$("studentTitle").textContent="YOUR ANSWERS ARE SAVED";
