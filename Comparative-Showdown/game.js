@@ -173,10 +173,10 @@ function monitor(){
   const deck=getDeck(r),entry=r.answers?.student?.[r.round];
   $("roomCode").textContent=state.code;
   $("shareUrl").textContent=studentLink();
-  $("hostConnection").textContent="Room "+state.code+" · "+(r.mode==="full"?"35":"14")+" missions · "+r.status.toUpperCase();
-  $("studentBadge").textContent=r.student?(liveStudent()?"● ONLINE":"● OFFLINE"):"WAITING";
+  $("hostConnection").textContent=(r.mode==="full"?"35":"14")+" preguntas · "+(r.status==="lobby"?"esperando al alumno":r.status==="playing"?"en juego":r.status==="revealed"?"respuesta visible":r.status==="finished"?"finalizada":"cerrada");
+  $("studentBadge").textContent=r.student?(liveStudent()?"● CONECTADO":"● SIN CONEXIÓN"):"ESPERANDO";
   $("studentBadge").classList.toggle("offline",!liveStudent());
-  $("monitorStudent").textContent=r.student?.name||"—";
+  $("monitorStudent").textContent=r.student?.name||"El alumno aún no entra";
   $("monitorProgress").textContent=s.complete+" / "+deck.length;
   $("monitorAttempts").textContent=s.attempts;
   $("monitorAccuracy").textContent=s.complete?Math.round(s.correct/s.complete*100)+"%":"—";
@@ -184,18 +184,19 @@ function monitor(){
   $("studentPoints").textContent=s.score;
   $("teacherLabel").textContent=r.teacherName||"Teacher";
   $("studentLabel").textContent=r.student?.name||"Student";
-  $("seatInfo").textContent="Student seats: "+(r.student?"1":"0")+"/1. You occupy the teacher seat.";
+  $("seatInfo").textContent="Alumnos: "+(r.student?"1":"0")+"/1 · Tú participas como profesor.";
+  document.getElementById("shareUrl")?.setAttribute("title","Copia este enlace y envíalo al alumno; no incluye controles de profesor.");
   $("hostRound").textContent=r.status==="lobby"?"—":Math.min(r.round+1,deck.length)+" / "+deck.length;
-  $("hostMission").textContent=r.status==="lobby"?"Lobby":nameOfMission(questions[deck[Math.min(r.round,deck.length-1)]]);
-  $("sessionStatus").textContent=r.status==="lobby"?"Waiting for the single student to join.":r.status==="playing"?"Both players may answer. Reveal at any time.":r.status==="revealed"?"Answer revealed. Advance when ready.":r.status==="finished"?"All missions completed.":r.status==="closed"?"The session is closed.":"Ready";
+  $("hostMission").textContent=r.status==="lobby"?"Sala abierta":nameOfMission(questions[deck[Math.min(r.round,deck.length-1)]]);
+  $("sessionStatus").textContent=r.status==="lobby"?(r.student?"¡Alumno dentro! Pulsa «Iniciar partida».":"Copia el enlace para que entre el alumno. Después podrás iniciar."):r.status==="playing"?"Ambos están resolviendo. Tú también puedes responder abajo. Pulsa «Mostrar respuesta» cuando quieras cerrar el reto.":r.status==="revealed"?"La respuesta ya está visible para ambos. Pulsa «Siguiente pregunta».":r.status==="finished"?"Partida terminada. Revisa la puntuación final.":r.status==="closed"?"Has cerrado la sala.":"Sala disponible.";
   $("start").disabled=!(r.status==="lobby"&&r.student);
   $("reveal").disabled=r.status!=="playing";
   $("next").disabled=r.status!=="revealed";
-  $("next").textContent=r.round>=deck.length-1?"FINISH THE DUEL →":"NEXT MISSION →";
-  if(!r.student)$("monitorAction").textContent="Waiting for your one student to join.";
-  else if(r.status==="lobby")$("monitorAction").textContent="Student joined. Ready to start.";
-  else if(entry)$("monitorAction").textContent=entry.correct?"✓ Correct on attempt "+entry.tries:entry.complete?"✕ Finished after "+entry.tries+" attempts":"↻ Attempt "+entry.tries+": not correct yet";
-  else $("monitorAction").textContent="Student is working on the current challenge.";
+  $("next").textContent=r.round>=deck.length-1?"3 · FINALIZAR PARTIDA →":"3 · SIGUIENTE PREGUNTA →";
+  if(!r.student)$("monitorAction").textContent="En cuanto el alumno entre, aquí verás sus intentos y resultados.";
+  else if(r.status==="lobby")$("monitorAction").textContent="Alumno conectado. Pulsa «Iniciar partida».";
+  else if(entry)$("monitorAction").textContent=entry.correct?"✓ Correcto en el intento "+entry.tries:entry.complete?"✕ Terminó los "+entry.tries+" intentos sin acertar":"↻ Intento "+entry.tries+": todavía no es correcto";
+  else $("monitorAction").textContent="Alumno trabajando en la pregunta actual.";
   const canSee=Boolean(r.status==="revealed"||r.status==="finished"||r.answers?.teacher?.[r.round]?.complete);
   $("monitorAnswer").textContent=entry&&canSee?"Student's latest answer: "+entry.answer:entry?"Answer hidden until you submit or reveal.":"";
 }
@@ -283,7 +284,7 @@ function renderStage(){
  const locked=r.status!=="playing"||Boolean(entry?.complete)||state.busy;
  $("check").disabled=locked;
  $("undo").disabled=locked;$("clear").disabled=locked;
- const tokens=$("tokens");if(tokens)tokens.querySelectorAll("button").forEach(btn=>{if(locked)btn.disabled=true;});
+ const tokens=$("tokens");if(tokens)tokens.querySelectorAll("button").forEach((btn,i)=>{btn.disabled=locked||state.picked.includes(i);});
  $("waiting").hidden=!(entry?.complete&&r.status==="playing");
  $("solution").hidden=r.status!=="revealed";
  if(r.status==="revealed"){
@@ -370,7 +371,7 @@ async function move(action){
     if(fresh.round>=deck.length-1)await patch(path(state.code),{status:"finished"});
     else await patch(path(state.code),{status:"playing",round:fresh.round+1,roundStartedAt:Date.now()});
   }else if(action==="close"){
-    if(!confirm("End the live classroom for both players?"))return;
+    if(!confirm("¿Terminar la sala para ti y el alumno?"))return;
     await patch(path(state.code),{status:"closed"});
   }
   await refresh();
@@ -380,8 +381,8 @@ async function move(action){
 async function copyLink(value){
  try{
    if(!navigator.clipboard?.writeText)throw Error("Clipboard not supported.");
-   await navigator.clipboard.writeText(value);showError("controlError","Link copied!");
- }catch{showError("controlError","Copy this link manually: "+value);}
+   await navigator.clipboard.writeText(value);showError("controlError","Enlace copiado. Envíalo al alumno.");
+ }catch{showError("controlError","No se pudo copiar automáticamente. Selecciona el enlace visible arriba: "+value);}
 }
 $("create")?.addEventListener("click",createRoom);
 $("join")?.addEventListener("click",()=>joinRoom());
