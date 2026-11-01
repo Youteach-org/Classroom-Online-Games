@@ -2,47 +2,68 @@
 <html lang="en" translate="no">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101d37"><meta name="google" content="notranslate">
-<title>Comparative Showdown | Classroom Online Games</title>
+<meta name="theme-color" content="#f5f6f8"><meta name="google" content="notranslate">
+<title>Comparative Showdown — Student | COG</title>
 <link rel="stylesheet" href="./styles.css">
 </head>
-<body>
+<body class="student-page">
 <main class="shell">
-<header class="top"><a class="brand" href="/">COG <span>ONLINE</span></a><span class="top-label">ENGLISH · LIVE 1:1</span></header>
+<header class="top"><a class="brand" href="/">COG <span>ONLINE</span></a><span class="role-chip">STUDENT GAME</span></header>
 <section class="hero">
-  <div class="intro"><p class="eyebrow">ADJECTIVES · COMPARISONS · ADVERBS</p>
-    <h1>COMPARATIVE<br><em>SHOWDOWN</em></h1>
-    <p class="sub">One student. One teacher. Two sides of the same challenge.</p>
-    <div class="chips"><span>⚡ Adjective Forge</span><span>🔁 Comparison Arena</span><span>🪞 Mirror Challenge</span><span>🏆 Fashion Finals</span></div>
-  </div>
-  <div class="hero-score"><div>1 <span>vs</span> 1</div><small>LIVE GRAMMAR DUEL</small></div>
+  <div class="intro"><p class="eyebrow">ENGLISH · GRAMMAR DUEL</p>
+  <h1>Comparative <em>Showdown.</em></h1>
+  <p class="sub">Build comparative sentences, transform meanings and master adverbs. Play against your teacher.</p>
+  <div class="chips"><span>Comparatives</span><span>Sentence building</span><span>Adverbs</span></div></div>
+  <div class="hero-mark" aria-hidden="true">1 <span>VS</span> 1</div>
 </section>
-<section id="landing" class="entry-grid"><article class="panel"><div class="section-label">STUDENT</div><h2>Enter your classroom</h2>
-    <p>There is only one student seat. Use the six-character code from your teacher.</p>
-    <label for="joinCode">ROOM CODE</label><input id="joinCode" maxlength="6" placeholder="A4B7C2" autocomplete="off" spellcheck="false">
-    <label for="playerName">YOUR NAME</label><input id="playerName" maxlength="30" placeholder="Your first name or nickname" autocomplete="name">
-    <button id="join" class="primary" type="button">JOIN THE DUEL →</button>
-    <p class="help" id="joinError" role="status"></p>
-  </article></section>
-<section id="student" class="student-header" hidden><div><span class="section-label">STUDENT CHALLENGE</span><h2>You're in! <strong id="studentRoom">—</strong></h2><p id="studentConnection">Waiting for teacher to begin…</p></div>
-  <div class="student-stats"><div><small>YOUR POINTS</small><strong id="myScore">0</strong></div><div><small>ROUND</small><strong id="myRound">0 / 14</strong></div></div>
+
+<section id="landing" class="entry-grid" aria-label="Join classroom">
+  <article class="panel entry-panel">
+    <p class="section-label">STUDENT ACCESS</p>
+    <h2>Join your game</h2>
+    <p class="intro-copy">Your teacher creates the room. You only need the code and your name.</p>
+    <label for="joinCode">ROOM CODE <span class="field-note">6 characters</span></label>
+    <input id="joinCode" maxlength="6" placeholder="e.g. A4B7C2" autocomplete="off" spellcheck="false" autocapitalize="characters">
+    <label for="playerName">YOUR NAME</label>
+    <input id="playerName" maxlength="30" placeholder="First name or nickname" autocomplete="name">
+    <button id="join" class="primary wide" type="button">JOIN GAME <span aria-hidden="true">→</span></button>
+    <p class="help" id="joinError" role="status" aria-live="polite"></p>
+  </article>
+  <aside class="guide" aria-label="How to play">
+    <p class="section-label">HOW IT WORKS</p>
+    <h2>Just three steps.</h2>
+    <ol class="steps">
+      <li><span class="step-num">01</span><div><strong>Enter the room code.</strong><p>One student and one teacher per match.</p></div></li>
+      <li><span class="step-num">02</span><div><strong>Wait for your teacher to start.</strong><p>You'll see the same question on both screens.</p></div></li>
+      <li><span class="step-num">03</span><div><strong>Answer and earn points.</strong><p>Type an answer or tap words in order. You get up to three tries.</p></div></li>
+    </ol>
+    <div class="guide-note"><strong>Not a timed exam.</strong> Your teacher controls when the correct answer appears and when the next question begins.</div>
+  </aside>
 </section>
+
+<section id="student" class="student-header" hidden>
+  <div><p class="section-label">YOU ARE CONNECTED</p><h2>Room <strong id="studentRoom">—</strong></h2><p id="studentConnection" role="status">Waiting for your teacher to start…</p>
+  <p class="lobby-note">Keep this page open. The first challenge will appear here automatically.</p></div>
+  <div class="student-stats"><div><small>YOUR POINTS</small><strong id="myScore">0</strong></div><div><small>QUESTION</small><strong id="myRound">—</strong></div></div>
+</section>
+
 <section id="activity" class="play-wrap" hidden>
-  <div class="play-meta"><span id="levelTag" class="level">MISSION 01</span><span class="timer" id="timeLabel">● LIVE</span></div>
-  <div class="progress-track"><div id="progressFill"></div></div>
+  <div class="play-meta"><span id="levelTag" class="level">QUESTION 01</span><span class="timer" id="timeLabel">● LIVE</span></div>
+  <div class="progress-track" aria-label="Challenge progress"><div id="progressFill"></div></div>
   <article class="play-card">
-    <p id="missionName" class="section-label">ADJECTIVE FORGE</p>
+    <p id="missionName" class="section-label">COMPARATIVE PRACTICE</p>
     <h2 id="challengePrompt">Challenge</h2>
-    <p id="challengeInstruction">Enter the answer.</p>
+    <p id="challengeInstruction">Build your answer.</p>
     <div id="challengeInput"></div>
-    <div class="play-controls"><button id="check" type="button" class="primary">CHECK ANSWER</button><button id="undo" type="button" class="secondary" hidden>UNDO</button><button id="clear" type="button" class="secondary" hidden>CLEAR</button></div>
-    <div class="feedback-box" id="feedback" role="status"></div>
-    <div class="wait-box" id="waiting" hidden>Waiting for the teacher to reveal the answer and move to the next mission.</div>
+    <div class="play-controls"><button id="check" type="button" class="primary">CHECK MY ANSWER</button><button id="undo" type="button" class="secondary" hidden>UNDO LAST WORD</button><button id="clear" type="button" class="secondary" hidden>START AGAIN</button></div>
+    <div class="feedback-box" id="feedback" role="status" aria-live="polite"></div>
+    <div class="wait-box" id="waiting" hidden>Answer submitted. Your teacher controls when the next question begins.</div>
   </article>
   <div id="solution" class="solution" hidden><span class="section-label">CORRECT ANSWER</span><p id="solutionText"></p><small id="solutionExplanation"></small></div>
 </section>
-<section id="endScreen" class="end-screen" hidden><span class="section-label">MISSION COMPLETE</span><h2 id="endTitle">The showdown is over!</h2><div id="endScores"></div><p id="endMessage"></p><a href="/Comparative-Showdown/" class="primary new-game">NEW ROOM →</a></section>
-<footer>Classroom Online Games · One student per room · Classroom nicknames only</footer>
+
+<section id="endScreen" class="end-screen" hidden><p class="section-label">GAME FINISHED</p><h2 id="endTitle">Final scores</h2><div id="endScores"></div><p id="endMessage"></p><a href="/Comparative-Showdown/" class="primary new-game">BACK TO STUDENT ACCESS</a></section>
+<footer>Classroom Online Games · Student access · One student per room</footer>
 </main>
 <script src="./game.js" defer></script>
 </body>
