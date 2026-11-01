@@ -51,3 +51,23 @@
     </article>
   </div>
 </section>
+<section id="activity" class="play-wrap" hidden>
+  <div class="play-meta"><span id="levelTag" class="level">MISSION 01</span><span class="timer" id="timeLabel">● LIVE</span></div>
+  <div class="progress-track"><div id="progressFill"></div></div>
+  <article class="play-card">
+    <p id="missionName" class="section-label">ADJECTIVE FORGE</p>
+    <h2 id="challengePrompt">Challenge</h2>
+    <p id="challengeInstruction">Enter the answer.</p>
+    <div id="challengeInput"></div>
+    <div class="play-controls"><button id="check" type="button" class="primary">CHECK ANSWER</button><button id="undo" type="button" class="secondary" hidden>UNDO</button><button id="clear" type="button" class="secondary" hidden>CLEAR</button></div>
+    <div class="feedback-box" id="feedback" role="status"></div>
+    <div class="wait-box" id="waiting" hidden>Waiting for the teacher to reveal the answer and move to the next mission.</div>
+  </article>
+  <div id="solution" class="solution" hidden><span class="section-label">CORRECT ANSWER</span><p id="solutionText"></p><small id="solutionExplanation"></small></div>
+</section>
+<section id="endScreen" class="end-screen" hidden><span class="section-label">MISSION COMPLETE</span><h2 id="endTitle">The showdown is over!</h2><div id="endScores"></div><p id="endMessage"></p><a href="/Comparative-Showdown/teacher/" class="primary new-game">NEW ROOM →</a></section>
+<footer>Classroom Online Games · One student per room · Classroom nicknames only</footer>
+</main>
+<script src="../game.js" defer></script>
+</body>
+</html>
