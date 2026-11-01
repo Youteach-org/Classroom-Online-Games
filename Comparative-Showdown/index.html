@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101d37"><meta name="google" content="notranslate">
+<title>Comparative Showdown | Classroom Online Games</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<main class="shell">
+<header class="top"><a class="brand" href="/">COG <span>ONLINE</span></a><span class="top-label">ENGLISH · LIVE 1:1</span></header>
+<section class="hero">
+  <div class="intro"><p class="eyebrow">ADJECTIVES · COMPARISONS · ADVERBS</p>
+    <h1>COMPARATIVE<br><em>SHOWDOWN</em></h1>
+    <p class="sub">One student. One teacher. Two sides of the same challenge.</p>
+    <div class="chips"><span>⚡ Adjective Forge</span><span>🔁 Comparison Arena</span><span>🪞 Mirror Challenge</span><span>🏆 Fashion Finals</span></div>
+  </div>
+  <div class="hero-score"><div>1 <span>vs</span> 1</div><small>LIVE GRAMMAR DUEL</small></div>
+</section>
+<section id="landing" class="entry-grid">
+  <article class="panel"><div class="section-label">TEACHER</div><h2>Host a private classroom</h2>
+    <p>Create the room, monitor the student's answers, and play against them from your own device.</p>
+    <label for="hostName">YOUR DISPLAY NAME</label><input id="hostName" maxlength="30" autocomplete="name" value="Teacher">
+    <label for="mode">SESSION LENGTH</label><select id="mode"><option value="quick">Quick Match · 14 challenges</option><option value="full">Full Journey · 35 challenges</option></select>
+    <button id="create" class="primary" type="button">CREATE LIVE ROOM →</button>
+    <p class="help" id="hostError" role="status"></p>
+  </article>
+  <article class="panel"><div class="section-label">STUDENT</div><h2>Enter your classroom</h2>
+    <p>There is only one student seat. Use the six-character code from your teacher.</p>
+    <label for="joinCode">ROOM CODE</label><input id="joinCode" maxlength="6" placeholder="A4B7C2" autocomplete="off" spellcheck="false">
+    <label for="playerName">YOUR NAME</label><input id="playerName" maxlength="30" placeholder="Your first name or nickname" autocomplete="name">
+    <button id="join" class="primary" type="button">JOIN THE DUEL →</button>
+    <p class="help" id="joinError" role="status"></p>
+  </article>
+</section>
+<section id="host" class="dashboard" hidden>
+  <div class="room-head"><div><span class="section-label">TEACHER MONITOR · LIVE</span><h2>Your classroom <strong id="roomCode">—</strong></h2><p id="hostConnection">Connecting…</p></div>
+    <div class="room-actions"><button id="copyJoin" class="secondary" type="button">COPY STUDENT LINK</button><button id="copyHost" class="secondary" type="button">COPY MONITOR LINK</button></div>
+  </div>
+  <div class="host-layout">
+    <article class="panel monitor">
+      <h3>LIVE STUDENT FEED <span id="studentBadge" class="badge">WAITING</span></h3>
+      <p id="shareUrl" class="share"></p>
+      <div class="stat-grid">
+        <div><small>Student</small><strong id="monitorStudent">—</strong></div>
+        <div><small>Progress</small><strong id="monitorProgress">0 / 14</strong></div>
+        <div><small>Attempts</small><strong id="monitorAttempts">0</strong></div>
+        <div><small>Accuracy</small><strong id="monitorAccuracy">—</strong></div>
+      </div>
+      <div class="feed"><span class="section-label">MOST RECENT ACTION</span><p id="monitorAction">The student has not joined yet.</p><div id="monitorAnswer" class="answer-line"></div></div>
+      <div class="duel-board"><div><span id="teacherLabel">Teacher</span><strong id="teacherPoints">0</strong><small>Teacher score</small></div><span class="versus">VS</span><div><span id="studentLabel">Student</span><strong id="studentPoints">0</strong><small>Student score</small></div></div>
+      <p class="hint" id="seatInfo">Student seats: 0/1. You are the teacher and the second participant.</p>
+    </article>
+    <article class="panel controls">
+      <h3>SESSION CONTROL</h3><p id="sessionStatus">Waiting for one student to join.</p>
+      <div class="round-flag"><span>MISSION</span><b id="hostRound">—</b><small id="hostMission">Lobby</small></div>
+      <div class="control-buttons"><button id="start" class="primary" type="button" disabled>START THE DUEL</button><button id="reveal" class="secondary" type="button" disabled>REVEAL ANSWER</button><button id="next" class="primary" type="button" disabled>NEXT MISSION →</button><button id="close" class="danger" type="button">END SESSION</button></div>
+      <p class="help" id="controlError" role="status"></p>
+      <p class="hint">Both players answer the same challenge. Reveal, then advance whenever you are ready. You can supervise and compete simultaneously.</p>
+    </article>
+  </div>
+</section>
+<section id="student" class="student-header" hidden><div><span class="section-label">STUDENT CHALLENGE</span><h2>You're in! <strong id="studentRoom">—</strong></h2><p id="studentConnection">Waiting for teacher to begin…</p></div>
+  <div class="student-stats"><div><small>YOUR POINTS</small><strong id="myScore">0</strong></div><div><small>ROUND</small><strong id="myRound">0 / 14</strong></div></div>
+</section>
+<section id="activity" class="play-wrap" hidden>
+  <div class="play-meta"><span id="levelTag" class="level">MISSION 01</span><span class="timer" id="timeLabel">● LIVE</span></div>
+  <div class="progress-track"><div id="progressFill"></div></div>
+  <article class="play-card">
+    <p id="missionName" class="section-label">ADJECTIVE FORGE</p>
+    <h2 id="challengePrompt">Challenge</h2>
+    <p id="challengeInstruction">Enter the answer.</p>
+    <div id="challengeInput"></div>
+    <div class="play-controls"><button id="check" type="button" class="primary">CHECK ANSWER</button><button id="undo" type="button" class="secondary" hidden>UNDO</button><button id="clear" type="button" class="secondary" hidden>CLEAR</button></div>
+    <div class="feedback-box" id="feedback" role="status"></div>
+    <div class="wait-box" id="waiting" hidden>Waiting for the teacher to reveal the answer and move to the next mission.</div>
+  </article>
+  <div id="solution" class="solution" hidden><span class="section-label">CORRECT ANSWER</span><p id="solutionText"></p><small id="solutionExplanation"></small></div>
+</section>
+<section id="endScreen" class="end-screen" hidden><span class="section-label">MISSION COMPLETE</span><h2 id="endTitle">The showdown is over!</h2><div id="endScores"></div><p id="endMessage"></p><a href="/Comparative-Showdown/" class="primary new-game">NEW ROOM →</a></section>
+<footer>Classroom Online Games · One student per room · Classroom nicknames only</footer>
+</main>
+<script src="./game.js" defer></script>
+</body>
+</html>
