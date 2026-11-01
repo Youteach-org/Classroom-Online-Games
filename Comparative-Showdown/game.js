@@ -192,6 +192,7 @@ function monitor(){
   $("start").disabled=!(r.status==="lobby"&&r.student);
   $("reveal").disabled=r.status!=="playing";
   $("next").disabled=r.status!=="revealed";
+  if($("myChallengeLink"))$("myChallengeLink").hidden=!(r.status==="playing"||r.status==="revealed");
   $("next").textContent=r.round>=deck.length-1?"3 · FINALIZAR PARTIDA →":"3 · SIGUIENTE PREGUNTA →";
   if(!r.student)$("monitorAction").textContent="En cuanto el alumno entre, aquí verás sus intentos y resultados.";
   else if(r.status==="lobby")$("monitorAction").textContent="Alumno conectado. Pulsa «Iniciar partida».";
