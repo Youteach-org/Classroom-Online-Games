@@ -6,6 +6,7 @@ const DB="https://youteach-d9a79-default-rtdb.firebaseio.com/";
 const ROOT="classroomGames/supportMeter/comparativeShowdown/rooms";
 const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
+const isTeacherPage=/\/Comparative-Showdown\/teacher\/?(?:index\.html)?$/i.test(location.pathname);
 const state={role:"",code:"",secret:"",id:"",name:"",room:null,poll:null,inFlight:false,busy:false,renderKey:"",tileOrder:[],picked:[],tick:null};
 const questions=[];
 function form(prompt,answer,tip,explanation,mission){
@@ -84,14 +85,15 @@ async function hash(value){
 function showError(id,message){$(id).textContent=message||"";}
 function cleanName(value){return String(value||"").trim().replace(/\s+/g," ").slice(0,30);}
 function studentLink(){const u=new URL(location.origin+"/Comparative-Showdown/");u.searchParams.set("room",state.code);return u.toString();}
-function hostLink(){const u=new URL(studentLink());u.searchParams.set("host",state.secret);return u.toString();}
+function hostLink(){const u=new URL("/Comparative-Showdown/teacher/",location.origin);u.searchParams.set("room",state.code);u.searchParams.set("host",state.secret);return u.toString();}
 function show(role){
   state.role=role;
-  $("landing").hidden=!!role;$("host").hidden=role!=="teacher";$("student").hidden=role!=="student";
+  $("landing").hidden=!!role;if($("host"))$("host").hidden=role!=="teacher";if($("student"))$("student").hidden=role!=="student";
   $("activity").hidden=true;$("endScreen").hidden=true;
 }
-function lockForms(locked){$("create").disabled=locked;$("join").disabled=locked;}
+function lockForms(locked){if($("create"))$("create").disabled=locked;if($("join"))$("join").disabled=locked;}
 async function createRoom(){
+  if(!isTeacherPage)return;
   if(state.busy)return;state.busy=true;lockForms(true);showError("hostError","Creating room…");
   try{
     const name=cleanName($("hostName").value)||"Teacher",mode=$("mode").value==="full"?"full":"quick";
@@ -111,6 +113,7 @@ async function createRoom(){
   }catch(e){showError("hostError",e.message);}finally{state.busy=false;lockForms(false);}
 }
 async function joinRoom(codeOverride){
+  if(isTeacherPage)return;
   if(state.busy)return;state.busy=true;lockForms(true);showError("joinError","Checking room…");
   try{
     const code=String(codeOverride||$("joinCode").value||"").trim().toUpperCase();
@@ -139,13 +142,14 @@ async function resumeRoom(){
   const code=String(params.get("room")||"").trim().toUpperCase();
   const host=String(params.get("host")||"");
   if(!/^[A-F0-9]{6}$/.test(code))return;
-  $("joinCode").value=code;
+  if($("joinCode"))$("joinCode").value=code;
   const room=await read(path(code));
   if(!room)return;
-  if(host&&await hash(host)===room.hostHash){
+  if(isTeacherPage&&host&&await hash(host)===room.hostHash){
     state.secret=host;state.code=code;state.name=room.teacherName;
     show("teacher");startPolling();return;
   }
+  if(isTeacherPage){showError("hostError","Open the monitor using the teacher link from your original room.");return;}
   const known=localStorage.getItem("cmp:student:"+code)||"";
   if(room.student&&known&&room.student.id===known){
     state.code=code;state.id=known;state.name=room.student.name;show("student");startPolling();return;
@@ -379,17 +383,17 @@ async function copyLink(value){
    await navigator.clipboard.writeText(value);showError("controlError","Link copied!");
  }catch{showError("controlError","Copy this link manually: "+value);}
 }
-$("create").addEventListener("click",createRoom);
-$("join").addEventListener("click",()=>joinRoom());
-$("start").addEventListener("click",()=>move("start"));
-$("reveal").addEventListener("click",()=>move("reveal"));
-$("next").addEventListener("click",()=>move("next"));
-$("close").addEventListener("click",()=>move("close"));
-$("copyJoin").addEventListener("click",()=>copyLink(studentLink()));
-$("copyHost").addEventListener("click",()=>copyLink(hostLink()));
+$("create")?.addEventListener("click",createRoom);
+$("join")?.addEventListener("click",()=>joinRoom());
+$("start")?.addEventListener("click",()=>move("start"));
+$("reveal")?.addEventListener("click",()=>move("reveal"));
+$("next")?.addEventListener("click",()=>move("next"));
+$("close")?.addEventListener("click",()=>move("close"));
+$("copyJoin")?.addEventListener("click",()=>copyLink(studentLink()));
+$("copyHost")?.addEventListener("click",()=>copyLink(hostLink()));
 $("check").addEventListener("click",submitAnswer);
 $("undo").addEventListener("click",()=>{state.picked.pop();renderSlots();});
 $("clear").addEventListener("click",()=>{state.picked=[];renderSlots();});
-$("joinCode").addEventListener("keydown",e=>{if(e.key==="Enter")joinRoom();});
-$("playerName").addEventListener("keydown",e=>{if(e.key==="Enter")joinRoom();});
+$("joinCode")?.addEventListener("keydown",e=>{if(e.key==="Enter")joinRoom();});
+$("playerName")?.addEventListener("keydown",e=>{if(e.key==="Enter")joinRoom();});
 resumeRoom().catch(e=>showError("joinError","Unable to restore room: "+e.message));
