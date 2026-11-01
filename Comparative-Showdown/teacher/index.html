@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101d37"><meta name="google" content="notranslate">
+<title>Comparative Showdown | Classroom Online Games</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<main class="shell">
+<header class="top"><a class="brand" href="/teacher/">COG <span>ONLINE</span></a><span class="top-label">TEACHER MONITOR · LIVE 1:1</span></header>
+<section class="hero">
+  <div class="intro"><p class="eyebrow">ADJECTIVES · COMPARISONS · ADVERBS</p>
+    <h1>COMPARATIVE<br><em>SHOWDOWN</em></h1>
+    <p class="sub">One student. One teacher. Two sides of the same challenge.</p>
+    <div class="chips"><span>⚡ Adjective Forge</span><span>🔁 Comparison Arena</span><span>🪞 Mirror Challenge</span><span>🏆 Fashion Finals</span></div>
+  </div>
+  <div class="hero-score"><div>1 <span>vs</span> 1</div><small>LIVE GRAMMAR DUEL</small></div>
+</section>
+<section id="landing" class="entry-grid"><article class="panel"><div class="section-label">TEACHER</div><h2>Host a live classroom</h2>
+    <p>Create the room, monitor the student's answers, and play against them from your own device.</p>
+    <label for="hostName">YOUR DISPLAY NAME</label><input id="hostName" maxlength="30" autocomplete="name" value="Teacher">
+    <label for="mode">SESSION LENGTH</label><select id="mode"><option value="quick">Quick Match · 14 challenges</option><option value="full">Full Journey · 35 challenges</option></select>
+    <button id="create" class="primary" type="button">CREATE LIVE ROOM →</button>
+    <p class="help" id="hostError" role="status"></p>
+  </article></section>
+<section id="host" class="dashboard" hidden>
+  <div class="room-head"><div><span class="section-label">TEACHER MONITOR · LIVE</span><h2>Your classroom <strong id="roomCode">—</strong></h2><p id="hostConnection">Connecting…</p></div>
+    <div class="room-actions"><button id="copyJoin" class="secondary" type="button">COPY STUDENT LINK</button><button id="copyHost" class="secondary" type="button">COPY MONITOR LINK</button></div>
+  </div>
+  <div class="host-layout">
+    <article class="panel monitor">
+      <h3>LIVE STUDENT FEED <span id="studentBadge" class="badge">WAITING</span></h3>
+      <p id="shareUrl" class="share"></p>
+      <div class="stat-grid">
+        <div><small>Student</small><strong id="monitorStudent">—</strong></div>
+        <div><small>Progress</small><strong id="monitorProgress">0 / 14</strong></div>
+        <div><small>Attempts</small><strong id="monitorAttempts">0</strong></div>
+        <div><small>Accuracy</small><strong id="monitorAccuracy">—</strong></div>
+      </div>
+      <div class="feed"><span class="section-label">MOST RECENT ACTION</span><p id="monitorAction">The student has not joined yet.</p><div id="monitorAnswer" class="answer-line"></div></div>
+      <div class="duel-board"><div><span id="teacherLabel">Teacher</span><strong id="teacherPoints">0</strong><small>Teacher score</small></div><span class="versus">VS</span><div><span id="studentLabel">Student</span><strong id="studentPoints">0</strong><small>Student score</small></div></div>
+      <p class="hint" id="seatInfo">Student seats: 0/1. You are the teacher and the second participant.</p>
+    </article>
+    <article class="panel controls">
+      <h3>SESSION CONTROL</h3><p id="sessionStatus">Waiting for one student to join.</p>
+      <div class="round-flag"><span>MISSION</span><b id="hostRound">—</b><small id="hostMission">Lobby</small></div>
+      <div class="control-buttons"><button id="start" class="primary" type="button" disabled>START THE DUEL</button><button id="reveal" class="secondary" type="button" disabled>REVEAL ANSWER</button><button id="next" class="primary" type="button" disabled>NEXT MISSION →</button><button id="close" class="danger" type="button">END SESSION</button></div>
+      <p class="help" id="controlError" role="status"></p>
+      <p class="hint">Both players answer the same challenge. Reveal, then advance whenever you are ready. You can supervise and compete simultaneously.</p>
+    </article>
+  </div>
+</section>
