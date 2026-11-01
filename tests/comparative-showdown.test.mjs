@@ -74,3 +74,36 @@ test('teacher link uses monitor path, student link does not expose the monitor t
   assert.match(src,/if\(!isTeacherPage\)return/);
   assert.match(src,/if\(isTeacherPage\)return/);
 });
+
+test('student onboarding shows single join action and clear instructions',()=>{
+  const student=readFileSync(new URL('../Comparative-Showdown/index.html',import.meta.url),'utf8');
+  assert.match(student,/Join your game/);
+  assert.match(student,/ROOM CODE/);
+  assert.match(student,/id="join"/);
+  assert.match(student,/You only need the code and your name/);
+  assert.match(student,/Your teacher controls when the correct answer appears/);
+  assert.doesNotMatch(student,/id="create"/);
+});
+test('teacher setup explains session size and rounds in Spanish',()=>{
+  const teacher=readFileSync(new URL('../Comparative-Showdown/teacher/index.html',import.meta.url),'utf8');
+  assert.match(teacher,/PASO 1 DE 3/);
+  assert.match(teacher,/PASO 2 DE 3/);
+  assert.match(teacher,/PASO 3 DE 3/);
+  assert.match(teacher,/Partida corta · 14 preguntas/);
+  assert.match(teacher,/Partida completa · 35 preguntas/);
+  assert.match(teacher,/id="monitorProgress"/);
+  assert.match(teacher,/id="copyJoin"/);
+  assert.match(teacher,/id="reveal"/);
+  assert.match(teacher,/TU TURNO · PROFESOR/);
+});
+test('new visual system uses neutral panels and explicit high contrast',()=>{
+  const styles=readFileSync(new URL('../Comparative-Showdown/styles.css',import.meta.url),'utf8');
+  assert.match(styles,/--bg:#f3f5f8/);
+  assert.match(styles,/--ink:#172136/);
+  assert.match(styles,/--accent:#2054c7/);
+  assert.doesNotMatch(styles,/radial-gradient/);
+  assert.match(styles,/max-width:710px/);
+});
+test('word choices remain usable after a wrong attempt',()=>{
+  assert.match(src,/btn\.disabled=locked\|\|state\.picked\.includes\(i\)/);
+});
