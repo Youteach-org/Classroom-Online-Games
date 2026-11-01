@@ -108,4 +108,7 @@ test('new visual system uses neutral panels and explicit high contrast',()=>{
 test('word choices remain usable after a wrong attempt',()=>{
   assert.match(src,/btn\.disabled=locked\|\|state\.picked\.includes\(i\)/);
 });
-\ntest("teacher shortcut becomes available only after the game starts",()=>{\n  assert.match(src,/\$\("myChallengeLink"\)\.hidden=!\(r\.status==="playing"\|\|r\.status==="revealed"\)/);\n});\n
+
+test('teacher shortcut becomes available only after the game starts',()=>{
+  assert.ok(src.includes('if($("myChallengeLink"))$("myChallengeLink").hidden=!(r.status==="playing"||r.status==="revealed");'));
+});
