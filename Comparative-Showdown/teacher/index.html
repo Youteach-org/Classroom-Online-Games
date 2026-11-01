@@ -27,7 +27,7 @@
     <option value="quick">Partida corta · 14 preguntas</option>
     <option value="full">Partida completa · 35 preguntas</option>
    </select>
-   <p class="field-helper" id="modeHelp">La corta cubre todos los temas; la completa incluye los 35 retos. No hay límite automático de tiempo.</p>
+   <p class="field-helper" id="modeHelp">La corta cubre todos los temas; la completa incluye los 35 retos. No hay límite de tiempo; acertar durante los primeros 25 segundos suma 20 puntos extra.</p>
    <button id="create" class="primary wide" type="button">CREAR SALA <span aria-hidden="true">→</span></button>
    <p class="help" id="hostError" role="status" aria-live="polite"></p>
  </article>
@@ -66,6 +66,7 @@
        <button id="start" class="primary" type="button" disabled>1 · INICIAR PARTIDA</button>
        <button id="reveal" class="secondary" type="button" disabled>2 · MOSTRAR RESPUESTA</button>
        <button id="next" class="primary" type="button" disabled>3 · SIGUIENTE PREGUNTA →</button>
+       <a id="myChallengeLink" class="secondary jump-link" href="#activity" hidden>↓ IR A MI EJERCICIO COMO PROFESOR</a>
        <button id="close" class="danger" type="button">TERMINAR SALA</button>
      </div>
      <p class="help" id="controlError" role="status" aria-live="polite"></p>
