@@ -39,3 +39,38 @@ test('game includes a one-seat conditional RTDB join and teacher monitor',()=>{
   assert.match(src,/function monitor\(/);
   assert.match(src,/function results\(/);
 });
+
+test('student homepage contains join UI but no room creation or monitor controls',()=>{
+  const html=readFileSync(new URL('../Comparative-Showdown/index.html',import.meta.url),'utf8');
+  assert.match(html,/id="join"/);
+  assert.match(html,/id="playerName"/);
+  assert.doesNotMatch(html,/id="create"/);
+  assert.doesNotMatch(html,/id="host"/);
+  assert.doesNotMatch(html,/id="start"/);
+  assert.doesNotMatch(html,/id="copyHost"/);
+  assert.doesNotMatch(html,/CREATE LIVE ROOM/);
+});
+test('teacher monitor is its own page, allowing room creation and teacher gameplay but never student join',()=>{
+  const html=readFileSync(new URL('../Comparative-Showdown/teacher/index.html',import.meta.url),'utf8');
+  assert.match(html,/id="create"/);
+  assert.match(html,/id="host"/);
+  assert.match(html,/id="start"/);
+  assert.match(html,/id="reveal"/);
+  assert.match(html,/id="activity"/);
+  assert.match(html,/src="\.\.\/game\.js"/);
+  assert.match(html,/href="\.\.\/styles\.css"/);
+  assert.doesNotMatch(html,/id="join"/);
+  assert.doesNotMatch(html,/id="playerName"/);
+});
+test('student and teacher access are listed in their respective COG menus',()=>{
+  const home=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const monitors=readFileSync(new URL('../teacher/index.html',import.meta.url),'utf8');
+  assert.match(home,/href="\/Comparative-Showdown\/"/);
+  assert.match(monitors,/href="\/Comparative-Showdown\/teacher\/"/);
+});
+test('teacher link uses monitor path, student link does not expose the monitor token',()=>{
+  assert.match(src,/new URL\("\/Comparative-Showdown\/teacher\/",location.origin\)/);
+  assert.match(src,/const u=new URL\(location.origin\+"\/Comparative-Showdown\/"\)/);
+  assert.match(src,/if\(!isTeacherPage\)return/);
+  assert.match(src,/if\(isTeacherPage\)return/);
+});
