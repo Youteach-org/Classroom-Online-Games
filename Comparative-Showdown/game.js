@@ -396,4 +396,4 @@ $("undo").addEventListener("click",()=>{state.picked.pop();renderSlots();});
 $("clear").addEventListener("click",()=>{state.picked=[];renderSlots();});
 $("joinCode")?.addEventListener("keydown",e=>{if(e.key==="Enter")joinRoom();});
 $("playerName")?.addEventListener("keydown",e=>{if(e.key==="Enter")joinRoom();});
-resumeRoom().catch(e=>showError("joinError","Unable to restore room: "+e.message));
+resumeRoom().catch(e=>showError(isTeacherPage?"hostError":"joinError","Unable to restore room: "+e.message));
