@@ -198,7 +198,7 @@ function monitor(){
   else if(entry)$("monitorAction").textContent=entry.correct?"✓ Correcto en el intento "+entry.tries:entry.complete?"✕ Terminó los "+entry.tries+" intentos sin acertar":"↻ Intento "+entry.tries+": todavía no es correcto";
   else $("monitorAction").textContent="Alumno trabajando en la pregunta actual.";
   const canSee=Boolean(r.status==="revealed"||r.status==="finished"||r.answers?.teacher?.[r.round]?.complete);
-  $("monitorAnswer").textContent=entry&&canSee?"Student's latest answer: "+entry.answer:entry?"Answer hidden until you submit or reveal.":"";
+  $("monitorAnswer").textContent=entry&&canSee?"Última respuesta enviada: "+entry.answer:entry?"Respuesta oculta hasta que tú respondas o la reveles.":"";
 }
 function renderStudentHeader(){
  const r=state.room;if(state.role!=="student"||!r)return;
