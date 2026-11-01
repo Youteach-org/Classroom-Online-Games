@@ -81,7 +81,7 @@ test('student onboarding shows single join action and clear instructions',()=>{
   assert.match(student,/ROOM CODE/);
   assert.match(student,/id="join"/);
   assert.match(student,/You only need the code and your name/);
-  assert.match(student,/Your teacher controls when the correct answer appears/);
+  assert.match(student,/your teacher controls when to advance/);
   assert.doesNotMatch(student,/id="create"/);
 });
 test('teacher setup explains session size and rounds in Spanish',()=>{
@@ -95,6 +95,7 @@ test('teacher setup explains session size and rounds in Spanish',()=>{
   assert.match(teacher,/id="copyJoin"/);
   assert.match(teacher,/id="reveal"/);
   assert.match(teacher,/TU TURNO · PROFESOR/);
+  assert.match(teacher,/id="myChallengeLink"/);
 });
 test('new visual system uses neutral panels and explicit high contrast',()=>{
   const styles=readFileSync(new URL('../Comparative-Showdown/styles.css',import.meta.url),'utf8');
@@ -107,3 +108,4 @@ test('new visual system uses neutral panels and explicit high contrast',()=>{
 test('word choices remain usable after a wrong attempt',()=>{
   assert.match(src,/btn\.disabled=locked\|\|state\.picked\.includes\(i\)/);
 });
+\ntest("teacher shortcut becomes available only after the game starts",()=>{\n  assert.match(src,/\$\("myChallengeLink"\)\.hidden=!\(r\.status==="playing"\|\|r\.status==="revealed"\)/);\n});\n
