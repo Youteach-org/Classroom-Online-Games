@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" translate="no">
+<html lang="es" translate="no">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f5f6f8"><meta name="google" content="notranslate">
@@ -10,83 +10,83 @@
 <main class="shell">
 <header class="top"><a class="brand" href="/teacher/">COG <span>ONLINE</span></a><span class="role-chip teacher-role">TEACHER MONITOR</span></header>
 <section class="hero">
- <div class="intro"><p class="eyebrow">LIVE CLASSROOM · ONE STUDENT + TEACHER</p>
- <h1>Comparative <em>Showdown.</em></h1><p class="sub">Create the room, share the code and play along with your student. You decide when every round advances.</p>
+ <div class="intro"><p class="eyebrow">SALA EN VIVO · UN ALUMNO + PROFESOR</p>
+ <h1>Comparative <em>Showdown.</em></h1><p class="sub">Crea la sala, comparte el código y participa con el alumno. Tú decides cuándo avanzar cada pregunta.</p>
  <div class="chips"><span>Comparatives</span><span>Sentence transformations</span><span>Adverbs</span></div></div>
  <div class="hero-mark" aria-hidden="true">1 <span>VS</span> 1</div>
 </section>
 
 <section id="landing" class="entry-grid" aria-label="Teacher setup">
  <article class="panel entry-panel">
-   <p class="section-label">STEP 1 OF 3 · SET UP</p><h2>Create a room</h2>
-   <p class="intro-copy">One student joins from their own device. You participate from this Teacher Monitor.</p>
-   <label for="hostName">TEACHER DISPLAY NAME</label>
+   <p class="section-label">PASO 1 DE 3 · CONFIGURAR</p><h2>Crear una sala</h2>
+   <p class="intro-copy">El alumno entra desde su dispositivo. Tú juegas y supervisas desde este monitor.</p>
+   <label for="hostName">TU NOMBRE</label>
    <input id="hostName" maxlength="30" value="Teacher" autocomplete="name">
-   <label for="mode">NUMBER OF QUESTIONS</label>
+   <label for="mode">CANTIDAD DE PREGUNTAS</label>
    <select id="mode" aria-describedby="modeHelp">
-    <option value="quick">Quick game · 14 questions</option>
-    <option value="full">Complete game · 35 questions</option>
+    <option value="quick">Partida corta · 14 preguntas</option>
+    <option value="full">Partida completa · 35 preguntas</option>
    </select>
-   <p class="field-helper" id="modeHelp">Quick covers all skills. Complete includes every exercise from the worksheet. There is no automatic time limit.</p>
-   <button id="create" class="primary wide" type="button">CREATE ROOM <span aria-hidden="true">→</span></button>
+   <p class="field-helper" id="modeHelp">La corta cubre todos los temas; la completa incluye los 35 retos. No hay límite automático de tiempo.</p>
+   <button id="create" class="primary wide" type="button">CREAR SALA <span aria-hidden="true">→</span></button>
    <p class="help" id="hostError" role="status" aria-live="polite"></p>
  </article>
  <aside class="guide">
-   <p class="section-label">WHAT HAPPENS NEXT?</p><h2>You're in control.</h2>
+   <p class="section-label">¿QUÉ HARÁS DESPUÉS?</p><h2>Tú controlas la partida.</h2>
    <ol class="steps">
-    <li><span class="step-num">01</span><div><strong>Create the room.</strong><p>Choose 14 or 35 questions above.</p></div></li>
-    <li><span class="step-num">02</span><div><strong>Send the student link.</strong><p>A six-character code is generated automatically. Only one student can join.</p></div></li>
-    <li><span class="step-num">03</span><div><strong>Start, answer, reveal, advance.</strong><p>Both of you get the same challenge. You can play while watching the live score.</p></div></li>
+    <li><span class="step-num">01</span><div><strong>Creas la sala.</strong><p>Elige 14 o 35 preguntas.</p></div></li>
+    <li><span class="step-num">02</span><div><strong>Compartes el enlace.</strong><p>Se genera un código de seis caracteres. Solo entra un alumno.</p></div></li>
+    <li><span class="step-num">03</span><div><strong>Inicias, respondes y avanzas.</strong><p>Ambos ven el mismo ejercicio. Tú respondes y observas los resultados en vivo.</p></div></li>
    </ol>
-   <div class="guide-note"><strong>Teacher Monitor is your control panel.</strong> Students never see room-creation or teacher controls.</div>
+   <div class="guide-note"><strong>Esta página es exclusiva del profesor.</strong> El alumno nunca ve los controles de la sala.</div>
  </aside>
 </section>
 
 <section id="host" class="dashboard" hidden aria-label="Teacher Monitor">
  <div class="room-head">
-   <div class="room-code-block"><p class="section-label">STEP 2 OF 3 · INVITE YOUR STUDENT</p>
-     <div class="code-line"><span>ROOM CODE</span><strong id="roomCode">—</strong></div>
+   <div class="room-code-block"><p class="section-label">PASO 2 DE 3 · INVITAR AL ALUMNO</p>
+     <div class="code-line"><span>CÓDIGO DE SALA</span><strong id="roomCode">—</strong></div>
      <p id="hostConnection" role="status">Room ready</p>
    </div>
    <div class="share-section">
-     <p class="section-label">STUDENT JOIN LINK</p>
+     <p class="section-label">ENLACE PARA EL ALUMNO</p>
      <p id="shareUrl" class="share"></p>
-     <div class="room-actions"><button id="copyJoin" class="primary" type="button">COPY STUDENT LINK</button><button id="copyHost" class="secondary" type="button">COPY MY MONITOR LINK</button></div>
-     <small class="field-helper">Send only the student link. Keep your monitor link for yourself.</small>
+     <div class="room-actions"><button id="copyJoin" class="primary" type="button">COPIAR ENLACE DEL ALUMNO</button><button id="copyHost" class="secondary" type="button">COPIAR ENLACE DE MI MONITOR</button></div>
+     <small class="field-helper">Comparte únicamente el enlace del alumno. Conserva el del monitor para ti.</small>
    </div>
  </div>
  <div class="host-layout">
    <article class="panel controls" aria-label="Teacher controls">
-     <p class="section-label">STEP 3 OF 3 · CONTROL THE DUEL</p>
-     <h2>Run the game</h2>
-     <p id="sessionStatus" class="session-status" role="status">Waiting for one student to join.</p>
-     <div class="join-state"><span id="studentBadge" class="badge offline">WAITING</span><span id="monitorStudent">No student has joined yet</span></div>
-     <div class="round-flag"><span>CURRENT QUESTION</span><b id="hostRound">—</b><small id="hostMission">Room lobby</small></div>
+     <p class="section-label">PASO 3 DE 3 · DIRIGIR EL JUEGO</p>
+     <h2>Controla la partida</h2>
+     <p id="sessionStatus" class="session-status" role="status">Esperando a que entre el alumno.</p>
+     <div class="join-state"><span id="studentBadge" class="badge offline">WAITING</span><span id="monitorStudent">Todavía no se conecta el alumno</span></div>
+     <div class="round-flag"><span>PREGUNTA ACTUAL</span><b id="hostRound">—</b><small id="hostMission">Sala abierta</small></div>
      <div class="control-buttons">
-       <button id="start" class="primary" type="button" disabled>1 · START GAME</button>
-       <button id="reveal" class="secondary" type="button" disabled>2 · SHOW CORRECT ANSWER</button>
-       <button id="next" class="primary" type="button" disabled>3 · NEXT QUESTION →</button>
-       <button id="close" class="danger" type="button">END SESSION</button>
+       <button id="start" class="primary" type="button" disabled>1 · INICIAR PARTIDA</button>
+       <button id="reveal" class="secondary" type="button" disabled>2 · MOSTRAR RESPUESTA</button>
+       <button id="next" class="primary" type="button" disabled>3 · SIGUIENTE PREGUNTA →</button>
+       <button id="close" class="danger" type="button">TERMINAR SALA</button>
      </div>
      <p class="help" id="controlError" role="status" aria-live="polite"></p>
-     <p class="hint">The student answers on their device. Your own challenge appears below this panel. Revealing a solution is your decision, not an automatic timer.</p>
+     <p class="hint">El alumno responde en su dispositivo. Tu ejercicio está más abajo. Tú decides cuándo mostrar la solución y avanzar.</p>
    </article>
    <article class="panel monitor" aria-label="Live score and progress">
-     <p class="section-label">LIVE MONITOR</p><h2>Student progress</h2>
+     <p class="section-label">MONITOR EN VIVO</p><h2>Progreso del alumno</h2>
      <div class="stat-grid">
-      <div><small>COMPLETED</small><strong id="monitorProgress">0 / 14</strong></div>
-      <div><small>ATTEMPTS</small><strong id="monitorAttempts">0</strong></div>
-      <div><small>ACCURACY</small><strong id="monitorAccuracy">—</strong></div>
+      <div><small>RESUELTAS</small><strong id="monitorProgress">0 / 14</strong></div>
+      <div><small>INTENTOS</small><strong id="monitorAttempts">0</strong></div>
+      <div><small>PRECISIÓN</small><strong id="monitorAccuracy">—</strong></div>
      </div>
-     <div class="feed"><span class="section-label">LATEST STUDENT ACTIVITY</span><p id="monitorAction">Waiting for your student to join.</p><div id="monitorAnswer" class="answer-line"></div></div>
-     <div class="duel-board"><div><span id="teacherLabel">Teacher</span><strong id="teacherPoints">0</strong><small>YOUR POINTS</small></div><span class="versus">VS</span><div><span id="studentLabel">Student</span><strong id="studentPoints">0</strong><small>STUDENT POINTS</small></div></div>
-     <p class="hint" id="seatInfo">Student seats: 0/1. You occupy the teacher seat.</p>
+     <div class="feed"><span class="section-label">ÚLTIMA ACTIVIDAD</span><p id="monitorAction">Esperando al alumno.</p><div id="monitorAnswer" class="answer-line"></div></div>
+     <div class="duel-board"><div><span id="teacherLabel">Teacher</span><strong id="teacherPoints">0</strong><small>TUS PUNTOS</small></div><span class="versus">VS</span><div><span id="studentLabel">Student</span><strong id="studentPoints">0</strong><small>PUNTOS DEL ALUMNO</small></div></div>
+     <p class="hint" id="seatInfo">Alumnos conectados: 0/1. Tú ocupas el lugar de profesor.</p>
    </article>
  </div>
 </section>
 
 <section id="activity" class="play-wrap teacher-play" hidden aria-label="Teacher challenge">
- <div class="play-heading"><div><p class="section-label">YOUR TURN · TEACHER PLAYER</p><h2>Answer the same question as your student</h2><p>The teacher game is separate from the controls above. You both earn your own points.</p></div></div>
+ <div class="play-heading"><div><p class="section-label">TU TURNO · PROFESOR</p><h2>Contesta el mismo reto que el alumno</h2><p>Aquí respondes como jugador. Los controles de la sala están arriba y ambos acumulan puntos.</p></div></div>
  <div class="play-meta"><span id="levelTag" class="level">QUESTION 01</span><span class="timer" id="timeLabel">● LIVE</span></div>
  <div class="progress-track" aria-label="Challenge progress"><div id="progressFill"></div></div>
  <article class="play-card">
@@ -96,13 +96,13 @@
    <div id="challengeInput"></div>
    <div class="play-controls"><button id="check" type="button" class="primary">CHECK MY ANSWER</button><button id="undo" type="button" class="secondary" hidden>UNDO LAST WORD</button><button id="clear" type="button" class="secondary" hidden>START AGAIN</button></div>
    <div class="feedback-box" id="feedback" role="status" aria-live="polite"></div>
-   <div class="wait-box" id="waiting" hidden>You've answered. Use the Teacher Monitor above to reveal the solution and advance.</div>
+   <div class="wait-box" id="waiting" hidden>Ya respondiste. Usa el panel superior para mostrar la solución y pasar a la siguiente pregunta.</div>
  </article>
  <div id="solution" class="solution" hidden><span class="section-label">CORRECT ANSWER</span><p id="solutionText"></p><small id="solutionExplanation"></small></div>
 </section>
 
-<section id="endScreen" class="end-screen" hidden><p class="section-label">SESSION FINISHED</p><h2 id="endTitle">Final scores</h2><div id="endScores"></div><p id="endMessage"></p><a href="/Comparative-Showdown/teacher/" class="primary new-game">CREATE ANOTHER ROOM</a></section>
-<footer>Classroom Online Games · Teacher Monitor · Private teacher controls</footer>
+<section id="endScreen" class="end-screen" hidden><p class="section-label">PARTIDA TERMINADA</p><h2 id="endTitle">Final scores</h2><div id="endScores"></div><p id="endMessage"></p><a href="/Comparative-Showdown/teacher/" class="primary new-game">CREAR OTRA SALA</a></section>
+<footer>Classroom Online Games · Teacher Monitor · Controles exclusivos del profesor</footer>
 </main>
 <script src="../game.js" defer></script>
 </body>
