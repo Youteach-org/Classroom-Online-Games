@@ -1,412 +1,174 @@
-# AED Educational Trainer (ESP32 + Classroom Online Games)
+# AED Educational Trainer
 
-## Purpose
+Educational AED training system inside **Classroom Online Games**.
 
-Build a classroom AED trainer for first-aid education using an ESP32-S3. It must reproduce AED-like prompts, lights, buttons and training states, but it must **never** generate a therapeutic electrical shock, acquire ECG for diagnosis, or claim to be a medical device.
+The project has two parts:
 
-The physical trainer and the web simulator must share the same conceptual state machine.
+1. **Physical AED trainer (ESP32)** — the device students use.
+2. **Teacher Monitor** — the instructor-only control panel that talks directly to the physical trainer over Bluetooth Low Energy (BLE).
 
-## Safety boundary
+There is **no student web interface** for this trainer.
 
-- No high-voltage transformer, capacitor bank, charging circuit or electrode-energy output.
-- The SHOCK button is a low-voltage GPIO input only.
+## Safety
+
+This is a training device, not a medical device.
+
+- No therapeutic/high-voltage shock circuitry.
+- The SHOCK button is a low-voltage training input only.
 - Training pads are inert.
-- Rhythm/decision is selected by the instructor or by a scripted scenario; the device does not diagnose a real person.
-- All audio prompts are training prompts and must be reviewed against the protocol used in the course before classroom release.
+- Any ECG channel is educational/non-diagnostic.
+- Real ECG must never decide the simulated shock/no-shock branch.
+- Shock/no-shock decisions come only from the scripted case or an instructor command.
+- Clinical conditions are scenario information, not diagnoses made by the AED.
 
-## Recommended prototype hardware
-
-### Core
-1. ESP32-S3 DevKitC-1 or equivalent ESP32-S3 development board — 1
-2. USB-C data/power cable — 1
-3. 5 V / 2 A USB power supply or USB power bank — 1
-
-### Audio
-4. MAX98357A I2S class-D mono amplifier — 1
-5. 4 ohm, 3 W speaker, approximately 40–50 mm — 1
-6. microSD SPI module that is explicitly 3.3 V compatible — 1
-7. microSD card, 4–16 GB — 1
-
-Recommended audio format for the first prototype: prerecorded mono WAV files. Store prompts on microSD so wording can be replaced without recompiling firmware.
-
-### Display and indicators
-8. 2.4–2.8 inch SPI TFT display, preferably ILI9341 320x240 — 1
-9. RGB status LED or small addressable RGB LED module — 1
-10. Optional illuminated POWER button — 1
-11. Large illuminated yellow SHOCK pushbutton — 1
-
-### Inputs / simulated pads
-12. Two low-voltage pad-detection inputs — 2 channels
-13. Two simulated training pads with inert cable/connector — 1 pair
-14. Two momentary switches or connector-detect contacts for the first prototype — 2
-15. Instructor scenario selector: 2-position switch or rotary encoder — 1
-
-### Build materials
-16. Solderable perfboard or small prototype PCB — 1
-17. Dupont/JST wiring, headers and connectors — as needed
-18. 220–330 ohm resistors for indicator LEDs — as needed
-19. 10 kohm pull-up/pull-down resistors if not using internal pulls — as needed
-20. Heat-shrink tubing and cable strain relief — as needed
-21. Enclosure: 3D printed shell, laser-cut box or foam/PVC prototype enclosure — 1
-22. Printed labels: POWER, ANALYZE/STATUS, SHOCK, TRAINING ONLY — 1 set
-
-## Pad handling — revised 2026-09-24
-
-Do **not** use Hall sensors or magnets. The trainer will not attempt to verify physical pad position on the manikin.
-
-For the first prototype:
-- use inert reusable training pads;
-- use cable/connector presence only if pad connection detection is desired;
-- physical placement on the manikin is evaluated by the instructor, not by sensors.
-
-## Proposed ESP32-S3 pin map
-
-This is a starting map and must be verified against the exact development board purchased.
-
-| Function | Proposed GPIO |
-|---|---:|
-| I2S audio DATA | 4 |
-| I2S audio BCLK | 5 |
-| I2S audio LRCLK | 6 |
-| TFT CS | 10 |
-| TFT MOSI | 11 |
-| TFT SCK | 12 |
-| TFT DC | 9 |
-| TFT RESET | 8 |
-| microSD CS | 13 |
-| microSD MISO | 14 |
-| POWER button | 1 |
-| SHOCK button | 2 |
-| Pad A detect | 16 |
-| Pad B detect | 17 |
-| Scenario selector | 18 |
-| RGB status LED | 21 |
-
-Avoid GPIO 0 and other boot/strapping pins for front-panel controls. Avoid pins reserved by the specific board's native USB interface.
-
-## Training state machine
-
-1. OFF
-2. SELF_TEST / STARTUP
-3. APPLY_PADS
-4. READY_TO_ANALYZE
-5. ANALYZING
-6. SHOCK_ADVISED or NO_SHOCK_ADVISED
-7. STAND_CLEAR
-8. SIMULATED_SHOCK (no electrical output)
-9. CPR
-10. REASSESS
-
-The instructor-selected scenario determines the result of ANALYZING.
-
-## Audio prompt set — first pass
-
-Suggested file naming:
-- 001-power-on.wav
-- 002-call-for-help.wav
-- 003-attach-pads.wav
-- 004-check-pads.wav
-- 005-do-not-touch-analyzing.wav
-- 006-shock-advised.wav
-- 007-stand-clear.wav
-- 008-press-shock.wav
-- 009-simulated-shock-delivered.wav
-- 010-no-shock-advised.wav
-- 011-begin-cpr.wav
-- 012-continue-cpr.wav
-- 013-reassess.wav
-- 014-low-battery-training.wav
-- 015-training-complete.wav
-
-The final Spanish wording is not frozen yet.
-
-## Web simulator
+## Teacher Monitor
 
 Path:
-- /Medicine/
-- /Medicine/AED-Trainer/
 
-The web version currently runs independently and simulates the physical state machine. Browser speech is temporary. The physical trainer will use prerecorded local audio.
+- `/Medicine/AED-Trainer/`
 
-## Physical-to-web integration options
+The Teacher Monitor is an **offline-first web application**.
 
-Phase 1: independent web simulator and independent ESP32 trainer.
+### Android
 
-Phase 2 recommended: Web Serial over USB from a teacher laptop running Chromium. The page receives low-risk state/status events from the ESP32 and can mirror them on screen.
+Use Chrome/Chromium with Web Bluetooth.
 
-Later optional: BLE GATT for wireless state mirroring. Do not require BLE for the first working trainer.
+### iPhone/iPad
 
-## Definition of done for version 1
+Use **Bluefy** as the Web Bluetooth-capable browser. We do not require a native iOS app, TestFlight, App Store publication, or an Apple Developer Program account.
 
-- Physical front panel powers on and plays clear audio.
-- Both simulated pad inputs are detected.
-- Instructor can choose shockable/non-shockable training scenario.
-- Analyze sequence locks inputs briefly and plays the correct prompt.
-- SHOCK button is enabled only in the simulated shock-advised state.
-- Pressing SHOCK produces only sound/light/UI feedback.
-- CPR state and reassessment loop work.
-- Web simulator follows the same sequence.
-- No high-voltage hardware exists in the unit.
-- Final prompt wording has been reviewed for the course.
-
+### During class
 
-## Teacher Monitor BLE requirement — 2026-09-24
+The runtime path is:
 
-BLE is mandatory for the near-final prototype.
+`Teacher Monitor <-> Bluetooth LE <-> physical ESP32 trainer`
 
-The physical trainer must publish live telemetry to the Classroom Online Games Teacher Monitor. The instructor should be able to supervise several teams/trainers from one monitor.
+A class session must not depend on:
 
-### Required live telemetry
+- Wi-Fi;
+- mobile data;
+- Firebase;
+- Cloudflare APIs;
+- remote fonts;
+- analytics;
+- CDNs;
+- streamed voice audio.
 
-- trainer/device ID
-- team/session identity
-- battery level
-- current AED training state
-- Pad A and Pad B state
-- ECG lead-off/contact state
-- educational single-lead ECG samples
-- detected R peaks / heart rate / R-R interval trend
-- instructor-selected training scenario
-- analyze event
-- shock-advised / no-shock-advised training state
-- simulated shock-button event
-- CPR/reassessment state
-- timestamped event stream
+Internet is allowed before class only to initially load/update the Teacher Monitor or install Bluefy.
 
-### BLE transport
+## Training model
 
-Initial target: custom BLE GATT service with separate characteristics for:
-- device/status
-- state/events
-- ECG sample packets
-- configuration/scenario
+A case is assembled from independent layers:
 
-The Teacher Monitor is the canonical instructor-facing live view. A separate ECG-only page is not the target.
+`AED base scenario + optional scene twist + optional advanced clinical condition + live instructor events`
 
-### Real-person connection rule
+Current banks:
 
-When ECG electrodes are attached to a person:
-- power the trainer from battery;
-- use BLE for telemetry;
-- do not maintain a USB connection to a mains-powered computer.
+- **A1–A8:** AED/rhythm behavior.
+- **T0–T8:** scene twists.
+- **C0–C16:** advanced clinical context.
 
-Real ECG remains educational/non-diagnostic and is never allowed to autonomously trigger or recommend the simulated shock path.
+The student never sees the hidden case configuration.
 
+## Live instructor controls
 
-## Fast-track near-final BOM — 2026-09-24
+The Teacher Monitor can:
 
-### Core HMI/controller
-**Preferred:** Waveshare ESP32-S3-Touch-LCD-2.8, current V2 touch version.
-This board replaces the separate ESP32-S3 + TFT + microSD + external display stack for the first near-final prototype. It provides ESP32-S3, 2.8-inch capacitive touch LCD, BLE 5, Wi-Fi, 16 MB Flash, 8 MB PSRAM, TF/microSD slot, onboard speaker/audio support and battery management.
+- force the next analysis to SHOCK;
+- force the next analysis to NO SHOCK;
+- trigger refibrillation;
+- create/clear pad-contact faults;
+- create/clear movement artifact;
+- create/clear a stand-clear violation;
+- pause/resume/restart/end the case;
+- use **DAR PISTA**.
 
-Manufacturer:
-https://www.waveshare.com/esp32-s3-touch-lcd-2.8.htm
+## Two voice roles
 
-### Educational real ECG channel
-**Preferred:** AD8232 single-lead ECG front-end module supplied as a kit with:
-- AD8232 board
-- three-lead snap cable
-- disposable snap ECG electrodes
+### AED voice
 
-The AD8232 is used only for educational waveform acquisition, R-peak/heart-rate/R-R visualization and lead-off monitoring. It must not control the simulated AED treatment recommendation.
+Female Latin American Spanish. It represents the device itself and is limited to AED-like prompts.
 
-### Training pads
-Use **reusable AED training pads**, not operational defibrillation electrodes. The preferred ready-made reference is Laerdal AED Trainer Pads (198-80550), approximately 16 x 10.3 cm with 114 cm cable. These are training accessories and are appropriate as the visual/physical pad model for the simulator.
+### Paramedic companion
 
-### Power
-Use a rechargeable battery/power-bank or internal Li-ion/LiPo solution compatible with the selected Waveshare board. During real-person ECG acquisition the trainer must operate from battery and communicate to the Teacher Monitor over BLE.
+A separate male Latin American Spanish voice. It represents a human teammate beside the trainees.
 
-### Physical controls
-- large momentary illuminated yellow button for SIMULATED SHOCK;
-- POWER control;
-- optional ANALYZE control if not handled by the touchscreen;
-- instructor scenario control may be physical or Teacher-Monitor controlled.
+Context lines are conversational, for example:
 
-Do not use 120 VAC illuminated panel buttons. Prefer low-voltage LED buttons whose contacts are isolated from the lamp circuit.
+> Compañero, acabamos de sacar al paciente del agua. Tiene el tórax mojado.
 
-### Teacher Monitor
-BLE is mandatory. The physical unit streams live telemetry to the Classroom Online Games Teacher Monitor:
-- device/team ID
-- battery
-- training state
-- pad state
-- ECG lead state
-- educational ECG waveform
-- heart rate / R-R trend
-- scenario
-- analysis events
-- simulated shock events
-- CPR/reassessment
-- event timeline
+**DAR PISTA** requests an additional teammate hint. The hint directs attention without stating the full answer. Hint usage is counted in the case telemetry.
 
-### Purchase-first order
-1. Waveshare ESP32-S3-Touch-LCD-2.8 V2 touch
-2. AD8232 kit with lead cable/electrodes
-3. reusable AED training pads
-4. low-voltage yellow illuminated momentary button
-5. battery/power-bank
-6. project enclosure
-7. wiring/connectors/perfboard/strain relief
-8. spare ECG electrodes
-
-
-## Purchasing rule — Mercado Libre México only
-
-Confirmed 2026-09-24: source prototype purchases only from Mercado Libre México listings that show current stock. Do not recommend Amazon, manufacturer-direct, eBay, Walmart, Steren direct, or other marketplaces for this project.
-
-Current preferred Mercado Libre shortlist:
-- Freenove ESP32-S3 2.8-inch touch display FNK0104A listing: https://www.mercadolibre.com.mx/modulo-de-pantalla-tactil-freenove-esp32s3-de-28-pulgadas/up/MLMU4138490265
-- Alternative integrated ESP32-S3 touch board listing: https://www.mercadolibre.com.mx/desarrollo-de-pantalla-redonda-tactil-capacitiva-esp32-s3-de/p/MLM2077739318
-- AD8232 ECG kit: https://articulo.mercadolibre.com.mx/MLM-5255490390-aad8232-ecg-kit-modulo-sensor-de-pulso-ritmo-cardiaco-_JM
-- Adult Ambiderm T716 ECG electrodes, 50 pcs: https://www.mercadolibre.com.mx/electrodo-ecg-desechable-para-monitoreo-cardiaco--43x45mm/up/MLMU460139698
-- Yellow 22 mm momentary pushbutton: https://articulo.mercadolibre.com.mx/MLM-3334166542-push-boton-momentaneo-metalico-22mm-color-a-elegir-_JM
-- 10,000 mAh UGREEN power bank: https://www.mercadolibre.com.mx/power-bank-10000-mah-ugreen/p/MLM63623139
-
-Training AED pads: no standalone replacement-pad listing has yet been verified as both suitable and currently in stock on Mercado Libre México. Until one is verified, do not purchase an expensive complete commercial AED trainer solely to obtain its pads; fabricate inert reusable training pads for the prototype from locally available low-voltage materials.
-
-
-## Display decision — revised 2026-09-24
-
-The AED trainer does not need a large TFT. Audio is the primary student guidance channel and the Classroom Games Teacher Monitor is the detailed instructor interface.
-
-**Preferred display — confirmed by user:** 0.96-inch monochrome OLED, 128x64, I2C, SSD1306-class, non-touch.
+Required audio is stored locally on the physical trainer; BLE does not stream required audio.
 
-Confirmed Mercado Libre México listing:
-https://www.mercadolibre.com.mx/pantalla-display-oled-azul-ssd1306-128x64-12c-096-in/up/MLMU566800926
+## BLE protocol
 
-Observed 2026-09-24:
-- price about MXN 78.90;
-- 128x64 pixels;
-- I2C interface;
-- 4 pins: GND, VCC, SCL, SDA;
-- 3-5 V supply;
-- approximately 2.7 x 2.7 cm module size;
-- current listing showed stock available.
+The ESP32 is the BLE Peripheral / GATT Server.
 
-Purpose:
-- COLOQUE PARCHES
-- ANALIZANDO
-- NO TOQUE
-- PRESIONE SHOCK
-- INICIE RCP
-- compact BLE / battery / pad indicators
+The Teacher Monitor is the BLE Central / GATT Client.
 
-Do not use a touch display. Do not use a 2.4/2.8-inch TFT unless later physical testing demonstrates a real readability need.
+Protocol v1 uses compact semicolon-separated `key=value` records and stable UUIDs defined in:
 
+- `ble-protocol.js`
 
-## Reusing an existing speaker
+The monitor will not enable remote controls after reconnect until it has reread the authoritative status and trainer state.
 
-The prototype may reuse a small speaker salvaged from a portable radio instead of purchasing a new speaker, provided its rating is verified first.
+## Offline files
 
-Preferred:
-- 4 ohm or 8 ohm speaker
-- approximately 0.5 W to 3 W or higher continuous rating
-- driven through the MAX98357A I2S amplifier, never directly from an ESP32 GPIO
+The local application shell includes:
 
-Before wiring, check the label printed on the speaker magnet/frame. If the marking is unclear, measure DC resistance with a multimeter and select amplifier gain conservatively during initial testing.
+- `index.html`
+- `styles.css`
+- `app.js`
+- scenario catalogs
+- prompt catalog
+- trainer engine
+- BLE protocol/client
+- offline helper
+- manifest
+- service worker
 
+The UI explicitly reports whether the required shell is cached.
 
-## Minimum purchase set for first powered prototype
+## Current physical bench prototype
 
-Confirmed 2026-09-24 after simplifying the display/audio choices.
+Confirmed working together:
 
-Buy now:
-1. ESP32-S3 DevKitC-1 N16R8, preferably with headers already soldered.
-2. Confirmed 0.96-inch SSD1306 I2C OLED from Mercado Libre.
-3. MAX98357/MAX98357A I2S class-D amplifier module.
-4. AD8232 ECG kit with 3-lead cable and snap electrodes.
-5. Large momentary SHOCK pushbutton; illumination is optional.
-6. Breadboard/perfboard, Dupont/JST wiring and connectors.
+- ESP32-WROOM-32 development board.
+- Provisional 2.4-inch ST7789 SPI TFT.
+- MAX98357A I2S mono amplifier.
+- 3 ohm / 3 W speaker.
+- Physical SHOCK button on GPIO32.
 
-Reuse if already available:
-- small 4-ohm or 8-ohm radio speaker;
-- ordinary 5 V USB power bank for isolated battery operation;
-- USB-C data cable.
+Current working audio pins:
 
-Do not buy yet:
-- separate microSD module; the N16R8 board has enough flash for the first prompt set and adding microSD would slow the first build;
-- large TFT/touch display;
-- a second speaker;
-- final enclosure until the bench layout has been proven.
+- BCLK: GPIO27
+- LRC: GPIO26
+- DOUT: GPIO25
 
-After bench validation:
-- final ABS enclosure;
-- inert reusable AED pads;
-- two low-voltage pad-position sensors (Hall/reed/contact method);
-- magnets/targets and robust pad connectors.
+The TFT is temporary. Touch and SD are intentionally unused. The final display can be replaced without coupling the training state machine to a specific display driver.
 
-When ECG electrodes are connected to a person, run from battery/power bank and use BLE to Teacher Monitor; do not keep a mains-powered PC USB connection attached.
+## Development documents
 
+Approved architecture:
 
-## Minimum purchase list — rapid prototype
+- [BLE/offline design](../../docs/superpowers/specs/2026-09-27-aed-teacher-monitor-ble-offline-design.md)
 
-Confirmed simplification for the first near-final build:
-- ESP32-S3 DevKitC-1 N16R8 with BLE
-- confirmed 0.96-inch SSD1306 OLED
-- MAX98357A I2S audio amplifier
-- reuse existing radio speaker if compatible
-- AD8232 ECG kit with 3-lead cable/electrodes
-- yellow momentary SHOCK pushbutton
-- simple POWER switch/button
-- battery/power-bank supply
-- two Hall A3144 sensors plus two small neodymium magnets for training-pad placement detection
-- two inert reusable training pads made from EVA/foam
-- low-voltage pad connectors/cable
-- enclosure
-- perfboard, headers/connectors, wire, heat-shrink, screws/standoffs
+Implementation plans:
 
-Not required for this prototype:
-- touch display
-- large TFT
-- separate microSD module; initial voice prompts can be stored in ESP32-S3 flash
-- new speaker if the existing radio speaker is compatible
-- high-voltage or therapeutic circuitry
+- [Teacher Monitor offline BLE](../../docs/superpowers/plans/2026-09-27-aed-teacher-monitor-offline-ble.md)
+- [ESP32 firmware and audio](../../docs/superpowers/plans/2026-09-27-aed-esp32-firmware-audio.md)
 
-Purchase source rule remains Mercado Libre México only, with current stock verified before buying.
+Hardware acceptance:
 
+- [Real-device Teacher Monitor acceptance](./REAL-DEVICE-ACCEPTANCE.md)
 
-## SHOCK button — revised 2026-09-24
+## Current release gates
 
-Do not use the expensive metal 22 mm illuminated button.
+Teacher Monitor software can be verified automatically for its local logic and contracts, but release still requires physical acceptance on:
 
-Preferred low-cost choice: plastic arcade-style momentary pushbutton in yellow. It only needs a normally-open momentary contact for the ESP32 GPIO. Lighting is optional and not required for the first prototype.
+- real Android + Chrome/Chromium;
+- real iPhone/iPad + Bluefy;
+- the physical ESP32 trainer.
 
-Current Mercado Libre México references observed 2026-09-24:
-- single illuminated arcade button around MXN 50, Mercado Libre listing search result;
-- pack of 10 yellow arcade buttons with microswitch around MXN 110–125, currently in stock.
-
-The SHOCK button is only a low-voltage digital input and never switches any therapeutic/high-voltage circuit.
-
-
-## Minimal fast-prototype purchase list — 2026-09-25
-
-Goal: build the first near-final physical prototype with the fewest purchases possible.
-
-Already selected:
-- ESP32-S3 DevKitC-1 N16R8 with BLE 5.
-- 0.96-inch SSD1306 128x64 I2C OLED.
-- Reuse existing small radio speaker if compatible.
-
-Buy:
-1. MAX98357A I2S 3 W amplifier.
-2. AD8232 ECG kit with 3-lead cable and electrodes.
-3. Large momentary SHOCK button. Preferred: 22 mm metal momentary button with 3-6 V DC yellow LED option.
-4. Battery power source / power bank.
-5. Two Hall-effect sensors plus small magnets for training-pad placement detection on the manikin.
-6. Robust low-voltage detachable connector(s) for the reusable training pads.
-7. Small perfboard / prototype PCB, hookup wire, headers/connectors, heat-shrink, spacers and screws.
-8. Enclosure after bench layout is validated.
-
-Do not buy for V1:
-- separate microSD module/card: store the first prompt set in ESP32-S3 N16R8 internal Flash/LittleFS;
-- separate speaker: reuse the user's radio speaker if electrically compatible;
-- touch screen or large TFT;
-- high-voltage parts of any kind.
-
-Training pads:
-- fabricate inert reusable pads for the manikin instead of buying operational defibrillation electrodes.
-- Hall/magnet sensing can indicate correct placement while remaining electrically isolated from the learner/manikin.
-
-Teacher Monitor:
-- BLE is required from V1 for live procedure state and educational ECG telemetry.
-
+iOS support is not accepted until Bluefy is proven to reopen the cached monitor offline and communicate with the trainer over BLE with Wi-Fi and mobile data disabled.
