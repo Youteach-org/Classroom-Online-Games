@@ -40,6 +40,14 @@ Esta bitácora es el **historial verificable**. Las ideas no son pruebas; las pr
 
 **Próximo hito:** definir opciones de integración geométrica manteniendo la estética EVA y dimensionar interior por módulos.
 
+## 2026-11-08 — Cabeza fija confirmada
+
+**Respuesta del usuario:** «Fija, no lo compliquemos más» a la pregunta sobre giro/movimiento de cabeza.
+
+**Decisión D-012:** cabeza completamente rígida/fija, sin servomotor de cuello ni movimiento pan-tilt. Las expresiones faciales se implementarán en los ojos digitales. Las propuestas históricas de cabeza articulada quedan descartadas, sin alterar la estética EVA ni el control de equilibrio analógico.
+
+**Actualización:** registro de decisión, diseño físico, lista de componentes, README y bitácora.
+
 ## Plantilla de nueva entrada
 
 ### AAAA-MM-DD — Hito
