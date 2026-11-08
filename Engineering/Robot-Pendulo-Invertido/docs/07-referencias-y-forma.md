@@ -1,6 +1,18 @@
 # 07 — Referencias estéticas y propuesta de carrocería 3D
 
-**Fecha:** 2026-11-08 · **Estado:** alternativas de diseño para revisión; **no** hay forma aprobada ni CAD realizado.
+**Fecha:** 2026-11-08 · **Estado:** **referencia estética EVA de WALL·E confirmada por el usuario**; CAD, disposición precisa y pantallas aún no aprobados.
+
+## Decisión estética confirmada por el usuario — 2026-11-08
+
+**Referencia visual obligatoria:** EVA/EVE de la película *WALL·E*. Silueta de robot blanco, liso, redondeado/ovoide, cabeza oval independiente del cuerpo, visor facial negro, ojos luminosos azules, brazos laterales estilizados; en combate exclusivamente simulado ojos rojos y gesto enojado. La carrocería deberá imprimirse en 3D y tener aspecto cerrado/profesional, no de estante o chasis visible.
+
+**Adaptación física imprescindible:** EVA en la película flota, pero nuestro robot es un péndulo invertido real de **dos ruedas apoyadas en el suelo**. Deben integrarse discretamente en la zona baja o laterales, con espacio libre, diámetro y adherencia suficientes; no esconder tanto las ruedas que pierdan contacto o funcionalidad. La altura real, forma de transición y anclajes se derivan del CAD, motores y centro de masa.
+
+**Candidatos para ojos (ninguno aún aprobado):** (1) pantalla única detrás de visor negro con ambos ojos animados, o (2) dos displays detrás de un visor negro común; las pantallas redondas GC9A01 propuestas previamente ya **no** son una decisión estética por defecto. Debe compararse espacio interno, curvatura aparente, contraste, peso y conexiones. El visor puede ser cubierta negra semitransparente compatible con brillo/legibilidad y sistema de disipación.
+
+**Propuesta de colocación:** sensores térmicos y de distancia en ventanas discretas que no tapen campo de visión; micrófono y bocinas detrás de aberturas acústicas; batería y electrónica de potencia en parte baja; control analógico aislado de perturbaciones. Brazos/servos no deben sacudir el equilibrio. Todo lo anterior es propuesta de ingeniería, no dimensiones cerradas.
+
+Referencia del personaje: https://www.pixar.com/wall-e y https://movies.disney.com/wall-e. No se ha adquirido licencia ni se plantea reproducción comercial del personaje; la referencia se utiliza para definir el estilo de un prototipo.
 
 ## Intención de diseño
 
@@ -12,6 +24,10 @@ Robot de péndulo invertido de dos ruedas con apariencia de **personaje terminad
 2. **JJRobots B-ROBOT EVO2** — piezas imprimibles y construcción de robot autoequilibrado. Útil como referencia mecánica; estética abierta a reinterpretar. https://github.com/jjrobots/B-ROBOT_EVO2
 3. **Zippy** — cuerpo impreso, diseño y control de motores; útil para empaquetado y revisión de piezas. Equilibrio digital distinto del nuestro. https://github.com/elkayem/ZippyTheBalancingRobot
 4. **Self-balancing Arduino robot (Build Some Stuff)** — ruedas, silueta y articulación de extremidades; control digital y BLDC fuera de la primera opción de integración analógica. https://www.hackster.io/news/build-your-own-arduino-powered-self-balancing-robot-9701119f0c20
+
+## Propuestas históricas anteriores (NO son la referencia visual vigente)
+
+Se conservan a continuación para trazabilidad, pero **el usuario ya eligió EVA**, por lo que no se debe reabrir la elección genérica entre A/B/C salvo nueva indicación explícita.
 
 ## Tres rutas visuales
 
@@ -32,7 +48,7 @@ Robot de péndulo invertido de dos ruedas con apariencia de **personaje terminad
 - **Beneficio:** más simple, menor peso/consumo.
 - **Costo:** apariencia diferente a los ojos circulares individuales.
 
-**No se elige ruta definitiva sin revisión del usuario.**
+**Rutas anteriores superadas por la decisión EVA; se mantiene abierta solo la ingeniería de implementación de esa forma.**
 
 ## Dimensiones de estudio — NO definitivas
 
@@ -54,6 +70,8 @@ Robot de péndulo invertido de dos ruedas con apariencia de **personaje terminad
 - Masa/centro de gravedad verificados en CAD y en prototipo; perturbaciones por servos evaluadas.
 - Carcasas y neumáticos no sirven de tercer punto de apoyo durante equilibrio.
 
-## Pregunta de revisión estética pendiente
+## Decisiones todavía pendientes
 
-¿Preferir cuerpo redondeado con dos ojos separados, cabeza articulada, o rostro único tipo visor? Colores y tamaño final por aprobar.
+Confirmados por usuario: **EVA como objetivo de forma**, carcasa impresa en 3D, dos ruedas, ojos azules y modo simulado rojo/enojado.
+
+Por definir: tamaño final, método de hacer visor (una o dos pantallas detrás), movilidad de cabeza/brazos, ubicación de ruedas y tolerancias internas. No preguntar nuevamente qué estética general desea.
