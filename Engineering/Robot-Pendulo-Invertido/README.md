@@ -16,7 +16,7 @@ Construir un robot de **dos ruedas** capaz de mantenerse en equilibrio mediante 
 - **R-04 — Silbido:** identificar un silbido como señal para activar un comportamiento de seguimiento.
 - **R-05 — Seguimiento de persona:** preferentemente seguir la señal Bluetooth del teléfono del usuario. El Bluetooth convencional/BLE por intensidad de señal no proporciona dirección fiable por sí solo; el método real se validará antes de prometer seguimiento.
 - **R-06 — Comunicación:** disponer de micrófono y bocinas para comunicación/interacción con el robot.
-- **R-07 — Ojos:** pantalla con ojos animados y expresiones reactivas.
+- **R-07 — Ojos:** **una sola pantalla rectangular** para ambos ojos animados; marco oval impreso en 3D cubrirá sus esquinas para obtener la apariencia de EVA (D-013).
 - **R-08 — Combate simulado:** modo **únicamente ficticio/teatral**, con ojos que pasan de azul a rojo y expresión enojada, sin armamento.
 - **R-09 — Supervisión:** la ESP32 maneja las funciones R-02 a R-08 que correspondan, pero **no ejecuta el control de equilibrio**.
 - **R-10 — Seguridad:** incorporar parada de emergencia, condiciones de fallo seguras y pruebas sujetas a contención física antes de funcionamiento libre.
@@ -34,7 +34,8 @@ Construir un robot de **dos ruedas** capaz de mantenerse en equilibrio mediante 
 8. [Lista de componentes candidatos](docs/08-componentes-candidatos.md)
 9. [Integración, energía y validaciones](docs/09-integracion-y-validaciones.md)
 10. [Distribución dimensional preliminar v0.1](docs/10-distribucion-fisica-v01.md)
-11. [Maqueta CAD paramétrica OpenSCAD v0.1](cad/EVA_concepto_v01.scad)
+11. [Maqueta CAD paramétrica OpenSCAD v0.1 (displays obsoletos)](cad/EVA_concepto_v01.scad)
+12. [Pantalla única y orden de selección de componentes](docs/11-pantalla-unica-y-secuencia-de-componentes.md)
 
 ## Reglas del proyecto
 
