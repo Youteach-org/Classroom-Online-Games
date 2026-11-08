@@ -16,6 +16,7 @@
 | D-008 | Usar **pantalla como ojos** reactivos | Confirmado |
 | D-009 | Incluir **modo combate simulado**, ojos de **azul a rojo** y expresión enojada | Confirmado; exclusivamente simulado |
 | D-010 | Documentar el proyecto persistentemente en GitHub, dentro del repositorio **COG** | Confirmado |
+| D-011 | **Objetivo visual definitivo:** carrocería tipo **EVA / EVE de WALL·E**; líneas blancas, suaves y continuas, rostro negro con ojos digitales azules; adaptación indispensable a dos ruedas de contacto con el suelo | **Confirmado directamente por el usuario el 2026-11-08** |
 
 ## Propuestas de ingeniería — NO aprobadas todavía
 
@@ -32,6 +33,7 @@
 | Fecha | ID | Solicitud | Requisitos afectados | Resolución / autorización | Evidencia |
 |---|---|---|---|---|---|
 | 2026-11-08 | C-000 | Crear carpeta de proyecto y documentar objetivos iniciales | R-01 a R-10 | Solicitud directa del usuario | Primeros archivos del repositorio |
+| 2026-11-08 | C-001 | «Va a ser una carcasa tipo el robot EVA de Wall-E. Esa es el objetivo visual» | R-11 (nuevo, estética) y selección de carcasa/pantalla | **Aprobación explícita del usuario**. Se prioriza estética EVA frente a opciones anteriores; no confirma pantalla única, tamaño final, mecanismos ni configuración de ruedas. | `docs/07-referencias-y-forma.md` |
 
 ## Protocolo de cambios futuros
 
