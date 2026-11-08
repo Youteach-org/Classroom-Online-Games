@@ -62,6 +62,16 @@ Esta bitácora es el **historial verificable**. Las ideas no son pruebas; las pr
 
 **Siguiente prueba:** maquetar pantalla/visor con dimensiones de ficha, montar rueda/hub sobre representación del 37D, estimar masa y centro de gravedad y diseñar soportes reales.
 
+## 2026-11-08 — Confirmada pantalla rectangular única y marco oval
+
+**Declaración del usuario:** una sola pantalla rectangular para los dos ojos, con la carcasa de la cabeza impresa en 3D cubriendo las esquinas hasta simular una superficie visible ovalada; cabeza ligeramente mayor al módulo.
+
+**Decisión D-013:** descartadas las dos pantallas redondas previas. El marco y la abertura deben diseñarse con dimensiones REALES del panel, respetando área activa, PCB, cable y montaje. El tipo de pantalla aún no se fija.
+
+**Investigación inicial:** Waveshare 3.5\" IPS ST7796S SPI, 92.44×61 mm de módulo, activa 73.44×48.96 mm; y Waveshare 4.3\" ESP32-S3 integrado IPS RGB 800×480, 106.1×67.8 mm en variante táctil, activo ~95.54×54.36 mm. Antes de escoger panel integrado revisar disponibilidad de GPIO/I²S y alimentación para todos los otros sensores.
+
+**Siguiente paso:** evaluación/dimensionamiento de componentes reales antes de liberar CAD imprimible. Ver `docs/11-pantalla-unica-y-secuencia-de-componentes.md`.
+
 ## Plantilla de nueva entrada
 
 ### AAAA-MM-DD — Hito
