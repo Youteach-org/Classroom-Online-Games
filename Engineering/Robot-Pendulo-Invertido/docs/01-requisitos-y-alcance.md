@@ -21,6 +21,9 @@ Construir un robot móvil de dos ruedas en configuración de péndulo invertido.
 | R-08 | Modo combate simulado | Solo animación y comportamiento teatral, sin arma | Ojos azules en modo normal, rojos y enojados al activar modo simulado; retorno seguro |
 | R-09 | ESP32 como gestor de funciones | No cerrar ni calcular el lazo de equilibrio | Estabilización continúa aunque ESP32 se reinicie; el robot entra en condición segura ante pérdida de comandos |
 | R-10 | Operación segura | Protección eléctrica, mecánica y control de fallos | Parada probada, límites de mando y pruebas iniciales con sujeción |
+| **R-11** | **Aspecto tipo EVA de WALL·E** | **Confirmado:** carrocería cerrada y ovalada impresa en 3D con aspecto EVA; dos ruedas funcionales y control analógico se mantienen | Validar una maqueta exterior y la integración física de 2 ruedas, pantallas/visor y todos los subsistemas sin estructura abierta |
+
+**R-11 fue confirmado directamente por el usuario el 2026-11-08; tiene prioridad sobre las propuestas estéticas anteriores de Weeble, B-Robot y Zippy.**
 
 ## Límites de alcance
 
