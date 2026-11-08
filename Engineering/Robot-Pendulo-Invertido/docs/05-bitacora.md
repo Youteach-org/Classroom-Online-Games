@@ -28,6 +28,18 @@ Esta bitácora es el **historial verificable**. Las ideas no son pruebas; las pr
 
 **Siguiente hito:** selección estética del usuario, presupuesto y cálculo de masa/torque para determinar hardware definitivo.
 
+## 2026-11-08 — Decisión de forma EVA confirmada
+
+**Declaración del usuario:** «Va a ser una carcasa tipo el robot EVA de Wall-E. Esa es el objetivo visual».
+
+**Decisión:** se adopta **EVA/EVE de WALL·E** como referencia visual obligatoria. Sustituye la fase de elegir entre referencias genéricas. Exterior de impresión 3D con silueta ovoide blanca, cabeza/visor negro, ojos azules expresivos, brazos estilizados y modo combate simulado con ojos rojos. R-11 creado; D-011 y C-001 registrados.
+
+**Compatibilidad:** las dos ruedas reales siguen siendo esenciales y deben integrarse en la zona inferior; el robot no levita. No se cambia el balanceo analógico ni el papel de la ESP32. Tipo/número de pantallas, medidas y mecanismos aún por confirmar.
+
+**Evidencia:** `docs/04-decisiones.md`, `docs/01-requisitos-y-alcance.md`, `docs/07-referencias-y-forma.md`.
+
+**Próximo hito:** definir opciones de integración geométrica manteniendo la estética EVA y dimensionar interior por módulos.
+
 ## Plantilla de nueva entrada
 
 ### AAAA-MM-DD — Hito
