@@ -33,6 +33,8 @@ Construir un robot de **dos ruedas** capaz de mantenerse en equilibrio mediante 
 7. [Referencias y diseño físico 3D](docs/07-referencias-y-forma.md)
 8. [Lista de componentes candidatos](docs/08-componentes-candidatos.md)
 9. [Integración, energía y validaciones](docs/09-integracion-y-validaciones.md)
+10. [Distribución dimensional preliminar v0.1](docs/10-distribucion-fisica-v01.md)
+11. [Maqueta CAD paramétrica OpenSCAD v0.1](cad/EVA_concepto_v01.scad)
 
 ## Reglas del proyecto
 
@@ -45,4 +47,4 @@ Construir un robot de **dos ruedas** capaz de mantenerse en equilibrio mediante 
 
 ## Estado actual
 
-**Investigación preliminar de forma y componentes registrada; sin prototipo ni diseño electrónico final aprobado.**
+**Maqueta 3D volumétrica v0.1 y estudio dimensional documentados. No es un diseño para imprimir todavía; no hay prototipo ni diseño electrónico final aprobado.**
