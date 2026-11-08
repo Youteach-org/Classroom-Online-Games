@@ -12,7 +12,7 @@
 
 **Adaptación física imprescindible:** EVA en la película flota, pero nuestro robot es un péndulo invertido real de **dos ruedas apoyadas en el suelo**. Deben integrarse discretamente en la zona baja o laterales, con espacio libre, diámetro y adherencia suficientes; no esconder tanto las ruedas que pierdan contacto o funcionalidad. La altura real, forma de transición y anclajes se derivan del CAD, motores y centro de masa.
 
-**Candidatos para ojos (ninguno aún aprobado):** (1) pantalla única detrás de visor negro con ambos ojos animados, o (2) dos displays detrás de un visor negro común; las pantallas redondas GC9A01 propuestas previamente ya **no** son una decisión estética por defecto. Debe compararse espacio interno, curvatura aparente, contraste, peso y conexiones. El visor puede ser cubierta negra semitransparente compatible con brillo/legibilidad y sistema de disipación.
+**Decisión D-013 (confirmada): una sola pantalla rectangular que dibuja los dos ojos.** La carcasa oval de la cabeza, impresa en 3D, cubrirá las esquinas del rectángulo mediante un marco frontal de apertura ovalada. El módulo y su área activa deben caber detrás sin deformar el panel: soporte trasero rígido y acceso para cable FPC/conector. **Descartadas dos pantallas**, incluidas las dos GC9A01 anteriormente propuestas. El modelo exacto todavía está por comparar; referencia inicial 3.5\" SPI o 4.3\" 800x480 con ESP32-S3 integrado (este último requiere revisión de GPIO disponibles para sensores/audio).
 
 **Propuesta de colocación:** sensores térmicos y de distancia en ventanas discretas que no tapen campo de visión; micrófono y bocinas detrás de aberturas acústicas; batería y electrónica de potencia en parte baja; control analógico aislado de perturbaciones. Brazos/servos no deben sacudir el equilibrio. Todo lo anterior es propuesta de ingeniería, no dimensiones cerradas.
 
@@ -78,4 +78,4 @@ Se conservan a continuación para trazabilidad, pero **el usuario ya eligió EVA
 
 Confirmados por usuario: **EVA como objetivo de forma**, carcasa impresa en 3D, **cabeza completamente fija sin servo**, dos ruedas, ojos azules y modo simulado rojo/enojado.
 
-Por definir: tamaño final, método de hacer visor (una o dos pantallas detrás), movimiento de brazos si procede, ubicación de ruedas y tolerancias internas. **No volver a plantear movilidad de cabeza**. No preguntar nuevamente qué estética general desea.
+Por definir: tamaño final **según dimensiones reales de la pantalla rectangular única**, espesor del marco oval y apertura útil, movimiento de brazos si procede, ubicación de ruedas y tolerancias internas. **No volver a plantear movilidad de cabeza ni dos pantallas.** No preguntar nuevamente qué estética general desea.
