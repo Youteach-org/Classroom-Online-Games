@@ -20,6 +20,8 @@
 
 | D-012 | **Cabeza EVA fija, sin giro, inclinación ni servo de cuello**. La expresividad se obtiene con ojos animados, no con movimiento de cabeza. | **Confirmado directamente por el usuario el 2026-11-08** |
 
+| D-013 | **Una sola pantalla rectangular** para los dos ojos; **carcasa ovalada de cabeza impresa en 3D oculta las esquinas** y forma la ventana de EVA. La cabeza será apenas mayor que el módulo seleccionado. | **Confirmado por el usuario el 2026-11-08**; tamaño y modelo de pantalla no confirmados |
+
 ## Propuestas de ingeniería — NO aprobadas todavía
 
 | ID | Propuesta | Motivo | Estado |
@@ -38,6 +40,8 @@
 | 2026-11-08 | C-001 | «Va a ser una carcasa tipo el robot EVA de Wall-E. Esa es el objetivo visual» | R-11 (nuevo, estética) y selección de carcasa/pantalla | **Aprobación explícita del usuario**. Se prioriza estética EVA frente a opciones anteriores; no confirma pantalla única, tamaño final, mecanismos ni configuración de ruedas. | `docs/07-referencias-y-forma.md` |
 
 | 2026-11-08 | C-002 | «Fija, no lo compliquemos más» (respuesta sobre movilidad de cabeza) | Diseño mecánico EVA, servomotor de cuello, disposición interior | **Cabeza fija obligatoria; se elimina el servo de cabeza de la lista vigente**; conservar referencia histórica de propuestas previas | `docs/07-referencias-y-forma.md`, `docs/08-componentes-candidatos.md` |
+
+| 2026-11-08 | C-003 | «Va a ser una sola pantalla ... la cabeza impresa va a cubrir ... las esquinas para simular que la pantalla es ovalada» | R-07, R-11, diseño de rostro, BOM, CAD | **Se elimina opción de dos pantallas**; usar un solo panel rectangular detrás de marco impreso oval. El modelo/tamaño aún se evalúa. | `docs/11-pantalla-unica-y-secuencia-de-componentes.md` |
 
 ## Protocolo de cambios futuros
 
