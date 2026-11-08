@@ -21,8 +21,9 @@
 | Soportes | 2 | soportes motor compatibles 37D y transmisión | insertos y rigidez | D |
 | Servos brazos | 2 | MG90S o equivalentes microservo metálicos | 5–6 V desde alimentación separada; carga efectiva a calcular | C |
 | Servo cuello/cabeza | **0** | **NINGUNO** | **Descartado por decisión D-012 del usuario: cabeza rígida y fija; no comprar servo de cuello** | **Descartado** |
-| Pantallas ojos | 2 | Waveshare 1.28” GC9A01 SPI 240×240 | dos ojos independientes, SPI compartido con CS separados; ~40 mm PCB | C |
-| Alternativa rostro | 1 | pantalla IPS rectangular ST7789 o similar | dos ojos dibujados en un visor; menor complejidad | O |
+| Pantallas ojos | **0** | Waveshare 1.28” GC9A01 SPI 240×240 | **Descartadas como conjunto doble** por decisión D-013 del usuario | **Descartado** |
+| **Pantalla única para ambos ojos** | **1** | Rectangular a seleccionar: Waveshare ST7796S 3.5\" 320×480 SPI o Waveshare 4.3\" 800×480 con ESP32-S3 integrado | **Confirmada arquitectura de una pantalla**, no modelo ni tamaño; marco impreso tapa esquinas para abertura oval | **Concepto confirmado / SKU por elegir** |
+| Visor frontal | 1 | Marco oval impreso en 3D, con protector transparente si se valida ópticamente | Tapa las esquinas de la pantalla, no se dobla el vidrio; garantizar visión de ojos y ventilación | **Concepto confirmado** |
 | Termografía | 1 | MLX90640 32×24 vía I²C (55° o 110°) | 768 temperaturas por cuadro; detecta fuentes y ubicación aproximada; no sustituir con RGB para termometría | C |
 | Alternativa térmica | 1 | AMG8833 8×8 | menor resolución, debe evaluarse rango y FOV | O |
 | Visión visible | 0–1 | OV2640 con placa/versión ESP32-S3 compatible | visión/seguimiento visual opcional; **no mide temperaturas** por color RGB | O |
@@ -68,7 +69,7 @@
 3. Simular y medir la generación de PWM **por el controlador analógico**, no por la ESP32.
 4. Elegir 3S pack+protección+cargador emparejados con hoja de datos, carga nominal y protección de cortos.
 5. Determinar distribución física y alimentación simultánea, incluidos ruido del motor y servos.
-6. Diseñar la carrocería **tipo EVA con cabeza fija**; seleccionar tamaño y tipo de visor/ojos.
+6. Diseñar la carrocería **tipo EVA con cabeza fija y una sola pantalla rectangular detrás de un marco ovalado impreso**; seleccionar primero módulo exacto y conectores.
 7. Decidir comportamiento Bluetooth real del teléfono y si el audio es conversación Wi-Fi, intercomunicador o frases locales.
 8. Verificar precios, distribución y existencias en México en fecha de pedido.
 
