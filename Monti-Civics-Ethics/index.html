@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#142b48">
+<title>Monti's Civics Challenge | COG</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<main class="wrap">
+<header class="top">
+ <a href="/" class="brand">COG <span>CLASSROOM ONLINE GAMES</span></a>
+ <span class="role" id="roleTag">CIVICS &amp; ETHICS</span>
+</header>
+<section class="hero">
+ <div>
+  <p class="eyebrow">IDENTITY · DIVERSITY · DIGNITY</p>
+  <h1>Our World.<br><em>Our Choices.</em></h1>
+  <p class="subtitle">Think critically. Make fair choices. Express your ideas in English.</p>
+  <div class="tags"><span>16 challenges</span><span>4 topics</span><span>Teacher + student · Live</span></div>
+ </div>
+ <div class="hero-art" aria-hidden="true"><span>BE<br>KIND</span><b>✳</b><small>EVERY VOICE MATTERS</small></div>
+</section>
+<div id="notice" role="status" aria-live="polite" class="notice" hidden></div>
+<section id="landing" class="entry">
+ <article id="joinPanel" class="paper">
+  <span class="section-kicker">STUDENT ACCESS</span>
+  <h2>Enter your classroom.</h2>
+  <p>Ask your teacher for the six-character room code.</p>
+  <label for="roomCode">ROOM CODE</label><input id="roomCode" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="A1B2C3">
+  <label for="studentName">YOUR NAME OR NICKNAME</label><input id="studentName" maxlength="30" autocomplete="nickname" placeholder="Monti">
+  <button class="btn primary" id="joinBtn">JOIN THE CHALLENGE <span>→</span></button>
+ </article>
+ <article id="hostPanel" class="paper teacher-entry" hidden>
+  <span class="section-kicker">TEACHER MONITOR</span>
+  <h2>Create a live room.</h2>
+  <p>Your student joins from another device. You control every question and review written answers.</p>
+  <label for="teacherName">TEACHER NAME</label><input id="teacherName" maxlength="30" autocomplete="name" placeholder="Teacher">
+  <button class="btn primary" id="createBtn">CREATE ROOM <span>→</span></button>
+ </article>
+ <aside class="explain">
+  <div class="number">01 <span>→</span> 02 <span>→</span> 03</div>
+  <h2>Read. Decide. Discuss.</h2>
+  <p>Choose answers, write short responses and explain your ideas. Your teacher decides when the next question appears.</p>
+  <ul><li>Identity and self-care</li><li>Respect and diversity</li><li>Adolescence and stereotypes</li><li>Human rights and solidarity</li></ul>
+ </aside>
+</section>
+<section id="session" hidden>
+ <div class="session-bar"><div><small id="sessionType">LIVE SESSION</small><h2 id="sessionTitle">Room —</h2><span id="sessionSub">Connecting…</span></div>
+ <div class="stats"><div><small>PROGRESS</small><strong id="progressNumber">0 / 16</strong></div><div><small>AUTO SCORE</small><strong id="scoreNumber">0 / 12</strong></div></div></div>
+ <div class="progress"><div id="progressFill"></div></div>
+ <div class="share" id="teacherShare" hidden><div><strong>Student access</strong><p id="studentLinkText"></p></div><div class="sharebuttons"><button class="btn outline" id="copyCode">COPY CODE</button><button class="btn outline" id="copyLink">COPY LINK</button></div></div>
+ <div id="waiting" class="paper message" hidden></div>
+ <section id="questionArea" class="question-layout" hidden>
+  <article class="paper challenge">
+   <div class="question-top"><span class="topic" id="topicLabel">IDENTITY</span><span class="counter" id="questionNumber">01 / 16</span></div>
+   <p class="prompt-label" id="promptLabel">THE QUESTION</p>
+   <h2 id="questionText"></h2>
+   <div id="answerArea"></div>
+   <div id="studentActions"><button id="submitBtn" class="btn primary">SUBMIT ANSWER <span>→</span></button></div>
+   <div id="studentFeedback" class="feedback" role="status"></div>
+  </article>
+  <aside class="side paper">
+   <div class="stamp">THINK<br>FAIR.</div>
+   <h3 id="sidebarTitle">Teacher's guide</h3>
+   <p id="sidebarText">Complete the challenge, then discuss it together.</p>
+   <div id="teacherControls" hidden>
+    <div id="submittedAnswer" class="submitted-answer"></div>
+    <div id="teacherGrade" class="grade" hidden><p>REVIEW THE WRITTEN ANSWER</p><button class="btn outline" id="markGood">ACCEPT</button><button class="btn outline" id="markRevise">NEEDS REVISION</button></div>
+    <div class="buttons"><button id="revealBtn" class="btn dark">REVEAL ANSWER</button><button id="nextBtn" class="btn primary" hidden>NEXT CHALLENGE →</button><button id="closeBtn" class="btn quiet">END SESSION</button></div>
+   </div>
+   <div id="revealed" class="explanation" hidden></div>
+  </aside>
+ </section>
+ <section id="finish" class="paper finish" hidden></section>
+</section>
+<footer>Classroom Online Games · Civics &amp; Ethics · Use nicknames, not personal information.</footer>
+</main>
+<script src="./questions.js"></script>
+<script src="./app.js" defer></script>
+</body>
+</html>
