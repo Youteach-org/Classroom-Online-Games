@@ -29,6 +29,9 @@ Construir un robot de **dos ruedas** capaz de mantenerse en equilibrio mediante 
 4. [Registro de decisiones](docs/04-decisiones.md)
 5. [Bitácora de avances](docs/05-bitacora.md)
 6. [Riesgos y temas pendientes](docs/06-riesgos-y-pendientes.md)
+7. [Referencias y diseño físico 3D](docs/07-referencias-y-forma.md)
+8. [Lista de componentes candidatos](docs/08-componentes-candidatos.md)
+9. [Integración, energía y validaciones](docs/09-integracion-y-validaciones.md)
 
 ## Reglas del proyecto
 
@@ -41,4 +44,4 @@ Construir un robot de **dos ruedas** capaz de mantenerse en equilibrio mediante 
 
 ## Estado actual
 
-**Documentación inicial, sin prototipo ni diseño electrónico final aprobado.**
+**Investigación preliminar de forma y componentes registrada; sin prototipo ni diseño electrónico final aprobado.**
