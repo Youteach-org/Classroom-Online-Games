@@ -48,6 +48,20 @@ Esta bitácora es el **historial verificable**. Las ideas no son pruebas; las pr
 
 **Actualización:** registro de decisión, diseño físico, lista de componentes, README y bitácora.
 
+## 2026-11-08 — Primer estudio geométrico de EVA (v0.1)
+
+**Solicitud del usuario:** «Ok vas», autorización para continuar con las dimensiones y la distribución interna tras fijar la cabeza rígida.
+
+**Resultado documental y CAD:** altura preliminar 317 mm; ancho total 250 mm; cabeza 158 × 116 × 108 mm; torso ancho máx. 182 mm; dos ruedas Ø96, centros X=±116 y Z=49. Maqueta en `cad/EVA_concepto_v01.scad`. Distribución de motores 37D, pack 3S tentativo, driver MDD10A, PCB analógica y ESP32/pantallas. Las envolventes quedan detalladas en `docs/10-distribucion-fisica-v01.md`.
+
+**Fuentes de dimensiones reales comprobadas:** Pololu 37D Ø37 ×68 y Cytron MDD10A 84.5 ×62; el resto de cotas mecánicas son propuestas sujetas a ficha de módulo y pruebas.
+
+**Comprobación realizada:** OpenSCAD generó una visualización de exterior; se corrigió unión visual cuerpo-ruedas con carenados. No se ha verificado dinámica, estabilidad, uniones, ajuste de piezas ni comportamiento de chasis real.
+
+**Decisiones:** NO se fijan todavía dimensiones finales, pack exacto, pantalla única/doble ni servos de brazos. Cabeza fija (D-012) y equilibrio analógico (D-002) se mantienen intactos.
+
+**Siguiente prueba:** maquetar pantalla/visor con dimensiones de ficha, montar rueda/hub sobre representación del 37D, estimar masa y centro de gravedad y diseñar soportes reales.
+
 ## Plantilla de nueva entrada
 
 ### AAAA-MM-DD — Hito
