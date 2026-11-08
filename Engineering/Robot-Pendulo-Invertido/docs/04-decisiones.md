@@ -18,6 +18,8 @@
 | D-010 | Documentar el proyecto persistentemente en GitHub, dentro del repositorio **COG** | Confirmado |
 | D-011 | **Objetivo visual definitivo:** carrocería tipo **EVA / EVE de WALL·E**; líneas blancas, suaves y continuas, rostro negro con ojos digitales azules; adaptación indispensable a dos ruedas de contacto con el suelo | **Confirmado directamente por el usuario el 2026-11-08** |
 
+| D-012 | **Cabeza EVA fija, sin giro, inclinación ni servo de cuello**. La expresividad se obtiene con ojos animados, no con movimiento de cabeza. | **Confirmado directamente por el usuario el 2026-11-08** |
+
 ## Propuestas de ingeniería — NO aprobadas todavía
 
 | ID | Propuesta | Motivo | Estado |
@@ -34,6 +36,8 @@
 |---|---|---|---|---|---|
 | 2026-11-08 | C-000 | Crear carpeta de proyecto y documentar objetivos iniciales | R-01 a R-10 | Solicitud directa del usuario | Primeros archivos del repositorio |
 | 2026-11-08 | C-001 | «Va a ser una carcasa tipo el robot EVA de Wall-E. Esa es el objetivo visual» | R-11 (nuevo, estética) y selección de carcasa/pantalla | **Aprobación explícita del usuario**. Se prioriza estética EVA frente a opciones anteriores; no confirma pantalla única, tamaño final, mecanismos ni configuración de ruedas. | `docs/07-referencias-y-forma.md` |
+
+| 2026-11-08 | C-002 | «Fija, no lo compliquemos más» (respuesta sobre movilidad de cabeza) | Diseño mecánico EVA, servomotor de cuello, disposición interior | **Cabeza fija obligatoria; se elimina el servo de cabeza de la lista vigente**; conservar referencia histórica de propuestas previas | `docs/07-referencias-y-forma.md`, `docs/08-componentes-candidatos.md` |
 
 ## Protocolo de cambios futuros
 
