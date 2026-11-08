@@ -20,7 +20,7 @@ Construir un robot de **dos ruedas** capaz de mantenerse en equilibrio mediante 
 - **R-08 — Combate simulado:** modo **únicamente ficticio/teatral**, con ojos que pasan de azul a rojo y expresión enojada, sin armamento.
 - **R-09 — Supervisión:** la ESP32 maneja las funciones R-02 a R-08 que correspondan, pero **no ejecuta el control de equilibrio**.
 - **R-10 — Seguridad:** incorporar parada de emergencia, condiciones de fallo seguras y pruebas sujetas a contención física antes de funcionamiento libre.
-- **R-11 — Apariencia confirmada:** carrocería tipo **EVA / EVE de *WALL·E***, impresa en 3D, formas blancas ovaladas, visor oscuro y ojos expresivos; mantener las dos ruedas de equilibrio sin apariencia de estante/esqueleto.
+- **R-11 — Apariencia confirmada:** carrocería tipo **EVA / EVE de *WALL·E***, impresa en 3D, formas blancas ovaladas, visor oscuro y ojos expresivos; mantener las dos ruedas de equilibrio sin apariencia de estante/esqueleto. **Cabeza fija, sin servomotor de cuello, confirmada por el usuario (D-012).**
 
 ## Documentación
 
