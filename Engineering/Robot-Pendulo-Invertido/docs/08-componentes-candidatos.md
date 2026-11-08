@@ -20,7 +20,7 @@
 | Ruedas | 2 | 90–100 mm con neumáticos de goma o TPU + adaptador para eje D 6 mm | no imprimir llanta rígida sin tracción | C |
 | Soportes | 2 | soportes motor compatibles 37D y transmisión | insertos y rigidez | D |
 | Servos brazos | 2 | MG90S o equivalentes microservo metálicos | 5–6 V desde alimentación separada; carga efectiva a calcular | C |
-| Servo cuello/cabeza | 0–1 | MG90S / servo de par adecuado | opcional según variante de carrocería | O |
+| Servo cuello/cabeza | **0** | **NINGUNO** | **Descartado por decisión D-012 del usuario: cabeza rígida y fija; no comprar servo de cuello** | **Descartado** |
 | Pantallas ojos | 2 | Waveshare 1.28” GC9A01 SPI 240×240 | dos ojos independientes, SPI compartido con CS separados; ~40 mm PCB | C |
 | Alternativa rostro | 1 | pantalla IPS rectangular ST7789 o similar | dos ojos dibujados en un visor; menor complejidad | O |
 | Termografía | 1 | MLX90640 32×24 vía I²C (55° o 110°) | 768 temperaturas por cuadro; detecta fuentes y ubicación aproximada; no sustituir con RGB para termometría | C |
@@ -68,7 +68,7 @@
 3. Simular y medir la generación de PWM **por el controlador analógico**, no por la ESP32.
 4. Elegir 3S pack+protección+cargador emparejados con hoja de datos, carga nominal y protección de cortos.
 5. Determinar distribución física y alimentación simultánea, incluidos ruido del motor y servos.
-6. Seleccionar variante de carrocería y tamaño de ojos.
+6. Diseñar la carrocería **tipo EVA con cabeza fija**; seleccionar tamaño y tipo de visor/ojos.
 7. Decidir comportamiento Bluetooth real del teléfono y si el audio es conversación Wi-Fi, intercomunicador o frases locales.
 8. Verificar precios, distribución y existencias en México en fecha de pedido.
 
