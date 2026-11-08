@@ -2,6 +2,10 @@
 
 **Fecha:** 2026-11-08 · **Estado:** **referencia estética EVA de WALL·E confirmada por el usuario**; CAD, disposición precisa y pantallas aún no aprobados.
 
+## Segunda decisión confirmada — Cabeza fija
+
+**La cabeza NO se moverá.** Sin servomotor de cuello, sin plataforma pan-tilt, sin mecanismos de giro/inclinación. Fijación rígida atornillada a la estructura, con paso protegido para alimentación y pantallas. Las expresiones serán exclusivamente gráficas mediante los ojos. Esta decisión sustituye cualquier propuesta previa de cabeza articulada que aparezca más abajo como referencia histórica. **No retirar sin petición del usuario.**
+
 ## Decisión estética confirmada por el usuario — 2026-11-08
 
 **Referencia visual obligatoria:** EVA/EVE de la película *WALL·E*. Silueta de robot blanco, liso, redondeado/ovoide, cabeza oval independiente del cuerpo, visor facial negro, ojos luminosos azules, brazos laterales estilizados; en combate exclusivamente simulado ojos rojos y gesto enojado. La carrocería deberá imprimirse en 3D y tener aspecto cerrado/profesional, no de estante o chasis visible.
@@ -25,7 +29,7 @@ Robot de péndulo invertido de dos ruedas con apariencia de **personaje terminad
 3. **Zippy** — cuerpo impreso, diseño y control de motores; útil para empaquetado y revisión de piezas. Equilibrio digital distinto del nuestro. https://github.com/elkayem/ZippyTheBalancingRobot
 4. **Self-balancing Arduino robot (Build Some Stuff)** — ruedas, silueta y articulación de extremidades; control digital y BLDC fuera de la primera opción de integración analógica. https://www.hackster.io/news/build-your-own-arduino-powered-self-balancing-robot-9701119f0c20
 
-## Propuestas históricas anteriores (NO son la referencia visual vigente)
+## Propuestas históricas anteriores (NO son la referencia visual ni mecánica vigente)
 
 Se conservan a continuación para trazabilidad, pero **el usuario ya eligió EVA**, por lo que no se debe reabrir la elección genérica entre A/B/C salvo nueva indicación explícita.
 
@@ -72,6 +76,6 @@ Se conservan a continuación para trazabilidad, pero **el usuario ya eligió EVA
 
 ## Decisiones todavía pendientes
 
-Confirmados por usuario: **EVA como objetivo de forma**, carcasa impresa en 3D, dos ruedas, ojos azules y modo simulado rojo/enojado.
+Confirmados por usuario: **EVA como objetivo de forma**, carcasa impresa en 3D, **cabeza completamente fija sin servo**, dos ruedas, ojos azules y modo simulado rojo/enojado.
 
-Por definir: tamaño final, método de hacer visor (una o dos pantallas detrás), movilidad de cabeza/brazos, ubicación de ruedas y tolerancias internas. No preguntar nuevamente qué estética general desea.
+Por definir: tamaño final, método de hacer visor (una o dos pantallas detrás), movimiento de brazos si procede, ubicación de ruedas y tolerancias internas. **No volver a plantear movilidad de cabeza**. No preguntar nuevamente qué estética general desea.
