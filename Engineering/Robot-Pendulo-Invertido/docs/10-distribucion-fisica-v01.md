@@ -1,7 +1,7 @@
 # 10 — EVA: distribución geométrica preliminar v0.1
 
 **Fecha:** 2026-11-08  
-**Estado:** estudio volumétrico y propuesta de ingeniería **no aprobada aún para fabricación**.  
+**Estado:** estudio volumétrico HISTÓRICO v0.1, **no aprobado para fabricación**. **Revisión posterior D-013: usar una sola pantalla rectangular**; los dos módulos de pantalla aquí representados quedan obsoletos para CAD posterior. Ver `11-pantalla-unica-y-secuencia-de-componentes.md`.  
 **CAD editable:** [`../cad/EVA_concepto_v01.scad`](../cad/EVA_concepto_v01.scad).
 
 ## Objetivos invariables
@@ -50,7 +50,7 @@
 | Driver Cytron MDD10A | (0, +12, 150) | 86 ×64 ×21 | PCB real **84.5 ×62**; caja incluye holgura parcial |
 | PCB de equilibrio **analógica** | (0, +18, 186) | 80 ×58 ×15 | tamaño de reserva, aún no diseñada |
 | ESP32-S3 DevKitC | (0, +19, 245) | 66 ×31 ×13 | reservar conectores USB y cableado |
-| Display izquierdo/derecho | (±34, -28, 270) | 41 ×7 ×39 cada uno | caso visual de **dos displays**, aún no seleccionados |
+| Display izquierdo/derecho | (±34, -28, 270) | 41 ×7 ×39 cada uno | **OBSOLETO:** estudio v0.1 anterior; D-013 obliga a un panel rectangular único en próxima revisión CAD |
 | Matriz térmica (MLX90640) | (0, -50, 291) | 20 ×9 ×18 | **volumen preliminar**, apertura real según breakout |
 
 ### Aclaraciones de ingeniería
@@ -58,7 +58,7 @@
 1. La batería 3S es solo una **arquitectura de estudio**; dimensiones, capacidad, BMS, cargador y fusible deben definirse con pack real.
 2. El **driver MDD10A** admite PWM y dirección de dos motores, pero el balanceo necesitará **PWM creado por circuitos analógicos**; la ESP32 no lo calculará.
 3. El volumen `80 ×58 ×15` de la tarjeta analógica **no confirma que quepan** filtros, operacionales, compensación, comparadores, referencias y conectores: se verificará con PCB y esquema.
-4. En el rostro, el dibujo actual representa **dos ojos**, no una decisión sobre dos pantallas. Se compararán: panel único rectangular detrás de visor negro frente a 2 módulos separados; ambos deben permitir ojos azul/rojo.
+4. **Decisión posterior D-013: una sola pantalla rectangular que muestra los dos ojos**, cubierta en las esquinas por marco impreso de contorno ovalado. El dibujo de dos ojos sigue siendo correcto, pero los dos rectángulos electrónicos usados como envolventes quedan reemplazados. No se vuelve a considerar doble pantalla.
 5. **Una tapa acrílica ordinaria bloquea gran parte del infrarrojo térmico de onda larga**: MLX90640 requiere **ventana abierta o material específicamente apto** para su rango espectral; una ventana decorativa RGB no sirve. El módulo también necesita estar aislado térmicamente de motores/placas.
 6. La carcasa incluye carenados estilísticos entre ruedas y cuerpo; **no representan todavía soportes de rodamiento, ejes ni montajes imprimibles**, que se diseñarán con dimensiones de hubs.
 7. Los brazos aparecen fijos como superficie de referencia. **El usuario confirmó fija la cabeza, no necesariamente los brazos**. Los servos de brazos siguen como candidatos, sujetos a evaluación.
@@ -74,7 +74,7 @@
 
 ## Orden técnico de liberación del CAD
 
-- [ ] Escoger pantalla única o doble por ficha mecánica; realizar plantilla de visor a escala real.
+- [ ] Escoger modelo y tamaño de la pantalla **rectangular única**, anotar medidas del módulo y área activa; realizar plantilla de marco/visor oval a escala real.
 - [ ] Seleccionar rueda/hub compatible con eje de **6 mm** y revisar separación de eje, guardabarros y base.
 - [ ] Dimensionar corriente, par, masa y centro de gravedad para validar motores #4752 y ruedas Ø96.
 - [ ] Escoger pack 3S protegido + cargador, anotar dimensiones reales y holguras de cables.
