@@ -61,8 +61,7 @@
       const el = $(id); if (el) el.disabled = yes;
     });
   }
-  async 
-async function createRoom() {
+  async function createRoom() {
   if (state.role !== "teacher" || state.busy) return;
   setBusy(true); notice("Creating live room…");
   try {
