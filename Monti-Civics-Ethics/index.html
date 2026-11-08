@@ -18,7 +18,7 @@
   <p class="eyebrow">IDENTITY · DIVERSITY · DIGNITY</p>
   <h1>Our World.<br><em>Our Choices.</em></h1>
   <p class="subtitle">Think critically. Make fair choices. Express your ideas in English.</p>
-  <div class="tags"><span>16 challenges</span><span>4 topics</span><span>Teacher + student · Live</span></div>
+  <div class="tags"><span>16 challenges</span><span>4 topics</span><span>Live group + Teacher Monitor</span></div>
  </div>
  <div class="hero-art" aria-hidden="true"><span>BE<br>KIND</span><b>✳</b><small>EVERY VOICE MATTERS</small></div>
 </section>
@@ -27,7 +27,7 @@
  <article id="joinPanel" class="paper">
   <span class="section-kicker">STUDENT ACCESS</span>
   <h2>Enter your classroom.</h2>
-  <p>Ask your teacher for the six-character room code.</p>
+  <p>Enter the six-character code. More than one person can join the same room.</p>
   <label for="roomCode">ROOM CODE</label><input id="roomCode" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="A1B2C3">
   <label for="studentName">YOUR NAME OR NICKNAME</label><input id="studentName" maxlength="30" autocomplete="nickname" placeholder="Monti">
   <button class="btn primary" id="joinBtn">JOIN THE CHALLENGE <span>→</span></button>
@@ -35,9 +35,10 @@
  <article id="hostPanel" class="paper teacher-entry" hidden>
   <span class="section-kicker">TEACHER MONITOR</span>
   <h2>Create a live room.</h2>
-  <p>Your student joins from another device. You control every question and review written answers.</p>
+  <p>Invite several students, join as a participant yourself, and review everyone’s answers. Your teacher room can be reopened later.</p>
   <label for="teacherName">TEACHER NAME</label><input id="teacherName" maxlength="30" autocomplete="name" placeholder="Teacher">
   <button class="btn primary" id="createBtn">CREATE ROOM <span>→</span></button>
+  <div id="resumeTeacherBox" class="resume-teacher" hidden><p>Your previous teacher room is saved in this browser.</p><button class="btn outline" id="resumeTeacherBtn">REOPEN MY ROOM</button></div>
  </article>
  <aside class="explain">
   <div class="number">01 <span>→</span> 02 <span>→</span> 03</div>
@@ -50,7 +51,7 @@
  <div class="session-bar"><div><small id="sessionType">LIVE SESSION</small><h2 id="sessionTitle">Room —</h2><span id="sessionSub">Connecting…</span></div>
  <div class="stats"><div><small>PROGRESS</small><strong id="progressNumber">0 / 16</strong></div><div><small>AUTO SCORE</small><strong id="scoreNumber">0 / 12</strong></div></div></div>
  <div class="progress"><div id="progressFill"></div></div>
- <div class="share" id="teacherShare" hidden><div><strong>Student access</strong><p id="studentLinkText"></p></div><div class="sharebuttons"><button class="btn outline" id="copyCode">COPY CODE</button><button class="btn outline" id="copyLink">COPY LINK</button></div></div>
+ <div class="share" id="teacherShare" hidden><div><strong>Student access</strong><p id="studentLinkText"></p></div><div class="sharebuttons"><button class="btn outline" id="copyCode">COPY CODE</button><button class="btn outline" id="copyLink">COPY STUDENT LINK</button><button class="btn outline" id="copyTeacherLink">COPY PRIVATE TEACHER LINK</button><button class="btn outline" id="joinAsPlayer">PLAY TOO ↗</button></div></div>
  <div id="waiting" class="paper message" hidden></div>
  <section id="questionArea" class="question-layout" hidden>
   <article class="paper challenge">
@@ -65,6 +66,7 @@
    <div class="stamp">THINK<br>FAIR.</div>
    <h3 id="sidebarTitle">Teacher's guide</h3>
    <p id="sidebarText">Complete the challenge, then discuss it together.</p>
+   <div id="teacherRoster" class="teacher-roster" hidden><label for="studentSelect">VIEW PARTICIPANT</label><select id="studentSelect"></select><div id="rosterList" class="roster-list"></div></div>
    <div id="teacherControls" hidden>
     <div id="submittedAnswer" class="submitted-answer"></div>
     <div id="teacherGrade" class="grade" hidden><p>REVIEW THE WRITTEN ANSWER</p><button class="btn outline" id="markGood">ACCEPT</button><button class="btn outline" id="markRevise">NEEDS REVISION</button></div>
