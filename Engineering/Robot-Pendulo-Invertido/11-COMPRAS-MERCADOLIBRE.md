@@ -59,9 +59,9 @@ PACK Li-ion 3S con protección y balanceo adecuados
 *Si el pack ya trae BMS, **P03 es una referencia condicional y no se instala por duplicado**. Confirmar si el BMS integrado efectivamente balancea; un BMS solo de protección no necesariamente lo hace.
 *Para una batería de litio 3S nunca usar cargador TP4056 (1S), adaptador genérico 12 V ni 12.6 V sin control de carga. No cargar un pack al que le falten protecciones verificadas; no dejar cargando sin vigilancia.
 *El BMS y cargador deben tener tasas de carga y descarga compatibles con el pack real y las cargas de arranque. Nunca usar protoboard para esta distribución.
-*Las tensiones y protecciones son partes obligatorias del diseño incluso si se prueba primero en banco.
+*Las tensiones y protecciones son partes obligatorias del diseño incluso si se prueba primero en banco. Añadir botón de paro NC para eliminar señal de habilitación de ambos puentes H independientemente del microcontrolador.
 
-## D. ESP32, ojos, audio, calor, seguimiento y anticolisión
+| P13 | 1 | Botón de **paro de emergencia** enclavable, contacto NC, para deshabilitar puentes H | [Listado paro de emergencia 22 mm](https://listado.mercadolibre.com.mx/boton-hongo-paro-de-emergencia-22mm) | Desde $75–120 | Cablear contacto NC en el circuito de habilitación de los puentes H, de modo que abra ante pulsación **sin esperar a ESP32**; si se desea cortar corriente de motor usar contactor/interruptor DC adecuadamente dimensionado, no asumir capacidad de contactos del botón. |\n\n## D. ESP32, ojos, audio, calor, seguimiento y anticolisión
 | ID | Cantidad | Componente | Enlace Mercado Libre México | Precio visto, MXN | Estado / prueba obligatoria |
 |---|---:|---|---|---:|---|
 | D01 | 1 | **Pantalla 4.3” con ESP32-S3 integrada**, 800×480 (candidata) | [Publicación](https://www.mercadolibre.com.mx/esp32-s3-43inch-capacitive-touch-display-development-board/p/MLM2043327177) | Desde $959.01 | **CANDIDATA con riesgo de importación**. Confirmar realmente disponible, fecha para destino, dimensiones, puertos libres, audio I2S y tensión de alimentación antes de pagar. |
@@ -83,7 +83,7 @@ PACK Li-ion 3S con protección y balanceo adecuados
 - **PENDIENTE 3 (crítico):** escoger pack 3S **capaz de corriente de motor**, con protección/balanceo real, o hacer rediseño seguro de pack; confirmar cargador 12.6 V CC/CV, polaridad y conectores. La publicación 3S1P de referencia **no está autorizada aún**.
 - **PENDIENTE 4:** seleccionar D01 o D02 según pantalla física, conectividad GPIO y entrega; no comprar ambas automáticamente.
 - **PENDIENTE 5:** definir D06-D09 (escaneo térmico vs dos sensores) y D08 anti-colisión.
-- **PENDIENTE 6:** ya hay listados reales y exclusivos de Mercado Libre para interruptor DC, portafusible/fusible, conductor de potencia y filamento. Falta seleccionar publicación individual compatible y tornillería exacta; las búsquedas no equivalen a piezas autorizadas.
+- **PENDIENTE 6:** ya hay listados reales y exclusivos de Mercado Libre para interruptor DC, paro de emergencia, portafusible/fusible, conductor de potencia y filamento. Falta seleccionar publicación individual compatible y tornillería exacta; las búsquedas no equivalen a piezas autorizadas.
 - **PENDIENTE 7:** verificar código postal real y fechas estimadas en **Mercado Libre México**, no confiar en mensajes de entrega personalizados de índices.
 - **PENDIENTE 8:** presupuesto máximo MXN; registrar cada ítem como NO_COMPRADO / COMPRADO / RECIBIDO / PROBADO con evidencia.
 - **PENDIENTE 9:** probar analogía de estimación de ángulo, signo de realimentación, PWM, dirección, neutralización sin ESP32 y transición de fallo antes de retirar estructura de seguridad.
