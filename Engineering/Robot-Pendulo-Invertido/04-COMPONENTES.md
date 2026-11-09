@@ -32,3 +32,6 @@ ADXL335 tiene salidas analógicas. ADXRS652 es un posible giroscopio analógico,
 
 ## Presupuesto
 Pendiente de definir en MXN, con margen para prototipos, fallas y repuestos.
+
+## Restricción de abastecimiento aprobada — 2026-11-09
+**Solo Mercado Libre México (mercadolibre.com.mx).** Cada línea de compra definitiva debe incluir publicación de Mercado Libre, precio vigente, entrega estimada para el destino real, disponibilidad, vendedor, especificaciones verificadas y alternativa dentro de la misma plataforma. Priorizar publicaciones con entrega nacional rápida ante el plazo de 14–21 días. No comprar motores ni sensores por coincidencia de nombre sin revisar características eléctricas y mecánicas. Los listados actuales son candidatos, no compras ni piezas aprobadas.
