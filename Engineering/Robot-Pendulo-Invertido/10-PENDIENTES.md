@@ -18,3 +18,8 @@
 
 ## Orden sugerido para la siguiente sesión
 Definir P-01 a P-05 → bosquejar geometría y dinámica → elegir tecnología sensorial analógica → diseño de las etapas y pruebas en banco → luego integrar ESP32. En paralelo, se puede prototipar audio y ojos sin alterar el lazo de equilibrio.
+
+## Nueva condición de suministro (2026-11-09)
+- Todos los componentes comprados deben proceder de publicaciones de Mercado Libre México (mercadolibre.com.mx).
+- Antes de cerrar una compra: verificar compatibilidad, stock, destino, costo total y **fecha de entrega** para que llegue dentro del calendario de 14–21 días.
+- P-01 a P-05 siguen abiertos. Los enlaces comerciales no sustituyen las pruebas de par, corriente, dimensiones y respuesta de los sensores.
