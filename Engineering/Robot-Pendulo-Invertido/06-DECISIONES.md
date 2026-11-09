@@ -27,3 +27,6 @@
 **D-XXX · Fecha · Solicitud · Opciones consideradas · Decisión expresa del usuario · Archivos afectados · Pruebas a repetir.**
 
 **Prohibido:** tratar una recomendación del asistente como si el usuario hubiera aprobado un cambio de objetivo.
+
+## D-010 · 2026-11-09 · Compra exclusiva en Mercado Libre México
+**Decisión confirmada por el usuario:** Todos los componentes, materiales y accesorios que se compren para EVA deben adquirirse a través de Mercado Libre México (mercadolibre.com.mx). No proponer enlaces de compra de otros comercios. Antes de aprobar la selección, confirmar ficha técnica, stock, origen/tiempo de envío, compatibilidad y precio de una publicación de Mercado Libre. No confundir un componente candidato con uno validado. **Motivo:** restricción expresa de abastecimiento del proyecto y plazo estimado de 14–21 días.
