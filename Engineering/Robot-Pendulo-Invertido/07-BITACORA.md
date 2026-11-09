@@ -15,3 +15,6 @@
 
 ## Próximas entradas
 Agregar cada jornada debajo con fecha, archivos editados, pruebas, resultados y decisiones que se desprendan. No borrar entradas previas: corregir mediante una entrada posterior que identifique el error.
+
+## 2026-11-09 — Plazo y fuente de compras
+**Nueva información del usuario:** entrega en aproximadamente dos semanas o un poco más (horizonte de 14–21 días desde el 9 de noviembre de 2026). **Restricción expresa:** todas las compras deberán hacerse exclusivamente en Mercado Libre México. Se inicia búsqueda de candidatos de giroscopio analógico ENC-03RC, acelerómetro ADXL335, motores con encoder y pantalla ESP32-S3 en la plataforma; ningún componente se declara comprado ni validado en banco. Priorizar plazo de entrega y verificación de compatibilidad antes de fijar geometría y circuito.
