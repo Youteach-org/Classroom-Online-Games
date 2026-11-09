@@ -24,6 +24,7 @@ Diseñar y construir un robot móvil de dos ruedas, capaz de mantenerse de pie m
 9. [08 — Riesgos e interfaces eléctricas](08-SEGURIDAD-E-INTERFACES.md)
 10. [09 — Fuentes técnicas](09-FUENTES.md)
 11. [10 — Pendientes de definición](10-PENDIENTES.md)
+12. [11 — Lista de compras Mercado Libre México](11-COMPRAS-MERCADOLIBRE.md)
 
 ## Cómo continuar el proyecto
 Al reiniciar una sesión, revisar primero este README, los requisitos, las decisiones, los pendientes y la bitácora. Anotar toda decisión nueva con fecha y justificación. Evitar editar otras carpetas de COG. El repositorio aloja la documentación: no implica que los circuitos estén probados o que exista firmware operativo.
