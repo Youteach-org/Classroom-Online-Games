@@ -1,6 +1,55 @@
+## Visual direction
+
+### Visual reset — 2026-09-20
+The current “robot on a flat three-lane road” visual language is rejected for the next iteration.
+
+New art direction:
+- no robot as the default player character;
+- no flat road as the primary traversal surface;
+- human stylized parkour runner as the baseline avatar direction;
+- third-person camera follows a handcrafted route through the environment rather than a fixed three-lane corridor;
+- traversal surfaces include stairs, alleys, market awnings, balconies, rooftops, scaffolds, piers, waterfront platforms and courtyards;
+- route height and camera angle must change visibly during a run;
+- the coastal/Mediterranean identity may remain, but the world must feel explorable and inhabited rather than like scenery beside a racetrack;
+- academic choices should be integrated into world geometry or readable HUD decisions, not attached as tiny text cards to road lanes.
+
+Visual concept target:
+1. Market / street level — people-scale alleys, stairs and awnings.
+2. Rooftop / vertical section — roof gaps, balconies, scaffolds and building-to-building movement.
+3. Seafront / pier — descent to promenade, docks and platforms over water.
+
+Important: do not continue adding gameplay systems until the visual identity above is accepted.
+### 3D Visual Lab delivery
+A standalone `visual-lab.html` + `visual-lab.js` spike now exists on the development branch. It uses real-time Three.js/WebGL with the CC0 Quaternius human model and is intentionally isolated from production gameplay. Its only purpose is visual approval of the human-runner, vertical-city direction before gameplay implementation resumes.
+
+
 # Verb Runner 2.5 — Learning-First Dynamic Runner
 
-Status: design direction corrected after review. **No gameplay code changed yet.**
+Status: **Phase 1 development prototype implemented and browser-verified. Development only. Production main remains stable.**
+
+Current Phase 1 implementation:
+- dedicated Sentence Runner world module, separate from the Level 1 near corridor;
+- three route zones: Market Streets, Rooftop Run, Seafront Promenade;
+- rooftop route elevation at 4.2 world units;
+- zone-specific lane widths and camera framing;
+- large three-choice HUD for sentence/verb-phrase answers;
+- in-world lane beacons carry position only, never long sentence text;
+- reading lead time grows with answer length;
+- Level 1 near-world group is hidden only while Level 2 is active and restored for every other race;
+- full Verb Runner regression suite passes;
+- Cloudflare development preview browser smoke test passes at 1536×864 with three visible answer choices measured around 352–364 px wide and 110–114 px high.
+
+Still intentionally pending:
+- physical route split / shortcut consequence after an answer;
+- richer authored obstacle patterns per zone;
+- chase/rival system;
+- visual polish beyond the first zone prototype;
+- validation of the later Rooftop and Promenade sections through longer automated play.
+
+Rejected prototype lessons:
+- small Grammar Gates are not readable enough for sentence/tense answers;
+- adding crouch/slide mechanics on the same road does not meaningfully reduce monotony;
+- visual variety must include genuinely different route geometry and environments, not cosmetic changes.
 
 ## Non-negotiable principle
 
@@ -49,23 +98,37 @@ Target behavior for Levels 2–5:
 
 The exact timing should remain adaptive to reading load and difficulty; these values are design targets, not rigid timers.
 
-## What changes: response mode, not learning frequency
+## What changes: the whole run, not just the answer widget
 
-A run should keep presenting English continuously, but the player should not always answer by touching one of three floating cards.
+A run should keep presenting English continuously, but from Level 2 onward it must also stop looking and feeling like the exact same three-lane road.
+
+The redesign must change:
+- route geometry;
+- elevation;
+- scenery zones;
+- camera behavior;
+- obstacle language;
+- pacing;
+- how the academic prompt is presented.
+
+**Rejected direction:** keeping the same road and merely replacing cards with small gates or crouch obstacles. That is superficial variety, not a new runner experience.
+
+A new level must look recognizably different within the first few seconds while preserving the overall Verb Runner brand.
 
 Possible learning interactions:
 
-### 1. Grammar Gate
+### 1. Wide readable choice + physical route consequence
 
-Prompt:
-> Yesterday I ___ home early.
+Sentence Runner contains full sentences and verb phrases, so answers **must not be squeezed into small in-world gates**.
 
-Three routes:
-- GO
-- WENT
-- GONE
+The sentence stays large and readable in the HUD. Answer choices use a wide readable presentation with enough lead time. Once the student chooses, the physical route reacts:
+- shortcut opens;
+- upper route becomes available;
+- obstacle pattern changes;
+- rival distance changes;
+- boost line activates.
 
-The student answers by choosing the route.
+The academic choice remains readable; the runner consequence makes it feel like a game.
 
 ### 2. Jump the wrong form
 
@@ -76,19 +139,16 @@ Instruction:
 
 The player jumps over wrong forms and stays aligned with the correct one.
 
-### 3. Slide under the correct phrase
+### 3. Movement challenge after the answer
 
-Low overhead signs contain short alternatives.
+Roll, jump and route changes are movement mechanics, not text containers.
 
-Prompt:
-> She has ___ here since 2022.
+For Sentence Runner:
+- do not print long verb phrases on low barriers;
+- do not force the student to read while timing a slide;
+- use movement immediately after a readable academic choice as consequence/reward.
 
-The correct lane requires a slide under:
-- lived
-- living
-- live
-
-The grammar decision and the movement decision are the same event.
+Short labels such as FOR / SINCE / AGO may later be tested in world-space because they remain legible.
 
 ### 4. Collect sequence
 
@@ -164,13 +224,13 @@ Sentence appears while the player begins running.
 
 The road is simple enough to read safely.
 
-### 0:05–0:10 — Grammar Gate
+### 0:05–0:10 — Readable answer choice
 
 FINISHED / FINISH / HAS FINISHED
 
-The player chooses a gate.
+The three options are presented large enough to read immediately. The road is deliberately simple during the decision.
 
-Immediate audiovisual feedback follows the choice.
+The chosen answer then changes the route or upcoming movement sequence.
 
 ### 0:10–0:14 — Micro-transition
 
@@ -285,14 +345,21 @@ Purpose:
 
 ### Level 2 — Sentence Runner
 
-First dynamic learning runner.
+First genuinely different runner.
 
-Still sentence practice throughout, but rotate:
-- Grammar Gate;
-- integrated obstacle answers;
-- route split;
-- slide answer;
-- collect sequence.
+It must not reuse Level 1's visual structure as its dominant look.
+
+Core visual/gameplay zones:
+- **Coastal boulevard start** — only a short transition from the familiar Level 1 world;
+- **Market streets** — narrower route, awnings, delivery carts, turns and readable storefront landmarks;
+- **Rooftops / terraces** — elevation change, ramps, gaps, upper/lower paths;
+- **Seafront promenade / pier** — wider space, boost lines, moving hazards, sea immediately beside the route;
+- **Tunnel / service passage** — tighter camera, lighting change, short high-focus grammar sequence;
+- **Plaza / final stretch** — open space, branching paths, visible rival or goal.
+
+Sentence practice remains continuous, but the academic response is shown in a **large readable interface** and the chosen answer affects the physical run.
+
+Do not use Grammar Gates or text-on-slide-obstacle mechanics for sentence-length answers.
 
 ### Level 3 — Time Clues
 
@@ -340,23 +407,28 @@ Not:
 
 ## First implementation milestone
 
-**Prototype only Level 2 first.**
+**Prototype only Level 2 first, entirely in the development branch.**
 
-Implement:
+The first prototype must prove two things simultaneously:
+1. Sentence Runner is still dense educational practice.
+2. It visibly and physically feels like a different runner from Level 1.
 
-1. real Roll/Slide on keyboard and mobile;
-2. Grammar Gate;
-3. Slide Answer;
-4. Collect Sequence;
-5. Route Split;
-6. 6–10 authored obstacle patterns that can safely carry academic choices;
-7. Run Director that changes presentation format while maintaining continuous practice;
-8. error recycling;
+Implement in this order:
+
+1. new Level 2 route/zone system with at least **three visibly different environments** in one run;
+2. one elevation change: road → rooftop/terrace → road;
+3. one route split with different physical consequences;
+4. readable large-format sentence answers with enough lead time;
+5. answer consequences that alter route, momentum, shortcut or pursuit state;
+6. 6–10 authored obstacle patterns appropriate to each zone;
+7. error recycling;
+8. only after the above works, evaluate Roll/Slide as normal movement mechanics;
 9. tests for:
-   - no impossible correct-answer path;
+   - no impossible route;
    - no excessive gap between learning events;
-   - no repeated presentation format too many times consecutively;
-   - reading-heavy prompts getting lower movement pressure.
+   - long answer text never rendered inside small world-space containers;
+   - reading-heavy prompts lower movement pressure;
+   - Level 2 uses multiple visual zones rather than the same road loop.
 
 Do not port to Levels 3–5 until the Level 2 prototype proves both:
 - academically dense enough;
@@ -368,7 +440,9 @@ Do not port to Levels 3–5 until the Level 2 prototype proves both:
 - Do not break YouTeach identity or Teacher Monitor.
 - Preserve auto-pause.
 - Preserve mobile playability.
-- Preserve the current coastal visual identity.
+- Preserve the **overall coastal brand**, not the exact same road layout.
+- Level 2 may and should introduce new streets, rooftops, market areas, pier/promende, tunnel/service routes and camera changes.
+- Production `main` remains untouched until the development preview is explicitly approved.
 - Preserve answer readability.
 - Never create unavoidable obstacle + correct-answer conflicts.
 - Do not let spectacle obscure the instructional objective.
