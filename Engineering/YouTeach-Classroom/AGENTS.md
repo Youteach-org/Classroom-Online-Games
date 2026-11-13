@@ -27,3 +27,6 @@
 
 ## Registro obligatorio al completar una tarea
 Añadir a `12-BITACORA.md`: fecha, hipótesis, resultados, archivos, rama/commit, URL de pruebas, fallos, próximos pasos. No afirmar «funciona» sin evidencia. Si se crea demo, incluir instrucciones reproducibles para instalar y ejecutar en una cuenta nueva.
+
+## Protección de la empresa (requisito nuevo)
+**Antes de escribir más código o detalles técnicos, leer `15-PROTECCION-Y-LICENCIAMIENTO.md`.** La rama actual y COG son **públicos**. La aplicación planeada es un **producto privado**, con código en repositorio privado separado y acceso mediante cuentas, roles y licencias controladas desde servidor. No crear código sensible ni secretos en este repositorio público; primero migrar y verificar el repositorio privado. No decir que ya está protegido. No modificar visibilidad ni despliegue del COG existente.
