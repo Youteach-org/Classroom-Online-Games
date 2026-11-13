@@ -21,3 +21,9 @@
 - Próximas acciones.
 
 **Advertencia:** registrar solamente hechos comprobados. No afirmar que el proyecto está desplegado si sólo existen documentos.
+
+## 2026-11-12 — Protección empresarial solicitada
+- Usuario destacó que YouTeach Classroom será **para su empresa** y debe protegerse para que no cualquiera lo utilice.
+- Se identificó un riesgo actual: repositorio COG y rama `docs/youteach-classroom-planning` son **públicos**; PR #66 también es público.
+- Se añadió documentación de propiedad intelectual, autenticación/licenciamiento y plan de migración hacia repositorio privado separado, sin modificar `main`.
+- **Pendiente:** crear repositorio privado, trasladar documentos, revisar acceso, y posteriormente valorar cierre/retirada de referencias públicas. No se han eliminado rastros públicos ya existentes.
