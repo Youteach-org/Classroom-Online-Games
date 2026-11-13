@@ -24,3 +24,10 @@ Ninguno bloquea guardar el expediente ni construir una POC acotada; sí condicio
 
 ## Siguiente sesión sugerida
 Empezar por POC mínima de dos usuarios: S Pen ↔ desktop con objetos/ACL y medios grupo/individual; validar que profesor no comparta cambios de aplicaciones ni borradores. Después pasar a overlays + monitor. **No omitir la función prioritaria de multimedia sincronizada para hacer solamente una pizarra visual.**
+
+## Protección y comercialización
+- P-19: Crear y verificar `Youteach-org/YouTeach-Classroom` como **repositorio privado**; copiar allí el expediente; evaluar cerrar PR #66 y retirar rama pública una vez verificada migración. **No se ha hecho todavía**.
+- P-20: Definir titular legal de derechos (empresa o persona física), y contratos/cesiones si hay colaboradores.
+- P-21: Definir política comercial: licencias por docente, escuela o alumnos; quién puede invitar y revocar accesos.
+- P-22: Definir nivel de privacidad de materiales y retención de trabajos de estudiantes.
+- P-23: Revisar licencia de cada dependencia antes de integrarla en producto propietario.
