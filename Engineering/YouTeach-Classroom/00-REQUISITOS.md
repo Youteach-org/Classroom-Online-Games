@@ -38,3 +38,13 @@
 
 ## No inventar compromisos
 Sin número objetivo de alumnos, presupuesto, proveedor de hosting, nombre final, ritmo exacto de sincronización, grabación automática ni calificación automática aprobados. Las pruebas deben definir umbrales cuantitativos antes de declarar listo el MVP.
+
+## Requisitos empresariales confirmados — 2026-11-12
+| ID | Estado | Prioridad | Requisito | Criterio de aceptación |
+|---|---|---|---|---|
+| R-33 | C | Crítico | Plataforma como producto **privado de la empresa**; no cualquiera podrá utilizarlo. | Visitante no autorizado no puede crear/abrir clases ni usar el backend. |
+| R-34 | C | Crítico | Proteger código y desarrollo en repositorio privado, aislado de COG público. | Repositorio propio GitHub `private=true` y acceso sólo a colaboradores elegidos. |
+| R-35 | T | Crítico | Alta autorizada, roles, control de sesiones y licencias. | Revocación server-side probada; usuario no autorizado no puede obtener datos. |
+| R-36 | T | Alto | Licencia propietaria y derechos de empresa correctamente documentados. | Titularidad definida, dependencias auditadas y contratos/licencias revisados. |
+
+**Importante:** la presencia de estos requisitos en el expediente público NO significa que el repositorio o aplicación ya estén protegidos. Ver `15-PROTECCION-Y-LICENCIAMIENTO.md`.
