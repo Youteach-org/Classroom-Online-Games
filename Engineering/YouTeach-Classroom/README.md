@@ -47,3 +47,6 @@ El docente puede buscar videos, cambiar de aplicación, editar material aún no 
 
 ## Relación con COG
 COG es el repositorio contenedor, no una autorización para modificar juegos existentes. Teacher Monitor es una **inspiración funcional** del monitor de COG: su implementación y datos no se deben reutilizar a ciegas ni modificar sin una tarea específica y permiso. No integrar ni fusionar en `main` automáticamente.
+
+## Protección empresarial — condición nueva (2026-11-12)
+El usuario confirmó que YouTeach Classroom será un **producto privado de su empresa** y no estará abierto al uso de cualquier persona. **ADVERTENCIA: esta rama de COG sigue siendo pública.** No añadir aquí código propietario, datos de alumnos ni arquitectura sensible. Antes del desarrollo, migrar el expediente a repositorio **privado** de Youteach-org sin modificar el COG público. Ver [15 — Protección y licenciamiento](15-PROTECCION-Y-LICENCIAMIENTO.md). Control de acceso a la aplicación: cuentas autorizadas, roles, licencias y permisos verificados por servidor. No declarar protección lograda hasta verificar la migración.
