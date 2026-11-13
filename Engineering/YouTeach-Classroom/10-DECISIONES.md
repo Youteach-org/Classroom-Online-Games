@@ -31,3 +31,12 @@
 
 ## Regla
 Registrar cada cambio relevante: `ID · fecha · origen (usuario/propuesta/prueba) · alternativas · decisión aprobada · consecuencias · archivos afectados · pruebas requeridas`. **Ningún supuesto del asistente adquiere rango de requisito sólo por aparecer aquí.**
+
+## 2026-11-12 — Protección comercial
+| ID | Decisión | Fundamento |
+|---|---|---|
+| D-013 | **Confirmada:** YouTeach Classroom es un proyecto de empresa y no debe poder ser usado por cualquiera. | Solicitud expresa del usuario. |
+| D-014 | **Propuesta operativa:** mover planificación y futuro código a repositorio **privado separado** de Youteach-org; no privatizar COG. | COG actual es público y su despliegue debe conservarse. Repositorio privado todavía **no creado**. |
+| D-015 | **Propuesta técnica:** limitar acceso mediante autenticación, roles y licencias en backend; código original propietario. | Una URL escondida, PWA o repositorio privado no bloquean por sí solos el uso de un servicio publicado. |
+
+Ver `15-PROTECCION-Y-LICENCIAMIENTO.md`.
