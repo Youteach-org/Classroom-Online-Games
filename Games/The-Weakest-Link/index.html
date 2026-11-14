@@ -14,12 +14,112 @@
 .controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;margin:13px 0}.controls button{height:70px;font-size:clamp(21px,2.3vw,32px)}.bottom{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:12px 15px}.bottom .hint{font-size:14px;color:#afd7e9}.scoreboard{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}.chip{padding:8px 11px;border:1px solid #4e8192;background:#0a263d;border-radius:6px;font-weight:700;font-size:15px}.chip.out{opacity:.33;text-decoration:line-through}.chip.current{outline:2px solid var(--gold);color:var(--gold)}.error-flash{position:absolute;inset:0;pointer-events:none;background:#ff103866;opacity:0;z-index:5}.error-flash.show{animation:flash .75s ease-out}.good-flash{position:absolute;inset:0;pointer-events:none;background:#12ff7960;opacity:0;z-index:5}.good-flash.show{animation:flash .8s ease-out}@keyframes flash{0%{opacity:1}100%{opacity:0}}body.good .question-panel{border:3px solid #4aff9c;box-shadow:0 0 29px #4aff9c50}body.bad .question-panel{border:3px solid #ff4c6e;box-shadow:0 0 29px #ff375559}
 .transition{max-width:980px;margin:10px auto;padding:30px}.transition h2{font-size:clamp(32px,5vw,67px);line-height:1;margin:10px 0}.transition p{font-size:23px;line-height:1.4}.vote-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin:18px 0}.vote-card{padding:16px;min-height:106px;text-align:left;border:2px solid #396d89;color:white;background:#0a2337;border-radius:11px;cursor:pointer}.vote-card strong{display:block;font-size:23px}.vote-card span{display:block;font-size:14px;color:#b3d3e6;margin:6px 0}.vote-card .votes{display:flex;gap:9px;justify-content:space-between;align-items:center}.vote-card .votes b{color:var(--gold);font-size:22px}.vote-card .votes button{border:1px solid #78e1f2;background:#153d59;color:white;font-weight:900;border-radius:5px;min-width:34px;min-height:31px}.vote-card.selected{border-color:var(--rose);box-shadow:0 0 18px #ff46704c}.vote-card.removed{opacity:.4}.vote-actions{display:flex;gap:15px;flex-wrap:wrap;justify-content:center}.vote-legend{color:#d1e9f2;font-size:17px}.vote-legend strong{color:var(--gold)}.footer{padding:9px 25px 20px;color:#8cb6cb;font-size:12px;position:relative;z-index:1}.leader{font-size:60px;font-weight:950;color:var(--gold);text-shadow:0 0 22px #ffc85975}.final-board{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:18px 0}.final-team{border:1px solid #366c88;background:#0c2742;border-radius:13px;padding:17px;text-align:center}.final-team.active{border:3px solid var(--cyan);box-shadow:0 0 19px #20c8f55c}.final-team h3{font-size:28px;margin:0}.final-team .dots{font-size:35px;margin-top:15px;letter-spacing:7px;color:var(--gold)}
 @media(max-width:880px){.setup{grid-template-columns:1fr}.main-grid{grid-template-columns:1fr}.side-panel{display:none}.hud{grid-template-columns:1fr 1fr}.hud .timer{grid-column:1/3;grid-row:1}.screen{padding:10px}.top{padding:13px}.question-panel{min-height:300px}.question-text{font-size:clamp(28px,6vw,44px)}.bottom{flex-direction:column;align-items:stretch}.top-actions{gap:3px}.mini{padding:6px}.vote-grid{grid-template-columns:1fr 1fr}}@media(max-width:550px){.logo{font-size:22px}.tagline{font-size:9px}.mini{font-size:11px}.setup .glass{padding:17px}.controls{grid-template-columns:1fr;gap:8px}.controls button{height:56px}.hud-item{padding:8px}.hud-value{font-size:25px}.final-board{grid-template-columns:1fr}.vote-grid{grid-template-columns:1fr}.question-panel{padding:15px}}@media(prefers-reduced-motion:reduce){.timer.urgent #clock{animation:none}}
+
+/* TABLET PRESENTATION MODE: all live controls remain on one viewport.
+   Setup/voting are intentionally scrollable to permit editing 20 pairs. */
+@media (max-width:1200px), (max-height:850px){
+  html,body{width:100%;overflow-x:hidden}
+  body.live-stage{height:100dvh;overflow:hidden}
+  body.live-stage .app{display:flex;flex-direction:column;width:100%;max-width:none;height:100dvh;min-height:0;overflow:hidden}
+  body.live-stage .app:after{display:none}
+  body.live-stage .top{flex:0 0 auto;padding:5px 8px;min-height:38px;gap:5px}
+  body.live-stage .logo{font-size:clamp(13px,2.4vw,22px);letter-spacing:0;white-space:nowrap}
+  body.live-stage .tagline{display:none}
+  body.live-stage .top-actions{gap:4px;flex-shrink:0}
+  body.live-stage .top-actions .mini{width:35px;height:35px;min-height:35px;padding:0;border-radius:7px;font-size:0!important;display:flex;align-items:center;justify-content:center}
+  body.live-stage .top-actions .mini::after{font-size:19px;font-weight:800}
+  body.live-stage .top-actions #soundButton::after{content:'♫'}
+  body.live-stage .top-actions .mini:nth-child(2)::after{content:'🔈'}
+  body.live-stage .top-actions .mini:nth-child(3)::after{content:'⛶'}
+  body.live-stage .top-actions .mini:nth-child(4)::after{content:'↺'}
+  body.live-stage .screen#game,body.live-stage .screen#final{display:flex;flex-direction:column;flex:1 1 0;min-height:0;gap:5px;padding:4px 7px 6px}
+  body.live-stage .hud{flex:0 0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+  body.live-stage .hud-item{min-width:0;padding:5px 7px}
+  body.live-stage .hud-lbl{font-size:clamp(9px,1.7vw,11px);letter-spacing:.05em;white-space:nowrap}
+  body.live-stage .hud-value{font-size:clamp(15px,3vw,27px);line-height:1.04;overflow-wrap:anywhere}
+  body.live-stage .timer{min-width:0;grid-row:auto;grid-column:auto;padding:4px 7px;box-shadow:none}
+  body.live-stage .timer #clock{font-size:clamp(22px,4vw,39px)}
+  body.live-stage #turnLabel,body.live-stage #roundLabel{font-size:clamp(9px,1.4vw,11px);line-height:1.1}
+  body.live-stage .progress{flex:0 0 5px;margin:0;gap:3px}
+  body.live-stage .step{height:5px;border:0}
+  body.live-stage .main-grid{display:flex;flex:1 1 0;min-height:0;gap:0}
+  body.live-stage .question-panel{min-height:0!important;flex:1 1 0;padding:clamp(7px,1.8vw,15px);overflow-y:auto;overscroll-behavior:contain;justify-content:space-between;min-width:0;box-shadow:none}
+  body.live-stage .question-top{font-size:clamp(10px,1.7vw,13px);letter-spacing:.03em}
+  body.live-stage .question-text{font-size:clamp(18px,3.6vw,36px);line-height:1.13;margin:7px 0;font-weight:900;letter-spacing:0}
+  body.live-stage .status{font-size:clamp(13px,2vw,20px);line-height:1.15;min-height:0}
+  body.live-stage .answer{margin-top:5px;padding:5px 8px;font-size:clamp(12px,1.8vw,16px)}
+  body.live-stage .question-panel .bottom{margin-top:3px!important;padding:0!important;align-items:center;flex-direction:row}
+  body.live-stage .question-panel .bottom .hint{display:none}
+  body.live-stage #chainHint{font-size:clamp(12px,2vw,18px)!important}
+  body.live-stage .side-panel{display:none}
+  body.live-stage .controls{flex:0 0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:0}
+  body.live-stage .controls .btn{height:auto;min-height:clamp(45px,7dvh,69px);padding:4px 3px;font-size:clamp(12px,2.0vw,22px);line-height:1.1;white-space:normal}
+  body.live-stage #game>.bottom{flex:0 0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:0;border:0;box-shadow:none;background:none}
+  body.live-stage #game>.bottom .btn{min-height:43px;padding:4px 3px;font-size:clamp(10px,1.45vw,16px);line-height:1.13;box-shadow:0 3px #061320}
+  body.live-stage #game>.bottom .hint{display:none}
+  body.live-stage .scoreboard{display:none}
+  body.live-stage .footer{display:none}
+  body.live-stage #final .final-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;flex:0 0 auto;margin:0}
+  body.live-stage #final .final-team{padding:4px 8px;border-radius:7px;min-width:0}
+  body.live-stage #final .final-team h3{font-size:clamp(12px,2.1vw,21px);line-height:1.15;overflow-wrap:anywhere}
+  body.live-stage #final .final-team .dots{font-size:clamp(13px,2.3vw,21px);margin:0;letter-spacing:1px}
+  body.live-stage #final .question-panel{display:flex;flex-direction:column;justify-content:space-around}
+}
+/* Short phone windows including ChatGPT's in-app HTML preview */
+@media (max-width:520px){
+  body.live-stage .top-actions .mini{width:30px;height:31px;min-height:31px}
+  body.live-stage .top{min-height:34px}
+  body.live-stage .top-actions .mini::after{font-size:15px}
+  body.live-stage .hud-lbl{font-size:9px}
+  body.live-stage .hud-item{padding:4px}
+  body.live-stage #turnLabel,body.live-stage #roundLabel{display:none}
+  body.live-stage .timer #clock{font-size:23px}
+  body.live-stage .controls{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+  body.live-stage .controls .btn{min-height:46px;font-size:clamp(11px,3.2vw,15px);padding:2px}
+  body.live-stage #game>.bottom{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+  body.live-stage #game>.bottom .btn{font-size:clamp(10px,2.8vw,13px);min-height:43px;padding:2px}
+  body.live-stage .question-panel .bottom{display:flex;flex-direction:row;align-items:center}
+  body.live-stage #final .final-board{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* Landscape setup uses two columns; only the team-name roster may scroll. */
+@media (min-width:680px) and (max-width:1200px) and (orientation:landscape){
+  #setup .setup{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+  #setup .setup .glass{padding:12px}
+  #setup .hero{font-size:clamp(24px,3.3vw,39px);margin:7px 0}
+  #setup .intro{font-size:clamp(13px,1.6vw,16px);line-height:1.22}
+  #setup .setup-row{margin:9px 0;gap:7px}
+  #setup .setup-row label{font-size:clamp(12px,1.5vw,16px);min-width:125px}
+  #setup .roster{max-height:clamp(230px,52dvh,380px);overflow-y:auto}
+  #setup .btn.main{font-size:19px;min-height:50px}
+  #setup .btn.dark{font-size:15px;min-height:45px}
+  #setup .setup small{font-size:12px}
+}
+/* Voting and setup: responsive cards; vote action stays visible while scrolling */
+@media(max-width:1200px){
+  #vote .transition{padding:14px}
+  #vote .vote-grid{grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:7px}
+  #vote .vote-card{min-height:82px;padding:8px}
+  #vote .vote-card strong{font-size:clamp(14px,2.5vw,18px)}
+  #vote .vote-card span{font-size:12px}
+  #vote .vote-actions{position:sticky;bottom:0;background:#0b2035;padding:9px 4px;z-index:3}
+  #vote .vote-actions .btn{min-height:46px;padding:7px;font-size:clamp(12px,2vw,17px)}
+}
+@media(max-width:520px){
+  #vote .vote-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #vote .vote-actions{flex-wrap:nowrap}
+  #vote .vote-actions .btn{flex:1;min-width:0}
+  .setup-row{flex-wrap:wrap}
+  .roster{max-height:none;overflow:visible}
+  .top{flex-wrap:wrap}
+  .logo{font-size:clamp(19px,6vw,28px)}
+}
+
 </style>
 </head><body>
 <main class="app" id="app"><div class="error-flash" id="badFlash"></div><div class="good-flash" id="goodFlash"></div>
-<header class="top"><div><div class="logo">THE <em>WEAKEST</em> LINK</div><div class="tagline">COG · GLOBAL TIES · OFFLINE STUDIO / 2000s EDITION</div></div><div class="top-actions"><button class="mini" id="soundButton" onclick="toggleSound()">🔊 SOUND ON</button><button class="mini" onclick="testSound()">♫ TEST</button><button class="mini" onclick="fullscreen()">⛶ FULL</button><button class="mini" onclick="resetAsk()">↺ RESET</button></div></header>
+<header class="top"><div><div class="logo">THE <em>WEAKEST</em> LINK</div><div class="tagline">COG · GLOBAL TIES · OFFLINE STUDIO / 2000s EDITION</div></div><div class="top-actions"><button class="mini" id="soundButton" onclick="toggleSound()" title="Toggle sound" aria-label="Toggle sound">🔊 SOUND ON</button><button class="mini" onclick="testSound()" title="Test audio" aria-label="Test audio">♫ TEST</button><button class="mini" onclick="fullscreen()" title="Fullscreen" aria-label="Fullscreen">⛶ FULL</button><button class="mini" onclick="resetAsk()" title="Reset game" aria-label="Reset game">↺ RESET</button></div></header>
 <section id="setup" class="screen"><div class="setup">
-<div class="glass"><div class="kicker">PRESENTED BY YOU · COMPUTER CONTROLLED</div><h1 class="hero">WHO IS THE<br><span>WEAKEST LINK?</span></h1><p class="intro">Fast oral questions. Build a money chain. Say <strong>BANK!</strong> to save it. One wrong answer breaks the chain. After each round, vote someone out.</p><div class="setup-row"><label for="pairCount">NUMBER OF PAIRS</label><input id="pairCount" type="number" min="2" max="20" value="8" onchange="rosterChange()"></div><div class="setup-row"><label for="roundSeconds">ROUND LENGTH</label><select id="roundSeconds"><option value="120">2:00</option><option value="150" selected>2:30</option><option value="180">3:00</option><option value="240">4:00</option><option value="300">5:00</option></select></div><div class="setup-row"><label for="soundLevel">SOUND LEVEL</label><input id="soundLevel" type="range" min="0" max="100" value="80" oninput="masterVolume=Number(this.value)/100"></div><p><button class="btn main long" onclick="newGame()">▶ START THE SHOW</button></p><p><button class="btn dark long" id="resumeBtn" style="display:none" onclick="resumeSaved()">⟳ RESUME SAVED SHOW</button></p><small>Default: 8 pairs for 16 learners. Adjustable from 2 to 20 pairs. Works on one computer with no internet. Team answers are spoken; the teacher marks them correct or incorrect.</small></div>
+<div class="glass"><div class="kicker">PRESENTED BY YOU · COMPUTER CONTROLLED</div><h1 class="hero">WHO IS THE<br><span>WEAKEST LINK?</span></h1><p class="intro">Fast oral questions. Build a money chain. Say <strong>BANK!</strong> to save it. One wrong answer breaks the chain. After each round, vote someone out.</p><div class="setup-row"><label for="pairCount">NUMBER OF PAIRS</label><input id="pairCount" type="number" min="2" max="20" value="8" onchange="rosterChange()"></div><div class="setup-row"><label for="roundSeconds">ROUND LENGTH</label><select id="roundSeconds"><option value="120">2:00</option><option value="150" selected>2:30</option><option value="180">3:00</option><option value="240">4:00</option><option value="300">5:00</option></select></div><div class="setup-row"><label for="soundLevel">SOUND LEVEL</label><input id="soundLevel" type="range" min="0" max="100" value="80" oninput="masterVolume=Number(this.value)/100"></div><p><button class="btn main long" onclick="newGame()">▶ START THE SHOW</button></p><p><button class="btn dark long" id="resumeBtn" style="display:none" onclick="resumeSaved()">⟳ RESUME SAVED SHOW</button></p><small>Tablet: open this downloaded HTML with Chrome or Samsung Internet (not the chat file preview). Rotate horizontally for larger buttons. Default: 8 pairs for 16 learners. Adjustable from 2 to 20 pairs. Works on one computer with no internet. Team answers are spoken; the teacher marks them correct or incorrect.</small></div>
 <div class="glass"><div class="kicker">EDIT TEAM NAMES</div><p class="team-note">Pair names can be student names, team names or simply Pair 1, Pair 2, etc.</p><div class="roster" id="roster"></div><div class="team-note">The teacher handles questions, timers, BANK, judgments, voting and the final. Students do not connect or register.</div></div>
 </div></section>
 <section id="game" class="screen hidden">
@@ -136,7 +236,7 @@ let s=null,ticker=null,lastTick=0,soundEnabled=true,masterVolume=.8,audioCtx=nul
 function el(id){return document.getElementById(id)}
 function setText(id,value){el(id).textContent=String(value)}
 function money(n){return new Intl.NumberFormat('en-US').format(n)}
-function show(id){for(const k of ['setup','game','vote','between','final','winner'])el(k).classList.toggle('hidden',k!==id)}
+function show(id){document.body.classList.toggle('live-stage',id==='game'||id==='final');for(const k of ['setup','game','vote','between','final','winner'])el(k).classList.toggle('hidden',k!==id);window.scrollTo(0,0)}
 function rosterChange(){const n=Math.max(2,Math.min(20,parseInt(el('pairCount').value)||8));el('pairCount').value=n;const old=[...el('roster').querySelectorAll('input')].map(x=>x.value);rosterNames=old;el('roster').innerHTML='';for(let i=0;i<n;i++){const row=document.createElement('div');row.className='roster-row';const label=document.createElement('b');label.textContent=i+1;const input=document.createElement('input');input.value=old[i]||`Pair ${i+1}`;input.setAttribute('aria-label',`Name for pair ${i+1}`);row.append(label,input);el('roster').append(row)}}
 function rndQuestions(){let a=DATA.map((_,i)=>i);for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function newGame(){unlockAudio();const names=[...el('roster').querySelectorAll('input')].map((x,i)=>x.value.trim()||`Pair ${i+1}`);s={phase:'game',teams:names.map((name,i)=>({name,id:i,active:true,correct:0,incorrect:0,banks:0,votesReceived:0})),rotation:0,questionNum:0,round:1,duration:Number(el('roundSeconds').value),time:Number(el('roundSeconds').value),running:false,chain:0,roundBank:0,bankTotal:0,currentQ:null,used:[],deck:rndQuestions(),marked:null,awaitingNext:false,selected:-1,stage:'regular',lastEliminated:-1,final:null};nextIndex();s.currentQ=takeQuestion();if(names.length===2){startFinal();return}store();render()}
