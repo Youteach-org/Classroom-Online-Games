@@ -114,6 +114,140 @@
   .logo{font-size:clamp(19px,6vw,28px)}
 }
 
+
+/* COG STUDIO FIT v3: fixed-size stage, scaled as a unit to the ACTUAL iframe/browser viewport.
+   No page scrolling or internal scrolling during a round, voting or final. */
+html:has(body.studio-fit), body.studio-fit {margin:0!important;width:100%;height:100%;overflow:hidden!important;overscroll-behavior:none}
+body.studio-fit .app{
+  position:absolute!important;top:50%!important;left:50%!important;
+  width:var(--stage-width,1120px)!important;height:var(--stage-height,700px)!important;
+  max-width:none!important;min-height:0!important;max-height:none!important;
+  margin:0!important;overflow:hidden!important;
+  transform:translate(-50%,-50%) scale(var(--fit-scale,1))!important;
+  transform-origin:center center!important;
+  display:flex!important;flex-direction:column!important;
+}
+body.studio-fit .app::after{top:46px;height:2px}
+body.studio-fit .top{height:52px!important;min-height:52px!important;flex:0 0 52px!important;padding:7px 16px!important;flex-wrap:nowrap!important;gap:8px!important}
+body.studio-fit .logo{font-size:28px!important;line-height:1!important;white-space:nowrap!important}
+body.studio-fit .tagline{font-size:9px!important;margin:3px 0 0!important;letter-spacing:.09em!important;display:block!important}
+body.studio-fit .top-actions{display:flex!important;gap:5px!important;flex-shrink:0!important}
+body.studio-fit .top-actions .mini{height:38px!important;min-height:38px!important;width:48px!important;font-size:0!important;padding:0!important;display:flex;align-items:center;justify-content:center}
+body.studio-fit .top-actions .mini::after{font-size:21px!important}
+body.studio-fit #setup,body.studio-fit #game,body.studio-fit #vote,body.studio-fit #between,body.studio-fit #final,body.studio-fit #winner{
+  flex:1 1 0!important;min-height:0!important;max-height:none!important;overflow:hidden!important;
+  padding:8px 12px 10px!important;margin:0!important;display:flex;flex-direction:column;
+}
+body.studio-fit .hidden{display:none!important}
+body.studio-fit .footer{display:none!important}
+/* GAME: a compact HUD, flexible question, then TWO full-size button rows. */
+body.studio-fit .hud{flex:0 0 66px!important;min-height:66px!important;display:grid!important;grid-template-columns:minmax(0,1fr) 245px minmax(0,1fr)!important;gap:8px!important}
+body.studio-fit .hud-item{min-width:0!important;min-height:0!important;padding:7px 12px!important}
+body.studio-fit .hud-lbl{font-size:10px!important;line-height:1.1!important;letter-spacing:.06em!important;white-space:nowrap!important}
+body.studio-fit .hud-value{font-size:29px!important;line-height:1.05!important;margin-top:2px!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.studio-fit #turnLabel,body.studio-fit #roundLabel{font-size:12px!important;line-height:1.1!important;display:block!important}
+body.studio-fit .timer{min-width:0!important;grid-row:auto!important;grid-column:auto!important;padding:7px 10px!important;box-shadow:none!important}
+body.studio-fit .timer #clock{font-size:42px!important}
+body.studio-fit #game .progress{flex:0 0 8px!important;height:8px!important;display:flex!important;margin:5px 0!important;gap:4px!important}
+body.studio-fit .progress .step{height:6px!important}
+body.studio-fit #game .main-grid{display:grid!important;grid-template-columns:minmax(0,1fr) 210px!important;gap:9px!important;flex:1 1 0!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+body.studio-fit .question-panel{min-height:0!important;height:100%!important;max-height:100%!important;overflow:hidden!important;padding:13px 17px!important;display:flex!important;flex-direction:column!important;justify-content:space-between!important;box-shadow:none!important}
+body.studio-fit .question-top{font-size:12px!important;letter-spacing:.07em!important;line-height:1.15!important}
+body.studio-fit .question-text{font-size:37px!important;line-height:1.15!important;margin:11px 0!important;max-width:none!important;overflow-wrap:anywhere}
+body.studio-fit .status{font-size:17px!important;line-height:1.2!important;min-height:0!important}
+body.studio-fit .answer{font-size:17px!important;line-height:1.15!important;margin:7px 0 0!important;padding:8px 11px!important}
+body.studio-fit .question-panel .bottom{margin:0!important;padding:2px 0!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-end!important}
+body.studio-fit .question-panel .bottom .hint{display:none!important}
+body.studio-fit #chainHint{font-size:20px!important}
+body.studio-fit .side-panel{display:block!important;min-height:0!important;overflow:hidden!important;padding:8px 11px!important;box-shadow:none!important}
+body.studio-fit .side-title{font-size:12px!important;margin-bottom:5px!important}
+body.studio-fit .chain-row{min-height:0!important;height:calc((100% - 58px) / 9)!important;font-size:17px!important;line-height:1!important;padding:2px 6px!important;margin:2px 0!important}
+body.studio-fit .chain-bottom{font-size:12px!important;padding:3px 0!important}
+body.studio-fit .chain-bottom strong{font-size:18px!important}
+body.studio-fit .controls{flex:0 0 68px!important;min-height:68px!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important;margin:7px 0 0!important}
+body.studio-fit .controls .btn{min-height:0!important;height:61px!important;font-size:25px!important;line-height:1.1!important;padding:6px 8px!important;white-space:nowrap!important}
+body.studio-fit #game>.bottom{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;flex:0 0 52px!important;min-height:52px!important;gap:9px!important;align-items:stretch!important;margin:0!important;padding:5px 0 0!important;border:0!important;box-shadow:none!important;background:transparent!important}
+body.studio-fit #game>.bottom .btn{width:100%!important;height:44px!important;min-height:44px!important;font-size:17px!important;padding:5px!important;line-height:1.1!important;white-space:nowrap!important}
+body.studio-fit #game>.bottom .hint{display:none!important}
+body.studio-fit .scoreboard{display:none!important}
+/* SETUP: settings and roster side by side; start button never below fold. */
+body.studio-fit #setup .setup{display:grid!important;grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr)!important;flex:1 1 0!important;min-height:0!important;gap:12px!important;margin:0!important}
+body.studio-fit #setup .setup>.glass{padding:18px!important;overflow:hidden!important;min-width:0!important;min-height:0!important}
+body.studio-fit #setup .kicker{font-size:11px!important}
+body.studio-fit #setup .hero{font-size:40px!important;margin:9px 0!important;line-height:1.01!important}
+body.studio-fit #setup .intro{font-size:16px!important;line-height:1.24!important;margin:7px 0!important}
+body.studio-fit #setup .setup-row{display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:12px!important;margin:10px 0!important}
+body.studio-fit #setup .setup-row label{font-size:15px!important;min-width:162px!important}
+body.studio-fit #setup .setup-row input,body.studio-fit #setup .setup-row select{max-height:42px!important;min-height:42px!important;font-size:17px!important}
+body.studio-fit #setup p:has(.btn){margin:9px 0!important}
+body.studio-fit #setup .btn.main{min-height:51px!important;font-size:22px!important}
+body.studio-fit #setup .btn.dark{min-height:42px!important;font-size:17px!important}
+body.studio-fit #setup small{display:none!important}
+body.studio-fit #setup .team-note{font-size:13px!important;line-height:1.3!important;margin:6px 0!important}
+body.studio-fit #setup .roster{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:38px!important;gap:4px 9px!important;max-height:calc(100% - 69px)!important;overflow-y:auto!important;overflow-x:hidden!important;padding:0 5px 0 0!important;align-content:start!important}
+body.studio-fit #setup .roster-row{min-width:0!important;min-height:0!important;margin:0!important;gap:3px!important}
+body.studio-fit #setup .roster-row b{font-size:12px!important;width:21px!important;flex-shrink:0}
+body.studio-fit #setup .roster-row input{width:100%!important;min-width:0!important;height:34px!important;padding:4px 5px!important;font-size:14px!important}
+/* Voting: 20 pairs fit 5 columns x 4 rows, with elimination always visible. */
+body.studio-fit #vote .transition{display:flex!important;flex-direction:column!important;flex:1 1 0!important;min-height:0!important;max-width:none!important;width:100%!important;margin:0!important;padding:12px 15px!important;overflow:hidden!important}
+body.studio-fit #vote .kicker{font-size:13px!important}
+body.studio-fit #vote h2{font-size:39px!important;line-height:1!important;margin:6px 0!important}
+body.studio-fit #vote #voteSummary{font-size:15px!important;line-height:1.1!important;margin:4px 0!important}
+body.studio-fit #vote .vote-legend{font-size:14px!important;line-height:1.2!important;margin:4px 0!important}
+body.studio-fit #vote .vote-grid{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-auto-rows:minmax(0,1fr)!important;gap:6px!important;flex:1 1 0!important;min-height:0!important;margin:7px 0!important;overflow:hidden!important}
+body.studio-fit #vote .vote-card{min-width:0!important;min-height:0!important;overflow:hidden!important;padding:5px 7px!important;display:flex;flex-direction:column;justify-content:space-between}
+body.studio-fit #vote .vote-card strong{font-size:15px!important;line-height:1.1!important;overflow-wrap:anywhere}
+body.studio-fit #vote .vote-card span{font-size:10px!important;line-height:1.07!important;margin:2px 0!important}
+body.studio-fit #vote .vote-card .votes{gap:2px!important}
+body.studio-fit #vote .vote-card .votes b{font-size:13px!important}
+body.studio-fit #vote .vote-card .votes button{min-height:28px!important;min-width:29px!important}
+body.studio-fit #vote .status{font-size:15px!important;flex:0 0 19px!important;margin:2px 0!important}
+body.studio-fit #vote .vote-actions{display:flex!important;position:static!important;flex-wrap:nowrap!important;flex:0 0 48px!important;justify-content:center!important;align-items:stretch!important;gap:10px!important;padding:0!important;background:transparent!important}
+body.studio-fit #vote .vote-actions .btn{height:46px!important;min-height:46px!important;font-size:17px!important;padding:5px 12px!important}
+/* Between-round and winner screens */
+body.studio-fit #between .transition,body.studio-fit #winner .transition{display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;flex:1 1 0!important;min-height:0!important;max-width:none!important;width:100%!important;margin:0!important;padding:20px!important;overflow:hidden!important}
+body.studio-fit #between h2,body.studio-fit #winner h2{font-size:48px!important;line-height:1.02!important}
+body.studio-fit #between p,body.studio-fit #winner p{font-size:23px!important;line-height:1.24!important;margin:12px 0!important}
+body.studio-fit #between .vote-actions{display:flex!important;gap:15px!important}
+/* Final: final board remains above question and judgement buttons */
+body.studio-fit #final .final-board{flex:0 0 76px!important;min-height:76px!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;margin:7px 0!important}
+body.studio-fit #final .final-team{min-width:0!important;padding:7px 10px!important}
+body.studio-fit #final .final-team h3{font-size:20px!important}
+body.studio-fit #final .final-team .dots{font-size:26px!important;letter-spacing:0!important;margin:4px 0!important}
+body.studio-fit #final .question-panel{flex:1 1 0!important;min-height:0!important;height:auto!important}
+body.studio-fit #final .controls{margin-top:8px!important}
+/* Portrait: still one screen; unlike old version, the stage never stacks buttons vertically. */
+body.studio-fit.studio-portrait .top{height:51px!important;min-height:51px!important;flex-basis:51px!important}
+body.studio-fit.studio-portrait .logo{font-size:24px!important}
+body.studio-fit.studio-portrait .tagline{display:none!important}
+body.studio-fit.studio-portrait .hud{grid-template-columns:1fr 180px 1fr!important;gap:5px!important}
+body.studio-fit.studio-portrait .hud-value{font-size:25px!important}
+body.studio-fit.studio-portrait .timer #clock{font-size:36px!important}
+body.studio-fit.studio-portrait #game .main-grid{grid-template-columns:1fr!important}
+body.studio-fit.studio-portrait .side-panel{display:none!important}
+body.studio-fit.studio-portrait .question-text{font-size:34px!important}
+body.studio-fit.studio-portrait .controls .btn{font-size:23px!important}
+body.studio-fit.studio-portrait #game>.bottom .btn{font-size:16px!important}
+body.studio-fit.studio-portrait #setup .setup{grid-template-columns:1fr!important;grid-template-rows:290px minmax(0,1fr)!important;gap:7px!important}
+body.studio-fit.studio-portrait #setup .setup>.glass{padding:10px 15px!important}
+body.studio-fit.studio-portrait #setup .hero{display:none!important}
+body.studio-fit.studio-portrait #setup .intro{display:none!important}
+body.studio-fit.studio-portrait #setup .setup-row{margin:5px 0!important}
+body.studio-fit.studio-portrait #setup .setup-row label{font-size:13px!important;min-width:160px!important}
+body.studio-fit.studio-portrait #setup .roster{max-height:calc(100% - 46px)!important}
+body.studio-fit.studio-portrait #vote h2{font-size:30px!important}
+body.studio-fit.studio-portrait #vote .vote-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+body.studio-fit.studio-portrait #vote .vote-card strong{font-size:14px!important}
+body.studio-fit.studio-portrait #vote .vote-card span{font-size:9px!important}
+body.studio-fit.studio-portrait #vote .vote-actions .btn{font-size:15px!important}
+
+
+/* Toolbar icons visible in setup, voting and all other phases. */
+body.studio-fit .top-actions #soundButton::after{content:'♫'!important}
+body.studio-fit .top-actions .mini:nth-child(2)::after{content:'♬'!important}
+body.studio-fit .top-actions .mini:nth-child(3)::after{content:'⛶'!important}
+body.studio-fit .top-actions .mini:nth-child(4)::after{content:'↺'!important}
+
 </style>
 </head><body>
 <main class="app" id="app"><div class="error-flash" id="badFlash"></div><div class="good-flash" id="goodFlash"></div>
@@ -249,7 +383,7 @@ function store(){if(s)localStorage.setItem(STORAGE,JSON.stringify(s))}
 function resumeSaved(){const saved=localStorage.getItem(STORAGE);if(!saved)return;try{s=JSON.parse(saved);s.running=false;store();render()}catch(e){alert('Saved game could not be restored.')}}
 function showSetup(){if(s&&s.phase==='game')s.running=false;stopClock();show('setup');el('resumeBtn').style.display=localStorage.getItem(STORAGE)?'block':'none';if(s){el('pairCount').value=s.teams.length;rosterChange();[...el('roster').querySelectorAll('input')].forEach((x,i)=>x.value=s.teams[i].name)}}
 function render(){if(!s)return;show(s.phase);if(s.phase==='game')renderGame();if(s.phase==='vote')renderVote();if(s.phase==='between')renderBetween();if(s.phase==='final')renderFinal();if(s.phase==='winner')renderWinner();if(s.phase==='game'&&s.running)startClock();else stopClock()}
-function renderGame(){const q=DATA[s.currentQ];setText('playing',currentTeam().name);setText('turnLabel',`${s.teams.filter(t=>t.active).length} PAIRS REMAINING`);setText('roundLabel',`ROUND ${s.round}`);setText('banked',money(s.bankTotal));setText('roundBank',money(s.roundBank));setText('clock',timeString(s.time));el('timerBox').classList.toggle('urgent',s.time<=20);setText('category',q[2]);setText('qNumber',`QUESTION ${s.questionNum+1}`);setText('question',q[0]);setText('chainHint',`UNBANKED: ${money(LADDER[s.chain])}`);setText('qStatus',s.marked===true?'CORRECT! ✓':s.marked===false?'INCORRECT — CHAIN LOST ✕':'Teacher: listen and mark the answer.');el('answer').classList.toggle('hidden',s.marked===null);setText('answer',`EXPECTED: ${q[1]}`);document.body.classList.toggle('good',s.marked===true);document.body.classList.toggle('bad',s.marked===false);el('correctBtn').disabled=s.marked!==null;el('wrongBtn').disabled=s.marked!==null;el('bankBtn').disabled=s.marked!==null||s.chain===0;el('nextBtn').disabled=!s.awaitingNext;el('timerBtn').disabled=s.time<=0;setText('timerBtn',s.running?'Ⅱ PAUSE TIMER':'▶ START TIMER');el('progress').innerHTML=LADDER.slice(1).map((x,i)=>`<div class="step ${i<s.chain?'filled':''}"></div>`).join('');el('chainLadder').innerHTML=LADDER.slice(1).map((_,i)=>LADDER.length-1-i).map(i=>`<div class="chain-row ${s.chain===i?'active':''}"><span>${money(LADDER[i])}</span></div>`).join('')+`<div class="chain-row ${s.chain===0?'active':''}"><span>0</span></div>`;el('scoreboard').innerHTML='';s.teams.forEach((t,i)=>{const span=document.createElement('span');span.className='chip '+(!t.active?'out':i===s.rotation?'current':'');span.textContent=t.name;el('scoreboard').append(span)});setText('bankMessage',s.marked!==null?'Answer recorded. Press NEXT QUESTION.':s.chain?'BANK now to save this chain.':'Correct answers build the chain.');}
+function renderGame(){const q=DATA[s.currentQ];setText('playing',currentTeam().name);setText('turnLabel',`${s.teams.filter(t=>t.active).length} PAIRS REMAINING`);setText('roundLabel',`ROUND ${s.round}`);setText('banked',money(s.bankTotal));setText('roundBank',money(s.roundBank));setText('clock',timeString(s.time));el('timerBox').classList.toggle('urgent',s.time<=20);setText('category',q[2]);setText('qNumber',`QUESTION ${s.questionNum+1}`);setText('question',q[0]);setText('chainHint',`UNBANKED: ${money(LADDER[s.chain])}`);setText('qStatus',s.marked===true?'CORRECT! ✓':s.marked===false?'INCORRECT — CHAIN LOST ✕':'Teacher: listen and mark the answer.');el('answer').classList.toggle('hidden',s.marked===null);setText('answer',`EXPECTED: ${q[1]}`);document.body.classList.toggle('good',s.marked===true);document.body.classList.toggle('bad',s.marked===false);el('correctBtn').disabled=s.marked!==null;el('wrongBtn').disabled=s.marked!==null;el('bankBtn').disabled=s.marked!==null||s.chain===0;el('nextBtn').disabled=!s.awaitingNext;el('timerBtn').disabled=s.time<=0;setText('timerBtn',s.running?'Ⅱ PAUSE TIMER':'▶ START TIMER');el('progress').innerHTML=LADDER.slice(1).map((x,i)=>`<div class="step ${i<s.chain?'filled':''}"></div>`).join('');el('chainLadder').innerHTML=LADDER.slice(1).map((_,i)=>LADDER.length-1-i).map(i=>`<div class="chain-row ${s.chain===i?'active':''}"><span>${money(LADDER[i])}</span></div>`).join('')+`<div class="chain-row ${s.chain===0?'active':''}"><span>0</span></div>`;el('scoreboard').innerHTML='';s.teams.forEach((t,i)=>{const span=document.createElement('span');span.className='chip '+(!t.active?'out':i===s.rotation?'current':'');span.textContent=t.name;el('scoreboard').append(span)});setText('bankMessage',s.marked!==null?'Answer recorded. Press NEXT QUESTION.':s.chain?'BANK now to save this chain.':'Correct answers build the chain.');requestAnimationFrame(fitQuestionCopy);}
 function judge(correct){if(!s||s.phase!=='game'||s.marked!==null||s.time<=0)return;unlockAudio();const team=currentTeam();s.marked=correct;s.awaitingNext=true;if(correct){team.correct++;s.chain++;if(s.chain>=LADDER.length-1){s.bankTotal+=LADDER[8];s.roundBank+=LADDER[8];team.banks++;s.chain=0;setText('bankMessage','MAX CHAIN — AUTO BANKED!');bankSound()}else goodSound()}else{team.incorrect++;s.chain=0;badSound()}flash(correct);store();renderGame()}
 function bankMoney(){if(!s||s.phase!=='game'||s.marked!==null||s.chain===0)return;unlockAudio();const amount=LADDER[s.chain];s.bankTotal+=amount;s.roundBank+=amount;currentTeam().banks++;s.chain=0;bankSound();store();renderGame();setText('bankMessage',`BANKED +${money(amount)}. Now answer the question.`)}
 function nextQuestion(){if(!s||s.phase!=='game'||!s.awaitingNext)return;advanceIndex();s.marked=null;s.awaitingNext=false;s.questionNum++;s.currentQ=takeQuestion();store();renderGame()}
@@ -265,7 +399,7 @@ function eliminate(){if(!s||s.phase!=='vote'||voteSelected<0)return;unlockAudio(
 function renderBetween(){const active=s.teams.filter(t=>t.active);setText('betweenLabel',`${active.length} PAIRS REMAINING`);setText('betweenTitle',`${s.teams[s.lastEliminated]?.name||'A pair'} HAS BEEN ELIMINATED`);setText('betweenText',active.length===2?`The two strongest links are ${active[0].name} and ${active[1].name}. Prepare for five questions per pair, followed by sudden death if tied.`:`The chain continues. Next round: ${s.duration/60} minutes, new questions, fresh bank chain. Total banked so far: ${money(s.bankTotal)}.`);setText('continueBtn',active.length===2?'▶ START FINAL DUEL':'▶ NEXT ROUND')}
 function startFollowing(){if(!s||s.phase!=='between')return;const active=s.teams.filter(t=>t.active);if(active.length===2){startFinal();return}s.round++;s.roundBank=0;s.time=s.duration;s.running=false;s.chain=0;s.marked=null;s.awaitingNext=false;nextIndex();s.currentQ=takeQuestion();s.phase='game';store();render()}
 function startFinal(){s.phase='final';s.final={ids:s.teams.filter(t=>t.active).map(t=>t.id),scores:[0,0],history:[[],[]],turn:0,marked:null,awaitingNext:false,sudden:false,currentQ:takeQuestion()};store();render()}
-function renderFinal(){const f=s.final,which=f.turn%2;setText('finalPot',money(s.bankTotal));setText('finalCounter',f.sudden?'SUDDEN DEATH':`${Math.min(f.turn+1,10)} / 10`);setText('finalRound',f.sudden?'SUDDEN DEATH':'BEST OF 5');const grid=el('finalBoard');grid.innerHTML='';f.ids.forEach((id,i)=>{const t=s.teams[id];const div=document.createElement('div');div.className='final-team '+(i===which?'active':'');const title=document.createElement('h3');title.textContent=t.name;const score=document.createElement('div');score.className='dots';score.textContent=`${f.scores[i]} ✓`;div.append(title,score);grid.append(div)});const q=DATA[f.currentQ];setText('finalCategory',q[2]);setText('finalQuestion',q[0]);setText('finalStatus',f.marked===null?`YOUR TURN: ${s.teams[f.ids[which]].name}`:f.marked?'CORRECT ✓':'INCORRECT ✕');el('finalAnswer').classList.toggle('hidden',f.marked===null);setText('finalAnswer',`EXPECTED: ${q[1]}`);el('finalCorrect').disabled=f.marked!==null;el('finalWrong').disabled=f.marked!==null;el('finalNext').disabled=!f.awaitingNext;setText('finalNext',f.turn>=9?'CONTINUE / RESULT →':'NEXT QUESTION →')}
+function renderFinal(){const f=s.final,which=f.turn%2;setText('finalPot',money(s.bankTotal));setText('finalCounter',f.sudden?'SUDDEN DEATH':`${Math.min(f.turn+1,10)} / 10`);setText('finalRound',f.sudden?'SUDDEN DEATH':'BEST OF 5');const grid=el('finalBoard');grid.innerHTML='';f.ids.forEach((id,i)=>{const t=s.teams[id];const div=document.createElement('div');div.className='final-team '+(i===which?'active':'');const title=document.createElement('h3');title.textContent=t.name;const score=document.createElement('div');score.className='dots';score.textContent=`${f.scores[i]} ✓`;div.append(title,score);grid.append(div)});const q=DATA[f.currentQ];setText('finalCategory',q[2]);setText('finalQuestion',q[0]);setText('finalStatus',f.marked===null?`YOUR TURN: ${s.teams[f.ids[which]].name}`:f.marked?'CORRECT ✓':'INCORRECT ✕');el('finalAnswer').classList.toggle('hidden',f.marked===null);setText('finalAnswer',`EXPECTED: ${q[1]}`);el('finalCorrect').disabled=f.marked!==null;el('finalWrong').disabled=f.marked!==null;el('finalNext').disabled=!f.awaitingNext;setText('finalNext',f.turn>=9?'CONTINUE / RESULT →':'NEXT QUESTION →');requestAnimationFrame(fitQuestionCopy);}
 function finalJudge(correct){if(!s||s.phase!=='final'||s.final.marked!==null)return;unlockAudio();const f=s.final,which=f.turn%2;f.marked=correct;f.awaitingNext=true;f.history[which].push(correct);if(correct){f.scores[which]++;goodSound()}else badSound();flash(correct);store();renderFinal()}
 function finalNextQuestion(){if(!s||s.phase!=='final'||!s.final.awaitingNext)return;const f=s.final;f.turn++;if(!f.sudden&&f.turn>=10){if(f.scores[0]!==f.scores[1]){s.winner=f.ids[f.scores[0]>f.scores[1]?0:1];s.phase='winner';winnerSound();store();render();return}f.sudden=true}if(f.sudden&&f.turn>=12&&f.turn%2===0){const a=f.history[0][f.history[0].length-1],b=f.history[1][f.history[1].length-1];if(a!==b){s.winner=f.ids[a?0:1];s.phase='winner';winnerSound();store();render();return}}f.marked=null;f.awaitingNext=false;f.currentQ=takeQuestion();store();renderFinal()}
 function renderWinner(){setText('winnerName',s.teams[s.winner].name);setText('winnerSummary',`FINAL SCORE: ${s.final.scores.join(' – ')} · BANKED TOTAL: ${money(s.bankTotal)} · Congratulations to the strongest link!`)}
@@ -283,5 +417,50 @@ function testSound(){unlockAudio();goodSound();setTimeout(badSound,1100)}
 function flash(ok){const id=ok?'goodFlash':'badFlash';el(id).classList.remove('show');void el(id).offsetWidth;el(id).classList.add('show')}
 window.addEventListener('keydown',e=>{if(e.target.matches('input,select,textarea')||e.altKey||e.ctrlKey||e.metaKey)return;const k=e.key.toLowerCase();if(k==='f')fullscreen();else if(k==='m')toggleSound();else if(s?.phase==='game'){if(k==='c')judge(true);else if(k==='x')judge(false);else if(k==='b')bankMoney();else if(k==='n'||k==='enter')nextQuestion();else if(k===' '){e.preventDefault();toggleTimer()}}else if(s?.phase==='final'){if(k==='c')finalJudge(true);else if(k==='x')finalJudge(false);else if(k==='n'||k==='enter')finalNextQuestion()}});
 rosterChange();if(localStorage.getItem(STORAGE))el('resumeBtn').style.display='block';
+
+// Fit the entire six-stage game to the actual viewport (including preview windows).
+// Works offline, without browser fullscreen permission.
+let fitPending=false;
+function fitStudio(){
+  const b=document.body, app=document.getElementById('app');
+  b.classList.add('studio-fit');
+  const vv=window.visualViewport;
+  const w=Math.max(240,Math.floor(vv?.width||window.innerWidth||800));
+  const h=Math.max(240,Math.floor(vv?.height||window.innerHeight||600));
+  const portrait=h>w*1.04;
+  const baseW=portrait?600:1120;
+  // Make the stage's ratio approximate the actual viewport, reducing unused space.
+  const baseH=portrait?Math.max(860,Math.min(1130,Math.round(baseW*h/w))):Math.max(530,Math.min(820,Math.round(baseW*h/w)));
+  const scale=Math.max(.18,Math.min((w-4)/baseW,(h-4)/baseH));
+  b.classList.toggle('studio-portrait',portrait);
+  b.classList.toggle('studio-landscape',!portrait);
+  app.style.setProperty('--stage-width',baseW+'px');
+  app.style.setProperty('--stage-height',baseH+'px');
+  app.style.setProperty('--fit-scale',scale.toFixed(5));
+}
+function scheduleFit(){if(fitPending)return;fitPending=true;requestAnimationFrame(()=>{fitPending=false;fitStudio()})}
+
+// Long prompts fit the available question panel instead of requiring scrolling.
+function fitQuestionCopy(){
+  for(const id of ['game','final']){
+    const sec=document.getElementById(id);
+    if(!sec||sec.classList.contains('hidden'))continue;
+    const panel=sec.querySelector('.question-panel'),q=sec.querySelector('.question-text'),ans=sec.querySelector('.answer');
+    if(!panel||!q)continue;
+    let font=document.body.classList.contains('studio-portrait')?34:37;
+    q.style.fontSize=font+'px';
+    if(ans)ans.style.fontSize='17px';
+    for(;panel.scrollHeight>panel.clientHeight+1&&font>21;font-=2)q.style.fontSize=(font-2)+'px';
+    if(ans&&panel.scrollHeight>panel.clientHeight+1){
+      for(let a=16;panel.scrollHeight>panel.clientHeight+1&&a>=12;a--)ans.style.fontSize=a+'px';
+    }
+  }
+}
+window.addEventListener('resize',scheduleFit,{passive:true});
+window.addEventListener('orientationchange',()=>{scheduleFit();requestAnimationFrame(fitQuestionCopy)},{passive:true});
+window.visualViewport?.addEventListener('resize',scheduleFit,{passive:true});
+document.addEventListener('fullscreenchange',scheduleFit);
+fitStudio();
+
 </script>
 </body></html>
