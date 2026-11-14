@@ -1,48 +1,31 @@
-# Phrasal Verb Millionaire — COG
+# Phrasal Verb Millionaire — COG (offline)
 
-Juego de concurso para **Connectivity Level 5, Unit 10 (Global Ties), Block 3**, diseñado para que el profesor lo controle desde una computadora conectada al proyector.
+Juego de repaso para **Unit 10 / Global Ties / Block 3**, preparado para control exclusivo del docente desde una computadora conectada a proyector.
 
-## Uso sin internet (Windows)
+## Reglas (actualizadas)
 
-1. Descargar `index.html` (o utilizar el paquete ZIP local de la conversación).
-2. Abrir el archivo con doble clic en Chrome o Edge.
-3. Conectar la computadora al proyector.
-4. Pulsar **SCREEN** o la tecla `F` para pantalla completa.
-5. Seleccionar de **2 a 6 equipos**, con temporizador opcional, y comenzar.
+1. Se forman de **2 a 6 equipos**. Juega **uno a la vez**, con una única participación por equipo.
+2. El equipo activo comienza en el **nivel 1** e intenta responder hasta **15 preguntas**.
+3. Respuesta correcta → sube un nivel y gana el valor alcanzado. **Respuesta incorrecta → termina de inmediato la participación de ese equipo; no se avanza al siguiente nivel.**
+4. Al fallar, recibe **0 puntos** antes del primer nivel seguro; **1,000 puntos** si superó el nivel 5; **32,000 puntos** si superó el nivel 10.
+5. Al terminar la participación, el profesor pulsa **NEXT TEAM**: el siguiente equipo comienza de nuevo en **nivel 1**, con sus propios comodines. Al finalizar todos, gana el equipo con más puntos; puede haber empate.
+6. El comodín **50:50** elimina dos opciones; **ASK THE AUDIENCE** es una **encuesta simulada**, y **PHONE A FRIEND** da una **pista simulada**. Cada equipo los tiene una vez por partida.
+7. El cronómetro opcional es de **30 segundos** por pregunta; si se agota, **termina la participación** de ese equipo. Se pausa durante las ventanas de comodines.
+8. Los puntos no representan dinero real. El juego **no guarda** resultados al cerrar o recargar.
 
-**No utiliza CDN, frameworks, solicitudes de red, Supabase, servidor, Wi-Fi ni cuentas.** Los alumnos no necesitan dispositivos. La versión del repositorio se puede utilizar conectada a internet mediante el sitio que publique el repositorio, o descargada y abierta directamente como archivo local.
+## Controles
 
-## Mecánica
+- Botones **A/B/C/D** o teclas **1–4**: elegir respuesta.
+- **FINAL ANSWER** → **REVEAL ANSWER** → **NEXT QUESTION** si acertó, o **NEXT TEAM** si falló.
+- **Enter**: confirmar, revelar o continuar según el estado.
+- **N**: avanzar cuando corresponde. **5**: 50:50. **H**: amigo. **F**: pantalla completa. **M**: sonido.
 
-- 15 niveles, cada uno con dos preguntas alternativas seleccionadas al iniciar la partida.
-- Cuatro respuestas A/B/C/D, botón **FINAL ANSWER**, revelado con suspenso y explicación.
-- Puntos ficticios por respuesta correcta, turnos rotativos y marcador por equipos.
-- Comodines: **50:50**, **Ask the Audience** (encuesta **simulada**, no votos reales) y **Phone a Friend** (pista simulada).
-- Temporizador opcional de 30 segundos; su finalización no bloquea al profesor.
-- Audio breve generado en el navegador, sin archivos de sonido externos.
+## Ejecutar sin internet
 
-## Teclas rápidas
+Descargar el archivo `index.html` o el paquete ZIP y abrirlo en **Chrome o Edge** en Windows. No requiere instalaciones, servidor, Wi-Fi, Supabase, cuentas, imágenes externas ni conexión alguna. Se conecta el proyector a la computadora del profesor y se proyecta la partida.
 
-| Tecla | Acción |
-|---|---|
-| 1–4 | Elegir A, B, C, D |
-| Enter | Confirmar / revelar / siguiente |
-| N | Siguiente pregunta |
-| 5 | 50:50 |
-| H | Pista de amigo |
-| F | Pantalla completa |
-| M | Encender/apagar efectos |
+**Contenido:** preguntas originales de práctica sobre *phrasal verbs*, separabilidad y pronombres de la unidad 10, no reproducciones literales del examen. 
 
-## Contenido didáctico
+## Registro de cambios
 
-Preguntas originales basadas en el vocabulario y los conceptos gramaticales de `Connectivity 5`, unidad 10, páginas 102 y 104–105: significados de phrasal verbs, separabilidad y posición de pronombres. No se han copiado literalmente las preguntas de los exámenes. La interfaz y los reactivos están en inglés.
-
-## Arquitectura y decisiones
-
-- Archivo único `index.html`: HTML, CSS, JavaScript y banco de preguntas sin dependencias.
-- Diseño Y2K con proporción visual **4:3** para proyectores de aula.
-- Los datos no salen del equipo ni se sincronizan con terceros.
-- **La partida no se guarda** al cerrar o recargar el navegador.
-- El repositorio puede ser público; no se requiere ningún secreto de API.
-
-**Estado:** versión local funcional, lista para uso desde el navegador del profesor.
+- **2026-11-13 — v2 (reglas corregidas):** se corrigió el avance indebido cuando la respuesta era incorrecta. Un fallo detiene la escalera del equipo, se aplica el último nivel seguro y después comienza el siguiente equipo desde la primera pregunta. También se corrigió el cronómetro agotado y se añadieron instrucciones visibles.
