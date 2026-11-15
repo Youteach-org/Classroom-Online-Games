@@ -35,3 +35,7 @@ Cualquier fallo crítico → ESTADO_SEGURO (consignas a neutro; deshabilitación
 - ESP32 → analógico: dos consignas analógicas limitadas (avance e intención de giro) o interfaz equivalente validada; con estado neutro por hardware.
 - Analógico → ESP32: sensores de estado, fallo, caída, sobrecorriente u otras señales, sin crear dependencias.
 - Teléfono ↔ ESP32: BLE para identificación/proximidad y, si se desea, Wi-Fi/BLE para configuración y audio, según restricciones reales.
+
+## 3.7 Actualización 2026-11-15 — opciones económicas y alcance térmico
+**Restricciones expresas:** no pantalla integrada costosa (~$959), no amplificador MAX98357A porque el usuario ya lo probó con DEA y resultó insuficiente, no sensor térmico montado sobre servo ni exploración móvil no acordada. La configuración base térmica es un MLX90614 **fijo frontal**, con alejamiento seguro si la temperatura aparente frontal supera el umbral definido mediante prueba. No se coloca multiplexor TCA9548A con un solo sensor.
+**Candidatos por verificar:** ESP32 clásica DevKit/WROOM-32 (DAC GPIO25/26 de 8 bits) y una sola TFT color SPI 2.8” para ambos ojos; TPA3110 con bocinas de impedancia/potencia adecuadas, alimentado dentro de su rango. No alimentar el circuito de equilibrio desde la ESP32. No afirmar que un sensor frontal cubre calor lateral/trasero o que BLE RSSI aporta rumbo.
