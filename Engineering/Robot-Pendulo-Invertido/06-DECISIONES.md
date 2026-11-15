@@ -30,3 +30,8 @@
 
 ## D-010 · 2026-11-09 · Compra exclusiva en Mercado Libre México
 **Decisión confirmada por el usuario:** Todos los componentes, materiales y accesorios que se compren para EVA deben adquirirse a través de Mercado Libre México (mercadolibre.com.mx). No proponer enlaces de compra de otros comercios. Antes de aprobar la selección, confirmar ficha técnica, stock, origen/tiempo de envío, compatibilidad y precio de una publicación de Mercado Libre. No confundir un componente candidato con uno validado. **Motivo:** restricción expresa de abastecimiento del proyecto y plazo estimado de 14–21 días.
+
+## D-011 · 2026-11-15 · Costo de visualización, audio y alcance térmico
+**Confirmado por el usuario:** rechazada pantalla de ~$959 por costo escolar; rechazada reutilización de MAX98357A por volumen insuficiente observado anteriormente con DEA; nunca se aprobó exploración térmica móvil. Suprimir servo de orientación de calor. No incluir multiplexor I2C en configuración con un único sensor térmico.
+**Candidatos propuestos, NO aprobados aún por el usuario:** TFT color 2.8” ~$200 con ESP32-WROOM-32 ~$130, amplificador de entrada analógica TPA3110 ~$80–$100, dos bocinas 4 Ω 10 W ~$148/par, un solo sensor MLX90614 fijo frontal. GPIO DAC interno en ESP32 clásica para audio económico sujeto a prueba. Las especificaciones físicas, sonoras y fechas de envío siguen por verificar.
+**Invariantes:** control de equilibrio analógico, funciones ESP32 y sistema de carga, BMS y alimentación completos; compras sólo en Mercado Libre México.
