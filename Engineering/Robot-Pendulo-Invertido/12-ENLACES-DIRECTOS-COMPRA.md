@@ -1,6 +1,7 @@
 # 12 — Publicaciones individuales de compra: robot EVA
 **Consulta:** 2026-11-15 · **Plataforma exclusiva:** Mercado Libre México.
 **Propósito:** enlaces **a fichas concretas** (URL `/p/`, `/up/` o `/MLM-..._JM`), NUNCA enlaces `/listado/`. Las páginas de catálogo `/p/` pueden mostrar múltiples vendedores; las `/MLM-` son publicaciones de vendedores específicos. Disponibilidad y envío varían con fecha/código postal.
+**REVISIÓN ELÉCTRICA:** leer [13 — Arquitectura de alimentación 3S](13-ARQUITECTURA-ALIMENTACION.md) antes de pagar. El amplificador TPA3110 recibe VBAT (~9.6–12.6 V), **no el buck de 5 V**. La batería 3S anunciada NO tiene corriente máxima acreditada: pendiente. La ESP32 DevKit se alimenta con 5 V regulados; el ADXL335 con 3.3 V limpio. El LDO 3.3 V se incorpora solo tras seleccionar módulo exacto. **No comprar LM2596 por duplicado para sensores**.
 **ESTADO GENERAL:** enlaces identificados, no equivale a selección eléctrica o compra aprobada. Precio de búsqueda en MXN, revisarlo antes de pagar. No constan pedidos hechos.
 
 ## Tracción y mecánica
@@ -33,7 +34,7 @@
 | **Condicional** | BMS 3S 40A con balanceo + fuente 12.6V/1A | Por confirmar | https://articulo.mercadolibre.com.mx/MLM-3316804507-bby-placa-bms-3s-40a-126v-con-equilibrio-y-fuente-126v-1a-_JM | **NO comprar junto con P03/P04 automáticamente.** La ficha atribuye rangos de carga inconsistentes; confirmar características reales y que la fuente sea cargador CC/CV Li-ion, no solo adaptador. Para pack con BMS, NO agregar otro BMS. |
 | 1 | Cargador comercial Li-ion 3S 12.6V/1A | 229 | https://www.mercadolibre.com.mx/cargador-para-pilas-litio-de-3-celdas-126v1a-electronica/up/MLMU710470715 | Vendedor ELECTRONICADLD. Conectar solo si pack, BMS, polaridad, puerto y corriente son compatibles; BMS ≠ cargador. |
 | 1 | Buck XL4015 ajustable para 5V, 5A anunciados | 76.56 ref. | https://www.mercadolibre.com.mx/xl4015-convertidor-dc-dc-buck-reductor-step-down/p/MLM47581545 | Medir 5.0V con multímetro antes de conectar electrónica; corriente real depende de calor. |
-| 1 | Buck LM2596 ajustable para 3.3V, 3A anunciados | 79 | https://www.mercadolibre.com.mx/modulo-step-down-lm2596-ajuste-con-3-potenciometros/p/MLM2075703834 | Ajustar sin carga y filtrar referencia analógica. |
+| 1 opcional, **no carrito base** | Buck LM2596 ajustable (alternativa no crítica, NO regulator 3.3 V limpio aprobado) | 79 | https://www.mercadolibre.com.mx/modulo-step-down-lm2596-ajuste-con-3-potenciometros/p/MLM2075703834 | No comprar automáticamente. Diseño base requiere LDO 3.3 V limpio desde buck 5 V, módulo exacto aún sin publicación individual validada. |
 | 1 par | Conectores XT60 macho + hembra | 54.28 ref. | https://www.mercadolibre.com.mx/par-de-conector-para-bateria-xt60-enchufe-macho-y-hembra-lipo-dron-tecneu/p/MLM34967473 | Revisar polaridad conector compatible con pack. |
 
 **Piezas de seguridad todavía sin URL individual verificable:** portafusibles/fusible DC, interruptor DC de corriente adecuada, botón de paro enclavable de contacto NC, cables de potencia, indicador de bajo voltaje. NO reemplazar enlaces faltantes por búsquedas ni improvisar capacidad DC. Para el primer armado pueden usarse piezas existentes del laboratorio solo si son adecuadas y verificadas.
