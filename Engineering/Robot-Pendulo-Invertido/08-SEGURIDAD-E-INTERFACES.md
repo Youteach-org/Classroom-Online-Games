@@ -23,3 +23,6 @@ Parada física/protección eléctrica > estabilidad analógica y límites > prev
 
 ## Limitaciones
 Las funciones autónomas superiores no pueden garantizar seguridad solo con programación. El diseño físico, el frenado/motor y los circuitos de habilitación deben revisarse en un esquema eléctrico antes de energizar el prototipo.
+
+## 2026-11-15 — Protecciones de fuente 3S
+Consultar [13-ARQUITECTURA-ALIMENTACION.md](13-ARQUITECTURA-ALIMENTACION.md): protección/carga 3S completas, BMS comprobado, cargador 12.6 V CC/CV, fusible DC e interruptor principal antes de distribución, paro NC para deshabilitar ambos puentes H sin ESP32, buck 5 V + LDO 3.3 V para sensores. Bus VBAT variable para motores y TPA3110 (admisible para el **integrado** según TI; falta verificar placa comercial); conectar alimentación y USB de DevKit simultáneamente solo si ficha de esa placa y aislamiento lo permiten. No hay diseño de power-path: recargar con robot apagado. Separar retorno de potencia de masas de sensado y usar filtrado adecuado para motores y audio.
