@@ -1,4 +1,6 @@
 # 11 — Lista de compra EVA · Mercado Libre México
+
+**Para comprar:** consultar primero [12 — Enlaces individuales de compra](12-ENLACES-DIRECTOS-COMPRA.md), que distingue enlaces concretos de productos sin URL verificada. Las búsquedas de esta lista anterior NO equivalen a enlaces de compra y no deben mostrarse como tales.
 **Fecha:** 2026-11-09 · **Actualizado:** 2026-11-15 · **Estado:** investigado / candidatos, NO comprado ni completamente validado.
 **Restricción aprobada:** el 100% de las compras debe efectuarse por Mercado Libre México (mercadolibre.com.mx). No comprar en ningún otro comercio.
 **Plazo objetivo:** 14–21 días desde 2026-11-09. El envío depende del código postal de entrega; una ficha indexada NO confirma existencias ni entrega a tiempo.
