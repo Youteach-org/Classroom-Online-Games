@@ -49,3 +49,6 @@ La prioridad debe probarse; no basta con definir estados de software.
 
 ## Punto técnico crítico
 Una misma acción de motor participa en **equilibrio** y **desplazamiento**; no se pueden instalar dos mandos independientes peleando por el puente H. La ESP32 modifica una consigna de referencia limitada o componente de giro, mientras el lazo analógico decide en tiempo real el esfuerzo estabilizador. La suma y saturación deben diseñarse y probarse.
+
+## 2026-11-15 — Distribución de potencia: separación de rieles
+El diagrama eléctrico de alimentación completo está en [13-ARQUITECTURA-ALIMENTACION.md](13-ARQUITECTURA-ALIMENTACION.md). Fuente primaria 3S Li-ion **no elegida todavía** (VBAT variable, 12.6 V al máximo; 11.1 V nominal); motores mediante puente H y audio TPA3110 reciben VBAT por ramas filtradas/protegidas. El convertidor buck genera 5.0 V para la ESP32 DevKit y electrónica analógica filtrada; un LDO de 3.3 V desde 5 V alimenta sensores adecuados. La ESP32 NO recibe VBAT directamente. Ampliación y diseño de cables/fusibles condicionados por corriente del motor. Cargador Li-ion 12.6 V CC/CV y BMS de protección y balanceo compatibles. No admitir carga y operación simultánea sin power-path diseñado.
