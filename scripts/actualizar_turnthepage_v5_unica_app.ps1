@@ -9,8 +9,8 @@ $knownPackages = @(
     'com.avstaim.listai.tablet.armando.smart',
     'com.avstaim.listai.tablet.armando'
 )
-$apkUrl = 'REEMPLAZAR_URL_V5'
-$expectedSha256 = 'REEMPLAZAR_SHA_V5'
+$apkUrl = 'https://raw.githubusercontent.com/Youteach-org/Classroom-Online-Games/67214180f7baad6494ab6824cc8af799ed0c741e/apk/TurnThePage_V5_PaginasJuntas_ConFolio.apk'
+$expectedSha256 = '77efbd34dccfdbec39027fd3499f71dc5ce3232665d56ddd3273d61e354ee1e1'
 
 $command = Get-Command adb.exe -ErrorAction SilentlyContinue
 $adb = if ($command) { $command.Source } else { Join-Path $env:LOCALAPPDATA 'Android\Sdk\platform-tools\adb.exe' }
