@@ -1,0 +1,31 @@
+name: Validar instalador Turn the Page V4
+on:
+  push:
+    branches: [turn-the-page]
+    paths:
+      - scripts/instalar_turnthepage_migracion_push_sha.ps1
+      - .github/workflows/validate-installer.yml
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Analizar PowerShell sin instalar
+        shell: pwsh
+        run: |
+          $t = $null
+          $e = $null
+          $p = (Resolve-Path 'scripts/instalar_turnthepage_migracion_push_sha.ps1').Path
+          [void][System.Management.Automation.Language.Parser]::ParseFile($p, [ref]$t, [ref]$e)
+          if ($e.Count -gt 0) {
+              $e | Format-List | Out-String | Write-Host
+              throw "El instalador tiene $($e.Count) errores."
+          }
+          $s = Get-Content $p -Raw
+          foreach ($required in @('com.avstaim.listai.tablet.armando.v4', 'V4_AntesDeRestaurar.tar', 'Device-Sha', '-d push', 'SQLite format 3', 'a9e43dc5e2d7b7d73cb5c21297b99690cb5b9e2a9dc9feaddebb2f73063aa186')) {
+              if (!$s.Contains($required)) { throw "Falta: $required" }
+          }
+          if ($s.Contains('uninstall $newPackage') -or $s.Contains('disable-user')) {
+              throw 'Se detecto una operacion insegura.'
+          }
+          Write-Host 'Sintaxis PowerShell y proteccion de archivos validadas.'

@@ -1,5 +1,0 @@
-{
-  "database": {
-    "rules": "firebase.support-meter.rules.json"
-  }
-}

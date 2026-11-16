@@ -1,0 +1,29 @@
+name: Importar APK Turn the Page V4
+on:
+  push:
+    branches: [turn-the-page]
+    paths: [.github/workflows/import-v4-apk.yml]
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copiar APK verificado a la rama aislada
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p apk
+          curl --fail --location --retry 3 \
+            'https://raw.githubusercontent.com/Youteach-org/EpsonRAsimulator/54e23517c65ed9e2cdd88df1190d5a49d9f19ce6/apk/TurnThePage_By_Armando_Anota_V4_ZoomFocal.apk' \
+            -o apk/TurnThePage_By_Armando_Anota_V4_ZoomFocal.apk
+          echo 'a9e43dc5e2d7b7d73cb5c21297b99690cb5b9e2a9dc9feaddebb2f73063aa186  apk/TurnThePage_By_Armando_Anota_V4_ZoomFocal.apk' | sha256sum -c -
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.name 'github-actions[bot]'
+          git add apk/TurnThePage_By_Armando_Anota_V4_ZoomFocal.apk
+          git commit -m 'Publish verified Turn the Page V4 APK'
+          git fetch origin turn-the-page
+          git rebase FETCH_HEAD
+          git push origin HEAD:turn-the-page
