@@ -260,6 +260,7 @@ if ((Sha $apk) -ne $expectedSha256) {
 
 $uninstalledV4 = $false
 $installedNew = $false
+$migrationVerified = $false
 try {
     $install = Invoke-ADB ('-d install -r "' + $apk + '"')
     if ($install.Exit -ne 0 -or $install.Output -notmatch 'Success') {
@@ -296,6 +297,7 @@ try {
         throw 'La aplicacion no conserva la base de datos al abrir.'
     }
 
+    $migrationVerified = $true
     # Only after fully successful, verified installation: remove all older versions.
     foreach ($old in $knownPackages) {
         if ($old -eq $target -or $old -notin $installedPackages) { continue }
@@ -307,7 +309,7 @@ try {
 } catch {
     $problem = $_.Exception.Message
     Write-Warning "La instalacion se detuvo: $problem"
-    if ($uninstalledV4 -and $originalV4Apk -and (Test-Path $originalV4Apk)) {
+    if (-not $migrationVerified -and $uninstalledV4 -and $originalV4Apk -and (Test-Path $originalV4Apk)) {
         try {
             [void](Invoke-ADB "-d uninstall $target")
             [void](Assert-ADB ('-d install "' + $originalV4Apk + '"') 'No se pudo recuperar APK anterior')
