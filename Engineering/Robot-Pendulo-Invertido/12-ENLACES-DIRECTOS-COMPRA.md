@@ -1,7 +1,7 @@
 # 12 — Publicaciones individuales de compra: robot EVA
 **Consulta:** 2026-11-15 · **Plataforma exclusiva:** Mercado Libre México.
 **Propósito:** enlaces **a fichas concretas** (URL `/p/`, `/up/` o `/MLM-..._JM`), NUNCA enlaces `/listado/`. Las páginas de catálogo `/p/` pueden mostrar múltiples vendedores; las `/MLM-` son publicaciones de vendedores específicos. Disponibilidad y envío varían con fecha/código postal.
-**REVISIÓN ELÉCTRICA:** leer [13 — Arquitectura de alimentación 3S](13-ARQUITECTURA-ALIMENTACION.md) antes de pagar. El amplificador TPA3110 recibe VBAT (~9.6–12.6 V), **no el buck de 5 V**. La batería 3S anunciada NO tiene corriente máxima acreditada: pendiente. La ESP32 DevKit se alimenta con 5 V regulados; el ADXL335 con 3.3 V limpio. El LDO 3.3 V se incorpora solo tras seleccionar módulo exacto. **No comprar LM2596 por duplicado para sensores**.
+**REVISIÓN ELÉCTRICA:** leer [13 — Arquitectura de alimentación 3S](13-ARQUITECTURA-ALIMENTACION.md) antes de pagar. El amplificador TPA3110 recibe VBAT (~9.6–12.6 V), **no el buck de 5 V**. Las celdas 18650 aportadas todavía no tienen modelo, química ni corriente verificados: pendiente. La ESP32 DevKit se alimenta con 5 V regulados; el ADXL335 con 3.3 V limpio. El LDO 3.3 V se incorpora solo tras seleccionar módulo exacto. **No comprar LM2596 por duplicado para sensores**.
 **ESTADO GENERAL:** enlaces identificados, no equivale a selección eléctrica o compra aprobada. Precio de búsqueda en MXN, revisarlo antes de pagar. No constan pedidos hechos.
 
 ## Tracción y mecánica
@@ -30,7 +30,7 @@
 ## Alimentación y carga de batería 3S, obligatoria
 | Cantidad | Componente concreto | Precio visto MXN | URL individual | Observaciones |
 |---|---|---:|---|---|
-| 1 | Paquete 3S1P Li-ion 11.1V 2200mAh | 249.99 | https://www.mercadolibre.com.mx/2200mah-111v-3s1p-baterias-18650/p/MLM47643895 | **NO APROBADO aún**, corriente continua/pico y balanceo BMS interno no verificadas. |
+| 3 o 6 | **Celdas 18650 del usuario** | **$0 de compra nueva** | **No comprar** | Formato disponible, cantidad y características desconocidas: evaluar 3S1P o 3S2P. Paquete comercial descartado del carrito base. |
 | **Condicional** | BMS 3S 40A con balanceo + fuente 12.6V/1A | Por confirmar | https://articulo.mercadolibre.com.mx/MLM-3316804507-bby-placa-bms-3s-40a-126v-con-equilibrio-y-fuente-126v-1a-_JM | **NO comprar junto con P03/P04 automáticamente.** La ficha atribuye rangos de carga inconsistentes; confirmar características reales y que la fuente sea cargador CC/CV Li-ion, no solo adaptador. Para pack con BMS, NO agregar otro BMS. |
 | 1 | Cargador comercial Li-ion 3S 12.6V/1A | 229 | https://www.mercadolibre.com.mx/cargador-para-pilas-litio-de-3-celdas-126v1a-electronica/up/MLMU710470715 | Vendedor ELECTRONICADLD. Conectar solo si pack, BMS, polaridad, puerto y corriente son compatibles; BMS ≠ cargador. |
 | 1 | Buck XL4015 ajustable para 5V, 5A anunciados | 76.56 ref. | https://www.mercadolibre.com.mx/xl4015-convertidor-dc-dc-buck-reductor-step-down/p/MLM47581545 | Medir 5.0V con multímetro antes de conectar electrónica; corriente real depende de calor. |
@@ -58,8 +58,12 @@
 - Bocinas nacionales equivalentes de 4Ω/10W, si los altavoces internacionales no llegan a tiempo.
 
 ## Alertas de compra
-1. **No autorizar pack 3S1P de $250** sin corriente continua/pico acreditada; un pack que alimente bien una pantalla podría fallar al arrancar motores.
+1. **No comprar paquete de batería**: el usuario aporta celdas 18650. La corriente admitida por las celdas debe verificarse para arrancar los motores.
 2. **Una sola batería, protección y cargador compatibles**: si pack tiene BMS completo, no agregar segundo BMS; el BMS NO produce carga CC/CV. No usar TP4056 (1S).
 3. **No pagar antes de determinar torque/corriente motores** y comprobar giro correcto del controlador analógico.
 4. **No comprar por ahora** una pantalla de ~$959, MAX98357A, TCA9548A, SG90 de exploración térmica o cámara térmica.
 5. Las URL de este archivo son páginas concretas del producto en Mercado Libre México, pero **no se ha comprobado el carrito personalizado de la cuenta, costo de envío a domicilio ni disponibilidad al momento exacto de pagar**.
+
+
+## Cambio 2026-11-15 — Baterías propias
+Se cuenta con celdas 18650 proporcionadas por el usuario. Compra de batería comercial = **$0 / excluida**. No se ha definido cuántas tiene, qué química ni corriente admiten. 3S1P y 3S2P son configuraciones candidatas. BMS 3S, cargador CC/CV compatible, aislantes, fusible y conexiones de potencia **sí siguen en la lista**. Ver [13-ARQUITECTURA-ALIMENTACION.md](13-ARQUITECTURA-ALIMENTACION.md).
