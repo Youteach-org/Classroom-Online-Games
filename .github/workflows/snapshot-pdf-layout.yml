@@ -1,0 +1,38 @@
+name: Snapshot Turn the Page PDF layout sources
+on:
+  push:
+    branches: [turn-the-page]
+    paths: [.github/workflows/snapshot-pdf-layout.yml]
+permissions:
+  contents: write
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Fetch original source and save exact layout files
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --connect-timeout 12 --max-time 120 \
+            https://codeload.sourcecraft.tech/avstaim/listai/tarball/refs/heads/main -o original.tar.gz || \
+          curl --fail --location --retry 2 \
+            https://f-droid.org/repo/com.avstaim.listai_35_src.tar.gz -o original.tar.gz
+          mkdir -p original .github/reference-layout
+          tar -xzf original.tar.gz -C original --strip-components=1
+          find original/feature/reader/src/main/kotlin/com/avstaim/listai/feature/reader/bookview -maxdepth 1 -type f -print | sort > .github/reference-layout/source_files.txt
+          cp original/feature/reader/src/main/kotlin/com/avstaim/listai/feature/reader/bookview/BookCanvasLayout.kt .github/reference-layout/BookCanvasLayout.kt || true
+          cp original/feature/reader/src/main/kotlin/com/avstaim/listai/feature/reader/bookview/DemoPageSurface.kt .github/reference-layout/DemoPageSurface.kt
+          cp original/feature/reader/src/main/kotlin/com/avstaim/listai/feature/reader/bookview/PaginatedPageSurface.kt .github/reference-layout/PaginatedPageSurface.kt
+          cp original/feature/reader/src/main/kotlin/com/avstaim/listai/feature/reader/bookview/PhysicalBookView.kt .github/reference-layout/PhysicalBookView.kt
+          cp original/reader/pagination/src/main/kotlin/com/avstaim/listai/reader/pagination/PaginationModels.kt .github/reference-layout/PaginationModels.kt
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.name 'github-actions[bot]'
+          git add .github/reference-layout
+          git commit -m 'Save exact source for PDF spread geometry and folio layout'
+          git fetch origin turn-the-page
+          git rebase FETCH_HEAD
+          git push origin HEAD:turn-the-page
