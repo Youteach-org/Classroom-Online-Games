@@ -13,7 +13,7 @@
 | Anticolisión | Sensor(es) de distancia frontal/lateral apropiados | Por seleccionar |
 | Audio | Micrófono, amplificador y una o más bocinas | Por seleccionar |
 | Visual | Una pantalla para ojos y soporte mecánico | Por seleccionar |
-| Energía | Batería protegida, regulación y distribución separada lógica/motores | Por dimensionar |
+| Energía | Celdas 18650 del usuario, pack 3S1P/3S2P por verificar, BMS, cargador adecuado, regulación y distribución separada | **Celdas disponibles; cantidad y especificaciones por comprobar** |
 | Seguridad | Interruptor físico, fusibles/protecciones, sujeción para ensayo | Obligatorio |
 | Telemetría/ajuste | Puntos de medición, instrumentos y controles de ajuste analógicos | Por diseñar |
 
@@ -35,3 +35,7 @@ Pendiente de definir en MXN, con margen para prototipos, fallas y repuestos.
 
 ## Restricción de abastecimiento aprobada — 2026-11-09
 **Solo Mercado Libre México (mercadolibre.com.mx).** Cada línea de compra definitiva debe incluir publicación de Mercado Libre, precio vigente, entrega estimada para el destino real, disponibilidad, vendedor, especificaciones verificadas y alternativa dentro de la misma plataforma. Priorizar publicaciones con entrega nacional rápida ante el plazo de 14–21 días. No comprar motores ni sensores por coincidencia de nombre sin revisar características eléctricas y mecánicas. Los listados actuales son candidatos, no compras ni piezas aprobadas.
+
+
+## Material disponible: celdas 18650 (2026-11-15)
+El usuario cuenta con celdas tipo 18650 que pueden formar un paquete serie/paralelo tras verificar su compatibilidad y estado. No se infiere que posea dieciocho unidades. No comprar paquete comercial 3S de momento; la selección entre 3S1P y 3S2P depende de química, corriente, capacidad, masa, motores y CAD. Los módulos de carga, BMS y protección siguen pendientes. Ver [13-ARQUITECTURA-ALIMENTACION.md](13-ARQUITECTURA-ALIMENTACION.md).
