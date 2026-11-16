@@ -28,6 +28,9 @@ jobs:
           cp original/feature/reader/src/main/kotlin/com/avstaim/listai/feature/reader/bookview/DemoPageSurface.kt .github/reference-layout/DemoPageSurface.kt
           cp original/feature/reader/src/main/kotlin/com/avstaim/listai/feature/reader/bookview/PaginatedPageSurface.kt .github/reference-layout/PaginatedPageSurface.kt
           cp original/feature/reader/src/main/kotlin/com/avstaim/listai/feature/reader/bookview/PhysicalBookView.kt .github/reference-layout/PhysicalBookView.kt
+          cp original/feature/reader/src/main/kotlin/com/avstaim/listai/feature/reader/bookview/AdaptiveBookLayout.kt .github/reference-layout/AdaptiveBookLayout.kt
+          cp original/feature/reader/src/main/kotlin/com/avstaim/listai/feature/reader/bookview/PhysicalBookPainter.kt .github/reference-layout/PhysicalBookPainter.kt
+          cp original/feature/reader/src/main/kotlin/com/avstaim/listai/feature/reader/bookview/BookSurfaceWindow.kt .github/reference-layout/BookSurfaceWindow.kt
           cp original/reader/pagination/src/main/kotlin/com/avstaim/listai/reader/pagination/PaginationModels.kt .github/reference-layout/PaginationModels.kt
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git config user.name 'github-actions[bot]'
