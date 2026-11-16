@@ -1,0 +1,50 @@
+name: Validar actualizacion Turn the Page V5 de una sola app
+on:
+  push:
+    branches: [turn-the-page]
+    paths:
+      - .github/workflows/validate-v5-installer.yml
+      - scripts/actualizar_turnthepage_v5_unica_app.ps1
+jobs:
+  check-powershell:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sintaxis PowerShell y proteccion del respaldo
+        shell: pwsh
+        run: |
+          $p = (Resolve-Path 'scripts/actualizar_turnthepage_v5_unica_app.ps1').Path
+          $tokens = $null
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile($p, [ref]$tokens, [ref]$errors)
+          if ($errors.Count -gt 0) {
+              $errors | Format-List | Out-String | Write-Host
+              throw "Instalador PowerShell tiene $($errors.Count) errores de sintaxis."
+          }
+          $s = Get-Content $p -Raw
+          foreach ($needle in @(
+            'com.avstaim.listai.tablet.armando.v4',
+            'TurnThePage_V5_PaginasJuntas_ConFolio.apk',
+            'Save-BinaryTar',
+            'Verify-Tar',
+            'Verify-Sqlite',
+            'Device-Sha',
+            'Restore-Files',
+            "INSTALL_FAILED_UPDATE_INCOMPATIBLE",
+            "V4_Anterior_Recuperacion.apk",
+            "INSTALACION V5 COMPLETADA: UNA SOLA APLICACION."
+          )) {
+            if (!$s.Contains($needle)) { throw "Falta la comprobacion requerida: $needle" }
+          }
+          $backup = $s.IndexOf('# BACKUP ALL INSTALLED VERSIONS')
+          $uninstall = $s.IndexOf('"-d uninstall $target"')
+          $verify = $s.IndexOf('$migrationVerified = $true')
+          $deleteOld = $s.IndexOf('"-d uninstall $old"')
+          if ($backup -lt 0 -or $uninstall -lt $backup -or $verify -lt 0 -or $deleteOld -lt $verify) {
+            throw 'Una operacion destructiva ocurre antes de respaldar y verificar.'
+          }
+          if ($s.Contains("REEMPLAZAR_URL_V5") -or $s.Contains("REEMPLAZAR_SHA_V5")) {
+            throw 'APK V5 no fijada aun en el instalador.'
+          }
+          Write-Host 'PowerShell valido; respaldo, rollback y eliminacion posverificacion presentes.'
