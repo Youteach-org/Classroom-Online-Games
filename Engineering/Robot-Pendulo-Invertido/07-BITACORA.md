@@ -31,3 +31,7 @@ A solicitud del usuario, se creó **12-ENLACES-DIRECTOS-COMPRA.md**. Contiene ex
 
 ## 2026-11-15 — Arquitectura eléctrica documentada
 El usuario señaló que se habían recomendado amplificadores y placas sin definir tensiones de alimentación. Se verificó en TI que el TPA3110D2 funciona con 8–26 V: la batería Li-ion 3S propuesta puede alimentar la rama de audio directamente por bus VBAT variable, **sin elevador de 5 a 12 V**, en tanto la ESP32 necesita 5 V regulados a su placa y sensores/reguladores apropiados. Se incorporó [13-ARQUITECTURA-ALIMENTACION.md](13-ARQUITECTURA-ALIMENTACION.md) con diagrama, carga 3S, protección/BMS, 5 V, LDO 3.3 V, masa, protección, condiciones de compra, ecuaciones de presupuesto de corriente y secuencia de pruebas. Se marcaron batería/BMS/motores como NO aprobados hasta verificar corrientes y mecánica. Se actualizaron lista comercial, seguridad y arquitectura, sin tocar main ni publicar software.
+
+
+## 2026-11-15 — Baterías 18650 propias
+El usuario informó que ya tiene celdas formato 18650 y pueden usarse en serie o paralelo. Se integraron en [13-ARQUITECTURA-ALIMENTACION.md](13-ARQUITECTURA-ALIMENTACION.md) como material disponible, sin asumir cantidad. Se propusieron 3S1P/3S2P y se eliminó la batería comercial 3S de la compra base ($0 para celdas nuevas). Se conserva necesidad de BMS, cargador CC/CV adecuado, montaje seguro y reguladores. Verificar química, corriente, estado y cavidad CAD de 76×64×28 mm antes de fabricar. No se ha armado ni probado pack.
