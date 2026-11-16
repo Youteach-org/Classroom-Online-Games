@@ -4,13 +4,13 @@
 **Invariante:** equilibrio analógico autónomo, independiente de la ESP32. Compras **solo Mercado Libre México**. Sin pantalla cara, sin MAX98357A, sin exploración térmica móvil.
 
 ## 1. Decisión arquitectónica provisional: una sola fuente primaria 3S
-Tres celdas Li-ion en serie, paquete preensamblado con circuito de protección y **balanceo real**, descarga compatible con dos motores y radio/audio. **No se ha elegido ni aprobado ninguna batería**.
+**Celdas formato 18650 disponibles del usuario.** El número de celdas, su modelo y química todavía se desconocen; evaluar 3S1P (3 celdas) o 3S2P (6 celdas), con BMS 3S compatible. **No comprar paquete de batería comercial como base.**
 - Batería 3S Li-ion: **12.6 V completamente cargada**, **11.1 V nominal**; usar 9.6 V (≈3.2 V/celda) como **punto inicial conservador de aviso de baja batería**, pendiente de fijar con ficha de celdas y medición bajo carga. No es un umbral definitivo de apagado; BMS tendrá corte según su fabricante.
 - El llamado “bus de 12 V” es **VBAT sin regular, de aproximadamente 9.6 a 12.6 V** durante el rango operativo de diseño, no 12.0 V constantes.
 - No usar batería de 5 V para motores/TPA3110 ni un convertidor de 5→12 V de potencia improvisado.
 - El cargador y BMS no se confunden: un **cargador CC/CV Li-ion 3S de 12.6 V** suministra la carga por el puerto y cableado del BMS/pack; el **BMS** protege y balancea las celdas, con capacidad de descarga adecuada. El cargador se conecta de forma prevista por la ficha del pack/BMS, no directamente a tres celdas sin protección.
 - Operación durante carga: **prohibida en esta arquitectura base**; sin circuito power-path no asumir que puede alimentar motores y cargarse simultáneamente. Priorizar recarga con robot apagado.
-- Si el pack comercial ya tiene un BMS completo y compatible, **no instalar un segundo BMS por duplicado**. Verificar efectivamente balanceo y corriente máxima. Pack 3S1P 2200mAh barato aún NO aprobado.
+- Las celdas 18650 sueltas requieren protección/balanceo apropiados en el pack; seleccionar BMS 3S compatible y verificar si las celdas llevan protección individual. Pack comercial 3S1P 2200mAh queda retirado de la compra base.
 
 ## 2. Diagrama eléctrico de alimentación a nivel de bloques
 ```text
@@ -92,7 +92,7 @@ ESP32 superior --> PWM/filtrado + límites --> u_avance/u_giro (opcionales)
 - Para voz: DAC interno GPIO25/26 de la ESP32 clásica → filtrado y capacitor de acoplamiento → entrada de audio analógica del TPA3110. Salidas del amplificador en **puente BTL**, no conectar ninguno de los bornes negativos de parlante a tierra.
 - En una placa comercial los conectores, filtro, polaridad, ganancia y rango real se verifican antes de energizar.
 
-## 5. Dimensionamiento obligatorio ANTES de comprar batería, BMS, puentes H y fusibles
+## 5. Dimensionamiento obligatorio ANTES de fabricar pack 18650 y comprar BMS, puentes H y fusibles
 **Variables todavía NO medidas:**
 - `I_M1_normal`, `I_M2_normal`: corriente durante balanceo, nominal.
 - `I_M1_stall`, `I_M2_stall`: corriente máxima de arranque/bloqueo a tensión máxima de batería; motor exacto y hoja de datos.
@@ -124,7 +124,7 @@ Potencia nominal de energía de pack: `E ≈ 11.1 V × C_Ah`; autonomía ideal `
 7. **Balanceo libre, avance y giro:** integración por etapas; audio, ojos y térmica nunca anulan equilibrio ni sus límites.
 
 ## 7. Piezas que todavía NO pueden aprobarse como «carrito final»
-- Pack 3S1P 2200mAh con supuesta protección: falta corriente máxima de descarga, balanceo y veracidad de especificaciones; **NO COMPRAR todavía**.
+- **Pack comercial descartado** del carrito: el usuario aporta celdas 18650 propias, pendientes de caracterización.
 - BMS 3S «40A»: insuficiente etiqueta comercial para validar, falta hoja de datos del módulo y coordinación con cargador y pack.
 - Motor GA25-370 12 V de publicación: faltan curvas/par e I_stall confiables.
 - Amplificador comercial TPA3110: verificar **rango real de esa tarjeta**, filtrado de VBAT, ganancia y disipación; el **chip** permite 8–26 V, pero la placa debe corroborarse.
@@ -140,3 +140,24 @@ Potencia nominal de energía de pack: `E ≈ 11.1 V × C_Ah`; autonomía ideal `
 - Infineon, BTS7960B: https://www.infineon.com/assets/row/public/documents/10/45/bts7960b-pb-final.pdf
 
 **Tareas siguientes:** conseguir los datos reales de motor, evaluar tabla de corriente/energía y escoger batería/driver/cargador por ingeniería y costo; después validar pines de alimentación del conjunto electrónico y documentar esquemático por riel. Ninguna pieza fue comprada ni probada durante esta revisión.
+
+## Actualización 2026-11-15 — Baterías 18650 propiedad del usuario
+**CONFIRMADO:** el usuario ya tiene celdas **18650**; no se presupuesta comprar las celdas ni un pack prearmado. «18650» es un formato físico (aprox. 18 mm diámetro × 65 mm longitud), **NO la cantidad de baterías disponibles** ni una garantía de composición química o corriente.
+
+### Opciones de conexión que se estudiarán
+- **3S1P:** 3 celdas compatibles en serie; si son Li-ion de 3.6/3.7 V nominales y carga máxima de 4.2 V/celda, paquete nominal de 10.8–11.1 V y **12.6 V máximo**. La capacidad en Ah corresponde a una celda.
+- **3S2P:** 6 celdas compatibles agrupadas en tres bloques en serie, con dos celdas emparejadas en paralelo por bloque. Mismo voltaje nominal y máximo, doble capacidad teórica en Ah si las celdas son similares. La corriente admisible depende de cada celda, del montaje y del BMS.
+- **Selección provisional:** evaluar 3S2P si existen seis celdas compatibles y la masa, volumen y motores lo justifican; 3S1P queda como alternativa menor, ninguna aprobada hasta prueba.
+
+### Condiciones de seguridad y manufactura
+1. Identificar química y modelo completo, capacidad real, descarga continua y pico, origen, uso previo, cantidad y estado físico. **Una celda 18650 puede tener química diferente**; si es LiFePO4 3.2 V nominal, **no corresponde cargador Li-ion de 12.6 V**. No asumir configuración final por el formato.
+2. Medir cada celda y verificar capacidad, tensión, resistencia interna y aislamiento intacto. No mezclar celdas de diferente química, edad, modelo o capacidad ni conectar directamente en paralelo celdas con diferente voltaje.
+3. Pack armado por persona competente con conexión por **soldadura por puntos**, tiras, aislantes y protección mecánica apropiados. Evitar soldar terminales de celda directamente con cautín y evitar portaceldas de resortes no especificados para corrientes de motor.
+4. BMS 3S con protección, balanceo y corriente real acreditada; cargador CC/CV compatible con química: **12.6 V para Li-ion de 4.2 V/celda únicamente**. Los componentes para carga, fusible, paro DC, conectores y reguladores siguen por adquirir a través de Mercado Libre México.
+5. El modelo EVA v0.1 tiene volumen previsto de batería aprox. **76 × 64 × 28 mm**. Un pack 3S2P puede sobrepasar ese espesor una vez agregados aislantes/BMS: **revisar CAD y centro de masa ANTES de imprimir carcasa**.
+6. Mantener rama VBAT para motores y audio, y buck 5 V + regulación de 3.3 V, después de validar que las celdas y el controlador son compatibles con ese rango real.
+
+### Cambio de presupuesto
+**Celdas: DISPONIBLES, costo de compra nueva $0.** Pack comercial 3S1P de $249.99 excluido del carrito. BMS, cargador, cableado, aislantes, conexiones de potencia, fusible y paro físico siguen pendientes. No comprar BMS ni cargador antes de identificar química y capacidades de las 18650.
+
+Referencias de diseño: https://www.batteryuniversity.com/article/bu-302-series-and-parallel-battery-configurations/ ; https://ehs.oregonstate.edu/sites/ehs.oregonstate.edu/files/pdf/si/lithium_battery_safety_and_handling_guide.pdf
