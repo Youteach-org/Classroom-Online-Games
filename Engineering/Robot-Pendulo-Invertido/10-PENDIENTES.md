@@ -23,3 +23,11 @@ Definir P-01 a P-05 → bosquejar geometría y dinámica → elegir tecnología 
 - Todos los componentes comprados deben proceder de publicaciones de Mercado Libre México (mercadolibre.com.mx).
 - Antes de cerrar una compra: verificar compatibilidad, stock, destino, costo total y **fecha de entrega** para que llegue dentro del calendario de 14–21 días.
 - P-01 a P-05 siguen abiertos. Los enlaces comerciales no sustituyen las pruebas de par, corriente, dimensiones y respuesta de los sensores.
+
+
+## Nuevos pendientes a partir de 2026-11-15
+| ID | Por definir | Motivo |
+|---|---|---|
+| P-13 | Celdas 18650: cantidad, marca/modelo, química, voltaje individual, capacidad, estado y corriente máxima | «18650» describe formato, no características ni cantidad. |
+| P-14 | Configuración definitiva 3S1P/3S2P | El aumento de capacidad/corriente debe justificar espacio, peso y montaje. |
+| P-15 | BMS compatible, cargador según química, sistema de montaje por puntos y protección | Los módulos siguen necesarios aunque las celdas ya estén disponibles. |
