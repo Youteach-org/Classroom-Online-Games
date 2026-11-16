@@ -38,3 +38,7 @@
 
 ## D-012 · 2026-11-15 · Arquitectura eléctrica provisional para dimensionar compras
 **Propuesta técnica, NO decisión confirmada por el usuario:** Una batería 3S con BMS adecuado, bus VBAT ≈9.6–12.6 V en operación provisional; rama de motores y TPA3110 alimentadas por VBAT; buck 5 V para ESP32 DevKit y opamps; LDO 3.3 V de bajo ruido para sensores. El chip TPA3110 admite 8–26 V y no recibe 5 V; verificar placa comprada. Carga 3S por cargador CC/CV 12.6 V y puerto de BMS, sin alimentación del robot durante carga. **Bloqueo de selección:** no aprobar pack ni BMS hasta conocer corriente real o garantizada de motores, pantalla y audio. Fuentes, cálculos, diagrama y pruebas en 13-ARQUITECTURA-ALIMENTACION.md.
+
+
+## D-013 · 2026-11-15 · Baterías 18650 ya disponibles
+**Confirmado por usuario:** posee celdas formato **18650** y desea incorporarlas al robot; es posible considerar conexión serie/paralelo. «18650» designa formato, NO la cantidad de unidades. **Decisión de compras:** no adquirir pack comercial 3S como base, pues se aportarán celdas existentes. **Propuesta técnica pendiente de validar:** 3S1P (3 celdas) o 3S2P (6 celdas) compatibles y adecuadamente emparejadas. Pendientes marca/modelo, química, capacidad, corriente, estado y número disponible. BMS, cargador CC/CV adecuado a química, aislantes, conectores, fusibles y reguladores siguen en alcance. Alojamiento de batería del modelo CAD requiere comprobación, sobre todo 3S2P. Ver 13-ARQUITECTURA-ALIMENTACION.md.
