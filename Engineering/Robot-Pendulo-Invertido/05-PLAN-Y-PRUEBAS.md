@@ -31,3 +31,27 @@
 - Probar giro correcto y realimentación negativa con ruedas suspendidas.
 - Hacer pruebas de temperatura con fuentes seguras, sin llamas.
 - Una nueva función nunca puede invalidar una prueba de equilibrio anterior.
+
+## Replanificación operativa — 17 de noviembre de 2026
+**Indicación del usuario:** no detener el avance en la batería Samsung 18650; queda como subsistema de integración posterior. Prioridad inmediata: **cerrar y construir equilibrio analógico**, incluyendo mecánica y selección final de motores.
+
+### Ruta crítica de las próximas sesiones
+| Fecha objetivo | Actividad principal | Entregable y criterio de salida |
+|---|---|---|
+| 17–18 noviembre | Congelar geometría de chasis EVA v0.1, masa estimada, centro de masa, ruedas y motorreductores. Verificar par, velocidad, eje y corriente real de candidatos. | CAD revisado y ficha motor/rueda compatibles; **no** seleccionar GA25 solo por precio. |
+| 17–20 noviembre, en paralelo | Diseñar esquema del sensor ADXL335 + giroscopio analógico de pitch, acondicionamiento, filtro, compensador y PWM/dirección analógicos, referencias y prueba segura. | Esquemático de circuitería **realizable y verificable**; simulación Proteus de etapas con modelos válidos. Si un modelo no existe, usar fuente equivalente **solo para probar el regulador**, sin afirmar que simuló físicamente el sensor. |
+| 19–22 noviembre | Construcción de chasis portante, montaje de motores, sensores y placa de control, primero en soporte mecánico. | Pruebas de polaridad de realimentación negativa, respuesta de ruedas y paro de emergencia; pruebas con fuente limitada antes de batería. |
+| 22–25 noviembre | Sintonía, balanceo soportado y después balanceo libre controlado. | Estabilidad reproducible con ESP32 desconectada; registro de tiempo vertical, respuesta a perturbaciones y corriente. |
+| 20–27 noviembre, en paralelo | ESP32, pantalla económica, micrófono y audio TPA3110 en banco, modo ojos azul/rojo, silbido, termómetro fijo frontal y distancias. | Subsistemas probados por separado. Seguimiento BLE completo requiere solución direccional validada, no confiar solo en RSSI. |
+| 26–30 noviembre | Integración, consignas de avance/giro limitadas, seguimiento condicionado a pruebas, carcasa final y documentación. | Demo estable y resultados registrados; ninguna función superior compromete equilibrio. |
+
+**Fecha:** el 23 de noviembre es un objetivo agresivo de primer prototipo; el margen hasta el 30 permite integración y corrección, sin garantizar pruebas aún no realizadas.
+
+### Bloqueos críticos que se deben resolver antes de compra o fabricación
+1. Seleccionar motor por par, corriente y compatibilidad con rueda; el modelo CAD v0.1 usa una envolvente distinta al motor GA25 candidato.
+2. Conseguir y validar giroscopio **con salida analógica** y eje de pitch; sin él no se declara cumplido el requisito de equilibrio analógico.
+3. Definir un circuito completo de señales y puente H con neutro seguro incluso ante reinicio ESP32.
+4. Documentar masa, centro de masa y montaje provisional; no imprimir carcasa cerrada antes de confirmar dimensiones reales.
+5. Las celdas Samsung 18650 **ya existen**; solo se definirá 3S1P o 3S2P y BMS al dimensionar corriente y confirmar modelo. No bloquear lo anterior por ello.
+
+**Estado a esta fecha:** documentación conceptual y archivo EVA_concepto_v01.scad; no hay circuito ni firmware de balanceo declarado probado. Toda compra exclusivamente Mercado Libre México.
