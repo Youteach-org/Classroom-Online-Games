@@ -35,3 +35,6 @@ El usuario señaló que se habían recomendado amplificadores y placas sin defin
 
 ## 2026-11-15 — Baterías 18650 propias
 El usuario informó que ya tiene celdas formato 18650 y pueden usarse en serie o paralelo. Se integraron en [13-ARQUITECTURA-ALIMENTACION.md](13-ARQUITECTURA-ALIMENTACION.md) como material disponible, sin asumir cantidad. Se propusieron 3S1P/3S2P y se eliminó la batería comercial 3S de la compra base ($0 para celdas nuevas). Se conserva necesidad de BMS, cargador CC/CV adecuado, montaje seguro y reguladores. Verificar química, corriente, estado y cavidad CAD de 76×64×28 mm antes de fabricar. No se ha armado ni probado pack.
+
+## 2026-11-17 — Prioridad inmediata: mecánica y control de equilibrio
+El usuario indicó que la batería Samsung 18650 no es el foco actual y preguntó por la siguiente etapa planeada. Se actualizó **05-PLAN-Y-PRUEBAS.md** para priorizar en paralelo: dimensionamiento de motores y chasis EVA, esquemático/filtros/compensador analógicos, simulación de etapas y pruebas con soporte; ESP32/ojos/audio como rama paralela. El paquete 18650 queda pospuesto para selección eléctrica según corriente real y modelo de celda. No se reportan compras, montajes ni pruebas físicas completadas.
