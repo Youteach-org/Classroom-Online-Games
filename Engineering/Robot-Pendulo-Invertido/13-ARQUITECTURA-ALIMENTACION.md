@@ -161,3 +161,21 @@ Potencia nominal de energía de pack: `E ≈ 11.1 V × C_Ah`; autonomía ideal `
 **Celdas: DISPONIBLES, costo de compra nueva $0.** Pack comercial 3S1P de $249.99 excluido del carrito. BMS, cargador, cableado, aislantes, conexiones de potencia, fusible y paro físico siguen pendientes. No comprar BMS ni cargador antes de identificar química y capacidades de las 18650.
 
 Referencias de diseño: https://www.batteryuniversity.com/article/bu-302-series-and-parallel-battery-configurations/ ; https://ehs.oregonstate.edu/sites/ehs.oregonstate.edu/files/pdf/si/lithium_battery_safety_and_handling_guide.pdf
+
+## 2026-11-19 — Selección de audio estéreo para 3S
+**Candidato prioritario:** amplificador **TPA3110D2 estéreo**, placa con ficha anunciada 8–26 V, entrada analógica L/R; opción secundaria **PAM8610 estéreo** 7–15 V. Ambos son alimentables por rama VBAT filtrada en un pack Samsung 18650 **3S Li-ion 4.2 V/celda** (rango operativo inicial ≈9.6–12.6 V), sujeto a química y corriente verificada. Ninguno se alimenta de la rama de 5 V. La pantalla/micrófono sí siguen en rama lógica regulada.
+
+```
+Celdas Samsung 18650 verificadas en pack 3S + BMS
+          |-- fusible/interruptor -> bus VBAT
+                                      |-- puentes H -> motores (rama potencia)
+                                      |-- desacoplo/filtro -> TPA3110D2 estéreo
+                                      |                      |-- bocina 4Ω L+/L-
+                                      |                      \-- bocina 4Ω R+/R-
+                                      \-- buck 5V -> ESP32 -> DAC25/26 -> filtro y acoplamiento -> L/R entrada TPA3110D2
+```
+- Las salidas de bocina son BTL: terminales L- y R- no equivalen a tierra, no cortocircuitarlos ni unirlos.
+- Calibrar señal DAC ESP32 (8 bits), acoplar capacitor para eliminar sesgo DC y prevenir clipping. Si se requiere mayor fidelidad o voltaje, considerar DAC externo **solo tras ensayo**. El nivel acústico depende de sensibilidad de las bocinas, recinto y ganancia, no solo potencia anunciada.
+- TI especifica funcionamiento del chip TPA3110D2 de 8–26 V y potencia de aproximadamente 10 W/canal a 13 V sobre 8Ω a THD 10%, no 15 W/canal con cualquier batería; la ficha PAM8610 7–15 V con cifras igualmente condicionadas.
+- Probar alimentación y ruido con los motores activados antes de decidir blindaje, filtros y ubicación de bocinas.
+**Compra primaria ML:** https://www.mercadolibre.com.mx/modulo-amplificador-de-audio-tpa3110-de-doble-canal-2x15w-pa/p/MLM2058081803 . **Alternativa económica:** https://www.mercadolibre.com.mx/modulo-amplificador-de-audio-2x15w-pam8610-clase-d-bocinas/up/MLMU723441610 .
