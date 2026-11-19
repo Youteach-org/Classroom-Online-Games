@@ -38,3 +38,6 @@ El usuario informó que ya tiene celdas formato 18650 y pueden usarse en serie o
 
 ## 2026-11-17 — Prioridad inmediata: mecánica y control de equilibrio
 El usuario indicó que la batería Samsung 18650 no es el foco actual y preguntó por la siguiente etapa planeada. Se actualizó **05-PLAN-Y-PRUEBAS.md** para priorizar en paralelo: dimensionamiento de motores y chasis EVA, esquemático/filtros/compensador analógicos, simulación de etapas y pruebas con soporte; ESP32/ojos/audio como rama paralela. El paquete 18650 queda pospuesto para selección eléctrica según corriente real y modelo de celda. No se reportan compras, montajes ni pruebas físicas completadas.
+
+## 2026-11-19 — Evaluación de TPA3116D2 XH-M542 de Mercado Libre
+El usuario mostró una publicación de UNIT Electronics de “Amplificador de Audio TPA3116D2 100W”, precio en captura $95.95 MXN, y preguntó su compatibilidad. Se cotejó con ficha UNIT Electronics, modelo XH-M542/AR1633, **mono 1 CH**, **12–26 V DC** para la placa y bocinas 4–8 Ω. **Resultado: no recomendado** como sustituto del módulo **estéreo** TPA3110 del diseño EVA; además con 3S 18650 la tensión cae por debajo del mínimo anunciado 12 V de la tarjeta. La potencia de “100W” no se considera realizable a batería 3S sin datos del circuito. Se mantiene el TPA3110 como candidato a verificar con dos bocinas; ninguna compra registrada.
