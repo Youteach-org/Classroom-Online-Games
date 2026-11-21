@@ -68,6 +68,8 @@
 | P11 | 1 | Indicador/alarma de bajo voltaje **2S–8S compatible con 3S** | [Listado alarmas LiPo](https://listado.mercadolibre.com.mx/alarma-bajo-voltaje-lipo) | Desde $129 | Verificar conector de balance y alimentación disponibles; alarma NO reemplaza corte por subtensión, que es parte de protección del pack. |
 | P12 | 1 | Puerto de carga mecánico **compatible con el pack/cargador** | [Listado XT60 y conectores](https://listado.mercadolibre.com.mx/conector-xt-60) | Por elegir | No fijar conector DC 5.5mm hasta identificar pin positivo y corriente del pack escogido. |
 
+| P14 | 1 | **DD1718PA: convertidor DC/DC de 5 V a alimentación SIMÉTRICA +12 V / GND / −12 V para TL084CN** | [Publicación individual DD1718PA en Mercado Libre México](https://www.mercadolibre.com.mx/convertidor-de-voltaje-dd1718pa-salida-positiva-negativa-12v/up/MLMU707870570) | Precio por consultar | **Componente requerido en lugar de alimentar los operacionales a 5 V.** Ficha: VIN 3.3–11 V, ±12 V de salida. Fuente conmutada: verificar rizado y carga mínima de 15 mA recomendada por fabricante, filtrar/desacoplar, no conectar ±12 a ADC 3.3 V. |
+
 ### Interconexión de alimentación obligatoria
 ```
 CARGADOR Li-ion 3S 12.6 V CC/CV -> Puerto de carga diseñado según pack/BMS
