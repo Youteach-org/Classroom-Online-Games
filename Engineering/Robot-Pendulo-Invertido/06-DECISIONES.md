@@ -37,7 +37,7 @@
 **Invariantes:** control de equilibrio analógico, funciones ESP32 y sistema de carga, BMS y alimentación completos; compras sólo en Mercado Libre México.
 
 ## D-012 · 2026-11-15 · Arquitectura eléctrica provisional para dimensionar compras
-**Propuesta técnica, NO decisión confirmada por el usuario:** Una batería 3S con BMS adecuado, bus VBAT ≈9.6–12.6 V en operación provisional; rama de motores y TPA3110 alimentadas por VBAT; buck 5 V para ESP32 DevKit y opamps; LDO 3.3 V de bajo ruido para sensores. El chip TPA3110 admite 8–26 V y no recibe 5 V; verificar placa comprada. Carga 3S por cargador CC/CV 12.6 V y puerto de BMS, sin alimentación del robot durante carga. **Bloqueo de selección:** no aprobar pack ni BMS hasta conocer corriente real o garantizada de motores, pantalla y audio. Fuentes, cálculos, diagrama y pruebas en 13-ARQUITECTURA-ALIMENTACION.md.
+**Propuesta técnica, NO decisión confirmada por el usuario:** Una batería 3S con BMS adecuado, bus VBAT ≈9.6–12.6 V en operación provisional; rama de motores y TPA3110 alimentadas por VBAT; buck 5 V para ESP32-S3 y DD1718PA, con fuente bipolar ±12 V específica para TL084CN; LDO 3.3 V de bajo ruido para sensores. El chip TPA3110 admite 8–26 V y no recibe 5 V; verificar placa comprada. Carga 3S por cargador CC/CV 12.6 V y puerto de BMS, sin alimentación del robot durante carga. **Bloqueo de selección:** no aprobar pack ni BMS hasta conocer corriente real o garantizada de motores, pantalla y audio. Fuentes, cálculos, diagrama y pruebas en 13-ARQUITECTURA-ALIMENTACION.md.
 
 
 ## D-013 · 2026-11-15 · Baterías 18650 ya disponibles
@@ -45,4 +45,8 @@
 
 ## D-014 · 2026-11-21 · Base mecánica elegida por el usuario
 **Confirmación del usuario:** usar como base para montar el resto de EVA el artículo [Mercado Libre México MLM2122316110 / ítem MLM2178515446](https://www.mercadolibre.com.mx/p/MLM2122316110?pdp_filters=item_id%3AMLM2178515446&sid=cart). No reemplazarlo por el chasis conceptual anterior ni comprar otro sin necesidad. La ficha del link de carrito fue inaccesible al consultar: **dimensiones, ruedas, motores, perforaciones y peso por revisar**, sin inventar especificaciones. Se adaptará la estructura al soporte real; la prueba de péndulo invertido requiere solo dos ruedas motrices apoyadas.
-**Diseño de alimentación:** LM358 a 5V_A filtrados, o MCP6002 a 3.3V_A por LDO para ADC ESP32-S3. Fuente única 3S Samsung con buck, masa analógica separada de retornos de motores. No comprar componentes incompatibles ni cambiar el requisito histórico analógico independiente a digital sin reconocer el cambio.
+**Diseño de alimentación:** **TL084CN** con **fuente simétrica ±12 V** mediante DD1718PA desde buck 5 V; salida analógica a ESP32-S3 debe acotarse a 0–3.3 V. Fuente única 3S Samsung con buck, masa analógica separada de retornos de motores. No comprar componentes incompatibles ni cambiar el requisito histórico analógico independiente a digital sin reconocer el cambio.
+
+
+## D-015 · 2026-11-21 · Operacional TL084CN y fuente ±12 V
+**Confirmación inequívoca del usuario:** el operacional utilizado es **TL084CN**; LM358/MCP6002 fueron cambios erróneos sugeridos por el asistente y quedan descartados del circuito. **Selección de suministro:** [DD1718PA entrada 3.3–11 V y salida ±12 V](https://www.mercadolibre.com.mx/convertidor-de-voltaje-dd1718pa-salida-positiva-negativa-12v/up/MLMU707870570) alimentado con buck regulado a 5V del pack Samsung 3S. TL084CN DIP14 pin4 VCC+ y pin11 VCC−. Debe verificarse rizado y carga mínima que indica fabricante del convertidor, con adaptación a 0–3.3 V antes de ADC. Datasheet TI https://www.ti.com/lit/ds/symlink/tl084.pdf . Se actualiza 13-ARQUITECTURA-ALIMENTACION.md.
