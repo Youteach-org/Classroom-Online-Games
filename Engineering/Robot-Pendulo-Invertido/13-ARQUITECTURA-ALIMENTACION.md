@@ -182,3 +182,30 @@ Celdas Samsung 18650 verificadas en pack 3S + BMS
 
 ## 2026-11-21 — BMS 3S y cargador USB-C candidatos
 Celdas disponibles: Samsung 18650, modelo aún no confirmado. Se mantienen 3 grupos en serie en configuración 3S1P (3 celdas) o 3S2P (6 celdas emparejadas). **BMS de carga/descarga** propuesto [3S 40A versión balanceada en Mercado Libre](https://www.mercadolibre.com.mx/modulo-bms-3s-40a-version-balanceada/up/MLMU562419322), cifra de corriente publicada todavía no verificada. Propuesto para **carga** [DDTCCRUB 3S 12.6V 2A entrada USB-C Mercado Libre](https://www.mercadolibre.com.mx/modulo-cargador-de-bateria-lipo-litio-3s-126v-2a-ddtccrub/p/MLM2089395516), **2A corresponde a entrada, corriente 3S nominal ~0.74A**, comprobar regulación CC/CV/terminación mediante ensayo con equipo protegido; no conectar paquete durante validación. El cargador conecta al puerto protegido previsto por fabricante BMS, que ofrece carga/descarga desde el conjunto; no carga las celdas directamente sin BMS. La placa de balanceo del BMS no equivale a una fuente de carga. Sin power path no operar motores mientras carga. Samsung 18650 modelo exacto y características son el bloqueo de seguridad principal para autorizar ensamble, además de corriente de motores y temperatura del BMS. Cargar en un lugar no combustible y supervisado. Protección por fusible DC en rama principal.
+
+## 2026-11-21 — Alimentación completa de los operacionales y ADC de ESP32-S3
+**Corrección solicitada:** la etapa de operacionales NO recibe 12 V de VBAT ni debe compartir el retorno de alta corriente de los motores. El usuario además eligió una [base mecánica de Mercado Libre](https://www.mercadolibre.com.mx/p/MLM2122316110?pdp_filters=item_id%3AMLM2178515446&sid=cart), producto MLM2122316110 / ítem MLM2178515446. Su ficha particular no pudo inspeccionarse; dimensiones/motores no acreditados.
+
+### Rieles
+```text
+SAMSUNG 18650 3S + BMS -> fusible principal DC -> interruptor
+   BUS VBAT (aprox. 9.6-12.6 V si Li-ion 4.2 V/celda)
+    |--- Puentes H, motores (retorno potencia)
+    |--- Filtro/condensador rama audio -> TPA3110 (retorno potencia)
+    \--- Buck de tensión -> 5.0 V regulados
+          |--- ESP32-S3 DevKit (entrada de 5 V, regulador propio 3.3 V)
+          |--- filtro y desacoplo -> 5V_A -> LM358 (si se utiliza el controlador analógico 5 V)
+          \--- LDO analógico de bajo ruido -> 3V3_A
+                        |--- ADXL335 (sensor analógico)
+                        |--- MCP6002 (opamp dual RRIO para acondicionamiento a ADC)
+                        \--- referencias de 1.65 V y sensores de 3.3 V compatibles
+```
+- El MCP6002 funciona con 1.8–6 V y posee entrada/salida rail-to-rail; en DIP-8 **pin 8 VDD = +3V3_A, pin 4 VSS = GND analógico**. Desacoplar muy cerca del chip con 100 nF cerámico + 1–10 µF por etapa/riel, valores finales según layout/regulador. Crear y amortiguar referencia de medio riel **1.65 V** para señales bipolares centradas; **no se necesitan fuentes ±12 V** para este acondicionamiento.
+- Para LM358 clásico DIP-8: **pin 8 = +5V_A, pin 4 = GND analógico**. Desacoplo 100 nF junto al encapsulado y capacitor de reserva. Alimentación unipolar 5 V; rango común de entrada aprox. 0–3.5 V, salida alta puede quedar ~1.5–2 V por debajo del riel (según carga/variante). No diseñar un amplificador suponiendo excursión 0–5 V rail-to-rail. Si se usa salida LM358 5 V a ADC3.3, intercalar nivelación y limitación debidamente calculadas; no conectar 5V directo.
+- Para el esquema indicado por el usuario **sensor analógico → ADC ESP32-S3 → control → PWM de motores**, priorizar **MCP6002 a 3.3 V** por compatibilidad de salida. Las señales de entrada deben permanecer dentro de la ventana calibrada del ADC (no asumir que todo 0–3.3 V es lineal) y jamás sobrepasar 3.3 V del pin ni ser negativas. Protección de sobrevoltaje y resistencia serie dimensionada; usar ADC1 calibrado con referencias/puntos de prueba y filtrar ruido. Si el giroscopio analógico requiere 5 V, acondicionar su salida antes del ADC de 3.3 V; no asumir modelo de salida.
+- La referencia de mitad de riel de 1.65 V se genera por divisor de precisión y buffer / referencia compatible, con desacoplo y ruta de retorno local. Acondicionar y calibrar canales de aceleración/velocidad angular antes de diseñar ganancias.
+- Separar **ruta de retorno de potencia** (motores/altavoz) de retorno de medida, y unir tierras en punto común controlado; evitar bucles. Buck con rizado medido, LDO con rechazo de ruido adecuado, filtros de entrada y desacoplo local. El regulador integrado de 3.3 V de la DevKit no se toma como fuente de precisión analógica automáticamente.
+- La alimentación de operacionales representa una corriente pequeña respecto a motores: dimensionar el regulador usando consumos de chips/sensores y margen, no seleccionar batería por opamps; **no fijar 50 mA como medida real** hasta contar cargas concretas.
+- Si se conserva la exigencia anterior de equilibrio **totalmente analógico e independiente de ESP32**, el LM358 de +5 V puede acondicionar/controlar señales y la etapa de salida generará dirección/PWM mediante hardware analógico. Si se adopta la secuencia más reciente del usuario **ADC→ESP32→PWM**, entonces ese equilibrio es digital y cambia la obligación previa; **marcar decisión arquitectónica pendiente de ratificación** en vez de asumir que ambos son equivalentes.
+
+**Fichas oficiales:** [TI LM358](https://www.ti.com/product/LM358) · [Microchip MCP6002](https://www.microchip.com/en-us/product/MCP6002) · [Espressif ESP32-S3 ADC](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-reference/peripherals/adc.html).
