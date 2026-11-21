@@ -42,7 +42,7 @@
        Puente H IZQ    Amplificador         ┌─────────┴─────────────┐
        Puente H DER    TPA3110D2            │                       │
               │       alimentación          ESP32 DevKit           5V filtrados
-          Motores      desde VBAT           entrada 5V             analógico LM358,
+          Motores      desde VBAT           entrada 5V             analógico TL084CN con fuente ±12 V,
           12V          (8–26 V chip)        (regula a 3.3 V)      referencia, compar.
                              │                                      │
                        2 bocinas                              LDO 3.3 V limpio
@@ -71,7 +71,7 @@
 | Micrófono INMP441 I2S | 3.3 V | Regulación 3.3 V estable | Entrada de voz/silbido; no conectarlo a 5 V. |
 | ADXL335/GY-61 | Chip 1.8–3.6 V | LDO 3.3 V de bajo ruido | Señal de inclinación **analógica**; breakout puede tener regulador integrado, confirmar pines. |
 | Giroscopio ENC-03RC-R | Sensor 2.7–5.25 V **según referencia Renesas** | 5 V filtrados propuestos | Cero nominal ≈1.35 V en el ejemplo de 5 V; sensibilidad ~0.67 mV/(°/s); calibrar con el **módulo** real. |
-| LM358 / referencias analógicas | 5 V limpio | Línea buck con filtro | A 5 V, LM358 **no es rail-to-rail**; CM llega ≈3.5 V máx y salida alta tiene margen. Centrar señales y limitar amplitudes; calibrar para no saturar. |
+| **TL084CN** (confirmado) | **+12 V y −12 V** | **DC/DC DD1718PA** desde 5 V | Cuatro opamps JFET DIP14. Pines 4 = VCC+, 11 = VCC−. Entrada/salida no rail-to-rail; interfaz 0–3.3 V obligatoria hacia ESP32-S3. |
 | Sensores infrarrojos / ToF | 3.3 V o tensión del breakout específica | Regulación 3.3 V o 5 V compatible | Verificar riel de I2C, pull-ups y niveles de GPIO (ESP32 no tolera 5 V directo). |
 
 ## 4. Arquitectura del control analógico y separación de funciones
@@ -116,7 +116,7 @@ Potencia nominal de energía de pack: `E ≈ 11.1 V × C_Ah`; autonomía ideal `
 
 ## 6. Secuencia de pruebas y compuertas
 1. **Sin batería:** cada etapa se prueba primero con fuente de laboratorio con límite de corriente. Comprobar polaridad, pines, desacoplos, voltajes de alimentación (5.0 y 3.3), masas y voltaje del amplificador en el rango de su placa.
-2. **En banco, sin motores:** conectar alimentación analógica limpia; medir cero del ADXL335 y gyro, referencia de LM358, señales de filtro y comparador. Verificar no saturación en amplitud angular requerida.
+2. **En banco, sin motores:** conectar alimentación analógica limpia; medir cero del ADXL335 y gyro, referencia del TL084CN, señales de filtro y comparador. Verificar no saturación en amplitud angular requerida.
 3. **Motor individual suspendido:** puente H con PWM/dirección **analógicos**, sentido correcto, corriente en arranque/inversión, calor del puente y variaciones de tensión de batería.
 4. **Misma fuente, audio activo:** medir `V_BAT`, 5 V y 3.3 V mientras operan motores y audio. Si hay caídas, reinicios ESP32 o variaciones de referencia, corregir distribución, filtros o capacidad de batería **antes** de liberar robot.
 5. **Pack 3S verificado:** pruebas desconectado del cargador; confirmar protecciones, temperatura, alarma de batería baja, paro de emergencia. No asumir hot swap ni carga durante funcionamiento.
@@ -136,7 +136,7 @@ Potencia nominal de energía de pack: `E ≈ 11.1 V × C_Ah`; autonomía ideal `
 - Espressif WROOM-32E, 3.0–3.6 V de alimentación interna: https://documentation.espressif.com/esp32-wroom-32e_esp32-wroom-32ue_datasheet_en.html
 - ADXL335, 1.8–3.6 V: https://www.analog.com/en/products/adxl335.html
 - Renesas, circuito de ejemplo ENC-03RC-R (2.7–5.25 V): https://www.renesas.com/en/document/apn/smart-analog-ic-500-amplifier-selection-example-implementation-connection-non-inverting-amplifier
-- TI, LM358 CM no rail-to-rail: https://www.ti.com/product/LM358
+- TI TL084CN DIP14 y condiciones recomendadas: https://www.ti.com/lit/ds/symlink/tl084.pdf
 - Infineon, BTS7960B: https://www.infineon.com/assets/row/public/documents/10/45/bts7960b-pb-final.pdf
 
 **Tareas siguientes:** conseguir los datos reales de motor, evaluar tabla de corriente/energía y escoger batería/driver/cargador por ingeniería y costo; después validar pines de alimentación del conjunto electrónico y documentar esquemático por riel. Ninguna pieza fue comprada ni probada durante esta revisión.
@@ -183,29 +183,31 @@ Celdas Samsung 18650 verificadas en pack 3S + BMS
 ## 2026-11-21 — BMS 3S y cargador USB-C candidatos
 Celdas disponibles: Samsung 18650, modelo aún no confirmado. Se mantienen 3 grupos en serie en configuración 3S1P (3 celdas) o 3S2P (6 celdas emparejadas). **BMS de carga/descarga** propuesto [3S 40A versión balanceada en Mercado Libre](https://www.mercadolibre.com.mx/modulo-bms-3s-40a-version-balanceada/up/MLMU562419322), cifra de corriente publicada todavía no verificada. Propuesto para **carga** [DDTCCRUB 3S 12.6V 2A entrada USB-C Mercado Libre](https://www.mercadolibre.com.mx/modulo-cargador-de-bateria-lipo-litio-3s-126v-2a-ddtccrub/p/MLM2089395516), **2A corresponde a entrada, corriente 3S nominal ~0.74A**, comprobar regulación CC/CV/terminación mediante ensayo con equipo protegido; no conectar paquete durante validación. El cargador conecta al puerto protegido previsto por fabricante BMS, que ofrece carga/descarga desde el conjunto; no carga las celdas directamente sin BMS. La placa de balanceo del BMS no equivale a una fuente de carga. Sin power path no operar motores mientras carga. Samsung 18650 modelo exacto y características son el bloqueo de seguridad principal para autorizar ensamble, además de corriente de motores y temperatura del BMS. Cargar en un lugar no combustible y supervisado. Protección por fusible DC en rama principal.
 
-## 2026-11-21 — Alimentación completa de los operacionales y ADC de ESP32-S3
-**Corrección solicitada:** la etapa de operacionales NO recibe 12 V de VBAT ni debe compartir el retorno de alta corriente de los motores. El usuario además eligió una [base mecánica de Mercado Libre](https://www.mercadolibre.com.mx/p/MLM2122316110?pdp_filters=item_id%3AMLM2178515446&sid=cart), producto MLM2122316110 / ítem MLM2178515446. Su ficha particular no pudo inspeccionarse; dimensiones/motores no acreditados.
+## 2026-11-21 — CORRECCIÓN PRIORITARIA: TL084CN elegido por el usuario y fuente simétrica
 
-### Rieles
-```text
-SAMSUNG 18650 3S + BMS -> fusible principal DC -> interruptor
-   BUS VBAT (aprox. 9.6-12.6 V si Li-ion 4.2 V/celda)
-    |--- Puentes H, motores (retorno potencia)
-    |--- Filtro/condensador rama audio -> TPA3110 (retorno potencia)
-    \--- Buck de tensión -> 5.0 V regulados
-          |--- ESP32-S3 DevKit (entrada de 5 V, regulador propio 3.3 V)
-          |--- filtro y desacoplo -> 5V_A -> LM358 (si se utiliza el controlador analógico 5 V)
-          \--- LDO analógico de bajo ruido -> 3V3_A
-                        |--- ADXL335 (sensor analógico)
-                        |--- MCP6002 (opamp dual RRIO para acondicionamiento a ADC)
-                        \--- referencias de 1.65 V y sensores de 3.3 V compatibles
+**Esta sección sustituye cualquier recomendación anterior de LM358 o MCP6002**. El usuario especificó **TL084CN** (cuatro opamps JFET en encapsulado DIP-14). Nunca se aprobó cambiar el operacional. **NO comprar LM358 ni MCP6002** para el circuito principal de equilibrio.
+
+**Fuente de alimentación seleccionada para el circuito analógico:** convertidor DC/DC **DD1718PA de entrada 3.3–11 V y salidas +12 V y −12 V respecto a GND común**. Publicación individual en Mercado Libre México: https://www.mercadolibre.com.mx/convertidor-de-voltaje-dd1718pa-salida-positiva-negativa-12v/up/MLMU707870570 . La ficha de UNIT Electronics para este modelo declara entrada 3.3–11 V, salidas ±12 V, corriente +12 V de hasta 700 mA y -12 V de hasta 150 mA, aunque especifica **una carga mínima recomendada mayor de 15 mA** para mayor estabilidad; estos máximos publicitarios NO se toman como corrientes simultáneas garantizadas. Referencia técnica: https://uelectronics.com/producto/dd1718pa-fuente-de-voltaje-simetrico-%C2%B112v/ .
+
+### Distribución de alimentación final de diseño (sin comprar otras celdas)
 ```
-- El MCP6002 funciona con 1.8–6 V y posee entrada/salida rail-to-rail; en DIP-8 **pin 8 VDD = +3V3_A, pin 4 VSS = GND analógico**. Desacoplar muy cerca del chip con 100 nF cerámico + 1–10 µF por etapa/riel, valores finales según layout/regulador. Crear y amortiguar referencia de medio riel **1.65 V** para señales bipolares centradas; **no se necesitan fuentes ±12 V** para este acondicionamiento.
-- Para LM358 clásico DIP-8: **pin 8 = +5V_A, pin 4 = GND analógico**. Desacoplo 100 nF junto al encapsulado y capacitor de reserva. Alimentación unipolar 5 V; rango común de entrada aprox. 0–3.5 V, salida alta puede quedar ~1.5–2 V por debajo del riel (según carga/variante). No diseñar un amplificador suponiendo excursión 0–5 V rail-to-rail. Si se usa salida LM358 5 V a ADC3.3, intercalar nivelación y limitación debidamente calculadas; no conectar 5V directo.
-- Para el esquema indicado por el usuario **sensor analógico → ADC ESP32-S3 → control → PWM de motores**, priorizar **MCP6002 a 3.3 V** por compatibilidad de salida. Las señales de entrada deben permanecer dentro de la ventana calibrada del ADC (no asumir que todo 0–3.3 V es lineal) y jamás sobrepasar 3.3 V del pin ni ser negativas. Protección de sobrevoltaje y resistencia serie dimensionada; usar ADC1 calibrado con referencias/puntos de prueba y filtrar ruido. Si el giroscopio analógico requiere 5 V, acondicionar su salida antes del ADC de 3.3 V; no asumir modelo de salida.
-- La referencia de mitad de riel de 1.65 V se genera por divisor de precisión y buffer / referencia compatible, con desacoplo y ruta de retorno local. Acondicionar y calibrar canales de aceleración/velocidad angular antes de diseñar ganancias.
-- Separar **ruta de retorno de potencia** (motores/altavoz) de retorno de medida, y unir tierras en punto común controlado; evitar bucles. Buck con rizado medido, LDO con rechazo de ruido adecuado, filtros de entrada y desacoplo local. El regulador integrado de 3.3 V de la DevKit no se toma como fuente de precisión analógica automáticamente.
-- La alimentación de operacionales representa una corriente pequeña respecto a motores: dimensionar el regulador usando consumos de chips/sensores y margen, no seleccionar batería por opamps; **no fijar 50 mA como medida real** hasta contar cargas concretas.
-- Si se conserva la exigencia anterior de equilibrio **totalmente analógico e independiente de ESP32**, el LM358 de +5 V puede acondicionar/controlar señales y la etapa de salida generará dirección/PWM mediante hardware analógico. Si se adopta la secuencia más reciente del usuario **ADC→ESP32→PWM**, entonces ese equilibrio es digital y cambia la obligación previa; **marcar decisión arquitectónica pendiente de ratificación** en vez de asumir que ambos son equivalentes.
+Samsung 18650 pack 3S + BMS -> fusible general DC -> interruptor -> VBAT 9.6..12.6 V
+                                         |-- rama potencia -> puentes H -> 2 motores
+                                         |-- rama audio filtrada -> TPA3110
+                                         \-- buck XL4015 regulado 5.0 V -> ESP32-S3 DevKit
+                                                           |-- módulo DD1718PA
+                                                           |      +12V -> TL084CN pin 4
+                                                           |      GND  -> masa analógica común
+                                                           |      -12V -> TL084CN pin 11
+                                                           \-- rama 3.3 V limpia -> sensores y ADC
+```
 
-**Fichas oficiales:** [TI LM358](https://www.ti.com/product/LM358) · [Microchip MCP6002](https://www.microchip.com/en-us/product/MCP6002) · [Espressif ESP32-S3 ADC](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-reference/peripherals/adc.html).
+**Por qué:** la ficha TI TL084CN original, NO TL084H, establece rango recomendado de alimentación total de **10–30 V** (la fuente ±12 V da 24 V total), con entrada común apartada alrededor de **4 V de los rieles**. **No sirve alimentarlo directamente a 3.3 o 5 V**, y con batería 3S directa unipolar la entrada de un sensor cerca de 0 V quedaría fuera del margen común permitido; además VBAT varía durante descarga. La fuente simétrica mantiene la señal alrededor de cero con margen para operar. Datasheet: https://www.ti.com/lit/ds/symlink/tl084.pdf .
+
+**Pines TL084CN DIP14:** pin 4 = VCC+ (+12 V), pin 11 = VCC− (−12 V). GND = referencia externa de circuito, no pin dedicado de alimentación. A diferencia de LM358/MCP6002 DIP8, **NO usar pines 8 (+) y 4 (GND)**.
+
+**Filtros y pruebas antes de energizar TL084CN:** comprobar con multímetro salidas +12/0/−12 de DD1718PA alimentado con 5V regulados; agregar según ficha del módulo capacitores de desacoplo en entrada/salidas, 100 nF cerámico local entre cada riel y masa del TL084, y reserva electrolítica apropiada por riel; medir rizado, caída bajo carga y **consumo mínimo necesario** (el fabricante recomienda >15 mA de carga, usar precarga calculada si se requiere, no improvisar potencias ni crear carga innecesaria). Separar retorno analógico del retorno de motores; tierra común definida en punto de distribución. No conectar salida bipolar ±12V directamente al ADC ESP32-S3: requiere **traslación, atenuación, limitación/clamp 0–3.3 V** con resistencia de protección y calibración, compatible con ADC1. Las salidas del TL084CN no pueden alimentar directamente puentes H con niveles ±12 V sin interfaz adaptadora de nivel/dirección.
+
+**Alcance:** el usuario describió sensor analógico → TL084CN → ESP32-S3 ADC → PWM de ruedas. Tal secuencia constituye control digital del equilibrio tras acondicionamiento analógico, distinto del requisito histórico de equilibrio independiente de ESP32. No se asume un cambio definitivo del requisito sin aclaración, pero **TL084CN queda elegido en ambos escenarios**.
+
+**Chasis seleccionado por usuario:** Mercado Libre catálogo MLM2122316110, artículo MLM2178515446; sin especificaciones mecánicas verificadas, adaptar bastidor sin inventar medidas.
