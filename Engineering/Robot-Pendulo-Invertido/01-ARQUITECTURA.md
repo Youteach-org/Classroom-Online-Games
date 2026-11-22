@@ -58,11 +58,11 @@ El diagrama eléctrico de alimentación completo está en [13-ARQUITECTURA-ALIME
 
 **Requisitos invariables del péndulo invertido:** en condición de balanceo real debe apoyar sobre dos ruedas motrices en un eje transversal; si la base tiene rueda loca de apoyo, tercera rueda o cuatro ruedas en contacto con suelo, retirarlas o levantarlas para la prueba de autoequilibrio. Montar torso, sensores y masa sobre el eje; medir masa, altura del centro de gravedad, distancia entre ruedas, rigidez y torque antes de elegir/fijar los motorreductores. No conectar un motor de 3–6 V de un posible kit económico a 12.6 V de pack 3S sin especificación de tolerancia.
 
-**Ramas eléctricas:** VBAT 3S -> motores y audio por ramas separadas; buck -> 5 V lógica; **fuente simétrica DD1718PA +12/−12 V desde la línea regulada de 5 V para TL084CN DIP14**; LDO independiente desde 5 V -> 3.3 V analógicos para ADXL335 y ADC ESP32-S3. No conectar bipolar ±12 V al ADC. Ver [13-ARQUITECTURA-ALIMENTACION.md](13-ARQUITECTURA-ALIMENTACION.md).
+**Ramas eléctricas:** VBAT 3S -> motores y audio por ramas separadas; buck -> 5 V lógica; **fuente simétrica XY-±12V Tecneu +12/−12 V desde la línea regulada de 5 V para TL084CN DIP14**; LDO independiente desde 5 V -> 3.3 V analógicos para ADXL335 y ADC ESP32-S3. No conectar bipolar ±12 V al ADC. Ver [13-ARQUITECTURA-ALIMENTACION.md](13-ARQUITECTURA-ALIMENTACION.md).
 
 
 ## 2026-11-21 — Corrección TL084CN
-El usuario especificó TL084CN como operacional del robot, no LM358/MCP6002. Convertidor elegido: **DD1718PA con entrada 5 V regulados y salida bipolar ±12 V**, publicación individual https://www.mercadolibre.com.mx/convertidor-de-voltaje-dd1718pa-salida-positiva-negativa-12v/up/MLMU707870570 . TL084CN DIP14 pin4 = +12 V, pin11 = -12 V. Las señales destinadas al ADC de ESP32-S3 requieren adaptación 0–3.3 V. Remitirse a [13-ARQUITECTURA-ALIMENTACION.md](13-ARQUITECTURA-ALIMENTACION.md) como fuente vigente.
+El usuario especificó TL084CN como operacional del robot, no LM358/MCP6002. Convertidor elegido: **XY-±12V Tecneu con entrada 5 V regulados y salida bipolar ±12 V**, publicación individual https://www.mercadolibre.com.mx/4-modulos-fuente-de-alimentacion-convertidor-adc-dac-3-5v-a-12v-amp-voltaje-estable-tecneu/p/MLM49768019 . TL084CN DIP14 pin4 = +12 V, pin11 = -12 V. Las señales destinadas al ADC de ESP32-S3 requieren adaptación 0–3.3 V. Remitirse a [13-ARQUITECTURA-ALIMENTACION.md](13-ARQUITECTURA-ALIMENTACION.md) como fuente vigente.
 
 ## 2026-11-21 — Sustitución de fuente simétrica: módulo Tecneu XY-±12V disponible en Mercado Libre
 **El usuario reportó que la publicación DD1718PA citada previamente NO está disponible. Por tanto, se RETIRA como enlace de compra vigente; no reenviarla.**
