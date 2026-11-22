@@ -42,8 +42,8 @@ El usuario cuenta con celdas tipo 18650 que pueden formar un paquete serie/paral
 
 ## 2026-11-21 — Base mecánica y rieles analógicos
 - **Base elegida para EVA por el usuario:** [MLM2122316110 / artículo MLM2178515446 en Mercado Libre](https://www.mercadolibre.com.mx/p/MLM2122316110?pdp_filters=item_id%3AMLM2178515446&sid=cart). Integrar módulos sobre esta base; características mecánicas exactas de la ficha aún inaccesibles, no declarar que equivale a 2WD/4WD ni qué motor contiene. El bastidor y carcasa 3D se ajustarán a la base; no comprar otro chasis por duplicado.
-- **Alimentación de operacionales, CORREGIDA por el usuario:** TL084CN cuádruple JFET DIP14, alimentación **+12 V/−12 V** por módulo DD1718PA desde 5 V regulados. Pin4 positivo, pin11 negativo. Desacoplos adecuados y acondicionamiento de salida 0–3.3 V si se conecta al ADC ESP32-S3; no llevar ±12 V directamente a pines de la placa.
-- **Convertidor elegido:** [DD1718PA fuente simétrica ±12 V en Mercado Libre México](https://www.mercadolibre.com.mx/convertidor-de-voltaje-dd1718pa-salida-positiva-negativa-12v/up/MLMU707870570). **No comprar** LM358 ni MCP6002 por recomendación anterior errónea. Ver detalles en 13-ARQUITECTURA-ALIMENTACION.md.
+- **Alimentación de operacionales, CORREGIDA por el usuario:** TL084CN cuádruple JFET DIP14, alimentación **+12 V/−12 V** por módulo XY-±12V Tecneu desde 5 V regulados. Pin4 positivo, pin11 negativo. Desacoplos adecuados y acondicionamiento de salida 0–3.3 V si se conecta al ADC ESP32-S3; no llevar ±12 V directamente a pines de la placa.
+- **Convertidor elegido:** [XY-±12V Tecneu fuente simétrica ±12 V en Mercado Libre México](https://www.mercadolibre.com.mx/4-modulos-fuente-de-alimentacion-convertidor-adc-dac-3-5v-a-12v-amp-voltaje-estable-tecneu/p/MLM49768019). **No comprar** LM358 ni MCP6002 por recomendación anterior errónea. Ver detalles en 13-ARQUITECTURA-ALIMENTACION.md.
 
 ## 2026-11-21 — Sustitución de fuente simétrica: módulo Tecneu XY-±12V disponible en Mercado Libre
 **El usuario reportó que la publicación DD1718PA citada previamente NO está disponible. Por tanto, se RETIRA como enlace de compra vigente; no reenviarla.**
