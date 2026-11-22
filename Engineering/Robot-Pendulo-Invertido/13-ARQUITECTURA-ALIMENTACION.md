@@ -71,7 +71,7 @@
 | Micrófono INMP441 I2S | 3.3 V | Regulación 3.3 V estable | Entrada de voz/silbido; no conectarlo a 5 V. |
 | ADXL335/GY-61 | Chip 1.8–3.6 V | LDO 3.3 V de bajo ruido | Señal de inclinación **analógica**; breakout puede tener regulador integrado, confirmar pines. |
 | Giroscopio ENC-03RC-R | Sensor 2.7–5.25 V **según referencia Renesas** | 5 V filtrados propuestos | Cero nominal ≈1.35 V en el ejemplo de 5 V; sensibilidad ~0.67 mV/(°/s); calibrar con el **módulo** real. |
-| **TL084CN** (confirmado) | **+12 V y −12 V** | **DC/DC DD1718PA** desde 5 V | Cuatro opamps JFET DIP14. Pines 4 = VCC+, 11 = VCC−. Entrada/salida no rail-to-rail; interfaz 0–3.3 V obligatoria hacia ESP32-S3. |
+| **TL084CN** (confirmado) | **+12 V y −12 V** | **DC/DC XY-±12V Tecneu** desde 5 V | Cuatro opamps JFET DIP14. Pines 4 = VCC+, 11 = VCC−. Entrada/salida no rail-to-rail; interfaz 0–3.3 V obligatoria hacia ESP32-S3. |
 | Sensores infrarrojos / ToF | 3.3 V o tensión del breakout específica | Regulación 3.3 V o 5 V compatible | Verificar riel de I2C, pull-ups y niveles de GPIO (ESP32 no tolera 5 V directo). |
 
 ## 4. Arquitectura del control analógico y separación de funciones
@@ -187,7 +187,7 @@ Celdas disponibles: Samsung 18650, modelo aún no confirmado. Se mantienen 3 gru
 
 **Esta sección sustituye cualquier recomendación anterior de LM358 o MCP6002**. El usuario especificó **TL084CN** (cuatro opamps JFET en encapsulado DIP-14). Nunca se aprobó cambiar el operacional. **NO comprar LM358 ni MCP6002** para el circuito principal de equilibrio.
 
-**Fuente de alimentación seleccionada para el circuito analógico:** convertidor DC/DC **DD1718PA de entrada 3.3–11 V y salidas +12 V y −12 V respecto a GND común**. Publicación individual en Mercado Libre México: https://www.mercadolibre.com.mx/convertidor-de-voltaje-dd1718pa-salida-positiva-negativa-12v/up/MLMU707870570 . La ficha de UNIT Electronics para este modelo declara entrada 3.3–11 V, salidas ±12 V, corriente +12 V de hasta 700 mA y -12 V de hasta 150 mA, aunque especifica **una carga mínima recomendada mayor de 15 mA** para mayor estabilidad; estos máximos publicitarios NO se toman como corrientes simultáneas garantizadas. Referencia técnica: https://uelectronics.com/producto/dd1718pa-fuente-de-voltaje-simetrico-%C2%B112v/ .
+**Fuente de alimentación seleccionada para el circuito analógico:** convertidor DC/DC **XY-±12V Tecneu de entrada 2.8–5.5 V y salidas +12 V y −12 V respecto a GND común**. Publicación individual en Mercado Libre México: https://www.mercadolibre.com.mx/4-modulos-fuente-de-alimentacion-convertidor-adc-dac-3-5v-a-12v-amp-voltaje-estable-tecneu/p/MLM49768019 . La ficha de UNIT Electronics para este modelo declara entrada 3.3–11 V, salidas ±12 V, corriente +12 V de hasta 700 mA y -12 V de hasta 150 mA, aunque especifica **una carga mínima recomendada mayor de 15 mA** para mayor estabilidad; estos máximos publicitarios NO se toman como corrientes simultáneas garantizadas. Referencia técnica: https://uelectronics.com/producto/dd1718pa-fuente-de-voltaje-simetrico-%C2%B112v/ .
 
 ### Distribución de alimentación final de diseño (sin comprar otras celdas)
 ```
@@ -195,7 +195,7 @@ Samsung 18650 pack 3S + BMS -> fusible general DC -> interruptor -> VBAT 9.6..12
                                          |-- rama potencia -> puentes H -> 2 motores
                                          |-- rama audio filtrada -> TPA3110
                                          \-- buck XL4015 regulado 5.0 V -> ESP32-S3 DevKit
-                                                           |-- módulo DD1718PA
+                                                           |-- módulo XY-±12V Tecneu
                                                            |      +12V -> TL084CN pin 4
                                                            |      GND  -> masa analógica común
                                                            |      -12V -> TL084CN pin 11
@@ -206,7 +206,7 @@ Samsung 18650 pack 3S + BMS -> fusible general DC -> interruptor -> VBAT 9.6..12
 
 **Pines TL084CN DIP14:** pin 4 = VCC+ (+12 V), pin 11 = VCC− (−12 V). GND = referencia externa de circuito, no pin dedicado de alimentación. A diferencia de LM358/MCP6002 DIP8, **NO usar pines 8 (+) y 4 (GND)**.
 
-**Filtros y pruebas antes de energizar TL084CN:** comprobar con multímetro salidas +12/0/−12 de DD1718PA alimentado con 5V regulados; agregar según ficha del módulo capacitores de desacoplo en entrada/salidas, 100 nF cerámico local entre cada riel y masa del TL084, y reserva electrolítica apropiada por riel; medir rizado, caída bajo carga y **consumo mínimo necesario** (el fabricante recomienda >15 mA de carga, usar precarga calculada si se requiere, no improvisar potencias ni crear carga innecesaria). Separar retorno analógico del retorno de motores; tierra común definida en punto de distribución. No conectar salida bipolar ±12V directamente al ADC ESP32-S3: requiere **traslación, atenuación, limitación/clamp 0–3.3 V** con resistencia de protección y calibración, compatible con ADC1. Las salidas del TL084CN no pueden alimentar directamente puentes H con niveles ±12 V sin interfaz adaptadora de nivel/dirección.
+**Filtros y pruebas antes de energizar TL084CN:** comprobar con multímetro salidas +12/0/−12 de XY-±12V Tecneu alimentado con 5V regulados; agregar según ficha del módulo capacitores de desacoplo en entrada/salidas, 100 nF cerámico local entre cada riel y masa del TL084, y reserva electrolítica apropiada por riel; medir rizado, caída bajo carga y **consumo mínimo necesario** (el fabricante recomienda >15 mA de carga, usar precarga calculada si se requiere, no improvisar potencias ni crear carga innecesaria). Separar retorno analógico del retorno de motores; tierra común definida en punto de distribución. No conectar salida bipolar ±12V directamente al ADC ESP32-S3: requiere **traslación, atenuación, limitación/clamp 0–3.3 V** con resistencia de protección y calibración, compatible con ADC1. Las salidas del TL084CN no pueden alimentar directamente puentes H con niveles ±12 V sin interfaz adaptadora de nivel/dirección.
 
 **Alcance:** el usuario describió sensor analógico → TL084CN → ESP32-S3 ADC → PWM de ruedas. Tal secuencia constituye control digital del equilibrio tras acondicionamiento analógico, distinto del requisito histórico de equilibrio independiente de ESP32. No se asume un cambio definitivo del requisito sin aclaración, pero **TL084CN queda elegido en ambos escenarios**.
 
