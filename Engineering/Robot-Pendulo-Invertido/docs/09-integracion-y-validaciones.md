@@ -2,7 +2,11 @@
 
 **Fecha:** 2026-11-08. **Estado:** análisis preventivo de ingeniería, no esquema aprobado.
 
-## 1. Equilibrio sin microcontrolador
+## Nota de sustitución aprobada — 2026-11-22
+
+La sección 1 siguiente corresponde a la **arquitectura histórica** y no se aplica a la selección actual. Por autorización del profesor y usuario (D-014), el control se implementará como **MPU6050 → ESP32-S3 (estimación de inclinación) → MCP4728 candidato → PID TL084CN analógico → PWM analógico → driver de motores**. El MPU6050 se lee por I²C a 3.3 V; la ESP32-S3 no tiene DAC integrado. Debe verificarse que el DAC no entregue niveles peligrosos o señales congeladas ante pérdida de comunicaciones y que la salida de 0–3.3 V pueda acondicionarse a la referencia bipolar del PID. El puente H y sentido de giro de la imagen del profesor no determinan por sí mismos el driver elegido para EVA.
+
+## 1. Equilibrio sin microcontrolador (histórico, sustituido)
 
 La alternativa principal considerada es una **estimación analógica** de inclinación con acelerómetro ADXL335 (gravedad a baja frecuencia) y giroscopio de salida analógica ADXRS652 (velocidad de cabeceo a alta frecuencia); filtros de complemento, offsets y compensación con TLV9064 y/o redes RC. Esta topología requiere ensayos: la aceleración lineal distorsiona la medida de gravedad; el gyro deriva si se integra sin referencia.
 
