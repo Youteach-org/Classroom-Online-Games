@@ -43,3 +43,7 @@ Construir un robot móvil de dos ruedas en configuración de péndulo invertido.
 ## Definición de listo
 
 Un requisito se considera **verificado** solo cuando exista evidencia fechada (simulación, datos de laboratorio, fotografía, oscilograma o video), valores del ensayo y criterio de aceptación registrado.
+
+## Actualización autorizada — 2026-11-22 (D-014)
+
+El requisito histórico de sensado y estabilización completamente independientes de ESP32 se sustituye por la arquitectura autorizada por el profesor y aceptada por el usuario: **MPU6050/GY-521 por I²C → ESP32-S3 (estimación y error de inclinación) → DAC externo (MCP4728 candidato) → PID analógico TL084CN → generador PWM analógico → driver de motores**. Para R-01 y R-09 la ESP32 ahora participa obligatoriamente en la medición, **pero no ejecuta el PID**. Es esencial disponer de paro seguro si desaparece o se congela la señal digital. El resto de requisitos funcionales no cambia. La lista de componentes y el diagrama final están por verificar.
