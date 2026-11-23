@@ -62,6 +62,21 @@
 - ToF VL53L1X: https://www.adafruit.com/product/3967
 - BQ24610 cargador 1–6 celdas, no es BMS/balanceo independiente: https://www.ti.com/product/BQ24610
 
+## Actualización de selección — 2026-11-22 (D-014)
+
+| Componente | Cant. | Estado 2026-11-22 |
+|---|---:|---|
+| IMU GY-521 MPU6050 | 1 | Adoptado como tipo de sensor por esquema del profesor; paquete Mercado Libre de 6 unidades visto, compra no confirmada. Salida digital I²C, no analógica |
+| ESP32-S3 | 1 | Se conserva; adquiere y estima inclinación, además de interacción; NO dispone de DAC integrado |
+| MCP4728 DAC I²C 12 bits | 1 | Candidato preexistente, ahora requerido funcionalmente para E(t), compatibilidad pendiente |
+| TL084CN | Por esquema PID | Selección confirmada por conversaciones posteriores al registro original; alimentación bipolar ±12 V en preparación |
+| ADXL335 + ADXRS652, TLV9064 | — | Arquitectura antigua desplazada por D-014; mantener historia, no comprar para este balanceo |
+| B0512S-2W 5 V→12 V aislado | 2 | Propuesta seleccionada para construir ±12 V; confirmar carga, ruido, regulación y compras reales |
+| XL4015 | 1 | Seleccionado para regulación de 5 V, se informó que está en carrito, sin evidencia de compra |
+| BMS 3S con balanceo | 1 | Seleccionado como protector de batería; no sustituye cargador CC/CV 12.6 V |
+
+**Las filas antiguas de esta lista corresponden a la preselección histórica del 2026-11-08; esta actualización prevalece para el subsistema de equilibrio.**
+
 ## Bloqueos antes de orden de compra
 
 1. Validar masa, altura centro de gravedad y margen de par/velocidad de motores.
