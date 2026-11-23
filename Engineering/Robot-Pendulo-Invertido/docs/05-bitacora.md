@@ -72,6 +72,20 @@ Esta bitácora es el **historial verificable**. Las ideas no son pruebas; las pr
 
 **Siguiente paso:** evaluación/dimensionamiento de componentes reales antes de liberar CAD imprimible. Ver `docs/11-pantalla-unica-y-secuencia-de-componentes.md`.
 
+## 2026-11-22 — Se adopta el esquema del profesor: MPU6050 + ESP32-S3 + PID analógico
+
+**Autorización del usuario:** «pues es lo que dejo poder hacer el profesor asi que asi lo haremos».
+
+**Arquitectura acordada:** MPU6050 GY-521 (acelerómetro y giroscopio digitales, I²C) → ESP32-S3 (estimación de inclinación y cálculo de señal de error) → DAC externo MCP4728 como candidato → acondicionamiento de referencia/offset y señal E(t) → controlador PID construido con TL084CN → conversión analógica a PWM → puente H y motores.
+
+**Alcance del cambio:** reemplaza la exigencia histórica de adquisición/realimentación totalmente analógicas independientes del microcontrolador. El **PID** debe continuar siendo analógico. El sensor MPU6050 no tiene salida de voltaje analógica. La ESP32-S3 sirve y no precisa sustituirse, pero no dispone de DAC integrado. El MCP4728 ya figuraba en la lista de candidatos.
+
+**Alimentación bajo selección:** batería 3S Samsung 18650 con BMS 3S; XL4015 a 5 V; dos convertidores aislados B0512S-2W conectados en serie para ±12 V de los TL084CN. No declarar piezas compradas ni verificadas a partir de capturas o selecciones en carrito.
+
+**Pendientes:** comprobar la ficha del módulo GY-521 elegido, bus I²C y niveles de 3.3 V, elección y prueba del MCP4728, escala y centrado de E(t), diseño estable del PID, adaptación PWM/sentido al driver real, habilitación segura ante pérdida del MCU y ensayos con soporte.
+
+**Estado:** arquitectura autorizada; no se ha probado un prototipo ni se ha cerrado el esquema eléctrico.
+
 ## Plantilla de nueva entrada
 
 ### AAAA-MM-DD — Hito
