@@ -4,7 +4,7 @@
 
 ## Vista general
 
-\`\`\`text
+```text
  [MPU6050 GY-521: aceleración + velocidad angular, I²C]
                           |
                           v
@@ -29,7 +29,7 @@
 
  [Calor, proximidad, micrófono y BLE] → [ESP32-S3]
  [ESP32-S3] → [Pantalla y bocinas]
-\`\`\`
+```
 
 El dibujo define **responsabilidades**, no afirma que el mezclador o acondicionamiento ya estén diseñados.
 
