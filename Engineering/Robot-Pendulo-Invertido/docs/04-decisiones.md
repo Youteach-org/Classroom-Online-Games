@@ -43,6 +43,18 @@
 
 | 2026-11-08 | C-003 | «Va a ser una sola pantalla ... la cabeza impresa va a cubrir ... las esquinas para simular que la pantalla es ovalada» | R-07, R-11, diseño de rostro, BOM, CAD | **Se elimina opción de dos pantallas**; usar un solo panel rectangular detrás de marco impreso oval. El modelo/tamaño aún se evalúa. | `docs/11-pantalla-unica-y-secuencia-de-componentes.md` |
 
+## 2026-11-22 — Cambio de arquitectura autorizado por el profesor y aceptado por el usuario
+
+| ID | Decisión | Estado |
+|---|---|---|
+| D-014 | Adoptar el esquema proporcionado por el profesor: IMU digital MPU6050 (GY-521) → ESP32-S3 (lectura y estimación de inclinación) → DAC externo → PID analógico con TL084CN → conversor analógico a PWM → driver de dos motores | Confirmado por el usuario el 2026-11-22 |
+| D-015 | Conservar ESP32-S3; al carecer de DAC integrado, evaluar el MCP4728 de 12 bits ya propuesto en la lista de materiales | Conservación confirmada; DAC por validar eléctricamente |
+| D-016 | El control PID de equilibrio debe realizarse con amplificadores operacionales, no mediante un PID implementado en firmware | Confirmado conforme al esquema del profesor |
+
+**Cambio C-004:** La restricción histórica D-002 (sensado y lazo completamente independientes de ESP32) se sustituye para este proyecto por la arquitectura aprobada D-014. Se conserva D-002 como antecedente, sin reescribirla. La ESP32 participa en la medición y estimación del ángulo; por tanto, el equilibrio completo **sí depende** de que funcione correctamente. El procesamiento PID permanece analógico. Si el ángulo digital queda congelado o se pierde I²C, el sistema necesita detección de fallos y deshabilitación segura de motores; esto sigue pendiente de implementación y prueba.
+
+**Evidencia:** diagrama de bloques del profesor y captura comercial de MPU6050 GY-521 compartidos en conversación el 2026-11-22. El paquete de seis GY-521 visto en Mercado Libre es **candidato**, no compra confirmada.
+
 ## Protocolo de cambios futuros
 
 1. Describir cambio solicitado en palabras del usuario.
